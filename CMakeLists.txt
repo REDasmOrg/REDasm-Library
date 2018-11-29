@@ -13,6 +13,7 @@ add_subdirectory(${DEPENDS_DIR}/zlib)
 
 # Capstone
 set(CAPSTONE_SRC ${DEPENDS_DIR}/capstone)
+set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include/capstone)
 set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_STATIC ON  CACHE BOOL "")
@@ -95,7 +96,116 @@ SET(SOURCES
     redasm/support/compression.cpp
     redasm/disassembler/listing/instructioncache.cpp)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
-target_compile_features(REDasm PRIVATE cxx_std_11)
-target_include_directories(REDasm PUBLIC ${CMAKE_SOURCE_DIR} ${CAPSTONE_SRC}/include/capstone ${ZLIB_BUILD} ${DEPENDS_SINGLE_DIR})
+set(HEADERS
+    redasm/redasm.h
+    redasm/plugins/format.h
+    redasm/plugins/base.h
+    redasm/plugins/plugins.h
+    redasm/analyzer/analyzer.h
+    redasm/disassembler/disassembler.h
+    redasm/formats/psxexe/psxexe.h
+    redasm/formats/psxexe/psxexe_analyzer.h
+    redasm/formats/pe/pe.h
+    redasm/formats/pe/pe_constants.h
+    redasm/formats/pe/pe_headers.h
+    redasm/plugins/assembler/printer.h
+    redasm/formats/pe/pe_analyzer.h
+    redasm/formats/pe/pe_utils.h
+    redasm/formats/elf/elf.h
+    redasm/formats/elf/elf64_header.h
+    redasm/formats/elf/elf32_header.h
+    redasm/formats/elf/elf_common.h
+    redasm/support/demangler.h
+    redasm/support/utils.h
+    redasm/assemblers/mips/mips.h
+    redasm/assemblers/x86/x86.h
+    redasm/formats/pe/vb/vb_analyzer.h
+    redasm/formats/pe/vb/vb_header.h
+    redasm/formats/pe/vb/vb_components.h
+    redasm/formats/pe/pe_imports.h
+    redasm/disassembler/disassemblerbase.h
+    redasm/disassembler/types/referencetable.h
+    redasm/disassembler/types/symboltable.h
+    redasm/support/coff/coff_symboltable.h
+    redasm/support/coff/coff_types.h
+    redasm/support/coff/coff_constants.h
+    redasm/support/cachemap.h
+    redasm/support/hash.h
+    redasm/signatures/patparser.h
+    redasm/support/serializer.h
+    redasm/signatures/signaturedb.h
+    redasm/formats/pe/pe_resources.h
+    redasm/formats/pe/borland/borland_types.h
+    redasm/formats/pe/borland/borland_version.h
+    redasm/formats/binary/binary.h
+    redasm/assemblers/chip8/chip8.h
+    redasm/assemblers/mips/mips_printer.h
+    redasm/assemblers/mips/mips_quirks.h
+    redasm/assemblers/x86/x86_printer.h
+    redasm/assemblers/chip8/chip8_printer.h
+    redasm/assemblers/chip8/chip8_registers.h
+    redasm/assemblers/mips/mips_emulator.h
+    redasm/formats/dex/dex.h
+    redasm/formats/dex/dex_constants.h
+    redasm/formats/dex/dex_header.h
+    redasm/assemblers/dalvik/dalvik.h
+    redasm/assemblers/dalvik/dalvik_printer.h
+    redasm/assemblers/dalvik/dalvik_metadata.h
+    redasm/assemblers/dalvik/dalvik_opcodes.h
+    redasm/formats/dex/dex_statemachine.h
+    redasm/formats/dex/dex_utils.h
+    redasm/formats/pe/pe_debug.h
+    redasm/formats/pe/pe_common.h
+    redasm/formats/elf/elf_analyzer.h
+    redasm/disassembler/disassemblerapi.h
+    redasm/formats/pe/dotnet/dotnet_header.h
+    redasm/assemblers/cil/cil.h
+    redasm/formats/pe/dotnet/dotnet.h
+    redasm/formats/pe/dotnet/dotnet_tables.h
+    redasm/formats/pe/dotnet/dotnet_reader.h
+    redasm/disassembler/graph/functiongraph.h
+    redasm/formats/xbe/xbe.h
+    redasm/formats/xbe/xbe_header.h
+    redasm/support/ordinals.h
+    redasm/formats/gba/gba.h
+    redasm/formats/gba/gba_analyzer.h
+    redasm/assemblers/metaarm/metaarm.h
+    redasm/assemblers/metaarm/metaarm_printer.h
+    redasm/assemblers/metaarm/metaarm_emulator.h
+    redasm/assemblers/metaarm/arm.h
+    redasm/assemblers/metaarm/arm_common.h
+    redasm/plugins/assembler/assembler.h
+    redasm/disassembler/listing/listingdocument.h
+    redasm/disassembler/listing/listingrenderer.h
+    redasm/support/timer.h
+    redasm/support/event.h
+    redasm/disassembler/listing/listingcursor.h
+    redasm/graph/graph.h
+    redasm/support/dispatcher.h
+    redasm/assemblers/metaarm/arm_thumb.h
+    redasm/assemblers/dalvik/dalvik_algorithm.h
+    redasm/plugins/assembler/algorithm/algorithm.h
+    redasm/plugins/assembler/algorithm/controlflow.h
+    redasm/plugins/assembler/algorithm/linearsweep.h
+    redasm/plugins/assembler/algorithm/statemachine.h
+    redasm/assemblers/metaarm/metaarm_algorithm.h
+    redasm/emulator/emulator_alu.h
+    redasm/emulator/emulator_base.h
+    redasm/plugins/emulator.h
+    redasm/emulator/emulator_type.h
+    redasm/redasm_api.h
+    redasm/redasm_runtime.h
+    redasm/redasm_types.h
+    redasm/redasm_buffer.h
+    redasm/redasm_endianness.h
+    redasm/database/database.h
+    redasm/support/compression.h
+    redasm/disassembler/listing/instructioncache.h )
+
+include_directories(${PROJECT_NAME} PUBLIC ${CAPSTONE_INCLUDE})
+include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_BUILD})
+include_directories(${PROJECT_NAME} PUBLIC ${DEPENDS_SINGLE_DIR})
+
+add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
 target_link_libraries(REDasm capstone-static zlib)

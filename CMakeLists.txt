@@ -49,7 +49,6 @@ SET(SOURCES
     redasm/signatures/patparser.cpp
     redasm/support/serializer.cpp
     redasm/signatures/signaturedb.cpp
-    redasm/redasm.cpp
     redasm/formats/pe/pe_resources.cpp
     redasm/formats/pe/borland/borland_version.cpp
     redasm/formats/binary/binary.cpp
@@ -212,11 +211,15 @@ if(MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
+include(GenerateExportHeader)
+generate_export_header(${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${ZLIB_BUILD}
                            ${ZLIB_INCLUDE}
                            ${CAPSTONE_INCLUDE}
-                           ${DEPENDS_SINGLE_DIR})
+                           ${DEPENDS_SINGLE_DIR}
+                           ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

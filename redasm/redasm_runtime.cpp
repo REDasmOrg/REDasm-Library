@@ -2,18 +2,16 @@
 #include <iostream>
 
 namespace REDasm {
-namespace Runtime {
 
-std::string rntSearchPath;
+std::string Runtime::rntSearchPath;
 
 #ifdef _WIN32
-std::string rntDirSeparator = "\\";
+std::string Runtime::rntDirSeparator = "\\";
 #else
-std::string rntDirSeparator = "/";
+std::string Runtime::rntDirSeparator = "/";
 #endif
 
-LogCallback rntLogCallback = [](const std::string& s) { std::cout << s << std::endl; };
-LogCallback rntStatusCallback = [](const std::string&) { };
+Runtime::LogCallback Runtime::rntLogCallback = [](const std::string& s) { std::cout << s << std::endl; };
+Runtime::LogCallback Runtime::rntStatusCallback = [](const std::string&) { };
 
-} // namespace Runtime
 } // namespace REDasm

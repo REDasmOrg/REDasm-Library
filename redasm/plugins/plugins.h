@@ -20,8 +20,11 @@ template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry
     return pm.find(id);
 }
 
-extern EntryListT<FormatPlugin_Entry>::Type formats;
-extern EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
+struct Plugins
+{
+    static LIBREDASM_EXPORT EntryListT<FormatPlugin_Entry>::Type formats;
+    static LIBREDASM_EXPORT EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
+};
 
 FormatPlugin* getFormat(Buffer &buffer);
 AssemblerPlugin* getAssembler(const char* id);

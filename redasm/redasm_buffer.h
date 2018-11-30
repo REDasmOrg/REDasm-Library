@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <libredasm_export.h>
 #include "redasm_types.h"
 #include "redasm_endianness.h"
 

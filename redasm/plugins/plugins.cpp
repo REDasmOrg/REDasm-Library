@@ -22,13 +22,13 @@
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
-#define REGISTER_FORMAT_PLUGIN(id)    REDasm::formats.push_back(&id##_formatPlugin)
-#define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::assemblers[#id] = &id##_assemblerPlugin
+#define REGISTER_FORMAT_PLUGIN(id)    REDasm::Plugins::formats.push_back(&id##_formatPlugin)
+#define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::Plugins::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
-EntryListT<FormatPlugin_Entry>::Type formats;
-EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
+EntryListT<FormatPlugin_Entry>::Type Plugins::formats;
+EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
 
 void init(const std::string& searchpath)
 {
@@ -59,7 +59,7 @@ void init(const std::string& searchpath)
 
 FormatPlugin *getFormat(Buffer& buffer)
 {
-    for(FormatPlugin_Entry formatentry : formats)
+    for(FormatPlugin_Entry formatentry : Plugins::formats)
     {
         FormatPlugin* fp = formatentry(buffer);
 
@@ -72,9 +72,9 @@ FormatPlugin *getFormat(Buffer& buffer)
 
 AssemblerPlugin *getAssembler(const char* id)
 {
-    auto it = REDasm::findPluginEntry<AssemblerPlugin_Entry>(id, assemblers);
+    auto it = REDasm::findPluginEntry<AssemblerPlugin_Entry>(id, Plugins::assemblers);
 
-    if(it != assemblers.end())
+    if(it != Plugins::assemblers.end())
         return it->second();
 
     return NULL;

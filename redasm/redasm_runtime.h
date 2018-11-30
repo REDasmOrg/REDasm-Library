@@ -1,20 +1,22 @@
 #ifndef REDASM_RUNTIME_H
 #define REDASM_RUNTIME_H
 
+#include <libredasm_export.h>
 #include <functional>
 #include <string>
 
 namespace REDasm {
-namespace Runtime {
 
-typedef std::function<void(const std::string&)> LogCallback;
+struct Runtime
+{
+    typedef std::function<void(const std::string&)> LogCallback;
 
-extern std::string rntSearchPath;
-extern std::string rntDirSeparator;
-extern LogCallback rntLogCallback;
-extern LogCallback rntStatusCallback;
+    static LIBREDASM_EXPORT std::string rntSearchPath;
+    static LIBREDASM_EXPORT std::string rntDirSeparator;
+    static LIBREDASM_EXPORT LogCallback rntLogCallback;
+    static LIBREDASM_EXPORT LogCallback rntStatusCallback;
+};
 
-} // namespace Runtime
 } // namespace REDasm
 
 #endif // REDASM_RUNTIME_H

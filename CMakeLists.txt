@@ -206,6 +206,7 @@ set(HEADERS
     redasm/disassembler/listing/instructioncache.h )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
+add_dependencies(${PROJECT_NAME} capstone-static zlibstatic)
 
 if(MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)

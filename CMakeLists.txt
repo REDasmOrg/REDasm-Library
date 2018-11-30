@@ -5,16 +5,18 @@ project(LibREDasm)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(DEPENDS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/depends)
-set(DEPENDS_SINGLE_DIR ${DEPENDS_DIR}/include)
+set(DEPENDS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/depends)
+set(DEPENDS_BUILD_DIR ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/depends)
+set(DEPENDS_SINGLE_DIR ${DEPENDS_SRC_DIR}/include)
 
 ### Dependencies
 #ZLib
-set(ZLIB_BUILD ${CMAKE_BINARY_DIR}/depends/zlib)
-add_subdirectory(${DEPENDS_DIR}/zlib)
+set(ZLIB_BUILD ${DEPENDS_BUILD_DIR}/zlib)
+set(ZLIB_INCLUDE ${DEPENDS_SRC_DIR}/zlib)
+add_subdirectory(${DEPENDS_SRC_DIR}/zlib)
 
 # Capstone (Override Settings)
-set(CAPSTONE_SRC ${DEPENDS_DIR}/capstone)
+set(CAPSTONE_SRC ${DEPENDS_SRC_DIR}/capstone)
 set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include/capstone)
 set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
@@ -205,9 +207,17 @@ set(HEADERS
     redasm/disassembler/listing/instructioncache.h )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
-target_include_directories(${PROJECT_NAME} PUBLIC ${CAPSTONE_INCLUDE})
-target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_BUILD})
-target_include_directories(${PROJECT_NAME} PUBLIC ${DEPENDS_SINGLE_DIR})
+
+if(MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+                           ${ZLIB_BUILD}
+                           ${ZLIB_INCLUDE}
+                           ${CAPSTONE_INCLUDE}
+                           ${DEPENDS_SINGLE_DIR})
+
 target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LibREDasm")

@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
-project(REDasm)
+project(LibREDasm)
 
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(DEPENDS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/depends)
 set(DEPENDS_SINGLE_DIR ${DEPENDS_DIR}/include)
 
@@ -11,7 +13,7 @@ set(DEPENDS_SINGLE_DIR ${DEPENDS_DIR}/include)
 set(ZLIB_BUILD ${CMAKE_BINARY_DIR}/depends/zlib)
 add_subdirectory(${DEPENDS_DIR}/zlib)
 
-# Capstone
+# Capstone (Override Settings)
 set(CAPSTONE_SRC ${DEPENDS_DIR}/capstone)
 set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include/capstone)
 set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
@@ -202,10 +204,10 @@ set(HEADERS
     redasm/support/compression.h
     redasm/disassembler/listing/instructioncache.h )
 
-include_directories(${PROJECT_NAME} PUBLIC ${CAPSTONE_INCLUDE})
-include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_BUILD})
-include_directories(${PROJECT_NAME} PUBLIC ${DEPENDS_SINGLE_DIR})
-
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
-target_link_libraries(REDasm capstone-static zlib)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CAPSTONE_INCLUDE})
+target_include_directories(${PROJECT_NAME} PUBLIC ${ZLIB_BUILD})
+target_include_directories(${PROJECT_NAME} PUBLIC ${DEPENDS_SINGLE_DIR})
+target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LibREDasm")

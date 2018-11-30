@@ -160,10 +160,12 @@ template<cs_mode mode> s64 X86Assembler<mode>::stackLocalIndex(s64 disp) const
     else if(mode == CS_MODE_64)
         size = 8;
 
-    if(disp > this->m_stacksize)
+    s64 stackpos = this->m_stacksize - disp;
+
+    if(stackpos > this->m_stacksize)
         return -1;
 
-    return (this->m_stacksize / size) - (disp / size);
+    return stackpos / size;
 }
 
 template<cs_mode mode> bool X86Assembler<mode>::isSP(register_t reg) const
@@ -210,7 +212,7 @@ template<cs_mode mode> bool X86Assembler<mode>::isIP(register_t reg) const
 
 template<cs_mode mode> void X86Assembler<mode>::initStackSize(const InstructionPtr& instruction)
 {
-    if(!this->m_stacksize && this->isSP(instruction->op(0).reg.r))
+    if(this->isSP(instruction->op(0).reg.r))
         this->m_stacksize = instruction->op(1).u_value;
 }
 

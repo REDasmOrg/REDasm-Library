@@ -146,7 +146,8 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         Event<const ListingDocumentChanged*> changed;
 
     private:
-        typedef std::unordered_set<std::string> CommentSet;
+        typedef std::set<std::string> CommentSet;
+        typedef std::pair<address_t, CommentSet> CommentItem;
         typedef std::unordered_map<address_t, CommentSet> CommentMap;
         typedef std::deque<ListingItem*> FunctionList;
 

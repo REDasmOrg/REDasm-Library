@@ -24,6 +24,14 @@ void ListingDocument::serializeTo(std::fstream &fs)
     Serializer::serializeScalar(fs, m_cursor.currentLine());
     Serializer::serializeScalar(fs, m_cursor.currentColumn());
 
+    Serializer::serializeMap<address_t, CommentSet>(fs, m_comments, [&](const CommentItem& ci) {
+        Serializer::serializeScalar(fs, ci.first);
+
+        Serializer::serializeArray<std::set, std::string>(fs, ci.second, [&](const std::string& s) {
+            Serializer::serializeString(fs, s);
+        });
+    });
+
     m_instructions.serializeTo(fs);
     m_symboltable.serializeTo(fs);
 }
@@ -33,6 +41,14 @@ void ListingDocument::deserializeFrom(std::fstream &fs)
     u64 line = 0, column = 0;
     Serializer::deserializeScalar(fs, &line);
     Serializer::deserializeScalar(fs, &column);
+
+    Serializer::deserializeMap<address_t, CommentSet>(fs, m_comments, [&](CommentItem& ci) {
+        Serializer::deserializeScalar(fs, &ci.first);
+
+        Serializer::deserializeArray<std::set, std::string>(fs, ci.second, [&](std::string& s) {
+            Serializer::deserializeString(fs, s);
+        });
+    });
 
     m_instructions.deserialized += [&](const InstructionPtr& instruction) {
         this->pushSorted(instruction->address, ListingItem::InstructionItem);

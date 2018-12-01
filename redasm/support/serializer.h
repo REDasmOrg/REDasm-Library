@@ -1,9 +1,10 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
-#include <fstream>
-#include <algorithm>
+#include <unordered_map>
 #include <functional>
+#include <algorithm>
+#include <fstream>
 #include "../redasm_buffer.h"
 
 namespace REDasm {
@@ -29,8 +30,12 @@ template<template<typename, typename, typename> class V, typename T> void serial
     std::for_each(v.begin(), v.end(), cb);
 }
 
-template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
+template<typename K, typename V> void serializeMap(std::fstream& fs, const std::unordered_map<K, V>& v, std::function<void(const std::pair<K, V>&)> cb) {
+    Serializer::serializeScalar(fs, v.size(), sizeof(u32));
+    std::for_each(v.begin(), v.end(), cb);
+}
 
+template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
     u32 size = 0;
     Serializer::deserializeScalar(fs, &size, sizeof(u32));
 
@@ -38,6 +43,17 @@ template<template<typename, typename> class V, typename T> void deserializeArray
         T t;
         cb(t);
         v.push_back(t);
+    }
+}
+
+template<typename K, typename V> void deserializeMap(std::fstream& fs, std::unordered_map<K, V>& v, std::function<void(std::pair<K, V>&)> cb) {
+    u32 size = 0;
+    Serializer::deserializeScalar(fs, &size, sizeof(u32));
+
+    for(u32 i = 0; i < size; i++) {
+        std::pair<K, V> p;
+        cb(p);
+        v.emplace(p.first, p.second);
     }
 }
 

@@ -12,6 +12,7 @@
 //
 //     struct {
 //         u64 line, column;
+//         CommentMap comments;
 //         InstructionCache instructions;
 //         SymbolTable symboltable;
 //     } document;

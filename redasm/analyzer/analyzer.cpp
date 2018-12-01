@@ -6,17 +6,26 @@ namespace REDasm {
 Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_disassembler(disassembler), m_signaturefiles(signaturefiles)
 {
     m_document = disassembler->document();
+
+    // Fast post analysis
+    m_disassembler->busyChanged += [&]() {
+        if(m_disassembler->busy())
+            return;
+
+        this->findTrampolines();
+    };
 }
 
-Analyzer::~Analyzer()
-{
-
-}
+Analyzer::~Analyzer() { }
 
 void Analyzer::analyze()
 {
     this->loadSignatures();
+    this->findTrampolines();
+}
 
+void Analyzer::findTrampolines()
+{
     m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
         this->findTrampolines(symbol);
         return true;

@@ -40,6 +40,7 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     SET_INSTRUCTION_TYPE(X86_INS_HLT, InstructionTypes::Stop);
     SET_INSTRUCTION_TYPE(X86_INS_RET, InstructionTypes::Stop);
     SET_INSTRUCTION_TYPE(X86_INS_NOP, InstructionTypes::Nop);
+    SET_INSTRUCTION_TYPE(X86_INS_MOV, InstructionTypes::Load);
 
     REGISTER_INSTRUCTION(X86_INS_JA, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_JAE, &X86Assembler::setBranchTarget);

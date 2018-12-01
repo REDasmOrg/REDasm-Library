@@ -189,7 +189,7 @@ void ListingDocument::comment(address_t address, const std::string &s)
 
     auto iit = this->instructionItem(address);
 
-    if(iit != this->end())
+    if(iit == this->end())
         return;
 
     ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit), false);

@@ -130,12 +130,16 @@ namespace Listing {
 
 struct ListingDocumentChanged
 {
-    ListingDocumentChanged(ListingItem* item, u64 index, bool removed): item(item), index(index), removed(removed) { }
+    enum { None = 0, Inserted, Removed };
+
+    ListingDocumentChanged(ListingItem* item, u64 index, size_t action = ListingDocumentChanged::None): item(item), index(index), action(action) { }
+    bool isInserted() const { return action == ListingDocumentChanged::Inserted; }
+    bool isRemoved() const { return action == ListingDocumentChanged::Removed; }
 
     ListingItem* item;
 
     u64 index;
-    bool removed;
+    size_t action;
 };
 
 class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::Serializable

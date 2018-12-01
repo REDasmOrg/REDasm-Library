@@ -192,7 +192,7 @@ void ListingDocument::comment(address_t address, const std::string &s)
     if(iit == this->end())
         return;
 
-    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit), false);
+    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit));
     changed(&ldc);
 }
 
@@ -438,7 +438,7 @@ void ListingDocument::pushSorted(address_t address, u32 type)
         return;
 
     it = this->insert(it, std::move(itemptr));
-    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), false);
+    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Inserted);
     changed(&ldc);
 }
 
@@ -450,7 +450,7 @@ void ListingDocument::removeSorted(address_t address, u32 type)
     if(it == this->end())
         return;
 
-    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), true);
+    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Removed);
     changed(&ldc);
 
     if(type == ListingItem::FunctionItem)

@@ -78,6 +78,9 @@ namespace Listing {
 
         auto thebegin = container->begin(), theend = container->end();
 
+        if((address < (*thebegin)->address) || (address > (*container->rbegin())->address))
+            return container->end();
+
         while(thebegin <= theend)
         {
             auto range = std::distance(thebegin, theend);
@@ -152,6 +155,8 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         using std::deque<ListingItemPtr>::iterator;
         using std::deque<ListingItemPtr>::begin;
         using std::deque<ListingItemPtr>::end;
+        using std::deque<ListingItemPtr>::rbegin;
+        using std::deque<ListingItemPtr>::rend;
         using std::deque<ListingItemPtr>::size;
 
     public:

@@ -170,6 +170,14 @@ void ListingDocument::comment(address_t address, const std::string &s)
     CommentSet cs;
     cs.insert(s);
     m_comments[address] = cs;
+
+    auto iit = this->instructionItem(address);
+
+    if(iit != this->end())
+        return;
+
+    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit), false);
+    changed(&ldc);
 }
 
 void ListingDocument::symbol(address_t address, const std::string &name, u32 type, u32 tag)

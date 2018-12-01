@@ -31,8 +31,8 @@ class Printer
         virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
 
     public: // Operand privitives
-        virtual std::string reg(const RegisterOperand& regop) const;
-        virtual std::string disp(const DisplacementOperand& dispop) const;
+        virtual std::string reg(const RegisterOperand &regop) const;
+        virtual std::string disp(const Operand &operand) const;
         virtual std::string loc(const Operand& operand) const;
         virtual std::string mem(const Operand& operand) const;
         virtual std::string imm(const Operand& operand) const;

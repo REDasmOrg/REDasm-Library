@@ -1,5 +1,6 @@
 #include "printer.h"
 #include "../../plugins/format.h"
+#include <cmath>
 
 #define HEADER_SYMBOL_COUNT 20
 
@@ -32,8 +33,8 @@ void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
     int bits = m_disassembler->format()->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? REDasm::quoted(segment->name) : "???") +
-                " START: " + REDasm::hex(segment->address, bits) +
-                " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
+                    " START: " + REDasm::hex(segment->address, bits) +
+                    " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
 }
 
 void Printer::function(const SymbolPtr &symbol, Printer::FunctionCallback functionfunc)
@@ -124,22 +125,16 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         std::string opstr;
         const Operand& operand = *it;
 
-        if(operand.is(OperandTypes::Local) || operand.is(OperandTypes::Argument))
-            opstr = this->loc(operand);
-
-        if(opstr.empty()) // Try with default algorithm...
-        {
-            if(operand.is(OperandTypes::Immediate))
-               opstr = this->imm(operand);
-            else if(operand.is(OperandTypes::Memory))
-               opstr = this->mem(operand);
-            else if(operand.is(OperandTypes::Displacement))
-               opstr = this->disp(operand.disp);
-            else if(operand.is(OperandTypes::Register))
-               opstr = this->reg(operand.reg);
-            else
-                continue;
-        }
+        if(operand.is(OperandTypes::Immediate))
+            opstr = this->imm(operand);
+        else if(operand.is(OperandTypes::Memory))
+            opstr = this->mem(operand);
+        else if(operand.is(OperandTypes::Displacement))
+            opstr = this->disp(operand);
+        else if(operand.is(OperandTypes::Register))
+            opstr = this->reg(operand.reg);
+        else
+            continue;
 
         std::string opsize = this->size(operand);
 
@@ -160,51 +155,53 @@ std::string Printer::reg(const RegisterOperand &regop) const
     return "$" + std::to_string(regop.r);
 }
 
-std::string Printer::disp(const DisplacementOperand &dispop) const
+std::string Printer::disp(const Operand &operand) const
 {
     std::string s;
 
-    if(dispop.displacement)
+    if(operand.disp.base.isValid())
+        s += this->reg(operand.disp.base);
+
+    if(operand.disp.index.isValid())
     {
-        if(dispop.displacement > 0)
+        if(!s.empty())
+            s += " + ";
+
+        s += this->reg(operand.disp.index);
+
+        if(operand.disp.scale > 1)
+            s += " * " + REDasm::hex(operand.disp.scale);
+    }
+
+    if(operand.disp.displacement)
+    {
+        if(operand.disp.displacement > 0)
         {
-            SymbolPtr symbol = m_document->symbol(dispop.displacement);
+            SymbolPtr symbol = m_document->symbol(operand.disp.displacement);
 
             if(symbol)
                 s += symbol->name;
             else
-                s += REDasm::hex(dispop.displacement);
+                s += " + " +  REDasm::hex(operand.disp.displacement);
         }
-        else
-            s += REDasm::hex(dispop.displacement);
+        else if(operand.disp.displacement < 0)
+            s += " - " + REDasm::hex(std::abs(operand.disp.displacement));
     }
 
-    if(dispop.base.isValid())
+    if(operand.is(OperandTypes::Local) || operand.is(OperandTypes::Argument))
     {
-        if(dispop.displacement >= 0)
+        std::string loc = this->loc(operand);
+
+        if(!loc.empty())
         {
-            if(dispop.displacement > 0)
+            if(!s.empty())
                 s += " + ";
 
-            s += this->reg(dispop.base);
+            s += loc;
         }
-        else
-            s = this->reg(dispop.base) + " - " + s;
     }
 
-    if(dispop.index.isValid())
-    {
-        s += "[" + this->reg(dispop.index);
-
-        if(dispop.scale > 1)
-            s += " * " + REDasm::hex(dispop.scale);
-
-        s += "]";
-    }
-    else
-        return "[" + s + "]";
-
-    return s;
+    return "[" + s + "]";
 }
 
 std::string Printer::loc(const Operand &operand) const

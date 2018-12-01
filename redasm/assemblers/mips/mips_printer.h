@@ -10,7 +10,7 @@ class MIPSPrinter : public CapstonePrinter
     public:
         MIPSPrinter(csh cshandle, DisassemblerAPI* disassembler);
         virtual std::string reg(const RegisterOperand& regop) const;
-        virtual std::string disp(const DisplacementOperand& memop) const;
+        virtual std::string disp(const Operand& operand) const;
 };
 
 } // namespace REDasm

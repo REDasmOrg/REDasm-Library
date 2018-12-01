@@ -97,14 +97,14 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
             {
                 u32 type = 0;
                 locindex = this->localIndex(mem.disp, type);
-                instruction->local(locindex, mem.base, mem.disp, type);
+                instruction->local(locindex, X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.disp, type);
             }
             else if(m_stacksize && this->isSP(mem.base)) // Check locals
             {
                 locindex = this->stackLocalIndex(mem.disp);
 
                 if(locindex != -1)
-                    instruction->local(locindex, mem.base, mem.disp);
+                    instruction->local(locindex, X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.disp);
                 else // It's not a local...
                     instruction->disp(X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.scale, mem.disp);
             }

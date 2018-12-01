@@ -205,8 +205,8 @@ struct Instruction
     template<typename T> Instruction& disp(register_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);
-    template<typename T> Instruction& arg(s64 index, register_t base, T displacement) { return local(index, base, displacement, OperandTypes::Argument); }
-    template<typename T> Instruction& local(s64 index, register_t base, T displacement, u32 type = OperandTypes::Local);
+    template<typename T> Instruction& arg(s64 locindex, register_t base, register_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
+    template<typename T> Instruction& local(s64 locindex, register_t base, register_t index, T displacement, u32 type = OperandTypes::Local);
 
     Instruction& reg(register_t r, u64 type = 0)
     {
@@ -240,11 +240,11 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
     return *this;
 }
 
-template<typename T> Instruction& Instruction::local(s64 index, register_t base, T displacement, u32 type)
+template<typename T> Instruction& Instruction::local(s64 locindex, register_t base, register_t index, T displacement, u32 type)
 {
     Operand op;
     op.index = operands.size();
-    op.loc_index = index;
+    op.loc_index = locindex;
     op.type = OperandTypes::Displacement | type;
     op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
 

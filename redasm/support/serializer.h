@@ -79,6 +79,8 @@ void deserializeBuffer(std::fstream& fs, Buffer& b);
 void serializeString(std::fstream& fs, const std::string& s);
 void deserializeString(std::fstream& fs, std::string& s);
 
+bool checkSignature(std::fstream& fs, const std::string &signature);
+
 } // namespace Serializer
 } // namespace REDasm
 

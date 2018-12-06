@@ -1,5 +1,6 @@
 #include "serializer.h"
 #include "compression.h"
+#include <cstring>
 
 namespace REDasm {
 namespace Serializer {
@@ -76,6 +77,14 @@ bool decompressBuffer(std::fstream &fs, Buffer &b)
         return false;
 
     return true;
+}
+
+bool checkSignature(std::fstream &fs, const std::string& signature)
+{
+    std::vector<char> s(signature.size());
+    fs.read(s.data(), signature.size());
+
+    return !std::memcmp(s.data(), signature.data(), s.size());
 }
 
 } // namespace Serializer

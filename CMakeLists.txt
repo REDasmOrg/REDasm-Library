@@ -45,7 +45,6 @@ SET(SOURCES
     redasm/disassembler/types/referencetable.cpp
     redasm/disassembler/types/symboltable.cpp
     redasm/support/coff/coff_symboltable.cpp
-    redasm/support/hash.cpp
     redasm/signatures/patparser.cpp
     redasm/support/serializer.cpp
     redasm/signatures/signaturedb.cpp

@@ -44,7 +44,7 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
 Disassembler *Database::load(const std::string &dbfilename, std::string &filename, Buffer &buffer)
 {
     m_lasterror.clear();
-    std::fstream ifs(dbfilename, std::ios::in);
+    std::fstream ifs(dbfilename, std::ios::in | std::ios::binary);
 
     if(!ifs.is_open())
     {
@@ -52,10 +52,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return NULL;
     }
 
-    std::array<char, RDB_SIGNATURE_LENGTH> signature;
-    ifs.read(signature.data(), RDB_SIGNATURE_LENGTH);
-
-    if(std::strncmp(RDB_SIGNATURE, signature.data(), RDB_SIGNATURE_LENGTH))
+    if(!Serializer::checkSignature(ifs, RDB_SIGNATURE))
     {
         m_lasterror = "Signature check failed for " + REDasm::quoted(dbfilename);
         return NULL;

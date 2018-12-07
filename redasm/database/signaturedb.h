@@ -3,50 +3,58 @@
 
 #define SDB_SIGNATURE        "SDB"
 #define SDB_SIGNATURE_EXT    "sdb"
+#define SDB_SIGNATURE_LENGTH 3
 #define SDB_VERSION          1
 
 #include <string>
-#include <deque>
+#include <list>
 #include "../redasm_types.h"
 
 namespace REDasm {
 
 /*
  * SignaturePattern valid fields:
- * - Byte: type, byte, offset
- * - Checksum: type, checksum, offset, size
+ * - Byte: type, size = 1, byte,
+ * - Checksum: type, size, checksum
  * - Skip: type, size
  */
 
-enum SignaturePatternType: u32 {
+namespace SignaturePatternType {
+
+enum : u32 {
     First = 0,
     Byte, CheckSum, Skip,
     Last = Skip
 };
 
+}
+
+struct SignatureSymbol
+{
+    std::string name;
+    offset_t offset;
+    u32 symboltype;
+};
+
 struct SignaturePattern
 {
-    SignaturePattern(): type(0) { seek.offset = value.checksum = 0; }
+    SignaturePattern(): type(0), size(0) { value.checksum = 0; }
 
     u32 type;
+    u64 size;
 
     union {
         u8 byte;
         u16 checksum; // crc16
     } value;
-
-    struct {
-        u64 offset;
-        u64 size;
-    } seek;
 };
 
 struct Signature
 {
-    std::string name;
     u64 size;
     SignaturePattern first, last; // Always type 'Byte'
-    std::deque<SignaturePattern> patterns;
+    std::list<SignaturePattern> patterns;
+    std::list<SignatureSymbol> symbols;
 };
 
 class SignatureDB
@@ -55,6 +63,18 @@ class SignatureDB
         SignatureDB();
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
+
+    public:
+        SignatureDB& operator <<(const Signature &signature);
+
+    private:
+        void serializePattern(std::fstream& ofs, const SignaturePattern& sigpattern) const;
+        void serializeSymbol(std::fstream& ofs, const SignatureSymbol& sigsymbol) const;
+        void deserializePattern(std::fstream& ifs, SignaturePattern& sigpattern) const;
+        void deserializeSymbol(std::fstream& ofs, SignatureSymbol& sigsymbol) const;
+
+    private:
+        std::list<Signature> m_signatures;
 };
 
 } // namespace REDasm

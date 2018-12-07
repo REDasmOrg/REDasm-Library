@@ -45,9 +45,7 @@ SET(SOURCES
     redasm/disassembler/types/referencetable.cpp
     redasm/disassembler/types/symboltable.cpp
     redasm/support/coff/coff_symboltable.cpp
-    redasm/signatures/patparser.cpp
     redasm/support/serializer.cpp
-    redasm/signatures/signaturedb.cpp
     redasm/formats/pe/pe_resources.cpp
     redasm/formats/pe/borland/borland_version.cpp
     redasm/formats/binary/binary.cpp
@@ -95,6 +93,7 @@ SET(SOURCES
     redasm/redasm_buffer.cpp
     redasm/redasm_endianness.cpp
     redasm/database/database.cpp
+    redasm/database/signaturedb.cpp
     redasm/support/compression.cpp
     redasm/disassembler/listing/instructioncache.cpp)
 
@@ -133,9 +132,7 @@ set(HEADERS
     redasm/support/coff/coff_constants.h
     redasm/support/cachemap.h
     redasm/support/hash.h
-    redasm/signatures/patparser.h
     redasm/support/serializer.h
-    redasm/signatures/signaturedb.h
     redasm/formats/pe/pe_resources.h
     redasm/formats/pe/borland/borland_types.h
     redasm/formats/pe/borland/borland_version.h
@@ -201,6 +198,7 @@ set(HEADERS
     redasm/redasm_buffer.h
     redasm/redasm_endianness.h
     redasm/database/database.h
+    redasm/database/signaturedb.h
     redasm/support/compression.h
     redasm/disassembler/listing/instructioncache.h )
 
@@ -222,5 +220,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(${PROJECT_NAME} pthread)
+endif()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LibREDasm")

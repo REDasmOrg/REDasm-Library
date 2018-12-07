@@ -101,16 +101,6 @@ namespace OperandSizes {
     std::string size(u32 opsize);
 }
 
-struct Signature
-{
-    std::string name, pattern;
-    u8 alen;
-    u16 asum;
-
-    Signature(): alen(0), asum(0) { }
-    size_t length() const { return pattern.size(); }
-};
-
 struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
@@ -256,7 +246,6 @@ typedef std::shared_ptr<Instruction> InstructionPtr;
 typedef std::vector<Operand> OperandList;
 typedef std::vector<address_t> AddressList;
 typedef std::vector<Segment> SegmentList;
-typedef std::vector<Signature> SignatureList;
 typedef std::list<std::string> SignatureFiles;
 
 } // namespace REDasm

@@ -32,25 +32,6 @@ void Analyzer::findTrampolines()
     });
 }
 
-bool Analyzer::checkCrc16(const SymbolPtr& symbol, const Signature& signature, const SignatureDB& signaturedb)
-{
-    if(signaturedb.signatureType() != SignatureDB::IDASignature)
-        return true;
-
-    BufferRef buffer;
-
-    if(!m_disassembler->getBuffer(symbol->address + signature.length(), buffer))
-        return false;
-
-    if(buffer.size() < signature.alen)
-        return false;
-
-    if(Hash::crc16(buffer, signature.alen) == signature.asum)
-        return true;
-
-    return false;
-}
-
 void Analyzer::loadSignatures()
 {
     /*

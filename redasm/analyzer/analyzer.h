@@ -8,7 +8,7 @@
 #include "../disassembler/listing/listingdocument.h"
 #include "../disassembler/types/symboltable.h"
 #include "../disassembler/disassemblerapi.h"
-#include "../signatures/signaturedb.h"
+#include "../database/signaturedb.h"
 
 namespace REDasm {
 
@@ -20,7 +20,6 @@ class Analyzer
         virtual void analyze();
 
     private:
-        bool checkCrc16(const SymbolPtr &symbol, const Signature &signature, const SignatureDB &signaturedb);
         void loadSignatures();
         void findSignatures(SignatureDB &signaturedb, ListingDocument* document);
         void findTrampolines(SymbolPtr symbol);

@@ -14,7 +14,7 @@ namespace REDasm {
 
 /*
  * SignaturePattern valid fields:
- * - Byte: type, size = 1, byte,
+ * - Byte: type, offset, byte,
  * - Checksum: type, size, checksum
  * - Skip: type, size
  */
@@ -38,15 +38,19 @@ struct SignatureSymbol
 
 struct SignaturePattern
 {
-    SignaturePattern(): type(0), size(0) { value.checksum = 0; }
+    SignaturePattern(): type(0), size(0), checksum(0) { }
 
     u32 type;
-    u64 size;
+
+    union {
+        u64 size;
+        offset_t offset;
+    };
 
     union {
         u8 byte;
         u16 checksum; // crc16
-    } value;
+    };
 };
 
 struct Signature

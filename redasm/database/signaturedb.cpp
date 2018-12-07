@@ -70,12 +70,18 @@ SignatureDB &SignatureDB::operator <<(const Signature &signature) { m_signatures
 void SignatureDB::serializePattern(std::fstream &ofs, const SignaturePattern &sigpattern) const
 {
     Serializer::serializeScalar(ofs, sigpattern.type);
-    Serializer::serializeScalar(ofs, sigpattern.size);
 
     if(sigpattern.type == SignaturePatternType::Byte)
-        Serializer::serializeScalar(ofs, sigpattern.value.byte);
-    else if(sigpattern.type == SignaturePatternType::CheckSum)
-        Serializer::serializeScalar(ofs, sigpattern.value.checksum);
+    {
+        Serializer::serializeScalar(ofs, sigpattern.offset);
+        Serializer::serializeScalar(ofs, sigpattern.byte);
+        return;
+    }
+
+    Serializer::serializeScalar(ofs, sigpattern.size);
+
+    if(sigpattern.type == SignaturePatternType::CheckSum)
+        Serializer::serializeScalar(ofs, sigpattern.checksum);
 }
 
 void SignatureDB::serializeSymbol(std::fstream &ofs, const SignatureSymbol &sigsymbol) const
@@ -88,12 +94,18 @@ void SignatureDB::serializeSymbol(std::fstream &ofs, const SignatureSymbol &sigs
 void SignatureDB::deserializePattern(std::fstream &ifs, SignaturePattern &sigpattern) const
 {
     Serializer::deserializeScalar(ifs, &sigpattern.type);
-    Serializer::deserializeScalar(ifs, &sigpattern.size);
 
     if(sigpattern.type == SignaturePatternType::Byte)
-        Serializer::deserializeScalar(ifs, &sigpattern.value.byte);
-    else if(sigpattern.type == SignaturePatternType::CheckSum)
-        Serializer::deserializeScalar(ifs, &sigpattern.value.checksum);
+    {
+        Serializer::deserializeScalar(ifs, &sigpattern.offset);
+        Serializer::deserializeScalar(ifs, &sigpattern.byte);
+        return;
+    }
+
+    Serializer::deserializeScalar(ifs, &sigpattern.size);
+
+    if(sigpattern.type == SignaturePatternType::CheckSum)
+        Serializer::deserializeScalar(ifs, &sigpattern.checksum);
 }
 
 void SignatureDB::deserializeSymbol(std::fstream &ifs, SignatureSymbol &sigsymbol) const

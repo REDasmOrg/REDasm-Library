@@ -1,4 +1,5 @@
 #include "disassemblerbase.h"
+#include <redasm/database/signaturedb.h>
 #include <cctype>
 
 namespace REDasm {
@@ -233,6 +234,16 @@ std::string DisassemblerBase::readWString(address_t address) const
         if(r) s += static_cast<char>(b1);
         return r;
     });
+}
+
+bool DisassemblerBase::loadSignature(const std::string &sdbfile)
+{
+    SignatureDB sigdb;
+
+    if(!sigdb.load(sdbfile))
+        return false;
+
+    return true;
 }
 
 } // namespace REDasm

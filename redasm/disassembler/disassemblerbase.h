@@ -34,6 +34,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
         virtual std::string readString(address_t address) const;
         virtual std::string readWString(address_t address) const;
+        virtual bool loadSignature(const std::string& sdbfile);
 
    private:
         template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;

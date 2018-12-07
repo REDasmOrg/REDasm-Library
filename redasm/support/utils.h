@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <climits>
 #include "demangler.h"
+#include "../redasm_types.h"
 
 namespace REDasm
 {
@@ -13,6 +14,7 @@ std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 std::string quoted(const char* s);
 std::string hexstring(const char* data, size_t size);
+u8 byte(const std::string& s, int offset = 0);
 
 template<typename T> struct bitwidth { static const size_t value = sizeof(T) * CHAR_BIT; };
 

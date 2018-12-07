@@ -1,6 +1,6 @@
 #include "utils.h"
 #include <algorithm>
-#include "../redasm_types.h"
+#include <sstream>
 
 namespace REDasm {
 
@@ -31,6 +31,21 @@ std::string hexstring(const char *data, size_t size)
     }
 
     return ss.str();
+}
+
+u8 byte(const std::string& s, int offset)
+{
+    std::stringstream ss;
+
+    if(offset < 0)
+        ss << std::hex << s.substr(s.size() + offset, 2);
+    else
+        ss << std::hex << s.substr(offset, 2);
+
+    u64 val = 0;
+    ss >> val;
+
+    return static_cast<u8>(val);
 }
 
 }

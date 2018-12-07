@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <algorithm>
+#include "../redasm_types.h"
 
 namespace REDasm {
 
@@ -20,16 +21,16 @@ std::string hexstring(const char *data, size_t size)
 {
     std::stringstream ss;
 
-    for(size_t i = 0; i < size; i++)
+    for(size_t i = 0; i < size; i++, data++)
     {
         ss << std::uppercase <<
               std::setfill('0') <<
               std::setw(2) <<
               std::hex <<
-              static_cast<size_t>(*data);
+              static_cast<size_t>(*reinterpret_cast<const u8*>(data));
     }
 
-   return ss.str();
+    return ss.str();
 }
 
 }

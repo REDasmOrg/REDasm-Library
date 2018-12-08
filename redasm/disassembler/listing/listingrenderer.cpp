@@ -99,7 +99,7 @@ void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
 void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
 {
-    ListingItem* item = m_document->itemAt(line);
+    ListingItem* item = m_document->itemAt(std::min(line, m_document->lastLine()));
 
     if(item->is(ListingItem::SegmentItem))
         this->renderSegment(item, rl);

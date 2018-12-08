@@ -395,6 +395,9 @@ int ListingDocument::symbolIndex(address_t address) { return this->index(address
 
 ListingItem* ListingDocument::itemAt(size_t i)
 {
+    if(i >= this->size())
+        return NULL;
+
     document_lock lock(m_mutex);
     return this->at(i).get();
 }

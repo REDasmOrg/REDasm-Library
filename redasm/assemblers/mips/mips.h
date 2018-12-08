@@ -5,6 +5,7 @@
 #include "mips_printer.h"
 #include "mips_emulator.h"
 #include "mips_quirks.h"
+#include "mips_algorithm.h"
 
 namespace REDasm {
 
@@ -16,6 +17,7 @@ template<size_t mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARC
         virtual u32 flags() const { return AssemblerFlags::HasEmulator; }
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
+        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) { return new MIPSAlgorithm(disassembler, this); }
 
     protected:
         virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);

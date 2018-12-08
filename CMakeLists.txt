@@ -50,6 +50,7 @@ SET(SOURCES
     redasm/formats/pe/borland/borland_version.cpp
     redasm/formats/binary/binary.cpp
     redasm/assemblers/chip8/chip8.cpp
+    redasm/assemblers/mips/mips_algorithm.cpp
     redasm/assemblers/mips/mips_quirks.cpp
     redasm/assemblers/mips/mips_printer.cpp
     redasm/assemblers/x86/x86_printer.cpp
@@ -138,6 +139,7 @@ set(HEADERS
     redasm/formats/pe/borland/borland_version.h
     redasm/formats/binary/binary.h
     redasm/assemblers/chip8/chip8.h
+    redasm/assemblers/mips/mips_algorithm.h
     redasm/assemblers/mips/mips_printer.h
     redasm/assemblers/mips/mips_quirks.h
     redasm/assemblers/x86/x86_printer.h

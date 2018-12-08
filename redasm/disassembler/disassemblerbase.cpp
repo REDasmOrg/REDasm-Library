@@ -164,16 +164,22 @@ BufferRef DisassemblerBase::getFunctionBytes(address_t address)
         return BufferRef();
 
     it++;
-    size_t endaddress = 0;
+    address_t endaddress = 0;
 
     for( ; it != m_document->end(); it++)
     {
         if((*it)->type == ListingItem::SymbolItem)
-            continue;
+        {
+            SymbolPtr symbol = m_document->symbol((*it)->address);
+
+            if(!symbol->is(SymbolTypes::Code))
+                break;
+        }
 
         if((*it)->type == ListingItem::InstructionItem)
         {
-            endaddress = (*it)->address;
+            InstructionPtr instruction = m_document->instruction((*it)->address);
+            endaddress = instruction->endAddress();
             continue;
         }
 

@@ -15,36 +15,39 @@ void PsxExeAnalyzer::analyze()
 
 void PsxExeAnalyzer::detectMain()
 {
-    SymbolPtr symentry = m_document->documentEntry();
+    SymbolPtr symep = m_document->documentEntry();
 
-    if(!symentry)
+    if(!symep)
         return;
 
     bool initheap = false;
+    auto it = m_document->instructionItem(symep->address);
 
-    /*
-    document.iterateFunction(symentry->address, [symboltable, &initheap](const InstructionPtr& instruction)-> bool {
-        if(instruction->mnemonic != "jal")
-            return true;
+    for(; it != m_document->end(); it++)
+    {
+        if(!(*it)->is(ListingItem::InstructionItem))
+            break;
 
-        SymbolPtr symbol = symboltable->symbol(instruction->operands[0].u_value);
+        InstructionPtr instruction = m_document->instruction((*it)->address);
+
+        if(instruction->id != MIPS_INS_JAL)
+            continue;
+
+        SymbolPtr symbol = m_document->symbol(instruction->target());
 
         if(!symbol)
-            return !initheap; // Continue until InitHeap is found
+            continue; // Continue until InitHeap is found
 
-        if(initheap) {
-            symbol->lock();
-            symboltable->update(symbol, "main");
-            symboltable->setEntryPoint(symbol);
-            return false;
+        if(initheap)
+        {
+            m_document->lock(symbol->address, "main");
+            m_document->setDocumentEntry(symbol->address);
+            break;
         }
 
         if(symbol->name == "InitHeap")
             initheap = true;
-
-        return true;
-    });
-    */
+    }
 }
 
 }

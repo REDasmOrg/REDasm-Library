@@ -124,12 +124,15 @@ ListingItem *ListingDocument::functionStart(address_t address)
         return NULL;
 
     document_lock lock(m_mutex);
-    auto fit = std::lower_bound(m_functions.begin(), m_functions.end(), iit->get(), Listing::ListingComparator<ListingItem*>());
+
+    auto fit = std::upper_bound(m_functions.begin(), m_functions.end(), iit->get(), [](const ListingItem* item1, const ListingItem* item2) {
+        return item1->address < item2->address;
+    });
 
     if(fit == m_functions.end())
-        return NULL;
+        return m_functions.back();
 
-    if(fit != m_functions.begin())
+    if((*fit)->address > iit->get()->address)
         fit--;
 
     return *fit;

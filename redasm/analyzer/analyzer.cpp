@@ -34,31 +34,8 @@ void Analyzer::findTrampolines()
 
 void Analyzer::loadSignatures()
 {
-    /*
-    std::for_each(this->m_signaturefiles.begin(), this->m_signaturefiles.end(), [this, &listing](const std::string& signaturefile) {
-        SignatureDB sigdb;
-
-        if(sigdb.readPath(signaturefile))
-            this->findSignatures(sigdb, listing);
-    });
-    */
-}
-
-void Analyzer::findSignatures(SignatureDB &signaturedb, ListingDocument* document)
-{
-    /*
-    listing.symbolTable()->iterate(SymbolTypes::FunctionMask, [this, &signaturedb, &listing](SymbolPtr symbol) -> bool {
-        Signature signature;
-        std::string pattern = this->m_disassembler->readHex(symbol->address, signaturedb.longestPattern());
-
-        if(signaturedb.match(pattern, signature) && this->checkCrc16(symbol, signature, signaturedb)) {
-            symbol->lock();
-            listing.symbolTable()->update(symbol, signature.name);
-        }
-
-        return true;
-    });
-    */
+    for(const std::string& sdbfile : m_signaturefiles)
+        m_disassembler->loadSignature(REDasm::makeDbPath("sdb", sdbfile));
 }
 
 void Analyzer::findTrampolines(SymbolPtr symbol)

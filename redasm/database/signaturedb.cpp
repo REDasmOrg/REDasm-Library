@@ -85,7 +85,7 @@ void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, con
 {
     for(offset_t i = 0; i < br.size(); )
     {
-        if((i + sig.size) >= br.size())
+        if((i + sig.size) > br.size())
             break;
 
         if((br[i + sig.first.offset] != sig.first.byte) || (br[i + sig.last.offset] != sig.last.byte))

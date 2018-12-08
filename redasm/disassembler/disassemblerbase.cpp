@@ -129,24 +129,6 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
     return this->readWString(symbol->address);
 }
 
-std::string DisassemblerBase::readHex(address_t address, u64 count) const
-{
-    BufferRef data;
-
-    if(!this->getBuffer(address, data))
-        return std::string();
-
-    count = std::min(static_cast<size_t>(count), data.size());
-
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-
-    for(u64 i = 0; i < count; i++)
-        ss << std::uppercase << std::setw(2) << static_cast<size_t>(data[i]);
-
-    return ss.str();
-}
-
 SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
 {
     address_t address = 0;
@@ -169,6 +151,43 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
     return this->readAddress(address, m_format->addressWidth(), value);
 }
 
+BufferRef DisassemblerBase::getFunctionBytes(address_t address)
+{
+    ListingItem* item = m_document->functionStart(address);
+
+    if(!item)
+        return BufferRef();
+
+    auto it = m_document->functionItem(item->address);
+
+    if(it == m_document->end())
+        return BufferRef();
+
+    it++;
+    size_t endaddress = 0;
+
+    for( ; it != m_document->end(); it++)
+    {
+        if((*it)->type == ListingItem::SymbolItem)
+            continue;
+
+        if((*it)->type == ListingItem::InstructionItem)
+        {
+            endaddress = (*it)->address;
+            continue;
+        }
+
+        break;
+    }
+
+    BufferRef br = m_format->buffer(address);
+
+    if(it != m_document->end())
+        br.resize(endaddress - address);
+
+    return br;
+}
+
 bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) const
 {
     if(!value)
@@ -180,17 +199,6 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
         return false;
 
     return this->readOffset(m_format->offset(address), size, value);
-}
-
-bool DisassemblerBase::getBuffer(address_t address, BufferRef &data) const
-{
-    Segment* segment = m_document->segment(address);
-
-    if(!segment || segment->is(SegmentTypes::Bss))
-        return false;
-
-    data = m_format->buffer(address);
-    return true;
 }
 
 bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) const
@@ -242,6 +250,34 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
 
     if(!sigdb.load(sdbfile))
         return false;
+
+    REDasm::log("Loading Signature: " + REDasm::quoted(sdbfile));
+    bool found = true;
+
+    m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const SymbolPtr& symbol) -> bool {
+        if(symbol->isLocked())
+            return true;
+
+        BufferRef br = this->getFunctionBytes(symbol->address);
+
+        if(br.empty())
+            return true;
+
+        offset_t offset = m_format->offset(symbol->address);
+
+        sigdb.search(br, [&](const SignatureSymbol& sigsymbol, offset_t reloffset) {
+            address_t address = m_format->address(offset + reloffset);
+            REDasm::log("Found " + REDasm::quoted(sigsymbol.name) + " @ " + REDasm::hex(address));
+
+            m_document->lock(address, sigsymbol.name, sigsymbol.symboltype);
+            found = true;
+        });
+
+        return true;
+    });
+
+    if(!found)
+        REDasm::log("No Signatures Found");
 
     return true;
 }

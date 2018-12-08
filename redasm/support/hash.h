@@ -7,16 +7,15 @@
 namespace REDasm {
 namespace Hash {
 
-template<typename T> u16 crc16(const T* data, u64 length) { return crc16(reinterpret_cast<const u8*>(data), length); }
-
-template<> u16 crc16<u8>(const u8* data, u64 length)
+template<typename T> u16 crc16(const T* data, u64 length)
 {
     u8 x;
     u16 crc = 0xFFFF;
+    const u8* bdata = reinterpret_cast<const u8*>(data);
 
     while(length--)
     {
-        x = crc >> 8 ^ *data++;
+        x = crc >> 8 ^ *bdata++;
         x ^= x >> 4;
         crc = (crc << 8) ^ static_cast<u16>(x << 12) ^ static_cast<u16>(x << 5) ^ static_cast<u16>(x);
     }

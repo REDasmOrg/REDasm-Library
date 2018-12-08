@@ -55,6 +55,7 @@ class BufferRef
         BufferRef(BufferRef* buffer, u64 offset);
         BufferRef& advance(int offset);
         Buffer filled(size_t n, u8 b = 0) const;
+        void resize(size_t s);
         bool copyTo(Buffer& buffer);
         bool eob() const;
         bool empty() const;

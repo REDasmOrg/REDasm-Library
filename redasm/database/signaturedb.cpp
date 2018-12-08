@@ -1,5 +1,8 @@
 #include "signaturedb.h"
 #include "../support/serializer.h"
+#include "../support/utils.h"
+#include "../support/hash.h"
+#include "../redasm_api.h"
 #include <cstring>
 #include <fstream>
 #include <array>
@@ -65,7 +68,78 @@ bool SignatureDB::save(const std::string &sigfilename)
     return true;
 }
 
+void SignatureDB::search(const BufferRef &br, const SignatureDB::SignatureFound &cb) const
+{
+    for(const Signature& sig : m_signatures)
+    {
+        if(sig.size > br.size())
+            continue;
+
+       this->searchSignature(br, sig, cb);
+    }
+}
+
 SignatureDB &SignatureDB::operator <<(const Signature &signature) { m_signatures.push_back(signature); return *this; }
+
+void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, const SignatureDB::SignatureFound &cb) const
+{
+    for(offset_t i = 0; i < br.size(); )
+    {
+        if((i + sig.size) >= br.size())
+            break;
+
+        if((br[i + sig.first.offset] != sig.first.byte) || (br[i + sig.last.offset] != sig.last.byte))
+        {
+            i++;
+            continue;
+        }
+
+        if(!this->checkPatterns(br, i, sig))
+        {
+            i++;
+            continue;
+        }
+
+        for(const SignatureSymbol& sigsymbol : sig.symbols)
+            cb(sigsymbol, i + sigsymbol.offset);
+
+        break;
+    }
+}
+
+bool SignatureDB::checkPatterns(const BufferRef &br, offset_t offset, const Signature &sig) const
+{
+    for(const SignaturePattern& pattern : sig.patterns)
+    {
+        if(pattern.type == SignaturePatternType::Skip)
+        {
+            offset += pattern.size;
+            continue;
+        }
+
+        if(pattern.type == SignaturePatternType::CheckSum)
+        {
+            if(Hash::crc16(br.data() + offset, pattern.size) != pattern.checksum)
+                return false;
+
+            offset += pattern.size;
+            continue;
+        }
+
+        if(pattern.type == SignaturePatternType::Byte)
+        {
+            if(br[offset] != pattern.byte)
+                return false;
+
+            continue;
+        }
+
+        REDasm::log("ERROR: Unknown pattern type @ " + offset);
+        return false;
+    }
+
+    return true;
+}
 
 void SignatureDB::serializePattern(std::fstream &ofs, const SignaturePattern &sigpattern) const
 {

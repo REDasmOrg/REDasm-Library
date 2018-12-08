@@ -107,6 +107,7 @@ struct Segment
     Segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type): name(name), offset(offset), address(address), endaddress(address + size), type(type) { }
     s64 size() const { return static_cast<s64>(endaddress - address); }
     bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
+    bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (endaddress - address))); }
     bool is(u32 t) const { return type & t; }
 
     std::string name;

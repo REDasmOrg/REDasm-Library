@@ -6,8 +6,10 @@
 #define SDB_SIGNATURE_LENGTH 3
 #define SDB_VERSION          1
 
+#include <functional>
 #include <string>
 #include <list>
+#include "../redasm_buffer.h"
 #include "../redasm_types.h"
 
 namespace REDasm {
@@ -64,14 +66,20 @@ struct Signature
 class SignatureDB
 {
     public:
+        typedef std::function<void(const SignatureSymbol&, offset_t)> SignatureFound;
+
+    public:
         SignatureDB();
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
 
     public:
+        void search(const BufferRef& br, const SignatureFound& cb) const;
         SignatureDB& operator <<(const Signature &signature);
 
     private:
+        void searchSignature(const BufferRef& br, const Signature& sig, const SignatureFound& cb) const;
+        bool checkPatterns(const BufferRef& br, offset_t offset, const Signature &sig) const;
         void serializePattern(std::fstream& ofs, const SignaturePattern& sigpattern) const;
         void serializeSymbol(std::fstream& ofs, const SignatureSymbol& sigsymbol) const;
         void deserializePattern(std::fstream& ifs, SignaturePattern& sigpattern) const;

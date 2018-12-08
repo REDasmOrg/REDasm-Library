@@ -85,6 +85,7 @@ BufferRef &BufferRef::advance(int offset)
 }
 
 Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->createFilled(n, b); }
+void BufferRef::resize(size_t s) { m_size = s; }
 
 bool BufferRef::copyTo(Buffer &buffer)
 {

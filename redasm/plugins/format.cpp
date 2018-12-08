@@ -21,6 +21,19 @@ offset_t FormatPlugin::offset(address_t address) const
     return address;
 }
 
+address_t FormatPlugin::address(offset_t offset) const
+{
+    for(size_t i = 0; i < m_document.segmentsCount(); i++)
+    {
+        const Segment* segment = m_document.segmentAt(i);
+
+        if(segment->containsOffset(offset))
+            return (offset - segment->offset) + segment->address;
+    }
+
+    return offset;
+}
+
 Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }
 u32 FormatPlugin::flags() const { return FormatFlags::None; }
 endianness_t FormatPlugin::endianness() const { return Endianness::LittleEndian; /* Use LE by default */ }

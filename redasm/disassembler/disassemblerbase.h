@@ -26,10 +26,9 @@ class DisassemblerBase: public DisassemblerAPI
         virtual u64 locationIsString(address_t address, bool *wide = NULL) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;
-        virtual std::string readHex(address_t address, u64 count) const;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
         virtual bool dereference(address_t address, u64 *value) const;
-        virtual bool getBuffer(address_t address, BufferRef& data) const;
+        virtual BufferRef getFunctionBytes(address_t address);
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
         virtual std::string readString(address_t address) const;

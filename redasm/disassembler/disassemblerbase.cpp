@@ -174,6 +174,8 @@ BufferRef DisassemblerBase::getFunctionBytes(address_t address)
 
             if(!symbol->is(SymbolTypes::Code))
                 break;
+
+            continue;
         }
 
         if((*it)->type == ListingItem::InstructionItem)

@@ -26,15 +26,11 @@ bool SignatureDB::load(const std::string &sigfilename)
 
     Serializer::deserializeArray<std::list, Signature>(ifs, m_signatures, [&](Signature& sig) {
         Serializer::deserializeScalar(ifs, &sig.size);
-        this->deserializePattern(ifs, sig.first);
-        this->deserializePattern(ifs, sig.last);
+        Serializer::deserializeScalar(ifs, &sig.symboltype);
+        Serializer::deserializeString(ifs, sig.name);
 
         Serializer::deserializeArray<std::list, SignaturePattern>(ifs, sig.patterns, [&](SignaturePattern& sigpattern) {
             this->deserializePattern(ifs, sigpattern);
-        });
-
-        Serializer::deserializeArray<std::list, SignatureSymbol>(ifs, sig.symbols, [&](SignatureSymbol& sigsymbol) {
-            this->deserializeSymbol(ifs, sigsymbol);
         });
     });
 
@@ -53,15 +49,11 @@ bool SignatureDB::save(const std::string &sigfilename)
 
     Serializer::serializeArray<std::list, Signature>(ofs, m_signatures, [&](const Signature& sig) {
         Serializer::serializeScalar(ofs, sig.size);
-        this->serializePattern(ofs, sig.first);
-        this->serializePattern(ofs, sig.last);
+        Serializer::serializeScalar(ofs, sig.symboltype);
+        Serializer::serializeString(ofs, sig.name);
 
         Serializer::serializeArray<std::list, SignaturePattern>(ofs, sig.patterns, [&](const SignaturePattern& sigpattern) {
             this->serializePattern(ofs, sigpattern);
-        });
-
-        Serializer::serializeArray<std::list, SignatureSymbol>(ofs, sig.symbols, [&](const SignatureSymbol& sigsymbol) {
-            this->serializeSymbol(ofs, sigsymbol);
         });
     });
 
@@ -72,7 +64,7 @@ void SignatureDB::search(const BufferRef &br, const SignatureDB::SignatureFound 
 {
     for(const Signature& sig : m_signatures)
     {
-        if(sig.size > br.size())
+        if(sig.size != br.size())
             continue;
 
        this->searchSignature(br, sig, cb);
@@ -85,24 +77,13 @@ void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, con
 {
     for(offset_t i = 0; i < br.size(); )
     {
-        if((i + sig.size) > br.size())
-            break;
-
-        if((br[i + sig.first.offset] != sig.first.byte) || (br[i + sig.last.offset] != sig.last.byte))
-        {
-            i++;
-            continue;
-        }
-
         if(!this->checkPatterns(br, i, sig))
         {
             i++;
             continue;
         }
 
-        for(const SignatureSymbol& sigsymbol : sig.symbols)
-            cb(sigsymbol, i + sigsymbol.offset);
-
+        cb(&sig);
         break;
     }
 }
@@ -126,14 +107,6 @@ bool SignatureDB::checkPatterns(const BufferRef &br, offset_t offset, const Sign
             continue;
         }
 
-        if(pattern.type == SignaturePatternType::Byte)
-        {
-            if(br[offset] != pattern.byte)
-                return false;
-
-            continue;
-        }
-
         REDasm::log("ERROR: Unknown pattern type @ " + offset);
         return false;
     }
@@ -144,49 +117,19 @@ bool SignatureDB::checkPatterns(const BufferRef &br, offset_t offset, const Sign
 void SignatureDB::serializePattern(std::fstream &ofs, const SignaturePattern &sigpattern) const
 {
     Serializer::serializeScalar(ofs, sigpattern.type);
-
-    if(sigpattern.type == SignaturePatternType::Byte)
-    {
-        Serializer::serializeScalar(ofs, sigpattern.offset);
-        Serializer::serializeScalar(ofs, sigpattern.byte);
-        return;
-    }
-
     Serializer::serializeScalar(ofs, sigpattern.size);
 
     if(sigpattern.type == SignaturePatternType::CheckSum)
         Serializer::serializeScalar(ofs, sigpattern.checksum);
 }
 
-void SignatureDB::serializeSymbol(std::fstream &ofs, const SignatureSymbol &sigsymbol) const
-{
-    Serializer::serializeString(ofs, sigsymbol.name);
-    Serializer::serializeScalar(ofs, sigsymbol.offset);
-    Serializer::serializeScalar(ofs, sigsymbol.symboltype);
-}
-
 void SignatureDB::deserializePattern(std::fstream &ifs, SignaturePattern &sigpattern) const
 {
     Serializer::deserializeScalar(ifs, &sigpattern.type);
-
-    if(sigpattern.type == SignaturePatternType::Byte)
-    {
-        Serializer::deserializeScalar(ifs, &sigpattern.offset);
-        Serializer::deserializeScalar(ifs, &sigpattern.byte);
-        return;
-    }
-
     Serializer::deserializeScalar(ifs, &sigpattern.size);
 
     if(sigpattern.type == SignaturePatternType::CheckSum)
         Serializer::deserializeScalar(ifs, &sigpattern.checksum);
-}
-
-void SignatureDB::deserializeSymbol(std::fstream &ifs, SignatureSymbol &sigsymbol) const
-{
-    Serializer::deserializeString(ifs, sigsymbol.name);
-    Serializer::deserializeScalar(ifs, &sigsymbol.offset);
-    Serializer::deserializeScalar(ifs, &sigsymbol.symboltype);
 }
 
 } // namespace REDasm

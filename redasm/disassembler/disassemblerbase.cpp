@@ -271,11 +271,10 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
 
         offset_t offset = m_format->offset(symbol->address);
 
-        sigdb.search(br, [&](const SignatureSymbol& sigsymbol, offset_t reloffset) {
-            address_t address = m_format->address(offset + reloffset);
-            REDasm::log("Found " + REDasm::quoted(sigsymbol.name) + " @ " + REDasm::hex(address));
+        sigdb.search(br, [&](const Signature* signature) {
+            REDasm::log("Found " + REDasm::quoted(signature->name) + " @ " + REDasm::hex(symbol->address));
 
-            m_document->lock(address, sigsymbol.name, sigsymbol.symboltype);
+            m_document->lock(symbol->address, signature->name, signature->symboltype);
             found = true;
         });
 

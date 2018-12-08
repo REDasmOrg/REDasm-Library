@@ -45,7 +45,7 @@ void PsxExeAnalyzer::detectMain()
             break;
         }
 
-        if(symbol->name == "InitHeap")
+        if(symbol->name == "LIBAPI_InitHeap")
             initheap = true;
     }
 }

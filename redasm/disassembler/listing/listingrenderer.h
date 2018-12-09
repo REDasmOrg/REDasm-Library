@@ -67,12 +67,12 @@ class ListingRenderer
         static std::string escapeString(const std::string& s);
 
     protected:
+        DisassemblerAPI* m_disassembler;
         ListingDocument* m_document;
         ListingCursor* m_cursor;
 
     private:
         u32 m_flags;
-        DisassemblerAPI* m_disassembler;
         PrinterPtr m_printer;
 };
 

@@ -35,7 +35,7 @@ void Analyzer::findTrampolines()
 void Analyzer::loadSignatures()
 {
     for(const std::string& sdbfile : m_signaturefiles)
-        m_disassembler->loadSignature(REDasm::makeDbPath("sdb", sdbfile));
+        m_disassembler->loadSignature(REDasm::makeSdbPath(sdbfile));
 }
 
 void Analyzer::findTrampolines(SymbolPtr symbol)

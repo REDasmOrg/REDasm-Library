@@ -16,8 +16,8 @@ void PEImports::loadImport(const std::string &dllname)
 
     m_libraries[dllname] = OrdinalsMap();
 
-    REDasm::loadordinals(REDasm::makeFormatPath("pe",  PEImports::importModuleName(dllname) + ".json"),
-                         m_libraries[dllname]);
+    REDasm::loadordinals(REDasm::makeFormatPath(REDasm::makePath("pe", "ordinals"),
+                                                PEImports::importModuleName(dllname) + ".json"), m_libraries[dllname]);
 }
 
 std::string PEImports::importModuleName(std::string dllname)

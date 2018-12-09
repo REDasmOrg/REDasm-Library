@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "../redasm_runtime.h"
 
 namespace REDasm {
 
@@ -46,7 +47,7 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     m_timercallback = cb;
     stateChanged(this);
 
-    if(getenv("SYNC_MODE"))
+    if(REDasm::Runtime::syncMode())
     {
         this->workSync();
         return;

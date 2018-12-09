@@ -38,7 +38,7 @@ bool AssemblerAlgorithm::analyze()
     FormatPlugin* format = m_disassembler->format();
     m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
 
-    if(getenv("SYNC_MODE"))
+    if(REDasm::Runtime::syncMode())
     {
         m_analyzer->analyze();
         m_document->moveToEP();

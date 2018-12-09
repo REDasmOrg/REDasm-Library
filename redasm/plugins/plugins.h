@@ -30,7 +30,7 @@ FormatPlugin* getFormat(Buffer &buffer);
 AssemblerPlugin* getAssembler(const char* id);
 void setLoggerCallback(Runtime::LogCallback logcb);
 void setStatusCallback(Runtime::LogCallback logcb);
-void init(const std::string &searchpath);
+void init(const std::string &searchpath = std::string());
 
 }
 

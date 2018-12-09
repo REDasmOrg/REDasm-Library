@@ -9,12 +9,12 @@ u32 BinaryFormat::bits() const { return m_bits; }
 u32 BinaryFormat::flags() const { return FormatFlags::Binary; }
 bool BinaryFormat::load() { return true; }
 
-void BinaryFormat::build(const std::string &assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint)
+void BinaryFormat::build(const std::string &assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u32 segmenttype)
 {
     m_assembler = assembler;
     m_bits = bits;
 
-    m_document.segment("seg000", offset, baseaddress, m_buffer.size(), SegmentTypes::Code | SegmentTypes::Data);
+    m_document.segment("seg000", offset, baseaddress, m_buffer.size(), segmenttype);
     m_document.entry(entrypoint);
 }
 

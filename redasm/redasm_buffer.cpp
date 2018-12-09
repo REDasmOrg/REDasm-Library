@@ -102,7 +102,7 @@ bool BufferRef::copyTo(Buffer &buffer)
     return true;
 }
 
-bool BufferRef::eob() const { return !m_data || !m_size || (m_size >= m_buffer->size()); }
+bool BufferRef::eob() const { return !m_data || !m_size || (m_size > m_buffer->size()); }
 bool BufferRef::empty() const { return !m_data || !m_size; }
 size_t BufferRef::size() const { return m_size; }
 u8 *BufferRef::data() const { return const_cast<BufferRef*>(this)->data(); }

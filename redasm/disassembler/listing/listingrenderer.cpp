@@ -24,7 +24,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     {
         RendererLine rl;
         rl.userdata = userdata;
-        rl.line = line;
+        rl.documentindex = line;
         rl.index = i;
         rl.highlighted = cur->currentLine() == line;
 

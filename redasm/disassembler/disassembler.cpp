@@ -51,6 +51,7 @@ void Disassembler::disassemble()
     DO_TICK_DISASSEMBLY();
 }
 
+Printer *Disassembler::createPrinter() { return m_assembler->createPrinter(this); }
 AssemblerPlugin *Disassembler::assembler() { return m_assembler.get(); }
 
 void Disassembler::disassemble(address_t address)

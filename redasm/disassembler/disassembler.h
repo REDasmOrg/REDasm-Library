@@ -17,6 +17,7 @@ class Disassembler: public DisassemblerBase
         virtual void disassemble();
 
     public: // Primitive functions
+        virtual Printer* createPrinter();
         virtual AssemblerPlugin* assembler();
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);

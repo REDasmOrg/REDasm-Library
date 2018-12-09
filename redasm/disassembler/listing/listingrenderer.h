@@ -15,10 +15,10 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine(): userdata(NULL), line(0), index(0), highlighted(false) { }
+    RendererLine(): userdata(NULL), documentindex(0), index(0), highlighted(false) { }
 
     void* userdata;
-    u64 line, index;
+    u64 documentindex, index;
     bool highlighted;
     std::list<RendererFormat> formats;
     std::string text;

@@ -15,9 +15,10 @@ class PEImports
 
     private:
         PEImports();
-        static void loadImport(std::string dllname);
+        static void loadImport(const std::string& dllname);
 
     public:
+        static std::string importModuleName(std::string dllname);
         static bool importName(const std::string& dllname, u16 ordinal, std::string& name);
 
     private:

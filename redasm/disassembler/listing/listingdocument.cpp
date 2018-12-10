@@ -133,7 +133,12 @@ ListingItem *ListingDocument::functionStart(address_t address)
         return m_functions.back();
 
     if((*fit)->address > iit->get()->address)
+    {
+        if(fit == m_functions.begin()) // Function not found
+            return NULL;
+
         fit--;
+    }
 
     return *fit;
 }

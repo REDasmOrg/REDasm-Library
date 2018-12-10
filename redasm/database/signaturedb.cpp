@@ -39,7 +39,7 @@ bool SignatureDB::load(const std::string &sigfilename)
 
 bool SignatureDB::save(const std::string &sigfilename)
 {
-    std::fstream ofs(sigfilename, std::ios::out | std::ios::trunc | std::ios::binary);
+    std::fstream ofs(sigfilename, std::ios::out | std::ios::binary | std::ios::trunc);
 
     if(!ofs.is_open())
         return false;

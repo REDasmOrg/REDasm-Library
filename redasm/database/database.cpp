@@ -13,7 +13,7 @@ std::string Database::m_lasterror;
 bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename, const std::string& filename)
 {
     m_lasterror.clear();
-    std::fstream ofs(dbfilename, std::ios::out | std::ios::trunc);
+    std::fstream ofs(dbfilename, std::ios::out | std::ios::binary | std::ios::trunc);
 
     if(!ofs.is_open())
     {

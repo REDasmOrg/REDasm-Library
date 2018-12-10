@@ -76,7 +76,7 @@ bool PeFormat::load()
                                                           (m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))
         return false;
 
-    this->m_sectiontable = IMAGE_FIRST_SECTION(m_ntheaders);
+    m_sectiontable = IMAGE_FIRST_SECTION(m_ntheaders);
 
     if(this->bits() == 64)
     {

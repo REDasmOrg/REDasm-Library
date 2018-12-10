@@ -21,7 +21,7 @@ void Buffer::endianness(endianness_t e) { m_endianness = e; }
 
 Buffer Buffer::fromFile(const std::string &file)
 {
-    std::ifstream ifs(file, std::ios::in | std::ios::ate);
+    std::ifstream ifs(file, std::ios::in | std::ios::binary | std::ios::ate);
 
     if(!ifs.is_open())
         return Buffer();

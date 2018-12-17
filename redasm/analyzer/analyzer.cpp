@@ -40,9 +40,6 @@ void Analyzer::loadSignatures()
 
 void Analyzer::findTrampoline(SymbolPtr symbol)
 {
-    if(symbol->is(SymbolTypes::Locked))
-        return;
-
     auto it = m_document->instructionItem(symbol->address);
 
     if(it == m_document->end())
@@ -59,13 +56,24 @@ void Analyzer::findTrampoline(SymbolPtr symbol)
     if(!symtrampoline)
         return;
 
+    SymbolPtr symentry = m_document->documentEntry();
+
     if(!symtrampoline->is(SymbolTypes::Import))
     {
         m_document->function(symtrampoline->address);
-        symtrampoline = m_document->symbol(symtrampoline->address); // Get updated symbol name from cache
-        m_document->rename(symbol->address, REDasm::trampoline(symtrampoline->name, "jmp_to"));
+
+        if(!symbol->isLocked())
+        {
+            symtrampoline = m_document->symbol(symtrampoline->address); // Get updated symbol name from cache
+            m_document->rename(symbol->address, REDasm::trampoline(symtrampoline->name, "jmp_to"));
+        }
+        else if(symbol->address == symentry->address)
+        {
+            m_document->rename(symtrampoline->address, START_FUNCTION);
+            m_document->setDocumentEntry(symtrampoline->address);
+        }
     }
-    else
+    else if(symbol->address != symentry->address)
         m_document->lock(symbol->address, REDasm::trampoline(symtrampoline->name));
 
     InstructionPtr instruction = m_document->instruction(symbol->address);

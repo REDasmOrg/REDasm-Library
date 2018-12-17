@@ -22,7 +22,8 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 #endif
 
 #define RE_UNUSED(x)                               (void)x
-#define ENTRYPOINT_FUNCTION                        "entrypoint"
+#define ENTRYPOINT_FUNCTION                        "__redasm_ep__"
+#define START_FUNCTION                             "__redasm_start__"
 #define REGISTER_INVALID                           static_cast<s64>(-1)
 #define BRANCH_DIRECTION(instruction, destination) (static_cast<s64>(destination) - static_cast<s64>(instruction->address))
 

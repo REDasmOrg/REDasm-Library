@@ -27,7 +27,7 @@ void Analyzer::analyze()
 void Analyzer::findTrampolines()
 {
     m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
-        this->findTrampolines(symbol);
+        this->findTrampoline(symbol);
         return true;
     });
 }
@@ -38,7 +38,7 @@ void Analyzer::loadSignatures()
         m_disassembler->loadSignature(REDasm::makeSdbPath(sdbfile));
 }
 
-void Analyzer::findTrampolines(SymbolPtr symbol)
+void Analyzer::findTrampoline(SymbolPtr symbol)
 {
     if(symbol->is(SymbolTypes::Locked))
         return;
@@ -49,26 +49,34 @@ void Analyzer::findTrampolines(SymbolPtr symbol)
         return;
 
     const AssemblerPlugin* assembler = m_disassembler->assembler();
-    SymbolPtr symimport;
+    SymbolPtr symtrampoline;
 
     if(ASSEMBLER_IS(assembler, "x86"))
-        symimport = this->findTrampolines_x86(it);
+        symtrampoline = this->findTrampoline_x86(it);
     else if(ASSEMBLER_IS(assembler, "ARM"))
-        symimport = this->findTrampolines_arm(it);
+        symtrampoline = this->findTrampoline_arm(it);
 
-    if(!symimport || !symimport->is(SymbolTypes::Import))
+    if(!symtrampoline)
         return;
 
-    m_document->lock(symbol->address, REDasm::trampoline(symimport->name));
+    if(!symtrampoline->is(SymbolTypes::Import))
+    {
+        m_document->function(symtrampoline->address);
+        symtrampoline = m_document->symbol(symtrampoline->address); // Get updated symbol name from cache
+        m_document->rename(symbol->address, REDasm::trampoline(symtrampoline->name, "jmp_to"));
+    }
+    else
+        m_document->lock(symbol->address, REDasm::trampoline(symtrampoline->name));
+
     InstructionPtr instruction = m_document->instruction(symbol->address);
 
     if(!instruction)
         return;
 
-    m_disassembler->pushReference(symimport->address, instruction->address);
+    m_disassembler->pushReference(symtrampoline->address, instruction->address);
 }
 
-SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it)
+SymbolPtr Analyzer::findTrampoline_x86(ListingDocument::iterator it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
@@ -78,7 +86,7 @@ SymbolPtr Analyzer::findTrampolines_x86(ListingDocument::iterator it)
     return m_disassembler->document()->symbol(instruction->target());
 }
 
-SymbolPtr Analyzer::findTrampolines_arm(ListingDocument::iterator it)
+SymbolPtr Analyzer::findTrampoline_arm(ListingDocument::iterator it)
 {
     ListingDocument* doc = m_disassembler->document();
     InstructionPtr instruction1 = doc->instruction((*it)->address);

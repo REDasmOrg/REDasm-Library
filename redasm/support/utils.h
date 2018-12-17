@@ -20,7 +20,7 @@ u8 byte(const std::string& s, int offset = 0);
 
 template<typename T> struct bitwidth { static const size_t value = sizeof(T) * CHAR_BIT; };
 
-inline std::string trampoline(const std::string& s) { return "_" + s; }
+inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
 template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 

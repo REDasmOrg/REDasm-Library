@@ -22,9 +22,9 @@ class Analyzer
     private:
         void loadSignatures();
         void findTrampolines();
-        void findTrampolines(SymbolPtr symbol);
-        SymbolPtr findTrampolines_x86(ListingDocument::iterator it);
-        SymbolPtr findTrampolines_arm(ListingDocument::iterator it);
+        void findTrampoline(SymbolPtr symbol);
+        SymbolPtr findTrampoline_x86(ListingDocument::iterator it);
+        SymbolPtr findTrampoline_arm(ListingDocument::iterator it);
 
     protected:
         Dispatcher<std::string, void(void*)> m_archdispatcher;

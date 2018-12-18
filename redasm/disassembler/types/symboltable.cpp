@@ -103,7 +103,6 @@ void SymbolTable::serialize(const SymbolPtr &value, std::fstream &fs)
     Serializer::serializeScalar(fs, value->address);
     Serializer::serializeScalar(fs, value->size);
     Serializer::serializeString(fs, value->name);
-    Serializer::serializeString(fs, value->cpu);
 }
 
 void SymbolTable::deserialize(SymbolPtr &value, std::fstream &fs)
@@ -114,7 +113,6 @@ void SymbolTable::deserialize(SymbolPtr &value, std::fstream &fs)
     Serializer::deserializeScalar(fs, &value->address);
     Serializer::deserializeScalar(fs, &value->size);
     Serializer::deserializeString(fs, value->name);
-    Serializer::deserializeString(fs, value->cpu);
 }
 
 void SymbolTable::bindName(const SymbolPtr &symbol) { m_byname[symbol->name] = symbol->address; }

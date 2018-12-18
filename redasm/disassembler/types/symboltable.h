@@ -45,7 +45,7 @@ struct Symbol
     u32 type, tag;
     address_t address;
     u64 size;
-    std::string name, cpu;
+    std::string name;
 
     bool is(u32 t) const { return type & t; }
     bool isFunction() const { return type & SymbolTypes::FunctionMask; }

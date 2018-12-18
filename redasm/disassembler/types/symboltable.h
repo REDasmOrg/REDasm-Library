@@ -1,10 +1,9 @@
 #ifndef SYMBOLTABLE_H
 #define SYMBOLTABLE_H
 
-#include <functional>
 #include <unordered_map>
-#include <map>
-#include "../../support/cachemap.h"
+#include "../../support/serializer.h"
+#include "../../support/event.h"
 #include "../../redasm.h"
 
 namespace REDasm {
@@ -56,9 +55,13 @@ struct Symbol
 
 typedef std::shared_ptr<Symbol> SymbolPtr;
 
-class SymbolTable: public cache_map<address_t, SymbolPtr>
+class SymbolTable: public Serializer::Serializable
 {
+    public:
+        Event<const SymbolPtr&> deserialized;
+
     private:
+        typedef std::unordered_map<address_t, SymbolPtr> SymbolsByAddress;
         typedef std::unordered_map<std::string, address_t> SymbolsByName;
 
     public:
@@ -67,23 +70,20 @@ class SymbolTable: public cache_map<address_t, SymbolPtr>
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
-        SymbolPtr at(u64 index);
         void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
         bool erase(address_t address);
-        using cache_map<address_t, SymbolPtr>::erase;
 
     public:
+        virtual void serializeTo(std::fstream& fs);
         virtual void deserializeFrom(std::fstream& fs);
 
-    protected:
-        virtual void serialize(const SymbolPtr& value, std::fstream& fs);
-        virtual void deserialize(SymbolPtr& value, std::fstream& fs);
-
     private:
+        void serializeSymbol(std::fstream& fs, const SymbolPtr& value);
+        void deserializeSymbol(std::fstream& fs, SymbolPtr& value);
         void bindName(const SymbolPtr& symbol);
 
     private:
-        AddressList m_addresses;
+        SymbolsByAddress m_byaddress;
         SymbolsByName m_byname;
 };
 

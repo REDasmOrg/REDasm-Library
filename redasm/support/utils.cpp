@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <algorithm>
 #include <sstream>
+#include <cctype>
 
 namespace REDasm {
 
@@ -53,7 +54,7 @@ Buffer bytes(const std::string &s)
     Buffer buffer;
     buffer.resize(s.size() / 2);
 
-    for(size_t i = 0, j = 0; i < s.size(); i += 2, j++)
+    for(int i = 0, j = 0; i < s.size(); i += 2, j++)
          buffer[j] = REDasm::byte(s, i);
 
     return buffer;

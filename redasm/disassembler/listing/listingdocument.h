@@ -130,9 +130,9 @@ namespace Listing {
 
 struct ListingDocumentChanged
 {
-    enum { None = 0, Inserted, Removed };
+    enum { Changed = 0, Inserted, Removed };
 
-    ListingDocumentChanged(ListingItem* item, u64 index, size_t action = ListingDocumentChanged::None): item(item), index(index), action(action) { }
+    ListingDocumentChanged(ListingItem* item, u64 index, size_t action = ListingDocumentChanged::Changed): item(item), index(index), action(action) { }
     bool isInserted() const { return action == ListingDocumentChanged::Inserted; }
     bool isRemoved() const { return action == ListingDocumentChanged::Removed; }
 

@@ -59,4 +59,13 @@ Buffer bytes(const std::string &s)
     return buffer;
 }
 
+std::string simplified(std::string s)
+{
+    std::replace_if(s.begin(), s.end(), [](char ch) -> bool {
+        return std::isspace(ch);
+    }, ' ');
+
+    return s;
+}
+
 }

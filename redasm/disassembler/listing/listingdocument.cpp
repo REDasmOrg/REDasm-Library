@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <sstream>
 
+#define COMMENT_SEPARATOR " | "
+
 namespace REDasm {
 
 ListingDocument::ListingDocument(): std::deque<ListingItemPtr>(), m_format(NULL) { }
@@ -24,12 +26,19 @@ void ListingDocument::serializeTo(std::fstream &fs)
     Serializer::serializeScalar(fs, m_cursor.currentLine());
     Serializer::serializeScalar(fs, m_cursor.currentColumn());
 
-    Serializer::serializeMap<address_t, CommentSet>(fs, m_comments, [&](const CommentItem& ci) {
-        Serializer::serializeScalar(fs, ci.first);
+    // Auto Comments
+    Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](const AutoCommentItem& aci) {
+        Serializer::serializeScalar(fs, aci.first);
 
-        Serializer::serializeArray<std::set, std::string>(fs, ci.second, [&](const std::string& s) {
+        Serializer::serializeArray<std::set, std::string>(fs, aci.second, [&](const std::string& s) {
             Serializer::serializeString(fs, s);
         });
+    });
+
+    // User Comments
+    Serializer::serializeMap<address_t, std::string>(fs, m_comments, [&](const CommentItem& ci) {
+        Serializer::serializeScalar(fs, ci.first);
+        Serializer::serializeString(fs, ci.second);
     });
 
     m_instructions.serializeTo(fs);
@@ -42,12 +51,19 @@ void ListingDocument::deserializeFrom(std::fstream &fs)
     Serializer::deserializeScalar(fs, &line);
     Serializer::deserializeScalar(fs, &column);
 
-    Serializer::deserializeMap<address_t, CommentSet>(fs, m_comments, [&](CommentItem& ci) {
+    // Auto Comments
+    Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](AutoCommentItem& ci) {
         Serializer::deserializeScalar(fs, &ci.first);
 
         Serializer::deserializeArray<std::set, std::string>(fs, ci.second, [&](std::string& s) {
             Serializer::deserializeString(fs, s);
         });
+    });
+
+    // User Comments
+    Serializer::deserializeMap<address_t, std::string>(fs, m_comments, [&](CommentItem& ci) {
+        Serializer::deserializeScalar(fs, &ci.first);
+        Serializer::deserializeString(fs, ci.second);
     });
 
     m_instructions.deserialized += [&](const InstructionPtr& instruction) {
@@ -161,39 +177,56 @@ SymbolPtr ListingDocument::functionStartSymbol(address_t address)
     return NULL;
 }
 
-std::string ListingDocument::comment(address_t address) const
+std::string ListingDocument::comment(address_t address, bool skipauto) const
 {
+    std::string cmt;
     auto it = m_comments.find(address);
 
-    if(it == m_comments.end())
-        return std::string();
+    if(it != m_comments.end())
+        cmt = it->second;
 
-    std::string cmt;
+    if(skipauto)
+        return cmt;
 
-    for(const std::string& s : it->second)
-    {
-        if(!cmt.empty())
-            cmt += " | ";
+    std::string acmt = this->autoComment(address);
 
-        cmt += s;
-    }
+    if(!acmt.empty())
+        return cmt.empty() ? acmt : (cmt + COMMENT_SEPARATOR + acmt);
 
     return cmt;
 }
 
 void ListingDocument::comment(address_t address, const std::string &s)
 {
-    auto it = m_comments.find(address);
+    if(!s.empty())
+        m_comments[address] = REDasm::simplified(s);
+    else
+        m_comments.erase(address);
 
-    if(it != m_comments.end())
-    {
-        it->second.insert(s);
+    auto iit = this->instructionItem(address);
+
+    if(iit == this->end())
         return;
-    }
 
-    CommentSet cs;
-    cs.insert(s);
-    m_comments[address] = cs;
+    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit));
+    changed(&ldc);
+}
+
+void ListingDocument::autoComment(address_t address, const std::string &s)
+{
+    if(s.empty())
+        return;
+
+    auto it = m_autocomments.find(address);
+
+    if(it == m_autocomments.end())
+    {
+        CommentSet cs;
+        cs.insert(s);
+        m_autocomments[address] = cs;
+    }
+    else
+        it->second.insert(s);
 
     auto iit = this->instructionItem(address);
 
@@ -375,6 +408,26 @@ int ListingDocument::index(address_t address, u32 type)
 {
     document_lock lock(m_mutex);
     return Listing::indexOf(this, address, type);
+}
+
+std::string ListingDocument::autoComment(address_t address) const
+{
+    auto it = m_autocomments.find(address);
+
+    if(it == m_autocomments.end())
+        return std::string();
+
+    std::string cmt;
+
+    for(const std::string& s : it->second)
+    {
+        if(!cmt.empty())
+            cmt += COMMENT_SEPARATOR;
+
+        cmt += s;
+    }
+
+    return cmt;
 }
 
 std::string ListingDocument::normalized(std::string s)

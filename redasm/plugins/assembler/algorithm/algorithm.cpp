@@ -127,7 +127,7 @@ void AssemblerAlgorithm::jumpState(State *state)
     s64 dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(!dir)
-        m_document->comment(state->instruction->address, "Infinite loop");
+        m_document->autoComment(state->instruction->address, "Infinite loop");
 
     m_document->symbol(state->address, SymbolTypes::Code);
     m_disassembler->pushReference(state->address, state->instruction->address);
@@ -188,9 +188,9 @@ void AssemblerAlgorithm::addressTableState(State *state)
         state_t fwdstate = AssemblerAlgorithm::BranchState;
 
         if(instruction->is(InstructionTypes::Call))
-            m_document->comment(instruction->address, "Call Table with " + std::to_string(c) + " cases(s)");
+            m_document->autoComment(instruction->address, "Call Table with " + std::to_string(c) + " cases(s)");
         else if(instruction->is(InstructionTypes::Jump))
-            m_document->comment(instruction->address, "Jump Table with " + std::to_string(c) + " cases(s)");
+            m_document->autoComment(instruction->address, "Jump Table with " + std::to_string(c) + " cases(s)");
         else
             fwdstate = AssemblerAlgorithm::MemoryState;
 

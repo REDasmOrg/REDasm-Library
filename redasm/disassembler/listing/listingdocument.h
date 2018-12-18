@@ -151,8 +151,10 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
 
     private:
         typedef std::set<std::string> CommentSet;
-        typedef std::pair<address_t, CommentSet> CommentItem;
-        typedef std::unordered_map<address_t, CommentSet> CommentMap;
+        typedef std::pair<address_t, CommentSet> AutoCommentItem;
+        typedef std::pair<address_t, std::string> CommentItem;
+        typedef std::unordered_map<address_t, CommentSet> AutoCommentMap;
+        typedef std::unordered_map<address_t, std::string> CommentMap;
         typedef std::deque<ListingItem*> FunctionList;
 
     public:
@@ -180,8 +182,9 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         ListingItem* functionStart(address_t address);
         ListingItem* currentItem();
         SymbolPtr functionStartSymbol(address_t address);
-        std::string comment(address_t address) const;
+        std::string comment(address_t address, bool skipauto = false) const;
         void comment(address_t address, const std::string& s);
+        void autoComment(address_t address, const std::string& s);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void rename(address_t address, const std::string& name);
@@ -226,6 +229,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         void removeSorted(address_t address, u32 type);
         ListingDocument::iterator item(address_t address, u32 type);
         int index(address_t address, u32 type);
+        std::string autoComment(address_t address) const;
         static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
@@ -238,6 +242,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         SymbolTable m_symboltable;
         FormatPlugin* m_format;
         SymbolPtr m_documententry;
+        AutoCommentMap m_autocomments;
         CommentMap m_comments;
 
      friend class FormatPlugin;

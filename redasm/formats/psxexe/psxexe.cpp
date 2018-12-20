@@ -12,7 +12,7 @@ namespace REDasm {
 PsxExeFormat::PsxExeFormat(Buffer &buffer): FormatPluginT<PsxExeHeader>(buffer) { }
 const char *PsxExeFormat::name() const { return "PS-X Executable"; }
 u32 PsxExeFormat::bits() const { return 32; }
-const char *PsxExeFormat::assembler() const { return "mips32"; }
+const char *PsxExeFormat::assembler() const { return "mips32le"; }
 Analyzer *PsxExeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new PsxExeAnalyzer(disassembler, signatures); }
 
 bool PsxExeFormat::load()

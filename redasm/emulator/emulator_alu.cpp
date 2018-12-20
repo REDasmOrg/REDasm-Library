@@ -110,6 +110,12 @@ template<typename T> T EmulatorALU<T>::aluSub(T src1, T src2)
 
 template<typename T> T EmulatorALU<T>::aluMul(T src1, T src2)
 {
+    if(!src2)
+    {
+        this->fail();
+        return 0;
+    }
+
     this->carry((src1 > (std::numeric_limits<T>::max() / src2)));
     return src1 * src2;
 }

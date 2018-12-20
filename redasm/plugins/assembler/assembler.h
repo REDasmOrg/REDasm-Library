@@ -53,7 +53,7 @@ class AssemblerPlugin: public Plugin
         endianness_t m_endianness;
 };
 
-template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
+template<cs_arch arch, s64 mode> class CapstoneAssemblerPlugin: public AssemblerPlugin
 {
     public:
         CapstoneAssemblerPlugin();
@@ -69,13 +69,13 @@ template<cs_arch arch, size_t mode> class CapstoneAssemblerPlugin: public Assemb
         csh m_cshandle;
 };
 
-template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin(): AssemblerPlugin()
+template<cs_arch arch, s64 mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAssemblerPlugin(): AssemblerPlugin()
 {
     cs_open(arch, static_cast<cs_mode>(mode), &this->m_cshandle);
     cs_option(this->m_cshandle, CS_OPT_DETAIL, CS_OPT_ON);
 }
 
-template<cs_arch arch, size_t mode> void CapstoneAssemblerPlugin<arch, mode>::onDecoded(const InstructionPtr& instruction)
+template<cs_arch arch, s64 mode> void CapstoneAssemblerPlugin<arch, mode>::onDecoded(const InstructionPtr& instruction)
 {
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
 
@@ -92,10 +92,10 @@ template<cs_arch arch, size_t mode> void CapstoneAssemblerPlugin<arch, mode>::on
         instruction->type |= InstructionTypes::Privileged;
 }
 
-template<cs_arch arch, size_t mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
-template<cs_arch arch, size_t mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
+template<cs_arch arch, s64 mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
+template<cs_arch arch, s64 mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
 
-template<cs_arch arch, size_t mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
+template<cs_arch arch, s64 mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
     const uint8_t* pdata = static_cast<const uint8_t*>(buffer);

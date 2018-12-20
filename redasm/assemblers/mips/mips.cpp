@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-template<size_t mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>()
+template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>()
 {
     SET_INSTRUCTION_TYPE(MIPS_INS_NOP, InstructionTypes::Nop);
     SET_INSTRUCTION_TYPE(MIPS_INS_BREAK, InstructionTypes::Stop);
@@ -64,7 +64,7 @@ template<size_t mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlu
     REGISTER_INSTRUCTION(MIPS_INS_BEQ, &MIPSAssembler::setTargetOp2);
 }
 
-template<size_t mode> const char *MIPSAssembler<mode>::name() const
+template<s64 mode> const char *MIPSAssembler<mode>::name() const
 {
     if(mode & CS_MODE_32)
         return "MIPS32";
@@ -75,7 +75,7 @@ template<size_t mode> const char *MIPSAssembler<mode>::name() const
     return "Unknown MIPS";
 }
 
-template<size_t mode> bool MIPSAssembler<mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
+template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
 {
     if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(buffer, instruction))
         return true;
@@ -83,7 +83,7 @@ template<size_t mode> bool MIPSAssembler<mode>::decodeInstruction(BufferRef& buf
     return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
 }
 
-template<size_t mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& instruction)
+template<s64 mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& instruction)
 {
     CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::onDecoded(instruction);
 
@@ -107,7 +107,7 @@ template<size_t mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& 
     }
 }
 
-template<size_t mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instruction) const
+template<s64 mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instruction) const
 {
     if(instruction->op(0).reg.r != MIPS_REG_RA)
     {

@@ -39,7 +39,7 @@ class Buffer: public std::vector<u8>
 
 template<typename T> Buffer::operator T() const
 {
-    T val = *reinterpret_cast<T*>(this->data());
+    T val = *reinterpret_cast<const T*>(this->data());
 
     if(m_endianness == Endianness::BigEndian)
         return Endianness::cfbe<T>(val);

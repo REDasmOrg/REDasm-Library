@@ -12,6 +12,7 @@
 #include FORMAT_PLUGIN(dex)
 #include FORMAT_PLUGIN(xbe)
 #include FORMAT_PLUGIN(gba)
+#include FORMAT_PLUGIN(n64)
 
 /* *** Assemblers *** */
 #include ASSEMBLER_PLUGIN(x86)
@@ -42,6 +43,7 @@ void init(const std::string& temppath, const std::string& searchpath)
     REGISTER_FORMAT_PLUGIN(dex);
     REGISTER_FORMAT_PLUGIN(xbe);
     REGISTER_FORMAT_PLUGIN(gbarom);
+    REGISTER_FORMAT_PLUGIN(n64rom);
     REGISTER_FORMAT_PLUGIN(binary); // Always last choice
 
     REGISTER_ASSEMBLER_PLUGIN(x86_16);

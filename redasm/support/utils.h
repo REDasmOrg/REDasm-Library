@@ -11,6 +11,8 @@
 
 namespace REDasm
 {
+
+std::string simplified(std::string s);
 std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 std::string quoted(const char* s);

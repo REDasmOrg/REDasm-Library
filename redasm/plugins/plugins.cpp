@@ -31,8 +31,9 @@ namespace REDasm {
 EntryListT<FormatPlugin_Entry>::Type Plugins::formats;
 EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
 
-void init(const std::string& searchpath)
+void init(const std::string& temppath, const std::string& searchpath)
 {
+    Runtime::rntTempPath = temppath;
     Runtime::rntSearchPath = searchpath;
 
     REGISTER_FORMAT_PLUGIN(pe);

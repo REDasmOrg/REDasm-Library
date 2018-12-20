@@ -33,12 +33,12 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
     if(wide)
     {
         m_document->symbol(address, SymbolTypes::WideString);
-        m_document->comment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
+        m_document->autoComment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
         m_document->symbol(address, SymbolTypes::String);
-        m_document->comment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
+        m_document->autoComment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
     }
 
     this->pushReference(address, fromaddress);

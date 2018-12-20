@@ -12,9 +12,11 @@ struct Runtime
     typedef std::function<void(const std::string&)> LogCallback;
 
     static LIBREDASM_EXPORT std::string rntSearchPath;
-    static LIBREDASM_EXPORT std::string rntDirSeparator;
+    static LIBREDASM_EXPORT std::string rntTempPath;
     static LIBREDASM_EXPORT LogCallback rntLogCallback;
     static LIBREDASM_EXPORT LogCallback rntStatusCallback;
+
+    static const LIBREDASM_EXPORT std::string rntDirSeparator;
 
     static bool syncMode();
     static void syncMode(bool b);

@@ -9,6 +9,12 @@
 #define N64_CART_ID_SIZE       2
 #define N64_BOOT_CODE_SIZE     4032
 
+#define N64_BOOT_CODE_CIC_6101_CRC       0x6170A4A1     // CIC 6101-7102(?) BOOT CODE CRC // FIXME: check lylat rom boot code crc
+#define N64_BOOT_CODE_CIC_6102_CRC       0x90BB6CB5     // CIC 6102-7101 BOOT CODE CRC
+#define N64_BOOT_CODE_CIC_6103_CRC       0x0B050EE0     // CIC 6103-7103 BOOT CODE CRC
+#define N64_BOOT_CODE_CIC_6105_CRC       0x98BC2C86     // CIC 6105-7105 BOOT CODE CRC
+#define N64_BOOT_CODE_CIC_6106_CRC       0xACC8580A     // CIC 6106-7106 BOOT CODE CRC
+
 
 namespace REDasm {
 
@@ -45,8 +51,9 @@ class N64RomFormat: public FormatPluginT<N64RomHeader>
         virtual bool load();
 
     private:
-        u32 getEP() const;
+        u32 getEP();
         u8 calculateChecksum();
+        u32 getCICVersion();
         u8 checkMediaType();
         u8 checkCountryCode();
         bool validateRom();

@@ -7,9 +7,9 @@
 #include "elf_analyzer.h"
 
 #define ELF_T(bits, t) Elf ## bits ## _ ## t
-#define ELF_PARAMS_T typename EHDR, typename SHDR, typename SYM, typename REL, typename RELA
-#define ELF_PARAMS_D EHDR, SHDR, SYM, REL, RELA
-#define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Shdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
+#define ELF_PARAMS_T typename EHDR, typename SHDR, typename PHDR, typename SYM, typename REL, typename RELA
+#define ELF_PARAMS_D EHDR, SHDR, PHDR, SYM, REL, RELA
+#define ELF_PARAMS(bits) ELF_T(bits, Ehdr), ELF_T(bits, Shdr), ELF_T(bits, Phdr), ELF_T(bits, Sym), ELF_T(bits, Rel), ELF_T(bits, Rela)
 
 #define POINTER(T, offset) FormatPluginT<EHDR>::template pointer<T>(offset)
 #define ELF_STRING_TABLE this->m_shdr[this->m_format->e_shstrndx];
@@ -35,10 +35,12 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         bool relocate(u64 symidx, u64* value) const;
         void loadSymbols(const SHDR& shdr);
         void loadSegments();
+        void checkProgramHeader();
         void parseSegments();
 
     private:
         SHDR* m_shdr;
+        PHDR* m_phdr;
 };
 
 template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
@@ -81,8 +83,10 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load()
         return false;
 
     this->m_shdr = POINTER(SHDR, this->m_format->e_shoff);
+    this->m_phdr = POINTER(PHDR, this->m_format->e_phoff);
     this->loadSegments();
     this->parseSegments();
+    this->checkProgramHeader();
     this->m_document.entry(this->m_format->e_entry);
 
     return true;
@@ -147,6 +151,22 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
             type |= SegmentTypes::Write;
 
         this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+    }
+}
+
+template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::checkProgramHeader()
+{
+    if(this->m_format->e_shnum)
+        return;
+
+    for(u64 i = 0; i < this->m_format->e_phnum; i++)
+    {
+        const PHDR& phdr = this->m_phdr[i];
+
+        if((phdr.p_type != PT_LOAD) || !phdr.p_memsz)
+            continue;
+
+        this->m_document.segment("LOAD", phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, SegmentTypes::Code);
     }
 }
 

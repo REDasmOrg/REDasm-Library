@@ -63,7 +63,7 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
             return "x86_64";
 
         case EM_MIPS:
-            return this->bits() == 32 ? "mips32" : "mips64";
+            return this->bits() == 32 ? "mips32le" : "mips64le";
 
         case EM_ARM:
             return this->bits() == 32 ? "arm" : "arm64";

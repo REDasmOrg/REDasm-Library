@@ -1,3 +1,4 @@
+#include <zlib.h>
 #include "n64.h"
 #include "n64_analyzer.h"
 
@@ -27,7 +28,7 @@ namespace REDasm {
 N64RomFormat::N64RomFormat(Buffer &buffer): FormatPluginT<N64RomHeader>(buffer) { }
 const char *N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
-const char *N64RomFormat::assembler() const { return "mips32be"; }
+const char *N64RomFormat::assembler() const { return "mips64be"; }
 
 endianness_t N64RomFormat::endianness() const
 {
@@ -44,15 +45,24 @@ bool N64RomFormat::load()
     if(!this->validateRom())
         return false;
 
-    m_document.segment("KSEG0", N64_ROM_HEADER_SIZE, Endianness::cfbe(static_cast<u32>(m_format->program_counter)), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    m_document.segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
     // TODO: map other segments
     m_document.entry(this->getEP());
     return true;
 }
 
-u32 N64RomFormat::getEP() const
+u32 N64RomFormat::getEP()
 {
-    u32 pc = Endianness::cfbe(static_cast<u32>(m_format->program_counter)); // TODO: Check CIC entry point redirection
+    u32 pc = Endianness::cfbe(static_cast<u32>(m_format->program_counter));
+    u32 cic_version = N64RomFormat::getCICVersion();
+
+    if(cic_version != 0) {
+        if(cic_version == 6103)         // CIC 6103 EP manipulation
+            pc -= 0x100000;
+        else if (cic_version == 6106)   // CIC 6106 EP manipulation
+            pc -= 0x200000;
+    }
+
     return pc;
 }
 
@@ -60,6 +70,34 @@ u8 N64RomFormat::calculateChecksum()
 {
     // FIXME implement CRC check
 }
+
+
+u32 N64RomFormat::getCICVersion()
+{
+    u64 boot_code_crc = crc32(0L, reinterpret_cast<const unsigned char*>(m_format->boot_code), N64_BOOT_CODE_SIZE);
+    u32 cic = 0;
+
+    switch (boot_code_crc) {
+        case N64_BOOT_CODE_CIC_6101_CRC:
+            cic = 6101;
+        break;
+        case N64_BOOT_CODE_CIC_6102_CRC:
+            cic =  6102;
+        break;
+        case N64_BOOT_CODE_CIC_6103_CRC:
+            cic = 6103;
+        break;
+        case N64_BOOT_CODE_CIC_6105_CRC:
+            cic = 6105;
+        break;
+        case N64_BOOT_CODE_CIC_6106_CRC:
+            cic = 6106;
+        break;
+    }
+
+    return cic;
+}
+
 
 u8 N64RomFormat::checkMediaType()
 {
@@ -147,7 +185,7 @@ bool N64RomFormat::validateRom()
     if(!N64RomFormat::checkCountryCode())
         return false;
 
-    return true;
+    return true; // FIXME add CRC check
 }
 
 }

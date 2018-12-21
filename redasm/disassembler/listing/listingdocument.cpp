@@ -130,7 +130,13 @@ ListingItems ListingDocument::getCalls(ListingItem *item)
     return calls;
 }
 
-ListingItem *ListingDocument::functionStart(ListingItem *item) { return this->functionStart(item->address); }
+ListingItem *ListingDocument::functionStart(ListingItem *item)
+{
+    if(!item)
+        return NULL;
+
+    return this->functionStart(item->address);
+}
 
 ListingItem *ListingDocument::functionStart(address_t address)
 {

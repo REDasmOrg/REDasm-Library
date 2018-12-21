@@ -35,6 +35,12 @@ void Disassembler::disassembleStep(AssemblerAlgorithm* algorithm)
 
 void Disassembler::disassemble()
 {
+    if(!m_document->segmentsCount())
+    {
+        REDasm::log("ERROR: Segment list is empty");
+        return;
+    }
+
     SymbolTable* symboltable = m_document->symbols();
 
     // Preload format functions for analysis

@@ -97,9 +97,12 @@ std::string ListingRenderer::getSelectedText()
 
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
-void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
+bool ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
 {
     ListingItem* item = m_document->itemAt(std::min(line, m_document->lastLine()));
+
+    if(!item)
+        return false;
 
     if(item->is(ListingItem::SegmentItem))
         this->renderSegment(item, rl);
@@ -111,6 +114,8 @@ void ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
         this->renderSymbol(item, rl);
     else
         rl.push("Unknown Type: " + std::to_string(item->type));
+
+    return true;
 }
 
 void ListingRenderer::renderSegment(ListingItem *item, RendererLine &rl)

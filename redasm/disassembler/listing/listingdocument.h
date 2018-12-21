@@ -165,6 +165,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         using std::deque<ListingItemPtr>::rbegin;
         using std::deque<ListingItemPtr>::rend;
         using std::deque<ListingItemPtr>::size;
+        using std::deque<ListingItemPtr>::empty;
 
     public:
         ListingDocument();

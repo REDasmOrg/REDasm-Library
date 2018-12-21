@@ -49,7 +49,7 @@ class ListingRenderer
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
         void setFlags(u32 flags);
-        void getRendererLine(size_t line, RendererLine& rl);
+        bool getRendererLine(size_t line, RendererLine& rl);
         void renderSegment(ListingItem* item, RendererLine& rl);
         void renderFunction(ListingItem* item, RendererLine &rl);
         void renderInstruction(ListingItem* item, RendererLine &rl);

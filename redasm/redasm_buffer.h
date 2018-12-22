@@ -27,8 +27,9 @@ class Buffer: public std::vector<u8>
         u8 operator *() const { return this->at(0); }
 
     public:
-        template<typename T> operator T() const;
+        template<typename T> s64 swapEndianness() { return Endianness::swap<T>(this->data(), this->size()); }
         template<typename T> operator T*() const { return reinterpret_cast<T*>(this->data()); }
+        template<typename T> operator T() const;
 
     private:
         endianness_t m_endianness;
@@ -70,9 +71,10 @@ class BufferRef
         BufferRef& operator ++() { this->m_data++; this->m_size--; return *this; }
 
     public:
-        template<typename T> BufferRef& operator =(T rhs);
-        template<typename T> operator T() const;
+        template<typename T> s64 swapEndianness() { return Endianness::swap<T>(m_data, m_size); }
         template<typename T> operator T*() const { return reinterpret_cast<T*>(this->data()); }
+        template<typename T> operator T() const;
+        template<typename T> BufferRef& operator =(T rhs);
 
     private:
         Buffer* m_buffer;

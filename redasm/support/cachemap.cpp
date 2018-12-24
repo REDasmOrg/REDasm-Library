@@ -1,6 +1,7 @@
 #include "cachemap.h"
 #include "../redasm_runtime.h"
 #include "../redasm_api.h"
+#include "utils.h"
 #include <ios>
 
 namespace REDasm {
@@ -12,7 +13,11 @@ template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_
 
 template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(NULL))
 {
-    m_file.open(REDasm::makePath(Runtime::rntTempPath, CACHE_FILE), std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+    std::string cachepath = REDasm::makePath(Runtime::rntTempPath, CACHE_FILE);
+    m_file.open(cachepath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+
+    if(!m_file.is_open())
+        REDasm::log("Cannot write cache @ " + REDasm::quoted(cachepath));
 }
 
 template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()

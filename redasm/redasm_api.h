@@ -33,12 +33,17 @@ inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
 inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
 
-template<typename... T> std::string makePath(const std::string& p1, const std::string& p2, T... args) {
-    std::string path = p1 + Runtime::rntDirSeparator + p2;
+template<typename... T> std::string makePath(const std::string& p, T... args) {
+    std::string path = p;
     std::vector<std::string> v = { args... };
 
     for(size_t i = 0; i < v.size(); i++)
-        path += Runtime::rntDirSeparator + v[i];
+    {
+        if(!path.empty() && (path.back() != Runtime::rntDirSeparator[0]))
+            path += Runtime::rntDirSeparator;
+
+        path += v[i];
+    }
 
     return path;
 }

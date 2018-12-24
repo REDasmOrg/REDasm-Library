@@ -66,9 +66,78 @@ u32 N64RomFormat::getEP()
     return pc;
 }
 
-u8 N64RomFormat::calculateChecksum()
+u32 N64RomFormat::calculateChecksum(u32 *crc) // Adapted from n64crc (http://n64dev.org/n64crc.html)
 {
-    // FIXME implement CRC check
+    u32 bootcode, i;
+    u32 seed;
+
+    u32 t1, t2, t3;
+    u32 t4, t5, t6;
+    u32 r, d;
+
+    switch ((bootcode = N64RomFormat::getCICVersion())) {
+        case 6101:
+        case 7102:
+        case 6102:
+            seed = N64_ROM_CHECKSUM_CIC_6102;
+            break;
+        case 6103:
+            seed = N64_ROM_CHECKSUM_CIC_6103;
+            break;
+        case 6105:
+            seed = N64_ROM_CHECKSUM_CIC_6105;
+            break;
+        case 6106:
+            seed = N64_ROM_CHECKSUM_CIC_6106;
+            break;
+        default:
+            return 1;
+    }
+
+    t1 = t2 = t3 = t4 = t5 = t6 = seed;
+
+    i = N64_ROM_CHECKSUM_START;
+    while (i < (N64_ROM_CHECKSUM_START + N64_ROM_CHECKSUM_LENGTH)) {
+        d = BYTES2LONG(&m_buffer[i]);
+        if ((t6 + d) < t6) t4++;
+        t6 += d;
+        t3 ^= d;
+        r = ROL(d, (d & 0x1F));
+        t5 += r;
+        if (t2 > d) t2 ^= r;
+        else t2 ^= t6 ^ d;
+
+        if (bootcode == 6105) t1 += BYTES2LONG(&m_buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)]) ^ d;
+        else t1 += t5 ^ d;
+
+        i += 4;
+    }
+    if (bootcode == 6103) {
+        crc[0] = (t6 ^ t4) + t3;
+        crc[1] = (t5 ^ t2) + t1;
+    }
+    else if (bootcode == 6106) {
+        crc[0] = (t6 * t4) + t3;
+        crc[1] = (t5 * t2) + t1;
+    }
+    else {
+        crc[0] = t6 ^ t4 ^ t3;
+        crc[1] = t5 ^ t2 ^ t1;
+    }
+
+    return 0;
+}
+
+u8 N64RomFormat::checkChecksum()
+{
+    u32 crc[2];
+    u8 result = false;
+
+    if(N64RomFormat::calculateChecksum(crc) == 0)
+        if(crc[0] == Endianness::cfbe(static_cast<u32>(m_format->crc1)) && crc[1] == Endianness::cfbe(static_cast<u32>(m_format->crc2)))
+            result = true;
+
+    return  result;
 }
 
 
@@ -80,6 +149,9 @@ u32 N64RomFormat::getCICVersion()
     switch (boot_code_crc) {
         case N64_BOOT_CODE_CIC_6101_CRC:
             cic = 6101;
+        break;
+        case N64_BOOT_CODE_CIC_7102_CRC:
+            cic = 7102;
         break;
         case N64_BOOT_CODE_CIC_6102_CRC:
             cic =  6102;
@@ -177,7 +249,7 @@ bool N64RomFormat::validateRom()
         return false;
 
     if(m_format->pi_bsb_dom1_lat_reg == 0x37)
-        return false;   // TODO: FIXME add LE to BE conversion
+        m_buffer.swapEndianness<u16>();
 
     if(!N64RomFormat::checkMediaType())
         return false;
@@ -185,7 +257,7 @@ bool N64RomFormat::validateRom()
     if(!N64RomFormat::checkCountryCode())
         return false;
 
-    return true; // FIXME add CRC check
+   return N64RomFormat::checkChecksum();
 }
 
 }

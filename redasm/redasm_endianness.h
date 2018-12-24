@@ -15,7 +15,7 @@ enum { LittleEndian = 0, BigEndian = 1, };
 int current();
 inline bool needsSwap(endianness_t endianness) { return Endianness::current() != endianness; }
 
-template<typename T> T swap(T v, endianness_t endianness) {
+template<typename T> T swap(T v) {
    u8* p = reinterpret_cast<u8*>(&v);
    std::reverse(p, p + sizeof(T));
    return v;
@@ -25,16 +25,16 @@ template<typename T> T checkSwap(T v, endianness_t endianness) {
    if(!Endianness::needsSwap(endianness))
        return v;
 
-   return Endianness::swap(v, endianness);
+   return Endianness::swap(v);
 }
 
-template<typename T> size_t swap(u8* data, size_t size, endianness_t endianness) {
+template<typename T> size_t swap(u8* data, size_t size) {
     T* pendingdata = reinterpret_cast<T*>(data);
     s64 pendingsize = static_cast<s64>(size);
 
     while(pendingsize >= sizeof(T))
     {
-        *pendingdata = Endianness::swap<T>(*pendingdata, endianness);
+        *pendingdata = Endianness::swap<T>(*pendingdata);
         pendingdata++;
         pendingsize -= sizeof(T);
     }

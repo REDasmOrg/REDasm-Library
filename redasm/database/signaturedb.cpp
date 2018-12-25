@@ -1,4 +1,5 @@
 #include "signaturedb.h"
+#include "../plugins/format.h"
 #include "../support/serializer.h"
 #include "../support/utils.h"
 #include "../support/hash.h"
@@ -8,6 +9,17 @@
 #include <array>
 
 namespace REDasm {
+
+bool Signature::isCompatible(const FormatPlugin *format) const
+{
+    if(this->assembler != format->assembler())
+        return false;
+
+    if(this->bits != format->bits())
+        return false;
+
+    return true;
+}
 
 SignatureDB::SignatureDB() { }
 
@@ -24,14 +36,27 @@ bool SignatureDB::load(const std::string &sigfilename)
     if(version != SDB_VERSION)
         return false;
 
-    Serializer::deserializeArray<std::list, Signature>(ifs, m_signatures, [&](Signature& sig) {
-        Serializer::deserializeScalar(ifs, &sig.size);
-        Serializer::deserializeScalar(ifs, &sig.symboltype);
-        Serializer::deserializeString(ifs, sig.name);
+    Serializer::deserializeArray<std::vector, std::string>(ifs, m_assemblers, [&](std::string& assembler) {
+        Serializer::deserializeString(ifs, assembler);
+    });
 
-        Serializer::deserializeArray<std::list, SignaturePattern>(ifs, sig.patterns, [&](SignaturePattern& sigpattern) {
+    Serializer::deserializeArray<std::list, Signature>(ifs, m_signatures, [&](Signature& signature) {
+        u32 assembleridx = -1;
+
+        Serializer::deserializeScalar(ifs, &assembleridx);
+        Serializer::deserializeScalar(ifs, &signature.bits);
+        Serializer::deserializeScalar(ifs, &signature.symboltype);
+        Serializer::deserializeScalar(ifs, &signature.size);
+        Serializer::deserializeString(ifs, signature.name);
+
+        Serializer::deserializeArray<std::list, SignaturePattern>(ifs, signature.patterns, [&](SignaturePattern& sigpattern) {
             this->deserializePattern(ifs, sigpattern);
         });
+
+        signature.assembler = this->uniqueAssembler(assembleridx);
+
+        if(signature.assembler.empty())
+            REDasm::log("Invalid assembler for " + REDasm::quoted(signature.name));
     });
 
     return true;
@@ -47,12 +72,18 @@ bool SignatureDB::save(const std::string &sigfilename)
     ofs.write(SDB_SIGNATURE, SDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, SDB_VERSION, sizeof(u32));
 
-    Serializer::serializeArray<std::list, Signature>(ofs, m_signatures, [&](const Signature& sig) {
-        Serializer::serializeScalar(ofs, sig.size);
-        Serializer::serializeScalar(ofs, sig.symboltype);
-        Serializer::serializeString(ofs, sig.name);
+    Serializer::serializeArray<std::vector, std::string>(ofs, m_assemblers, [&](const std::string& assembler) {
+        Serializer::serializeString(ofs, assembler);
+    });
 
-        Serializer::serializeArray<std::list, SignaturePattern>(ofs, sig.patterns, [&](const SignaturePattern& sigpattern) {
+    Serializer::serializeArray<std::list, Signature>(ofs, m_signatures, [&](const Signature& signature) {
+        Serializer::serializeScalar(ofs, this->uniqueAssemblerIdx(signature));
+        Serializer::serializeScalar(ofs, signature.bits);
+        Serializer::serializeScalar(ofs, signature.symboltype);
+        Serializer::serializeScalar(ofs, signature.size);
+        Serializer::serializeString(ofs, signature.name);
+
+        Serializer::serializeArray<std::list, SignaturePattern>(ofs, signature.patterns, [&](const SignaturePattern& sigpattern) {
             this->serializePattern(ofs, sigpattern);
         });
     });
@@ -71,7 +102,39 @@ void SignatureDB::search(const BufferRef &br, const SignatureDB::SignatureFound 
     }
 }
 
-SignatureDB &SignatureDB::operator <<(const Signature &signature) { m_signatures.push_back(signature); return *this; }
+SignatureDB &SignatureDB::operator <<(const Signature &signature)
+{
+    this->pushUniqueAssembler(signature);
+    m_signatures.push_back(signature);
+    return *this;
+}
+
+std::string SignatureDB::uniqueAssembler(u32 idx) const
+{
+    if(idx >= m_assemblers.size())
+        return std::string();
+
+    return m_assemblers[idx];
+}
+
+s32 SignatureDB::uniqueAssemblerIdx(const Signature &signature) const
+{
+    for(size_t i = 0; i < m_assemblers.size(); i++)
+    {
+        if(m_assemblers[i] == signature.assembler)
+            return i;
+    }
+
+    return -1;
+}
+
+void SignatureDB::pushUniqueAssembler(const Signature& signature)
+{
+    if(this->uniqueAssemblerIdx(signature) > -1)
+        return;
+
+    m_assemblers.push_back(signature.assembler);
+}
 
 void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, const SignatureDB::SignatureFound &cb) const
 {

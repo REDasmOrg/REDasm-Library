@@ -2,6 +2,13 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
+
+#ifdef _WIN32
+    #include <kernel32.h>
+#else
+    #include <unistd.h>
+#endif
 
 namespace REDasm {
 
@@ -17,18 +24,29 @@ const std::string Runtime::rntDirSeparator = "/";
 Runtime::LogCallback Runtime::rntLogCallback = [](const std::string& s) { std::cout << s << std::endl; };
 Runtime::LogCallback Runtime::rntStatusCallback = [](const std::string&) { };
 
-bool Runtime::syncMode()
+void Runtime::cwd(const std::string &s)
 {
-    const char* syncmode = getenv("SYNC_MODE");
-    return syncmode && !std::strcmp(syncmode, "1");
+#ifdef _WIN32
+    SetCurrentDirectory(s.c_str());
+#elif __unix__
+    chdir(s.c_str());
+#else
+    #error "cwd: Unsupported Platform"
+#endif
 }
 
-void Runtime::syncMode(bool b)
+void Runtime::sync(bool b)
 {
     if(b)
         putenv(const_cast<char*>("SYNC_MODE=1"));
     else
         putenv(const_cast<char*>("SYNC_MODE=0"));
+}
+
+bool Runtime::sync()
+{
+    const char* syncmode = getenv("SYNC_MODE");
+    return syncmode && !std::strcmp(syncmode, "1");
 }
 
 } // namespace REDasm

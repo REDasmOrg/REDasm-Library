@@ -47,7 +47,7 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval)
     m_timercallback = cb;
     stateChanged(this);
 
-    if(REDasm::Runtime::syncMode())
+    if(REDasm::Runtime::sync())
     {
         this->workSync();
         return;

@@ -18,8 +18,9 @@ struct Runtime
 
     static const LIBREDASM_EXPORT std::string rntDirSeparator;
 
-    static bool syncMode();
-    static void syncMode(bool b);
+    static void cwd(const std::string& s);
+    static void sync(bool b);
+    static bool sync();
 };
 
 } // namespace REDasm

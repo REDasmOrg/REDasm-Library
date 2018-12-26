@@ -142,18 +142,13 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
         if(shdr.sh_type == SHT_NULL)
             continue;
 
-        u32 type = SegmentTypes::Read;
+        u32 type = SegmentTypes::Data;
 
         if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
-            type |= SegmentTypes::Code;
-        else
-            type |= SegmentTypes::Data;
+            type = SegmentTypes::Code;
 
         if(shdr.sh_type & SHT_NOBITS)
-            type |= SegmentTypes::Bss;
-
-        if(shdr.sh_flags & SHF_WRITE)
-            type |= SegmentTypes::Write;
+            type = SegmentTypes::Bss;
 
         this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }

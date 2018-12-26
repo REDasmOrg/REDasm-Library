@@ -55,14 +55,10 @@ template<typename...T> std::string makeFormatPath(const std::string& p, T... arg
 
 namespace SegmentTypes {
     enum: u32 {
-        None       = 0x00000000,
-
-        Code       = 0x00000001,
-        Data       = 0x00000002,
-
-        Read       = 0x00000010,
-        Write      = 0x00000020,
-        Bss        = 0x00000040,
+        None = 0x00000000,
+        Code = 0x00000001,
+        Data = 0x00000002,
+        Bss  = 0x00000004,
     };
 }
 

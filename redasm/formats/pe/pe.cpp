@@ -291,12 +291,6 @@ void PeFormat::loadSections()
         if((section.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) || (section.Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA))
             flags |= SegmentTypes::Data;
 
-        if(section.Characteristics & IMAGE_SCN_MEM_READ)
-            flags |= SegmentTypes::Read;
-
-        if(section.Characteristics & IMAGE_SCN_MEM_WRITE)
-            flags |= SegmentTypes::Write;
-
         u64 size = section.SizeOfRawData;
 
         if(!section.SizeOfRawData)

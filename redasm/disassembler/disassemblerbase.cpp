@@ -21,7 +21,7 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 
     Segment* segment = m_document->segment(address);
 
-    if(!segment || segment->is(SegmentTypes::Code)) // Don't flood CODE sections with symbols
+    if(!segment || (!segment->is(SegmentTypes::Data) && !segment->is(SegmentTypes::Bss))) // Don't flood "Pure-Code" sections with symbols
         return;
 
     m_document->symbol(address, SymbolTypes::Data);

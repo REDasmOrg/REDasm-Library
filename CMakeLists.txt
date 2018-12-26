@@ -7,9 +7,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(DEPENDS_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/depends)
 set(DEPENDS_BUILD_DIR ${CMAKE_BINARY_DIR}/${PROJECT_NAME}/depends)
-set(DEPENDS_SINGLE_DIR ${DEPENDS_SRC_DIR}/include)
+set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 
 ### Dependencies
+
+# Single Headers
+set(DEPENDS_SINGLE_HEADERS
+    ${DEPENDS_HEADERS_DIR}/json)
+
 #ZLib
 set(ZLIB_BUILD ${DEPENDS_BUILD_DIR}/zlib)
 set(ZLIB_INCLUDE ${DEPENDS_SRC_DIR}/zlib)
@@ -218,7 +223,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${ZLIB_BUILD}
                            ${ZLIB_INCLUDE}
                            ${CAPSTONE_INCLUDE}
-                           ${DEPENDS_SINGLE_DIR}
+                           ${DEPENDS_SINGLE_HEADERS}
                            ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)

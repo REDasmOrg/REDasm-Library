@@ -209,7 +209,12 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             else if(info == STT_FUNC)
                 this->m_document.lock(symvalue, symname);
             else if(info == STT_OBJECT)
-                this->m_document.lock(symvalue, symname, SymbolTypes::Data);
+            {
+                const Segment* segment = this->m_document.segment(symvalue);
+
+                if(segment && !segment->is(SegmentTypes::Code))
+                    this->m_document.lock(symvalue, symname, SymbolTypes::Data);
+            }
         }
         else
             this->m_document.lock(symvalue, symname, SymbolTypes::Import);

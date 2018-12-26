@@ -65,7 +65,12 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
             return "x86_64";
 
         case EM_MIPS:
-            return this->bits() == 32 ? "mips32le" : "mips64le";
+        {
+            if(this->m_format->e_flags & EF_MIPS_ABI_EABI64)
+                return "mips64le";
+
+            return "mips32le";
+        }
 
         case EM_ARM:
             return this->bits() == 32 ? "arm" : "arm64";
@@ -182,14 +187,14 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
         u8 info = ELF_ST_TYPE(sym->st_info);
         u64 symvalue = sym->st_value;
 
-        if(!symvalue)
-            isrelocated = this->relocate(idx, &symvalue);
-
-        if(!sym->st_name || !symvalue)
+        if(!sym->st_name)
         {
             offset += sizeof(SYM);
             continue;
         }
+
+        if(!symvalue)
+            isrelocated = this->relocate(idx, &symvalue);
 
         std::string symname = ELF_STRING(&shstr, sym->st_name);
 
@@ -207,7 +212,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             if(isexport)
                 this->m_document.lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
             else if(info == STT_FUNC)
-                this->m_document.function(symvalue, symname);
+                this->m_document.lock(symvalue, symname);
             else if(info == STT_OBJECT)
                 this->m_document.lock(symvalue, symname, SymbolTypes::Data);
         }

@@ -344,7 +344,8 @@ void ListingDocument::table(address_t address, u32 tag) { this->lock(address, Sy
 
 void ListingDocument::entry(address_t address, u32 tag)
 {
-    this->lock(address, ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
+    SymbolPtr symep = this->symbol(address); // Don't override custom symbols, if any
+    this->lock(address, symep ? symep->name : ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
     this->setDocumentEntry(address);
 }
 

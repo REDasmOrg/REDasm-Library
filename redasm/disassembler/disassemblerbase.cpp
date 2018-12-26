@@ -19,6 +19,11 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
     if(this->checkString(fromaddress, address))
         return;
 
+    Segment* segment = m_document->segment(address);
+
+    if(!segment || segment->is(SegmentTypes::Code)) // Don't flood CODE sections with symbols
+        return;
+
     m_document->symbol(address, SymbolTypes::Data);
     this->pushReference(address, fromaddress);
 }

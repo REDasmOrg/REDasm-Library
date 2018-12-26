@@ -139,7 +139,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
     {
         const SHDR& shdr = this->m_shdr[i];
 
-        if(shdr.sh_type == SHT_NULL)
+        if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
             continue;
 
         u32 type = SegmentTypes::Data;

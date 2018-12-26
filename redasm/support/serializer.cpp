@@ -15,7 +15,7 @@ std::string& xorify(std::string& s)
     return s;
 }
 
-void serializeString(std::fstream& fs, const std::string& s) { fs << s; }
+void serializeString(std::fstream& fs, const std::string& s) { fs.write(s.c_str(), s.size() + 1); }
 void deserializeString(std::fstream& fs, std::string& s) { std::getline(fs, s, '\0'); }
 
 void obfuscateString(std::fstream &fs, std::string s)

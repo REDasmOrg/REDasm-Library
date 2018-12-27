@@ -1,5 +1,4 @@
 #include "coff_symboltable.h"
-#include <iostream>
 #include "../../plugins/format.h"
 
 #define	COFF_ENTRYSIZE    18
@@ -27,7 +26,7 @@ void SymbolTable::read(SymbolCallback symbolcb)
             if(!entry->e_zeroes)
                 name = this->nameFromTable(entry->e_offset);
             else
-                name = std::string(reinterpret_cast<const char*>(&entry->e_name));
+                name = this->nameFromEntry(reinterpret_cast<const char*>(&entry->e_name));
 
             if(!name.empty())
                 symbolcb(name, entry);
@@ -40,6 +39,12 @@ void SymbolTable::read(SymbolCallback symbolcb)
 std::string SymbolTable::nameFromTable(u64 offset) const
 {
     return std::string(reinterpret_cast<const char*>(m_stringtable + offset));
+}
+
+std::string SymbolTable::nameFromEntry(const char *name) const
+{
+    size_t len = std::min(strlen(name), static_cast<size_t>(E_SYMNMLEN));
+    return std::string(name, len);
 }
 
 void loadSymbols(SymbolCallback symbolcb, u8 *symdata, u64 count)

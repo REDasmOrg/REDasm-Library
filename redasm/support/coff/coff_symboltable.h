@@ -20,6 +20,7 @@ class SymbolTable
 
     private:
         std::string nameFromTable(u64 offset) const;
+        std::string nameFromEntry(const char* name) const;
 
     private:
         u64 m_count;

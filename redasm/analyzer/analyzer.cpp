@@ -100,7 +100,7 @@ SymbolPtr Analyzer::findTrampoline_arm(ListingDocument::iterator it)
     InstructionPtr instruction1 = doc->instruction((*it)->address);
     it++;
 
-    if(it == doc->end() || (*it)->type != ListingItem::InstructionItem)
+    if(it == doc->end() || !(*it)->is(ListingItem::InstructionItem))
         return NULL;
 
     const InstructionPtr& instruction2 = doc->instruction((*it)->address);
@@ -111,10 +111,10 @@ SymbolPtr Analyzer::findTrampoline_arm(ListingDocument::iterator it)
     if((instruction1->mnemonic != "ldr") && (instruction2->mnemonic != "ldr"))
         return NULL;
 
-    if(!instruction1->operands[1].is(OperandTypes::Memory) && (instruction2->operands[0].reg.r != ARM_REG_PC))
+    if(!instruction1->op(1).is(OperandTypes::Memory) || (instruction2->op(0).reg.r != ARM_REG_PC))
         return NULL;
 
-    u64 target = instruction1->operands[1].u_value, importaddress = 0;
+    u64 target = instruction1->op(1).u_value, importaddress = 0;
 
     if(!m_disassembler->readAddress(target, sizeof(u32), &importaddress))
         return NULL;

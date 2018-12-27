@@ -5,6 +5,7 @@
 #include <string>
 #include <iomanip>
 #include <climits>
+#include <cassert>
 #include "demangler.h"
 #include "../redasm_types.h"
 #include "../redasm_buffer.h"
@@ -31,6 +32,24 @@ template<typename T, typename U> inline T readpointer(U** p)
     T v = *reinterpret_cast<T*>(*p);
     *p = REDasm::relpointer<U>(*p, sizeof(T));
     return v;
+}
+
+template<typename T, typename U> T rol(T n, U c) {
+    assert(c < bitwidth<T>::value);
+
+    if(!c)
+        return n;
+
+    return (n << c) | (n >> (bitwidth<T>::value - c));
+}
+
+template<typename T, typename U> T ror(T n, U c) {
+    assert(c < bitwidth<T>::value);
+
+    if(!c)
+        return n;
+
+    return (n >> c) | (n << (bitwidth<T>::value - c));
 }
 
 template<typename T, typename U> T aligned(T t, U a)

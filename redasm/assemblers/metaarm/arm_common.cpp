@@ -21,7 +21,8 @@ template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAss
     REGISTER_INSTRUCTION(ARM_INS_LDM, &ARMCommonAssembler::checkStop);
     REGISTER_INSTRUCTION(ARM_INS_POP, &ARMCommonAssembler::checkStop);
 
-    REGISTER_INSTRUCTION(ARM_INS_LDR, &ARMCommonAssembler::checkLdr);
+    REGISTER_INSTRUCTION(ARM_INS_LDR, &ARMCommonAssembler::checkStop_0);
+    REGISTER_INSTRUCTION(ARM_INS_MOV, &ARMCommonAssembler::checkStop_0);
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecoded(const InstructionPtr &instruction)
@@ -78,7 +79,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
     }
 }
 
-template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkLdr(const InstructionPtr &instruction) const
+template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkStop_0(const InstructionPtr &instruction) const
 {
     const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
     instruction->op(1).size = sizeof(u32);

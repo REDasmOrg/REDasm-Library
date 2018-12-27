@@ -62,6 +62,7 @@ template<typename T> class FormatPluginT: public FormatPlugin
         FormatPluginT(Buffer& buffer): FormatPlugin(buffer) { m_format = reinterpret_cast<T*>(buffer.data()); }
         template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(m_format); }
         template<typename U, typename O> inline U* pointer(O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset); }
+        template<typename U, typename A> inline U* addrpointer(A address) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset(address)); }
         template<typename U, typename V, typename O> inline U* relpointer(V* base, O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
 
     protected:

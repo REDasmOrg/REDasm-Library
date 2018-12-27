@@ -271,6 +271,7 @@ void PeFormat::loadDefault()
     this->loadSections();
     this->loadExports();
     this->loadImports();
+    this->loadTLS();
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
@@ -380,6 +381,19 @@ void PeFormat::loadImports()
         else
             this->readDescriptor<ImageThunkData32, static_cast<u64>(IMAGE_ORDINAL_FLAG32)>(importtable[i]);
     }
+}
+
+void PeFormat::loadTLS()
+{
+    const ImageDataDirectory& tlsdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_TLS];
+
+    if(!tlsdir.VirtualAddress)
+        return;
+
+    if(this->bits() == 64)
+        this->readTLSCallbacks<ImageTlsDirectory64, u64>(RVA_POINTER(ImageTlsDirectory64, tlsdir.VirtualAddress));
+    else
+        this->readTLSCallbacks<ImageTlsDirectory32, u32>(RVA_POINTER(ImageTlsDirectory32, tlsdir.VirtualAddress));
 }
 
 void PeFormat::loadSymbolTable()

@@ -412,7 +412,7 @@ void PeFormat::loadSymbolTable()
 
                       if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
                       {
-                          m_document.function(address, name);
+                          m_document.lock(address, name, SymbolTypes::Function);
                           return;
                       }
 

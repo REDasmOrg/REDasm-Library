@@ -401,7 +401,7 @@ void PeFormat::loadSymbolTable()
     if(!m_ntheaders->FileHeader.PointerToSymbolTable || !m_ntheaders->FileHeader.NumberOfSymbols)
         return;
 
-    REDasm::log("Loading symbol table from " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
+    REDasm::log("Loading symbol table @ " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
 
     COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
                       if(m_document.segmentByName(name)) // Ignore segment informations

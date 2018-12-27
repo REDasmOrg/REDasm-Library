@@ -5,7 +5,7 @@
 #include <vector>
 
 #ifdef _WIN32
-    #include <kernel32.h>
+    #include <winbase.h>
 #else
     #include <unistd.h>
 #endif

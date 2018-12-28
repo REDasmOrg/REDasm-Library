@@ -75,7 +75,7 @@ bool GbaRomFormat::isUppercaseAscii(const char *s, size_t c)
 
 u32 GbaRomFormat::getEP() const
 {
-    u32 b = (Endianness::cfle<u32>(m_buffer) & 0x00FFFFFF) << 2;
+    u32 b = (static_cast<u32>(m_buffer) & 0x00FFFFFF) << 2;
     return GBA_ROM_START_ADDR + (b + 8);
 }
 

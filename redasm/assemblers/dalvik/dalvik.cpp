@@ -26,7 +26,7 @@ const char *DalvikAssembler::name() const { return "Dalvik VM"; }
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new DalvikPrinter(disassembler); }
 AssemblerAlgorithm *DalvikAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new DalvikAlgorithm(disassembler, this); }
 
-bool DalvikAssembler::decodeInstruction(BufferRef& buffer, const InstructionPtr &instruction)
+bool DalvikAssembler::decodeInstruction(const BufferRef& buffer, const InstructionPtr &instruction)
 {
     instruction->id = *buffer;
 
@@ -35,7 +35,8 @@ bool DalvikAssembler::decodeInstruction(BufferRef& buffer, const InstructionPtr 
     if(it == m_opcodemap.end())
         return false;
 
-    bool res = it->second(++buffer, instruction);
+    BufferRef br = buffer.advance(1);
+    bool res = it->second(br, instruction);
 
     if(!res)
         instruction->size = sizeof(u16); // Dalvik uses always 16-bit aligned instructions

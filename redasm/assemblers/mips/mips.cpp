@@ -82,7 +82,7 @@ template<s64 mode> const char *MIPSAssembler<mode>::name() const
     return "Unknown MIPS";
 }
 
-template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
+template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(const BufferRef& buffer, const InstructionPtr& instruction)
 {
     if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(buffer, instruction))
         return true;

@@ -64,7 +64,7 @@ BufferRef::BufferRef(Buffer *buffer, u64 offset): m_buffer(buffer)
     m_size = buffer->size() - offset;
 }
 
-BufferRef::BufferRef(BufferRef *buffer, u64 offset): m_buffer(buffer->m_buffer)
+BufferRef::BufferRef(const BufferRef *buffer, u64 offset): m_buffer(buffer->m_buffer)
 {
     if(offset >= buffer->size())
     {
@@ -84,6 +84,7 @@ BufferRef &BufferRef::advance(int offset)
     return *this;
 }
 
+BufferRef BufferRef::advance(int offset) const { return BufferRef(this, offset); }
 Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->createFilled(n, b); }
 void BufferRef::resize(size_t s) { m_size = s; }
 

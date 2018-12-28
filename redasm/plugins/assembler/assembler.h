@@ -36,8 +36,8 @@ class AssemblerPlugin: public Plugin
         bool hasFlag(u32 flag) const;
         endianness_t endianness() const;
         void setEndianness(endianness_t endianness);
-        virtual bool decode(BufferRef& buffer, const InstructionPtr& instruction);
-        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
+        virtual bool decode(const BufferRef &buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(const BufferRef& buffer, const InstructionPtr& instruction);
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);
@@ -60,7 +60,7 @@ template<cs_arch arch, s64 mode> class CapstoneAssemblerPlugin: public Assembler
         ~CapstoneAssemblerPlugin();
         csh handle() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
-        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(const BufferRef& buffer, const InstructionPtr& instruction);
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);
@@ -95,7 +95,7 @@ template<cs_arch arch, s64 mode> void CapstoneAssemblerPlugin<arch, mode>::onDec
 template<cs_arch arch, s64 mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }
 template<cs_arch arch, s64 mode> csh CapstoneAssemblerPlugin<arch, mode>::handle() const { return this->m_cshandle; }
 
-template<cs_arch arch, s64 mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(BufferRef& buffer, const InstructionPtr& instruction)
+template<cs_arch arch, s64 mode> bool CapstoneAssemblerPlugin<arch, mode>::decodeInstruction(const BufferRef &buffer, const InstructionPtr& instruction)
 {
     u64 address = instruction->address;
     const uint8_t* pdata = static_cast<const uint8_t*>(buffer);

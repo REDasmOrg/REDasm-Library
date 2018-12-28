@@ -53,8 +53,9 @@ class BufferRef
     public:
         BufferRef();
         BufferRef(Buffer* buffer, u64 offset);
-        BufferRef(BufferRef* buffer, u64 offset);
+        BufferRef(const BufferRef *buffer, u64 offset);
         BufferRef& advance(int offset);
+        BufferRef advance(int offset) const;
         Buffer filled(size_t n, u8 b = 0) const;
         void resize(size_t s);
         bool copyTo(Buffer& buffer);

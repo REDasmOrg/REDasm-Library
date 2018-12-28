@@ -25,7 +25,7 @@ class DalvikAssembler : public AssemblerPlugin
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
 
     protected:
-        virtual bool decodeInstruction(BufferRef& buffer, const InstructionPtr &instruction);
+        virtual bool decodeInstruction(const BufferRef &buffer, const InstructionPtr &instruction);
 
     private:
         bool decodeOp0(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, u32 type = InstructionTypes::None) const;

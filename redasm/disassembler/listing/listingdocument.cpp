@@ -320,12 +320,18 @@ void ListingDocument::lock(address_t address, const std::string &name, u32 type,
 
 void ListingDocument::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
-    auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& s) -> bool {
-        return (s.offset == offset) || (s.address == address);
+    auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
+        if(segment.is(SegmentTypes::Bss))
+            return segment.contains(address);
+
+        return (segment.offset == offset) || segment.contains(address);
     });
 
     if(it != m_segments.end())
+    {
+        REDasm::log("WARNING: Segment " + REDasm::quoted(name) + " overlaps " + REDasm::quoted(it->name));
         return;
+    }
 
     Segment segment(name, offset, address, size, type);
 

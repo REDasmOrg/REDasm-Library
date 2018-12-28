@@ -183,7 +183,6 @@ struct Instruction
     bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
-    void reset() { target_idx = -1, type = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
     void targetOp(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
     void target(address_t target) { targets.insert(target); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
@@ -202,8 +201,7 @@ struct Instruction
     template<typename T> Instruction& arg(s64 locindex, register_t base, register_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
     template<typename T> Instruction& local(s64 locindex, register_t base, register_t index, T displacement, u32 type = OperandTypes::Local);
 
-    Instruction& reg(register_t r, u64 type = 0)
-    {
+    Instruction& reg(register_t r, u64 type = 0) {
         Operand op;
         op.index = operands.size();
         op.type = OperandTypes::Register;
@@ -211,6 +209,19 @@ struct Instruction
 
         operands.push_back(op);
         return *this;
+    }
+
+    void reset() {
+        target_idx = -1;
+        type = size = 0;
+
+        targets.clear();
+        operands.clear();
+
+        if(free && userdata) {
+            free(userdata);
+            userdata = NULL;
+        }
     }
 };
 

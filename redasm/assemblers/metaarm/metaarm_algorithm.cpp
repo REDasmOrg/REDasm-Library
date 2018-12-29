@@ -34,7 +34,7 @@ void MetaARMAlgorithm::decodeState(State *state)
     }
     else
     {
-        int res = MetaARMAssemblerISA::classify(m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
+        int res = MetaARMAssemblerISA::classify(state->address, m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
 
         if(res == MetaARMAssemblerISA::Thumb)
             metaarm->switchToThumb();

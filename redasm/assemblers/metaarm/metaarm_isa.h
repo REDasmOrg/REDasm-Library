@@ -17,7 +17,7 @@ class MetaARMAssemblerISA
     public:
         MetaARMAssemblerISA() = delete;
         MetaARMAssemblerISA(const MetaARMAssemblerISA&) = delete;
-        static int classify(const BufferRef& buffer, DisassemblerAPI* disassembler, AssemblerPlugin* armassembler);
+        static int classify(address_t address, const BufferRef& buffer, DisassemblerAPI* disassembler, AssemblerPlugin* armassembler);
 
     private:
         static bool validateBranch(const InstructionPtr& instruction, DisassemblerAPI *disassembler);

@@ -5,14 +5,15 @@
 
 namespace REDasm {
 
-int MetaARMAssemblerISA::classify(const BufferRef &buffer, DisassemblerAPI *disassembler, AssemblerPlugin *armassembler)
+int MetaARMAssemblerISA::classify(address_t address, const BufferRef &buffer, DisassemblerAPI *disassembler, AssemblerPlugin *armassembler)
 {
     BufferRef br = buffer;
     InstructionPtr instruction = std::make_shared<Instruction>();
-    REDasm::status("Classifing Instruction Set");
 
     while(!br.eob())
     {
+        REDasm::status("Classifing Instruction Set @ " + REDasm::hex(address));
+
         if(!armassembler->decode(br, instruction))
             return MetaARMAssemblerISA::Thumb;
 
@@ -22,6 +23,7 @@ int MetaARMAssemblerISA::classify(const BufferRef &buffer, DisassemblerAPI *disa
         if(instruction->is(InstructionTypes::Branch) && !MetaARMAssemblerISA::validateBranch(instruction, disassembler))
             return MetaARMAssemblerISA::Thumb;
 
+        address += instruction->size;
         br.advance(instruction->size);
         instruction->reset();
     }

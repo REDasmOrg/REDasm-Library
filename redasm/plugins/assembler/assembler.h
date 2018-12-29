@@ -29,6 +29,7 @@ class AssemblerPlugin: public Plugin
 {
     public:
         AssemblerPlugin();
+        virtual ~AssemblerPlugin();
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
@@ -57,7 +58,7 @@ template<cs_arch arch, s64 mode> class CapstoneAssemblerPlugin: public Assembler
 {
     public:
         CapstoneAssemblerPlugin();
-        ~CapstoneAssemblerPlugin();
+        virtual ~CapstoneAssemblerPlugin();
         csh handle() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new CapstonePrinter(this->m_cshandle, disassembler); }
         virtual bool decodeInstruction(const BufferRef& buffer, const InstructionPtr& instruction);

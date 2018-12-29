@@ -16,6 +16,7 @@ template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAss
 
     REGISTER_INSTRUCTION(ARM_INS_B, &ARMCommonAssembler::checkB);
     REGISTER_INSTRUCTION(ARM_INS_BL, &ARMCommonAssembler::checkCallT0);
+    REGISTER_INSTRUCTION(ARM_INS_BLX, &ARMCommonAssembler::checkCallT0);
     REGISTER_INSTRUCTION(ARM_INS_BX, &ARMCommonAssembler::checkJumpT0);
 
     REGISTER_INSTRUCTION(ARM_INS_LDM, &ARMCommonAssembler::checkStop);
@@ -25,9 +26,17 @@ template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAss
     REGISTER_INSTRUCTION(ARM_INS_MOV, &ARMCommonAssembler::checkStop_0);
 }
 
+template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::~ARMCommonAssembler() { }
+
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecoded(const InstructionPtr &instruction)
 {
     CapstoneAssemblerPlugin<arch, mode>::onDecoded(instruction);
+
+    if(instruction->address == 0x00000E5E)
+    {
+        int zzz = 0;
+        zzz++;
+    }
 
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
     const cs_arm& arm = insn->detail->arm;
@@ -41,7 +50,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecod
             const arm_op_mem& mem = op.mem;
 
             if((mem.index == ARM_REG_INVALID) && ARMCommonAssembler::isPC(mem.base)) // [pc]
-                instruction->mem(instruction->address + instruction->size + 4 + mem.disp);
+                instruction->mem(this->pc(instruction) + mem.disp);
             else
                 instruction->disp(ARM_REGISTER(mem.base), ARM_REGISTER(mem.index), mem.scale, mem.disp);
         }

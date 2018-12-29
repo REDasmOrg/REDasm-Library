@@ -23,6 +23,15 @@ Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const 
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 AssemblerAlgorithm *MetaARMAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new MetaARMAlgorithm(disassembler, this); }
 bool MetaARMAssembler::decode(const BufferRef &buffer, const InstructionPtr &instruction) { return m_assembler->decode(buffer, instruction); }
+
+u64 MetaARMAssembler::pc(const InstructionPtr &instruction) const
+{
+    if(m_assembler == m_thumbassembler)
+        return m_thumbassembler->pc(instruction);
+
+    return m_armassembler->pc(instruction);
+}
+
 ARMAssembler *MetaARMAssembler::armAssembler() { return m_armassembler; }
 ARMThumbAssembler *MetaARMAssembler::thumbAssembler() { return m_thumbassembler; }
 bool MetaARMAssembler::isPC(const Operand &op) const { return m_armassembler->isPC(op); }

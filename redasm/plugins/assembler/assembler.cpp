@@ -7,6 +7,7 @@
 namespace REDasm {
 
 AssemblerPlugin::AssemblerPlugin(): Plugin(), m_endianness(Endianness::LittleEndian) { }
+AssemblerPlugin::~AssemblerPlugin() { }
 u32 AssemblerPlugin::flags() const { return AssemblerFlags::None; }
 Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const { RE_UNUSED(disassembler); return NULL; }
 Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler) const { return new Printer(disassembler); }

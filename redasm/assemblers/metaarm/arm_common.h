@@ -8,10 +8,18 @@
 
 namespace REDasm {
 
-template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAssemblerPlugin<arch, mode>
+class ARMAbstractAssembler
+{
+    public:
+        virtual ~ARMAbstractAssembler() { }
+        virtual u64 pc(const InstructionPtr& instruction) const = 0;
+};
+
+template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAssemblerPlugin<arch, mode>, public ARMAbstractAssembler
 {
     public:
         ARMCommonAssembler();
+        virtual ~ARMCommonAssembler();
         bool isPC(const Operand& op) const { return op.is(OperandTypes::Register) && this->isPC(op.reg.r); };
         bool isLR(const Operand& op) const { return op.is(OperandTypes::Register) && this->isLR(op.reg.r); };
 

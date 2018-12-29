@@ -20,12 +20,14 @@ class MetaARMAssembler: public AssemblerPlugin
         virtual bool decode(const BufferRef& buffer, const InstructionPtr& instruction);
 
     public:
+        ARMAssembler* armAssembler();
+        ARMThumbAssembler* thumbAssembler();
         bool isPC(const Operand& op) const;
         bool isLR(const Operand& op) const;
-        bool isARMMode() const;
-        bool isTHUMBMode() const;
-        void switchToARM();
+        bool isArm() const;
+        bool isThumb() const;
         void switchToThumb();
+        void switchToArm();
 
     private:
         ARMAssembler* m_armassembler;

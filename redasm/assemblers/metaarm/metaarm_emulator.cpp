@@ -11,7 +11,7 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
     EMULATE_INSTRUCTION(ARM_INS_SUB, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_SBC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_RSB, &MetaARMEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
+    ////EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSL, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSR, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_ASR, &MetaARMEmulator::emulateMath);
@@ -40,7 +40,7 @@ void MetaARMEmulator::emulate(const InstructionPtr &instruction)
 
     MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
 
-    if(metaarm->isTHUMBMode())
+    if(metaarm->isThumb())
     {
         if((instruction->id == ARM_INS_B) || (instruction->id == ARM_INS_BL) || (instruction->id == ARM_INS_CBNZ) || (instruction->id == ARM_INS_CBZ))
             this->writeReg(ARM_REG_PC, instruction->address + 4);

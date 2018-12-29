@@ -1,5 +1,6 @@
 #include "metaarm_algorithm.h"
 #include "metaarm.h"
+#include "metaarm_isa.h"
 #include <capstone.h>
 
 namespace REDasm {
@@ -8,53 +9,63 @@ MetaARMAlgorithm::MetaARMAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugi
 
 void MetaARMAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
 {
-    MetaARMAssembler* metaarmassembler = static_cast<MetaARMAssembler*>(m_assembler);
+    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
 
-    if(metaarmassembler->isPC(op) || metaarmassembler->isLR(op)) // Don't generate references for PC/LR registers
+    if(metaarm->isPC(op) || metaarm->isLR(op)) // Don't generate references for PC/LR registers
         return;
 
-    ControlFlowAlgorithm::onEmulatedOperand(op, instruction, value);
+    ControlFlowAlgorithm::onEmulatedOperand(op, instruction, value & 0xFFFFFFFE);
 }
 
 void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &instruction)
 {
     address_t ctarget = target & 0xFFFFFFFE;
     ControlFlowAlgorithm::enqueueTarget(ctarget, instruction);
-
-    if(!m_document->segment(ctarget)) // Check for valid address
-        return;
-
-    if((instruction->id == ARM_INS_BX) || (instruction->id == ARM_INS_BLX))
-    {
-        if(target & 1)
-            m_document->autoComment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits()) + " -> THUMB");
-        else
-            m_document->autoComment(instruction->address, "@ " + REDasm::hex(ctarget, m_format->bits()) + " -> ARM");
-
-        m_armstate[ctarget] = static_cast<bool>(target & 1);
-        return;
-    }
-
-    // Propagate current state
-    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
-    m_armstate[ctarget] = metaarm->isTHUMBMode();
 }
 
 void MetaARMAlgorithm::decodeState(State *state)
 {
-    auto it = m_armstate.find(state->address);
+    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
+    int res = MetaARMAssemblerISA::classify(m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
 
-    if(it != m_armstate.end())
-    {
-        MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
-
-        if(it->second)
-            metaarm->switchToThumb();
-        else
-            metaarm->switchToARM();
-    }
+    if(res == MetaARMAssemblerISA::Thumb)
+        metaarm->switchToThumb();
+    else
+        metaarm->switchToArm();
 
     ControlFlowAlgorithm::decodeState(state);
+}
+
+void MetaARMAlgorithm::memoryState(State *state)
+{
+    if(state->address & 1)
+        return;
+
+    ControlFlowAlgorithm::memoryState(state);
+}
+
+void MetaARMAlgorithm::pointerState(State *state)
+{
+    u64 value = 0;
+
+    if(!m_disassembler->dereference(state->address, &value))
+    {
+        FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
+        return;
+    }
+
+    if(value & 1)
+        return;
+
+    ControlFlowAlgorithm::pointerState(state);
+}
+
+void MetaARMAlgorithm::immediateState(State *state)
+{
+    if(state->u_value & 1)
+        return;
+
+    ControlFlowAlgorithm::immediateState(state);
 }
 
 } // namespace REDasm

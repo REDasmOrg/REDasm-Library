@@ -79,6 +79,7 @@ SET(SOURCES
     redasm/assemblers/metaarm/metaarm.cpp
     redasm/assemblers/metaarm/metaarm_printer.cpp
     redasm/assemblers/metaarm/metaarm_emulator.cpp
+    redasm/assemblers/metaarm/metaarm_isa.cpp
     redasm/assemblers/metaarm/arm.cpp
     redasm/plugins/assembler/assembler.cpp
     redasm/disassembler/listing/listingdocument.cpp
@@ -178,6 +179,7 @@ set(HEADERS
     redasm/assemblers/metaarm/metaarm.h
     redasm/assemblers/metaarm/metaarm_printer.h
     redasm/assemblers/metaarm/metaarm_emulator.h
+    redasm/assemblers/metaarm/metaarm_isa.h
     redasm/assemblers/metaarm/arm.h
     redasm/assemblers/metaarm/arm_common.h
     redasm/plugins/assembler/assembler.h

@@ -14,8 +14,7 @@ class AssemblerAlgorithm: public StateMachine
 {
     DEFINE_STATES(DecodeState,
                   JumpState, CallState, BranchState, BranchMemoryState,
-                  AddressTableState, MemoryState, ImmediateState,
-                  EraseSymbolState)
+                  AddressTableState, MemoryState, PointerState, ImmediateState)
 
     public:
         enum: u32 { OK, SKIP, FAIL };
@@ -47,8 +46,8 @@ class AssemblerAlgorithm: public StateMachine
         virtual void branchMemoryState(State* state);
         virtual void addressTableState(State* state);
         virtual void memoryState(State* state);
+        virtual void pointerState(State* state);
         virtual void immediateState(State* state);
-        virtual void eraseSymbolState(State* state);
 
     private:
         bool canBeDisassembled(address_t address);

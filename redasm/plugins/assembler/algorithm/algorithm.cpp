@@ -22,8 +22,8 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
     REGISTER_STATE(AssemblerAlgorithm::BranchMemoryState, &AssemblerAlgorithm::branchMemoryState);
     REGISTER_STATE(AssemblerAlgorithm::AddressTableState, &AssemblerAlgorithm::addressTableState);
     REGISTER_STATE(AssemblerAlgorithm::MemoryState, &AssemblerAlgorithm::memoryState);
+    REGISTER_STATE(AssemblerAlgorithm::PointerState, &AssemblerAlgorithm::pointerState);
     REGISTER_STATE(AssemblerAlgorithm::ImmediateState, &AssemblerAlgorithm::immediateState);
-    REGISTER_STATE(AssemblerAlgorithm::EraseSymbolState, &AssemblerAlgorithm::eraseSymbolState);
 }
 
 void AssemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(address); }
@@ -233,12 +233,23 @@ void AssemblerAlgorithm::memoryState(State *state)
         m_disassembler->pushReference(state->address, instruction->address);
     }
     else
-    {
-        m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
-        m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
-    }
+        FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
 
     m_disassembler->pushReference(state->address, instruction->address);
+}
+
+void AssemblerAlgorithm::pointerState(State *state)
+{
+    u64 value = 0;
+
+    if(!m_disassembler->dereference(state->address, &value))
+    {
+        FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
+        return;
+    }
+
+    m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
+    m_disassembler->checkLocation(state->address, state->address); // Create Symbol + XRefs
 }
 
 void AssemblerAlgorithm::immediateState(State *state)
@@ -250,8 +261,6 @@ void AssemblerAlgorithm::immediateState(State *state)
     else
         m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
 }
-
-void AssemblerAlgorithm::eraseSymbolState(State *state) { m_document->eraseSymbol(state->address); }
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {

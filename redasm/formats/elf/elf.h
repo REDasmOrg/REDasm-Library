@@ -73,7 +73,7 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
         }
 
         case EM_ARM:
-            return this->bits() == 32 ? "arm" : "arm64";
+            return this->bits() == 32 ? "metaarm" : "arm64";
 
         default:
             break;
@@ -150,7 +150,12 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
         if(shdr.sh_type & SHT_NOBITS)
             type = SegmentTypes::Bss;
 
-        this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+        std::string name = ELF_STRING(&shstr, shdr.sh_name);
+
+        if(name == ".comment")
+            continue;
+
+        this->m_document.segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }
 }
 

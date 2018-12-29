@@ -23,6 +23,7 @@ class Emulator
         virtual bool displacement(const Operand& op, u64* value) = 0;
 
     protected:
+        virtual bool setTarget(const InstructionPtr& instruction);
         Buffer& getSegmentMemory(address_t address, offset_t* offset);
         BufferRef getMemory(address_t address);
         BufferRef getStack(offset_t sp);

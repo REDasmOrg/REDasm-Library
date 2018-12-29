@@ -183,15 +183,15 @@ struct Instruction
     bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
-    void targetOp(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
     void target(address_t target) { targets.insert(target); }
+    void untarget(address_t target) { targets.erase(target); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return *targets.begin(); }
     address_t endAddress() const { return address + size; }
 
     Operand& targetOperand() { return operands[target_idx]; }
-    Operand& op(size_t idx) { return operands[idx]; }
+    Operand& op(size_t idx = 0) { return operands[idx]; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Memory, extratype, v, operands.size())); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Immediate, extratype, v, operands.size())); return *this; }
@@ -200,6 +200,13 @@ struct Instruction
     template<typename T> Instruction& disp(register_t base, register_t index, s32 scale, T displacement);
     template<typename T> Instruction& arg(s64 locindex, register_t base, register_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
     template<typename T> Instruction& local(s64 locindex, register_t base, register_t index, T displacement, u32 type = OperandTypes::Local);
+
+    void targetOp(s32 index) {
+        target_idx = index;
+
+        if((index < operands.size()) && !operands[index].is(OperandTypes::Register))
+            this->target(operands[index].u_value);
+    }
 
     Instruction& reg(register_t r, u64 type = 0) {
         Operand op;

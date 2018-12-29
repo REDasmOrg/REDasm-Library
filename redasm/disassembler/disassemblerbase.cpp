@@ -24,7 +24,9 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
     if(!segment || (!segment->is(SegmentTypes::Data) && !segment->is(SegmentTypes::Bss))) // Don't flood "Pure-Code" sections with symbols
         return;
 
-    m_document->symbol(address, SymbolTypes::Data);
+    if(!m_document->symbol(address))
+        m_document->symbol(address, SymbolTypes::Data);
+
     this->pushReference(address, fromaddress);
 }
 

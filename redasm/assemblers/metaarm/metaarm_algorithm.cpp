@@ -26,12 +26,21 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
 void MetaARMAlgorithm::decodeState(State *state)
 {
     MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
-    int res = MetaARMAssemblerISA::classify(m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
 
-    if(res == MetaARMAssemblerISA::Thumb)
+    if(state->address & 0x1)
+    {
+        state->address &= 0xFFFFFFFE;
         metaarm->switchToThumb();
+    }
     else
-        metaarm->switchToArm();
+    {
+        int res = MetaARMAssemblerISA::classify(m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
+
+        if(res == MetaARMAssemblerISA::Thumb)
+            metaarm->switchToThumb();
+        else
+            metaarm->switchToArm();
+    }
 
     ControlFlowAlgorithm::decodeState(state);
 }

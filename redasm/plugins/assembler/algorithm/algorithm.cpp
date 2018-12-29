@@ -131,6 +131,7 @@ void AssemblerAlgorithm::jumpState(State *state)
 
     m_document->symbol(state->address, SymbolTypes::Code);
     m_disassembler->pushReference(state->address, state->instruction->address);
+    ENQUEUE_DECODE_STATE(state->address);
 }
 
 void AssemblerAlgorithm::callState(State *state)
@@ -150,7 +151,6 @@ void AssemblerAlgorithm::branchState(State *state)
     else
         REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
                                                             + REDasm::hex(instruction->address, m_format->bits()));
-
 }
 
 void AssemblerAlgorithm::branchMemoryState(State *state)
@@ -299,8 +299,10 @@ u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &ins
     if(it != m_disassembled.end())
         return AssemblerAlgorithm::SKIP;
 
-    m_disassembled.insert(address);
     u32 result = this->disassembleInstruction(address, instruction);
+
+    if(result != AssemblerAlgorithm::SKIP)
+        m_disassembled.insert(address);
 
     if(result == AssemblerAlgorithm::FAIL)
     {

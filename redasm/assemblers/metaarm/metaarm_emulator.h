@@ -7,12 +7,12 @@ namespace REDasm {
 
 class MetaARMEmulator: public EmulatorT<u32>
 {
-    private:
-        enum { CarryFlag = 0 };
-
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);
         virtual void emulate(const InstructionPtr& instruction);
+
+    protected:
+        virtual bool setTarget(const InstructionPtr& instruction);
 
     private:
         void emulateMath(const InstructionPtr& instruction);

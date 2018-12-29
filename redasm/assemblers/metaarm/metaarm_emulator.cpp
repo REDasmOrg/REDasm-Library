@@ -53,6 +53,23 @@ void MetaARMEmulator::emulate(const InstructionPtr &instruction)
     EmulatorT<u32>::emulate(instruction);
 }
 
+bool MetaARMEmulator::setTarget(const InstructionPtr &instruction)
+{
+    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
+
+    if(metaarm->isPC(instruction->targetOperand()) || metaarm->isLR(instruction->targetOperand()))
+        return false;
+
+    if(!EmulatorT<u32>::setTarget(instruction))
+        return false;
+
+    address_t target = instruction->target();
+    instruction->untarget(target);
+    instruction->target(target & 0xFFFFFFFE);
+    m_disassembler->document()->update(instruction);
+    return true;
+}
+
 void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)
 {
     if(instruction->id != ARM_INS_RSB)

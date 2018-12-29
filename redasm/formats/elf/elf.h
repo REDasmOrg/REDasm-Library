@@ -20,7 +20,7 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL) { }
+        ElfFormat(Buffer& buffer);
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
@@ -39,9 +39,16 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         void parseSegments();
 
     private:
+        std::set<std::string> m_skipsections;
         SHDR* m_shdr;
         PHDR* m_phdr;
 };
+
+template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
+{
+    m_skipsections.insert(".comment");
+    m_skipsections.insert(".attribute");
+}
 
 template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
 {
@@ -151,11 +158,19 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
             type = SegmentTypes::Bss;
 
         std::string name = ELF_STRING(&shstr, shdr.sh_name);
+        bool skip = false;
 
-        if(name == ".comment")
-            continue;
+        for(const std::string& s : m_skipsections)
+        {
+            if(name.find(s) == std::string::npos)
+                continue;
 
-        this->m_document.segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+            skip = true;
+            break;
+        }
+
+        if(!skip)
+            this->m_document.segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }
 }
 

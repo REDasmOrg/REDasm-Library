@@ -32,7 +32,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
         bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
         u32 getMethodSize(u32 methodidx) const;
-        u32 nextImport(u32 *res = NULL);
+        address_t nextImport(address_t *res = NULL);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
@@ -46,7 +46,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         static std::string normalized(const std::string& type);
 
     private:
-        u32 m_importbase;
+        u64 m_importbase;
         std::unordered_map<u64, DEXCodeItem*> m_codeitems;
         std::unordered_map<u64, DEXEncodedMethod> m_encmethods;
         DEXTypeIdItem* m_types;

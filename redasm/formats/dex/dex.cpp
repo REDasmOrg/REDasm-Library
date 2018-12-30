@@ -4,7 +4,7 @@
 #include "dex_utils.h"
 #include <cctype>
 
-#define IMPORT_SECTION_ADDRESS        0x10000000
+#define IMPORT_SECTION_ADDRESS        0x100000000
 #define IMPORT_SECTION_SIZE           0x10000000
 
 namespace REDasm {
@@ -47,7 +47,7 @@ bool DEXFormat::load()
     if(m_format->field_ids_off && m_format->field_ids_size)
         m_fields = pointer<DEXFieldIdItem>(m_format->field_ids_off);
 
-    m_document.segment("DATA", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
+    m_document.segment("CODE", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
     m_document.segment("IMPORT", 0, IMPORT_SECTION_ADDRESS, IMPORT_SECTION_SIZE, SegmentTypes::Bss);
 
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(m_format->class_defs_off);
@@ -197,9 +197,9 @@ bool DEXFormat::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
 
 u32 DEXFormat::getMethodSize(u32 methodidx) const { return m_codeitems.at(methodidx)->insn_size * sizeof(u16); }
 
-u32 DEXFormat::nextImport(u32* res)
+address_t DEXFormat::nextImport(address_t *res)
 {
-    u32 importbase = m_importbase;
+    address_t importbase = m_importbase;
     m_importbase += sizeof(u16);
 
     if(res)
@@ -270,7 +270,12 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     m_encmethods[idx] = dexmethod;
     m_codeitems[idx] = dexcode;
 
-    m_document.function(fileoffset(&dexcode->insns), this->getMethodName(idx), idx);
+    std::string methodname = this->getMethodName(idx);
+
+    if(!methodname.find("android."))
+        m_document.function(fileoffset(&dexcode->insns), methodname, idx);
+    else
+        m_document.symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
 }
 
 void DEXFormat::loadClass(const DEXClassIdItem &dexclass)

@@ -85,7 +85,7 @@ void DalvikAlgorithm::checkImport(const State* state)
         return;
 
     m_imports.insert(methodname);
-    u32 importaddress = 0;
+    address_t importaddress = 0;
 
     if(!methodname.find("java."))
         m_document->symbol(m_dexformat->nextImport(&importaddress), methodname, SymbolTypes::Import);

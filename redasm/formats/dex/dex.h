@@ -31,6 +31,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         std::string getParameters(u64 methodidx) const;
         bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
         bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
+        u32 getMethodSize(u32 methodidx) const;
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);

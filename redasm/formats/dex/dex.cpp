@@ -186,6 +186,8 @@ bool DEXFormat::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
     return true;
 }
 
+u32 DEXFormat::getMethodSize(u32 methodidx) const { return m_codeitems.at(methodidx)->insn_size * sizeof(u16); }
+
 bool DEXFormat::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexclassdata)
 {
     if(!dexclass.class_data_off)

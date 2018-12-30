@@ -4,9 +4,16 @@
 #include "dex_utils.h"
 #include <cctype>
 
+#define IMPORT_SECTION_ADDRESS        0x10000000
+#define IMPORT_SECTION_SIZE           0x10000000
+
 namespace REDasm {
 
-DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL) { }
+DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
+{
+    m_importbase = IMPORT_SECTION_ADDRESS;
+}
+
 const char *DEXFormat::name() const { return "DEX"; }
 u32 DEXFormat::bits() const { return 32; }
 const char *DEXFormat::assembler() const { return "dalvik"; }
@@ -41,6 +48,8 @@ bool DEXFormat::load()
         m_fields = pointer<DEXFieldIdItem>(m_format->field_ids_off);
 
     m_document.segment("DATA", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
+    m_document.segment("IMPORT", 0, IMPORT_SECTION_ADDRESS, IMPORT_SECTION_SIZE, SegmentTypes::Bss);
+
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(m_format->class_defs_off);
 
     for(u32 i = 0; i < m_format->class_defs_size; i++)
@@ -92,7 +101,7 @@ std::string DEXFormat::getType(u64 idx) const
     return this->getNormalizedString(dextype.descriptor_idx);
 }
 
-std::string DEXFormat::getMethod(u64 idx) const
+std::string DEXFormat::getMethodName(u64 idx) const
 {
     if(idx >= m_format->method_ids_size)
         return "method_" + std::to_string(idx);
@@ -105,7 +114,7 @@ std::string DEXFormat::getMethod(u64 idx) const
 
 std::string DEXFormat::getMethodProto(u64 idx) const
 {
-    return this->getMethod(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
+    return this->getMethodName(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
 }
 
 std::string DEXFormat::getField(u64 idx) const
@@ -188,6 +197,17 @@ bool DEXFormat::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
 
 u32 DEXFormat::getMethodSize(u32 methodidx) const { return m_codeitems.at(methodidx)->insn_size * sizeof(u16); }
 
+u32 DEXFormat::nextImport(u32* res)
+{
+    u32 importbase = m_importbase;
+    m_importbase += sizeof(u16);
+
+    if(res)
+        *res = importbase;
+
+    return importbase;
+}
+
 bool DEXFormat::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexclassdata)
 {
     if(!dexclass.class_data_off)
@@ -250,7 +270,7 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     m_encmethods[idx] = dexmethod;
     m_codeitems[idx] = dexcode;
 
-    m_document.function(fileoffset(&dexcode->insns), this->getMethod(idx), idx);
+    m_document.function(fileoffset(&dexcode->insns), this->getMethodName(idx), idx);
 }
 
 void DEXFormat::loadClass(const DEXClassIdItem &dexclass)

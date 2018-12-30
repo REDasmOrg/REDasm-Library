@@ -24,7 +24,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         bool getStringOffset(u64 idx, offset_t &offset) const;
         std::string getString(u64 idx) const;
         std::string getType(u64 idx) const;
-        std::string getMethod(u64 idx) const;
+        std::string getMethodName(u64 idx) const;
         std::string getMethodProto(u64 idx) const;
         std::string getField(u64 idx) const;
         std::string getReturnType(u64 methodidx) const;
@@ -32,6 +32,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
         bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
         u32 getMethodSize(u32 methodidx) const;
+        u32 nextImport(u32 *res = NULL);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
@@ -45,6 +46,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         static std::string normalized(const std::string& type);
 
     private:
+        u32 m_importbase;
         std::unordered_map<u64, DEXCodeItem*> m_codeitems;
         std::unordered_map<u64, DEXEncodedMethod> m_encmethods;
         DEXTypeIdItem* m_types;

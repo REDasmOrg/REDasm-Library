@@ -11,7 +11,7 @@ void StateMachine::next()
     State currentstate = m_pending.top();
     m_pending.pop();
 
-    if(!this->validateState(currentstate))
+    if(!(currentstate.id & StateMachine::UserState) && !this->validateState(currentstate))
         return;
 
     auto it = m_states.find(currentstate.id);

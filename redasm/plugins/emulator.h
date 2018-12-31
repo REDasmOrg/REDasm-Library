@@ -12,7 +12,7 @@ namespace REDasm {
 class Emulator
 {
     private:
-        typedef Dispatcher<instruction_id_t, void(const InstructionPtr&)> DispatcherType;
+        typedef Dispatcher<instruction_id_t, const InstructionPtr&> DispatcherType;
         typedef std::unordered_map<const Segment*, Buffer> MappedMemory;
 
     public:

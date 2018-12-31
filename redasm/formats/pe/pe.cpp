@@ -271,7 +271,7 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     if(!m_dotnetreader->isValid())
         return;
 
-    this->m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
+    m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
         m_document.function(m_imagebase + rva, name);
     });
 }

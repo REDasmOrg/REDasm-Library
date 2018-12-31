@@ -452,8 +452,12 @@ std::string ListingDocument::autoComment(address_t address) const
 
 std::string ListingDocument::normalized(std::string s)
 {
-    std::replace(s.begin(), s.end(), '.', '_');
-    std::replace(s.begin(), s.end(), ' ', '_');
+    for(char& ch : s)
+    {
+        if((ch == '.') || (ch == ' '))
+            ch = '_';
+    }
+
     return s;
 }
 

@@ -345,7 +345,7 @@ const std::string &DEXFormat::cacheEntry(u64 idx, std::unordered_map<u64, std::s
     std::string s;
     cb(s);
 
-    auto iit = cache.emplace(idx, s);
+    auto iit = cache.emplace(idx, std::move(s));
     return iit.first->second;
 }
 

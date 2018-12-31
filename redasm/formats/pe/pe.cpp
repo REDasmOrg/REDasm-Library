@@ -119,7 +119,10 @@ u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
         if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
         {
             if(ok)
-                *ok = true;
+                *ok = (section.SizeOfRawData != 0);
+
+            if(!section.SizeOfRawData) // Check if section not BSS
+                break;
 
             return section.PointerToRawData + (rva - section.VirtualAddress);
         }
@@ -142,8 +145,14 @@ void PeFormat::checkDelphi(const PEResources& peresources)
 
     u64 datasize = 0;
     PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->m_format,
-                                                                         [this](address_t a) -> offset_t { return this->rvaToOffset(a); },
+                                                                         [this](address_t a, bool* ok) -> offset_t { return this->rvaToOffset(a, ok); },
                                                                          &datasize);
+
+    if(!packageinfo)
+    {
+        REDasm::log("WARNING: Cannot parse 'PACKAGEINFO' header");
+        return;
+    }
 
     BorlandVersion borlandver(packageinfo, ri, datasize);
 

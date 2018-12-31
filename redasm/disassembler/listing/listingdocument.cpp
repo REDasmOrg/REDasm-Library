@@ -67,14 +67,14 @@ void ListingDocument::deserializeFrom(std::fstream &fs)
     });
 
     m_instructions.deserialized += [&](const InstructionPtr& instruction) {
-        this->pushSorted(instruction->address, ListingItem::InstructionItem);
+        this->insertSorted(instruction->address, ListingItem::InstructionItem);
     };
 
     m_symboltable.deserialized += [&](const SymbolPtr& symbol) {
         if(symbol->type & SymbolTypes::FunctionMask)
-            this->pushSorted(symbol->address, ListingItem::FunctionItem);
+            this->insertSorted(symbol->address, ListingItem::FunctionItem);
         else
-            this->pushSorted(symbol->address, ListingItem::SymbolItem);
+            this->insertSorted(symbol->address, ListingItem::SymbolItem);
     };
 
     m_instructions.deserializeFrom(fs);
@@ -264,9 +264,9 @@ void ListingDocument::symbol(address_t address, const std::string &name, u32 typ
         return;
 
     if(type & SymbolTypes::FunctionMask)
-        this->pushSorted(address, ListingItem::FunctionItem);
+        this->insertSorted(address, ListingItem::FunctionItem);
     else
-        this->pushSorted(address, ListingItem::SymbolItem);
+        this->insertSorted(address, ListingItem::SymbolItem);
 }
 
 void ListingDocument::symbol(address_t address, u32 type, u32 tag)
@@ -340,7 +340,7 @@ void ListingDocument::segment(const std::string &name, offset_t offset, address_
     });
 
     it = m_segments.insert(it, segment);
-    this->pushSorted(address, ListingItem::SegmentItem);
+    this->insertSorted(address, ListingItem::SegmentItem);
 }
 
 void ListingDocument::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
@@ -400,7 +400,7 @@ const Segment *ListingDocument::segmentByName(const std::string &name) const
 void ListingDocument::instruction(const InstructionPtr &instruction)
 {
     m_instructions.commit(instruction->address, instruction);
-    this->pushSorted(instruction->address, ListingItem::InstructionItem);
+    this->insertSorted(instruction->address, ListingItem::InstructionItem);
 }
 
 void ListingDocument::update(const InstructionPtr &instruction) { m_instructions.update(instruction); }
@@ -509,7 +509,7 @@ SymbolTable *ListingDocument::symbols() { return &m_symboltable; }
 InstructionCache *ListingDocument::instructions() { return &m_instructions; }
 FormatPlugin *ListingDocument::format() { return m_format; }
 
-void ListingDocument::pushSorted(address_t address, u32 type)
+void ListingDocument::insertSorted(address_t address, u32 type)
 {
     document_lock lock(m_mutex);
     ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);

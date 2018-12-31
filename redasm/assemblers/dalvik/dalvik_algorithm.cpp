@@ -77,7 +77,7 @@ void DalvikAlgorithm::methodIndexState(const State *state)
 void DalvikAlgorithm::checkImport(const State* state)
 {
     const Operand& op = state->operand();
-    std::string methodname = m_dexformat->getMethodName(op.u_value);
+    const std::string& methodname = m_dexformat->getMethodName(op.u_value);
 
     auto it = m_imports.find(methodname);
 

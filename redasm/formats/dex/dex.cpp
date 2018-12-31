@@ -9,6 +9,8 @@
 
 namespace REDasm {
 
+const std::string DEXFormat::m_invalidstring;
+
 DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
 {
     m_importbase = IMPORT_SECTION_ADDRESS;
@@ -81,57 +83,68 @@ bool DEXFormat::getStringOffset(u64 idx, offset_t& offset) const
     return true;
 }
 
-std::string DEXFormat::getString(u64 idx) const
+const std::string &DEXFormat::getString(u64 idx)
 {
     if(!m_strings)
-        return std::string();
+        return m_invalidstring;
 
-    u8* pstringdata = pointer<u8>(m_strings[idx].string_data_off);
-    u32 len = DEXUtils::getULeb128(&pstringdata);
-
-    return std::string(reinterpret_cast<const char*>(pstringdata), len);
+    return cacheEntry(idx, m_cachedstrings, [=](std::string& s) {
+        u8* pstringdata = pointer<u8>(m_strings[idx].string_data_off);
+        u32 len = DEXUtils::getULeb128(&pstringdata);
+        s = std::string(reinterpret_cast<const char*>(pstringdata), len);
+    });
 }
 
-std::string DEXFormat::getType(u64 idx) const
+const std::string& DEXFormat::getType(u64 idx)
 {
-    if(idx >= m_format->type_ids_size)
-        return "type_" + std::to_string(idx);
+    return cacheEntry(idx, m_cachedtypes, [&](std::string& s) {
+        if(idx >= m_format->type_ids_size) {
+            s = "type_" + std::to_string(idx);
+            return;
+        }
 
-    const DEXTypeIdItem& dextype = m_types[idx];
-    return this->getNormalizedString(dextype.descriptor_idx);
+        const DEXTypeIdItem& dextype = m_types[idx];
+        s = this->getNormalizedString(dextype.descriptor_idx);
+    });
 }
 
-std::string DEXFormat::getMethodName(u64 idx) const
+const std::string& DEXFormat::getMethodName(u64 idx)
 {
-    if(idx >= m_format->method_ids_size)
-        return "method_" + std::to_string(idx);
+    return cacheEntry(idx, m_cachedmethodnames, [&](std::string& s) {
+        if(idx >= m_format->method_ids_size) {
+            s = "method_" + std::to_string(idx);
+            return;
+        }
 
-    const DEXMethodIdItem& dexmethod = m_methods[idx];
-
-    return this->getType(dexmethod.class_idx) + "->" +
-           this->getNormalizedString(dexmethod.name_idx);
+        const DEXMethodIdItem& dexmethod = m_methods[idx];
+        s = this->getType(dexmethod.class_idx) + "->" + this->getNormalizedString(dexmethod.name_idx);
+    });
 }
 
-std::string DEXFormat::getMethodProto(u64 idx) const
+const std::string& DEXFormat::getMethodProto(u64 idx)
 {
-    return this->getMethodName(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
+    return cacheEntry(idx, m_cachedmethodproto, [&](std::string& s) {
+        s = this->getMethodName(idx) + this->getParameters(idx) + ":" + this->getReturnType(idx);
+    });
 }
 
-std::string DEXFormat::getField(u64 idx) const
+const std::string& DEXFormat::getField(u64 idx)
 {
-    if(!m_fields || (idx >= m_format->field_ids_size))
-        return "field_" + std::to_string(idx);
+    return cacheEntry(idx, m_cachedfields, [&](std::string& s) {
+        if(!m_fields || (idx >= m_format->field_ids_size)) {
+            s = "field_" + std::to_string(idx);
+            return;
+        }
 
-    const DEXFieldIdItem& dexfield = m_fields[idx];
-
-    return this->getType(dexfield.class_idx) + "->" +
-           this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
+        const DEXFieldIdItem& dexfield = m_fields[idx];
+        s = this->getType(dexfield.class_idx) + "->" + this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
+    });
 }
 
-std::string DEXFormat::getReturnType(u64 methodidx) const
+const std::string& DEXFormat::getReturnType(u64 methodidx)
 {
     if(methodidx >= m_format->method_ids_size)
-        return std::string();
+        return m_invalidstring;
 
     const DEXMethodIdItem& dexmethod = m_methods[methodidx];
     const DEXProtoIdItem& dexproto = m_protos[dexmethod.proto_idx];
@@ -139,18 +152,20 @@ std::string DEXFormat::getReturnType(u64 methodidx) const
     return this->getNormalizedString(m_types[dexproto.return_type_idx].descriptor_idx);
 }
 
-std::string DEXFormat::getParameters(u64 methodidx) const
+const std::string& DEXFormat::getParameters(u64 methodidx)
 {
     if(methodidx >= m_format->method_ids_size)
-        return std::string();
+        return m_invalidstring;
 
-    const DEXMethodIdItem& dexmethod = m_methods[methodidx];
-    const DEXProtoIdItem& dexproto = m_protos[dexmethod.proto_idx];
+    return this->cacheEntry(methodidx, m_cachedparameters, [&](std::string& s) {
+        const DEXMethodIdItem& dexmethod = m_methods[methodidx];
+        const DEXProtoIdItem& dexproto = m_protos[dexmethod.proto_idx];
 
-    if(!dexproto.parameters_off)
-        return "()";
-
-    return "(" + this->getTypeList(dexproto.parameters_off) + ")";
+        if(!dexproto.parameters_off)
+            s = "()";
+        else
+            s = "(" + this->getTypeList(dexproto.parameters_off) + ")";
+    });
 }
 
 bool DEXFormat::getMethodInfo(u64 methodidx, DEXEncodedMethod &dexmethod)
@@ -270,7 +285,7 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     m_encmethods[idx] = dexmethod;
     m_codeitems[idx] = dexcode;
 
-    std::string methodname = this->getMethodName(idx);
+    const std::string& methodname = this->getMethodName(idx);
 
     if(!methodname.find("android."))
         m_document.function(fileoffset(&dexcode->insns), methodname, idx);
@@ -298,24 +313,40 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
     });
 }
 
-std::string DEXFormat::getNormalizedString(u64 idx) const { return this->normalized(this->getString(idx)); }
-
-std::string DEXFormat::getTypeList(u64 typelistoff) const
+const std::string& DEXFormat::getNormalizedString(u64 idx)
 {
-    u32 size = *pointer<u32>(typelistoff);
-    DEXTypeItem* dextypeitem = pointer<DEXTypeItem>(typelistoff + sizeof(u32));
+    return cacheEntry(idx, m_cachednstrings, [&](std::string& s) {
+        s = this->normalized(this->getString(idx));
+    });
+}
+
+const std::string& DEXFormat::getTypeList(u64 typelistoff)
+{
+    return cacheEntry(typelistoff, m_cachedtypelist, [=](std::string& s) {
+        u32 size = *pointer<u32>(typelistoff);
+        DEXTypeItem* dextypeitem = pointer<DEXTypeItem>(typelistoff + sizeof(u32));
+
+        for(u32 i = 0; i < size; i++) {
+            if(i)
+                s += ", ";
+
+            s += this->getType(dextypeitem[i].type_idx);
+        }
+    });
+}
+
+const std::string &DEXFormat::cacheEntry(u64 idx, std::unordered_map<u64, std::string> &cache, const std::function<void(std::string&)> &cb)
+{
+    auto it = cache.find(idx);
+
+    if(it != cache.end())
+        return it->second;
 
     std::string s;
+    cb(s);
 
-    for(u32 i = 0; i < size; i++)
-    {
-        if(i)
-            s += ", ";
-
-        s += this->getType(dextypeitem[i].type_idx);
-    }
-
-    return s;
+    auto iit = cache.emplace(idx, s);
+    return iit.first->second;
 }
 
 bool DEXFormat::validateSignature(DEXHeader* format)

@@ -93,6 +93,7 @@ bool PeFormat::load()
         m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader32.DataDirectory);
     }
 
+    this->loadSections();
     ImageCorHeader* corheader = this->checkDotNet();
 
     if(corheader && (corheader->MajorRuntimeVersion == 1))
@@ -277,7 +278,6 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
 
 void PeFormat::loadDefault()
 {
-    this->loadSections();
     this->loadExports();
     this->loadImports();
     this->loadTLS();

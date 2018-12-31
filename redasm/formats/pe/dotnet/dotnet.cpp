@@ -115,7 +115,13 @@ u32 PeDotNet::getValueIdx(u32 **data, u32 offsize)
 
 u32 PeDotNet::getTableIdx(u32 **data, const CorTables &tables, u32 table)
 {
-    if(tables.rows.at(table) > 0xFFFF)
+    // Check if table exists
+    auto it = tables.rows.find(table);
+
+    if(it == tables.rows.end())
+        return static_cast<u32>(-1);
+
+    if(it->second > 0xFFFF)
         return REDasm::readpointer<u32>(data);
 
     return REDasm::readpointer<u16>(data);

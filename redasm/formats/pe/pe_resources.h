@@ -17,7 +17,7 @@ class PEResources
                     VERSION_INFO = 16, HTML_PAGES = 23, CONFIGURATION_FILES = 24 };
 
         typedef std::pair<ImageResourceDirectory*, ImageResourceDirectoryEntry*> ResourceItem;
-        typedef std::function<offset_t(address_t)> RvaToOffsetCallback;
+        typedef std::function<offset_t(address_t, bool*)> RvaToOffsetCallback;
 
     public:
         PEResources(ImageResourceDirectory* resourcedirectory);
@@ -52,7 +52,13 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         if(size)
             *size = dataentry->Size;
 
-        return reinterpret_cast<T1*>(reinterpret_cast<size_t>(formatbase) + rtocb(dataentry->OffsetToData));
+        bool ok = false;
+        offset_t offset = rtocb(dataentry->OffsetToData, &ok);
+
+        if(!ok)
+            return NULL;
+
+        return reinterpret_cast<T1*>(reinterpret_cast<size_t>(formatbase) + offset);
     }
 
     ImageResourceDirectory* resourcedir = RESOURCE_PTR(ImageResourceDirectory, m_resourcedirectory, item.second->OffsetToDirectory);

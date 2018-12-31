@@ -72,7 +72,7 @@ class SymbolTable: public Serializer::Serializable
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
-        void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
+        void iterate(u32 symbolflags, const std::function<bool(const SymbolPtr &)> &cb);
         bool erase(address_t address);
 
     public:

@@ -44,7 +44,7 @@ SymbolPtr SymbolTable::symbol(address_t address)
     return it->second;
 }
 
-void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)> f)
+void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const SymbolPtr&)>& cb)
 {
     std::list<SymbolPtr> symbols;
 
@@ -60,7 +60,7 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 
     for(auto it = symbols.begin(); it != symbols.end(); it++)
     {
-        if(!f(*it))
+        if(!cb(*it))
             break;
     }
 }

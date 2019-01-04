@@ -11,7 +11,7 @@ void StateMachine::next()
     State currentstate = m_pending.top();
     m_pending.pop();
 
-    if(!this->validateState(currentstate))
+    if(!(currentstate.id & StateMachine::UserState) && !this->validateState(currentstate))
         return;
 
     auto it = m_states.find(currentstate.id);
@@ -28,7 +28,7 @@ void StateMachine::next()
 
 void StateMachine::enqueueState(state_t state, u64 value, s64 index, const InstructionPtr &instruction)
 {
-    m_pending.push({ state, static_cast<u64>(value), index, instruction });
+    m_pending.emplace(State{ state, static_cast<u64>(value), index, instruction });
 }
 
 bool StateMachine::validateState(const State &state) const

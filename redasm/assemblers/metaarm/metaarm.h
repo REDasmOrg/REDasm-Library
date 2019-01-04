@@ -7,25 +7,28 @@
 
 namespace REDasm {
 
-class MetaARMAssembler: public AssemblerPlugin
+class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
 {
     public:
         MetaARMAssembler();
-        ~MetaARMAssembler();
+        virtual ~MetaARMAssembler();
         virtual u32 flags() const;
         virtual const char* name() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);
-        virtual bool decode(BufferRef& buffer, const InstructionPtr& instruction);
+        virtual bool decode(const BufferRef& buffer, const InstructionPtr& instruction);
+        virtual u64 pc(const InstructionPtr& instruction) const;
 
     public:
+        ARMAssembler* armAssembler();
+        ARMThumbAssembler* thumbAssembler();
         bool isPC(const Operand& op) const;
         bool isLR(const Operand& op) const;
-        bool isARMMode() const;
-        bool isTHUMBMode() const;
-        void switchToARM();
+        bool isArm() const;
+        bool isThumb() const;
         void switchToThumb();
+        void switchToArm();
 
     private:
         ARMAssembler* m_armassembler;

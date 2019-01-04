@@ -93,6 +93,7 @@ bool PeFormat::load()
         m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader32.DataDirectory);
     }
 
+    this->loadSections();
     ImageCorHeader* corheader = this->checkDotNet();
 
     if(corheader && (corheader->MajorRuntimeVersion == 1))
@@ -119,7 +120,10 @@ u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
         if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
         {
             if(ok)
-                *ok = true;
+                *ok = (section.SizeOfRawData != 0);
+
+            if(!section.SizeOfRawData) // Check if section not BSS
+                break;
 
             return section.PointerToRawData + (rva - section.VirtualAddress);
         }
@@ -142,8 +146,14 @@ void PeFormat::checkDelphi(const PEResources& peresources)
 
     u64 datasize = 0;
     PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->m_format,
-                                                                         [this](address_t a) -> offset_t { return this->rvaToOffset(a); },
+                                                                         [this](address_t a, bool* ok) -> offset_t { return this->rvaToOffset(a, ok); },
                                                                          &datasize);
+
+    if(!packageinfo)
+    {
+        REDasm::log("WARNING: Cannot parse 'PACKAGEINFO' header");
+        return;
+    }
 
     BorlandVersion borlandver(packageinfo, ri, datasize);
 
@@ -261,16 +271,16 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     if(!m_dotnetreader->isValid())
         return;
 
-    this->m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
+    m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
         m_document.function(m_imagebase + rva, name);
     });
 }
 
 void PeFormat::loadDefault()
 {
-    this->loadSections();
     this->loadExports();
     this->loadImports();
+    this->loadTLS();
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
@@ -290,12 +300,6 @@ void PeFormat::loadSections()
 
         if((section.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) || (section.Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA))
             flags |= SegmentTypes::Data;
-
-        if(section.Characteristics & IMAGE_SCN_MEM_READ)
-            flags |= SegmentTypes::Read;
-
-        if(section.Characteristics & IMAGE_SCN_MEM_WRITE)
-            flags |= SegmentTypes::Write;
 
         u64 size = section.SizeOfRawData;
 
@@ -388,12 +392,25 @@ void PeFormat::loadImports()
     }
 }
 
+void PeFormat::loadTLS()
+{
+    const ImageDataDirectory& tlsdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_TLS];
+
+    if(!tlsdir.VirtualAddress)
+        return;
+
+    if(this->bits() == 64)
+        this->readTLSCallbacks<ImageTlsDirectory64, u64>(RVA_POINTER(ImageTlsDirectory64, tlsdir.VirtualAddress));
+    else
+        this->readTLSCallbacks<ImageTlsDirectory32, u32>(RVA_POINTER(ImageTlsDirectory32, tlsdir.VirtualAddress));
+}
+
 void PeFormat::loadSymbolTable()
 {
     if(!m_ntheaders->FileHeader.PointerToSymbolTable || !m_ntheaders->FileHeader.NumberOfSymbols)
         return;
 
-    REDasm::log("Loading symbol table from " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
+    REDasm::log("Loading symbol table @ " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
 
     COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
                       if(m_document.segmentByName(name)) // Ignore segment informations
@@ -404,7 +421,7 @@ void PeFormat::loadSymbolTable()
 
                       if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
                       {
-                          m_document.function(address, name);
+                          m_document.lock(address, name, SymbolTypes::Function);
                           return;
                       }
 

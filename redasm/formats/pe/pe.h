@@ -40,10 +40,12 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadSections();
         void loadExports();
         void loadImports();
+        void loadTLS();
         void loadSymbolTable();
 
     private:
         template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
+        template<typename TLS_DIRECTORY, typename T> void readTLSCallbacks(const TLS_DIRECTORY* tlsdirectory);
 
     private:
         DotNetReader* m_dotnetreader;
@@ -53,6 +55,17 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         ImageDataDirectory* m_datadirectory;
         u64 m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
 };
+
+template<typename TLS_DIRECTORY, typename T> void PeFormat::readTLSCallbacks(const TLS_DIRECTORY* tlsdirectory)
+{
+    if(!tlsdirectory->AddressOfCallBacks)
+        return;
+
+    T* callbacks = addrpointer<T>(tlsdirectory->AddressOfCallBacks);
+
+    for(T i = 0; *callbacks; i++, callbacks++)
+        m_document.lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
+}
 
 template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
 {

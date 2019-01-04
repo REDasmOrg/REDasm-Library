@@ -2,6 +2,7 @@
 #define SYMBOLTABLE_H
 
 #include <unordered_map>
+#include <mutex>
 #include "../../support/serializer.h"
 #include "../../support/event.h"
 #include "../../redasm.h"
@@ -61,6 +62,7 @@ class SymbolTable: public Serializer::Serializable
         Event<const SymbolPtr&> deserialized;
 
     private:
+        using symbol_lock = std::unique_lock<std::mutex>;
         typedef std::unordered_map<address_t, SymbolPtr> SymbolsByAddress;
         typedef std::unordered_map<std::string, address_t> SymbolsByName;
 
@@ -70,7 +72,7 @@ class SymbolTable: public Serializer::Serializable
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
-        void iterate(u32 symbolflags, std::function<bool(const SymbolPtr &)> f);
+        void iterate(u32 symbolflags, const std::function<bool(const SymbolPtr &)> &cb);
         bool erase(address_t address);
 
     public:
@@ -85,6 +87,7 @@ class SymbolTable: public Serializer::Serializable
     private:
         SymbolsByAddress m_byaddress;
         SymbolsByName m_byname;
+        std::mutex m_mutex;
 };
 
 }

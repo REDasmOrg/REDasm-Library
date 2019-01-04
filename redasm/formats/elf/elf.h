@@ -20,7 +20,7 @@ namespace REDasm {
 template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 {
     public:
-        ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL) { }
+        ElfFormat(Buffer& buffer);
         virtual const char* name() const { return "ELF Format"; }
         virtual u32 bits() const;
         virtual const char* assembler() const;
@@ -39,9 +39,16 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
         void parseSegments();
 
     private:
+        std::set<std::string> m_skipsections;
         SHDR* m_shdr;
         PHDR* m_phdr;
 };
+
+template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
+{
+    m_skipsections.insert(".comment");
+    m_skipsections.insert(".attribute");
+}
 
 template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
 {
@@ -65,10 +72,15 @@ template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
             return "x86_64";
 
         case EM_MIPS:
-            return this->bits() == 32 ? "mips32le" : "mips64le";
+        {
+            if(this->m_format->e_flags & EF_MIPS_ABI_EABI64)
+                return "mips64le";
+
+            return "mips32le";
+        }
 
         case EM_ARM:
-            return this->bits() == 32 ? "arm" : "arm64";
+            return this->bits() == 32 ? "metaarm" : "arm64";
 
         default:
             break;
@@ -134,23 +146,31 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
     {
         const SHDR& shdr = this->m_shdr[i];
 
-        if(!shdr.sh_addr)
+        if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
             continue;
 
-        u32 type = SegmentTypes::Read;
+        u32 type = SegmentTypes::Data;
 
         if((shdr.sh_type & SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
-            type |= SegmentTypes::Code;
-        else
-            type |= SegmentTypes::Data;
+            type = SegmentTypes::Code;
 
         if(shdr.sh_type & SHT_NOBITS)
-            type |= SegmentTypes::Bss;
+            type = SegmentTypes::Bss;
 
-        if(shdr.sh_flags & SHF_WRITE)
-            type |= SegmentTypes::Write;
+        std::string name = ELF_STRING(&shstr, shdr.sh_name);
+        bool skip = false;
 
-        this->m_document.segment(ELF_STRING(&shstr, shdr.sh_name), shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+        for(const std::string& s : m_skipsections)
+        {
+            if(name.find(s) == std::string::npos)
+                continue;
+
+            skip = true;
+            break;
+        }
+
+        if(!skip)
+            this->m_document.segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }
 }
 
@@ -182,14 +202,14 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
         u8 info = ELF_ST_TYPE(sym->st_info);
         u64 symvalue = sym->st_value;
 
-        if(!symvalue)
-            isrelocated = this->relocate(idx, &symvalue);
-
-        if(!sym->st_name || !symvalue)
+        if(!sym->st_name)
         {
             offset += sizeof(SYM);
             continue;
         }
+
+        if(!symvalue)
+            isrelocated = this->relocate(idx, &symvalue);
 
         std::string symname = ELF_STRING(&shstr, sym->st_name);
 
@@ -207,9 +227,14 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
             if(isexport)
                 this->m_document.lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
             else if(info == STT_FUNC)
-                this->m_document.function(symvalue, symname);
+                this->m_document.lock(symvalue, symname);
             else if(info == STT_OBJECT)
-                this->m_document.lock(symvalue, symname, SymbolTypes::Data);
+            {
+                const Segment* segment = this->m_document.segment(symvalue);
+
+                if(segment && !segment->is(SegmentTypes::Code))
+                    this->m_document.lock(symvalue, symname, SymbolTypes::Data);
+            }
         }
         else
             this->m_document.lock(symvalue, symname, SymbolTypes::Import);

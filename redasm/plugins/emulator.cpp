@@ -10,7 +10,31 @@ Emulator::Emulator(DisassemblerAPI *disassembler): m_disassembler(disassembler) 
 void Emulator::emulate(const InstructionPtr &instruction)
 {
     m_currentinstruction = instruction;
+
+    if(instruction->is(InstructionTypes::Branch) && instruction->hasTargets())
+        this->setTarget(instruction);
+
     m_dispatcher(instruction->id, instruction);
+}
+
+bool Emulator::setTarget(const InstructionPtr &instruction)
+{
+   if(instruction->target_idx == -1)
+       return false;
+
+   const Operand& op = instruction->targetOperand();
+
+   if(!op.is(OperandTypes::Register))
+       return false;
+
+   u64 value = 0;
+
+   if(!this->read(op, &value))
+       return false;
+
+   instruction->target(value);
+   m_disassembler->document()->update(instruction);
+   return true;
 }
 
 Buffer& Emulator::getSegmentMemory(address_t address, offset_t *offset)

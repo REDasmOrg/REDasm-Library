@@ -19,7 +19,14 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
     if(this->checkString(fromaddress, address))
         return;
 
-    m_document->symbol(address, SymbolTypes::Data);
+    Segment* segment = m_document->segment(address);
+
+    if(!segment || (!segment->is(SegmentTypes::Data) && !segment->is(SegmentTypes::Bss))) // Don't flood "Pure-Code" sections with symbols
+        return;
+
+    if(!m_document->symbol(address))
+        m_document->symbol(address, SymbolTypes::Data);
+
     this->pushReference(address, fromaddress);
 }
 
@@ -274,6 +281,9 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
         offset_t offset = m_format->offset(symbol->address);
 
         sigdb.search(br, [&](const Signature* signature) {
+            if(!signature->isCompatible(m_format.get()))
+                return;
+
             REDasm::log("Found " + REDasm::quoted(signature->name) + " @ " + REDasm::hex(symbol->address));
 
             m_document->lock(symbol->address, signature->name, signature->symboltype);

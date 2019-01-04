@@ -226,7 +226,7 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         FormatPlugin* format();
 
     private:
-        void pushSorted(address_t address, u32 type);
+        void insertSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
         ListingDocument::iterator item(address_t address, u32 type);
         int index(address_t address, u32 type);

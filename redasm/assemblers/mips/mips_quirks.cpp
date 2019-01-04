@@ -16,7 +16,7 @@ std::unordered_map<u32, MIPSQuirks::InstructionCallback> MIPSQuirks::m_cop2map;
 
 MIPSQuirks::MIPSQuirks() { }
 
-bool MIPSQuirks::decode(BufferRef& buffer, const InstructionPtr &instruction)
+bool MIPSQuirks::decode(const BufferRef &buffer, const InstructionPtr &instruction)
 {
     initOpCodes();
 

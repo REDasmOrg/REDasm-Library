@@ -14,6 +14,8 @@
 
 namespace REDasm {
 
+class FormatPlugin;
+
 /*
  * SignaturePattern valid fields:
  * - Checksum: type, size, checksum
@@ -36,15 +38,17 @@ struct SignaturePattern
 
     u32 type;
     u64 size;
-    u16 checksum; // crc16
+    u16 checksum; // CRC-16
 };
 
 struct Signature
 {
+    u32 bits, symboltype;
     u64 size;
-    u32 symboltype;
-    std::string name;
+    std::string name, assembler;
     std::list<SignaturePattern> patterns;
+
+    bool isCompatible(const FormatPlugin* format) const;
 };
 
 class SignatureDB
@@ -62,6 +66,9 @@ class SignatureDB
         SignatureDB& operator <<(const Signature &signature);
 
     private:
+        std::string uniqueAssembler(u32 idx) const;
+        s32 uniqueAssemblerIdx(const Signature& signature) const;
+        void pushUniqueAssembler(const Signature &signature);
         void searchSignature(const BufferRef& br, const Signature& sig, const SignatureFound& cb) const;
         bool checkPatterns(const BufferRef& br, offset_t offset, const Signature &sig) const;
         void serializePattern(std::fstream& ofs, const SignaturePattern& sigpattern) const;
@@ -69,6 +76,7 @@ class SignatureDB
 
     private:
         std::list<Signature> m_signatures;
+        std::vector<std::string> m_assemblers;
 };
 
 } // namespace REDasm

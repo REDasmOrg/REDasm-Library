@@ -11,7 +11,7 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
     EMULATE_INSTRUCTION(ARM_INS_SUB, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_SBC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_RSB, &MetaARMEmulator::emulateMath);
-    //EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
+    ////EMULATE_INSTRUCTION(ARM_INS_RSC, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSL, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_LSR, &MetaARMEmulator::emulateMath);
     EMULATE_INSTRUCTION(ARM_INS_ASR, &MetaARMEmulator::emulateMath);
@@ -23,34 +23,26 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
 
 void MetaARMEmulator::emulate(const InstructionPtr &instruction)
 {
-    /*
-     * https://stackoverflow.com/questions/24091566/why-does-the-arm-pc-register-point-to-the-instruction-after-the-next-one-to-be-e
-     *
-     * In ARM state:
-     *  - The value of the PC is the address of the current instruction plus 8 bytes.
-     *
-     * In Thumb state:
-     *  - For B, BL, CBNZ, and CBZ instructions, the value of the PC is the address
-     *    of the current instruction plus 4 bytes.
-     *
-     *  - For all other instructions that use labels, the value of the PC is the address
-     *    of the current instruction plus 4 bytes, with bit[1] of the result cleared
-     *    to 0 to make it word-aligned.
-     */
+    ARMAbstractAssembler* arm = dynamic_cast<ARMAbstractAssembler*>(m_disassembler->assembler());
+    this->writeReg(ARM_REG_PC, arm->pc(instruction));
+    EmulatorT<u32>::emulate(instruction);
+}
 
+bool MetaARMEmulator::setTarget(const InstructionPtr &instruction)
+{
     MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
 
-    if(metaarm->isTHUMBMode())
-    {
-        if((instruction->id == ARM_INS_B) || (instruction->id == ARM_INS_BL) || (instruction->id == ARM_INS_CBNZ) || (instruction->id == ARM_INS_CBZ))
-            this->writeReg(ARM_REG_PC, instruction->address + 4);
-        else
-            this->writeReg(ARM_REG_PC, (instruction->address + 4) & 0xFFFFFFFE);
-    }
-    else
-        this->writeReg(ARM_REG_PC, instruction->address + 8);
+    if(metaarm->isPC(instruction->targetOperand()) || metaarm->isLR(instruction->targetOperand()))
+        return false;
 
-    EmulatorT<u32>::emulate(instruction);
+    if(!EmulatorT<u32>::setTarget(instruction))
+        return false;
+
+    address_t target = instruction->target();
+    instruction->untarget(target);
+    instruction->target(target & 0xFFFFFFFE);
+    m_disassembler->document()->update(instruction);
+    return true;
 }
 
 void MetaARMEmulator::emulateMath(const InstructionPtr &instruction)

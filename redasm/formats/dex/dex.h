@@ -22,28 +22,32 @@ class DEXFormat : public FormatPluginT<DEXHeader>
     public:
         bool getMethodOffset(u64 idx, offset_t &offset) const;
         bool getStringOffset(u64 idx, offset_t &offset) const;
-        std::string getString(u64 idx) const;
-        std::string getType(u64 idx) const;
-        std::string getMethod(u64 idx) const;
-        std::string getMethodProto(u64 idx) const;
-        std::string getField(u64 idx) const;
-        std::string getReturnType(u64 methodidx) const;
-        std::string getParameters(u64 methodidx) const;
+        const std::string& getString(u64 idx);
+        const std::string& getType(u64 idx);
+        const std::string& getMethodName(u64 idx);
+        const std::string& getMethodProto(u64 idx);
+        const std::string& getField(u64 idx);
+        const std::string& getReturnType(u64 methodidx);
+        const std::string& getParameters(u64 methodidx);
         bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
         bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
+        u32 getMethodSize(u32 methodidx) const;
+        address_t nextImport(address_t *res = NULL);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
         void loadMethod(const DEXEncodedMethod& dexmethod, u16 &idx);
         void loadClass(const DEXClassIdItem& dexclass);
+        const std::string &getNormalizedString(u64 idx);
+        const std::string &getTypeList(u64 typelistoff);
 
     private:
-        std::string getNormalizedString(u64 idx) const;
-        std::string getTypeList(u64 typelistoff) const;
+        static const std::string& cacheEntry(u64 idx, std::unordered_map<u64, std::string>& cache, const std::function<void(std::string&)>& cb);
         static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& type);
 
     private:
+        u64 m_importbase;
         std::unordered_map<u64, DEXCodeItem*> m_codeitems;
         std::unordered_map<u64, DEXEncodedMethod> m_encmethods;
         DEXTypeIdItem* m_types;
@@ -51,6 +55,17 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         DEXMethodIdItem* m_methods;
         DEXFieldIdItem* m_fields;
         DEXProtoIdItem* m_protos;
+
+    private: // Caching
+        static const std::string m_invalidstring;
+        std::unordered_map<u64, std::string> m_cachedstrings;
+        std::unordered_map<u64, std::string> m_cachednstrings;
+        std::unordered_map<u64, std::string> m_cachedfields;
+        std::unordered_map<u64, std::string> m_cachedtypes;
+        std::unordered_map<u64, std::string> m_cachedtypelist;
+        std::unordered_map<u64, std::string> m_cachedparameters;
+        std::unordered_map<u64, std::string> m_cachedmethodnames;
+        std::unordered_map<u64, std::string> m_cachedmethodproto;
 };
 
 DECLARE_FORMAT_PLUGIN(DEXFormat, dex)

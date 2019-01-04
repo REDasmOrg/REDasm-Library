@@ -6,6 +6,7 @@ SymbolTable::SymbolTable() { }
 
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
 {
+    symbol_lock lock(m_mutex);
     auto it = m_byaddress.find(address);
 
     if(it != m_byaddress.end())
@@ -23,6 +24,7 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
 
 SymbolPtr SymbolTable::symbol(const std::string &name)
 {
+    symbol_lock lock(m_mutex);
     auto it = m_byname.find(name);
 
     if(it != m_byname.end())
@@ -33,6 +35,7 @@ SymbolPtr SymbolTable::symbol(const std::string &name)
 
 SymbolPtr SymbolTable::symbol(address_t address)
 {
+    symbol_lock lock(m_mutex);
     auto it = m_byaddress.find(address);
 
     if(it == m_byaddress.end())
@@ -41,7 +44,7 @@ SymbolPtr SymbolTable::symbol(address_t address)
     return it->second;
 }
 
-void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)> f)
+void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const SymbolPtr&)>& cb)
 {
     std::list<SymbolPtr> symbols;
 
@@ -57,13 +60,14 @@ void SymbolTable::iterate(u32 symbolflags, std::function<bool (const SymbolPtr&)
 
     for(auto it = symbols.begin(); it != symbols.end(); it++)
     {
-        if(!f(*it))
+        if(!cb(*it))
             break;
     }
 }
 
 bool SymbolTable::erase(address_t address)
 {
+    symbol_lock lock(m_mutex);
     auto it = m_byaddress.find(address);
 
     if(it == m_byaddress.end())

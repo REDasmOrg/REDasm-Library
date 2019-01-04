@@ -214,6 +214,8 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
                     rl.push("??", "data_fg");
             }
         }
+        else if(symbol->is(SymbolTypes::ImportMask))
+            rl.push("<").push("import", "label_fg").push(">");
         else
             rl.push("??", "data_fg");
     }

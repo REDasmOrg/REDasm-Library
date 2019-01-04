@@ -149,6 +149,26 @@ struct ImageImportByName { u16 Hint; u8 Name[1]; };
 typedef u32 ImageThunkData32;
 typedef u64 ImageThunkData64;
 
+struct ImageTlsDirectory32
+{
+    u32 StartAddressOfRawData;
+    u32 EndAddressOfRawData;
+    u32 AddressOfIndex;
+    u32 AddressOfCallBacks;
+    u32 SizeOfZeroFill;
+    u32 Characteristics;
+};
+
+struct ImageTlsDirectory64
+{
+    u64 StartAddressOfRawData;
+    u64 EndAddressOfRawData;
+    u64 AddressOfIndex;
+    u64 AddressOfCallBacks;
+    u32 SizeOfZeroFill;
+    u32 Characteristics;
+};
+
 }
 
 #endif // PE_HEADERS_H

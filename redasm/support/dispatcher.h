@@ -4,29 +4,34 @@
 #include <unordered_map>
 #include <functional>
 
-template<typename KEY, typename SIGNATURE> class Dispatcher: protected std::unordered_map<KEY, std::function<SIGNATURE> >
+template<typename KEY, typename RET, typename ...ARGS> class ValuedDispatcher: protected std::unordered_map< KEY, std::function<RET(ARGS...)> >
 {
     public:
-        typedef std::function<SIGNATURE> DispatcherType;
+        typedef std::function<RET(ARGS...)> DispatcherType;
         typedef std::unordered_map<KEY, DispatcherType> Type;
 
     public:
         using Type::operator[];
+        using Type::begin;
+        using Type::end;
         using Type::empty;
         using Type::size;
+        using Type::find;
 
     public:
-        Dispatcher(): Type() { }
+        ValuedDispatcher(): Type() { }
         bool contains(KEY key) const { return this->find(key) != this->end(); }
 
-        typename DispatcherType::result_type operator()(KEY key, typename DispatcherType::argument_type args) {
+        RET operator()(KEY key, ARGS... args) {
             auto it = this->find(key);
 
             if(it != this->end())
-                return it->second(args);
+                return it->second(std::forward<ARGS>(args)...);
 
-            return typename DispatcherType::result_type();
+            return RET();
         }
 };
+
+template<typename KEY, typename ...ARGS> using Dispatcher = ValuedDispatcher<KEY, void, ARGS...>;
 
 #endif // DISPATCHER_H

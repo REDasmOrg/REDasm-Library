@@ -99,7 +99,8 @@ void DalvikPrinter::info(const InstructionPtr &instruction, Printer::LineCallbac
                 continue;
 
             this->startLocal(dexformat, debugdata);
-            std::string name = dexformat->getString(debugdata.name_idx), type;
+            const std::string& name = dexformat->getString(debugdata.name_idx);
+            std::string type;
 
             if(debugdata.type_idx != DEX_NO_INDEX)
                 type = ": " + dexformat->getType(debugdata.type_idx);

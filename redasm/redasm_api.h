@@ -33,12 +33,17 @@ inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
 inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
 
-template<typename... T> std::string makePath(const std::string& p1, const std::string& p2, T... args) {
-    std::string path = p1 + Runtime::rntDirSeparator + p2;
+template<typename... T> std::string makePath(const std::string& p, T... args) {
+    std::string path = p;
     std::vector<std::string> v = { args... };
 
     for(size_t i = 0; i < v.size(); i++)
-        path += Runtime::rntDirSeparator + v[i];
+    {
+        if(!path.empty() && (path.back() != Runtime::rntDirSeparator[0]))
+            path += Runtime::rntDirSeparator;
+
+        path += v[i];
+    }
 
     return path;
 }
@@ -50,14 +55,10 @@ template<typename...T> std::string makeFormatPath(const std::string& p, T... arg
 
 namespace SegmentTypes {
     enum: u32 {
-        None       = 0x00000000,
-
-        Code       = 0x00000001,
-        Data       = 0x00000002,
-
-        Read       = 0x00000010,
-        Write      = 0x00000020,
-        Bss        = 0x00000040,
+        None = 0x00000000,
+        Code = 0x00000001,
+        Data = 0x00000002,
+        Bss  = 0x00000004,
     };
 }
 
@@ -182,16 +183,15 @@ struct Instruction
     bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
-    void reset() { target_idx = -1, type = 0; targets.clear(); operands.clear(); if(free && userdata) { free(userdata); userdata = NULL; } }
-    void targetOp(s32 index) { target_idx = index; targets.insert(operands[index].u_value); }
     void target(address_t target) { targets.insert(target); }
+    void untarget(address_t target) { targets.erase(target); }
     void op_size(s32 index, u32 size) { operands[index].size = size; }
     u32 op_size(s32 index) const { return operands[index].size; }
     address_t target() const { return *targets.begin(); }
     address_t endAddress() const { return address + size; }
 
     Operand& targetOperand() { return operands[target_idx]; }
-    Operand& op(size_t idx) { return operands[idx]; }
+    Operand& op(size_t idx = 0) { return operands[idx]; }
     Instruction& op(Operand op) { op.index = operands.size(); operands.push_back(op); return *this; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Memory, extratype, v, operands.size())); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.push_back(Operand(OperandTypes::Immediate, extratype, v, operands.size())); return *this; }
@@ -201,8 +201,14 @@ struct Instruction
     template<typename T> Instruction& arg(s64 locindex, register_t base, register_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
     template<typename T> Instruction& local(s64 locindex, register_t base, register_t index, T displacement, u32 type = OperandTypes::Local);
 
-    Instruction& reg(register_t r, u64 type = 0)
-    {
+    void targetOp(s32 index) {
+        target_idx = index;
+
+        if((index < operands.size()) && !operands[index].is(OperandTypes::Register))
+            this->target(operands[index].u_value);
+    }
+
+    Instruction& reg(register_t r, u64 type = 0) {
         Operand op;
         op.index = operands.size();
         op.type = OperandTypes::Register;
@@ -210,6 +216,19 @@ struct Instruction
 
         operands.push_back(op);
         return *this;
+    }
+
+    void reset() {
+        target_idx = -1;
+        type = size = 0;
+
+        targets.clear();
+        operands.clear();
+
+        if(free && userdata) {
+            free(userdata);
+            userdata = NULL;
+        }
     }
 };
 

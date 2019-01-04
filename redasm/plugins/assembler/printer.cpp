@@ -180,9 +180,9 @@ std::string Printer::disp(const Operand &operand) const
             SymbolPtr symbol = m_document->symbol(operand.disp.displacement);
 
             if(symbol)
-                s += symbol->name;
+                s += " + " + symbol->name;
             else
-                s += " + " +  REDasm::hex(operand.disp.displacement);
+                s += " + " + REDasm::hex(operand.disp.displacement);
         }
         else if(operand.disp.displacement < 0)
             s += " - " + REDasm::hex(std::abs(operand.disp.displacement));

@@ -23,12 +23,6 @@
 #define N64_BOOT_CODE_CIC_6105_CRC       0x98BC2C86     // CIC 6105-7105 BOOT CODE CRC
 #define N64_BOOT_CODE_CIC_6106_CRC       0xACC8580A     // CIC 6106-7106 BOOT CODE CRC
 
-#define ROL(i, b) (((i) << (b)) | ((i) >> (32 - (b))))
-#define BYTES2LONG(b) ( (b)[0] << 24 | \
-                        (b)[1] << 16 | \
-                        (b)[2] <<  8 | \
-                        (b)[3] )
-
 
 namespace REDasm {
 

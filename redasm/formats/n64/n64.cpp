@@ -98,16 +98,17 @@ u32 N64RomFormat::calculateChecksum(u32 *crc) // Adapted from n64crc (http://n64
 
     i = N64_ROM_CHECKSUM_START;
     while (i < (N64_ROM_CHECKSUM_START + N64_ROM_CHECKSUM_LENGTH)) {
-        d = BYTES2LONG(&m_buffer[i]);
+        d = Endianness::cfbe(*reinterpret_cast<u32*>(&m_buffer[i]));
+
         if ((t6 + d) < t6) t4++;
         t6 += d;
         t3 ^= d;
-        r = ROL(d, (d & 0x1F));
+        r = REDasm::rol(d, (d & 0x1F));
         t5 += r;
         if (t2 > d) t2 ^= r;
         else t2 ^= t6 ^ d;
 
-        if (bootcode == 6105) t1 += BYTES2LONG(&m_buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)]) ^ d;
+        if (bootcode == 6105) t1 += Endianness::cfbe(*reinterpret_cast<u32*>(&m_buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
         else t1 += t5 ^ d;
 
         i += 4;

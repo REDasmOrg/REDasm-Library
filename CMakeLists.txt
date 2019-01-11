@@ -76,6 +76,8 @@ SET(SOURCES
     redasm/support/ordinals.cpp
     redasm/formats/gba/gba.cpp
     redasm/formats/gba/gba_analyzer.cpp
+    redasm/formats/n64/n64.cpp
+    redasm/formats/n64/n64_analyzer.cpp
     redasm/assemblers/metaarm/metaarm.cpp
     redasm/assemblers/metaarm/metaarm_printer.cpp
     redasm/assemblers/metaarm/metaarm_emulator.cpp
@@ -177,6 +179,8 @@ set(HEADERS
     redasm/support/ordinals.h
     redasm/formats/gba/gba.h
     redasm/formats/gba/gba_analyzer.h
+    redasm/formats/n64/n64.h
+    redasm/formats/n64/n64_analyzer.h
     redasm/assemblers/metaarm/metaarm.h
     redasm/assemblers/metaarm/metaarm_printer.h
     redasm/assemblers/metaarm/metaarm_emulator.h

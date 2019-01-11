@@ -36,7 +36,7 @@ class FormatPlugin: public Plugin
         bool isBinary() const;
         Buffer& buffer() const;
         BufferRef buffer(address_t address);
-        ListingDocument* document();
+        ListingDocument& document();
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;
 

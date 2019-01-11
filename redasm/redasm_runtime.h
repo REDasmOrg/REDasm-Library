@@ -10,11 +10,13 @@ namespace REDasm {
 struct Runtime
 {
     typedef std::function<void(const std::string&)> LogCallback;
+    typedef std::function<void(float)> ProgressCallback;
 
     static LIBREDASM_EXPORT std::string rntSearchPath;
     static LIBREDASM_EXPORT std::string rntTempPath;
     static LIBREDASM_EXPORT LogCallback rntLogCallback;
     static LIBREDASM_EXPORT LogCallback rntStatusCallback;
+    static LIBREDASM_EXPORT ProgressCallback rntProgressCallback;
 
     static const LIBREDASM_EXPORT std::string rntDirSeparator;
 

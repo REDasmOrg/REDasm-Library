@@ -142,6 +142,7 @@ set(HEADERS
     redasm/support/coff/coff_constants.h
     redasm/support/cachemap.h
     redasm/support/hash.h
+    redasm/support/safe_ptr.h
     redasm/support/serializer.h
     redasm/formats/pe/pe_resources.h
     redasm/formats/pe/borland/borland_types.h

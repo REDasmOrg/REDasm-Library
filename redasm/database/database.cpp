@@ -21,8 +21,8 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
         return false;
     }
 
+    auto& document = disassembler->document();
     FormatPlugin* format = disassembler->format();
-    ListingDocument* document = disassembler->document();
     ReferenceTable* references = disassembler->references();
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
@@ -93,7 +93,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return NULL;
     }
 
-    ListingDocument* document = format->document();
+    auto& document = format->document();
     document->deserializeFrom(ifs);
 
     Disassembler* disassembler = new Disassembler(assembler, format.release());

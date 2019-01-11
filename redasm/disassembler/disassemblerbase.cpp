@@ -1,15 +1,10 @@
 #include "disassemblerbase.h"
-#include <redasm/database/signaturedb.h>
+#include "../database/signaturedb.h"
 #include <cctype>
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI()
-{
-    m_format = std::unique_ptr<FormatPlugin>(format);
-    m_document = format->document();
-}
-
+DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_document(format->document()) { m_format = std::unique_ptr<FormatPlugin>(format); }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
@@ -89,7 +84,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 }
 
 FormatPlugin *DisassemblerBase::format() { return m_format.get(); }
-ListingDocument *DisassemblerBase::document() { return m_document; }
+ListingDocument& DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const

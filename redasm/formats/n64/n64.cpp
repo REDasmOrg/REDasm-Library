@@ -45,9 +45,9 @@ bool N64RomFormat::load()
     if(!this->validateRom())
         return false;
 
-    m_document.segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
     // TODO: map other segments
-    m_document.entry(this->getEP());
+    m_document->entry(this->getEP());
     return true;
 }
 

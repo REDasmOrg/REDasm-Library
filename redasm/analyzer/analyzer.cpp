@@ -3,10 +3,8 @@
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_disassembler(disassembler), m_signaturefiles(signaturefiles)
+Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_document(disassembler->document()), m_disassembler(disassembler), m_signaturefiles(signaturefiles)
 {
-    m_document = disassembler->document();
-
     // Fast post analysis
     m_disassembler->busyChanged += [&]() {
         if(m_disassembler->busy())
@@ -84,7 +82,7 @@ void Analyzer::findTrampoline(SymbolPtr symbol)
     m_disassembler->pushReference(symtrampoline->address, instruction->address);
 }
 
-SymbolPtr Analyzer::findTrampoline_x86(ListingDocument::iterator it)
+SymbolPtr Analyzer::findTrampoline_x86(ListingDocumentType::iterator it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
@@ -94,9 +92,9 @@ SymbolPtr Analyzer::findTrampoline_x86(ListingDocument::iterator it)
     return m_disassembler->document()->symbol(instruction->target());
 }
 
-SymbolPtr Analyzer::findTrampoline_arm(ListingDocument::iterator it)
+SymbolPtr Analyzer::findTrampoline_arm(ListingDocumentType::iterator it)
 {
-    ListingDocument* doc = m_disassembler->document();
+    auto& doc = m_disassembler->document();
     InstructionPtr instruction1 = doc->instruction((*it)->address);
     it++;
 

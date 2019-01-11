@@ -38,8 +38,8 @@ class FunctionGraph: public Graph
         typedef std::queue<s64> IndexQueue;
 
     public:
-        FunctionGraph(ListingDocument* document);
-        ListingDocument* document();
+        FunctionGraph(ListingDocument& document);
+        ListingDocument& document();
         void build(address_t address);
 
     private:
@@ -49,7 +49,7 @@ class FunctionGraph: public Graph
         void buildEdges();
 
     private:
-        ListingDocument* m_document;
+        ListingDocument& m_document;
 };
 
 } // namespace Graphing

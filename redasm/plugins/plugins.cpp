@@ -95,5 +95,6 @@ AssemblerPlugin *getAssembler(const char* id)
 
 void setLoggerCallback(Runtime::LogCallback logcb) { Runtime::rntLogCallback = logcb; }
 void setStatusCallback(Runtime::LogCallback logcb) { Runtime::rntStatusCallback = logcb; }
+void setProgressCallback(Runtime::ProgressCallback pcb) { Runtime::rntProgressCallback = pcb; }
 
 }

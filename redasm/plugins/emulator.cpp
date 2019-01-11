@@ -68,7 +68,7 @@ BufferRef Emulator::getStack(offset_t sp) { return m_stack.slice(sp); }
 
 void Emulator::remap()
 {
-    ListingDocument* document = m_disassembler->document();
+    auto& document = m_disassembler->document();
     FormatPlugin* format = m_disassembler->format();
 
     REDasm::log("MAPPING 'stack'");

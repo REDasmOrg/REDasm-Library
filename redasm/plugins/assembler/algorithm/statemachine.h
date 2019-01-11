@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <functional>
-#include <mutex>
 #include <stack>
+#include "../../../support/safe_ptr.h"
 #include "../../../redasm.h"
 
 #define DEFINE_STATES(...)                                      protected: enum: state_t { __VA_ARGS__ };
@@ -41,13 +41,12 @@ class StateMachine
 {
     DEFINE_STATES(UserState = 0x10000000)
 
-    using state_lock = std::unique_lock<std::mutex>;
-
     protected:
         typedef std::function<void(State*)> StateCallback;
 
     public:
         StateMachine();
+        float progress() const;
         int concurrency() const;
         bool hasNext();
         void next();
@@ -61,9 +60,10 @@ class StateMachine
         bool getNext(State* state);
 
     protected:
-        u64 m_concurrency;
-        std::mutex m_mutex;
+        u64 m_concurrency, m_total;
         std::unordered_map<state_t, StateCallback> m_states;
+
+    private:
         std::stack<State> m_pending;
 };
 

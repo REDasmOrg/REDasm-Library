@@ -23,13 +23,13 @@ class Analyzer
         void loadSignatures();
         void findTrampolines();
         void findTrampoline(SymbolPtr symbol);
-        SymbolPtr findTrampoline_x86(ListingDocument::iterator it);
-        SymbolPtr findTrampoline_arm(ListingDocument::iterator it);
+        SymbolPtr findTrampoline_x86(ListingDocumentType::iterator it);
+        SymbolPtr findTrampoline_arm(ListingDocumentType::iterator it);
 
     protected:
-        Dispatcher<std::string, void*> m_archdispatcher;
+        ListingDocument& m_document;
         DisassemblerAPI* m_disassembler;
-        ListingDocument* m_document;
+        Dispatcher<std::string, void*> m_archdispatcher;
         const SignatureFiles& m_signaturefiles;
 };
 

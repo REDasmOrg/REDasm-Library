@@ -13,7 +13,6 @@ class Disassembler: public DisassemblerBase
     public:
         Disassembler(AssemblerPlugin* assembler, FormatPlugin* format);
         virtual ~Disassembler();
-        ListingDocument* document();
         virtual void disassemble();
 
     public: // Primitive functions
@@ -27,11 +26,11 @@ class Disassembler: public DisassemblerBase
         virtual bool busy() const;
 
     private:
-        void disassembleStep(AssemblerAlgorithm *algorithm);
+        void disassembleStep(safe_ptr<AssemblerAlgorithm> &algorithm);
 
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;
-        std::unique_ptr<AssemblerAlgorithm> m_algorithm;
+        safe_ptr<AssemblerAlgorithm> m_algorithm;
         ConcurrentTimer m_cctimer;
 };
 

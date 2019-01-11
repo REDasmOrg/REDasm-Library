@@ -8,9 +8,8 @@
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_disassembler(disassembler), m_flags(ListingRenderer::Normal)
+ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_document(disassembler->document()), m_disassembler(disassembler), m_flags(ListingRenderer::Normal)
 {
-    m_document = disassembler->document();
     m_cursor = m_document->cursor();
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
 }

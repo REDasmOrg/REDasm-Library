@@ -13,8 +13,8 @@ class ElfAnalyzer: public Analyzer
 
     private:
         void findMain_x86(const SymbolPtr &symlibcmain);
-        void findMain_x86_64(ListingDocument::iterator it);
-        void findMain_x86(ListingDocument::iterator it);
+        void findMain_x86_64(ListingDocumentType::iterator it);
+        void findMain_x86(ListingDocumentType::iterator it);
 
    private:
         void disassembleLibStartMain();

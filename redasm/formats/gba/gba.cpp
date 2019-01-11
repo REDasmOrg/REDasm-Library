@@ -46,14 +46,14 @@ bool GbaRomFormat::load()
     if(!this->validateRom())
         return false;
 
-    m_document.segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
-    m_document.segment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
-    m_document.segment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
-    m_document.segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
-    m_document.segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
-    m_document.segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
-    m_document.segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer.size(), SegmentTypes::Code | SegmentTypes::Data);
-    m_document.entry(this->getEP());
+    m_document->segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
+    m_document->segment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
+    m_document->segment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
+    m_document->segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
+    m_document->segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
+    m_document->segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
+    m_document->segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer.size(), SegmentTypes::Code | SegmentTypes::Data);
+    m_document->entry(this->getEP());
     return true;
 }
 

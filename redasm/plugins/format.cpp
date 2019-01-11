@@ -2,17 +2,17 @@
 
 namespace REDasm {
 
-FormatPlugin::FormatPlugin(Buffer &buffer): Plugin(), m_buffer(buffer) { m_document.m_format = this; }
+FormatPlugin::FormatPlugin(Buffer &buffer): Plugin(), m_buffer(buffer) { m_document->m_format = this; }
 void FormatPlugin::init() { m_buffer.endianness(this->endianness()); }
-ListingDocument *FormatPlugin::document() { return &m_document; }
+ListingDocument &FormatPlugin::document() { return m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }
 
 offset_t FormatPlugin::offset(address_t address) const
 {
-    for(size_t i = 0; i < m_document.segmentsCount(); i++)
+    for(size_t i = 0; i < m_document->segmentsCount(); i++)
     {
-        const Segment* segment = m_document.segmentAt(i);
+        const Segment* segment = m_document->segmentAt(i);
 
         if(segment->contains(address))
             return (address - segment->address) + segment->offset;
@@ -23,9 +23,9 @@ offset_t FormatPlugin::offset(address_t address) const
 
 address_t FormatPlugin::address(offset_t offset) const
 {
-    for(size_t i = 0; i < m_document.segmentsCount(); i++)
+    for(size_t i = 0; i < m_document->segmentsCount(); i++)
     {
-        const Segment* segment = m_document.segmentAt(i);
+        const Segment* segment = m_document->segmentAt(i);
 
         if(segment->containsOffset(offset))
             return (offset - segment->offset) + segment->address;

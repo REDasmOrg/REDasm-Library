@@ -49,8 +49,8 @@ bool DEXFormat::load()
     if(m_format->field_ids_off && m_format->field_ids_size)
         m_fields = pointer<DEXFieldIdItem>(m_format->field_ids_off);
 
-    m_document.segment("CODE", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
-    m_document.segment("IMPORT", 0, IMPORT_SECTION_ADDRESS, IMPORT_SECTION_SIZE, SegmentTypes::Bss);
+    m_document->segment("CODE", m_format->data_off, m_format->data_off, m_format->data_size, SegmentTypes::Code);
+    m_document->segment("IMPORT", 0, IMPORT_SECTION_ADDRESS, IMPORT_SECTION_SIZE, SegmentTypes::Bss);
 
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(m_format->class_defs_off);
 
@@ -288,9 +288,9 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     const std::string& methodname = this->getMethodName(idx);
 
     if(!methodname.find("android."))
-        m_document.function(fileoffset(&dexcode->insns), methodname, idx);
+        m_document->function(fileoffset(&dexcode->insns), methodname, idx);
     else
-        m_document.symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
+        m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
 }
 
 void DEXFormat::loadClass(const DEXClassIdItem &dexclass)

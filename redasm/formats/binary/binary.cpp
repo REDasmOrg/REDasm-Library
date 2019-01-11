@@ -14,8 +14,8 @@ void BinaryFormat::build(const std::string &assembler, u32 bits, offset_t offset
     m_assembler = assembler;
     m_bits = bits;
 
-    m_document.segment("seg000", offset, baseaddress, m_buffer.size(), segmenttype);
-    m_document.entry(entrypoint);
+    m_document->segment("seg000", offset, baseaddress, m_buffer.size(), segmenttype);
+    m_document->entry(entrypoint);
 }
 
 } // namespace REDasm

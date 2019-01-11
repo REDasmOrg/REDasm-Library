@@ -3,8 +3,8 @@
 namespace REDasm {
 namespace Graphing {
 
-FunctionGraph::FunctionGraph(ListingDocument* document): Graph(), m_document(document) { }
-ListingDocument* FunctionGraph::document() { return m_document; }
+FunctionGraph::FunctionGraph(ListingDocument& document): Graph(), m_document(document) { }
+ListingDocument& FunctionGraph::document() { return m_document; }
 
 void FunctionGraph::build(address_t address)
 {

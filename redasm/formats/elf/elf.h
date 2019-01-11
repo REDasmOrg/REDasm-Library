@@ -99,7 +99,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::load()
     this->loadSegments();
     this->parseSegments();
     this->checkProgramHeader();
-    this->m_document.entry(this->m_format->e_entry);
+    this->m_document->entry(this->m_format->e_entry);
 
     return true;
 }
@@ -170,7 +170,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
         }
 
         if(!skip)
-            this->m_document.segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+            this->m_document->segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }
 }
 
@@ -186,7 +186,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::checkProgramHeader()
         if((phdr.p_type != PT_LOAD) || !phdr.p_memsz)
             continue;
 
-        this->m_document.segment("LOAD", phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, SegmentTypes::Code);
+        this->m_document->segment("LOAD", phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, SegmentTypes::Code);
     }
 }
 
@@ -225,19 +225,19 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
                 isexport = true;
 
             if(isexport)
-                this->m_document.lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
+                this->m_document->lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
             else if(info == STT_FUNC)
-                this->m_document.lock(symvalue, symname);
+                this->m_document->lock(symvalue, symname);
             else if(info == STT_OBJECT)
             {
-                const Segment* segment = this->m_document.segment(symvalue);
+                const Segment* segment = this->m_document->segment(symvalue);
 
                 if(segment && !segment->is(SegmentTypes::Code))
-                    this->m_document.lock(symvalue, symname, SymbolTypes::Data);
+                    this->m_document->lock(symvalue, symname, SymbolTypes::Data);
             }
         }
         else
-            this->m_document.lock(symvalue, symname, SymbolTypes::Import);
+            this->m_document->lock(symvalue, symname, SymbolTypes::Import);
 
         offset += sizeof(SYM);
     }

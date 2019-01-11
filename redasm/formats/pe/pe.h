@@ -64,7 +64,7 @@ template<typename TLS_DIRECTORY, typename T> void PeFormat::readTLSCallbacks(con
     T* callbacks = addrpointer<T>(tlsdirectory->AddressOfCallBacks);
 
     for(T i = 0; *callbacks; i++, callbacks++)
-        m_document.lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
+        m_document->lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
 }
 
 template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
@@ -104,7 +104,7 @@ template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const Im
                 importname = PEUtils::importName(descriptorname, importname);
         }
 
-        m_document.lock(address, importname, SymbolTypes::Import);
+        m_document->lock(address, importname, SymbolTypes::Import);
     }
 }
 

@@ -45,18 +45,8 @@ void ConcurrentTimer::resume()
 
 void ConcurrentTimer::tick(TimerCallback cb, std::chrono::milliseconds interval)
 {
-    std::chrono::milliseconds delay(0);
-
-    if(m_timers.size() > 1) // Delay timers a bit
-        interval *= (m_timers.size() / 2);
-
-    m_interval = interval;
-
     for(auto& timer : m_timers)
-    {
-        timer->tick(cb, interval, delay);
-        delay++;
-    }
+        timer->tick(cb, interval);
 }
 
 } // namespace REDasm

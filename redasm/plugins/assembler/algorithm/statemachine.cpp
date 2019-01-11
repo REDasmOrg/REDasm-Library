@@ -3,15 +3,18 @@
 
 namespace REDasm {
 
-StateMachine::StateMachine() { }
+StateMachine::StateMachine(): m_total(0) { }
+
+float StateMachine::progress() const
+{
+    if(!m_total)
+        return 1.0;
+
+    return 1.0 - (m_pending.size() / static_cast<double>(m_total));
+}
 
 int StateMachine::concurrency() const { return m_concurrency; }
-
-bool StateMachine::hasNext()
-{
-    state_lock lock(m_mutex);
-    return !m_pending.empty();
-}
+bool StateMachine::hasNext() { return !m_pending.empty(); }
 
 void StateMachine::next()
 {
@@ -34,7 +37,7 @@ void StateMachine::next()
 
 void StateMachine::enqueueState(state_t state, u64 value, s64 index, const InstructionPtr &instruction)
 {
-    state_lock lock(m_mutex);
+    m_total++;
     m_pending.emplace(State{ state, static_cast<u64>(value), index, instruction });
 }
 
@@ -48,8 +51,6 @@ void StateMachine::onNewState(const State &state) const { RE_UNUSED(state); }
 
 bool StateMachine::getNext(State *state)
 {
-    state_lock lock(m_mutex);
-
     if(m_pending.empty())
         return false;
 

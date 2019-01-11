@@ -5,6 +5,7 @@
 
 #include "../redasm.h"
 #include "../support/event.h"
+#include "../support/safe_ptr.h"
 #include "types/symboltable.h"
 #include "types/referencetable.h"
 
@@ -13,7 +14,7 @@ namespace REDasm {
 class Printer;
 class FormatPlugin;
 class AssemblerPlugin;
-class ListingDocument;
+class ListingDocumentType;
 
 class DisassemblerAPI
 {
@@ -24,7 +25,7 @@ class DisassemblerAPI
         DisassemblerAPI();
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
-        virtual ListingDocument* document() = 0;
+        virtual safe_ptr<ListingDocumentType>& document() = 0;
         virtual ReferenceTable* references() = 0;
         virtual Printer* createPrinter() = 0;
         virtual ReferenceVector getReferences(address_t address) = 0;

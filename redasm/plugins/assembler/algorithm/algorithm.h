@@ -26,6 +26,7 @@ class AssemblerAlgorithm: public StateMachine
         AssemblerAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assembler);
 
     public:
+        AssemblerAlgorithm();
         u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
         void enqueue(address_t address);
         bool analyze();
@@ -58,9 +59,9 @@ class AssemblerAlgorithm: public StateMachine
 
     protected:
         std::unique_ptr<Emulator> m_emulator;
+        ListingDocument m_document;
         DisassemblerAPI* m_disassembler;
         AssemblerPlugin* m_assembler;
-        ListingDocument* m_document;
         FormatPlugin* m_format;
 
     private:

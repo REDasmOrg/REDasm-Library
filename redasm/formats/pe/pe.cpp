@@ -272,7 +272,7 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
         return;
 
     m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
-        m_document.function(m_imagebase + rva, name);
+        m_document->function(m_imagebase + rva, name);
     });
 }
 
@@ -285,7 +285,7 @@ void PeFormat::loadDefault()
     this->checkDebugInfo();
     this->checkResources();
 
-    m_document.entry(m_entrypoint);
+    m_document->entry(m_entrypoint);
 }
 
 void PeFormat::loadSections()
@@ -319,10 +319,10 @@ void PeFormat::loadSections()
         if(name.empty()) // Rename unnamed sections
             name = "sect" + std::to_string(i);
 
-        m_document.segment(name, section.PointerToRawData, m_imagebase + section.VirtualAddress, size, flags);
+        m_document->segment(name, section.PointerToRawData, m_imagebase + section.VirtualAddress, size, flags);
     }
 
-    Segment* segment = m_document.segment(m_entrypoint);
+    Segment* segment = m_document->segment(m_entrypoint);
 
     if(segment) // Entry points always points to code segment
         segment->type |= SegmentTypes::Code;
@@ -347,7 +347,7 @@ void PeFormat::loadExports()
 
         bool namedfunction = false;
         u64 funcep = m_imagebase + functions[i];
-        const Segment* segment = m_document.segment(funcep);
+        const Segment* segment = m_document->segment(funcep);
 
         if(!segment)
             continue;
@@ -361,7 +361,7 @@ void PeFormat::loadExports()
                 continue;
 
             namedfunction = true;
-            m_document.lock(funcep, RVA_POINTER(const char, names[j]), symboltype);
+            m_document->lock(funcep, RVA_POINTER(const char, names[j]), symboltype);
             break;
         }
 
@@ -370,7 +370,7 @@ void PeFormat::loadExports()
 
         std::stringstream ss;
         ss << "Ordinal__" << std::uppercase << std::setw(4) << std::setfill('0') << std::setbase(16) << (exporttable->Base + i);
-        m_document.lock(funcep, ss.str(), symboltype);
+        m_document->lock(funcep, ss.str(), symboltype);
     }
 }
 
@@ -413,20 +413,20 @@ void PeFormat::loadSymbolTable()
     REDasm::log("Loading symbol table @ " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
 
     COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
-                      if(m_document.segmentByName(name)) // Ignore segment informations
+                      if(m_document->segmentByName(name)) // Ignore segment informations
                           return;
 
-                      const Segment* segment = m_document.segmentAt(entry->e_scnum - 1);
+                      const Segment* segment = m_document->segmentAt(entry->e_scnum - 1);
                       address_t address = segment->address + entry->e_value;
 
                       if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
                       {
-                          m_document.lock(address, name, SymbolTypes::Function);
+                          m_document->lock(address, name, SymbolTypes::Function);
                           return;
                       }
 
-                      SymbolPtr symbol = m_document.symbol(address);
-                      m_document.lock(address, name, symbol ? symbol->type : SymbolTypes::Data,
+                      SymbolPtr symbol = m_document->symbol(address);
+                      m_document->lock(address, name, symbol ? symbol->type : SymbolTypes::Data,
                                                      symbol ? symbol->tag : 0); // Copy symbol type & tag, if exists
     },
 

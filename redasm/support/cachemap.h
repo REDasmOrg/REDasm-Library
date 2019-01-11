@@ -7,10 +7,9 @@
 
 #include <functional>
 #include <iostream>
-#include <map>
-#include <cstdio>
 #include <fstream>
-#include <mutex>
+#include <cstdio>
+#include <map>
 #include "../support/serializer.h"
 #include "../redasm_types.h"
 #include "event.h"
@@ -19,8 +18,6 @@ namespace REDasm {
 
 template<typename T1, typename T2> class cache_map: public Serializer::Serializable // Use STL's coding style for this type
 {
-    using io_lock = std::unique_lock<std::mutex>;
-
     private:
         typedef cache_map<T1, T2> type;
         typedef std::map<T1, offset_t> offset_map;
@@ -73,7 +70,6 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
         virtual void deserialize(T2& value, std::fstream& fs) = 0;
 
     private:
-        std::mutex m_mutex;
         std::string m_name;
         offset_map m_offsets;
         std::fstream m_file;

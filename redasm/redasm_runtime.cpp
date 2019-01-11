@@ -24,6 +24,7 @@ const std::string Runtime::rntDirSeparator = "/";
 
 Runtime::LogCallback Runtime::rntLogCallback = [](const std::string& s) { std::cout << s << std::endl; };
 Runtime::LogCallback Runtime::rntStatusCallback = [](const std::string&) { };
+Runtime::ProgressCallback Runtime::rntProgressCallback = [](float) { };
 
 void Runtime::cwd(const std::string &s)
 {

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <memory>
 
-#define DO_TICK_DISASSEMBLY()  m_cctimer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm.get()))
+#define DO_TICK_DISASSEMBLY()  m_cctimer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm))
 
 namespace REDasm {
 
@@ -13,15 +13,14 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
         assembler->setEndianness(format->endianness());
 
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
-    m_algorithm = std::unique_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
+    m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
     m_cctimer.stateChanged += [&](Timer*) { busyChanged(); };
 }
 
 Disassembler::~Disassembler() { }
-ListingDocument *Disassembler::document() { return m_document; }
 
-void Disassembler::disassembleStep(AssemblerAlgorithm* algorithm)
+void Disassembler::disassembleStep(safe_ptr<AssemblerAlgorithm>& algorithm)
 {
     if(!algorithm->hasNext())
     {
@@ -54,9 +53,7 @@ void Disassembler::disassemble()
     if(entrypoint)
         m_algorithm->enqueue(entrypoint->address); // Push entry point
 
-    REDasm::log("Disassembling with " + std::to_string(m_cctimer.concurrency()) + " threads" +
-                " (" + std::to_string(m_cctimer.interval()) + "ms interval)");
-
+    REDasm::log("Disassembling with " + std::to_string(m_cctimer.concurrency()) + " threads");
     DO_TICK_DISASSEMBLY();
 }
 

@@ -39,8 +39,8 @@ class Printer
         virtual std::string size(const Operand& operand) const;
 
     protected:
+        ListingDocument& m_document;
         DisassemblerAPI* m_disassembler;
-        ListingDocument* m_document;
 };
 
 class CapstonePrinter: public Printer

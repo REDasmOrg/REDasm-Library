@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-Printer::Printer(DisassemblerAPI *disassembler): m_disassembler(disassembler) { m_document = m_disassembler->document(); }
+Printer::Printer(DisassemblerAPI *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
 
 std::string Printer::symbol(const SymbolPtr &symbol) const
 {

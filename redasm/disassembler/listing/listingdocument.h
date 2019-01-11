@@ -7,6 +7,7 @@
 #include <list>
 #include "../../redasm.h"
 #include "../../support/event.h"
+#include "../../support/safe_ptr.h"
 #include "../../support/serializer.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
@@ -142,10 +143,8 @@ struct ListingDocumentChanged
     size_t action;
 };
 
-class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::Serializable
+class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializer::Serializable
 {
-    using document_lock = std::unique_lock<std::mutex>;
-
     public:
         Event<const ListingDocumentChanged*> changed;
 
@@ -168,7 +167,8 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         using std::deque<ListingItemPtr>::empty;
 
     public:
-        ListingDocument();
+        ListingDocumentType();
+        const ListingCursor* cursor() const;
         ListingCursor* cursor();
         void moveToEP();
         u64 lastLine() const;
@@ -209,10 +209,10 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
-        ListingDocument::iterator functionItem(address_t address);
-        ListingDocument::iterator instructionItem(address_t address);
-        ListingDocument::iterator symbolItem(address_t address);
-        ListingDocument::iterator item(address_t address);
+        ListingDocumentType::iterator functionItem(address_t address);
+        ListingDocumentType::iterator instructionItem(address_t address);
+        ListingDocumentType::iterator symbolItem(address_t address);
+        ListingDocumentType::iterator item(address_t address);
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         int symbolIndex(address_t address);
@@ -228,14 +228,13 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
     private:
         void insertSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
-        ListingDocument::iterator item(address_t address, u32 type);
+        ListingDocumentType::iterator item(address_t address, u32 type);
         int index(address_t address, u32 type);
         std::string autoComment(address_t address) const;
         static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
 
     private:
-        std::mutex m_mutex;
         ListingCursor m_cursor;
         SegmentList m_segments;
         FunctionList m_functions;
@@ -249,6 +248,8 @@ class ListingDocument: protected std::deque<ListingItemPtr>, public Serializer::
      friend class FormatPlugin;
 };
 
+typedef safe_ptr<ListingDocumentType> ListingDocument;
+
 } // namespace REDasm
 
-#endif // ITEMDOCUMENT_H
+#endif // LISTINGDOCUMENT_H

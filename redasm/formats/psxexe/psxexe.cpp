@@ -21,15 +21,15 @@ bool PsxExeFormat::load()
         return false;
 
     if(m_format->t_addr > PSX_USER_RAM_START)
-        m_document.segment("RAM0", 0, PSX_USER_RAM_START, (m_format->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);
+        m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_format->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);
 
     m_signatures.push_back("psyq47");
-    m_document.segment("TEXT", PSXEXE_TEXT_OFFSET, m_format->t_addr, m_format->t_size, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("TEXT", PSXEXE_TEXT_OFFSET, m_format->t_addr, m_format->t_size, SegmentTypes::Code | SegmentTypes::Data);
 
     if((m_format->t_addr + m_format->t_size) < PSX_USER_RAM_END)
-        m_document.segment("RAM1", 0, m_format->t_addr + m_format->t_size, PSX_USER_RAM_END - (m_format->t_addr + m_format->t_size), SegmentTypes::Bss);
+        m_document->segment("RAM1", 0, m_format->t_addr + m_format->t_size, PSX_USER_RAM_END - (m_format->t_addr + m_format->t_size), SegmentTypes::Bss);
 
-    m_document.entry(m_format->pc0);
+    m_document->entry(m_format->pc0);
     return true;
 }
 

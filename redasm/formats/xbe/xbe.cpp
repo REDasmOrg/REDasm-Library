@@ -37,7 +37,7 @@ bool XbeFormat::load()
         return false;
     }
 
-    m_document.entry(entrypoint);
+    m_document->entry(entrypoint);
     this->displayXbeInfo();
     return true;
 }
@@ -73,12 +73,12 @@ void XbeFormat::displayXbeInfo()
 bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
 {
     ep = encodedep ^ XBE_ENTRYPOINT_XOR_RETAIL;
-    Segment* segment = m_document.segment(ep);
+    Segment* segment = m_document->segment(ep);
 
     if(!segment)
     {
         ep = encodedep ^ XBE_ENTRYPOINT_XOR_DEBUG;
-        segment = m_document.segment(ep);
+        segment = m_document->segment(ep);
 
         if(segment)
             REDasm::log("Executable Type: DEBUG");
@@ -92,12 +92,12 @@ bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
 bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
 {
     thunk = encodedthunk ^ XBE_KERNEL_XOR_RETAIL;
-    Segment* segment = m_document.segment(thunk);
+    Segment* segment = m_document->segment(thunk);
 
     if(!segment)
     {
         thunk = encodedthunk ^ XBE_KERNEL_XOR_DEBUG;
-        segment = m_document.segment(thunk);
+        segment = m_document->segment(thunk);
     }
 
     return segment != NULL;
@@ -123,10 +123,10 @@ void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)
         if(!sectionhdr[i].RawSize)
             secttype = SegmentTypes::Bss;
 
-        m_document.segment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
+        m_document->segment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
     }
 
-    m_document.segment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
+    m_document->segment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
 }
 
 bool XbeFormat::loadXBoxKrnl()
@@ -144,7 +144,7 @@ bool XbeFormat::loadXBoxKrnl()
     while(*pthunk)
     {
         std::string ordinalname = REDasm::ordinal(ordinals, *pthunk ^ XBE_ORDINAL_FLAG, "XBoxKrnl!");
-        m_document.lock(*pthunk, ordinalname, SymbolTypes::Import);
+        m_document->lock(*pthunk, ordinalname, SymbolTypes::Import);
         pthunk++;
     }
 

@@ -33,7 +33,7 @@ int MetaARMAssemblerISA::classify(address_t address, const BufferRef &buffer, Di
 
 bool MetaARMAssemblerISA::validateBranch(const InstructionPtr &instruction, DisassemblerAPI* disassembler)
 {
-    ListingDocument* document = disassembler->document();
+    auto& document = disassembler->document();
 
     for(address_t target : instruction->targets)
     {

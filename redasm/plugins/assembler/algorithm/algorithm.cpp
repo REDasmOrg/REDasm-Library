@@ -7,10 +7,11 @@
 
 namespace REDasm {
 
-AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
+AssemblerAlgorithm::AssemblerAlgorithm(): StateMachine(), m_disassembler(NULL), m_assembler(NULL) { }
+
+AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
 {
     m_format = m_disassembler->format();
-    m_document = m_disassembler->document();
 
     if(assembler->hasFlag(AssemblerFlags::HasEmulator))
         m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
@@ -56,7 +57,7 @@ bool AssemblerAlgorithm::analyze()
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
-void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits())); }
+void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits()), this->progress()); }
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {

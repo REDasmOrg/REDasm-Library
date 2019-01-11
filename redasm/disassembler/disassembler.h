@@ -2,7 +2,7 @@
 #define DISASSEMBLER_H
 
 #include "../plugins/plugins.h"
-#include "../support/timer.h"
+#include "../support/concurrenttimer.h"
 #include "listing/listingdocument.h"
 #include "disassemblerbase.h"
 
@@ -32,7 +32,7 @@ class Disassembler: public DisassemblerBase
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;
         std::unique_ptr<AssemblerAlgorithm> m_algorithm;
-        Timer m_timer;
+        ConcurrentTimer m_cctimer;
 };
 
 }

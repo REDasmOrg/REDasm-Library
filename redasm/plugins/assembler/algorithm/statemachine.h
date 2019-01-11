@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <functional>
+#include <mutex>
 #include <stack>
 #include "../../../redasm.h"
 
@@ -40,12 +41,15 @@ class StateMachine
 {
     DEFINE_STATES(UserState = 0x10000000)
 
+    using state_lock = std::unique_lock<std::mutex>;
+
     protected:
         typedef std::function<void(State*)> StateCallback;
 
     public:
         StateMachine();
-        bool hasNext() const;
+        int concurrency() const;
+        bool hasNext();
         void next();
 
     protected:
@@ -53,7 +57,12 @@ class StateMachine
         virtual bool validateState(const State& state) const;
         virtual void onNewState(const State& state) const;
 
+    private:
+        bool getNext(State* state);
+
     protected:
+        u64 m_concurrency;
+        std::mutex m_mutex;
         std::unordered_map<state_t, StateCallback> m_states;
         std::stack<State> m_pending;
 };

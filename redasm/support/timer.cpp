@@ -72,8 +72,8 @@ void Timer::work()
 
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
 
-        if(m_selfbalance && (elapsed > m_interval))
-            m_interval = elapsed;
+        if(m_selfbalance)
+            m_interval = (m_interval + elapsed / 2);
 
         std::this_thread::sleep_for(m_interval);
     }

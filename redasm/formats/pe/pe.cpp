@@ -334,8 +334,12 @@ void PeFormat::loadExports()
 
     if(!exportdir.VirtualAddress)
         return;
+    
+    bool ok = false;
+    ImageExportDirectory* exporttable = RVA_POINTER_OK(ImageExportDirectory, exportdir.VirtualAddress, &ok);
+    if(!ok)
+        return;
 
-    ImageExportDirectory* exporttable = RVA_POINTER(ImageExportDirectory, exportdir.VirtualAddress);
     u32* functions = RVA_POINTER(u32, exporttable->AddressOfFunctions);
     u32* names = RVA_POINTER(u32, exporttable->AddressOfNames);
     u16* nameords = RVA_POINTER(u16, exporttable->AddressOfNameOrdinals);

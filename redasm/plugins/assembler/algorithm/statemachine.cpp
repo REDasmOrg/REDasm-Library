@@ -21,9 +21,6 @@ void StateMachine::next()
     State currentstate;
     this->getNext(&currentstate);
 
-    if(!(currentstate.id & StateMachine::UserState) && !this->validateState(currentstate))
-        return;
-
     auto it = m_states.find(currentstate.id);
 
     if(it != m_states.end())
@@ -35,10 +32,15 @@ void StateMachine::next()
         REDasm::log("Unknown state: " + std::to_string(currentstate.id));
 }
 
-void StateMachine::enqueueState(const std::string &name, state_t state, u64 value, s64 index, const InstructionPtr &instruction)
+void StateMachine::enqueueState(const std::string &name, state_t id, u64 value, s64 index, const InstructionPtr &instruction)
 {
+    State state = {name, id, static_cast<u64>(value), index, instruction };
+
+    if(!(id & StateMachine::UserState) && !this->validateState(state))
+        return;
+
     m_total++;
-    m_pending.emplace(State{name, state, static_cast<u64>(value), index, instruction });
+    m_pending.emplace(state);
 }
 
 bool StateMachine::validateState(const State &state) const

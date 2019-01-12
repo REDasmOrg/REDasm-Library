@@ -15,6 +15,7 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
+        virtual void validateTarget(const InstructionPtr&) const;
         virtual void onDecodeFailed(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);

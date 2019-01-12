@@ -56,6 +56,14 @@ bool AssemblerAlgorithm::analyze()
     return true;
 }
 
+void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const
+{
+    if(instruction->target_idx != -1)
+        return;
+
+    REDasm::log("Invalid target index for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
+}
+
 bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
 
 void AssemblerAlgorithm::onNewState(const State &state) const
@@ -77,8 +85,8 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
-    if(instruction->is(InstructionTypes::Branch) && (instruction->target_idx == -1))
-        REDasm::log("Invalid target index for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
+    if(instruction->is(InstructionTypes::Branch))
+        this->validateTarget(instruction);
 
     for(const Operand& op : instruction->operands)
     {

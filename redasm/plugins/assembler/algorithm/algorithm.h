@@ -32,6 +32,7 @@ class AssemblerAlgorithm: public StateMachine
         bool analyze();
 
     protected:
+        virtual void validateTarget(const InstructionPtr& instruction) const;
         virtual bool validateState(const State& state) const;
         virtual void onNewState(const State& state) const;
         virtual void onDecoded(const InstructionPtr& instruction);

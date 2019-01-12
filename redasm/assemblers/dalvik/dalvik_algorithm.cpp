@@ -11,6 +11,7 @@ DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin*
     REGISTER_STATE(DalvikAlgorithm::MethodIndexState, &DalvikAlgorithm::methodIndexState);
 }
 
+void DalvikAlgorithm::validateTarget(const InstructionPtr &) const { }
 void DalvikAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { REDasm::log("Found invalid instruction @ " + REDasm::hex(instruction->address)); }
 
 void DalvikAlgorithm::onDecodedOperand(const Operand& op, const InstructionPtr &instruction)

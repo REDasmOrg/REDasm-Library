@@ -57,7 +57,12 @@ bool AssemblerAlgorithm::analyze()
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
-void AssemblerAlgorithm::onNewState(const State &state) const { REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits()), this->progress()); }
+
+void AssemblerAlgorithm::onNewState(const State &state) const
+{
+    REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits()) +
+                   " >> " + state.name, this->progress());
+}
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
 {

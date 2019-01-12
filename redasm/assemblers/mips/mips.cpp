@@ -7,6 +7,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     SET_INSTRUCTION_TYPE(MIPS_INS_NOP, InstructionTypes::Nop);
     SET_INSTRUCTION_TYPE(MIPS_INS_BREAK, InstructionTypes::Stop);
     SET_INSTRUCTION_TYPE(MIPS_INS_J, InstructionTypes::Jump);
+    SET_INSTRUCTION_TYPE(MIPS_INS_B, InstructionTypes::Jump);
     SET_INSTRUCTION_TYPE(MIPS_INS_JAL, InstructionTypes::Call);
     SET_INSTRUCTION_TYPE(MIPS_INS_BAL, InstructionTypes::Call);
     SET_INSTRUCTION_TYPE(MIPS_INS_BEQZ, InstructionTypes::Conditional);
@@ -24,6 +25,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     SET_INSTRUCTION_TYPE(MIPS_INS_BLTZ, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BNE, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BEQ, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQL, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADD, InstructionTypes::Add);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADDI, InstructionTypes::Add);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADDIU, InstructionTypes::Add);
@@ -46,6 +48,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_JR, &MIPSAssembler::checkJr);
     REGISTER_INSTRUCTION(MIPS_INS_J, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_JAL, &MIPSAssembler::setTargetOp0);
+    REGISTER_INSTRUCTION(MIPS_INS_B, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BAL, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BEQZ, &MIPSAssembler::setTargetOp1);
     REGISTER_INSTRUCTION(MIPS_INS_BNEZ, &MIPSAssembler::setTargetOp1);
@@ -62,6 +65,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_BLTZ, &MIPSAssembler::setTargetOp1);
     REGISTER_INSTRUCTION(MIPS_INS_BNE, &MIPSAssembler::setTargetOp2);
     REGISTER_INSTRUCTION(MIPS_INS_BEQ, &MIPSAssembler::setTargetOp2);
+    REGISTER_INSTRUCTION(MIPS_INS_BEQL, &MIPSAssembler::setTargetOp2);
 }
 
 template<s64 mode> const char *MIPSAssembler<mode>::name() const

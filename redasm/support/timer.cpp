@@ -1,5 +1,6 @@
 #include "timer.h"
 #include "../redasm_runtime.h"
+#include <iostream>
 
 namespace REDasm {
 
@@ -69,10 +70,10 @@ void Timer::work()
         if(m_state == Timer::ActiveState)
             m_timercallback();
 
-        auto elapsed = std::chrono::steady_clock::now() - start;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
 
         if(m_selfbalance && (elapsed > m_interval))
-            m_interval = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+            m_interval = elapsed;
 
         std::this_thread::sleep_for(m_interval);
     }

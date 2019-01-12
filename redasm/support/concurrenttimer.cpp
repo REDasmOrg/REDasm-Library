@@ -25,7 +25,7 @@ size_t ConcurrentTimer::concurrency() const { return m_timers.size(); }
 size_t ConcurrentTimer::state() const { return m_timers.back()->state(); }
 bool ConcurrentTimer::active() const { return m_timers.back()->active(); }
 
-bool ConcurrentTimer::setSelfBalance(bool b)
+void ConcurrentTimer::setSelfBalance(bool b)
 {
     for(auto& timer : m_timers)
         timer->setSelfBalance(b);

@@ -25,7 +25,7 @@ class Timer
         ~Timer();
         size_t state() const;
         bool active() const;
-        bool setSelfBalance(bool b);
+        void setSelfBalance(bool b);
         void stop();
         void pause();
         void resume();

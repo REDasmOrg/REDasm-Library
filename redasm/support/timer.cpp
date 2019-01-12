@@ -8,8 +8,7 @@ Timer::~Timer() { m_state = Timer::InactiveState; }
 
 size_t Timer::state() const { return m_state; }
 bool Timer::active() const { return m_state == Timer::ActiveState; }
-
-bool Timer::setSelfBalance(bool b) { m_selfbalance = b; }
+void Timer::setSelfBalance(bool b) { m_selfbalance = b; }
 
 void Timer::stop()
 {

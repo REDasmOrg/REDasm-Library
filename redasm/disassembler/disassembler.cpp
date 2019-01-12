@@ -71,6 +71,7 @@ void Disassembler::disassemble(address_t address)
     DO_TICK_DISASSEMBLY();
 }
 
+void Disassembler::stop() { m_cctimer.stop(); }
 void Disassembler::pause() { m_cctimer.pause(); }
 void Disassembler::resume() { m_cctimer.resume(); }
 size_t Disassembler::state() const { return m_cctimer.state(); }

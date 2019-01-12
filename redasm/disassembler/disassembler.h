@@ -20,6 +20,7 @@ class Disassembler: public DisassemblerBase
         virtual AssemblerPlugin* assembler();
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);
+        virtual void stop();
         virtual void pause();
         virtual void resume();
         virtual size_t state() const;

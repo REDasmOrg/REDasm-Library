@@ -48,6 +48,7 @@ class DisassemblerAPI
         virtual void disassemble(address_t address) = 0;
         virtual bool loadSignature(const std::string& sdbfile) = 0;
         virtual void disassemble() = 0;
+        virtual void stop() = 0;
         virtual void pause() = 0;
         virtual void resume() = 0;
         virtual size_t state() const = 0;

@@ -25,6 +25,7 @@ class Timer
         ~Timer();
         size_t state() const;
         bool active() const;
+        bool setSelfBalance(bool b);
         void stop();
         void pause();
         void resume();
@@ -38,8 +39,8 @@ class Timer
         size_t m_state;
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval, m_delaystart;
-        std::condition_variable m_condition;
         std::future<void> m_future;
+        bool m_selfbalance;
 };
 
 } // namespace REDasm

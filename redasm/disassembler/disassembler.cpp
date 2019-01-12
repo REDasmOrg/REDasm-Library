@@ -15,6 +15,7 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
+    m_cctimer.setSelfBalance(true);
     m_cctimer.stateChanged += [&](Timer*) { busyChanged(); };
 }
 

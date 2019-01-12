@@ -3,11 +3,13 @@
 
 namespace REDasm {
 
-Timer::Timer(): m_state(Timer::InactiveState) { }
+Timer::Timer(): m_state(Timer::InactiveState), m_selfbalance(false) { }
 Timer::~Timer() { m_state = Timer::InactiveState; }
 
 size_t Timer::state() const { return m_state; }
 bool Timer::active() const { return m_state == Timer::ActiveState; }
+
+bool Timer::setSelfBalance(bool b) { m_selfbalance = b; }
 
 void Timer::stop()
 {
@@ -63,8 +65,15 @@ void Timer::work()
 
     while(m_state != Timer::InactiveState)
     {
+        auto start = std::chrono::steady_clock::now();
+
         if(m_state == Timer::ActiveState)
             m_timercallback();
+
+        auto elapsed = std::chrono::steady_clock::now() - start;
+
+        if(m_selfbalance && (elapsed > m_interval))
+            m_interval = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
 
         std::this_thread::sleep_for(m_interval);
     }

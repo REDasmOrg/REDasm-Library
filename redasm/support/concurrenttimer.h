@@ -20,6 +20,7 @@ class ConcurrentTimer
         size_t concurrency() const;
         size_t state() const;
         bool active() const;
+        bool setSelfBalance(bool b);
         void stop();
         void pause();
         void resume();

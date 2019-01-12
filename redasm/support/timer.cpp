@@ -5,7 +5,14 @@
 namespace REDasm {
 
 Timer::Timer(): m_state(Timer::InactiveState), m_selfbalance(false) { }
-Timer::~Timer() { m_state = Timer::InactiveState; }
+
+Timer::~Timer()
+{
+    m_state = Timer::InactiveState;
+
+    if(m_thread.joinable())
+        m_thread.join();
+}
 
 size_t Timer::state() const { return m_state; }
 bool Timer::active() const { return m_state == Timer::ActiveState; }
@@ -55,7 +62,7 @@ void Timer::tick(TimerCallback cb, std::chrono::milliseconds interval, std::chro
         return;
     }
 
-    m_future = std::async(&Timer::work, this);
+    m_thread = std::thread(&Timer::work, this);
 }
 
 void Timer::work()

@@ -5,7 +5,7 @@
 
 #include <condition_variable>
 #include <functional>
-#include <future>
+#include <thread>
 #include "event.h"
 
 namespace REDasm {
@@ -39,7 +39,7 @@ class Timer
         size_t m_state;
         TimerCallback m_timercallback;
         std::chrono::milliseconds m_interval, m_delaystart;
-        std::future<void> m_future;
+        std::thread m_thread;
         bool m_selfbalance;
 };
 

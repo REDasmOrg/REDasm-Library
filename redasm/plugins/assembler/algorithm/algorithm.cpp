@@ -77,6 +77,9 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
+    if(instruction->is(InstructionTypes::Branch) && (instruction->target_idx == -1))
+        REDasm::log("Invalid target index for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
+
     for(const Operand& op : instruction->operands)
     {
         if(!op.isNumeric() || op.displacementIsDynamic())

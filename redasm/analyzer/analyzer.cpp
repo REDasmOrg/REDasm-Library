@@ -3,18 +3,9 @@
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_document(disassembler->document()), m_disassembler(disassembler), m_signaturefiles(signaturefiles)
-{
-    // Fast post analysis
-    m_disassembler->busyChanged += [&]() {
-        if(m_disassembler->busy())
-            return;
-
-        this->findTrampolines();
-    };
-}
-
+Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_document(disassembler->document()), m_disassembler(disassembler), m_signaturefiles(signaturefiles) { }
 Analyzer::~Analyzer() { }
+void Analyzer::analyzeFast()  { this->findTrampolines(); }
 
 void Analyzer::analyze()
 {

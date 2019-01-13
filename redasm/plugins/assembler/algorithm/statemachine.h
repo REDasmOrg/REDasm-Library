@@ -48,7 +48,6 @@ class StateMachine
     public:
         StateMachine();
         float progress() const;
-        int concurrency() const;
         bool hasNext();
         void next();
 
@@ -61,11 +60,11 @@ class StateMachine
         bool getNext(State* state);
 
     protected:
-        u64 m_concurrency, m_total;
         std::unordered_map<state_t, StateCallback> m_states;
 
     private:
         std::stack<State> m_pending;
+        u64 m_total;
 };
 
 } // namespace REDasm

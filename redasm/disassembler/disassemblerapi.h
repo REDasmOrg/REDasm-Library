@@ -23,6 +23,7 @@ class DisassemblerAPI
 
     public:
         DisassemblerAPI();
+        virtual ~DisassemblerAPI();
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
         virtual safe_ptr<ListingDocumentType>& document() = 0;

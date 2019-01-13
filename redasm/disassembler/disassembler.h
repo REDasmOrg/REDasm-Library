@@ -2,7 +2,7 @@
 #define DISASSEMBLER_H
 
 #include "../plugins/plugins.h"
-#include "../support/concurrenttimer.h"
+#include "../support/concurrent/jobspool.h"
 #include "listing/listingdocument.h"
 #include "disassemblerbase.h"
 
@@ -27,12 +27,16 @@ class Disassembler: public DisassemblerBase
         virtual bool busy() const;
 
     private:
-        void disassembleStep(safe_ptr<AssemblerAlgorithm> &algorithm);
+        void work();
+        void disassembleJob();
+        void disassembleStep(Job *job);
+        void analyzeStep();
 
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;
         safe_ptr<AssemblerAlgorithm> m_algorithm;
-        ConcurrentTimer m_cctimer;
+        JobsPool m_jobs;
+        Job m_analyzejob;
 };
 
 }

@@ -29,7 +29,7 @@ class AssemblerAlgorithm: public StateMachine
         AssemblerAlgorithm();
         u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
         void enqueue(address_t address);
-        bool analyze();
+        void analyze();
 
     protected:
         virtual void validateTarget(const InstructionPtr& instruction) const;

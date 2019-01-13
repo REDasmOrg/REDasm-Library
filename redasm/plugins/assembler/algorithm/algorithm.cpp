@@ -9,7 +9,7 @@ namespace REDasm {
 
 AssemblerAlgorithm::AssemblerAlgorithm(): StateMachine(), m_disassembler(NULL), m_assembler(NULL) { }
 
-AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(false)
+AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(0)
 {
     m_format = m_disassembler->format();
 
@@ -29,31 +29,21 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
 
 void AssemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(address); }
 
-bool AssemblerAlgorithm::analyze()
+void AssemblerAlgorithm::analyze()
 {
     if(m_analyzed)
-        return false;
+    {
+        m_analyzer->analyzeFast();
+        return;
+    }
 
     m_analyzed = true;
-
     FormatPlugin* format = m_disassembler->format();
     m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
 
-    if(REDasm::Runtime::sync())
-    {
-        m_analyzer->analyze();
-        m_document->moveToEP();
-    }
-    else
-    {
-        std::thread([&]() {
-            REDasm::status("Analyzing...");
-            m_analyzer->analyze();
-            m_document->moveToEP();
-        }).detach();
-    }
-
-    return true;
+    REDasm::status("Analyzing...");
+    m_analyzer->analyze();
+    m_document->moveToEP();
 }
 
 void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const
@@ -64,7 +54,13 @@ void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const
     REDasm::log("Invalid target index for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
 }
 
-bool AssemblerAlgorithm::validateState(const State &state) const { return m_document->segment(state.address); }
+bool AssemblerAlgorithm::validateState(const State &state) const
+{
+    if(!StateMachine::validateState(state))
+        return false;
+
+    return m_document->segment(state.address);
+}
 
 void AssemblerAlgorithm::onNewState(const State &state) const
 {
@@ -130,6 +126,12 @@ void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionP
 
 void AssemblerAlgorithm::decodeState(State *state)
 {
+    if(state->address == 0x0040130A)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     InstructionPtr instruction = std::make_shared<Instruction>();
     u32 status = this->disassemble(state->address, instruction);
 

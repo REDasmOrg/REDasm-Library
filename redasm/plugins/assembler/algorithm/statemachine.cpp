@@ -13,13 +13,14 @@ float StateMachine::progress() const
     return 1.0 - (m_pending.size() / static_cast<double>(m_total));
 }
 
-int StateMachine::concurrency() const { return m_concurrency; }
 bool StateMachine::hasNext() { return !m_pending.empty(); }
 
 void StateMachine::next()
 {
     State currentstate;
-    this->getNext(&currentstate);
+
+    if(!this->getNext(&currentstate))
+        return;
 
     auto it = m_states.find(currentstate.id);
 
@@ -29,12 +30,12 @@ void StateMachine::next()
         it->second(&currentstate);
     }
     else
-        REDasm::log("Unknown state: " + std::to_string(currentstate.id));
+        REDasm::log("Unknown state: " + REDasm::hex(currentstate.id));
 }
 
 void StateMachine::enqueueState(const std::string &name, state_t id, u64 value, s64 index, const InstructionPtr &instruction)
 {
-    State state = {name, id, static_cast<u64>(value), index, instruction };
+    State state = { name, id, static_cast<u64>(value), index, instruction };
 
     if(!(id & StateMachine::UserState) && !this->validateState(state))
         return;

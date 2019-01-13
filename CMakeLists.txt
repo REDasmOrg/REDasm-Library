@@ -86,8 +86,8 @@ SET(SOURCES
     redasm/plugins/assembler/assembler.cpp
     redasm/disassembler/listing/listingdocument.cpp
     redasm/disassembler/listing/listingrenderer.cpp
-    redasm/support/concurrenttimer.cpp
-    redasm/support/timer.cpp
+    redasm/support/concurrent/jobspool.cpp
+    redasm/support/concurrent/job.cpp
     redasm/disassembler/listing/listingcursor.cpp
     redasm/graph/graph.cpp
     redasm/assemblers/metaarm/arm_thumb.cpp
@@ -191,8 +191,8 @@ set(HEADERS
     redasm/plugins/assembler/assembler.h
     redasm/disassembler/listing/listingdocument.h
     redasm/disassembler/listing/listingrenderer.h
-    redasm/support/concurrenttimer.cpp
-    redasm/support/timer.h
+    redasm/support/concurrent/jobspool.h
+    redasm/support/concurrent/job.h
     redasm/support/event.h
     redasm/disassembler/listing/listingcursor.h
     redasm/graph/graph.h

@@ -12,6 +12,7 @@ class DisassemblerBase: public DisassemblerAPI
 {
     public:
         DisassemblerBase(FormatPlugin* format);
+        virtual ~DisassemblerBase();
 
     public: // Primitive functions
         virtual FormatPlugin* format();

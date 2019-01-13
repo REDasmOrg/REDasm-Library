@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <memory>
 
-#define DO_TICK_DISASSEMBLY()  m_cctimer.tick(std::bind(&Disassembler::disassembleStep, this, m_algorithm))
-
 namespace REDasm {
 
 Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format)
@@ -15,22 +13,27 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
-    m_cctimer.setSelfBalance(true);
-    m_cctimer.stateChanged += [&](Timer*) { busyChanged(); };
+    m_analyzejob.work(std::bind(&Disassembler::analyzeStep, this), true); // Deferred
+    m_jobs.stateChanged += [&](Job*) { busyChanged(); };
 }
 
 Disassembler::~Disassembler() { }
 
-void Disassembler::disassembleStep(safe_ptr<AssemblerAlgorithm>& algorithm)
+void Disassembler::disassembleStep(Job* job)
 {
-    if(!algorithm->hasNext())
-    {
-        m_cctimer.stop();
-        algorithm->analyze();
-        return;
-    }
+    if(m_algorithm->hasNext())
+        m_algorithm->next();
+    else
+        job->stop();
 
-    algorithm->next();
+    if(!m_jobs.active())
+        m_analyzejob.start();
+}
+
+void Disassembler::analyzeStep()
+{
+    m_algorithm->analyze();
+    m_analyzejob.stop();
 }
 
 void Disassembler::disassemble()
@@ -54,8 +57,8 @@ void Disassembler::disassemble()
     if(entrypoint)
         m_algorithm->enqueue(entrypoint->address); // Push entry point
 
-    REDasm::log("Disassembling with " + std::to_string(m_cctimer.concurrency()) + " threads");
-    DO_TICK_DISASSEMBLY();
+    REDasm::log("Disassembling with " + std::to_string(m_jobs.concurrency()) + " threads");
+    this->disassembleJob();
 }
 
 Printer *Disassembler::createPrinter() { return m_assembler->createPrinter(this); }
@@ -65,17 +68,18 @@ void Disassembler::disassemble(address_t address)
 {
     m_algorithm->enqueue(address);
 
-    if(m_cctimer.active())
+    if(m_jobs.active())
         return;
 
-    DO_TICK_DISASSEMBLY();
+    this->disassembleJob();
 }
 
-void Disassembler::stop() { m_cctimer.stop(); }
-void Disassembler::pause() { m_cctimer.pause(); }
-void Disassembler::resume() { m_cctimer.resume(); }
-size_t Disassembler::state() const { return m_cctimer.state(); }
-bool Disassembler::busy() const { return m_cctimer.active(); }
+void Disassembler::stop() { m_jobs.stop(); }
+void Disassembler::pause() { m_jobs.pause(); }
+void Disassembler::resume() { m_jobs.resume(); }
+size_t Disassembler::state() const { return m_jobs.state(); }
+bool Disassembler::busy() const { return m_jobs.active(); }
+void Disassembler::disassembleJob() { m_jobs.work(std::bind(&Disassembler::disassembleStep, this, std::placeholders::_1)); }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {

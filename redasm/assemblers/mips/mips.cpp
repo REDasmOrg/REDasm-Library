@@ -32,6 +32,8 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     SET_INSTRUCTION_TYPE(MIPS_INS_BEQL, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BC1F, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_BC1FL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BC1TL, InstructionTypes::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BBIT132, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADD, InstructionTypes::Add);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADDI, InstructionTypes::Add);
     SET_INSTRUCTION_TYPE(MIPS_INS_ADDIU, InstructionTypes::Add);
@@ -58,6 +60,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_B, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BAL, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BC1FL, &MIPSAssembler::setTargetOp0);
+    REGISTER_INSTRUCTION(MIPS_INS_BC1TL, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BC1F, &MIPSAssembler::setTargetOp0);
     REGISTER_INSTRUCTION(MIPS_INS_BEQZ, &MIPSAssembler::setTargetOp1);
     REGISTER_INSTRUCTION(MIPS_INS_BNEZ, &MIPSAssembler::setTargetOp1);
@@ -78,6 +81,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_BNEL, &MIPSAssembler::setTargetOp2);
     REGISTER_INSTRUCTION(MIPS_INS_BEQ, &MIPSAssembler::setTargetOp2);
     REGISTER_INSTRUCTION(MIPS_INS_BEQL, &MIPSAssembler::setTargetOp2);
+    REGISTER_INSTRUCTION(MIPS_INS_BBIT132, &MIPSAssembler::setTargetOp2);
 }
 
 template<s64 mode> const char *MIPSAssembler<mode>::name() const

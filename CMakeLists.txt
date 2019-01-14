@@ -55,6 +55,7 @@ SET(SOURCES
     redasm/formats/pe/borland/borland_version.cpp
     redasm/formats/binary/binary.cpp
     redasm/assemblers/chip8/chip8.cpp
+    redasm/assemblers/mips/mips.cpp
     redasm/assemblers/mips/mips_algorithm.cpp
     redasm/assemblers/mips/mips_quirks.cpp
     redasm/assemblers/mips/mips_printer.cpp

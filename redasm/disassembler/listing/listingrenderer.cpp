@@ -16,10 +16,11 @@ ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_document(disa
 
 void ListingRenderer::render(u64 start, u64 count, void *userdata)
 {
-    ListingCursor* cur = m_document->cursor();
+    auto lock = s_lock_safe_ptr(m_document);
+    const ListingCursor* cur = lock->cursor();
     u64 end = start + count, line = start;
 
-    for(u64 i = 0; line < std::min(m_document->size(), end); i++, line++)
+    for(u64 i = 0; line < std::min(lock->size(), end); i++, line++)
     {
         RendererLine rl;
         rl.userdata = userdata;
@@ -27,7 +28,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
         rl.index = i;
         rl.highlighted = cur->currentLine() == line;
 
-        this->getRendererLine(line, rl);
+        this->getRendererLine(lock, line, rl);
         this->renderLine(rl);
     }
 }
@@ -53,7 +54,8 @@ std::string ListingRenderer::getLine(u64 line)
 
 std::string ListingRenderer::getSelectedText()
 {
-    const ListingCursor* cur = m_document->cursor();
+    auto lock = s_lock_safe_ptr(m_document);
+    const ListingCursor* cur = lock->cursor();
 
     if(!cur->hasSelection())
         return std::string();
@@ -70,7 +72,7 @@ std::string ListingRenderer::getSelectedText()
         while(line <= endpos.first)
         {
             RendererLine rl;
-            this->getRendererLine(line, rl);
+            this->getRendererLine(lock, line, rl);
             std::string s = rl.text;
 
             if(line == startpos.first)
@@ -87,7 +89,7 @@ std::string ListingRenderer::getSelectedText()
     else
     {
         RendererLine rl;
-        this->getRendererLine(startpos.first, rl);
+        this->getRendererLine(lock, startpos.first, rl);
         copied = rl.text.substr(startpos.second, endpos.second - startpos.second + 1);
     }
 
@@ -96,40 +98,46 @@ std::string ListingRenderer::getSelectedText()
 
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
-bool ListingRenderer::getRendererLine(size_t line, RendererLine& rl)
+bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
 {
-    ListingItem* item = m_document->itemAt(std::min(line, m_document->lastLine()));
+    auto lock = document_lock(m_document);
+    return this->getRendererLine(lock, line, rl);
+}
+
+bool ListingRenderer::getRendererLine(const document_lock &lock, size_t line, RendererLine& rl)
+{
+    const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
 
     if(!item)
         return false;
 
     if(item->is(ListingItem::SegmentItem))
-        this->renderSegment(item, rl);
+        this->renderSegment(lock, item, rl);
     else if(item->is(ListingItem::FunctionItem))
-        this->renderFunction(item, rl);
+        this->renderFunction(lock, item, rl);
     else if(item->is(ListingItem::InstructionItem))
-        this->renderInstruction(item, rl);
+        this->renderInstruction(lock, item, rl);
     else if(item->is(ListingItem::SymbolItem))
-        this->renderSymbol(item, rl);
+        this->renderSymbol(lock, item, rl);
     else
         rl.push("Unknown Type: " + std::to_string(item->type));
 
     return true;
 }
 
-void ListingRenderer::renderSegment(ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderSegment(const document_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    m_printer->segment(m_document->segment(item->address), [&](const std::string& line) {
+    m_printer->segment(lock->segment(item->address), [&](const std::string& line) {
         rl.push(line, "segment_fg");
     });
 }
 
-void ListingRenderer::renderFunction(ListingItem *item, RendererLine& rl)
+void ListingRenderer::renderFunction(const document_lock& lock, const ListingItem *item, RendererLine& rl)
 {
     if(!(m_flags & ListingRenderer::HideSegmentAndAddress))
-        this->renderAddressIndent(item, rl);
+        this->renderAddressIndent(lock, item, rl);
 
-    m_printer->function(m_document->symbol(item->address), [&](const std::string& pre, const std::string& sym, const std::string& post) {
+    m_printer->function(lock->symbol(item->address), [&](const std::string& pre, const std::string& sym, const std::string& post) {
         if(!pre.empty())
             rl.push(pre, "function_fg");
 
@@ -140,28 +148,28 @@ void ListingRenderer::renderFunction(ListingItem *item, RendererLine& rl)
     });
 }
 
-void ListingRenderer::renderInstruction(ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderInstruction(const document_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    InstructionPtr instruction = m_document->instruction(item->address);
+    InstructionPtr instruction = lock->instruction(item->address);
 
-    this->renderAddress(item, rl);
+    this->renderAddress(lock, item, rl);
     this->renderIndent(rl);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
-    this->renderComments(instruction, rl);
+    this->renderComments(lock, instruction, rl);
 }
 
-void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    SymbolPtr symbol = m_document->symbol(item->address);
+    SymbolPtr symbol = lock->symbol(item->address);
 
     if(symbol->is(SymbolTypes::Code)) // Label or Callback
     {
-        Segment* segment = m_document->segment(symbol->address);
+        const Segment* segment = lock->segment(symbol->address);
 
         if(segment->is(SegmentTypes::Bss))
         {
-            this->renderAddress(item, rl);
+            this->renderAddress(lock, item, rl);
             this->renderIndent(rl);
             rl.push(symbol->name, "label_fg");
             rl.push(" <").push("dynamic branch", "label_fg").push(">");
@@ -171,15 +179,15 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
             if(m_flags & ListingRenderer::HideSegmentAndAddress)
                 this->renderIndent(rl, 2);
             else
-                this->renderAddressIndent(item, rl);
+                this->renderAddressIndent(lock, item, rl);
 
             rl.push(symbol->name, "label_fg").push(":");
         }
     }
     else // Data
     {
-        Segment* segment = m_document->segment(item->address);
-        this->renderAddress(item, rl);
+        const Segment* segment = lock->segment(item->address);
+        this->renderAddress(lock, item, rl);
         this->renderIndent(rl);
         rl.push(symbol->name + " ", "label_fg");
 
@@ -189,10 +197,10 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
             {
                 if(symbol->isTable())
                 {
-                    this->renderTable(symbol, rl);
+                    this->renderTable(lock, symbol, rl);
                     return;
                 }
-                else if(this->renderSymbolPointer(symbol, rl))
+                else if(this->renderSymbolPointer(lock, symbol, rl))
                     return;
             }
 
@@ -220,13 +228,13 @@ void ListingRenderer::renderSymbol(ListingItem *item, RendererLine &rl)
     }
 }
 
-void ListingRenderer::renderAddress(ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     if(m_flags & ListingRenderer::HideSegmentName && !(m_flags & ListingRenderer::HideAddress))
         rl.push(HEX_ADDRESS(item->address), "address_fg");
     else if(!(m_flags & ListingRenderer::HideAddress))
     {
-        Segment* segment = m_document->segment(item->address);
+        const Segment* segment = lock->segment(item->address);
         rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");
     }
 }
@@ -278,9 +286,9 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
     });
 }
 
-void ListingRenderer::renderComments(const InstructionPtr &instruction, RendererLine &rl)
+void ListingRenderer::renderComments(const document_lock &lock, const InstructionPtr &instruction, RendererLine &rl)
 {
-    std::string s = m_document->comment(instruction->address);
+    std::string s = lock->comment(instruction->address);
 
     if(s.empty())
         return;
@@ -289,10 +297,10 @@ void ListingRenderer::renderComments(const InstructionPtr &instruction, Renderer
     rl.push("# " + ListingRenderer::escapeString(s), "comment_fg");
 }
 
-void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
+void ListingRenderer::renderAddressIndent(const document_lock& lock, const ListingItem* item, RendererLine &rl)
 {
     FormatPlugin* format = m_disassembler->format();
-    Segment* segment = m_document->segment(item->address);
+    const Segment* segment = lock->segment(item->address);
 
     s64 count = format->bits() / 4;
 
@@ -304,7 +312,7 @@ void ListingRenderer::renderAddressIndent(ListingItem* item, RendererLine &rl)
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
 
-void ListingRenderer::renderTable(const SymbolPtr &symbol, RendererLine& rl) const
+void ListingRenderer::renderTable(const document_lock &lock, const SymbolPtr &symbol, RendererLine& rl) const
 {
     u64 value = 0;
     FormatPlugin* format = m_disassembler->format();
@@ -323,7 +331,7 @@ void ListingRenderer::renderTable(const SymbolPtr &symbol, RendererLine& rl) con
             continue;
         }
 
-        SymbolPtr ptrsymbol = m_document->symbol(value);
+        SymbolPtr ptrsymbol = lock->symbol(value);
 
         if(!ptrsymbol)
             rl.push(REDasm::hex(value, format->bits()), "data_fg");
@@ -334,7 +342,7 @@ void ListingRenderer::renderTable(const SymbolPtr &symbol, RendererLine& rl) con
     rl.push("]");
 }
 
-bool ListingRenderer::renderSymbolPointer(const SymbolPtr &symbol, RendererLine &rl) const
+bool ListingRenderer::renderSymbolPointer(const document_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const
 {
     u64 value = 0;
     FormatPlugin* format = m_disassembler->format();
@@ -342,7 +350,7 @@ bool ListingRenderer::renderSymbolPointer(const SymbolPtr &symbol, RendererLine 
    if(!m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
        return false;
 
-   SymbolPtr ptrsymbol = m_document->symbol(value);
+   SymbolPtr ptrsymbol = lock->symbol(value);
 
    if(!ptrsymbol)
        return false;

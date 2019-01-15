@@ -466,7 +466,7 @@ int ListingDocumentType::functionIndex(address_t address) { return this->index(a
 int ListingDocumentType::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
 int ListingDocumentType::symbolIndex(address_t address) { return this->index(address, ListingItem::SymbolItem); }
 
-ListingItem* ListingDocumentType::itemAt(size_t i)
+ListingItem* ListingDocumentType::itemAt(size_t i) const
 {
     if(i >= this->size())
         return NULL;

@@ -216,7 +216,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         int functionIndex(address_t address);
         int instructionIndex(address_t address);
         int symbolIndex(address_t address);
-        ListingItem* itemAt(size_t i);
+        ListingItem* itemAt(size_t i) const;
         int indexOf(address_t address);
         int indexOf(ListingItem *item);
         SymbolPtr symbol(address_t address);

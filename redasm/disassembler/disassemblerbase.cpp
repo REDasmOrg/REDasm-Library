@@ -50,13 +50,18 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 
 int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
+    SymbolPtr symbol = m_document->symbol(startaddress);
+
+    if(symbol && (symbol->isTable() || symbol->is(SymbolTypes::TableItem)))
+        return -1;
+
     address_t target = 0, address = startaddress;
 
     if(!this->readAddress(address, m_format->addressWidth(), &target))
         return 0;
 
     REDasm::status("Checking address table @ " + REDasm::hex(startaddress, m_format->bits()));
-    int c = 0;
+    std::unordered_set<address_t> items;
 
     while(this->readAddress(address, m_format->addressWidth(), &target))
     {
@@ -65,23 +70,30 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
 
+        items.insert(target);
         instruction->target(target);
         address += m_format->addressWidth();
-        c++;
     }
 
-    if(c)
+    if(!items.empty())
     {
         this->pushReference(startaddress, instruction->address);
         m_document->update(instruction);
 
-        if(c > 1)
-            m_document->table(startaddress, c);
+        if(items.size() > 1)
+        {
+            u32 i = 0;
+
+            for(auto it = items.begin(); it != items.end(); it++)
+                m_document->tableItem(*it, SymbolTypes::Code, i);
+
+            m_document->table(startaddress, items.size());
+        }
         else
             m_document->pointer(startaddress, SymbolTypes::Data);
     }
 
-    return c;
+    return items.size();
 }
 
 FormatPlugin *DisassemblerBase::format() { return m_format.get(); }

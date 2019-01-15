@@ -203,7 +203,7 @@ void AssemblerAlgorithm::addressTableState(State *state)
     {
         m_disassembler->pushReference(state->address, instruction->address);
 
-        REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits()));
+        REDasm::log("Found address table @ " + REDasm::hex(state->address, m_format->bits()) + " with " + std::to_string(c) + " case(s)");
         state_t fwdstate = AssemblerAlgorithm::BranchState;
 
         if(instruction->is(InstructionTypes::Call))
@@ -225,6 +225,8 @@ void AssemblerAlgorithm::addressTableState(State *state)
 
         return;
     }
+    else if(c < 0)
+        return;
 
     const Operand& op = state->operand();
 

@@ -272,6 +272,8 @@ void ListingDocumentType::symbol(address_t address, u32 type, u32 tag)
 {
     if(type & SymbolTypes::TableMask)
         this->symbol(address, this->symbolName("tbl", address), type, tag);
+    else if(type & SymbolTypes::TableItem)
+        this->symbol(address, this->symbolName("tbi", address), type, tag);
     else if(type & SymbolTypes::Pointer)
         this->symbol(address, this->symbolName("ptr", address), type, tag);
     else if(type & SymbolTypes::WideStringMask)
@@ -346,6 +348,21 @@ void ListingDocumentType::function(address_t address, const std::string &name, u
 void ListingDocumentType::function(address_t address, u32 tag) { this->symbol(address, SymbolTypes::Function, tag); }
 void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Pointer, tag); }
 void ListingDocumentType::table(address_t address, u32 tag) { this->lock(address, SymbolTypes::Table, tag); }
+
+void ListingDocumentType::tableItem(address_t address, u32 type, u32 tag)
+{
+    type |= SymbolTypes::TableItem;
+    SymbolPtr symbol = this->symbol(address); // Don't override custom symbols, if any
+
+    if(symbol)
+    {
+        symbol->type |= type;
+        this->lock(address, symbol->name, symbol->type, tag);
+        return;
+    }
+
+    this->lock(address, type, tag);
+}
 
 void ListingDocumentType::entry(address_t address, u32 tag)
 {

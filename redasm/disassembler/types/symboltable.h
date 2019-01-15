@@ -23,6 +23,7 @@ namespace SymbolTypes {
         Locked             = 0x10000000,
 
         Table              = 0x00010000 | Pointer | Data,
+        TableItem          = 0x00020000,
 
         LockedMask         = ~Locked,
         FunctionMask       = Function                      & ~(Code      | Locked),

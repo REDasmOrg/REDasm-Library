@@ -3,8 +3,8 @@
 
 #include <list>
 #include "../../redasm_api.h"
+#include "../event.h"
 #include "job.h"
-#include "event.h"
 
 namespace REDasm {
 

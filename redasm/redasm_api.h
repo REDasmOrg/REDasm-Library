@@ -206,7 +206,7 @@ struct Instruction
     void targetOp(s32 index) {
         target_idx = index;
 
-        if((index < operands.size()) && !operands[index].is(OperandTypes::Register))
+        if((index < operands.size()) && operands[index].isNumeric())
             this->target(operands[index].u_value);
     }
 

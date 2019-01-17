@@ -31,9 +31,9 @@ namespace REDasm {
 
 inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
-inline void progress(float p) { Runtime::rntProgressCallback(p); }
+inline void progress(size_t p) { Runtime::rntProgressCallback(p); }
 inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
-inline void status(const std::string& s, float p) { Runtime::rntStatusCallback(s); REDasm::progress(p); }
+inline void status(const std::string& s, size_t p) { Runtime::rntStatusCallback(s); REDasm::progress(p); }
 
 template<typename... T> std::string makePath(const std::string& p, T... args) {
     std::string path = p;

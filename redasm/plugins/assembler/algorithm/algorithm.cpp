@@ -65,7 +65,7 @@ bool AssemblerAlgorithm::validateState(const State &state) const
 void AssemblerAlgorithm::onNewState(const State &state) const
 {
     REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits()) +
-                   " >> " + state.name, this->progress());
+                   " >> " + state.name, this->pending());
 }
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)

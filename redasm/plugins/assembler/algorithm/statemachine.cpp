@@ -3,16 +3,8 @@
 
 namespace REDasm {
 
-StateMachine::StateMachine(): m_total(0) { }
-
-float StateMachine::progress() const
-{
-    if(!m_total)
-        return 1.0;
-
-    return 1.0 - (m_pending.size() / static_cast<double>(m_total));
-}
-
+StateMachine::StateMachine() { }
+size_t StateMachine::pending() const { return m_pending.size(); }
 bool StateMachine::hasNext() { return !m_pending.empty(); }
 
 void StateMachine::next()
@@ -40,7 +32,6 @@ void StateMachine::enqueueState(const std::string &name, state_t id, u64 value, 
     if(!(id & StateMachine::UserState) && !this->validateState(state))
         return;
 
-    m_total++;
     m_pending.emplace(state);
 }
 

@@ -47,7 +47,7 @@ class StateMachine
 
     public:
         StateMachine();
-        float progress() const;
+        size_t pending() const;
         bool hasNext();
         void next();
 
@@ -64,7 +64,6 @@ class StateMachine
 
     private:
         std::stack<State> m_pending;
-        u64 m_total;
 };
 
 } // namespace REDasm

@@ -217,16 +217,7 @@ template<cs_mode mode> void X86Assembler<mode>::initStackSize(const InstructionP
         this->m_stacksize = instruction->op(1).u_value;
 }
 
-template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction)
-{
-    Operand& op = instruction->op(0);
-
-    if(!op.isNumeric())
-        return;
-
-    instruction->target(op.u_value);
-    instruction->target_idx = 0;
-}
+template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction) { instruction->targetOp(0); }
 
 template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
 {

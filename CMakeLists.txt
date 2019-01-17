@@ -131,6 +131,7 @@ set(HEADERS
     redasm/support/utils.h
     redasm/assemblers/mips/mips.h
     redasm/assemblers/x86/x86.h
+    redasm/assemblers/x86/x86_impl.h
     redasm/formats/pe/vb/vb_analyzer.h
     redasm/formats/pe/vb/vb_header.h
     redasm/formats/pe/vb/vb_components.h

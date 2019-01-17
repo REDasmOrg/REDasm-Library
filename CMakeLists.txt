@@ -12,8 +12,7 @@ set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 ### Dependencies
 
 # Single Headers
-set(DEPENDS_SINGLE_HEADERS
-    ${DEPENDS_HEADERS_DIR}/json)
+set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}/json)
 
 #ZLib
 set(ZLIB_BUILD ${DEPENDS_BUILD_DIR}/zlib)
@@ -28,62 +27,31 @@ set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_STATIC ON  CACHE BOOL "")
 add_subdirectory(${CAPSTONE_SRC})
 
+# Formats & Assemblers
+file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h)
+file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
+file(GLOB_RECURSE FORMAT_HEADERS redasm/formats/*.h)
+file(GLOB_RECURSE FORMAT_SOURCES redasm/formats/*.cpp)
+
 # LibREDasm
 SET(SOURCES
+    ${FORMAT_SOURCES}
+    ${ASSEMBLER_SOURCES}
     redasm/plugins/plugins.cpp
     redasm/plugins/format.cpp
     redasm/analyzer/analyzer.cpp
     redasm/disassembler/disassembler.cpp
-    redasm/formats/psxexe/psxexe.cpp
-    redasm/formats/psxexe/psxexe_analyzer.cpp
-    redasm/formats/pe/pe.cpp
     redasm/plugins/assembler/printer.cpp
-    redasm/formats/pe/pe_analyzer.cpp
-    redasm/formats/pe/pe_utils.cpp
-    redasm/formats/elf/elf.cpp
     redasm/support/utils.cpp
     redasm/support/demangler.cpp
-    redasm/formats/pe/vb/vb_analyzer.cpp
-    redasm/formats/pe/vb/vb_components.cpp
-    redasm/formats/pe/pe_imports.cpp
     redasm/disassembler/disassemblerbase.cpp
     redasm/disassembler/types/referencetable.cpp
     redasm/disassembler/types/symboltable.cpp
     redasm/support/coff/coff_symboltable.cpp
     redasm/support/serializer.cpp
-    redasm/formats/pe/pe_resources.cpp
-    redasm/formats/pe/borland/borland_version.cpp
-    redasm/formats/binary/binary.cpp
-    redasm/assemblers/chip8/chip8.cpp
-#    redasm/assemblers/mips/mips.cpp
-    redasm/assemblers/mips/mips_algorithm.cpp
-    redasm/assemblers/mips/mips_quirks.cpp
-    redasm/assemblers/mips/mips_printer.cpp
-    redasm/assemblers/x86/x86_printer.cpp
-    redasm/assemblers/chip8/chip8_printer.cpp
-    redasm/assemblers/mips/mips_emulator.cpp
-    redasm/formats/dex/dex.cpp
-    redasm/assemblers/dalvik/dalvik.cpp
-    redasm/assemblers/dalvik/dalvik_printer.cpp
-    redasm/formats/dex/dex_statemachine.cpp
-    redasm/formats/dex/dex_utils.cpp
-    redasm/formats/elf/elf_analyzer.cpp
     redasm/disassembler/disassemblerapi.cpp
-    redasm/assemblers/cil/cil.cpp
-    redasm/formats/pe/dotnet/dotnet.cpp
-    redasm/formats/pe/dotnet/dotnet_reader.cpp
     redasm/disassembler/graph/functiongraph.cpp
-    redasm/formats/xbe/xbe.cpp
     redasm/support/ordinals.cpp
-    redasm/formats/gba/gba.cpp
-    redasm/formats/gba/gba_analyzer.cpp
-    redasm/formats/n64/n64.cpp
-    redasm/formats/n64/n64_analyzer.cpp
-    redasm/assemblers/metaarm/metaarm.cpp
-    redasm/assemblers/metaarm/metaarm_printer.cpp
-    redasm/assemblers/metaarm/metaarm_emulator.cpp
-    redasm/assemblers/metaarm/metaarm_isa.cpp
-    redasm/assemblers/metaarm/arm.cpp
     redasm/plugins/assembler/assembler.cpp
     redasm/disassembler/listing/listingdocument.cpp
     redasm/disassembler/listing/listingrenderer.cpp
@@ -91,13 +59,10 @@ SET(SOURCES
     redasm/support/concurrent/job.cpp
     redasm/disassembler/listing/listingcursor.cpp
     redasm/graph/graph.cpp
-    redasm/assemblers/metaarm/arm_thumb.cpp
-    redasm/assemblers/dalvik/dalvik_algorithm.cpp
     redasm/plugins/assembler/algorithm/algorithm.cpp
     redasm/plugins/assembler/algorithm/controlflow.cpp
     redasm/plugins/assembler/algorithm/linearsweep.cpp
     redasm/plugins/assembler/algorithm/statemachine.cpp
-    redasm/assemblers/metaarm/metaarm_algorithm.cpp
     redasm/plugins/emulator.cpp
     redasm/redasm_api.cpp
     redasm/redasm_runtime.cpp
@@ -109,34 +74,17 @@ SET(SOURCES
     redasm/disassembler/listing/instructioncache.cpp)
 
 set(HEADERS
+    ${FORMAT_HEADERS}
+    ${ASSEMBLER_HEADERS}
     redasm/redasm.h
     redasm/plugins/format.h
     redasm/plugins/base.h
     redasm/plugins/plugins.h
     redasm/analyzer/analyzer.h
     redasm/disassembler/disassembler.h
-    redasm/formats/psxexe/psxexe.h
-    redasm/formats/psxexe/psxexe_analyzer.h
-    redasm/formats/pe/pe.h
-    redasm/formats/pe/pe_constants.h
-    redasm/formats/pe/pe_headers.h
     redasm/plugins/assembler/printer.h
-    redasm/formats/pe/pe_analyzer.h
-    redasm/formats/pe/pe_utils.h
-    redasm/formats/elf/elf.h
-    redasm/formats/elf/elf64_header.h
-    redasm/formats/elf/elf32_header.h
-    redasm/formats/elf/elf_common.h
     redasm/support/demangler.h
     redasm/support/utils.h
-    redasm/assemblers/mips/mips.h
-    redasm/assemblers/mips/mips_impl.h
-    redasm/assemblers/x86/x86.h
-    redasm/assemblers/x86/x86_impl.h
-    redasm/formats/pe/vb/vb_analyzer.h
-    redasm/formats/pe/vb/vb_header.h
-    redasm/formats/pe/vb/vb_components.h
-    redasm/formats/pe/pe_imports.h
     redasm/disassembler/disassemblerbase.h
     redasm/disassembler/types/referencetable.h
     redasm/disassembler/types/symboltable.h
@@ -147,50 +95,9 @@ set(HEADERS
     redasm/support/hash.h
     redasm/support/safe_ptr.h
     redasm/support/serializer.h
-    redasm/formats/pe/pe_resources.h
-    redasm/formats/pe/borland/borland_types.h
-    redasm/formats/pe/borland/borland_version.h
-    redasm/formats/binary/binary.h
-    redasm/assemblers/chip8/chip8.h
-    redasm/assemblers/mips/mips_algorithm.h
-    redasm/assemblers/mips/mips_printer.h
-    redasm/assemblers/mips/mips_quirks.h
-    redasm/assemblers/x86/x86_printer.h
-    redasm/assemblers/chip8/chip8_printer.h
-    redasm/assemblers/chip8/chip8_registers.h
-    redasm/assemblers/mips/mips_emulator.h
-    redasm/formats/dex/dex.h
-    redasm/formats/dex/dex_constants.h
-    redasm/formats/dex/dex_header.h
-    redasm/assemblers/dalvik/dalvik.h
-    redasm/assemblers/dalvik/dalvik_printer.h
-    redasm/assemblers/dalvik/dalvik_metadata.h
-    redasm/assemblers/dalvik/dalvik_opcodes.h
-    redasm/formats/dex/dex_statemachine.h
-    redasm/formats/dex/dex_utils.h
-    redasm/formats/pe/pe_debug.h
-    redasm/formats/pe/pe_common.h
-    redasm/formats/elf/elf_analyzer.h
     redasm/disassembler/disassemblerapi.h
-    redasm/formats/pe/dotnet/dotnet_header.h
-    redasm/assemblers/cil/cil.h
-    redasm/formats/pe/dotnet/dotnet.h
-    redasm/formats/pe/dotnet/dotnet_tables.h
-    redasm/formats/pe/dotnet/dotnet_reader.h
     redasm/disassembler/graph/functiongraph.h
-    redasm/formats/xbe/xbe.h
-    redasm/formats/xbe/xbe_header.h
     redasm/support/ordinals.h
-    redasm/formats/gba/gba.h
-    redasm/formats/gba/gba_analyzer.h
-    redasm/formats/n64/n64.h
-    redasm/formats/n64/n64_analyzer.h
-    redasm/assemblers/metaarm/metaarm.h
-    redasm/assemblers/metaarm/metaarm_printer.h
-    redasm/assemblers/metaarm/metaarm_emulator.h
-    redasm/assemblers/metaarm/metaarm_isa.h
-    redasm/assemblers/metaarm/arm.h
-    redasm/assemblers/metaarm/arm_common.h
     redasm/plugins/assembler/assembler.h
     redasm/disassembler/listing/listingdocument.h
     redasm/disassembler/listing/listingrenderer.h
@@ -200,13 +107,10 @@ set(HEADERS
     redasm/disassembler/listing/listingcursor.h
     redasm/graph/graph.h
     redasm/support/dispatcher.h
-    redasm/assemblers/metaarm/arm_thumb.h
-    redasm/assemblers/dalvik/dalvik_algorithm.h
     redasm/plugins/assembler/algorithm/algorithm.h
     redasm/plugins/assembler/algorithm/controlflow.h
     redasm/plugins/assembler/algorithm/linearsweep.h
     redasm/plugins/assembler/algorithm/statemachine.h
-    redasm/assemblers/metaarm/metaarm_algorithm.h
     redasm/emulator/emulator_alu.h
     redasm/emulator/emulator_base.h
     redasm/plugins/emulator.h

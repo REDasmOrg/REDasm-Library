@@ -38,6 +38,6 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
 
 } // namespace REDasm
 
-#include "arm_common.cpp"
+#include "arm_common_impl.h"
 
 #endif // ARM_COMMON_H

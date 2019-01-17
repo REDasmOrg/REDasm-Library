@@ -60,6 +60,6 @@ DECLARE_ASSEMBLER_PLUGIN(MIPSMicroBEAssembler, mipsmicrobe)
 
 } // namespace REDasm
 
-#include "mips.cpp"
+#include "mips_impl.h"
 
 #endif // MIPS_H

@@ -130,6 +130,7 @@ set(HEADERS
     redasm/support/demangler.h
     redasm/support/utils.h
     redasm/assemblers/mips/mips.h
+    redasm/assemblers/mips/mips_impl.h
     redasm/assemblers/x86/x86.h
     redasm/assemblers/x86/x86_impl.h
     redasm/formats/pe/vb/vb_analyzer.h

@@ -39,7 +39,6 @@ class Job
 
     private:
         std::atomic<size_t> m_state;
-        std::chrono::milliseconds m_interval;
         JobCallback m_jobcallback;
         std::condition_variable m_cv;
         std::thread m_thread;

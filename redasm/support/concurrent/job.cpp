@@ -1,13 +1,11 @@
 #include "job.h"
 #include "../../redasm_runtime.h"
 
-#define JOB_BASE_INTERVAL 1 // 1ms
-
 namespace REDasm {
 
 size_t Job::m_jobid = 0;
 
-Job::Job(): m_id(++m_jobid), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
+Job::Job(): m_id(++m_jobid), m_state(Job::InactiveState) { }
 
 Job::~Job()
 {
@@ -69,7 +67,6 @@ void Job::work(JobCallback cb, bool deferred)
     if(this->active())
         return;
 
-    m_interval = std::chrono::milliseconds(JOB_BASE_INTERVAL);
     m_state = deferred ? Job::SleepState : Job::ActiveState;
     m_jobcallback = cb;
     stateChanged(this);
@@ -99,14 +96,7 @@ void Job::doWork()
             return;
 
         if(m_state == Job::ActiveState)
-        {
-            auto start = std::chrono::steady_clock::now();
             m_jobcallback(this);
-            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
-            m_interval = ((m_interval + elapsed) / 2);
-        }
-
-        std::this_thread::sleep_for(m_interval);
     }
 }
 

@@ -27,10 +27,13 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 
 bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 {
-    bool wide = false;
+    bool wide = false, middle = false;
 
-    if(this->locationIsString(address, &wide) < MIN_STRING)
+    if(this->locationIsString(address, &wide, &middle) < MIN_STRING)
         return false;
+
+    if(middle) //Ok...it's a string, but we are in the middle of it
+        return true;
 
     if(wide)
     {
@@ -99,22 +102,26 @@ FormatPlugin *DisassemblerBase::format() { return m_format.get(); }
 ListingDocument& DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
-u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
+u64 DisassemblerBase::locationIsString(address_t address, bool *wide, bool* middle) const
 {
     Segment* segment = m_document->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return 0;
 
-    if(wide)
-        *wide = false;
+    if(wide) *wide = false;
+    if(middle) *middle = false;
 
-    u64 count = this->locationIsStringT<u8>(address, ::isprint, [](u16 b) -> bool { return ::isalnum(b) || ::isspace(b); });
+    u64 count = this->locationIsStringT<u8>(address,
+                                            ::isprint, [](u16 b) -> bool {  return ::isalnum(b) || ::isspace(b); },
+                                            middle);
 
     if(count == 1) // Try with wide strings
     {
-        count = this->locationIsStringT<u16>(address, [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isprint(b1) && !b2; },
-                                                      [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return (::isspace(b1) || ::isalnum(b1)) && !b2; } );
+        count = this->locationIsStringT<u16>(address,
+                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isprint(b1) && !b2; },
+                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return (::isspace(b1) || ::isalnum(b1)) && !b2; },
+                                             middle);
 
         if(wide)
             *wide = true;

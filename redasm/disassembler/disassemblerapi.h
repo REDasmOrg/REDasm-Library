@@ -35,7 +35,7 @@ class DisassemblerAPI
         virtual void checkLocation(address_t fromaddress, address_t address) = 0;
         virtual bool checkString(address_t fromaddress, address_t address) = 0;
         virtual int checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;
-        virtual u64 locationIsString(address_t address, bool *wide = NULL) const = 0;
+        virtual u64 locationIsString(address_t address, bool *wide = NULL, bool *middle = NULL) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
         virtual std::string readString(address_t address) const = 0;
         virtual std::string readWString(const SymbolPtr& symbol) const = 0;

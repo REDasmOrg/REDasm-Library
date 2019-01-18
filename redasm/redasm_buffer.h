@@ -27,7 +27,8 @@ class Buffer: public std::vector<u8>
         u8 operator *() const { return this->at(0); }
 
     public:
-        template<typename T> s64 swapEndianness() { return Endianness::swap<T>(this->data(), this->size()); }
+        template<typename T> Buffer& swapEndianness(size_t size = -1u);
+        template<typename T> Buffer swapEndianness(size_t size = -1u) const;
         template<typename T> operator T*() const { return reinterpret_cast<T*>(this->data()); }
         template<typename T> operator T() const;
 
@@ -37,6 +38,21 @@ class Buffer: public std::vector<u8>
     public:
         static Buffer invalid;
 };
+
+template<typename T> Buffer& Buffer::swapEndianness(size_t size)
+{
+    if(size == -1u)
+        size = this->size();
+
+    Endianness::swap<T>(this->data(), size);
+    return *this;
+}
+
+template<typename T> Buffer Buffer::swapEndianness(size_t size) const
+{
+    Buffer buffer = *this;
+    return buffer.swapEndianness<T>(size);
+}
 
 template<typename T> Buffer::operator T() const
 {

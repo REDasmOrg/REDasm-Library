@@ -2,7 +2,6 @@
 #include "n64.h"
 #include "n64_analyzer.h"
 
-
 // https://level42.ca/projects/ultra64/Documentation/man/pro-man/pro09/index9.3.html
 // http://en64.shoutwiki.com/wiki/ROM#Cartridge_ROM_Header
 
@@ -23,31 +22,67 @@
 
 #define N64_SEGMENT_AREA(name) N64_##name##_START_ADDR, N64_##name##_SIZE
 
+#define N64_MAGIC_BS            0x37804012
+#define N64_MAGIC_BE            0x80371240
+#define N64_MAGIC_LE            0x40123780
+#define N64_MAGIC_BE_B1         0x80
+#define N64_MAGIC_BS_B1         0x37
+#define N64_MAGIC_LE_B1         0x40
+
 namespace REDasm {
 
 FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
 {
-    u32 magic_number = static_cast<u32>(buffer);
+    u32 magic = Endianness::cfbe<u32>(buffer);
 
-    if((magic_number != 0x80371240) && (magic_number != 0x37804012))
+    if((magic != N64_MAGIC_BS) && (magic != N64_MAGIC_BE) && (magic != N64_MAGIC_LE))
         return false;
+
+    Buffer swbuffer;
+
+    if(magic == N64_MAGIC_BS)
+    {
+        swbuffer = buffer.swapEndianness<u16>(sizeof(N64RomHeader)); // Swap the header
+        format = static_cast<const N64RomHeader*>(swbuffer);
+    }
 
     if(!N64RomFormat::checkMediaType(format) || !N64RomFormat::checkCountryCode(format))
         return false;
 
-   return N64RomFormat::checkChecksum(format, buffer);
+    if(!swbuffer.empty()) // Swap all
+    {
+        swbuffer = buffer.swapEndianness<u16>();
+        format = static_cast<const N64RomHeader*>(swbuffer);
+    }
+
+    return N64RomFormat::checkChecksum(format, swbuffer.empty() ? buffer : swbuffer);
 }
 
 N64RomFormat::N64RomFormat(Buffer &buffer): FormatPluginT<N64RomHeader>(buffer) { }
 const char *N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
-const char *N64RomFormat::assembler() const { return "mips64be"; }
-endianness_t N64RomFormat::endianness() const { return Endianness::BigEndian; }
+
+const char *N64RomFormat::assembler() const
+{
+    if(m_format->magic[0] == N64_MAGIC_LE_B1)
+        "mips64le";
+
+    return "mips64be";
+}
+
+endianness_t N64RomFormat::endianness() const
+{
+    if(m_format->magic[0] == N64_MAGIC_LE_B1)
+        return Endianness::LittleEndian;
+
+    return Endianness::BigEndian;
+}
+
 Analyzer *N64RomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new N64Analyzer(disassembler, signatures); }
 
 void N64RomFormat::load()
 {
-    if(m_format->pi_bsb_dom1_lat_reg == 0x37)
+    if(m_format->magic[0] == N64_MAGIC_BS_B1)
         m_buffer.swapEndianness<u16>();
 
     m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);

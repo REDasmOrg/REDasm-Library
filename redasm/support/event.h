@@ -11,6 +11,7 @@ template<typename ...ARGS> struct Event
     typedef std::function<void(ARGS...)> HandlerType;
 
     Event() { }
+    ~Event() { m_handlers.clear(); }
     Event(const Event& rhs) = delete;
     Event& operator =(const Event& rhs) = delete;
     Event& operator +=(const HandlerType& handler) { m_handlers.push_back(handler); return *this; }

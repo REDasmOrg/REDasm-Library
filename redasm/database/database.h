@@ -39,7 +39,7 @@ class Database
     public:
         static const std::string& lastError();
         static bool save(REDasm::DisassemblerAPI* disassembler, const std::string& dbfilename, const std::string& filename);
-        static REDasm::Disassembler* load(const std::string& dbfilename, std::string& filename, Buffer& buffer);
+        static REDasm::Disassembler* load(const std::string& dbfilename, std::string& filename);
 
     private:
         static std::string m_lasterror;

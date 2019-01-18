@@ -16,17 +16,18 @@ namespace REDasm {
 
 class PeFormat: public FormatPluginT<ImageDosHeader>
 {
+    DEFINE_FORMAT_PLUGIN_TEST(ImageDosHeader)
+
     private:
         enum PeType { None, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
         PeFormat(Buffer& buffer);
-        virtual ~PeFormat();
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load();
+        virtual void load();
         const DotNetReader *dotNetReader() const;
 
     private:
@@ -48,7 +49,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         template<typename TLS_DIRECTORY, typename T> void readTLSCallbacks(const TLS_DIRECTORY* tlsdirectory);
 
     private:
-        DotNetReader* m_dotnetreader;
+        std::unique_ptr<DotNetReader> m_dotnetreader;
         ImageDosHeader* m_dosheader;
         ImageNtHeaders* m_ntheaders;
         ImageSectionHeader* m_sectiontable;

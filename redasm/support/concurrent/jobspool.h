@@ -15,6 +15,7 @@ class JobsPool
 
     public:
         JobsPool();
+        ~JobsPool();
         size_t concurrency() const;
         size_t activeCount() const;
         size_t state() const;
@@ -25,8 +26,9 @@ class JobsPool
         void work(JobCallback cb);
 
     private:
-        std::list< std::unique_ptr<Job> > m_pool;
+        std::list< std::unique_ptr<Job> > m_jobs;
         size_t m_concurrency;
+        bool m_running;
 };
 
 } // namespace REDasm

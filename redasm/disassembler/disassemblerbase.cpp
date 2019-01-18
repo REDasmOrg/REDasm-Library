@@ -5,7 +5,6 @@
 namespace REDasm {
 
 DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_document(format->document()) { m_format = std::unique_ptr<FormatPlugin>(format); }
-DisassemblerBase::~DisassemblerBase() { }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }

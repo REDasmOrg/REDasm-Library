@@ -49,6 +49,8 @@ struct N64RomHeader // From: http://en64.shoutwiki.com/wiki/ROM#Cartridge_ROM_He
 
 class N64RomFormat: public FormatPluginT<N64RomHeader>
 {
+    DEFINE_FORMAT_PLUGIN_TEST(N64RomHeader)
+
     public:
         N64RomFormat(Buffer& buffer);
         virtual const char* name() const;
@@ -56,16 +58,17 @@ class N64RomFormat: public FormatPluginT<N64RomHeader>
         virtual const char* assembler() const;
         virtual endianness_t endianness() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load();
+        virtual void load();
+
+    public:
+        static bool checkMediaType(const N64RomHeader* format);
+        static bool checkCountryCode(const N64RomHeader* format);
+        static bool checkChecksum(const N64RomHeader *format, const Buffer &buffer);
 
     private:
+        static u32 calculateChecksum(const N64RomHeader *format, const Buffer &buffer, u32 *crc);
+        static u32 getCICVersion(const N64RomHeader *format);
         u32 getEP();
-        u32 calculateChecksum(u32 *crc);
-        u32 getCICVersion();
-        u8 checkMediaType();
-        u8 checkCountryCode();
-        u8 checkChecksum();
-        bool validateRom();
 };
 
 DECLARE_FORMAT_PLUGIN(N64RomFormat, n64rom)

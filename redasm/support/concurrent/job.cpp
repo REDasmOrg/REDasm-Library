@@ -5,7 +5,9 @@
 
 namespace REDasm {
 
-Job::Job(): m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
+size_t Job::m_jobid = 0;
+
+Job::Job(): m_id(++m_jobid), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
 
 Job::~Job()
 {
@@ -19,6 +21,7 @@ Job::~Job()
 }
 
 size_t Job::state() const { return m_state; }
+size_t Job::id() const { return m_id; }
 bool Job::active() const { return m_state > Job::SleepState; }
 
 void Job::start()
@@ -89,13 +92,11 @@ void Job::doWork()
 
     for( ; ; )
     {
-        while(m_state != Job::ActiveState)
-        {
+        while((m_state == Job::SleepState) || (m_state == Job::PausedState))
             m_cv.wait(lock);
 
-            if(m_state == Job::InactiveState)
-                return;
-        }
+        if(m_state == Job::InactiveState)
+            return;
 
         if(m_state == Job::ActiveState)
         {

@@ -12,7 +12,6 @@ class Disassembler: public DisassemblerBase
 {
     public:
         Disassembler(AssemblerPlugin* assembler, FormatPlugin* format);
-        virtual ~Disassembler();
         virtual void disassemble();
 
     public: // Primitive functions
@@ -35,8 +34,8 @@ class Disassembler: public DisassemblerBase
     private:
         std::unique_ptr<AssemblerPlugin> m_assembler;
         safe_ptr<AssemblerAlgorithm> m_algorithm;
-        JobsPool m_jobs;
         Job m_analyzejob;
+        JobsPool m_jobs;
 };
 
 }

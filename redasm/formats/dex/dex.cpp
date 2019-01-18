@@ -9,6 +9,20 @@
 
 namespace REDasm {
 
+FORMAT_PLUGIN_TEST(DEXFormat, DEXHeader)
+{
+    if(!DEXFormat::validateSignature(format) || (!format->data_off || !format->data_size))
+        return false;
+
+    if((!format->type_ids_off || !format->type_ids_size) || (!format->string_ids_off || !format->string_ids_size))
+        return false;
+
+    if((!format->method_ids_off || !format->method_ids_size) || (!format->proto_ids_off || !format->proto_ids_size))
+        return false;
+
+    return true;
+}
+
 const std::string DEXFormat::m_invalidstring;
 
 DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
@@ -28,17 +42,8 @@ endianness_t DEXFormat::endianness() const
     return Endianness::BigEndian;
 }
 
-bool DEXFormat::load()
+void DEXFormat::load()
 {
-    if(!DEXFormat::validateSignature(m_format) || (!m_format->data_off || !m_format->data_size))
-        return false;
-
-    if((!m_format->type_ids_off || !m_format->type_ids_size) || (!m_format->string_ids_off || !m_format->string_ids_size))
-        return false;
-
-    if((!m_format->method_ids_off || !m_format->method_ids_size) || (!m_format->proto_ids_off || !m_format->proto_ids_size))
-        return false;
-
     REDasm::log("Loading DEX Version " + std::string(m_format->version, 3));
 
     m_types = pointer<DEXTypeIdItem>(m_format->type_ids_off);
@@ -56,8 +61,6 @@ bool DEXFormat::load()
 
     for(u32 i = 0; i < m_format->class_defs_size; i++)
         this->loadClass(dexclasses[i]);
-
-    return true;
 }
 
 bool DEXFormat::getMethodOffset(u64 idx, offset_t &offset) const
@@ -349,7 +352,7 @@ const std::string &DEXFormat::cacheEntry(u64 idx, std::unordered_map<u64, std::s
     return iit.first->second;
 }
 
-bool DEXFormat::validateSignature(DEXHeader* format)
+bool DEXFormat::validateSignature(const REDasm::DEXHeader *format)
 {
     if(strncmp(format->dex, DEX_FILE_MAGIC, 3))
         return false;

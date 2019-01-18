@@ -21,13 +21,15 @@ struct PsxExeHeader
 
 class PsxExeFormat: public FormatPluginT<PsxExeHeader>
 {
+    DEFINE_FORMAT_PLUGIN_TEST(PsxExeHeader)
+
     public:
         PsxExeFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual u32 bits() const;
         virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
-        virtual bool load();
+        virtual void load();
 };
 
 DECLARE_FORMAT_PLUGIN(PsxExeFormat, psxexe)

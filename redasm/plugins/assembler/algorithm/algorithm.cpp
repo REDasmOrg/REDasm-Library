@@ -126,12 +126,6 @@ void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionP
 
 void AssemblerAlgorithm::decodeState(State *state)
 {
-    if(state->address == 0x0040130A)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     InstructionPtr instruction = std::make_shared<Instruction>();
     u32 status = this->disassemble(state->address, instruction);
 

@@ -7,6 +7,7 @@ namespace REDasm {
 Buffer Buffer::invalid;
 
 Buffer::Buffer(): std::vector<u8>(), m_endianness(Endianness::current()) { }
+
 BufferRef Buffer::slice(u64 offset) { return BufferRef(this, offset); }
 
 Buffer Buffer::createFilled(size_t n, u8 b) const

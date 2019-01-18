@@ -17,8 +17,6 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_jobs.stateChanged += [&](Job*) { busyChanged(); };
 }
 
-Disassembler::~Disassembler() { }
-
 void Disassembler::disassembleStep(Job* job)
 {
     if(m_algorithm->hasNext())

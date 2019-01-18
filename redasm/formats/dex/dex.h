@@ -11,13 +11,15 @@ namespace REDasm {
 
 class DEXFormat : public FormatPluginT<DEXHeader>
 {
+    DEFINE_FORMAT_PLUGIN_TEST(DEXHeader)
+
     public:
         DEXFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;
         virtual endianness_t endianness() const;
-        virtual bool load();
+        virtual void load();
 
     public:
         bool getMethodOffset(u64 idx, offset_t &offset) const;
@@ -43,8 +45,10 @@ class DEXFormat : public FormatPluginT<DEXHeader>
 
     private:
         static const std::string& cacheEntry(u64 idx, std::unordered_map<u64, std::string>& cache, const std::function<void(std::string&)>& cb);
-        static bool validateSignature(DEXHeader *format);
         static std::string normalized(const std::string& type);
+
+    public:
+        static bool validateSignature(const DEXHeader *format);
 
     private:
         u64 m_importbase;

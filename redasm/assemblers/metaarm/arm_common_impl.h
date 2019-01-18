@@ -32,12 +32,6 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecod
 {
     CapstoneAssemblerPlugin<arch, mode>::onDecoded(instruction);
 
-    if(instruction->address == 0x00000E5E)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
     const cs_arm& arm = insn->detail->arm;
 

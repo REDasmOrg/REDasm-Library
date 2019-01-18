@@ -7,19 +7,20 @@ namespace REDasm {
 
 class BinaryFormat : public FormatPluginB
 {
+    DEFINE_FORMAT_PLUGIN_TEST(u8)
+
     public:
         BinaryFormat(Buffer& buffer);
         virtual const char* name() const;
         virtual const char* assembler() const;
         virtual u32 bits() const;
         virtual u32 flags() const;
-        virtual bool load();
+        virtual void load();
         void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u32 segmenttype = SegmentTypes::Code | SegmentTypes::Data);
 
     private:
         std::string m_assembler;
         u32 m_bits;
-
 };
 
 DECLARE_FORMAT_PLUGIN(BinaryFormat, binary)

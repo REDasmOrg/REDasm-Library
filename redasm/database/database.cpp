@@ -41,7 +41,7 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
     return true;
 }
 
-Disassembler *Database::load(const std::string &dbfilename, std::string &filename, Buffer &buffer)
+Disassembler *Database::load(const std::string &dbfilename, std::string &filename)
 {
     m_lasterror.clear();
     std::fstream ifs(dbfilename, std::ios::in | std::ios::binary);
@@ -67,6 +67,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return NULL;
     }
 
+    Buffer buffer;
     std::string formatname;
     Serializer::deobfuscateString(ifs, filename);
     Serializer::deserializeString(ifs, formatname);

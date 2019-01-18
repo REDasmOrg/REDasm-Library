@@ -9,17 +9,16 @@
 
 namespace REDasm {
 
+FORMAT_PLUGIN_TEST(PsxExeFormat, PsxExeHeader) { return strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE); }
+
 PsxExeFormat::PsxExeFormat(Buffer &buffer): FormatPluginT<PsxExeHeader>(buffer) { }
 const char *PsxExeFormat::name() const { return "PS-X Executable"; }
 u32 PsxExeFormat::bits() const { return 32; }
 const char *PsxExeFormat::assembler() const { return "mips32le"; }
 Analyzer *PsxExeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new PsxExeAnalyzer(disassembler, signatures); }
 
-bool PsxExeFormat::load()
+void PsxExeFormat::load()
 {
-    if(strncmp(m_format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE))
-        return false;
-
     if(m_format->t_addr > PSX_USER_RAM_START)
         m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_format->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);
 
@@ -30,7 +29,6 @@ bool PsxExeFormat::load()
         m_document->segment("RAM1", 0, m_format->t_addr + m_format->t_size, PSX_USER_RAM_END - (m_format->t_addr + m_format->t_size), SegmentTypes::Bss);
 
     m_document->entry(m_format->pc0);
-    return true;
 }
 
 }

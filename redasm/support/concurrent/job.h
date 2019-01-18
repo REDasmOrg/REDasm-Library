@@ -3,6 +3,7 @@
 
 #include <condition_variable>
 #include <functional>
+#include <atomic>
 #include <thread>
 #include <mutex>
 #include "../event.h"
@@ -24,8 +25,8 @@ class Job
         Job();
         ~Job();
         size_t state() const;
+        size_t id() const;
         bool active() const;
-        void setSelfBalance(bool b);
         void start();
         void stop();
         void pause();
@@ -37,12 +38,16 @@ class Job
         void doWorkSync();
 
     private:
-        size_t m_state;
+        std::atomic<size_t> m_state;
         std::chrono::milliseconds m_interval;
         JobCallback m_jobcallback;
         std::condition_variable m_cv;
         std::thread m_thread;
         std::mutex m_mutex;
+        size_t m_id;
+
+    private:
+        static size_t m_jobid;
 };
 
 } // namespace REDasm

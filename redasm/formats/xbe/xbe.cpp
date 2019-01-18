@@ -5,41 +5,38 @@
 
 namespace REDasm {
 
+FORMAT_PLUGIN_TEST(XbeFormat, XbeImageHeader)
+{
+    if((format->Magic != XBE_MAGIC_NUMBER) || !format->SectionHeader || !format->NumberOfSections)
+        return false;
+
+    return true;
+}
+
 XbeFormat::XbeFormat(Buffer &buffer): FormatPluginT<XbeImageHeader>(buffer) { }
 const char *XbeFormat::name() const { return "XBox Executable"; }
 u32 XbeFormat::bits() const { return 32; }
 const char *XbeFormat::assembler() const { return "x86_32"; }
 
-bool XbeFormat::load()
+void XbeFormat::load()
 {
-    if((m_format->Magic != XBE_MAGIC_NUMBER) || !m_format->SectionHeader || !m_format->NumberOfSections)
-    {
-        if(!m_format->SectionHeader)
-            REDasm::log("Invalid Section Header");
-        else if(!m_format->NumberOfSections)
-            REDasm::log("Invalid Number Of Sections");
-
-        return false;
-    }
-
     this->loadSections(this->memoryoffset<XbeSectionHeader>(m_format->SectionHeader));
     address_t entrypoint = 0;
 
     if(!this->decodeEP(m_format->EntryPoint, entrypoint))
     {
         REDasm::log("Cannot decode Entry Point");
-        return false;
+        return;
     }
 
     if(!this->loadXBoxKrnl())
     {
         REDasm::log("Cannot load XBoxKrnl Imports");
-        return false;
+        return;
     }
 
     m_document->entry(entrypoint);
     this->displayXbeInfo();
-    return true;
 }
 
 void XbeFormat::displayXbeInfo()

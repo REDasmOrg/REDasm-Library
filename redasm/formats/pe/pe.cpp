@@ -9,15 +9,26 @@
 
 namespace REDasm {
 
-PeFormat::PeFormat(Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dotnetreader(NULL), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL), m_petype(PeType::None), m_imagebase(0), m_sectionalignment(0), m_entrypoint(0)
+FORMAT_PLUGIN_TEST(PeFormat, ImageDosHeader)
 {
+    if(format->e_magic != IMAGE_DOS_SIGNATURE)
+        return false;
 
+    const ImageNtHeaders* ntheaders = PeFormat::relpointer<const ImageNtHeaders>(format, format->e_lfanew);
+
+    if(ntheaders->Signature != IMAGE_NT_SIGNATURE)
+        return false;
+
+    if((ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) && (ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC))
+        return false;
+
+    return true;
 }
 
-PeFormat::~PeFormat()
+PeFormat::PeFormat(Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
 {
-    if(m_dotnetreader)
-        m_dotnetreader = NULL;
+    m_imagebase = m_sectionalignment = m_entrypoint = 0;
+    m_petype = PeType::None;
 }
 
 const char *PeFormat::name() const { return "PE Format"; }
@@ -63,19 +74,10 @@ Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Signatur
     return new PEAnalyzer(disassembler, signatures);
 }
 
-bool PeFormat::load()
+void PeFormat::load()
 {
     m_dosheader = m_format;
-
-    if(m_dosheader->e_magic != IMAGE_DOS_SIGNATURE)
-        return false;
-
     m_ntheaders = pointer<ImageNtHeaders>(m_dosheader->e_lfanew);
-
-    if((m_ntheaders->Signature != IMAGE_NT_SIGNATURE) || ((m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) &&
-                                                          (m_ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)))
-        return false;
-
     m_sectiontable = IMAGE_FIRST_SECTION(m_ntheaders);
 
     if(this->bits() == 64)
@@ -99,17 +101,15 @@ bool PeFormat::load()
     if(corheader && (corheader->MajorRuntimeVersion == 1))
     {
         REDasm::log(".NET 1.x is not supported");
-        return 0;
+        return;
     }
     else if(!corheader)
         this->loadDefault();
     else
         this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
-
-    return true;
 }
 
-const DotNetReader *PeFormat::dotNetReader() const { return m_dotnetreader; }
+const DotNetReader *PeFormat::dotNetReader() const { return m_dotnetreader.get(); }
 
 u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
 {
@@ -266,7 +266,7 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     }
 
     ImageCor20MetaData* cormetadata = RVA_POINTER(ImageCor20MetaData, corheader->MetaData.VirtualAddress);
-    m_dotnetreader = new DotNetReader(cormetadata);
+    m_dotnetreader = std::make_unique<DotNetReader>(cormetadata);
 
     if(!m_dotnetreader->isValid())
         return;

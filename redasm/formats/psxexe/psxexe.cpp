@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-FORMAT_PLUGIN_TEST(PsxExeFormat, PsxExeHeader) { return strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE); }
+FORMAT_PLUGIN_TEST(PsxExeFormat, PsxExeHeader) { return !strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE); }
 
 PsxExeFormat::PsxExeFormat(Buffer &buffer): FormatPluginT<PsxExeHeader>(buffer) { }
 const char *PsxExeFormat::name() const { return "PS-X Executable"; }

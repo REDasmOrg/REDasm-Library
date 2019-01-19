@@ -8,12 +8,12 @@
 #include "../../../support/safe_ptr.h"
 #include "../../../redasm.h"
 
-#define DEFINE_STATES(...)                                      protected: enum: state_t { __VA_ARGS__ };
-#define REGISTER_STATE(state, cb)                               m_states[state] = std::bind(cb, this, std::placeholders::_1)
-#define ENQUEUE_STATE(state, value, index, instruction)         this->enqueueState(#state, state, static_cast<u64>(value), index, instruction)
-#define ENQUEUE_VALUE(state, value)                             ENQUEUE_STATE(state, value, -1, NULL)
-#define FORWARD_STATE(newstate, state)                          ENQUEUE_STATE(newstate, state->address, state->index, state->instruction)
-#define FORWARD_STATE_VALUE(newstate, value, state)             ENQUEUE_STATE(newstate, value, state->index, state->instruction)
+#define DEFINE_STATES(...)                                   protected: enum: state_t { __VA_ARGS__ }; private:
+#define REGISTER_STATE(id, cb)                               m_states[id] = std::bind(cb, this, std::placeholders::_1)
+#define EXECUTE_STATE(id, value, index, instruction)         this->executeState({ #id, id, static_cast<u64>(value), index, instruction })
+#define ENQUEUE_STATE(id, value, index, instruction)         this->enqueueState({ #id, id, static_cast<u64>(value), index, instruction })
+#define FORWARD_STATE_VALUE(newid, value, state)             this->forwardState(#newid, newid, value, state);
+#define FORWARD_STATE(newid, state)                          this->forwardState(#newid, newid, state)
 
 namespace REDasm {
 
@@ -52,9 +52,13 @@ class StateMachine
         void next();
 
     protected:
-        void enqueueState(const std::string& name, state_t id, u64 value, s64 index, const InstructionPtr& instruction);
+        void forwardState(const std::string& name, size_t id, u64 value, State* state);
+        void forwardState(const std::string& name, size_t id, State* state);
+        void enqueueState(const State& state);
+        void executeState(State state);
+        void executeState(State* state);
         virtual bool validateState(const State& state) const;
-        virtual void onNewState(const State& state) const;
+        virtual void onNewState(const State *state) const;
 
     private:
         bool getNext(State* state);

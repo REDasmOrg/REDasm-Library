@@ -21,7 +21,7 @@ void ControlFlowAlgorithm::onEmulatedOperand(const Operand &op, const Instructio
     if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(op))
     {
         this->enqueueTarget(value, instruction);
-        ENQUEUE_STATE(AssemblerAlgorithm::BranchState, value, op.index, instruction);
+        EXECUTE_STATE(AssemblerAlgorithm::BranchState, value, op.index, instruction);
         return;
     }
 

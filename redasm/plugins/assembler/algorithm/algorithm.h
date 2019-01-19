@@ -34,7 +34,7 @@ class AssemblerAlgorithm: public StateMachine
     protected:
         virtual void validateTarget(const InstructionPtr& instruction) const;
         virtual bool validateState(const State& state) const;
-        virtual void onNewState(const State& state) const;
+        virtual void onNewState(const State *state) const;
         virtual void onDecoded(const InstructionPtr& instruction);
         virtual void onDecodeFailed(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);

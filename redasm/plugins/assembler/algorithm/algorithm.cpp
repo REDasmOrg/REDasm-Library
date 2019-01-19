@@ -3,7 +3,7 @@
 #include <thread>
 
 #define INVALID_MNEMONIC "db"
-#define ENQUEUE_DECODE_STATE(address) ENQUEUE_STATE(AssemblerAlgorithm::DecodeState, address, -1, NULL)
+#define DECODE_STATE(address) ENQUEUE_STATE(AssemblerAlgorithm::DecodeState, address, -1, NULL)
 
 namespace REDasm {
 
@@ -27,7 +27,7 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
     REGISTER_STATE(AssemblerAlgorithm::ImmediateState, &AssemblerAlgorithm::immediateState);
 }
 
-void AssemblerAlgorithm::enqueue(address_t address) { ENQUEUE_DECODE_STATE(address); }
+void AssemblerAlgorithm::enqueue(address_t address) { DECODE_STATE(address); }
 
 void AssemblerAlgorithm::analyze()
 {
@@ -62,10 +62,10 @@ bool AssemblerAlgorithm::validateState(const State &state) const
     return m_document->segment(state.address);
 }
 
-void AssemblerAlgorithm::onNewState(const State &state) const
+void AssemblerAlgorithm::onNewState(const State* state) const
 {
-    REDasm::status("Analyzing @ " + REDasm::hex(state.address, m_format->bits()) +
-                   " >> " + state.name, this->pending());
+    REDasm::status("Analyzing @ " + REDasm::hex(state->address, m_format->bits()) +
+                   " >> " + state->name, this->pending());
 }
 
 u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction)
@@ -98,14 +98,14 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         if(op.is(OperandTypes::Displacement))
         {
             if(op.displacementIsDynamic())
-                ENQUEUE_STATE(AssemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
+                EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
             else if(op.displacementCanBeAddress())
-                ENQUEUE_STATE(AssemblerAlgorithm::MemoryState, op.disp.displacement, op.index, instruction);
+                EXECUTE_STATE(AssemblerAlgorithm::MemoryState, op.disp.displacement, op.index, instruction);
         }
         else if(op.is(OperandTypes::Memory))
-            ENQUEUE_STATE(AssemblerAlgorithm::MemoryState, op.u_value, op.index, instruction);
+            EXECUTE_STATE(AssemblerAlgorithm::MemoryState, op.u_value, op.index, instruction);
         else
-            ENQUEUE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
+            EXECUTE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
         this->onDecodedOperand(op, instruction);
     }
@@ -121,7 +121,7 @@ void AssemblerAlgorithm::onDecodedOperand(const Operand &op, const InstructionPt
 
 void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
 {
-    ENQUEUE_STATE(AssemblerAlgorithm::AddressTableState, value, op.index, instruction);
+    EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op.index, instruction);
 }
 
 void AssemblerAlgorithm::decodeState(State *state)
@@ -144,7 +144,7 @@ void AssemblerAlgorithm::jumpState(State *state)
 
     m_document->symbol(state->address, SymbolTypes::Code);
     m_disassembler->pushReference(state->address, state->instruction->address);
-    ENQUEUE_DECODE_STATE(state->address);
+    DECODE_STATE(state->address);
 }
 
 void AssemblerAlgorithm::callState(State *state)
@@ -241,16 +241,12 @@ void AssemblerAlgorithm::memoryState(State *state)
     }
 
     InstructionPtr instruction = state->instruction;
+    m_disassembler->pushReference(state->address, instruction->address);
 
     if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(state->operand()))
-    {
         FORWARD_STATE(AssemblerAlgorithm::BranchMemoryState, state);
-        m_disassembler->pushReference(state->address, instruction->address);
-    }
     else
         FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
-
-    m_disassembler->pushReference(state->address, instruction->address);
 }
 
 void AssemblerAlgorithm::pointerState(State *state)

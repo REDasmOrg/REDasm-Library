@@ -14,25 +14,41 @@ void StateMachine::next()
     if(!this->getNext(&currentstate))
         return;
 
-    auto it = m_states.find(currentstate.id);
-
-    if(it != m_states.end())
-    {
-        this->onNewState(currentstate);
-        it->second(&currentstate);
-    }
-    else
-        REDasm::log("Unknown state: " + REDasm::hex(currentstate.id));
+    this->executeState(&currentstate);
 }
 
-void StateMachine::enqueueState(const std::string &name, state_t id, u64 value, s64 index, const InstructionPtr &instruction)
+void StateMachine::forwardState(const std::string &name, size_t id, u64 value, State *state)
 {
-    State state = { name, id, static_cast<u64>(value), index, instruction };
+    state->name = name;
+    state->id = id;
+    state->u_value = value;
 
-    if(!(id & StateMachine::UserState) && !this->validateState(state))
+    this->executeState(state);
+}
+
+void StateMachine::forwardState(const std::string &name, size_t id, State *state) { this->forwardState(name, id, state->u_value, state); }
+
+void StateMachine::enqueueState(const State& state)
+{
+    if(!(state.id & StateMachine::UserState) && !this->validateState(state))
         return;
 
     m_pending.emplace(state);
+}
+
+void StateMachine::executeState(State state) { this->executeState(&state); }
+
+void StateMachine::executeState(State *state)
+{
+    auto it = m_states.find(state->id);
+
+    if(it != m_states.end())
+    {
+        this->onNewState(state);
+        it->second(state);
+    }
+    else
+        REDasm::log("Unknown state: " + REDasm::hex(state->id));
 }
 
 bool StateMachine::validateState(const State &state) const
@@ -41,7 +57,7 @@ bool StateMachine::validateState(const State &state) const
     return true;
 }
 
-void StateMachine::onNewState(const State &state) const { RE_UNUSED(state); }
+void StateMachine::onNewState(const State *state) const { RE_UNUSED(state); }
 
 bool StateMachine::getNext(State *state)
 {

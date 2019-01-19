@@ -26,7 +26,7 @@ bool Job::active() const { return m_state > Job::SleepState; }
 
 void Job::start()
 {
-    if(m_state == Job::ActiveState)
+    if((m_state == Job::InactiveState) || (m_state == Job::ActiveState))
         return;
 
     m_state = Job::ActiveState;
@@ -87,6 +87,12 @@ void Job::work(JobCallback cb, bool deferred)
         m_thread = std::thread(&Job::doWork, this);
 }
 
+void Job::sleep()
+{
+    m_state = Job::InactiveState;
+    stateChanged(this);
+}
+
 void Job::doWork()
 {
     std::unique_lock<std::mutex> lock(m_mutex);
@@ -106,7 +112,7 @@ void Job::doWork()
 
             if(m_oneshot)
             {
-                this->stop();
+                this->sleep();
                 return;
             }
 

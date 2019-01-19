@@ -35,6 +35,7 @@ class Job
         void work(JobCallback cb, bool deferred = false);
 
     private:
+        void sleep();
         void doWork();
         void doWorkSync();
 

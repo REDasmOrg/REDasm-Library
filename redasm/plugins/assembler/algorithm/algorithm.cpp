@@ -33,7 +33,9 @@ void AssemblerAlgorithm::analyze()
 {
     if(m_analyzed)
     {
+        REDasm::status("Analyzing (Fast)...");
         m_analyzer->analyzeFast();
+        m_document->moveToEP();
         return;
     }
 
@@ -44,6 +46,14 @@ void AssemblerAlgorithm::analyze()
     REDasm::status("Analyzing...");
     m_analyzer->analyze();
     m_document->moveToEP();
+
+    // Trigger a Fast Analysis when post disassembling is completed
+    m_disassembler->busyChanged += [&]() {
+        if(m_disassembler->busy())
+            return;
+
+        this->analyze();
+    };
 }
 
 void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const

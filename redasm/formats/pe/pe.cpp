@@ -31,7 +31,7 @@ PeFormat::PeFormat(Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dos
     m_petype = PeType::None;
 }
 
-const char *PeFormat::name() const { return "PE Format"; }
+std::string PeFormat::name() const { return "PE Format"; }
 
 u32 PeFormat::bits() const
 {
@@ -44,7 +44,7 @@ u32 PeFormat::bits() const
     return 0;
 }
 
-const char *PeFormat::assembler() const
+std::string PeFormat::assembler() const
 {
     if(m_petype == PeType::DotNet)
         return "cil";

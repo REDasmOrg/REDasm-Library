@@ -84,7 +84,7 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_BBIT132, &MIPSAssembler::setTargetOp2);
 }
 
-template<s64 mode> const char *MIPSAssembler<mode>::name() const
+template<s64 mode> std::string MIPSAssembler<mode>::name() const
 {
     if(mode & CS_MODE_MIPS32)
         return "MIPS 32";

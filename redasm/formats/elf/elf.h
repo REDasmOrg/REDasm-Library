@@ -23,9 +23,9 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 
     public:
         ElfFormat(Buffer& buffer);
-        virtual const char* name() const { return "ELF Format"; }
+        virtual std::string name() const { return "ELF Format"; }
+        virtual std::string assembler() const;
         virtual u32 bits() const;
-        virtual const char* assembler() const;
         virtual void load();
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
 

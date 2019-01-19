@@ -30,9 +30,9 @@ DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(
     m_importbase = IMPORT_SECTION_ADDRESS;
 }
 
-const char *DEXFormat::name() const { return "DEX"; }
+std::string DEXFormat::name() const { return "DEX"; }
 u32 DEXFormat::bits() const { return 32; }
-const char *DEXFormat::assembler() const { return "dalvik"; }
+std::string DEXFormat::assembler() const { return "dalvik"; }
 
 endianness_t DEXFormat::endianness() const
 {

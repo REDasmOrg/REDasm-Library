@@ -68,7 +68,7 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     REGISTER_INSTRUCTION(X86_INS_LEA, &X86Assembler::checkLea);
 }
 
-template<cs_mode mode> const char *X86Assembler<mode>::name() const
+template<cs_mode mode> std::string X86Assembler<mode>::name() const
 {
     if(mode == CS_MODE_32)
         return "x86";

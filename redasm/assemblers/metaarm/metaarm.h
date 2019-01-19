@@ -13,7 +13,7 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
         MetaARMAssembler();
         virtual ~MetaARMAssembler();
         virtual u32 flags() const;
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);

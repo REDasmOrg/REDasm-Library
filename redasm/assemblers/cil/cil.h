@@ -9,7 +9,7 @@ class CILAssembler : public AssemblerPlugin
 {
     public:
         CILAssembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
 
     protected:
         virtual bool decodeInstruction(const BufferRef &buffer, const InstructionPtr& instruction);

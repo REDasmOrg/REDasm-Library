@@ -11,7 +11,7 @@ class Plugin
     public:
         Plugin() { }
         virtual ~Plugin() { }
-        virtual const char* name() const = 0;
+        virtual std::string name() const = 0;
 };
 
 }

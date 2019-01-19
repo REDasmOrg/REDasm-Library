@@ -20,7 +20,7 @@ class CHIP8Assembler : public AssemblerPlugin
 
     public:
         CHIP8Assembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
 
     protected:

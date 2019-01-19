@@ -38,7 +38,7 @@ template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
     return 0;
 }
 
-template<ELF_PARAMS_T> const char* ElfFormat<ELF_PARAMS_D>::assembler() const
+template<ELF_PARAMS_T> std::string ElfFormat<EHDR, SHDR, PHDR, SYM, REL, RELA>::assembler() const
 {
     switch(this->m_format->e_machine)
     {

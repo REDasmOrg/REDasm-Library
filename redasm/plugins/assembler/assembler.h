@@ -13,7 +13,7 @@
 #include "printer.h"
 
 #define DECLARE_ASSEMBLER_PLUGIN(assembler, id) inline AssemblerPlugin* id##_assemblerPlugin() { return new assembler(); }
-#define ASSEMBLER_IS(assembler, arch)           (strstr(assembler->name(), arch))
+#define ASSEMBLER_IS(assembler, arch)           (assembler->name().find(arch) != std::string::npos)
 #define REGISTER_INSTRUCTION(id, cb)            this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)
 #define SET_INSTRUCTION_TYPE(id, type)          this->m_instructiontypes[id] = type
 

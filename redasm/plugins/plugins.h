@@ -12,9 +12,9 @@ namespace REDasm {
 template<typename T> struct EntryListT { typedef std::list<T> Type; };
 template<typename T> struct EntryMapT { typedef std::unordered_map<std::string, T> Type; };
 
-template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry(const char* id, const typename EntryMapT<T>::Type& pm)
+template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry(const std::string& id, const typename EntryMapT<T>::Type& pm)
 {
-    if(!id)
+    if(id.empty())
         return pm.end();
 
     return pm.find(id);
@@ -27,7 +27,7 @@ struct Plugins
 };
 
 FormatPlugin* getFormat(Buffer &buffer);
-AssemblerPlugin* getAssembler(const char* id);
+AssemblerPlugin* getAssembler(const std::string &id);
 void setLoggerCallback(Runtime::LogCallback logcb);
 void setStatusCallback(Runtime::LogCallback logcb);
 void setProgressCallback(Runtime::ProgressCallback pcb);

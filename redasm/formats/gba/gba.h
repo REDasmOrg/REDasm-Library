@@ -38,9 +38,9 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
 
     public:
         GbaRomFormat(Buffer& buffer);
-        virtual const char* name() const;
+        virtual std::string name() const;
+        virtual std::string assembler() const;
         virtual u32 bits() const;
-        virtual const char* assembler() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual void load();
 

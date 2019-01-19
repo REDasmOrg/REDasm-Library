@@ -18,7 +18,7 @@ class DalvikAssembler : public AssemblerPlugin
 {
     public:
         DalvikAssembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
 

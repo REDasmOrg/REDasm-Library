@@ -27,7 +27,7 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
     SET_DECODE_TO(0xF000, decodeFxxx);
 }
 
-const char *CHIP8Assembler::name() const { return "CHIP-8"; }
+std::string CHIP8Assembler::name() const { return "CHIP-8"; }
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
 bool CHIP8Assembler::decodeInstruction(const BufferRef& buffer, const InstructionPtr &instruction)

@@ -13,7 +13,7 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
 {
     public:
         MIPSAssembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual u32 flags() const { return AssemblerFlags::HasEmulator; }
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }

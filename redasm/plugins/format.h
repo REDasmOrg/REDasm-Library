@@ -48,7 +48,7 @@ class FormatPlugin: public Plugin
         virtual offset_t offset(address_t address) const;
         virtual address_t address(offset_t offset) const;
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
-        virtual const char* assembler() const = 0;
+        virtual std::string assembler() const = 0;
         virtual u32 bits() const = 0;
         virtual u32 flags() const;
         virtual endianness_t endianness() const;

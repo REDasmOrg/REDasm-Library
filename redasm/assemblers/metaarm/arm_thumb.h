@@ -9,7 +9,7 @@ class ARMThumbAssembler : public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>
 {
     public:
         ARMThumbAssembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual u64 pc(const InstructionPtr& instruction) const;
 };
 

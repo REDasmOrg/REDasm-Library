@@ -12,7 +12,7 @@ class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
     public:
         ARMAssembler();
         virtual ~ARMAssembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;

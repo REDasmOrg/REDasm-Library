@@ -59,10 +59,10 @@ FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
 }
 
 N64RomFormat::N64RomFormat(Buffer &buffer): FormatPluginT<N64RomHeader>(buffer) { }
-const char *N64RomFormat::name() const { return "Nintendo 64 ROM"; }
+std::string N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
 
-const char *N64RomFormat::assembler() const
+std::string N64RomFormat::assembler() const
 {
     if(m_format->magic[0] == N64_MAGIC_LE_B1)
         "mips64le";

@@ -49,9 +49,9 @@ FORMAT_PLUGIN_TEST(GbaRomFormat, GbaRomHeader)
 }
 
 GbaRomFormat::GbaRomFormat(Buffer &buffer): FormatPluginT<GbaRomHeader>(buffer) { }
-const char *GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
+std::string GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
 u32 GbaRomFormat::bits() const { return 32; }
-const char *GbaRomFormat::assembler() const { return "metaarm"; }
+std::string GbaRomFormat::assembler() const { return "metaarm"; }
 
 Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {

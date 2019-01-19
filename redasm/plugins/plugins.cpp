@@ -83,7 +83,7 @@ FormatPlugin *getFormat(Buffer& buffer)
     return NULL;
 }
 
-AssemblerPlugin *getAssembler(const char* id)
+AssemblerPlugin *getAssembler(const std::string& id)
 {
     auto it = REDasm::findPluginEntry<AssemblerPlugin_Entry>(id, Plugins::assemblers);
 

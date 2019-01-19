@@ -12,7 +12,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
 {
     public:
         X86Assembler();
-        virtual const char* name() const;
+        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new X86Printer(this->m_cshandle, disassembler); }
 
     protected:

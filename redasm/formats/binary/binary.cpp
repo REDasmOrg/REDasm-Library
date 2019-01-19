@@ -10,8 +10,8 @@ FORMAT_PLUGIN_TEST(BinaryFormat, u8)
 }
 
 BinaryFormat::BinaryFormat(Buffer &buffer): FormatPluginB(buffer), m_bits(0) {  }
-const char *BinaryFormat::name() const { return "Binary Format"; }
-const char *BinaryFormat::assembler() const { return m_assembler.c_str(); }
+std::string BinaryFormat::name() const { return "Binary Format"; }
+std::string BinaryFormat::assembler() const { return m_assembler.c_str(); }
 u32 BinaryFormat::bits() const { return m_bits; }
 u32 BinaryFormat::flags() const { return FormatFlags::Binary; }
 void BinaryFormat::load() { }

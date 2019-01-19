@@ -14,9 +14,9 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
 
     public:
         XbeFormat(Buffer& buffer);
-        virtual const char* name() const;
+        virtual std::string name() const;
+        virtual std::string assembler() const;
         virtual u32 bits() const;
-        virtual const char* assembler() const;
         virtual void load();
 
     private:

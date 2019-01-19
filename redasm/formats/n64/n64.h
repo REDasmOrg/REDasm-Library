@@ -57,9 +57,9 @@ class N64RomFormat: public FormatPluginT<N64RomHeader>
 
     public:
         N64RomFormat(Buffer& buffer);
-        virtual const char* name() const;
+        virtual std::string name() const;
+        virtual std::string assembler() const;
         virtual u32 bits() const;
-        virtual const char* assembler() const;
         virtual endianness_t endianness() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual void load();

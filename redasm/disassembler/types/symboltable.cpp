@@ -1,4 +1,5 @@
 #include "symboltable.h"
+#include <forward_list>
 
 namespace REDasm {
 
@@ -43,7 +44,7 @@ SymbolPtr SymbolTable::symbol(address_t address)
 
 void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const SymbolPtr&)>& cb)
 {
-    std::list<SymbolPtr> symbols;
+    std::forward_list<SymbolPtr> symbols;
 
     for(auto it = m_byaddress.begin(); it != m_byaddress.end(); it++)
     {
@@ -52,7 +53,7 @@ void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const Symbol
         if(!((symbol->type & SymbolTypes::LockedMask) & symbolflags))
             continue;
 
-        symbols.push_back(symbol);
+        symbols.emplace_front(symbol);
     }
 
     for(auto it = symbols.begin(); it != symbols.end(); it++)

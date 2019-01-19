@@ -23,7 +23,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 
     public:
         ElfFormat(Buffer& buffer);
-        virtual std::string name() const { return "ELF Format"; }
+        virtual std::string name() const { return "ELF" + std::to_string(this->bits()) + " Format"; }
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual void load();

@@ -31,6 +31,7 @@ class Job
         void stop();
         void pause();
         void resume();
+        void setOneShot(bool b);
         void work(JobCallback cb, bool deferred = false);
 
     private:
@@ -38,6 +39,7 @@ class Job
         void doWorkSync();
 
     private:
+        bool m_oneshot;
         std::atomic<size_t> m_state;
         std::chrono::milliseconds m_interval;
         JobCallback m_jobcallback;

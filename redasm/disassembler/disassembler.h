@@ -5,6 +5,7 @@
 #include "../support/concurrent/jobspool.h"
 #include "listing/listingdocument.h"
 #include "disassemblerbase.h"
+#include <chrono>
 
 namespace REDasm {
 
@@ -32,6 +33,7 @@ class Disassembler: public DisassemblerBase
         void analyzeStep();
 
     private:
+        std::chrono::steady_clock::time_point m_starttime;
         std::unique_ptr<AssemblerPlugin> m_assembler;
         safe_ptr<AssemblerAlgorithm> m_algorithm;
         Job m_analyzejob;

@@ -13,6 +13,7 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
+    m_analyzejob.setOneShot(true);
     m_analyzejob.work(std::bind(&Disassembler::analyzeStep, this), true); // Deferred
     m_jobs.stateChanged += [&](Job*) { busyChanged(); };
 }
@@ -31,11 +32,21 @@ void Disassembler::disassembleStep(Job* job)
 void Disassembler::analyzeStep()
 {
     m_algorithm->analyze();
-    m_analyzejob.stop();
+
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
+
+    if(!duration.count())
+        return;
+
+    std::stringstream ss;
+    ss << duration.count();
+    REDasm::log("Analysis completed in ~" + ss.str() + " second(s)");
 }
 
 void Disassembler::disassemble()
 {
+    m_starttime = std::chrono::steady_clock::now();
+
     if(!m_document->segmentsCount())
     {
         REDasm::log("ERROR: Segment list is empty");
@@ -76,7 +87,7 @@ void Disassembler::stop() { m_jobs.stop(); }
 void Disassembler::pause() { m_jobs.pause(); }
 void Disassembler::resume() { m_jobs.resume(); }
 size_t Disassembler::state() const { return m_jobs.state(); }
-bool Disassembler::busy() const { return m_jobs.active(); }
+bool Disassembler::busy() const { return m_analyzejob.active() || m_jobs.active(); }
 void Disassembler::disassembleJob() { m_jobs.work(std::bind(&Disassembler::disassembleStep, this, std::placeholders::_1)); }
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)

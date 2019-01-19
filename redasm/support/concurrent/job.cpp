@@ -7,7 +7,7 @@ namespace REDasm {
 
 size_t Job::m_jobid = 0;
 
-Job::Job(): m_id(++m_jobid), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
+Job::Job(): m_id(++m_jobid), m_oneshot(false), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
 
 Job::~Job()
 {
@@ -64,6 +64,8 @@ void Job::resume()
     stateChanged(this);
 }
 
+void Job::setOneShot(bool b) { m_oneshot = b; }
+
 void Job::work(JobCallback cb, bool deferred)
 {
     if(this->active())
@@ -101,6 +103,13 @@ void Job::doWork()
         {
             auto start = std::chrono::steady_clock::now();
             m_jobcallback(this);
+
+            if(m_oneshot)
+            {
+                this->stop();
+                return;
+            }
+
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
             m_interval = ((m_interval + elapsed) / 2);
         }
@@ -114,7 +123,12 @@ void Job::doWorkSync()
     while(this->active())
     {
         if(m_state == Job::ActiveState)
+        {
             m_jobcallback(this);
+
+            if(m_oneshot)
+                return;
+        }
     }
 }
 

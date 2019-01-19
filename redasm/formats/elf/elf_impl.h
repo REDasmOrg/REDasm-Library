@@ -13,7 +13,12 @@ template<ELF_PARAMS_T> FORMAT_PLUGIN_TEST(ElfFormat<ELF_PARAMS_D>, EHDR)
     if(format->e_ident[EI_VERSION] != EV_CURRENT)
         return false;
 
-    return (format->e_ident[EI_CLASS] == ELFCLASS32) || (format->e_ident[EI_CLASS] == ELFCLASS64);
+    if(sizeof(EHDR) == sizeof(Elf32_Ehdr))
+        return (format->e_ident[EI_CLASS] == ELFCLASS32);
+    else if(sizeof(EHDR) == sizeof(Elf64_Ehdr))
+        return (format->e_ident[EI_CLASS] == ELFCLASS64);
+
+    return false;
 }
 
 template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)

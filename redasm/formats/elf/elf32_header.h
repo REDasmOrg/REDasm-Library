@@ -10,6 +10,7 @@
 
 namespace REDasm {
 
+// 32-bit ELF base types
 typedef u16 Elf32_Half;
 typedef s16 Elf32_SHalf;
 typedef u32 Elf32_Word;

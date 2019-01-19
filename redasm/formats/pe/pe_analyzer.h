@@ -2,6 +2,7 @@
 #define PE_ANALYZER_H
 
 #include "../../analyzer/analyzer.h"
+#include <forward_list>
 
 namespace REDasm {
 
@@ -21,7 +22,7 @@ class PEAnalyzer: public Analyzer
         void findAllWndProc();
 
     private:
-        std::list<APIInfo> m_wndprocapi;
+        std::forward_list<APIInfo> m_wndprocapi;
 };
 
 }

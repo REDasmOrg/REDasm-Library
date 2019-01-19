@@ -3,8 +3,8 @@
 
 namespace REDasm {
 
-StateMachine::StateMachine() { }
-size_t StateMachine::pending() const { return m_pending.size(); }
+StateMachine::StateMachine(): m_count(0) { }
+size_t StateMachine::pending() const { return m_count; }
 bool StateMachine::hasNext() { return !m_pending.empty(); }
 
 void StateMachine::next()
@@ -33,7 +33,8 @@ void StateMachine::enqueueState(const State& state)
     if(!(state.id & StateMachine::UserState) && !this->validateState(state))
         return;
 
-    m_pending.emplace(state);
+    m_pending.emplace_front(state);
+    m_count++;
 }
 
 void StateMachine::executeState(State state) { this->executeState(&state); }
@@ -64,8 +65,9 @@ bool StateMachine::getNext(State *state)
     if(m_pending.empty())
         return false;
 
-    *state = m_pending.top();
-    m_pending.pop();
+    *state = m_pending.front();
+    m_pending.pop_front();
+    m_count--;
     return true;
 }
 

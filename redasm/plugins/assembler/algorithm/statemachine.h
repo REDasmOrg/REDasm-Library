@@ -3,8 +3,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <forward_list>
 #include <functional>
-#include <stack>
 #include "../../../support/safe_ptr.h"
 #include "../../../redasm.h"
 
@@ -67,7 +67,8 @@ class StateMachine
         std::unordered_map<state_t, StateCallback> m_states;
 
     private:
-        std::stack<State> m_pending;
+        std::forward_list<State> m_pending;
+        size_t m_count;
 };
 
 } // namespace REDasm

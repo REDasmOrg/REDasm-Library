@@ -65,7 +65,7 @@ u32 N64RomFormat::bits() const { return 64; }
 std::string N64RomFormat::assembler() const
 {
     if(m_format->magic[0] == N64_MAGIC_LE_B1)
-        "mips64le";
+        return "mips64le";
 
     return "mips64be";
 }

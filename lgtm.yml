@@ -1,2 +1,3 @@
-queries:
-  - exclude: depends
+path_classifiers:
+  depends:
+    - depends

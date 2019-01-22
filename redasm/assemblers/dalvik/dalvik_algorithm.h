@@ -19,7 +19,7 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         virtual void onDecodeFailed(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
-        virtual void decodeState(State *state);
+        virtual void decodeState(const State *state);
         virtual void stringIndexState(const State* state);
         virtual void methodIndexState(const State* state);
 

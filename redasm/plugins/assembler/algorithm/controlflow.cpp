@@ -4,7 +4,7 @@ namespace REDasm {
 
 ControlFlowAlgorithm::ControlFlowAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assemblerplugin): AssemblerAlgorithm(disassembler, assemblerplugin) { }
 
-void ControlFlowAlgorithm::addressTableState(State *state)
+void ControlFlowAlgorithm::addressTableState(const State *state)
 {
     AssemblerAlgorithm::addressTableState(state);
     this->enqueueTargets(state->instruction);

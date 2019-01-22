@@ -41,15 +41,15 @@ class AssemblerAlgorithm: public StateMachine
         virtual void onEmulatedOperand(const Operand& op, const InstructionPtr& instruction, u64 value);
 
     protected:
-        virtual void decodeState(State *state);
-        virtual void jumpState(State* state);
-        virtual void callState(State* state);
-        virtual void branchState(State* state);
-        virtual void branchMemoryState(State* state);
-        virtual void addressTableState(State* state);
-        virtual void memoryState(State* state);
-        virtual void pointerState(State* state);
-        virtual void immediateState(State* state);
+        virtual void decodeState(const State *state);
+        virtual void jumpState(const State *state);
+        virtual void callState(const State *state);
+        virtual void branchState(const State *state);
+        virtual void branchMemoryState(const State *state);
+        virtual void addressTableState(const State *state);
+        virtual void memoryState(const State* state);
+        virtual void pointerState(const State* state);
+        virtual void immediateState(const State* state);
 
     private:
         bool canBeDisassembled(address_t address);

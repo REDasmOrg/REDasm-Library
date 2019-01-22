@@ -12,8 +12,8 @@
 #define REGISTER_STATE(id, cb)                               m_states[id] = std::bind(cb, this, std::placeholders::_1)
 #define EXECUTE_STATE(id, value, index, instruction)         this->executeState({ #id, id, static_cast<u64>(value), index, instruction })
 #define ENQUEUE_STATE(id, value, index, instruction)         this->enqueueState({ #id, id, static_cast<u64>(value), index, instruction })
-#define FORWARD_STATE_VALUE(newid, value, state)             this->forwardState(#newid, newid, value, state);
-#define FORWARD_STATE(newid, state)                          this->forwardState(#newid, newid, state)
+#define FORWARD_STATE_VALUE(newid, value, state)             EXECUTE_STATE(newid, value, state->index, state->instruction)
+#define FORWARD_STATE(newid, state)                          FORWARD_STATE_VALUE(newid, state->u_value, state)
 
 namespace REDasm {
 
@@ -43,7 +43,7 @@ class StateMachine
     DEFINE_STATES(UserState = 0x10000000)
 
     protected:
-        typedef std::function<void(State*)> StateCallback;
+        typedef std::function<void(const State*)> StateCallback;
 
     public:
         StateMachine();
@@ -52,11 +52,9 @@ class StateMachine
         void next();
 
     protected:
-        void forwardState(const std::string& name, size_t id, u64 value, State* state);
-        void forwardState(const std::string& name, size_t id, State* state);
         void enqueueState(const State& state);
-        void executeState(State state);
-        void executeState(State* state);
+        void executeState(const State& state);
+        void executeState(const State* state);
         virtual bool validateState(const State& state) const;
         virtual void onNewState(const State *state) const;
 

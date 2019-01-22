@@ -85,7 +85,7 @@ template<typename T> struct s_locked_safe_ptr {
     typename T::s_lock_type slock;
 
     s_locked_safe_ptr(T& t): t(t), slock(*t.mget()) { }
-    typename T::object_type* const operator->() const { return t.get(); }
+    typename T::object_type* operator->() const { return t.get(); }
     const typename T::auto_nolock_obj operator*() const { return T::auto_nolock_obj(t.get(), *t.mget()); }
 };
 

@@ -17,17 +17,6 @@ void StateMachine::next()
     this->executeState(&currentstate);
 }
 
-void StateMachine::forwardState(const std::string &name, size_t id, u64 value, State *state)
-{
-    state->name = name;
-    state->id = id;
-    state->u_value = value;
-
-    this->executeState(state);
-}
-
-void StateMachine::forwardState(const std::string &name, size_t id, State *state) { this->forwardState(name, id, state->u_value, state); }
-
 void StateMachine::enqueueState(const State& state)
 {
     if(!(state.id & StateMachine::UserState) && !this->validateState(state))
@@ -37,9 +26,9 @@ void StateMachine::enqueueState(const State& state)
     m_count++;
 }
 
-void StateMachine::executeState(State state) { this->executeState(&state); }
+void StateMachine::executeState(const State &state) { this->executeState(&state); }
 
-void StateMachine::executeState(State *state)
+void StateMachine::executeState(const State *state)
 {
     auto it = m_states.find(state->id);
 

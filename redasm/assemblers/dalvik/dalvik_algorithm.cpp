@@ -34,7 +34,7 @@ void DalvikAlgorithm::onDecoded(const InstructionPtr &instruction)
         m_methodbounds.erase(it);
 }
 
-void DalvikAlgorithm::decodeState(State *state)
+void DalvikAlgorithm::decodeState(const State *state)
 {
     SymbolPtr symbol = m_document->symbol(state->address);
 

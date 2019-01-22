@@ -23,29 +23,28 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
     ControlFlowAlgorithm::enqueueTarget(ctarget, instruction);
 }
 
-void MetaARMAlgorithm::decodeState(State *state)
+void MetaARMAlgorithm::decodeState(const State *state)
 {
     MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
 
     if(state->address & 0x1)
     {
-        state->address &= 0xFFFFFFFE;
         metaarm->switchToThumb();
+        FORWARD_STATE_VALUE(AssemblerAlgorithm::DecodeState, state->address - 1, state);
+        return;
     }
-    else
-    {
-        int res = MetaARMAssemblerISA::classify(state->address, m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
 
-        if(res == MetaARMAssemblerISA::Thumb)
-            metaarm->switchToThumb();
-        else
-            metaarm->switchToArm();
-    }
+    int res = MetaARMAssemblerISA::classify(state->address, m_format->buffer(state->address), m_disassembler, metaarm->armAssembler());
+
+    if(res == MetaARMAssemblerISA::Thumb)
+        metaarm->switchToThumb();
+    else
+        metaarm->switchToArm();
 
     ControlFlowAlgorithm::decodeState(state);
 }
 
-void MetaARMAlgorithm::memoryState(State *state)
+void MetaARMAlgorithm::memoryState(const State *state)
 {
     if(state->address & 1)
         return;
@@ -53,7 +52,7 @@ void MetaARMAlgorithm::memoryState(State *state)
     ControlFlowAlgorithm::memoryState(state);
 }
 
-void MetaARMAlgorithm::pointerState(State *state)
+void MetaARMAlgorithm::pointerState(const State *state)
 {
     u64 value = 0;
 
@@ -69,7 +68,7 @@ void MetaARMAlgorithm::pointerState(State *state)
     ControlFlowAlgorithm::pointerState(state);
 }
 
-void MetaARMAlgorithm::immediateState(State *state)
+void MetaARMAlgorithm::immediateState(const State *state)
 {
     if(state->u_value & 1)
         return;

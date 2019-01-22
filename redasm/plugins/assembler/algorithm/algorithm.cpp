@@ -134,7 +134,7 @@ void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionP
     EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op.index, instruction);
 }
 
-void AssemblerAlgorithm::decodeState(State *state)
+void AssemblerAlgorithm::decodeState(const State *state)
 {
     InstructionPtr instruction = std::make_shared<Instruction>();
     u32 status = this->disassemble(state->address, instruction);
@@ -145,7 +145,7 @@ void AssemblerAlgorithm::decodeState(State *state)
     m_document->instruction(instruction);
 }
 
-void AssemblerAlgorithm::jumpState(State *state)
+void AssemblerAlgorithm::jumpState(const State *state)
 {
     s64 dir = BRANCH_DIRECTION(state->instruction, state->address);
 
@@ -157,13 +157,13 @@ void AssemblerAlgorithm::jumpState(State *state)
     DECODE_STATE(state->address);
 }
 
-void AssemblerAlgorithm::callState(State *state)
+void AssemblerAlgorithm::callState(const State *state)
 {
     m_document->symbol(state->address, SymbolTypes::Function);
     m_disassembler->pushReference(state->address, state->instruction->address);
 }
 
-void AssemblerAlgorithm::branchState(State *state)
+void AssemblerAlgorithm::branchState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 
@@ -176,7 +176,7 @@ void AssemblerAlgorithm::branchState(State *state)
                                                             + REDasm::hex(instruction->address, m_format->bits()));
 }
 
-void AssemblerAlgorithm::branchMemoryState(State *state)
+void AssemblerAlgorithm::branchMemoryState(const State *state)
 {
     SymbolPtr symbol = m_document->symbol(state->address);
 
@@ -197,7 +197,7 @@ void AssemblerAlgorithm::branchMemoryState(State *state)
     m_disassembler->pushReference(value, state->address);
 }
 
-void AssemblerAlgorithm::addressTableState(State *state)
+void AssemblerAlgorithm::addressTableState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
     size_t targetstart = instruction->targets.size();
@@ -240,7 +240,7 @@ void AssemblerAlgorithm::addressTableState(State *state)
         FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
 }
 
-void AssemblerAlgorithm::memoryState(State *state)
+void AssemblerAlgorithm::memoryState(const State *state)
 {
     u64 value = 0;
 
@@ -259,7 +259,7 @@ void AssemblerAlgorithm::memoryState(State *state)
         FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
 }
 
-void AssemblerAlgorithm::pointerState(State *state)
+void AssemblerAlgorithm::pointerState(const State *state)
 {
     u64 value = 0;
 
@@ -273,7 +273,7 @@ void AssemblerAlgorithm::pointerState(State *state)
     m_disassembler->checkLocation(state->address, state->address); // Create Symbol + XRefs
 }
 
-void AssemblerAlgorithm::immediateState(State *state)
+void AssemblerAlgorithm::immediateState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 

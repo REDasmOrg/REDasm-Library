@@ -26,6 +26,9 @@ class JobsPool
         void work(JobCallback cb);
 
     private:
+        void notifyStateChanged(Job*job);
+
+    private:
         std::list< std::unique_ptr<Job> > m_jobs;
         size_t m_concurrency;
         bool m_running;

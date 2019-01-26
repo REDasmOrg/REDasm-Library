@@ -16,11 +16,7 @@ JobsPool::JobsPool(): m_running(true)
     for(size_t i = 0; i < m_concurrency; i++)
     {
         auto job = std::make_unique<Job>();
-
-        job->stateChanged += [&](Job* job) {
-            stateChanged(job);
-        };
-
+        job->stateChanged += std::bind(&JobsPool::notifyStateChanged, this, std::placeholders::_1);
         m_jobs.push_back(std::move(job));
     }
 }
@@ -103,6 +99,17 @@ void JobsPool::work(JobCallback cb)
         job->work(cb);
 
     stateChanged(m_jobs.back().get());
+}
+
+void JobsPool::notifyStateChanged(Job* job)
+{
+    for(const auto& j : m_jobs)
+    {
+        if(job->state() != j->state())
+            return;
+    }
+
+    stateChanged(job);
 }
 
 } // namespace REDasm

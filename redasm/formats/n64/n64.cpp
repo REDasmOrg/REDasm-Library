@@ -33,14 +33,14 @@ namespace REDasm {
 
 FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
 {
-    u32 magic = Endianness::cfbe<u32>(buffer);
+    u32be magic = buffer;
 
     if((magic != N64_MAGIC_BS) && (magic != N64_MAGIC_BE) && (magic != N64_MAGIC_LE))
         return false;
 
     Buffer swbuffer;
 
-    if(magic == N64_MAGIC_BS)
+    if(magic != N64_MAGIC_BE)
     {
         swbuffer = buffer.swapEndianness<u16>(sizeof(N64RomHeader)); // Swap the header
         format = static_cast<const N64RomHeader*>(swbuffer);
@@ -61,38 +61,24 @@ FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
 N64RomFormat::N64RomFormat(Buffer &buffer): FormatPluginT<N64RomHeader>(buffer) { }
 std::string N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
-
-std::string N64RomFormat::assembler() const
-{
-    if(m_format->magic[0] == N64_MAGIC_LE_B1)
-        return "mips64le";
-
-    return "mips64be";
-}
-
-endianness_t N64RomFormat::endianness() const
-{
-    if(m_format->magic[0] == N64_MAGIC_LE_B1)
-        return Endianness::LittleEndian;
-
-    return Endianness::BigEndian;
-}
+std::string N64RomFormat::assembler() const { return "mips64be"; }
+endianness_t N64RomFormat::endianness() const { return Endianness::BigEndian; }
 
 Analyzer *N64RomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new N64Analyzer(disassembler, signatures); }
 
 void N64RomFormat::load()
 {
-    if(m_format->magic[0] == N64_MAGIC_BS_B1)
+    if(m_format->magic[0] != N64_MAGIC_BE_B1)
         m_buffer.swapEndianness<u16>();
 
-    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size()-N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size() - N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
     // TODO: map other segments
     m_document->entry(this->getEP());
 }
 
 u32 N64RomFormat::getEP()
 {
-    u32 pc = Endianness::cfbe(static_cast<u32>(m_format->program_counter));
+    u32 pc = static_cast<u32be>(m_format->program_counter);
     u32 cic_version = N64RomFormat::getCICVersion(m_format);
 
     if(cic_version != 0)

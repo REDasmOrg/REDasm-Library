@@ -58,10 +58,10 @@ template<typename T> Buffer::operator T() const
 {
     T val = *reinterpret_cast<const T*>(this->data());
 
-    if(m_endianness == Endianness::BigEndian)
-        return Endianness::cfbe<T>(val);
+    if(Endianness::endianness_of<T>::value != Endianness::current)
+        return Endianness::swap<T>(val);
 
-    return Endianness::cfle<T>(val);
+    return val;
 }
 
 class BufferRef
@@ -103,10 +103,10 @@ template<typename T> BufferRef& BufferRef::operator =(T rhs)
 {
     T* p = reinterpret_cast<T*>(m_data);
 
-    if(Endianness::current() == Endianness::BigEndian)
-        *p = Endianness::cfbe<T>(rhs);
+    if(Endianness::endianness_of<T>::value != Endianness::current)
+        *p = Endianness::swap<T>(rhs);
     else
-        *p = Endianness::cfle<T>(rhs);
+        *p = rhs;
 
     return *this;
 }
@@ -115,10 +115,10 @@ template<typename T> BufferRef::operator T() const
 {
     T val = *reinterpret_cast<T*>(m_data);
 
-    if(m_buffer->m_endianness == Endianness::BigEndian)
-        return Endianness::cfbe<T>(val);
+    if(Endianness::endianness_of<T>::value != Endianness::current)
+        return Endianness::swap<T>(val);
 
-    return Endianness::cfle<T>(val);
+    return val;
 }
 
 } // namespace REDasm

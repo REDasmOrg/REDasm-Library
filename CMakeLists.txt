@@ -67,7 +67,6 @@ SET(SOURCES
     redasm/redasm_api.cpp
     redasm/redasm_runtime.cpp
     redasm/redasm_buffer.cpp
-    redasm/redasm_endianness.cpp
     redasm/database/database.cpp
     redasm/database/signaturedb.cpp
     redasm/support/compression.cpp

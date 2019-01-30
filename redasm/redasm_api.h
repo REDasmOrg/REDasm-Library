@@ -11,9 +11,9 @@
 #include <list>
 #include <map>
 #include <set>
+#include "types/base_types.h"
 #include "redasm_runtime.h"
 #include "redasm_buffer.h"
-#include "redasm_types.h"
 
 #if __cplusplus <= 201103L && __GNUC__
 namespace std {
@@ -124,11 +124,11 @@ struct Segment
 struct RegisterOperand
 {
     RegisterOperand(): extra_type(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u64 type, register_t r): extra_type(type), r(r) { }
-    RegisterOperand(register_t r): extra_type(0), r(r) { }
+    RegisterOperand(u64 type, register_id_t r): extra_type(type), r(r) { }
+    RegisterOperand(register_id_t r): extra_type(0), r(r) { }
 
     u64 extra_type;
-    register_t r;
+    register_id_t r;
 
     bool isValid() const { return r != REGISTER_INVALID; }
 };
@@ -196,11 +196,11 @@ struct Instruction
     Operand& op(size_t idx = 0) { return operands[idx]; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Immediate, extratype, v, operands.size()); return *this; }
-    template<typename T> Instruction& disp(register_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
-    template<typename T> Instruction& disp(register_t base, register_t index, T displacement) { return disp(base, index, 1, displacement); }
-    template<typename T> Instruction& disp(register_t base, register_t index, s64 scale, T displacement);
-    template<typename T> Instruction& arg(s64 locindex, register_t base, register_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
-    template<typename T> Instruction& local(s64 locindex, register_t base, register_t index, T displacement, u32 type = OperandTypes::Local);
+    template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
+    template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }
+    template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);
+    template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
+    template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, u32 type = OperandTypes::Local);
 
     void targetOp(s32 index) {
         target_idx = index;
@@ -209,7 +209,7 @@ struct Instruction
             this->target(operands[index].u_value);
     }
 
-    Instruction& reg(register_t r, u64 type = 0) {
+    Instruction& reg(register_id_t r, u64 type = 0) {
         Operand op;
         op.index = operands.size();
         op.type = OperandTypes::Register;
@@ -233,7 +233,7 @@ struct Instruction
     }
 };
 
-template<typename T> Instruction& Instruction::disp(register_t base, register_t index, s64 scale, T displacement)
+template<typename T> Instruction& Instruction::disp(register_id_t base, register_id_t index, s64 scale, T displacement)
 {
     Operand op;
     op.index = operands.size();
@@ -253,7 +253,7 @@ template<typename T> Instruction& Instruction::disp(register_t base, register_t 
     return *this;
 }
 
-template<typename T> Instruction& Instruction::local(s64 locindex, register_t base, register_t index, T displacement, u32 type)
+template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t base, register_id_t index, T displacement, u32 type)
 {
     Operand op;
     op.index = operands.size();

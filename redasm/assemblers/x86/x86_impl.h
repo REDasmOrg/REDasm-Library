@@ -169,7 +169,7 @@ template<cs_mode mode> s64 X86Assembler<mode>::stackLocalIndex(s64 disp) const
     return stackpos / size;
 }
 
-template<cs_mode mode> bool X86Assembler<mode>::isSP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isSP(register_id_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_SP;
@@ -183,7 +183,7 @@ template<cs_mode mode> bool X86Assembler<mode>::isSP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> bool X86Assembler<mode>::isBP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isBP(register_id_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_BP;
@@ -197,7 +197,7 @@ template<cs_mode mode> bool X86Assembler<mode>::isBP(register_t reg) const
     return false;
 }
 
-template<cs_mode mode> bool X86Assembler<mode>::isIP(register_t reg) const
+template<cs_mode mode> bool X86Assembler<mode>::isIP(register_id_t reg) const
 {
     if(mode == CS_MODE_16)
         return reg == X86_REG_IP;

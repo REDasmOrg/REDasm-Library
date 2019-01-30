@@ -4,8 +4,8 @@
 #include "../disassembler/disassemblerapi.h"
 #include "../disassembler/types/symboltable.h"
 #include "../disassembler/listing/listingdocument.h"
-#include "../redasm_endianness.h"
 #include "../analyzer/analyzer.h"
+#include "../types/endianness.h"
 #include "base.h"
 
 #define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(Buffer& buffer) { return REDasm::getFormatPlugin<T>(buffer); }

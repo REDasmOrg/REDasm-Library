@@ -10,7 +10,7 @@
 #include <string>
 #include <list>
 #include "../redasm_buffer.h"
-#include "../redasm_types.h"
+#include "../types/base_types.h"
 
 namespace REDasm {
 

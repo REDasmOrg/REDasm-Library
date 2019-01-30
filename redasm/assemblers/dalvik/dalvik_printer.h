@@ -19,15 +19,15 @@ class DalvikPrinter : public Printer
         virtual std::string imm(const Operand& op) const;
 
     private:
-        static std::string registerName(register_t r);
+        static std::string registerName(register_id_t r);
         void startLocal(REDasm::DEXFormat *dexformat, const DEXDebugData& debugdata);
-        void restoreLocal(REDasm::DEXFormat *dexformat, register_t r);
-        void endLocal(register_t r);
+        void restoreLocal(REDasm::DEXFormat *dexformat, register_id_t r);
+        void endLocal(register_id_t r);
 
     private:
         DEXDebugInfo m_currentdbginfo;
-        std::unordered_map<register_t, DEXDebugData> m_regoverrides;
-        std::unordered_map<register_t, std::string> m_regnames;
+        std::unordered_map<register_id_t, DEXDebugData> m_regoverrides;
+        std::unordered_map<register_id_t, std::string> m_regnames;
 };
 
 } // namespace REDasm

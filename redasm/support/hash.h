@@ -1,7 +1,7 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include "../redasm_types.h"
+#include "../types/base_types.h"
 #include "../redasm_buffer.h"
 
 namespace REDasm {

@@ -39,11 +39,11 @@ struct N64RomHeader // From: http://en64.shoutwiki.com/wiki/ROM#Cartridge_ROM_He
         };
     };
 
-    u32be clock_rate_override, program_counter, release_address;
-    u32be crc1, crc2;
-    u64be unknown1; // UNKNOWN/NOT USED
+    u32 clock_rate_override, program_counter, release_address;
+    u32 crc1, crc2;
+    u64 unknown1; // UNKNOWN/NOT USED
     char image_name[N64_IMAGE_NAME_SIZE];
-    u32be unknown2; // UNKNOWN/NOT USED
+    u32 unknown2; // UNKNOWN/NOT USED
     char media_format[N64_MEDIA_FORMAT_SIZE];
     char cart_id[N64_CART_ID_SIZE];
     char country_code;

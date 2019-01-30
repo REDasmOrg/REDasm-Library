@@ -25,9 +25,9 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         void checkLea(const InstructionPtr& instruction);
         s64 localIndex(s64 disp, u32& type) const;
         s64 stackLocalIndex(s64 disp) const;
-        bool isSP(register_t reg) const;
-        bool isBP(register_t reg) const;
-        bool isIP(register_t reg) const;
+        bool isSP(register_id_t reg) const;
+        bool isBP(register_id_t reg) const;
+        bool isIP(register_id_t reg) const;
 
     private:
         s64 m_stacksize;

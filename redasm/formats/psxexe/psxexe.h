@@ -10,13 +10,13 @@ namespace REDasm {
 struct PsxExeHeader
 {
     char id[PSXEXE_SIGNATURE_SIZE];
-    u32le text, data;
-    u32le pc0, gp0;
-    u32le t_addr, t_size;
-    u32le d_addr, d_size;
-    u32le b_addr, b_size;
-    u32le s_addr, s_size;
-    u32le SavedSP, SavedFP, SavedGP, SavedRA, SavedS0;
+    u32 text, data;
+    u32 pc0, gp0;
+    u32 t_addr, t_size;
+    u32 d_addr, d_size;
+    u32 b_addr, b_size;
+    u32 s_addr, s_size;
+    u32 SavedSP, SavedFP, SavedGP, SavedRA, SavedS0;
 };
 
 class PsxExeFormat: public FormatPluginT<PsxExeHeader>

@@ -264,7 +264,7 @@ bool DalvikAssembler::decodeInvoke(BufferRef &buffer, const InstructionPtr &inst
 
             for(u8 i = 0; (c < argc) && (i < (4 * 8)); i += 4, c++)
             {
-                register_t reg = (word & (0xF << i)) >> i;
+                register_id_t reg = (word & (0xF << i)) >> i;
                 u64 regtype = DalvikOperands::Normal;
 
                 if(!c)

@@ -7,7 +7,7 @@
 #include <climits>
 #include <cassert>
 #include "demangler.h"
-#include "../redasm_types.h"
+#include "../types/base_types.h"
 #include "../redasm_buffer.h"
 
 namespace REDasm

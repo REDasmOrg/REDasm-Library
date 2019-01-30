@@ -78,7 +78,7 @@ void N64RomFormat::load()
 
 u32 N64RomFormat::getEP()
 {
-    u32 pc = static_cast<u32be>(m_format->program_counter);
+    u32be pc = m_format->program_counter;
     u32 cic_version = N64RomFormat::getCICVersion(m_format);
 
     if(cic_version != 0)

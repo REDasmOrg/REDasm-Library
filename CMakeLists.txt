@@ -116,13 +116,14 @@ set(HEADERS
     redasm/emulator/emulator_type.h
     redasm/redasm_api.h
     redasm/redasm_runtime.h
-    redasm/redasm_types.h
     redasm/redasm_buffer.h
-    redasm/redasm_endianness.h
     redasm/database/database.h
     redasm/database/signaturedb.h
     redasm/support/compression.h
-    redasm/disassembler/listing/instructioncache.h )
+    redasm/types/numeric_type.h
+    redasm/types/base_types.h
+    redasm/types/endianness.h
+    redasm/disassembler/listing/instructioncache.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 add_dependencies(${PROJECT_NAME} capstone-static zlibstatic)

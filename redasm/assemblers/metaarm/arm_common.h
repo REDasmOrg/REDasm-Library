@@ -27,8 +27,8 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
-        bool isPC(register_t reg) const { return reg == ARM_REG_PC; };
-        bool isLR(register_t reg) const { return reg == ARM_REG_LR; };
+        bool isPC(register_id_t reg) const { return reg == ARM_REG_PC; };
+        bool isLR(register_id_t reg) const { return reg == ARM_REG_LR; };
         void checkB(const InstructionPtr& instruction) const;
         void checkStop(const InstructionPtr& instruction) const;
         void checkStop_0(const InstructionPtr& instruction) const;

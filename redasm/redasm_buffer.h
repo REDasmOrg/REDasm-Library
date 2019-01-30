@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include <libredasm_export.h>
-#include "redasm_types.h"
-#include "redasm_endianness.h"
+#include "types/base_types.h"
+#include "types/endianness.h"
 
 namespace REDasm {
 
@@ -58,7 +58,7 @@ template<typename T> Buffer::operator T() const
 {
     T val = *reinterpret_cast<const T*>(this->data());
 
-    if(Endianness::endianness_of<T>::value != Endianness::current)
+    if(Endianness::endianness_of<T>() != Endianness::current)
         return Endianness::swap<T>(val);
 
     return val;
@@ -103,7 +103,7 @@ template<typename T> BufferRef& BufferRef::operator =(T rhs)
 {
     T* p = reinterpret_cast<T*>(m_data);
 
-    if(Endianness::endianness_of<T>::value != Endianness::current)
+    if(Endianness::endianness_of<T>() != Endianness::current)
         *p = Endianness::swap<T>(rhs);
     else
         *p = rhs;
@@ -115,7 +115,7 @@ template<typename T> BufferRef::operator T() const
 {
     T val = *reinterpret_cast<T*>(m_data);
 
-    if(Endianness::endianness_of<T>::value != Endianness::current)
+    if(Endianness::endianness_of<T>() != Endianness::current)
         return Endianness::swap<T>(val);
 
     return val;

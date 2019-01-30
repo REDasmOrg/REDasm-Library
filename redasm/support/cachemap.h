@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <map>
 #include "../support/serializer.h"
-#include "../redasm_types.h"
+#include "../types/base_types.h"
 #include "event.h"
 
 namespace REDasm {

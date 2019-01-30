@@ -166,7 +166,7 @@ std::string DalvikPrinter::imm(const Operand &op) const
     return Printer::imm(op);
 }
 
-std::string DalvikPrinter::registerName(register_t r) { return "v" + std::to_string(r); }
+std::string DalvikPrinter::registerName(register_id_t r) { return "v" + std::to_string(r); }
 
 void DalvikPrinter::startLocal(DEXFormat* dexformat, const DEXDebugData &debugdata)
 {
@@ -174,7 +174,7 @@ void DalvikPrinter::startLocal(DEXFormat* dexformat, const DEXDebugData &debugda
     m_regnames[debugdata.register_num] = dexformat->getString(debugdata.name_idx);
 }
 
-void DalvikPrinter::restoreLocal(DEXFormat* dexformat, register_t r)
+void DalvikPrinter::restoreLocal(DEXFormat* dexformat, register_id_t r)
 {
     auto it = m_regoverrides.find(r);
 
@@ -185,7 +185,7 @@ void DalvikPrinter::restoreLocal(DEXFormat* dexformat, register_t r)
     m_regnames[r] = dexformat->getString(debugdata.name_idx);
 }
 
-void DalvikPrinter::endLocal(register_t r)
+void DalvikPrinter::endLocal(register_id_t r)
 {
     auto it = m_regnames.find(r);
 

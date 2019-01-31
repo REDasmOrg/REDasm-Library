@@ -5,7 +5,7 @@
 #include <vector>
 #include <libredasm_export.h>
 #include "types/base_types.h"
-#include "types/endianness.h"
+#include "types/endianness/endianness.h"
 
 namespace REDasm {
 
@@ -19,7 +19,6 @@ class Buffer: public std::vector<u8>
         Buffer();
         BufferRef slice(u64 offset);
         Buffer createFilled(size_t n, u8 b = 0) const;
-        void endianness(endianness_t e);
 
     public:
         static Buffer fromFile(const std::string& file);
@@ -29,11 +28,8 @@ class Buffer: public std::vector<u8>
     public:
         template<typename T> Buffer& swapEndianness(size_t size = -1u);
         template<typename T> Buffer swapEndianness(size_t size = -1u) const;
-        template<typename T> operator T*() const { return reinterpret_cast<T*>(this->data()); }
-        template<typename T> operator T() const;
-
-    private:
-        endianness_t m_endianness;
+        template<typename T> constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
+        template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> constexpr operator T() { return *reinterpret_cast<const T*>(this->data()); }
 
     public:
         static Buffer invalid;
@@ -54,21 +50,11 @@ template<typename T> Buffer Buffer::swapEndianness(size_t size) const
     return buffer.swapEndianness<T>(size);
 }
 
-template<typename T> Buffer::operator T() const
-{
-    T val = *reinterpret_cast<const T*>(this->data());
-
-    if(Endianness::endianness_of<T>() != Endianness::current)
-        return Endianness::swap<T>(val);
-
-    return val;
-}
-
 class BufferRef
 {
     public:
         BufferRef();
-        BufferRef(Buffer* buffer, u64 offset);
+        BufferRef(Buffer *buffer, u64 offset);
         BufferRef(const BufferRef *buffer, u64 offset);
         BufferRef& advance(int offset);
         BufferRef advance(int offset) const;
@@ -86,15 +72,15 @@ class BufferRef
         u8 operator *() const { return *m_data; }
         BufferRef operator ++(int) { BufferRef copy(this, 0); this->m_data++; this->m_size--; return copy; }
         BufferRef& operator ++() { this->m_data++; this->m_size--; return *this; }
+        template<typename T, typename = typename std::enable_if< std::is_integral<T>::value>::type> constexpr operator T() { return *reinterpret_cast<const T*>(this->data()); }
 
     public:
-        template<typename T> s64 swapEndianness() { return Endianness::swap<T>(m_data, m_size); }
-        template<typename T> operator T*() const { return reinterpret_cast<T*>(this->data()); }
-        template<typename T> operator T() const;
+        template<typename T> constexpr s64 swapEndianness() { return Endianness::swap<T>(m_data, m_size); }
+        template<typename T> constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
         template<typename T> BufferRef& operator =(T rhs);
 
     private:
-        Buffer* m_buffer;
+        const Buffer* m_buffer;
         u8* m_data;
         size_t m_size;
 };
@@ -103,22 +89,12 @@ template<typename T> BufferRef& BufferRef::operator =(T rhs)
 {
     T* p = reinterpret_cast<T*>(m_data);
 
-    if(Endianness::endianness_of<T>() != Endianness::current)
+    if(Endianness::of<T>::needsSwap)
         *p = Endianness::swap<T>(rhs);
     else
         *p = rhs;
 
     return *this;
-}
-
-template<typename T> BufferRef::operator T() const
-{
-    T val = *reinterpret_cast<T*>(m_data);
-
-    if(Endianness::endianness_of<T>() != Endianness::current)
-        return Endianness::swap<T>(val);
-
-    return val;
 }
 
 } // namespace REDasm

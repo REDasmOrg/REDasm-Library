@@ -5,7 +5,7 @@
 #include "../disassembler/types/symboltable.h"
 #include "../disassembler/listing/listingdocument.h"
 #include "../analyzer/analyzer.h"
-#include "../types/endianness.h"
+#include "../types/endianness/endianness.h"
 #include "base.h"
 
 #define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(Buffer& buffer) { return REDasm::getFormatPlugin<T>(buffer); }
@@ -22,7 +22,6 @@ template<typename T> T* getFormatPlugin(Buffer& buffer)
         return NULL;
 
     T* formatplugin = new T(buffer);
-    formatplugin->init();
     formatplugin->load();
     return formatplugin;
 }
@@ -35,7 +34,6 @@ class FormatPlugin: public Plugin
 {
     public:
         FormatPlugin(Buffer& buffer);
-        void init();
         bool isBinary() const;
         const Buffer& buffer() const;
         Buffer& buffer();

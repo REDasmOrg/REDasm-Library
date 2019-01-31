@@ -122,7 +122,8 @@ set(HEADERS
     redasm/support/compression.h
     redasm/types/numeric_type.h
     redasm/types/base_types.h
-    redasm/types/endianness.h
+    redasm/types/endianness/endianness.h
+    redasm/types/endianness/endianness_base.h
     redasm/disassembler/listing/instructioncache.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})

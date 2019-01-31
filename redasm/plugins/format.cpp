@@ -8,7 +8,6 @@ FormatPlugin::FormatPlugin(Buffer &buffer): Plugin()
     m_document->m_format = this;
 }
 
-void FormatPlugin::init() { m_buffer.endianness(this->endianness()); }
 ListingDocument &FormatPlugin::document() { return m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }

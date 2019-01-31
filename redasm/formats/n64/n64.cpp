@@ -33,7 +33,7 @@ namespace REDasm {
 
 FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
 {
-    u32be magic = buffer;
+    u32 magic = format->magic;
 
     if((magic != N64_MAGIC_BS) && (magic != N64_MAGIC_BE) && (magic != N64_MAGIC_LE))
         return false;
@@ -68,7 +68,7 @@ Analyzer *N64RomFormat::createAnalyzer(DisassemblerAPI *disassembler, const Sign
 
 void N64RomFormat::load()
 {
-    if(m_format->magic[0] != N64_MAGIC_BE_B1)
+    if(m_format->magic_0 != N64_MAGIC_BE_B1)
         m_buffer.swapEndianness<u16>();
 
     m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size() - N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
@@ -94,12 +94,8 @@ u32 N64RomFormat::getEP()
 
 u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& buffer, u32 *crc) // Adapted from n64crc (http://n64dev.org/n64crc.html)
 {
-    u32 bootcode, i;
-    u32 seed;
-
-    u32 t1, t2, t3;
-    u32 t4, t5, t6;
-    u32 r, d;
+    u32 bootcode, i, seed, t1, t2, t3, t4, t5, t6, r;
+    u32 d;
 
     switch((bootcode = N64RomFormat::getCICVersion(format)))
     {
@@ -124,11 +120,14 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& bu
     t1 = t2 = t3 = t4 = t5 = t6 = seed;
 
     i = N64_ROM_CHECKSUM_START;
+
     while (i < (N64_ROM_CHECKSUM_START + N64_ROM_CHECKSUM_LENGTH))
     {
-        d = Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[i]));
+        //d = (*reinterpret_cast<const u32*>(&buffer[i]));
 
-        if ((t6 + d) < t6) t4++;
+        if((t6 + d) < t6)
+            t4++;
+
         t6 += d;
         t3 ^= d;
         r = REDasm::rol(d, (d & 0x1F));
@@ -136,8 +135,10 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& bu
         if (t2 > d) t2 ^= r;
         else t2 ^= t6 ^ d;
 
-        if (bootcode == 6105) t1 += Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
-        else t1 += t5 ^ d;
+        if(bootcode == 6105)
+            t1 += Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
+        else
+            t1 += t5 ^ d;
 
         i += 4;
     }
@@ -167,7 +168,7 @@ bool N64RomFormat::checkChecksum(const N64RomHeader *format, const Buffer& buffe
 
     if(!N64RomFormat::calculateChecksum(format, buffer, crc))
     {
-        if((crc[0] == Endianness::cfbe(format->crc1)) && (crc[1] == Endianness::cfbe(format->crc2)))
+        if((crc[0] == format->crc1) && (crc[1] == format->crc2))
             return true;
     }
 

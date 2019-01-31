@@ -29,21 +29,21 @@ namespace REDasm {
 struct N64RomHeader // From: http://en64.shoutwiki.com/wiki/ROM#Cartridge_ROM_Header
 {
     union {
-        u8 magic[4];
+        u32be magic;
 
         struct {
-            u8 pi_bsb_dom1_lat_reg;
-            u8 pi_bsb_dom1_pgs_reg;
-            u8 pi_bsd_dom1_pwd_reg;
-            u8 pi_bsb_dom1_pgs_reg2;
+            union { u8 magic_0, pi_bsb_dom1_lat_reg;  };
+            union { u8 magic_1, pi_bsb_dom1_pgs_reg;  };
+            union { u8 magic_2, pi_bsd_dom1_pwd_reg;  };
+            union { u8 magic_3, pi_bsb_dom1_pgs_reg2; };
         };
     };
 
-    u32 clock_rate_override, program_counter, release_address;
-    u32 crc1, crc2;
-    u64 unknown1; // UNKNOWN/NOT USED
+    u32be clock_rate_override, program_counter, release_address;
+    u32be crc1, crc2;
+    u64be unknown1; // UNKNOWN/NOT USED
     char image_name[N64_IMAGE_NAME_SIZE];
-    u32 unknown2; // UNKNOWN/NOT USED
+    u32be unknown2; // UNKNOWN/NOT USED
     char media_format[N64_MEDIA_FORMAT_SIZE];
     char cart_id[N64_CART_ID_SIZE];
     char country_code;

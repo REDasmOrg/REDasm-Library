@@ -1,8 +1,9 @@
 #include "elf.h"
+#include "elf_header.h"
 
 namespace REDasm {
 
-template<ELF_PARAMS_T> FORMAT_PLUGIN_TEST(ElfFormat<ELF_PARAMS_D>, EHDR)
+template<size_t b, endianness_t e> FORMAT_PLUGIN_TEST(ELF_ARG(ElfFormat<b, e>), ELF_ARG(Elf_Ehdr<b, e>))
 {
     if((format->e_ident[EI_MAG0] != ELFMAG0) || (format->e_ident[EI_MAG1] != ELFMAG1))
         return false;
@@ -13,21 +14,37 @@ template<ELF_PARAMS_T> FORMAT_PLUGIN_TEST(ElfFormat<ELF_PARAMS_D>, EHDR)
     if(format->e_ident[EI_VERSION] != EV_CURRENT)
         return false;
 
-    if(sizeof(EHDR) == sizeof(Elf32_Ehdr))
+    u8 elfendianness = (e == Endianness::BigEndian) ? ELFDATA2MSB : // MSB -> BigEndian
+                                                      ELFDATA2LSB;  // LSB -> LittleEndian
+
+    if(elfendianness != format->e_ident[EI_DATA])
+        return false;
+
+    if(b == 32)
         return (format->e_ident[EI_CLASS] == ELFCLASS32);
-    else if(sizeof(EHDR) == sizeof(Elf64_Ehdr))
+    else if(b == 64)
         return (format->e_ident[EI_CLASS] == ELFCLASS64);
 
     return false;
 }
 
-template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(AbstractBuffer *buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
+template<size_t b, endianness_t e> ElfFormat<b, e>::ElfFormat(AbstractBuffer *buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
 {
     m_skipsections.insert(".comment");
     m_skipsections.insert(".attribute");
 }
 
-template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
+template<size_t b, endianness_t e> std::string ElfFormat<b, e>::name() const { return "ELF" + std::to_string(this->bits()) + " Format (" + Endianness::name(this->endianness()) + ")"; }
+
+template<size_t b, endianness_t e> endianness_t ElfFormat<b, e>::endianness() const
+{
+    if(this->m_format->e_ident[EI_DATA] == ELFDATA2MSB)
+        return Endianness::BigEndian;
+
+    return Endianness::LittleEndian;
+}
+
+template<size_t b, endianness_t e> u32 ElfFormat<b, e>::bits() const
 {
     if(this->m_format->e_ident[EI_CLASS] == ELFCLASS32)
         return 32;
@@ -38,7 +55,7 @@ template<ELF_PARAMS_T> u32 ElfFormat<ELF_PARAMS_D>::bits() const
     return 0;
 }
 
-template<ELF_PARAMS_T> std::string ElfFormat<EHDR, SHDR, PHDR, SYM, REL, RELA>::assembler() const
+template<size_t b, endianness_t e> std::string ElfFormat<b, e>::assembler() const
 {
     switch(this->m_format->e_machine)
     {
@@ -51,9 +68,9 @@ template<ELF_PARAMS_T> std::string ElfFormat<EHDR, SHDR, PHDR, SYM, REL, RELA>::
         case EM_MIPS:
         {
             if(this->m_format->e_flags & EF_MIPS_ABI_EABI64)
-                return "mips64le";
+                return this->endianness() == Endianness::BigEndian ? "mips64be" : "mips64le";
 
-            return "mips32le";
+            return this->endianness() == Endianness::BigEndian ? "mips32be" : "mips32le";
         }
 
         case EM_ARM:
@@ -66,22 +83,30 @@ template<ELF_PARAMS_T> std::string ElfFormat<EHDR, SHDR, PHDR, SYM, REL, RELA>::
     return NULL;
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::load()
+template<size_t b, endianness_t e> void ElfFormat<b, e>::load()
 {
-    this->m_shdr = POINTER(SHDR, this->m_format->e_shoff);
-    this->m_phdr = POINTER(PHDR, this->m_format->e_phoff);
+    this->m_shdr = ELF_POINTER(SHDR, this->m_format->e_shoff);
+    this->m_phdr = ELF_POINTER(PHDR, this->m_format->e_phoff);
     this->loadSegments();
     this->parseSegments();
     this->checkProgramHeader();
     this->m_document->entry(this->m_format->e_entry);
 }
 
-template<ELF_PARAMS_T> Analyzer* ElfFormat<ELF_PARAMS_D>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
+template<size_t b, endianness_t e> Analyzer* ElfFormat<b, e>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
     return new ElfAnalyzer(disassembler, signatures);
 }
 
-template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* value) const
+template<size_t b, endianness_t e> u64 ElfFormat<b, e>::relocationSymbol(const REL* rel) const
+{
+    if(b == 64)
+        return ELF64_R_SYM(rel->r_info);
+
+    return ELF32_R_SYM(rel->r_info);
+}
+
+template<size_t b, endianness_t e> bool ElfFormat<b, e>::relocate(u64 symidx, u64* value) const
 {
     for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {
@@ -94,7 +119,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
 
         while(offset < endoffset)
         {
-            REL* rel = POINTER(REL, offset);
+            REL* rel = ELF_POINTER(REL, offset);
             u64 sym = this->relocationSymbol(rel);
 
             if(sym == symidx)
@@ -110,7 +135,7 @@ template<ELF_PARAMS_T> bool ElfFormat<ELF_PARAMS_D>::relocate(u64 symidx, u64* v
     return false;
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
+template<size_t b, endianness_t e> void ElfFormat<b, e>::loadSegments()
 {
     const SHDR& shstr = ELF_STRING_TABLE;
 
@@ -146,7 +171,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSegments()
     }
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::checkProgramHeader()
+template<size_t b, endianness_t e> void ElfFormat<b, e>::checkProgramHeader()
 {
     if(this->m_format->e_shnum)
         return;
@@ -162,7 +187,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::checkProgramHeader()
     }
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shdr)
+template<size_t b, endianness_t e> void ElfFormat<b, e>::loadSymbols(const SHDR& shdr)
 {
     offset_t offset = shdr.sh_offset, endoffset = offset + shdr.sh_size;
     const SHDR& shstr = shdr.sh_link ? this->m_shdr[shdr.sh_link] : ELF_STRING_TABLE;
@@ -170,7 +195,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
     for(u64 idx = 0; offset < endoffset; idx++)
     {
         bool isrelocated = false;
-        SYM* sym = POINTER(SYM, offset);
+        SYM* sym = ELF_POINTER(SYM, offset);
         u8 info = ELF_ST_TYPE(sym->st_info);
         u64 symvalue = sym->st_value;
 
@@ -215,7 +240,7 @@ template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::loadSymbols(const SHDR& shd
     }
 }
 
-template<ELF_PARAMS_T> void ElfFormat<ELF_PARAMS_D>::parseSegments()
+template<size_t b, endianness_t e> void ElfFormat<b, e>::parseSegments()
 {
     for(u64 i = 0; i < this->m_format->e_shnum; i++)
     {

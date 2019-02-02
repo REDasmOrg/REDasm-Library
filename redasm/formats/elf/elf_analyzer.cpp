@@ -1,7 +1,7 @@
 #include "elf_analyzer.h"
 
 #define LIBC_START_MAIN        "__libc_start_main"
-#define LIBC_START_MAIN_ARGC 7
+#define LIBC_START_MAIN_ARGC   7
 
 namespace REDasm {
 

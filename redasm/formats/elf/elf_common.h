@@ -27,6 +27,10 @@
 #define ELFCLASS32      1
 #define ELFCLASS64      2
 
+#define ELFDATANONE     0
+#define ELFDATA2LSB     1
+#define ELFDATA2MSB     2
+
 #define EV_NONE         0
 #define EV_CURRENT      1
 

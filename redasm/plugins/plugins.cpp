@@ -37,8 +37,10 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntSearchPath = searchpath;
 
     REGISTER_FORMAT_PLUGIN(pe);
-    REGISTER_FORMAT_PLUGIN(elf32);
-    REGISTER_FORMAT_PLUGIN(elf64);
+    REGISTER_FORMAT_PLUGIN(elf32le);
+    REGISTER_FORMAT_PLUGIN(elf32be);
+    REGISTER_FORMAT_PLUGIN(elf64le);
+    REGISTER_FORMAT_PLUGIN(elf64be);
     REGISTER_FORMAT_PLUGIN(psxexe);
     REGISTER_FORMAT_PLUGIN(dex);
     REGISTER_FORMAT_PLUGIN(xbe);

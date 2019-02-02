@@ -58,7 +58,7 @@ BufferView Emulator::getMemory(address_t address)
     offset_t offset = 0;
     MemoryBuffer* buffer = this->getSegmentMemory(address, &offset);
 
-    if(buffer->empty())
+    if(!buffer || buffer->empty())
         return BufferView();
 
     return buffer->view(offset);

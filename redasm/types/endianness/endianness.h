@@ -3,18 +3,23 @@
 
 #include <algorithm>
 #include <type_traits>
+#include <string>
 #include "../base_types.h"
 #include "../numeric_type.h"
 #include "endianness_base.h"
 
-#define REDASM_ENDIANNESS_OF(T, b, e) template<> struct of<T> { \
+#define REDASM_ENDIANNESS_OF(T, b, T_LE, T_BE, e) template<> struct of<T> { \
                                            typedef T type; \
+                                           typedef T_LE type_le; \
+                                           typedef T_BE type_be; \
                                            typedef b base; \
                                            static constexpr endianness_t value = e; \
                                            static constexpr bool isLittleEndian = e == Endianness::LittleEndian; \
                                            static constexpr bool isBigEndian = e == Endianness::BigEndian; \
                                            static constexpr bool needsSwap = e != Endianness::current; \
                                       };
+
+#define endian_type(T, endianness) typename Endianness::type_of<T, endianness>::type
 
 namespace REDasm {
 
@@ -35,28 +40,32 @@ typedef numeric_type<u64, Endianness::BigEndian> u64be;
 
 template<typename T> struct of { };
 
-REDASM_ENDIANNESS_OF(s8,  s8,  Endianness::current)
-REDASM_ENDIANNESS_OF(s16, s16, Endianness::current)
-REDASM_ENDIANNESS_OF(s32, s32, Endianness::current)
-REDASM_ENDIANNESS_OF(s64, s64, Endianness::current)
-REDASM_ENDIANNESS_OF(u8,  u8,  Endianness::current)
-REDASM_ENDIANNESS_OF(u16, u16, Endianness::current)
-REDASM_ENDIANNESS_OF(u32, u32, Endianness::current)
-REDASM_ENDIANNESS_OF(u64, u64, Endianness::current)
-REDASM_ENDIANNESS_OF(s16le, s16, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(s32le, s32, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(s64le, s64, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(u16le, u16, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(u32le, u32, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(u64le, u64, Endianness::LittleEndian)
-REDASM_ENDIANNESS_OF(s16be, s16, Endianness::BigEndian)
-REDASM_ENDIANNESS_OF(s32be, s32, Endianness::BigEndian)
-REDASM_ENDIANNESS_OF(s64be, s64, Endianness::BigEndian)
-REDASM_ENDIANNESS_OF(u16be, u16, Endianness::BigEndian)
-REDASM_ENDIANNESS_OF(u32be, u32, Endianness::BigEndian)
-REDASM_ENDIANNESS_OF(u64be, u64, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(s8, s8, s8, s8, Endianness::current)
+REDASM_ENDIANNESS_OF(s16, s16, s16le, s16be, Endianness::current)
+REDASM_ENDIANNESS_OF(s32, s32, s32le, s32be, Endianness::current)
+REDASM_ENDIANNESS_OF(s64, s64, s64le, s64be, Endianness::current)
+REDASM_ENDIANNESS_OF(u8, u8, u8, u8, Endianness::current)
+REDASM_ENDIANNESS_OF(u16, u16, u16le, u16be, Endianness::current)
+REDASM_ENDIANNESS_OF(u32, u32, u32le, u32be, Endianness::current)
+REDASM_ENDIANNESS_OF(u64, u64, u64le, u64be, Endianness::current)
+REDASM_ENDIANNESS_OF(s16le, s16, s16le, s16be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(s32le, s32, s32le, s32be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(s64le, s64, s64le, s64be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(u16le, u16, u16le, u16be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(u32le, u32, u32le, u32be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(u64le, u64, u64le, u64be, Endianness::LittleEndian)
+REDASM_ENDIANNESS_OF(s16be, s16, s16le, s16be, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(s32be, s32, s32le, s32be, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(s64be, s64, s64le, s32be, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(u16be, u16, u16le, u16be, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(u32be, u32, u32le, u32be, Endianness::BigEndian)
+REDASM_ENDIANNESS_OF(u64be, u64, u64le, u64be, Endianness::BigEndian)
 
-template<typename T> constexpr T checkSwap(T v, endianness_t endianness) { return Endianness::of<T>::needsSwap ? Endianness::swap(v) : v; }
+template<typename T, endianness_t endianness> struct type_of {
+    typedef typename std::conditional<endianness == Endianness::BigEndian,
+                                      typename Endianness::of<T>::type_be,
+                                      typename Endianness::of<T>::type_le>::type type;
+};
 
 template<typename T> size_t swap(u8* data, size_t size) {
     T* pendingdata = reinterpret_cast<T*>(data);
@@ -72,10 +81,7 @@ template<typename T> size_t swap(u8* data, size_t size) {
     return pendingsize;
 }
 
-template<typename T> T cfbe(T v) { return checkSwap(v, Endianness::BigEndian); }                // Convert FROM BigEndian TO PlatformEndian
-template<typename T> T cfle(T v) { return checkSwap(v, Endianness::LittleEndian); }             // Convert FROM LittleEndian TO PlatformEndian
-template<typename T> T cfbe(const T* data) { return cfbe(*data); }
-template<typename T> T cfle(const T* data) { return cfle(*data); }
+inline std::string name(endianness_t endianness) { return endianness == Endianness::BigEndian ? "Big Endian" : "Little Endian"; }
 
 } // namespace Endianness
 

@@ -107,7 +107,7 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const BufferView
 
     while (i < (N64_ROM_CHECKSUM_START + N64_ROM_CHECKSUM_LENGTH))
     {
-        d = static_cast<u32>(view + i);
+        d = static_cast<u32be>(view + i);
 
         if((t6 + d) < t6)
             t4++;

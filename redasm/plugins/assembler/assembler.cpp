@@ -26,9 +26,9 @@ bool AssemblerPlugin::hasFlag(u32 flag) const { return this->flags() & flag; }
 endianness_t AssemblerPlugin::endianness() const { return m_endianness; }
 void AssemblerPlugin::setEndianness(endianness_t endianness) { m_endianness = endianness; }
 
-bool AssemblerPlugin::decode(const BufferRef& buffer, const InstructionPtr &instruction)
+bool AssemblerPlugin::decode(const BufferView& view, const InstructionPtr &instruction)
 {
-    bool decoded = this->decodeInstruction(buffer, instruction);
+    bool decoded = this->decodeInstruction(view, instruction);
 
     if(!decoded || instruction->isInvalid())
         return false;
@@ -39,6 +39,6 @@ bool AssemblerPlugin::decode(const BufferRef& buffer, const InstructionPtr &inst
     return true;
 }
 
-bool AssemblerPlugin::decodeInstruction(const BufferRef &buffer, const InstructionPtr &instruction) { return false; }
+bool AssemblerPlugin::decodeInstruction(const BufferView &view, const InstructionPtr &instruction) { return false; }
 
 }

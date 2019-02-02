@@ -10,7 +10,7 @@ class BinaryFormat : public FormatPluginB
     DEFINE_FORMAT_PLUGIN_TEST(u8)
 
     public:
-        BinaryFormat(Buffer& buffer);
+        BinaryFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;

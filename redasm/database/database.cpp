@@ -67,18 +67,18 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return NULL;
     }
 
-    Buffer buffer;
+    MemoryBuffer buffer;
     std::string formatname;
     Serializer::deobfuscateString(ifs, filename);
     Serializer::deserializeString(ifs, formatname);
 
-    if(!Serializer::decompressBuffer(ifs, buffer))
+    if(!Serializer::decompressBuffer(ifs, &buffer))
     {
         m_lasterror = "Cannot decompress database " + REDasm::quoted(dbfilename);
         return NULL;
     }
 
-    std::unique_ptr<FormatPlugin> format(REDasm::getFormat(buffer));
+    std::unique_ptr<FormatPlugin> format(REDasm::getFormat(&buffer));
 
     if(!format)
     {

@@ -7,7 +7,6 @@ namespace REDasm {
 Buffer Buffer::invalid;
 
 Buffer::Buffer(): std::vector<u8>() { }
-
 BufferRef Buffer::slice(u64 offset) { return BufferRef(this, offset); }
 
 Buffer Buffer::createFilled(size_t n, u8 b) const
@@ -83,7 +82,6 @@ BufferRef &BufferRef::advance(int offset)
 }
 
 BufferRef BufferRef::advance(int offset) const { return BufferRef(this, offset); }
-Buffer BufferRef::filled(size_t n, u8 b) const { return m_buffer->createFilled(n, b); }
 void BufferRef::resize(size_t s) { m_size = s; }
 
 bool BufferRef::copyTo(Buffer &buffer)
@@ -92,12 +90,7 @@ bool BufferRef::copyTo(Buffer &buffer)
         return false;
 
     buffer.resize(m_size);
-    std::ptrdiff_t offset = m_data - m_buffer->data();
-
-    if(offset < 0)
-        return false;
-
-    std::copy(m_buffer->begin() + offset, m_buffer->end(), buffer.begin());
+    std::copy_n(m_data, m_size, buffer.begin());
     return true;
 }
 

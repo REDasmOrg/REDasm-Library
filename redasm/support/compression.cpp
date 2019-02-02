@@ -4,9 +4,9 @@
 
 namespace REDasm {
 
-bool Compression::deflate(Buffer &buffin, Buffer &buffout)
+bool Compression::deflate(const AbstractBuffer *buffin, AbstractBuffer *buffout)
 {
-    if(buffin.empty())
+    if(buffin->empty())
         return false;
 
     z_stream zs;
@@ -20,9 +20,9 @@ bool Compression::deflate(Buffer &buffin, Buffer &buffout)
     return res;
 }
 
-bool Compression::inflate(Buffer &buffin, Buffer &buffout)
+bool Compression::inflate(const AbstractBuffer *buffin, AbstractBuffer *buffout)
 {
-    if(buffin.empty())
+    if(buffin->empty())
         return false;
 
     z_stream zs;
@@ -36,43 +36,40 @@ bool Compression::inflate(Buffer &buffin, Buffer &buffout)
     return res;
 }
 
-void Compression::prepare(z_stream *zs, Buffer& buffin, Buffer& buffout)
+void Compression::prepare(z_stream *zs, const AbstractBuffer* buffin, AbstractBuffer* buffout)
 {
-    buffout.resize(CHUNK_SIZE);
+    buffout->resize(CHUNK_SIZE);
 
     zs->zalloc = Z_NULL;
     zs->zfree = Z_NULL;
     zs->opaque = Z_NULL;
 
-    zs->next_in = reinterpret_cast<Bytef*>(buffin.data());
-    zs->avail_in = static_cast<uInt>(buffin.size());
+    zs->next_in = reinterpret_cast<Bytef*>(buffin->data());
+    zs->avail_in = static_cast<uInt>(buffin->size());
 
     zs->total_out = 0;
 }
 
-bool Compression::process(z_stream *zs, Buffer &buffout, const Compression::ZLibFunction &func, int funcarg)
+bool Compression::process(z_stream *zs, AbstractBuffer *buffout, const Compression::ZLibFunction &func, int funcarg)
 {
     int res = 0;
 
     do
     {
-        if(zs->total_out >= static_cast<uLong>(buffout.size()))
-            buffout.resize(buffout.size() * 2);
+        if(zs->total_out >= static_cast<uLong>(buffout->size()))
+            buffout->resize(buffout->size() * 2);
 
-        zs->next_out = reinterpret_cast<Bytef*>(buffout.data() + zs->total_out);
-        zs->avail_out = static_cast<uInt>(buffout.size() - zs->total_out);
+        zs->next_out = reinterpret_cast<Bytef*>(buffout->data() + zs->total_out);
+        zs->avail_out = static_cast<uInt>(buffout->size() - zs->total_out);
         res = func(zs, funcarg);
 
         if(res == Z_STREAM_END)
             break;
-
-        if(res != Z_OK)
-            buffout.clear();
     }
     while(res == Z_OK);
 
-    if(buffout.size() > zs->total_out)
-        buffout.resize(zs->total_out);
+    if(buffout->size() > zs->total_out)
+        buffout->resize(zs->total_out);
 
     return res == Z_STREAM_END;
 }

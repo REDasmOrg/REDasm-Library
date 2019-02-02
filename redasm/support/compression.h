@@ -1,7 +1,7 @@
 #ifndef COMPRESSION_H
 #define COMPRESSION_H
 
-#include "../redasm_buffer.h"
+#include "../types/buffer/abstractbuffer.h"
 #include <functional>
 #include <zlib.h>
 
@@ -18,12 +18,12 @@ class Compression
         Compression& operator =(const Compression&) = delete;
 
     public:
-        static bool deflate(Buffer &buffin, Buffer& buffout);
-        static bool inflate(Buffer &buffin, Buffer& buffout);
+        static bool deflate(const AbstractBuffer* buffin, AbstractBuffer* buffout);
+        static bool inflate(const AbstractBuffer* buffin, AbstractBuffer* buffout);
 
     private:
-        static void prepare(z_stream* zs, Buffer &buffin, Buffer &buffout);
-        static bool process(z_stream* zs, Buffer &buffout, const ZLibFunction& func, int funcarg);
+        static void prepare(z_stream* zs, const AbstractBuffer *buffin, AbstractBuffer* buffout);
+        static bool process(z_stream* zs, AbstractBuffer* buffout, const ZLibFunction& func, int funcarg);
 };
 
 } // namespace REDasm

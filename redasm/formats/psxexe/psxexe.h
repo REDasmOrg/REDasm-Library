@@ -24,7 +24,7 @@ class PsxExeFormat: public FormatPluginT<PsxExeHeader>
     DEFINE_FORMAT_PLUGIN_TEST(PsxExeHeader)
 
     public:
-        PsxExeFormat(Buffer& buffer);
+        PsxExeFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;

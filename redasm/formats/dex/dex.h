@@ -14,7 +14,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
     DEFINE_FORMAT_PLUGIN_TEST(DEXHeader)
 
     public:
-        DEXFormat(Buffer& buffer);
+        DEXFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;

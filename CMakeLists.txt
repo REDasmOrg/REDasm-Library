@@ -64,9 +64,11 @@ SET(SOURCES
     redasm/plugins/assembler/algorithm/linearsweep.cpp
     redasm/plugins/assembler/algorithm/statemachine.cpp
     redasm/plugins/emulator.cpp
+    redasm/types/buffer/abstractbuffer.cpp
+    redasm/types/buffer/memorybuffer.cpp
+    redasm/types/buffer/bufferview.cpp
     redasm/redasm_api.cpp
     redasm/redasm_runtime.cpp
-    redasm/redasm_buffer.cpp
     redasm/database/database.cpp
     redasm/database/signaturedb.cpp
     redasm/support/compression.cpp
@@ -116,10 +118,12 @@ set(HEADERS
     redasm/emulator/emulator_type.h
     redasm/redasm_api.h
     redasm/redasm_runtime.h
-    redasm/redasm_buffer.h
     redasm/database/database.h
     redasm/database/signaturedb.h
     redasm/support/compression.h
+    redasm/types/buffer/abstractbuffer.h
+    redasm/types/buffer/memorybuffer.h
+    redasm/types/buffer/bufferview.h
     redasm/types/numeric_type.h
     redasm/types/base_types.h
     redasm/types/endianness/endianness.h

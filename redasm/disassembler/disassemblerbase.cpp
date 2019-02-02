@@ -172,17 +172,17 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
     return this->readAddress(address, m_format->addressWidth(), value);
 }
 
-BufferRef DisassemblerBase::getFunctionBytes(address_t address)
+BufferView DisassemblerBase::getFunctionBytes(address_t address)
 {
     ListingItem* item = m_document->functionStart(address);
 
     if(!item)
-        return BufferRef();
+        return BufferView();
 
     auto it = m_document->functionItem(item->address);
 
     if(it == m_document->end())
-        return BufferRef();
+        return BufferView();
 
     it++;
     address_t endaddress = 0;
@@ -209,12 +209,12 @@ BufferRef DisassemblerBase::getFunctionBytes(address_t address)
         break;
     }
 
-    BufferRef br = m_format->buffer(address);
+    BufferView view = m_format->view(address);
 
     if(it != m_document->end())
-        br.resize(endaddress - address);
+        view.resize(endaddress - address);
 
-    return br;
+    return view;
 }
 
 bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) const
@@ -235,16 +235,16 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     if(!value)
         return false;
 
-    BufferRef pdest = m_format->buffer().slice(offset);
+    BufferView viewdest = m_format->viewOffset(offset);
 
     if(size == 1)
-        *value = static_cast<u8>(pdest);
+        *value = static_cast<u8>(viewdest);
     else if(size == 2)
-        *value = static_cast<u16>(pdest);
+        *value = static_cast<u16>(viewdest);
     else if(size == 4)
-        *value = static_cast<u32>(pdest);
+        *value = static_cast<u32>(viewdest);
     else if(size == 8)
-        *value = static_cast<u64>(pdest);
+        *value = static_cast<u64>(viewdest);
     else
     {
         REDasm::log("Invalid size: " + std::to_string(size));
@@ -287,14 +287,14 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
         if(symbol->isLocked())
             return true;
 
-        BufferRef br = this->getFunctionBytes(symbol->address);
+        BufferView view = this->getFunctionBytes(symbol->address);
 
-        if(br.empty())
+        if(view.eob())
             return true;
 
         offset_t offset = m_format->offset(symbol->address);
 
-        sigdb.search(br, [&](const Signature* signature) {
+        sigdb.search(view, [&](const Signature* signature) {
             if(!signature->isCompatible(m_format.get()))
                 return;
 

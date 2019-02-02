@@ -21,7 +21,7 @@ template<ELF_PARAMS_T> FORMAT_PLUGIN_TEST(ElfFormat<ELF_PARAMS_D>, EHDR)
     return false;
 }
 
-template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(Buffer& buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
+template<ELF_PARAMS_T> ElfFormat<ELF_PARAMS_D>::ElfFormat(AbstractBuffer *buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
 {
     m_skipsections.insert(".comment");
     m_skipsections.insert(".attribute");

@@ -22,7 +22,7 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         enum PeType { None, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
-        PeFormat(Buffer& buffer);
+        PeFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;

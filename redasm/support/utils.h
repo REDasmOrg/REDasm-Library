@@ -8,7 +8,8 @@
 #include <cassert>
 #include "demangler.h"
 #include "../types/base_types.h"
-#include "../redasm_buffer.h"
+#include "../types/buffer/memorybuffer.h"
+#include "../types/buffer/bufferview.h"
 
 namespace REDasm
 {
@@ -18,10 +19,11 @@ std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 std::string quoted(const char* s);
 std::string hexstring(const char* data, size_t size);
-Buffer bytes(const std::string& s);
+std::string hexstring(const BufferView& view, size_t size = -1u);
+MemoryBuffer bytes(const std::string& s);
 u8 byte(const std::string& s, int offset = 0);
 
-template<typename T> struct bitwidth { static const size_t value = sizeof(T) * CHAR_BIT; };
+template<typename T> struct bitwidth { static constexpr size_t value = sizeof(T) * CHAR_BIT; };
 
 inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }

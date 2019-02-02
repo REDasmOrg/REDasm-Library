@@ -11,7 +11,7 @@ namespace REDasm {
 
 FORMAT_PLUGIN_TEST(PsxExeFormat, PsxExeHeader) { return !strncmp(format->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE); }
 
-PsxExeFormat::PsxExeFormat(Buffer &buffer): FormatPluginT<PsxExeHeader>(buffer) { }
+PsxExeFormat::PsxExeFormat(AbstractBuffer *buffer): FormatPluginT<PsxExeHeader>(buffer) { }
 std::string PsxExeFormat::name() const { return "PS-X Executable"; }
 u32 PsxExeFormat::bits() const { return 32; }
 std::string PsxExeFormat::assembler() const { return "mips32le"; }

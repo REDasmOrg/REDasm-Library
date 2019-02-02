@@ -56,7 +56,7 @@ class N64RomFormat: public FormatPluginT<N64RomHeader>
     DEFINE_FORMAT_PLUGIN_TEST(N64RomHeader)
 
     public:
-        N64RomFormat(Buffer& buffer);
+        N64RomFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
@@ -67,10 +67,11 @@ class N64RomFormat: public FormatPluginT<N64RomHeader>
     public:
         static bool checkMediaType(const N64RomHeader* format);
         static bool checkCountryCode(const N64RomHeader* format);
-        static bool checkChecksum(const N64RomHeader *format, const Buffer &buffer);
+        static bool checkChecksum(const N64RomHeader *format, const BufferView &view);
 
     private:
-        static u32 calculateChecksum(const N64RomHeader *format, const Buffer &buffer, u32 *crc);
+        static bool getBootcodeAndSeed(const N64RomHeader* format, u32* bootcode, u32* seed);
+        static u32 calculateChecksum(const N64RomHeader *format, const BufferView &view, u32 *crc);
         static u32 getCICVersion(const N64RomHeader *format);
         u32 getEP();
 };

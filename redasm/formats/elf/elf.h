@@ -22,7 +22,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
     DEFINE_FORMAT_PLUGIN_TEST(EHDR)
 
     public:
-        ElfFormat(Buffer& buffer);
+        ElfFormat(AbstractBuffer* buffer);
         virtual std::string name() const { return "ELF" + std::to_string(this->bits()) + " Format"; }
         virtual std::string assembler() const;
         virtual u32 bits() const;
@@ -48,7 +48,7 @@ template<ELF_PARAMS_T> class ElfFormat: public FormatPluginT<EHDR>
 class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 {
     public:
-        Elf32Format(Buffer& buffer);
+        Elf32Format(AbstractBuffer* buffer);
 
     protected:
         virtual u64 relocationSymbol(const Elf32_Rel* rel) const;
@@ -57,7 +57,7 @@ class Elf32Format: public ElfFormat<ELF_PARAMS(32)>
 class Elf64Format: public ElfFormat<ELF_PARAMS(64)>
 {
     public:
-        Elf64Format(Buffer& buffer);
+        Elf64Format(AbstractBuffer* buffer);
 
     protected:
         virtual u64 relocationSymbol(const Elf64_Rel* rel) const;

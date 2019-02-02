@@ -2,9 +2,10 @@
 
 namespace REDasm {
 
-FormatPlugin::FormatPlugin(Buffer &buffer): Plugin()
+FormatPlugin::FormatPlugin(AbstractBuffer* buffer): Plugin()
 {
-    m_buffer.swap(buffer); // Take ownership
+    m_buffer = std::unique_ptr<AbstractBuffer>(buffer); // Take ownership
+    m_view = m_buffer->view(0);                         // Full View
     m_document->m_format = this;
 }
 
@@ -42,8 +43,8 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const Sign
 u32 FormatPlugin::flags() const { return FormatFlags::None; }
 endianness_t FormatPlugin::endianness() const { return Endianness::LittleEndian; /* Use LE by default */ }
 bool FormatPlugin::isBinary() const { return this->flags() & FormatFlags::Binary; }
-const Buffer &FormatPlugin::buffer() const { return m_buffer; }
-Buffer &FormatPlugin::buffer() { return m_buffer; }
-BufferRef FormatPlugin::buffer(address_t address) { return m_buffer.slice(this->offset(address)); }
+AbstractBuffer *FormatPlugin::buffer() const { return m_buffer.get(); }
+BufferView FormatPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
+BufferView FormatPlugin::view(address_t address) const { return this->viewOffset(this->offset(address)); }
 
 }

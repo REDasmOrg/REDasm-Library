@@ -20,7 +20,7 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) { return new MIPSAlgorithm(disassembler, this); }
 
     protected:
-        virtual bool decodeInstruction(const BufferRef &buffer, const InstructionPtr& instruction);
+        virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:

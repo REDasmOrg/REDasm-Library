@@ -17,7 +17,7 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);
-        virtual bool decode(const BufferRef& buffer, const InstructionPtr& instruction);
+        virtual bool decode(const BufferView& view, const InstructionPtr& instruction);
         virtual u64 pc(const InstructionPtr& instruction) const;
 
     public:

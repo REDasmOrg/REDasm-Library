@@ -30,9 +30,9 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 std::string CHIP8Assembler::name() const { return "CHIP-8"; }
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
 
-bool CHIP8Assembler::decodeInstruction(const BufferRef& buffer, const InstructionPtr &instruction)
+bool CHIP8Assembler::decodeInstruction(const BufferView& view, const InstructionPtr &instruction)
 {
-    u16 opcode = buffer;
+    u16 opcode = view;
     instruction->id = opcode;
     instruction->size = sizeof(u16);
 

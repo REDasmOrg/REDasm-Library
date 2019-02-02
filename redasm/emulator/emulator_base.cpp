@@ -115,19 +115,19 @@ template<typename T> void EmulatorBase<T>::changeSP(ST amount)
 
 template<typename T> bool EmulatorBase<T>::writeMem(T address, T value, T size)
 {
-    BufferRef memory = this->getMemory(address);
+    BufferView memoryview = this->getMemory(address);
 
-    if(memory.eob())
+    if(memoryview.eob())
         return false;
 
     if(size == sizeof(u8))
-        memory = static_cast<u8>(value);
+        memoryview = static_cast<u8>(value);
     else if(size == sizeof(u16))
-        memory = static_cast<u16>(value);
+        memoryview = static_cast<u16>(value);
     else if(size == sizeof(u32))
-        memory = static_cast<u32>(value);
+        memoryview = static_cast<u32>(value);
     else if(size == sizeof(u64))
-        memory = static_cast<u64>(value);
+        memoryview = static_cast<u64>(value);
     else
     {
         REDasm::log("WriteMemory: Invalid size (" + std::to_string(size) + ")");
@@ -139,19 +139,19 @@ template<typename T> bool EmulatorBase<T>::writeMem(T address, T value, T size)
 
 template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size)
 {
-    BufferRef memory = this->getMemory(address);
+    BufferView memoryview = this->getMemory(address);
 
-    if(memory.eob())
+    if(memoryview.eob())
         return false;
 
     if(size == sizeof(u8))
-        *value = static_cast<u8>(memory);
+        *value = static_cast<u8>(memoryview);
     else if(size == sizeof(u16))
-        *value = static_cast<u16>(memory);
+        *value = static_cast<u16>(memoryview);
     else if(size == sizeof(u32))
-        *value = static_cast<u32>(memory);
+        *value = static_cast<u32>(memoryview);
     else if(size == sizeof(u64))
-        *value = static_cast<u64>(memory);
+        *value = static_cast<u64>(memoryview);
     else
     {
         REDasm::log("ReadMemory: Invalid size (" + std::to_string(size) + ")");

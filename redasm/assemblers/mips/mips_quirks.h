@@ -29,7 +29,7 @@ class MIPSQuirks
         static bool decodeCop2Opcode(u32 data, const InstructionPtr& instruction);
 
     public:
-        static bool decode(const BufferRef &buffer, const InstructionPtr& instruction);
+        static bool decode(const BufferView &view, const InstructionPtr& instruction);
 
     private:
         static std::unordered_map<u32, DecodeCallback> m_opcodetypes;

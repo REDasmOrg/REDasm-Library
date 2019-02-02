@@ -38,40 +38,42 @@ FORMAT_PLUGIN_TEST(N64RomFormat, N64RomHeader)
     if((magic != N64_MAGIC_BS) && (magic != N64_MAGIC_BE) && (magic != N64_MAGIC_LE))
         return false;
 
-    Buffer swbuffer;
+    MemoryBuffer swappedbuffer;
 
     if(magic != N64_MAGIC_BE)
     {
-        swbuffer = buffer.swapEndianness<u16>(sizeof(N64RomHeader)); // Swap the header
-        format = static_cast<const N64RomHeader*>(swbuffer);
+        Buffer::swapEndianness<u16>(view.buffer(), &swappedbuffer, sizeof(N64RomHeader)); // Swap the header
+        format = static_cast<const N64RomHeader*>(swappedbuffer);
     }
 
     if(!N64RomFormat::checkMediaType(format) || !N64RomFormat::checkCountryCode(format))
         return false;
 
-    if(!swbuffer.empty()) // Swap all
+    if(!swappedbuffer.empty()) // Swap all
     {
-        swbuffer = buffer.swapEndianness<u16>();
-        format = static_cast<const N64RomHeader*>(swbuffer);
+        Buffer::swapEndianness<u16>(view.buffer(), &swappedbuffer);
+        format = static_cast<const N64RomHeader*>(swappedbuffer);
+
+        BufferView swappedview = swappedbuffer.view();
+        return N64RomFormat::checkChecksum(format, swappedview);
     }
 
-    return N64RomFormat::checkChecksum(format, swbuffer.empty() ? buffer : swbuffer);
+    return N64RomFormat::checkChecksum(format, view);
 }
 
-N64RomFormat::N64RomFormat(Buffer &buffer): FormatPluginT<N64RomHeader>(buffer) { }
+N64RomFormat::N64RomFormat(AbstractBuffer *buffer): FormatPluginT<N64RomHeader>(buffer) { }
 std::string N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
 std::string N64RomFormat::assembler() const { return "mips64be"; }
 endianness_t N64RomFormat::endianness() const { return Endianness::BigEndian; }
-
 Analyzer *N64RomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new N64Analyzer(disassembler, signatures); }
 
 void N64RomFormat::load()
 {
     if(m_format->magic_0 != N64_MAGIC_BE_B1)
-        m_buffer.swapEndianness<u16>();
+        Buffer::swapEndianness<u16>(m_buffer.get());
 
-    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer.size() - N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer->size() - N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
     // TODO: map other segments
     m_document->entry(this->getEP());
 }
@@ -92,38 +94,20 @@ u32 N64RomFormat::getEP()
     return pc;
 }
 
-u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& buffer, u32 *crc) // Adapted from n64crc (http://n64dev.org/n64crc.html)
+u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const BufferView &view, u32 *crc) // Adapted from n64crc (http://n64dev.org/n64crc.html)
 {
     u32 bootcode, i, seed, t1, t2, t3, t4, t5, t6, r;
     u32 d;
 
-    switch((bootcode = N64RomFormat::getCICVersion(format)))
-    {
-        case 6101:
-        case 7102:
-        case 6102:
-            seed = N64_ROM_CHECKSUM_CIC_6102;
-            break;
-        case 6103:
-            seed = N64_ROM_CHECKSUM_CIC_6103;
-            break;
-        case 6105:
-            seed = N64_ROM_CHECKSUM_CIC_6105;
-            break;
-        case 6106:
-            seed = N64_ROM_CHECKSUM_CIC_6106;
-            break;
-        default:
-            return 1;
-    }
+    if(!N64RomFormat::getBootcodeAndSeed(format, &bootcode, &seed))
+        return 1;
 
     t1 = t2 = t3 = t4 = t5 = t6 = seed;
-
     i = N64_ROM_CHECKSUM_START;
 
     while (i < (N64_ROM_CHECKSUM_START + N64_ROM_CHECKSUM_LENGTH))
     {
-        //d = (*reinterpret_cast<const u32*>(&buffer[i]));
+        d = static_cast<u32>(view + i);
 
         if((t6 + d) < t6)
             t4++;
@@ -136,7 +120,8 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& bu
         else t2 ^= t6 ^ d;
 
         if(bootcode == 6105)
-            t1 += Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
+            //t1 += Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
+            t1 += static_cast<u32be>(view + (N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF))) ^ d;
         else
             t1 += t5 ^ d;
 
@@ -162,11 +147,11 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const Buffer& bu
     return 0;
 }
 
-bool N64RomFormat::checkChecksum(const N64RomHeader *format, const Buffer& buffer)
+bool N64RomFormat::checkChecksum(const N64RomHeader *format, const BufferView &view)
 {
     u32 crc[2] = { 0 };
 
-    if(!N64RomFormat::calculateChecksum(format, buffer, crc))
+    if(!N64RomFormat::calculateChecksum(format, view, crc))
     {
         if((crc[0] == format->crc1) && (crc[1] == format->crc2))
             return true;
@@ -175,12 +160,42 @@ bool N64RomFormat::checkChecksum(const N64RomHeader *format, const Buffer& buffe
     return false;
 }
 
+bool N64RomFormat::getBootcodeAndSeed(const N64RomHeader *format, u32 *bootcode, u32 *seed)
+{
+    switch((*bootcode = N64RomFormat::getCICVersion(format)))
+    {
+        case 6101:
+        case 7102:
+        case 6102:
+            *seed = N64_ROM_CHECKSUM_CIC_6102;
+            break;
+
+        case 6103:
+            *seed = N64_ROM_CHECKSUM_CIC_6103;
+            break;
+
+        case 6105:
+            *seed = N64_ROM_CHECKSUM_CIC_6105;
+            break;
+
+        case 6106:
+            *seed = N64_ROM_CHECKSUM_CIC_6106;
+            break;
+
+        default:
+            *seed = 0;
+            return false;
+    }
+
+    return true;
+}
+
 u32 N64RomFormat::getCICVersion(const N64RomHeader* format)
 {
-    u64 boot_code_crc = crc32(0L, reinterpret_cast<const u8*>(format->boot_code), N64_BOOT_CODE_SIZE);
+    u64 bootcodecrc = crc32(0L, reinterpret_cast<const u8*>(format->boot_code), N64_BOOT_CODE_SIZE);
     u32 cic = 0;
 
-    switch(boot_code_crc)
+    switch(bootcodecrc)
     {
         case N64_BOOT_CODE_CIC_6101_CRC:
             cic = 6101;

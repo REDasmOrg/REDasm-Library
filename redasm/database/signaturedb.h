@@ -7,9 +7,10 @@
 #define SDB_VERSION          1
 
 #include <functional>
+#include <vector>
 #include <string>
 #include <list>
-#include "../redasm_buffer.h"
+#include "../types/buffer/bufferview.h"
 #include "../types/base_types.h"
 
 namespace REDasm {
@@ -62,15 +63,15 @@ class SignatureDB
         bool save(const std::string& sigfilename);
 
     public:
-        void search(const BufferRef& br, const SignatureFound& cb) const;
+        void search(const BufferView& view, const SignatureFound& cb) const;
         SignatureDB& operator <<(const Signature &signature);
 
     private:
         std::string uniqueAssembler(u32 idx) const;
         s32 uniqueAssemblerIdx(const Signature& signature) const;
         void pushUniqueAssembler(const Signature &signature);
-        void searchSignature(const BufferRef& br, const Signature& sig, const SignatureFound& cb) const;
-        bool checkPatterns(const BufferRef& br, offset_t offset, const Signature &sig) const;
+        void searchSignature(const BufferView& view, const Signature& sig, const SignatureFound& cb) const;
+        bool checkPatterns(const BufferView& view, offset_t offset, const Signature &sig) const;
         void serializePattern(std::fstream& ofs, const SignaturePattern& sigpattern) const;
         void deserializePattern(std::fstream& ifs, SignaturePattern& sigpattern) const;
 

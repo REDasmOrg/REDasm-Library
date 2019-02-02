@@ -8,17 +8,18 @@
 #include "../types/endianness/endianness.h"
 #include "base.h"
 
-#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(Buffer& buffer) { return REDasm::getFormatPlugin<T>(buffer); }
-#define DEFINE_FORMAT_PLUGIN_TEST(T) public: static bool test(const T* format, const Buffer& buffer); private:
-#define FORMAT_PLUGIN_TEST(T, H) bool T::test(const H* format, const Buffer& buffer)
+#define DECLARE_FORMAT_PLUGIN(T, id) inline FormatPlugin* id##_formatPlugin(AbstractBuffer* buffer) { return REDasm::getFormatPlugin<T>(buffer); }
+#define DEFINE_FORMAT_PLUGIN_TEST(T) public: static bool test(const T* format, BufferView& buffer); private:
+#define FORMAT_PLUGIN_TEST(T, H) bool T::test(const H* format, BufferView& view)
 
 namespace REDasm {
 
-template<typename T> T* getFormatPlugin(Buffer& buffer)
+template<typename T> T* getFormatPlugin(AbstractBuffer* buffer)
 {
-    const typename T::FormatHeader* format = reinterpret_cast<const typename T::FormatHeader*>(buffer.data());
+    const typename T::FormatHeader* format = reinterpret_cast<const typename T::FormatHeader*>(buffer->data());
+    BufferView view = buffer->view();
 
-    if((sizeof(typename T::FormatHeader) > buffer.size()) || !T::test(format, buffer))
+    if((sizeof(typename T::FormatHeader) > buffer->size()) || !T::test(format, view))
         return NULL;
 
     T* formatplugin = new T(buffer);
@@ -33,11 +34,11 @@ namespace FormatFlags {
 class FormatPlugin: public Plugin
 {
     public:
-        FormatPlugin(Buffer& buffer);
+        FormatPlugin(AbstractBuffer *view);
         bool isBinary() const;
-        const Buffer& buffer() const;
-        Buffer& buffer();
-        BufferRef buffer(address_t address);
+        AbstractBuffer* buffer() const;
+        BufferView viewOffset(offset_t offset) const;
+        BufferView view(address_t address) const;
         ListingDocument& document();
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;
@@ -53,9 +54,10 @@ class FormatPlugin: public Plugin
         virtual void load() = 0;
 
     protected:
+        std::unique_ptr<AbstractBuffer> m_buffer;
+        BufferView m_view;
         ListingDocument m_document;
         SignatureFiles m_signatures;
-        Buffer m_buffer;
 };
 
 template<typename T> class FormatPluginT: public FormatPlugin
@@ -64,7 +66,7 @@ template<typename T> class FormatPluginT: public FormatPlugin
         typedef T FormatHeader;
 
     public:
-        FormatPluginT(Buffer& buffer): FormatPlugin(buffer) { m_format = reinterpret_cast<T*>(m_buffer.data()); }
+        FormatPluginT(AbstractBuffer* buffer): FormatPlugin(buffer) { m_format = reinterpret_cast<T*>(m_buffer->data()); }
         template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(m_format); }
         template<typename U, typename O> inline U* pointer(O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset); }
         template<typename U, typename A> inline U* addrpointer(A address) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset(address)); }
@@ -72,7 +74,7 @@ template<typename T> class FormatPluginT: public FormatPlugin
         template<typename U, typename V, typename O> inline static U* relpointer(V* base, O offset) { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
 
     public:
-        static bool test(const T* format, const Buffer& buffer) { RE_UNUSED(format); RE_UNUSED(buffer); return false; }
+        static bool test(const T* format, const AbstractBuffer* buffer) { RE_UNUSED(format); RE_UNUSED(buffer); return false; }
 
     protected:
         T* m_format;
@@ -81,10 +83,10 @@ template<typename T> class FormatPluginT: public FormatPlugin
 class FormatPluginB: public FormatPluginT<u8>
 {
     public:
-        FormatPluginB(Buffer& buffer): FormatPluginT<u8>(buffer) { }
+        FormatPluginB(AbstractBuffer* buffer): FormatPluginT<u8>(buffer) { }
 };
 
-typedef std::function<FormatPlugin*(Buffer&)> FormatPlugin_Entry;
+typedef std::function<FormatPlugin*(AbstractBuffer*)> FormatPlugin_Entry;
 
 }
 

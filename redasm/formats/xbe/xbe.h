@@ -13,7 +13,7 @@ class XbeFormat : public FormatPluginT<XbeImageHeader>
     DEFINE_FORMAT_PLUGIN_TEST(XbeImageHeader)
 
     public:
-        XbeFormat(Buffer& buffer);
+        XbeFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;

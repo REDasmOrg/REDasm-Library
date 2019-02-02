@@ -5,7 +5,7 @@
 #include <functional>
 #include <algorithm>
 #include <fstream>
-#include "../redasm_buffer.h"
+#include "../types/buffer/memorybuffer.h"
 
 namespace REDasm {
 namespace Serializer {
@@ -71,11 +71,11 @@ template<template<typename, typename, typename> class V, typename T> void deseri
 
 void obfuscateString(std::fstream& fs, std::string s);
 void deobfuscateString(std::fstream& fs, std::string& s);
-bool compressBuffer(std::fstream& fs, Buffer &b);
-bool decompressBuffer(std::fstream& fs, Buffer& cb);
+bool compressBuffer(std::fstream& fs, const AbstractBuffer *buffer);
+bool decompressBuffer(std::fstream& fs, AbstractBuffer* buffer);
 
-void serializeBuffer(std::fstream& fs, const Buffer& b);
-void deserializeBuffer(std::fstream& fs, Buffer& b);
+void serializeBuffer(std::fstream& fs, const AbstractBuffer* buffer);
+void deserializeBuffer(std::fstream& fs, AbstractBuffer *buffer);
 void serializeString(std::fstream& fs, const std::string& s);
 void deserializeString(std::fstream& fs, std::string& s);
 

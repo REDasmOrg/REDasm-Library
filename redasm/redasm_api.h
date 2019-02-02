@@ -12,8 +12,9 @@
 #include <map>
 #include <set>
 #include "types/base_types.h"
+#include "types/buffer/abstractbuffer.h"
+#include "types/buffer/bufferview.h"
 #include "redasm_runtime.h"
-#include "redasm_buffer.h"
 
 #if __cplusplus <= 201103L && __GNUC__
 namespace std {

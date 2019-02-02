@@ -13,7 +13,7 @@ FORMAT_PLUGIN_TEST(XbeFormat, XbeImageHeader)
     return true;
 }
 
-XbeFormat::XbeFormat(Buffer &buffer): FormatPluginT<XbeImageHeader>(buffer) { }
+XbeFormat::XbeFormat(AbstractBuffer *buffer): FormatPluginT<XbeImageHeader>(buffer) { }
 std::string XbeFormat::name() const { return "XBox Executable"; }
 u32 XbeFormat::bits() const { return 32; }
 std::string XbeFormat::assembler() const { return "x86_32"; }

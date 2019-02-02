@@ -2,7 +2,7 @@
 #define METAARM_ISA_H
 
 #include <list>
-#include "../../redasm_buffer.h"
+#include "../../types/buffer/bufferview.h"
 #include "../../plugins/assembler/assembler.h"
 
 namespace REDasm {
@@ -17,7 +17,7 @@ class MetaARMAssemblerISA
     public:
         MetaARMAssemblerISA() = delete;
         MetaARMAssemblerISA(const MetaARMAssemblerISA&) = delete;
-        static int classify(address_t address, const BufferRef& buffer, DisassemblerAPI* disassembler, AssemblerPlugin* armassembler);
+        static int classify(address_t address, const BufferView& view, DisassemblerAPI* disassembler, AssemblerPlugin* armassembler);
 
     private:
         static bool validateBranch(const InstructionPtr& instruction, DisassemblerAPI *disassembler);

@@ -37,7 +37,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
     DEFINE_FORMAT_PLUGIN_TEST(GbaRomHeader)
 
     public:
-        GbaRomFormat(Buffer& buffer);
+        GbaRomFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
@@ -46,7 +46,7 @@ class GbaRomFormat: public FormatPluginT<GbaRomHeader>
 
     public:
         static bool isUppercaseAscii(const char* s, size_t c);
-        static u8 calculateChecksum(const Buffer& buffer);
+        static u8 calculateChecksum(const BufferView& view);
 
     private:
         u32 getEP() const;

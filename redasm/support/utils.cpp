@@ -17,6 +17,7 @@ std::string wtoa(const std::wstring& ws)
 
 std::string quoted(const std::string &s) { return "\"" + s + "\""; }
 std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }
+std::string hexstring(const BufferView &view, size_t size) { return hexstring(static_cast<const char*>(view), size); }
 
 std::string hexstring(const char *data, size_t size)
 {
@@ -49,9 +50,9 @@ u8 byte(const std::string& s, int offset)
     return static_cast<u8>(val);
 }
 
-Buffer bytes(const std::string &s)
+MemoryBuffer bytes(const std::string &s)
 {
-    Buffer buffer;
+    MemoryBuffer buffer;
     buffer.resize(s.size() / 2);
 
     for(int i = 0, j = 0; i < s.size(); i += 2, j++)

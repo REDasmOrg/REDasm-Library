@@ -1,6 +1,7 @@
 #include "serializer.h"
 #include "compression.h"
 #include <cstring>
+#include <vector>
 
 namespace REDasm {
 namespace Serializer {
@@ -30,38 +31,38 @@ void deobfuscateString(std::fstream &fs, std::string &s)
     xorify(s);
 }
 
-void serializeBuffer(std::fstream &fs, const Buffer &b)
+void serializeBuffer(std::fstream &fs, const AbstractBuffer *buffer)
 {
-    Serializer::serializeScalar(fs, b.size(), sizeof(u64));
-    fs.write(reinterpret_cast<const char*>(b.data()), b.size());
+    Serializer::serializeScalar(fs, buffer->size(), sizeof(u64));
+    fs.write(reinterpret_cast<const char*>(buffer->data()), buffer->size());
 }
 
-void deserializeBuffer(std::fstream &fs, Buffer &b)
+void deserializeBuffer(std::fstream &fs, AbstractBuffer *buffer)
 {
     u64 size = 0;
     Serializer::deserializeScalar(fs, &size);
 
-    b.resize(size);
-    fs.read(reinterpret_cast<char*>(b.data()), b.size());
+    buffer->resize(size);
+    fs.read(reinterpret_cast<char*>(buffer->data()), buffer->size());
 }
 
-bool compressBuffer(std::fstream &fs, Buffer &b)
+bool compressBuffer(std::fstream &fs, const AbstractBuffer *buffer)
 {
-    Buffer cb;
+    MemoryBuffer mb;
 
-    if(!Compression::deflate(b, cb))
+    if(!Compression::deflate(buffer, &mb))
         return false;
 
-    Serializer::serializeBuffer(fs, cb);
+    Serializer::serializeBuffer(fs, &mb);
     return true;
 }
 
-bool decompressBuffer(std::fstream &fs, Buffer &b)
+bool decompressBuffer(std::fstream &fs, AbstractBuffer *buffer)
 {
-    Buffer cb;
-    Serializer::deserializeBuffer(fs, cb);
+    MemoryBuffer mb;
+    Serializer::deserializeBuffer(fs, &mb);
 
-    if(!Compression::inflate(cb, b))
+    if(!Compression::inflate(&mb, buffer))
         return false;
 
     return true;

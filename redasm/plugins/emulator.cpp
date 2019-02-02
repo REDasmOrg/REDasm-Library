@@ -37,7 +37,7 @@ bool Emulator::setTarget(const InstructionPtr &instruction)
    return true;
 }
 
-Buffer& Emulator::getSegmentMemory(address_t address, offset_t *offset)
+MemoryBuffer *Emulator::getSegmentMemory(address_t address, offset_t *offset)
 {
     for(auto it = m_memory.begin(); it != m_memory.end(); it++)
     {
@@ -47,24 +47,24 @@ Buffer& Emulator::getSegmentMemory(address_t address, offset_t *offset)
             continue;
 
         *offset = (address - segment->address); // Relative segment offset
-        return it->second;
+        return it->second.get();
     }
 
-    return Buffer::invalid;
+    return NULL;
 }
 
-BufferRef Emulator::getMemory(address_t address)
+BufferView Emulator::getMemory(address_t address)
 {
     offset_t offset = 0;
-    Buffer& buffer = this->getSegmentMemory(address, &offset);
+    MemoryBuffer* buffer = this->getSegmentMemory(address, &offset);
 
-    if(buffer.empty())
-        return BufferRef();
+    if(buffer->empty())
+        return BufferView();
 
-    return buffer.slice(offset);
+    return buffer->view(offset);
 }
 
-BufferRef Emulator::getStack(offset_t sp) { return m_stack.slice(sp); }
+BufferView Emulator::getStack(offset_t sp) { return m_stack->view(sp); }
 
 void Emulator::remap()
 {
@@ -72,8 +72,7 @@ void Emulator::remap()
     FormatPlugin* format = m_disassembler->format();
 
     REDasm::log("MAPPING 'stack'");
-    m_stack = format->buffer().createFilled(STACK_SIZE);
-
+    m_stack = std::make_unique<MemoryBuffer>(STACK_SIZE, 0);
     m_memory.clear();
 
     for(size_t i = 0; i < document->segmentsCount(); i++)
@@ -86,27 +85,17 @@ void Emulator::remap()
 
         if(!segment->is(SegmentTypes::Bss))
         {
-            BufferRef segmentbuffer = format->buffer(segment->address);
+            BufferView view = format->view(segment->address);
 
-            if(segment->size() > static_cast<s64>(segmentbuffer.size()))
+            if(segment->size() > static_cast<s64>(view.size()))
                 return;
 
-            Buffer buffer;
-
-            if(!segmentbuffer.copyTo(buffer)) // Mapping failed...
-            {
-                REDasm::log("Mapping FAILED @ " + REDasm::quoted(segment->name));
-                m_memory.clear();
-                return;
-            }
-
+            auto buffer = std::make_unique<MemoryBuffer>();
+            view.copyTo(buffer.get());
             m_memory[segment] = std::move(buffer);
         }
         else
-        {
-            const Buffer& buffer = format->buffer();
-            m_memory[segment] = buffer.createFilled(segment->size());
-        }
+            m_memory[segment] = std::make_unique<MemoryBuffer>(segment->size(), 0);
     }
 }
 

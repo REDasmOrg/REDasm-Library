@@ -102,12 +102,12 @@ template<s64 mode> std::string MIPSAssembler<mode>::name() const
     return "Unknown MIPS";
 }
 
-template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(const BufferRef& buffer, const InstructionPtr& instruction)
+template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(const BufferView &view, const InstructionPtr& instruction)
 {
-    if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(buffer, instruction))
+    if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(view, instruction))
         return true;
 
-    return MIPSQuirks::decode(buffer, instruction); // Handle COP2 instructions and more
+    return MIPSQuirks::decode(view, instruction); // Handle COP2 instructions and more
 }
 
 template<s64 mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& instruction)

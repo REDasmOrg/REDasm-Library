@@ -28,7 +28,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual std::string readWString(const SymbolPtr& symbol) const;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
         virtual bool dereference(address_t address, u64 *value) const;
-        virtual BufferRef getFunctionBytes(address_t address);
+        virtual BufferView getFunctionBytes(address_t address);
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
         virtual std::string readString(address_t address) const;
@@ -47,11 +47,11 @@ class DisassemblerBase: public DisassemblerAPI
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
 {
-    BufferRef b = m_format->buffer(address);
+    BufferView view = m_format->view(address);
     std::string s;
 
-    while(!b.eob() && fill(static_cast<T>(b), s))
-        b.advance(sizeof(T));
+    while(!view.eob() && fill(static_cast<T>(view), s))
+        view += sizeof(T);
 
     return s;
 }
@@ -64,19 +64,19 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         return 0;
 
     u64 alphacount = 0, count = 0;
-    BufferRef buffer = m_format->buffer(address);
+    BufferView view = m_format->view(address);
 
-    while(!buffer.eob() && isp(static_cast<T>(buffer)))
+    while(!view.eob() && isp(static_cast<T>(view)))
     {
         count++;
 
-        if(isa(static_cast<T>(buffer)))
+        if(isa(static_cast<T>(view)))
             alphacount++;
 
         if(count >= MIN_STRING)
             break;
 
-        buffer.advance(sizeof(T));
+        view += sizeof(T);
     }
 
     if(!count || ((static_cast<double>(alphacount) / count) < 0.51)) // ...it might be just data, check alpha ratio...
@@ -88,7 +88,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         address_t prevaddress = address - sizeof(T);
 
         if((address >= sizeof(T)) && (m_document->segment(prevaddress) == segment))
-            *middle = isa(static_cast<T>(m_format->buffer(prevaddress)));
+            *middle = isa(static_cast<T>(m_format->view(prevaddress)));
     }
 
     return count;

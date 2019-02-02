@@ -85,8 +85,8 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
     instruction->address = address;
 
-    BufferRef buffer = m_format->buffer(address);
-    return m_assembler->decode(buffer, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
+    BufferView view = m_format->view(address);
+    return m_assembler->decode(view, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
 }
 
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
@@ -285,9 +285,9 @@ void AssemblerAlgorithm::immediateState(const State *state)
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {
-    BufferRef buffer = m_format->buffer(address);
+    BufferView view = m_format->view(address);
 
-    if(buffer.eob())
+    if(view.eob())
         return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))

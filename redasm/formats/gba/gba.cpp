@@ -45,10 +45,10 @@ FORMAT_PLUGIN_TEST(GbaRomFormat, GbaRomHeader)
     if(!GbaRomFormat::isUppercaseAscii(format->maker_code, GBA_MAKER_CODE_SIZE))
         return false;
 
-    return format->header_checksum == GbaRomFormat::calculateChecksum(buffer);
+    return format->header_checksum == GbaRomFormat::calculateChecksum(view);
 }
 
-GbaRomFormat::GbaRomFormat(Buffer &buffer): FormatPluginT<GbaRomHeader>(buffer) { }
+GbaRomFormat::GbaRomFormat(AbstractBuffer *buffer): FormatPluginT<GbaRomHeader>(buffer) { }
 std::string GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
 u32 GbaRomFormat::bits() const { return 32; }
 std::string GbaRomFormat::assembler() const { return "metaarm"; }
@@ -66,7 +66,7 @@ void GbaRomFormat::load()
     m_document->segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
     m_document->segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
     m_document->segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
-    m_document->segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer.size(), SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer->size(), SegmentTypes::Code | SegmentTypes::Data);
     m_document->entry(this->getEP());
 }
 
@@ -88,16 +88,16 @@ bool GbaRomFormat::isUppercaseAscii(const char *s, size_t c)
 
 u32 GbaRomFormat::getEP() const
 {
-    u32 b = (static_cast<u32>(m_buffer) & 0x00FFFFFF) << 2;
+    u32 b = (static_cast<u32>(m_view) & 0x00FFFFFF) << 2;
     return GBA_ROM_START_ADDR + (b + 8);
 }
 
-u8 GbaRomFormat::calculateChecksum(const Buffer &buffer)
+u8 GbaRomFormat::calculateChecksum(const BufferView &view)
 {
     u8 checksum = 0;
 
     for(size_t i = 0xA0; i <= 0xBC; i++)
-        checksum -= buffer[i];
+        checksum -= view[i];
 
     return checksum - 0x19;
 }

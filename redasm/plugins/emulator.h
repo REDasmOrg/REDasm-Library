@@ -2,6 +2,7 @@
 #define EMULATOR_H
 
 #include "../disassembler/disassemblerapi.h"
+#include "../types/buffer/memorybuffer.h"
 #include "../support/dispatcher.h"
 
 #define EMULATE_INSTRUCTION(id, callback) m_dispatcher[id] = std::bind(callback, this, std::placeholders::_1)
@@ -13,7 +14,7 @@ class Emulator
 {
     private:
         typedef Dispatcher<instruction_id_t, const InstructionPtr&> DispatcherType;
-        typedef std::unordered_map<const Segment*, Buffer> MappedMemory;
+        typedef std::unordered_map< const Segment*, std::unique_ptr<MemoryBuffer> > MappedMemory;
 
     public:
         Emulator(DisassemblerAPI* disassembler);
@@ -24,9 +25,9 @@ class Emulator
 
     protected:
         virtual bool setTarget(const InstructionPtr& instruction);
-        Buffer& getSegmentMemory(address_t address, offset_t* offset);
-        BufferRef getMemory(address_t address);
-        BufferRef getStack(offset_t sp);
+        MemoryBuffer* getSegmentMemory(address_t address, offset_t* offset);
+        BufferView getMemory(address_t address);
+        BufferView getStack(offset_t sp);
 
     private:
         void remap();
@@ -36,7 +37,7 @@ class Emulator
         DisassemblerAPI* m_disassembler;
         DispatcherType m_dispatcher;
         MappedMemory m_memory;
-        Buffer m_stack;
+        std::unique_ptr<MemoryBuffer> m_stack;
 };
 
 } // namespace REDasm

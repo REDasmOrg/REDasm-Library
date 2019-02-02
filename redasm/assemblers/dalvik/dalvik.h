@@ -5,7 +5,7 @@
 #include "../../plugins/plugins.h"
 #include "../../support/dispatcher.h"
 
-#define DEX_DECLARE_DECODE(opcode) static bool decode##opcode(BufferRef& buffer, const InstructionPtr& instruction)
+#define DEX_DECLARE_DECODE(opcode) static bool decode##opcode(BufferView& view, const InstructionPtr& instruction)
 
 #define DEX_DECLARE_DECODES(op) DEX_DECLARE_DECODE(op##0); DEX_DECLARE_DECODE(op##1); DEX_DECLARE_DECODE(op##2); DEX_DECLARE_DECODE(op##3); \
                                 DEX_DECLARE_DECODE(op##4); DEX_DECLARE_DECODE(op##5); DEX_DECLARE_DECODE(op##6); DEX_DECLARE_DECODE(op##7); \
@@ -23,27 +23,27 @@ class DalvikAssembler : public AssemblerPlugin
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
 
     protected:
-        virtual bool decodeInstruction(const BufferRef &buffer, const InstructionPtr &instruction);
+        virtual bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction);
 
     private:
-        static bool decodeOp0(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp1(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp2(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp3(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp2_s(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_t(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_f(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp2_16(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_imm4(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_imm16(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_imm32(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp3_f(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp3_t(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp3_imm8(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp3_imm16(BufferRef& buffer, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeIfOp2(BufferRef& buffer, const InstructionPtr& instruction, const std::string& cond, instruction_id_t id);
-        static bool decodeIfOp3(BufferRef& buffer, const InstructionPtr& instruction, const std::string& cond, instruction_id_t id);
-        static bool decodeInvoke(BufferRef& buffer, const InstructionPtr& instruction, const std::string& kind, instruction_id_t id);
+        static bool decodeOp0(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp1(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp2(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp3(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp2_s(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp2_t(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp2_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp2_16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp2_imm4(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp2_imm16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp2_imm32(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp3_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp3_t(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp3_imm8(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeOp3_imm16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
+        static bool decodeIfOp2(BufferView& view, const InstructionPtr& instruction, const std::string& cond, instruction_id_t id);
+        static bool decodeIfOp3(BufferView& view, const InstructionPtr& instruction, const std::string& cond, instruction_id_t id);
+        static bool decodeInvoke(BufferView& view, const InstructionPtr& instruction, const std::string& kind, instruction_id_t id);
 
     private:
         DEX_DECLARE_DECODES(0);
@@ -64,7 +64,7 @@ class DalvikAssembler : public AssemblerPlugin
         DEX_DECLARE_DECODES(F);
 
     private:
-        static ValuedDispatcher<instruction_id_t, bool, BufferRef&, const InstructionPtr&> m_opcodedispatcher;
+        static ValuedDispatcher<instruction_id_t, bool, BufferView&, const InstructionPtr&> m_opcodedispatcher;
 
 };
 

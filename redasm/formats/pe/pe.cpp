@@ -25,7 +25,7 @@ FORMAT_PLUGIN_TEST(PeFormat, ImageDosHeader)
     return true;
 }
 
-PeFormat::PeFormat(Buffer &buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
+PeFormat::PeFormat(AbstractBuffer *buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
 {
     m_imagebase = m_sectionalignment = m_entrypoint = 0;
     m_petype = PeType::None;

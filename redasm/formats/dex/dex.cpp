@@ -25,7 +25,7 @@ FORMAT_PLUGIN_TEST(DEXFormat, DEXHeader)
 
 const std::string DEXFormat::m_invalidstring;
 
-DEXFormat::DEXFormat(Buffer &buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
+DEXFormat::DEXFormat(AbstractBuffer *buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
 {
     m_importbase = IMPORT_SECTION_ADDRESS;
 }

@@ -26,7 +26,7 @@ struct Plugins
     static LIBREDASM_EXPORT EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
 };
 
-FormatPlugin* getFormat(Buffer &buffer);
+FormatPlugin* getFormat(AbstractBuffer* buffer);
 AssemblerPlugin* getAssembler(const std::string &id);
 void setLoggerCallback(Runtime::LogCallback logcb);
 void setStatusCallback(Runtime::LogCallback logcb);

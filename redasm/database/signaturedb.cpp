@@ -91,14 +91,14 @@ bool SignatureDB::save(const std::string &sigfilename)
     return true;
 }
 
-void SignatureDB::search(const BufferRef &br, const SignatureDB::SignatureFound &cb) const
+void SignatureDB::search(const BufferView &view, const SignatureDB::SignatureFound &cb) const
 {
     for(const Signature& sig : m_signatures)
     {
-        if(sig.size != br.size())
+        if(sig.size != view.size())
             continue;
 
-       this->searchSignature(br, sig, cb);
+       this->searchSignature(view, sig, cb);
     }
 }
 
@@ -136,11 +136,11 @@ void SignatureDB::pushUniqueAssembler(const Signature& signature)
     m_assemblers.push_back(signature.assembler);
 }
 
-void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, const SignatureDB::SignatureFound &cb) const
+void SignatureDB::searchSignature(const BufferView &view, const Signature &sig, const SignatureDB::SignatureFound &cb) const
 {
-    for(offset_t i = 0; i < br.size(); )
+    for(offset_t i = 0; i < view.size(); )
     {
-        if(!this->checkPatterns(br, i, sig))
+        if(!this->checkPatterns(view, i, sig))
         {
             i++;
             continue;
@@ -151,7 +151,7 @@ void SignatureDB::searchSignature(const BufferRef &br, const Signature &sig, con
     }
 }
 
-bool SignatureDB::checkPatterns(const BufferRef &br, offset_t offset, const Signature &sig) const
+bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const Signature &sig) const
 {
     for(const SignaturePattern& pattern : sig.patterns)
     {
@@ -163,7 +163,7 @@ bool SignatureDB::checkPatterns(const BufferRef &br, offset_t offset, const Sign
 
         if(pattern.type == SignaturePatternType::CheckSum)
         {
-            if(Hash::crc16(br.data() + offset, pattern.size) != pattern.checksum)
+            if(Hash::crc16(&view + offset, pattern.size) != pattern.checksum)
                 return false;
 
             offset += pattern.size;

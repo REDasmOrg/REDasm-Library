@@ -106,8 +106,8 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
 
     if(instruction->isInvalid())
     {
-        BufferRef buffer = m_disassembler->format()->buffer(instruction->address);
-        std::string hexstring = REDasm::hexstring(buffer, instruction->size);
+        BufferView view = m_disassembler->format()->view(instruction->address);
+        std::string hexstring = REDasm::hexstring(view, instruction->size);
 
         s += hexstring;
         opfunc(Operand(), std::string(), hexstring);

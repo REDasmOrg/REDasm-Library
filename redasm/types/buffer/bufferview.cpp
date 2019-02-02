@@ -8,7 +8,7 @@ BufferView::BufferView(const AbstractBuffer *buffer, u64 offset, u64 size): m_bu
 
 BufferView BufferView::view(size_t offset, size_t size) const
 {
-    if(size == -1u)
+    if(!size)
         size = m_size - offset;
 
     if(offset >= m_size)

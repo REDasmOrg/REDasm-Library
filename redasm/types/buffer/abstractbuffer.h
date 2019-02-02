@@ -18,7 +18,7 @@ class AbstractBuffer
         u8 at(u64 idx) const;
         bool empty() const;
         BufferView view() const;
-        BufferView view(u64 offset, u64 size = -1u) const;
+        BufferView view(u64 offset, u64 size = 0) const;
         virtual void resize(u64 size) = 0;
         virtual u8* data() const = 0;
         virtual u64 size() const = 0;
@@ -29,9 +29,9 @@ class AbstractBuffer
         template<typename T> explicit constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
 };
 
-template<typename T, typename InBufferType, typename OutBufferType> void swapEndianness(const InBufferType* inbuffer, OutBufferType* outbuffer, size_t size = -1u)
+template<typename T, typename InBufferType, typename OutBufferType> void swapEndianness(const InBufferType* inbuffer, OutBufferType* outbuffer, size_t size = 0)
 {
-    if(size == -1u)
+    if(!size)
         size = inbuffer->size();
 
     size = std::min(size, inbuffer->size());
@@ -43,9 +43,9 @@ template<typename T, typename InBufferType, typename OutBufferType> void swapEnd
     Endianness::swap<T>(outbuffer->data(), size);
 }
 
-template<typename T, typename BufferType> void swapEndianness(BufferType* buffer, size_t size = -1u)
+template<typename T, typename BufferType> void swapEndianness(BufferType* buffer, size_t size = 0)
 {
-    if(size == -1u)
+    if(!size)
         size = buffer->size();
 
     Endianness::swap<T>(buffer->data(), size);

@@ -19,7 +19,7 @@ std::string quoted(const std::string& s);
 std::string wtoa(const std::wstring& wide);
 std::string quoted(const char* s);
 std::string hexstring(const char* data, size_t size);
-std::string hexstring(const BufferView& view, size_t size = -1u);
+std::string hexstring(const BufferView& view, size_t size);
 MemoryBuffer bytes(const std::string& s);
 u8 byte(const std::string& s, int offset = 0);
 

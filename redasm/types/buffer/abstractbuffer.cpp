@@ -25,7 +25,7 @@ BufferView AbstractBuffer::view() const { return this->view(0); }
 
 BufferView AbstractBuffer::view(u64 offset, u64 size) const
 {
-    if(size == -1u)
+    if(!size)
         size = this->size();
 
     return BufferView(this, offset, size);

@@ -33,20 +33,20 @@ class BufferView
         u8& operator[](size_t idx);
         BufferView& operator++();
         BufferView operator ++(int);
-        BufferView view(u64 offset, u64 size = -1u) const;
+        BufferView view(u64 offset, u64 size = 0) const;
         void copyTo(AbstractBuffer* buffer);
         void resize(u64 size);
         iterator<u8> begin() const { return iterator<u8>(this->data()); }
         iterator<u8> end() const { return iterator<u8>(this->data() + this->size()); }
+        u8* data() const { return m_buffer->data() + m_offset; }
         constexpr const AbstractBuffer* buffer() const { return m_buffer; }
         constexpr bool eob() const { return !m_buffer || !this->data() || !m_size; }
-        constexpr u8* data() const { return m_buffer->data() + m_offset; }
-        constexpr size_t size() const { return m_size; };
-        constexpr u8 operator *() const { return *this->data(); }
+        constexpr u64 size() const { return m_size; }
+        u8 operator *() const { return *this->data(); }
         template<typename T> iterator<T> begin() const { return iterator<T>(this->data()); }
         template<typename T> iterator<T> end() const { return iterator<T>(this->data() + this->size()); }
         template<typename T> explicit constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
-        template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> constexpr operator T() { return *reinterpret_cast<const T*>(this->data()); }
+        template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> constexpr operator T() const { return *reinterpret_cast<const T*>(this->data()); }
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView operator +(T rhs) const;
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView& operator =(T rhs);
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView& operator +=(T rhs);

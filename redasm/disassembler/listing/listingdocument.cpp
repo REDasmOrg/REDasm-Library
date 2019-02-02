@@ -321,6 +321,12 @@ void ListingDocumentType::lock(address_t address, const std::string &name, u32 t
 
 void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
 {
+    if(!size)
+    {
+        REDasm::log("Skipping empty segment " + REDasm::quoted(name));
+        return;
+    }
+
     auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
         if(segment.is(SegmentTypes::Bss))
             return segment.contains(address);

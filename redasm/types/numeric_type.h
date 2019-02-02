@@ -9,6 +9,8 @@ namespace REDasm {
 
 template<typename T, endianness_t endianness> struct numeric_type
 {
+    typedef numeric_type<T, Endianness::current> platform_numeric_type;
+
     numeric_type() = default;
     numeric_type(const T& val): m_val(val) { }
     numeric_type(const numeric_type<T, endianness>&) = default;
@@ -25,16 +27,16 @@ template<typename T, endianness_t endianness> struct numeric_type
     numeric_type<T, endianness> operator ++(int) { numeric_type<T, endianness> copy(m_val); m_val++; return copy; }
     numeric_type<T, endianness>& operator --() { m_val--; return *this; }
     numeric_type<T, endianness> operator --(int) { numeric_type<T, endianness> copy(m_val); m_val--; return copy; }
-    template<typename U> constexpr U operator +(U rhs) const { return converted() + rhs; }
-    template<typename U> constexpr U operator -(U rhs) const { return converted() - rhs; }
-    template<typename U> constexpr U operator *(U rhs) const { return converted() * rhs; }
-    template<typename U> constexpr U operator /(U rhs) const { return converted() / rhs; }
-    template<typename U> constexpr U operator %(U rhs) const { return converted() % rhs; }
-    template<typename U> constexpr U operator &(U rhs) const { return converted() & rhs; }
-    template<typename U> constexpr U operator |(U rhs) const { return converted() | rhs; }
-    template<typename U> constexpr U operator ^(U rhs) const { return converted() ^ rhs; }
-    template<typename U> constexpr U operator >>(U rhs) const { return converted() >> rhs; }
-    template<typename U> constexpr U operator <<(U rhs) const { return converted() << rhs; }
+    template<typename U> constexpr platform_numeric_type operator +(U rhs) const { return converted() + rhs; }
+    template<typename U> constexpr platform_numeric_type operator -(U rhs) const { return converted() - rhs; }
+    template<typename U> constexpr platform_numeric_type operator *(U rhs) const { return converted() * rhs; }
+    template<typename U> constexpr platform_numeric_type operator /(U rhs) const { return converted() / rhs; }
+    template<typename U> constexpr platform_numeric_type operator %(U rhs) const { return converted() % rhs; }
+    template<typename U> constexpr platform_numeric_type operator &(U rhs) const { return converted() & rhs; }
+    template<typename U> constexpr platform_numeric_type operator |(U rhs) const { return converted() | rhs; }
+    template<typename U> constexpr platform_numeric_type operator ^(U rhs) const { return converted() ^ rhs; }
+    template<typename U> constexpr platform_numeric_type operator >>(U rhs) const { return converted() >> rhs; }
+    template<typename U> constexpr platform_numeric_type operator <<(U rhs) const { return converted() << rhs; }
     template<typename U> numeric_type<T, endianness>& operator +=(U rhs) { m_val += rhs; return *this; }
     template<typename U> numeric_type<T, endianness>& operator -=(U rhs) { m_val -= rhs; return *this; }
     template<typename U> numeric_type<T, endianness>& operator *=(U rhs) { m_val *= rhs; return *this; }

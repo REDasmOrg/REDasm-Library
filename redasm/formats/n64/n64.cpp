@@ -119,7 +119,6 @@ u32 N64RomFormat::calculateChecksum(const N64RomHeader* format, const BufferView
         else t2 ^= t6 ^ d;
 
         if(bootcode == 6105)
-            //t1 += Endianness::cfbe(*reinterpret_cast<const u32*>(&buffer[N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF)])) ^ d;
             t1 += static_cast<u32be>(view + (N64_ROM_HEADER_SIZE + 0x0710 + (i & 0xFF))) ^ d;
         else
             t1 += t5 ^ d;

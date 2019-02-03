@@ -1,5 +1,6 @@
 #include "job.h"
 #include "../../redasm_runtime.h"
+#include <algorithm>
 
 #define JOB_BASE_INTERVAL 1 // 1ms
 

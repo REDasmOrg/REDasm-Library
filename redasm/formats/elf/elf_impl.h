@@ -135,7 +135,7 @@ template<size_t b, endianness_t e> void ElfFormat<b, e>::loadSegments()
     {
         const SHDR& shdr = this->m_shdr[i];
 
-        if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
+        if(!shdr.sh_addr || (shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
             continue;
 
         u32 type = SegmentTypes::Data;

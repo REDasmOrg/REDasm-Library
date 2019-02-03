@@ -117,7 +117,7 @@ void Job::doWork()
             }
 
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
-            m_interval = ((m_interval + elapsed) / 2);
+            m_interval = std::max((m_interval + elapsed) / 2, std::chrono::milliseconds(JOB_BASE_INTERVAL));
         }
 
         std::this_thread::sleep_for(m_interval);

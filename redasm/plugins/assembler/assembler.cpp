@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-AssemblerPlugin::AssemblerPlugin(): Plugin(), m_endianness(Endianness::LittleEndian) { }
+AssemblerPlugin::AssemblerPlugin(): Plugin() { }
 AssemblerPlugin::~AssemblerPlugin() { }
 u32 AssemblerPlugin::flags() const { return AssemblerFlags::None; }
 Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const { RE_UNUSED(disassembler); return NULL; }
@@ -23,8 +23,6 @@ void AssemblerPlugin::setInstructionType(const InstructionPtr &instruction) cons
 }
 
 bool AssemblerPlugin::hasFlag(u32 flag) const { return this->flags() & flag; }
-endianness_t AssemblerPlugin::endianness() const { return m_endianness; }
-void AssemblerPlugin::setEndianness(endianness_t endianness) { m_endianness = endianness; }
 
 bool AssemblerPlugin::decode(const BufferView& view, const InstructionPtr &instruction)
 {

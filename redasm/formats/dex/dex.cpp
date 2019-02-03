@@ -34,14 +34,6 @@ std::string DEXFormat::name() const { return "DEX"; }
 u32 DEXFormat::bits() const { return 32; }
 std::string DEXFormat::assembler() const { return "dalvik"; }
 
-endianness_t DEXFormat::endianness() const
-{
-    if(this->m_format->endian_tag == DEX_ENDIAN_CONSTANT)
-        return Endianness::LittleEndian;
-
-    return Endianness::BigEndian;
-}
-
 void DEXFormat::load()
 {
     REDasm::log("Loading DEX Version " + std::string(m_format->version, 3));

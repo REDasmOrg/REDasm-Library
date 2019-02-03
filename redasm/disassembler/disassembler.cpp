@@ -7,9 +7,6 @@ namespace REDasm {
 
 Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format)
 {
-    if(!format->isBinary())
-        assembler->setEndianness(format->endianness());
-
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 

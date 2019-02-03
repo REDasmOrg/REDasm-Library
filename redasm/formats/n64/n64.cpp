@@ -65,7 +65,6 @@ N64RomFormat::N64RomFormat(AbstractBuffer *buffer): FormatPluginT<N64RomHeader>(
 std::string N64RomFormat::name() const { return "Nintendo 64 ROM"; }
 u32 N64RomFormat::bits() const { return 64; }
 std::string N64RomFormat::assembler() const { return "mips64be"; }
-endianness_t N64RomFormat::endianness() const { return Endianness::BigEndian; }
 Analyzer *N64RomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new N64Analyzer(disassembler, signatures); }
 
 void N64RomFormat::load()

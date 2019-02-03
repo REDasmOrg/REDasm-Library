@@ -7,8 +7,6 @@ namespace REDasm {
 
 CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 {
-    this->setEndianness(Endianness::BigEndian);
-
     SET_DECODE_TO(0x0000, decode0xxx);
     SET_DECODE_TO(0x1000, decode1xxx);
     SET_DECODE_TO(0x2000, decode2xxx);
@@ -32,7 +30,7 @@ Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { re
 
 bool CHIP8Assembler::decodeInstruction(const BufferView& view, const InstructionPtr &instruction)
 {
-    u16 opcode = view;
+    u16be opcode = static_cast<u16be>(view);
     instruction->id = opcode;
     instruction->size = sizeof(u16);
 

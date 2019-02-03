@@ -34,15 +34,7 @@ template<size_t b, endianness_t e> ElfFormat<b, e>::ElfFormat(AbstractBuffer *bu
     m_skipsections.insert(".attribute");
 }
 
-template<size_t b, endianness_t e> std::string ElfFormat<b, e>::name() const { return "ELF" + std::to_string(this->bits()) + " Format (" + Endianness::name(this->endianness()) + ")"; }
-
-template<size_t b, endianness_t e> endianness_t ElfFormat<b, e>::endianness() const
-{
-    if(this->m_format->e_ident[EI_DATA] == ELFDATA2MSB)
-        return Endianness::BigEndian;
-
-    return Endianness::LittleEndian;
-}
+template<size_t b, endianness_t e> std::string ElfFormat<b, e>::name() const { return "ELF" + std::to_string(this->bits()) + " Format (" + Endianness::name(e) + ")"; }
 
 template<size_t b, endianness_t e> u32 ElfFormat<b, e>::bits() const
 {
@@ -68,9 +60,9 @@ template<size_t b, endianness_t e> std::string ElfFormat<b, e>::assembler() cons
         case EM_MIPS:
         {
             if(this->m_format->e_flags & EF_MIPS_ABI_EABI64)
-                return this->endianness() == Endianness::BigEndian ? "mips64be" : "mips64le";
+                return e == Endianness::BigEndian ? "mips64be" : "mips64le";
 
-            return this->endianness() == Endianness::BigEndian ? "mips32be" : "mips32le";
+            return e == Endianness::BigEndian ? "mips32be" : "mips32le";
         }
 
         case EM_ARM:

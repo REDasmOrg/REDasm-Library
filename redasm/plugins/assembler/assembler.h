@@ -35,8 +35,6 @@ class AssemblerPlugin: public Plugin
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
         bool hasFlag(u32 flag) const;
-        endianness_t endianness() const;
-        void setEndianness(endianness_t endianness);
         virtual bool decode(const BufferView &view, const InstructionPtr& instruction);
         virtual bool decodeInstruction(const BufferView& view, const InstructionPtr& instruction);
 
@@ -49,9 +47,6 @@ class AssemblerPlugin: public Plugin
     protected:
         std::unordered_map<instruction_id_t, u32> m_instructiontypes;
         Dispatcher<instruction_id_t, const InstructionPtr&> m_dispatcher;
-
-    private:
-        endianness_t m_endianness;
 };
 
 template<cs_arch arch, s64 mode> class CapstoneAssemblerPlugin: public AssemblerPlugin

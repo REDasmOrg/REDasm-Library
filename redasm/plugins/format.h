@@ -50,7 +50,6 @@ class FormatPlugin: public Plugin
         virtual std::string assembler() const = 0;
         virtual u32 bits() const = 0;
         virtual u32 flags() const;
-        virtual endianness_t endianness() const;
         virtual void load() = 0;
 
     protected:

@@ -27,7 +27,6 @@ template<size_t b, endianness_t e> class ElfFormat: public FormatPluginT< Elf_Eh
         ElfFormat(AbstractBuffer* buffer);
         virtual std::string name() const;
         virtual std::string assembler() const;
-        virtual endianness_t endianness() const;
         virtual u32 bits() const;
         virtual void load();
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;

@@ -24,6 +24,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         typedef typename std::conditional<b == 64, ImageOptionalHeader64, ImageOptionalHeader32>::type ImageOptionalHeader;
         typedef typename std::conditional<b == 64, ImageThunkData64, ImageThunkData32>::type ImageThunkData;
         typedef typename std::conditional<b == 64, ImageTlsDirectory64, ImageTlsDirectory32>::type ImageTlsDirectory;
+        typedef typename std::conditional<b == 64, ImageLoadConfigDirectory64, ImageLoadConfigDirectory32>::type ImageLoadConfigDirectory;
         enum PeType { None = 0, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
@@ -44,12 +45,13 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         void checkDebugInfo();
         ImageCorHeader *checkDotNet();
         void loadDotNet(ImageCor20Header* corheader);
+        void loadSymbolTable();
         void loadDefault();
         void loadSections();
         void loadExports();
         void loadImports();
+        void loadConfig();
         void loadTLS();
-        void loadSymbolTable();
 
     private:
         std::unique_ptr<DotNetReader> m_dotnetreader;

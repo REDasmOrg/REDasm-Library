@@ -267,6 +267,7 @@ template<size_t b> void PeFormat<b>::loadDefault()
     this->loadExports();
     this->loadImports();
     this->loadTLS();
+    this->loadConfig();
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
@@ -376,6 +377,24 @@ template<size_t b> void PeFormat<b>::loadImports()
     for(size_t i = 0; i < importtable[i].FirstThunk; i++)
         this->readDescriptor(importtable[i], b == 64 ? IMAGE_ORDINAL_FLAG64 : IMAGE_ORDINAL_FLAG32);
 }
+
+template<size_t b> void PeFormat<b>::loadConfig()
+{
+    const ImageDataDirectory& configdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG];
+
+    if(!configdir.VirtualAddress)
+        return;
+
+    ImageLoadConfigDirectory* loadconfigdir = RVA_POINTER(ImageLoadConfigDirectory, configdir.VirtualAddress);
+
+    if(!loadconfigdir->SecurityCookie)
+        return;
+
+    m_document->lock(loadconfigdir->SecurityCookie,
+                     "security_cookie_" + REDasm::hex(loadconfigdir->SecurityCookie),
+                     SymbolTypes::Data);
+}
+
 
 template<size_t b> void PeFormat<b>::loadTLS()
 {

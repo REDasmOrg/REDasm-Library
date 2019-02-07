@@ -2,7 +2,7 @@
 #define PE_RESOURCES_H
 
 #include "pe_constants.h"
-#include "pe_headers.h"
+#include "pe_header.h"
 
 #define RESOURCE_PTR(t, resdir, offset) reinterpret_cast<t*>(reinterpret_cast<size_t>(resdir) + offset)
 

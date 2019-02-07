@@ -9,7 +9,7 @@
  */
 
 #include "../../../redasm.h"
-#include "../pe_headers.h"
+#include "../pe_header.h"
 
 #define PE_IS_DOTNET20(corheader) (corheader.MajorRuntimeVersion >= 2)
 

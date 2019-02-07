@@ -1,5 +1,6 @@
 #include "pe.h"
 #include "pe_constants.h"
+#include "pe_header.h"
 #include "pe_analyzer.h"
 #include "pe_debug.h"
 #include "dotnet/dotnet.h"
@@ -9,7 +10,7 @@
 
 namespace REDasm {
 
-FORMAT_PLUGIN_TEST(PeFormat, ImageDosHeader)
+template<size_t b> FORMAT_PLUGIN_TEST(PeFormat<b>, ImageDosHeader)
 {
     if(format->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
@@ -19,39 +20,31 @@ FORMAT_PLUGIN_TEST(PeFormat, ImageDosHeader)
     if(ntheaders->Signature != IMAGE_NT_SIGNATURE)
         return false;
 
-    if((ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) && (ntheaders->OptionalHeaderMagic != IMAGE_NT_OPTIONAL_HDR64_MAGIC))
-        return false;
+    if(b == 32)
+        return ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC;
 
-    return true;
+    if(b == 64)
+        return ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC;
+
+    return false;
 }
 
-PeFormat::PeFormat(AbstractBuffer *buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
+template<size_t b> PeFormat<b>::PeFormat(AbstractBuffer *buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
 {
     m_imagebase = m_sectionalignment = m_entrypoint = 0;
     m_petype = PeType::None;
 }
 
-std::string PeFormat::name() const { return "PE Format"; }
+template<size_t b> std::string PeFormat<b>::name() const { return "PE Format (" + std::to_string(b) + " bits)"; }
+template<size_t b> u32 PeFormat<b>::bits() const { return b; }
+template<size_t b> const DotNetReader *PeFormat<b>::dotNetReader() const { return m_dotnetreader.get(); }
 
-u32 PeFormat::bits() const
-{
-    if(m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR32_MAGIC)
-        return 32;
-
-    if(m_ntheaders->OptionalHeaderMagic == IMAGE_NT_OPTIONAL_HDR64_MAGIC)
-        return 64;
-
-    return 0;
-}
-
-std::string PeFormat::assembler() const
+template<size_t b> std::string PeFormat<b>::assembler() const
 {
     if(m_petype == PeType::DotNet)
         return "cil";
-
     if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";
-
     if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64)
         return "x86_64";
 
@@ -66,7 +59,7 @@ std::string PeFormat::assembler() const
     return NULL;
 }
 
-Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
+template<size_t b> Analyzer *PeFormat<b>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
     if(m_petype == PeType::VisualBasic)
         return new VBAnalyzer(disassembler, signatures);
@@ -74,26 +67,21 @@ Analyzer *PeFormat::createAnalyzer(DisassemblerAPI *disassembler, const Signatur
     return new PEAnalyzer(disassembler, signatures);
 }
 
-void PeFormat::load()
+template<size_t b> void PeFormat<b>::load()
 {
     m_dosheader = m_format;
     m_ntheaders = pointer<ImageNtHeaders>(m_dosheader->e_lfanew);
     m_sectiontable = IMAGE_FIRST_SECTION(m_ntheaders);
 
-    if(this->bits() == 64)
-    {
-        m_imagebase = m_ntheaders->OptionalHeader64.ImageBase;
-        m_sectionalignment = m_ntheaders->OptionalHeader64.SectionAlignment;
-        m_entrypoint = m_imagebase + m_ntheaders->OptionalHeader64.AddressOfEntryPoint;
-        m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader64.DataDirectory);
-    }
+    if(b == 64)
+        m_optionalheader = reinterpret_cast<ImageOptionalHeader*>(&m_ntheaders->OptionalHeader64);
     else
-    {
-        m_imagebase = m_ntheaders->OptionalHeader32.ImageBase;
-        m_sectionalignment = m_ntheaders->OptionalHeader32.SectionAlignment;
-        m_entrypoint = m_imagebase + m_ntheaders->OptionalHeader32.AddressOfEntryPoint;
-        m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_ntheaders->OptionalHeader32.DataDirectory);
-    }
+        m_optionalheader = reinterpret_cast<ImageOptionalHeader*>(&m_ntheaders->OptionalHeader32);
+
+    m_imagebase = m_optionalheader->ImageBase;
+    m_sectionalignment = m_optionalheader->SectionAlignment;
+    m_entrypoint = m_imagebase + m_optionalheader->AddressOfEntryPoint;
+    m_datadirectory = reinterpret_cast<ImageDataDirectory*>(&m_optionalheader->DataDirectory);
 
     this->loadSections();
     ImageCorHeader* corheader = this->checkDotNet();
@@ -109,9 +97,7 @@ void PeFormat::load()
         this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
 }
 
-const DotNetReader *PeFormat::dotNetReader() const { return m_dotnetreader.get(); }
-
-u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
+template<size_t b> u64 PeFormat<b>::rvaToOffset(u64 rva, bool *ok) const
 {
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
@@ -132,7 +118,7 @@ u64 PeFormat::rvaToOffset(u64 rva, bool *ok) const
     return rva;
 }
 
-void PeFormat::checkDelphi(const PEResources& peresources)
+template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
 {
     PEResources::ResourceItem ri = peresources.find(PEResources::RCDATA);
 
@@ -171,7 +157,7 @@ void PeFormat::checkDelphi(const PEResources& peresources)
     m_signatures.push_back(sig);
 }
 
-void PeFormat::checkResources()
+template<size_t b> void PeFormat<b>::checkResources()
 {
     const ImageDataDirectory& resourcedatadir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_RESOURCE];
 
@@ -183,7 +169,7 @@ void PeFormat::checkResources()
     this->checkDelphi(peresources);
 }
 
-void PeFormat::checkDebugInfo()
+template<size_t b> void PeFormat<b>::checkDebugInfo()
 {
     const ImageDataDirectory& debuginfodir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
 
@@ -240,7 +226,7 @@ void PeFormat::checkDebugInfo()
 
 }
 
-ImageCorHeader* PeFormat::checkDotNet()
+template<size_t b> ImageCorHeader* PeFormat<b>::checkDotNet()
 {
     const ImageDataDirectory& dotnetdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_DOTNET];
 
@@ -255,7 +241,7 @@ ImageCorHeader* PeFormat::checkDotNet()
     return corheader;
 }
 
-void PeFormat::loadDotNet(ImageCor20Header* corheader)
+template<size_t b> void PeFormat<b>::loadDotNet(ImageCor20Header* corheader)
 {
     m_petype = PeType::DotNet;
 
@@ -276,7 +262,7 @@ void PeFormat::loadDotNet(ImageCor20Header* corheader)
     });
 }
 
-void PeFormat::loadDefault()
+template<size_t b> void PeFormat<b>::loadDefault()
 {
     this->loadExports();
     this->loadImports();
@@ -288,7 +274,7 @@ void PeFormat::loadDefault()
     m_document->entry(m_entrypoint);
 }
 
-void PeFormat::loadSections()
+template<size_t b> void PeFormat<b>::loadSections()
 {
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
@@ -328,13 +314,13 @@ void PeFormat::loadSections()
         segment->type |= SegmentTypes::Code;
 }
 
-void PeFormat::loadExports()
+template<size_t b> void PeFormat<b>::loadExports()
 {
     const ImageDataDirectory& exportdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
 
     if(!exportdir.VirtualAddress)
         return;
-    
+
     bool ok = false;
     ImageExportDirectory* exporttable = RVA_POINTER_OK(ImageExportDirectory, exportdir.VirtualAddress, &ok);
     if(!ok)
@@ -378,7 +364,7 @@ void PeFormat::loadExports()
     }
 }
 
-void PeFormat::loadImports()
+template<size_t b> void PeFormat<b>::loadImports()
 {
     const ImageDataDirectory& importdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
@@ -388,28 +374,20 @@ void PeFormat::loadImports()
     ImageImportDescriptor* importtable = RVA_POINTER(ImageImportDescriptor, importdir.VirtualAddress);
 
     for(size_t i = 0; i < importtable[i].FirstThunk; i++)
-    {
-        if(this->bits() == 64)
-            this->readDescriptor<ImageThunkData64, static_cast<u64>(IMAGE_ORDINAL_FLAG64)>(importtable[i]);
-        else
-            this->readDescriptor<ImageThunkData32, static_cast<u64>(IMAGE_ORDINAL_FLAG32)>(importtable[i]);
-    }
+        this->readDescriptor(importtable[i], b == 64 ? IMAGE_ORDINAL_FLAG64 : IMAGE_ORDINAL_FLAG32);
 }
 
-void PeFormat::loadTLS()
+template<size_t b> void PeFormat<b>::loadTLS()
 {
     const ImageDataDirectory& tlsdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_TLS];
 
     if(!tlsdir.VirtualAddress)
         return;
 
-    if(this->bits() == 64)
-        this->readTLSCallbacks<ImageTlsDirectory64, u64>(RVA_POINTER(ImageTlsDirectory64, tlsdir.VirtualAddress));
-    else
-        this->readTLSCallbacks<ImageTlsDirectory32, u32>(RVA_POINTER(ImageTlsDirectory32, tlsdir.VirtualAddress));
+    this->readTLSCallbacks(RVA_POINTER(ImageTlsDirectory, tlsdir.VirtualAddress));
 }
 
-void PeFormat::loadSymbolTable()
+template<size_t b> void PeFormat<b>::loadSymbolTable()
 {
     if(!m_ntheaders->FileHeader.PointerToSymbolTable || !m_ntheaders->FileHeader.NumberOfSymbols)
         return;
@@ -438,4 +416,56 @@ void PeFormat::loadSymbolTable()
     m_ntheaders->FileHeader.NumberOfSymbols);
 }
 
+template<size_t b> void PeFormat<b>::readTLSCallbacks(const ImageTlsDirectory *tlsdirectory)
+{
+    if(!tlsdirectory->AddressOfCallBacks)
+        return;
+
+    pe_integer_t* callbacks = addrpointer<pe_integer_t>(tlsdirectory->AddressOfCallBacks);
+
+    for(pe_integer_t i = 0; *callbacks; i++, callbacks++)
+        m_document->lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
 }
+
+template<size_t b> void PeFormat<b>::readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag)
+{
+    // Check if OFT exists
+    ImageThunkData* thunk = RVA_POINTER(ImageThunkData, importdescriptor.OriginalFirstThunk ? importdescriptor.OriginalFirstThunk :
+                                                                                              importdescriptor.FirstThunk);
+
+    std::string descriptorname = RVA_POINTER(const char, importdescriptor.Name);
+    std::transform(descriptorname.begin(), descriptorname.end(), descriptorname.begin(), ::tolower);
+
+    if(descriptorname.find("msvbvm") != std::string::npos)
+        this->m_petype = PeType::VisualBasic;
+
+    for(size_t i = 0; thunk[i]; i++)
+    {
+        std::string importname;
+        address_t address = m_imagebase + (importdescriptor.FirstThunk + (i * sizeof(ImageThunkData))); // Instructions refers to FT
+
+        if(!(thunk[i] & ordinalflag))
+        {
+            bool ok = false;
+            ImageImportByName* importbyname = RVA_POINTER_OK(ImageImportByName, thunk[i], &ok);
+
+            if(!ok)
+                continue;
+
+            importname = PEUtils::importName(descriptorname, reinterpret_cast<const char*>(&importbyname->Name));
+        }
+        else
+        {
+            u16 ordinal = static_cast<u16>(ordinalflag ^ thunk[i]);
+
+            if(!PEImports::importName(descriptorname, ordinal, importname))
+                importname = PEUtils::importName(descriptorname, ordinal);
+            else
+                importname = PEUtils::importName(descriptorname, importname);
+        }
+
+        m_document->lock(address, importname, SymbolTypes::Import);
+    }
+}
+
+} // REDasm

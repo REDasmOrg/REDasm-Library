@@ -1,8 +1,9 @@
 #ifndef PE_H
 #define PE_H
 
+#include <type_traits>
 #include "../../plugins/plugins.h"
-#include "pe_headers.h"
+#include "pe_header.h"
 #include "pe_resources.h"
 #include "pe_imports.h"
 #include "pe_utils.h"
@@ -14,12 +15,16 @@
 
 namespace REDasm {
 
-class PeFormat: public FormatPluginT<ImageDosHeader>
+template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
 {
     DEFINE_FORMAT_PLUGIN_TEST(ImageDosHeader)
 
     private:
-        enum PeType { None, DotNet, VisualBasic, Delphi, TurboCpp };
+        typedef typename std::conditional<b == 64, u64, u32>::type pe_integer_t;
+        typedef typename std::conditional<b == 64, ImageOptionalHeader64, ImageOptionalHeader32>::type ImageOptionalHeader;
+        typedef typename std::conditional<b == 64, ImageThunkData64, ImageThunkData32>::type ImageThunkData;
+        typedef typename std::conditional<b == 64, ImageTlsDirectory64, ImageTlsDirectory32>::type ImageTlsDirectory;
+        enum PeType { None = 0, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
         PeFormat(AbstractBuffer* buffer);
@@ -32,6 +37,8 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
 
     private:
         u64 rvaToOffset(u64 rva, bool *ok = NULL) const;
+        void readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag);
+        void readTLSCallbacks(const ImageTlsDirectory* tlsdirectory);
         void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
         void checkDebugInfo();
@@ -45,72 +52,23 @@ class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadSymbolTable();
 
     private:
-        template<typename THUNK, u64 ordinalflag> void readDescriptor(const ImageImportDescriptor& importdescriptor);
-        template<typename TLS_DIRECTORY, typename T> void readTLSCallbacks(const TLS_DIRECTORY* tlsdirectory);
-
-    private:
         std::unique_ptr<DotNetReader> m_dotnetreader;
         ImageDosHeader* m_dosheader;
         ImageNtHeaders* m_ntheaders;
+        ImageOptionalHeader* m_optionalheader;
         ImageSectionHeader* m_sectiontable;
         ImageDataDirectory* m_datadirectory;
-        u64 m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
+        pe_integer_t m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
 };
 
-template<typename TLS_DIRECTORY, typename T> void PeFormat::readTLSCallbacks(const TLS_DIRECTORY* tlsdirectory)
-{
-    if(!tlsdirectory->AddressOfCallBacks)
-        return;
+typedef PeFormat<32> PeFormat32;
+typedef PeFormat<64> PeFormat64;
 
-    T* callbacks = addrpointer<T>(tlsdirectory->AddressOfCallBacks);
-
-    for(T i = 0; *callbacks; i++, callbacks++)
-        m_document->lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
-}
-
-template<typename THUNK, u64 ordinalflag> void PeFormat::readDescriptor(const ImageImportDescriptor& importdescriptor)
-{
-    // Check if OFT exists
-    THUNK* thunk = RVA_POINTER(THUNK, importdescriptor.OriginalFirstThunk ? importdescriptor.OriginalFirstThunk :
-                                                                            importdescriptor.FirstThunk);
-
-    std::string descriptorname = RVA_POINTER(const char, importdescriptor.Name);
-    std::transform(descriptorname.begin(), descriptorname.end(), descriptorname.begin(), ::tolower);
-
-    if(descriptorname.find("msvbvm") != std::string::npos)
-        this->m_petype = PeType::VisualBasic;
-
-    for(size_t i = 0; thunk[i]; i++)
-    {
-        std::string importname;
-        address_t address = m_imagebase + (importdescriptor.FirstThunk + (i * sizeof(THUNK))); // Instructions refers to FT
-
-        if(!(thunk[i] & ordinalflag))
-        {
-            bool ok = false;
-            ImageImportByName* importbyname = RVA_POINTER_OK(ImageImportByName, thunk[i], &ok);
-
-            if(!ok)
-                continue;
-
-            importname = PEUtils::importName(descriptorname, reinterpret_cast<const char*>(&importbyname->Name));
-        }
-        else
-        {
-            u16 ordinal = static_cast<u16>(ordinalflag ^ thunk[i]);
-
-            if(!PEImports::importName(descriptorname, ordinal, importname))
-                importname = PEUtils::importName(descriptorname, ordinal);
-            else
-                importname = PEUtils::importName(descriptorname, importname);
-        }
-
-        m_document->lock(address, importname, SymbolTypes::Import);
-    }
-}
-
-DECLARE_FORMAT_PLUGIN(PeFormat, pe)
+DECLARE_FORMAT_PLUGIN(PeFormat32, pe32)
+DECLARE_FORMAT_PLUGIN(PeFormat64, pe64)
 
 }
+
+#include "pe_impl.h"
 
 #endif // PE_H

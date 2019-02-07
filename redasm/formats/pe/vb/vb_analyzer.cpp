@@ -104,7 +104,7 @@ void VBAnalyzer::decompile(SymbolPtr thunrtdata)
     if(!thunrtdata)
         return;
 
-    m_peformat = reinterpret_cast<const PeFormat*>(m_document->format());
+    m_peformat = reinterpret_cast<const PeFormat<32>*>(m_document->format());
     m_vbheader = VB_POINTER(VBHeader, thunrtdata->address);
     m_vbprojinfo = VB_POINTER(VBProjectInfo, m_vbheader->lpProjectData);
     m_vbobjtable = VB_POINTER(VBObjectTable, m_vbprojinfo->lpObjectTable);

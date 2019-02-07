@@ -36,7 +36,8 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntTempPath = temppath;
     Runtime::rntSearchPath = searchpath;
 
-    REGISTER_FORMAT_PLUGIN(pe);
+    REGISTER_FORMAT_PLUGIN(pe32);
+    REGISTER_FORMAT_PLUGIN(pe64);
     REGISTER_FORMAT_PLUGIN(elf32le);
     REGISTER_FORMAT_PLUGIN(elf32be);
     REGISTER_FORMAT_PLUGIN(elf64le);

@@ -182,6 +182,14 @@ SymbolPtr ListingDocumentType::functionStartSymbol(address_t address)
     return NULL;
 }
 
+ListingDocumentType::iterator ListingDocumentType::entryInstruction()
+{
+    if(!m_documententry)
+        return this->end();
+
+    return this->item(m_documententry->address);
+}
+
 std::string ListingDocumentType::comment(address_t address, bool skipauto) const
 {
     std::string cmt;

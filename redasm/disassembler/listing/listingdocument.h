@@ -168,6 +168,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
     public:
         ListingDocumentType();
+        template<typename IteratorType> bool advance(IteratorType& it) const;
         const ListingCursor* cursor() const;
         ListingCursor* cursor();
         void moveToEP();
@@ -183,6 +184,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingItem* functionStart(address_t address);
         ListingItem* currentItem();
         SymbolPtr functionStartSymbol(address_t address);
+        ListingDocumentType::iterator entryInstruction();
         std::string comment(address_t address, bool skipauto = false) const;
         void comment(address_t address, const std::string& s);
         void autoComment(address_t address, const std::string& s);
@@ -248,6 +250,14 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
      friend class FormatPlugin;
 };
+
+template<typename IteratorType> bool ListingDocumentType::advance(IteratorType& it) const
+{
+    if(it != this->end())
+        it++;
+
+    return it != this->end();
+}
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;
 

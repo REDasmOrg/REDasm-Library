@@ -19,6 +19,7 @@ class PEAnalyzer: public Analyzer
         SymbolPtr getImport(const std::string& library, const std::string& api);
         ReferenceVector getAPIReferences(const std::string& library, const std::string& api);
         void findWndProc(address_t address, size_t argidx);
+        void findCRTWinMain();
         void findAllWndProc();
 
     private:

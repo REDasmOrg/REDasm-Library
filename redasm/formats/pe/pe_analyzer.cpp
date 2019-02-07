@@ -1,5 +1,6 @@
 #include "pe_analyzer.h"
 #include "pe_utils.h"
+#include "pe_constants.h"
 
 #define IMPORT_NAME(library, name) PEUtils::importName(library, name)
 #define IMPORT_TRAMPOLINE(library, name) ("_" + IMPORT_NAME(library, name))
@@ -22,6 +23,7 @@ PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& sign
 void PEAnalyzer::analyze()
 {
     Analyzer::analyze();
+    this->findCRTWinMain();
     this->findAllWndProc();
 }
 
@@ -92,6 +94,46 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
         it--;
     }
+}
+
+void PEAnalyzer::findCRTWinMain()
+{
+    auto epit = m_document->entryInstruction();
+    InstructionPtr instruction = m_document->instruction((*epit)->address); // Look for call
+
+    if(!instruction || !instruction->is(InstructionTypes::Call)) // || (instruction->target() != scfuncitem->address))
+        return;
+
+    SymbolPtr symbol = m_document->symbol(PE_SECURITY_COOKIE_SYMBOL);
+
+    if(!symbol)
+        return;
+
+    bool found = false;
+    ReferenceVector refs = m_disassembler->getReferences(symbol->address);
+
+    for(address_t ref : refs)
+    {
+        ListingItem* scfuncitem = m_document->functionStart(ref);
+
+        if(!scfuncitem || ((instruction->target() != scfuncitem->address)))
+            continue;
+
+        m_document->lock(scfuncitem->address, "__security_init_cookie");
+        found = true;
+        break;
+    }
+
+    if(!found || !m_document->advance(epit))
+        return;
+
+    instruction = m_document->instruction((*epit)->address);
+
+    if(!instruction || !instruction->is(InstructionTypes::Jump))
+        return;
+
+    m_document->lock(instruction->target(), "__mainCRTStartup", SymbolTypes::Function);
+    m_document->setDocumentEntry(instruction->target());
 }
 
 }

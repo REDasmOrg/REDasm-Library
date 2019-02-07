@@ -117,4 +117,6 @@
 #define IMAGE_DEBUG_TYPE_RESERVED10                           10
 #define IMAGE_DEBUG_TYPE_CLSID                                11
 
+#define PE_SECURITY_COOKIE_SYMBOL                             "__security_cookie"
+
 #endif // PE_CONSTANTS_H

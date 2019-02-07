@@ -390,11 +390,8 @@ template<size_t b> void PeFormat<b>::loadConfig()
     if(!loadconfigdir->SecurityCookie)
         return;
 
-    m_document->lock(loadconfigdir->SecurityCookie,
-                     "security_cookie_" + REDasm::hex(loadconfigdir->SecurityCookie),
-                     SymbolTypes::Data);
+    m_document->lock(loadconfigdir->SecurityCookie, PE_SECURITY_COOKIE_SYMBOL, SymbolTypes::Data);
 }
-
 
 template<size_t b> void PeFormat<b>::loadTLS()
 {

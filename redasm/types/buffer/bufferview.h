@@ -26,6 +26,18 @@ class BufferView
                 T* m_data;
         };
 
+        template<typename T> struct SearchResult {
+            SearchResult(): view(NULL), result(NULL), searchdata(NULL), position(0), searchsize(0) { }
+            SearchResult(const BufferView* view, const u8* searchdata, u64 searchsize): view(view), result(NULL), searchdata(searchdata), position(0), searchsize(searchsize) { }
+            bool hasNext() const { return view && result; }
+            SearchResult<T> next() const { return view->find<T>(searchdata, searchsize, position + searchsize); }
+
+            const BufferView* view;
+            const u8* searchdata;
+            const T* result;
+            u64 position, searchsize;
+        };
+
     public:
         BufferView();
         BufferView(const AbstractBuffer* buffer, u64 offset, u64 size);
@@ -37,24 +49,65 @@ class BufferView
         void copyTo(AbstractBuffer* buffer);
         void resize(u64 size);
         iterator<u8> begin() const { return iterator<u8>(this->data()); }
-        iterator<u8> end() const { return iterator<u8>(this->data() + this->size()); }
+        iterator<u8> end() const { return iterator<u8>(this->endData()); }
         u8* data() const { return m_buffer->data() + m_offset; }
         constexpr const AbstractBuffer* buffer() const { return m_buffer; }
         constexpr bool eob() const { return !m_buffer || !this->data() || !m_size; }
         constexpr u64 size() const { return m_size; }
         u8 operator *() const { return *this->data(); }
+        template<typename T> SearchResult<T> find(const std::string& s, u64 startoffset = 0) const;
+        template<typename T> SearchResult<T> find(const std::initializer_list<u8> initlist, u64 startoffset = 0) const;
         template<typename T> iterator<T> begin() const { return iterator<T>(this->data()); }
-        template<typename T> iterator<T> end() const { return iterator<T>(this->data() + this->size()); }
+        template<typename T> iterator<T> end() const { return iterator<T>(this->endData()); }
         template<typename T> explicit constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> constexpr operator T() const { return *reinterpret_cast<const T*>(this->data()); }
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView operator +(T rhs) const;
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView& operator =(T rhs);
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView& operator +=(T rhs);
 
+    private:
+        template<typename T> SearchResult<T> find(const u8* searchdata, size_t searchsize, u64 startoffset = 0) const;
+        u8* endData() const { return this->data() ? (this->data() + this->size()) : NULL; }
+
+
     protected:
         const AbstractBuffer* m_buffer;
         u64 m_offset, m_size;
 };
+
+template<typename T> BufferView::SearchResult<T> BufferView::find(const std::string &s, u64 startoffset) const
+{
+    return this->find<T>(reinterpret_cast<const u8*>(s.c_str()), s.size(), startoffset);
+}
+
+template<typename T> BufferView::SearchResult<T> BufferView::find(const std::initializer_list<u8> initlist, u64 startoffset) const
+{
+    return this->find<T>(initlist.begin(), initlist.size(), startoffset);
+}
+
+template<typename T> BufferView::SearchResult<T> BufferView::find(const u8* searchdata, size_t searchsize, u64 startoffset) const
+{
+    if(this->eob() || !searchdata || !searchsize || (searchsize > this->size()))
+        return SearchResult<T>();
+
+    SearchResult<T> r(this, searchdata, searchsize);
+    const u8* pdata = this->data() + startoffset;
+
+    while(pdata < (this->endData() - searchsize))
+    {
+        if(!std::equal(pdata, pdata + searchsize, searchdata))
+        {
+            pdata++;
+            continue;
+        }
+
+        r.result = reinterpret_cast<const T*>(pdata);
+        r.position = pdata - this->data();
+        break;
+    }
+
+    return r;
+}
 
 template<typename T, typename> BufferView BufferView::operator +(T offset) const
 {

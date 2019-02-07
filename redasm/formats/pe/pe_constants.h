@@ -37,6 +37,7 @@
 #define IMAGE_FILE_MACHINE_CEE                            0xC0EE
 #define IMAGE_FILE_MACHINE_TRICORE                        0x0520
 #define IMAGE_FILE_MACHINE_CEF                            0x0CEF
+
 // Sections
 #define IMAGE_SIZEOF_SHORT_NAME                                8
 
@@ -48,6 +49,16 @@
 #define IMAGE_SCN_CNT_CODE                            0x00000020  // Section contains code
 #define IMAGE_SCN_CNT_INITIALIZED_DATA                0x00000040  // Section contains initialized data
 #define IMAGE_SCN_CNT_UNINITIALIZED_DATA              0x00000080  // Section contains uninitialized data
+
+// Optional Header -> DllCharacteristics
+#define IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE          0x0040
+#define IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY       0x0080
+#define IMAGE_DLL_CHARACTERISTICS_NX_COMPAT             0x0100
+#define IMAGE_DLL_CHARACTERISTICS_NO_ISOLATION          0x0200
+#define IMAGE_DLL_CHARACTERISTICS_NO_SEH                0x0400
+#define IMAGE_DLL_CHARACTERISTICS_NO_BIND               0x0800
+#define IMAGE_DLL_CHARACTERISTICS_WDM_DRIVER            0x2000
+#define IMAGE_DLL_CHARACTERISTICS_TERMINAL_SERVER_AWARE 0x8000
 
 // Data Directory
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES                      16

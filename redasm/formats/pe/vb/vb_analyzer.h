@@ -6,8 +6,6 @@
 
 namespace REDasm {
 
-template<size_t> class PeFormat;
-
 class VBAnalyzer : public PEAnalyzer
 {
     public:
@@ -20,7 +18,7 @@ class VBAnalyzer : public PEAnalyzer
         void decompile( SymbolPtr thunrtdata);
 
     private:
-        const PeFormat<32>* m_peformat;
+        const FormatPlugin* m_format;
         VBHeader* m_vbheader;
         VBProjectInfo* m_vbprojinfo;
         VBObjectTable* m_vbobjtable;

@@ -32,6 +32,10 @@ std::string PEUtils::importName(std::string library, s64 ordinal)
 
 bool PEUtils::checkMsvcImport(const std::string &importdescriptor)
 {
+    if(!importdescriptor.find("msvcr"))
+        return true;
+    if(!importdescriptor.find("msvcp"))
+        return true;
     if(!importdescriptor.find("vcruntime"))
         return true;
     if(!importdescriptor.find("mfc"))

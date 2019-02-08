@@ -34,6 +34,7 @@ class FormatPlugin: public Plugin
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
         BufferView view(address_t address) const;
+        BufferView viewSegment(const Segment* segment) const;
         ListingDocument& document();
         const SignatureFiles& signatures() const;
         u64 addressWidth() const;

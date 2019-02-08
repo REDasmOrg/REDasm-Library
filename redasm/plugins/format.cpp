@@ -45,4 +45,12 @@ AbstractBuffer *FormatPlugin::buffer() const { return m_buffer.get(); }
 BufferView FormatPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 BufferView FormatPlugin::view(address_t address) const { return this->viewOffset(this->offset(address)); }
 
+BufferView FormatPlugin::viewSegment(const Segment *segment) const
+{
+    if(!segment || segment->empty() || segment->is(SegmentTypes::Bss))
+        return BufferView();
+
+    return m_buffer->view(segment->offset, segment->size());
+}
+
 }

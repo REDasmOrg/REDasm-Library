@@ -216,18 +216,18 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
         REDasm::log("Debug info type: COFF");
     else if(debugdir->Type == IMAGE_DEBUG_TYPE_CODEVIEW)
     {
-        m_petype = PeType::Msvc;
-
         REDasm::log("Debug info type: CodeView");
         CVHeader* cvhdr = pointer<CVHeader>(debugdir->PointerToRawData);
 
         if(cvhdr->Signature == PE_PDB_NB10_SIGNATURE)
         {
+            m_petype = PeType::Msvc;
             CvInfoPDB20* pdb20 = pointer<CvInfoPDB20>(debugdir->PointerToRawData);
             REDasm::log("PDB 2.0 @ " + std::string(reinterpret_cast<const char*>(&pdb20->PdbFileName)));
         }
         else if(cvhdr->Signature == PE_PDB_RSDS_SIGNATURE)
         {
+            m_petype = PeType::Msvc;
             CvInfoPDB70* pdb70 = pointer<CvInfoPDB70>(debugdir->PointerToRawData);
             REDasm::log("PDB 7.0 @ " + std::string(reinterpret_cast<const char*>(&pdb70->PdbFileName)));
         }

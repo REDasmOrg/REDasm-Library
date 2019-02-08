@@ -13,7 +13,7 @@ BinaryFormat::BinaryFormat(AbstractBuffer *buffer): FormatPluginB(buffer), m_bit
 std::string BinaryFormat::name() const { return "Binary Format"; }
 std::string BinaryFormat::assembler() const { return m_assembler.c_str(); }
 u32 BinaryFormat::bits() const { return m_bits; }
-u32 BinaryFormat::flags() const { return FormatFlags::Binary; }
+bool BinaryFormat::isBinary() { return true; }
 void BinaryFormat::load() { }
 
 void BinaryFormat::build(const std::string &assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u32 segmenttype)

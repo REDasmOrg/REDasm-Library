@@ -40,8 +40,7 @@ address_t FormatPlugin::address(offset_t offset) const
 }
 
 Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }
-u32 FormatPlugin::flags() const { return FormatFlags::None; }
-bool FormatPlugin::isBinary() const { return this->flags() & FormatFlags::Binary; }
+bool FormatPlugin::isBinary() const { return false; }
 AbstractBuffer *FormatPlugin::buffer() const { return m_buffer.get(); }
 BufferView FormatPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 BufferView FormatPlugin::view(address_t address) const { return this->viewOffset(this->offset(address)); }

@@ -27,15 +27,10 @@ template<typename T> T* getFormatPlugin(AbstractBuffer* buffer)
     return formatplugin;
 }
 
-namespace FormatFlags {
-    enum: u32 { None = 0, Binary = 1, };
-}
-
 class FormatPlugin: public Plugin
 {
     public:
         FormatPlugin(AbstractBuffer *view);
-        bool isBinary() const;
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
         BufferView view(address_t address) const;
@@ -44,13 +39,20 @@ class FormatPlugin: public Plugin
         u64 addressWidth() const;
 
     public:
+        virtual bool isBinary() const;
         virtual offset_t offset(address_t address) const;
         virtual address_t address(offset_t offset) const;
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
         virtual std::string assembler() const = 0;
         virtual u32 bits() const = 0;
-        virtual u32 flags() const;
         virtual void load() = 0;
+
+    public:
+        template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(m_buffer->data()); }
+        template<typename U, typename O> inline U* pointer(O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_buffer->data()) + offset); }
+        template<typename U, typename A> inline U* addrpointer(A address) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_buffer->data()) + offset(address)); }
+        template<typename U, typename V, typename O> inline static const U* relpointer(const V* base, O offset) { return reinterpret_cast<const U*>(reinterpret_cast<const u8*>(base) + offset); }
+        template<typename U, typename V, typename O> inline static U* relpointer(V* base, O offset) { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
 
     protected:
         std::unique_ptr<AbstractBuffer> m_buffer;
@@ -66,13 +68,6 @@ template<typename T> class FormatPluginT: public FormatPlugin
 
     public:
         FormatPluginT(AbstractBuffer* buffer): FormatPlugin(buffer) { m_format = reinterpret_cast<T*>(m_buffer->data()); }
-        template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(m_format); }
-        template<typename U, typename O> inline U* pointer(O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset); }
-        template<typename U, typename A> inline U* addrpointer(A address) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_format) + offset(address)); }
-        template<typename U, typename V, typename O> inline static const U* relpointer(const V* base, O offset) { return reinterpret_cast<const U*>(reinterpret_cast<const u8*>(base) + offset); }
-        template<typename U, typename V, typename O> inline static U* relpointer(V* base, O offset) { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
-
-    public:
         static bool test(const T* format, const AbstractBuffer* buffer) { RE_UNUSED(format); RE_UNUSED(buffer); return false; }
 
     protected:

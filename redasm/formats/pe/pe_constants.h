@@ -123,7 +123,8 @@
 
 namespace REDasm {
 
-enum PeType: u32 { None = 0, DotNet, VisualBasic, Delphi, TurboCpp, Msvc };
+enum PeType: u32 { None = 0, Msvc,
+                   DotNet, VisualBasic, Delphi, TurboCpp };
 
 } // namespace REDasm
 

@@ -25,14 +25,15 @@ void PEAnalyzer::analyze()
 {
     Analyzer::analyze();
 
+    if(m_petype <= PeType::Msvc)
+        this->findCRTWinMain();
+
     if(m_petype == PeType::Msvc)
     {
-        this->findCRTWinMain();
         this->findAllWndProc();
 
         REDasm::log("MSVC Compiler detected, searching RTTI...");
         RTTI::RTTIMsvc::search(m_disassembler);
-
         return;
     }
 

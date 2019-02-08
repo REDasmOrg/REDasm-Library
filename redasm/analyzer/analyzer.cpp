@@ -5,18 +5,20 @@ namespace REDasm {
 
 Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_document(disassembler->document()), m_disassembler(disassembler), m_signaturefiles(signaturefiles) { }
 Analyzer::~Analyzer() { }
-void Analyzer::analyzeFast()  { this->findTrampolines(); }
+void Analyzer::analyzeFast()  { this->checkFunctions(); }
 
 void Analyzer::analyze()
 {
     this->loadSignatures();
-    this->findTrampolines();
+    this->checkFunctions();
 }
 
-void Analyzer::findTrampolines()
+void Analyzer::checkFunctions()
 {
     m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
-        this->findTrampoline(symbol);
+        if(!this->findNullSubs(symbol))
+            this->findTrampoline(symbol);
+
         return true;
     });
 }
@@ -27,7 +29,26 @@ void Analyzer::loadSignatures()
         m_disassembler->loadSignature(REDasm::makeSdbPath(sdbfile));
 }
 
-void Analyzer::findTrampoline(SymbolPtr symbol)
+bool Analyzer::findNullSubs(const SymbolPtr& symbol)
+{
+    auto it = m_document->instructionItem(symbol->address);
+
+    if(it == m_document->end())
+        return true; // Don't execute trampoline analysis
+
+    InstructionPtr instruction = m_document->instruction((*it)->address);
+
+    if(!instruction)
+        return true; // Don't execute trampoline analysis
+
+    if(!instruction->is(InstructionTypes::Stop))
+        return false;
+
+    m_document->rename(symbol->address, "nullsub_" + REDasm::hex(symbol->address));
+    return true;
+}
+
+void Analyzer::findTrampoline(const SymbolPtr& symbol)
 {
     auto it = m_document->instructionItem(symbol->address);
 

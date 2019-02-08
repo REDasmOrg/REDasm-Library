@@ -22,8 +22,9 @@ class Analyzer
 
     private:
         void loadSignatures();
-        void findTrampolines();
-        void findTrampoline(SymbolPtr symbol);
+        bool findNullSubs(const SymbolPtr &symbol);
+        void checkFunctions();
+        void findTrampoline(const SymbolPtr &symbol);
         SymbolPtr findTrampoline_x86(ListingDocumentType::iterator it);
         SymbolPtr findTrampoline_arm(ListingDocumentType::iterator it);
 

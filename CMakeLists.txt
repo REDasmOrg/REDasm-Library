@@ -44,6 +44,7 @@ SET(SOURCES
     redasm/plugins/assembler/printer.cpp
     redasm/support/utils.cpp
     redasm/support/demangler.cpp
+    redasm/support/rtti/msvc/rtti_msvc.cpp
     redasm/disassembler/disassemblerbase.cpp
     redasm/disassembler/types/referencetable.cpp
     redasm/disassembler/types/symboltable.cpp
@@ -86,6 +87,7 @@ set(HEADERS
     redasm/plugins/assembler/printer.h
     redasm/support/demangler.h
     redasm/support/utils.h
+    redasm/support/rtti/msvc/rtti_msvc.h
     redasm/disassembler/disassemblerbase.h
     redasm/disassembler/types/referencetable.h
     redasm/disassembler/types/symboltable.h

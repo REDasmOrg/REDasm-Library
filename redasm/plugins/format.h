@@ -49,7 +49,8 @@ class FormatPlugin: public Plugin
         virtual void load() = 0;
 
     public:
-        template<typename U> inline offset_t fileoffset(U* ptr) const { return reinterpret_cast<u8*>(ptr) - reinterpret_cast<u8*>(m_buffer->data()); }
+        template<typename U> inline offset_t fileoffset(const U* ptr) const { return reinterpret_cast<const u8*>(ptr) - reinterpret_cast<const u8*>(m_buffer->data()); }
+        template<typename U> inline address_t addressof(const U* ptr) const { return this->address(this->fileoffset(ptr));  }
         template<typename U, typename O> inline U* pointer(O offset) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_buffer->data()) + offset); }
         template<typename U, typename A> inline U* addrpointer(A address) const { return reinterpret_cast<U*>(reinterpret_cast<u8*>(m_buffer->data()) + offset(address)); }
         template<typename U, typename V, typename O> inline static const U* relpointer(const V* base, O offset) { return reinterpret_cast<const U*>(reinterpret_cast<const u8*>(base) + offset); }

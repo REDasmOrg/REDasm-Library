@@ -1,6 +1,8 @@
 #ifndef PE_CONSTANTS_H
 #define PE_CONSTANTS_H
 
+#include "../../redasm/types/base_types.h"
+
 // Signatures
 #define IMAGE_DOS_SIGNATURE                               0x5A4D
 #define IMAGE_NT_SIGNATURE                            0x00004550
@@ -118,5 +120,12 @@
 #define IMAGE_DEBUG_TYPE_CLSID                                11
 
 #define PE_SECURITY_COOKIE_SYMBOL                             "__security_cookie"
+
+namespace REDasm {
+
+enum PeType: u32 { None = 0, DotNet, VisualBasic, Delphi, TurboCpp, Msvc };
+
+} // namespace REDasm
+
 
 #endif // PE_CONSTANTS_H

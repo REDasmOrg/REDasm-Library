@@ -25,7 +25,6 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         typedef typename std::conditional<b == 64, ImageThunkData64, ImageThunkData32>::type ImageThunkData;
         typedef typename std::conditional<b == 64, ImageTlsDirectory64, ImageTlsDirectory32>::type ImageTlsDirectory;
         typedef typename std::conditional<b == 64, ImageLoadConfigDirectory64, ImageLoadConfigDirectory32>::type ImageLoadConfigDirectory;
-        enum PeType { None = 0, DotNet, VisualBasic, Delphi, TurboCpp };
 
     public:
         PeFormat(AbstractBuffer* buffer);
@@ -40,6 +39,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         u64 rvaToOffset(u64 rva, bool *ok = NULL) const;
         void readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag);
         void readTLSCallbacks(const ImageTlsDirectory* tlsdirectory);
+        void checkPeTypeHeuristic();
         void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
         void checkDebugInfo();

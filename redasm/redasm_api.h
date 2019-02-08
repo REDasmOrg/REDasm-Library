@@ -114,7 +114,7 @@ struct Segment
     s64 size() const { return static_cast<s64>(endaddress - address); }
     bool empty() const { return this->size() <= 0; }
     bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
-    bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (endaddress - address))); }
+    bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (this->offset + (endaddress - address)))); }
     bool is(u32 t) const { return type & t; }
 
     std::string name;

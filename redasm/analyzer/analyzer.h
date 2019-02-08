@@ -17,7 +17,7 @@ class Analyzer
     public:
         Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
         virtual ~Analyzer();
-        void analyzeFast();
+        virtual void analyzeFast();
         virtual void analyze();
 
     private:

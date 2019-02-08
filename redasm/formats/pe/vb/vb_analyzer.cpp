@@ -7,7 +7,7 @@
 
 namespace REDasm {
 
-VBAnalyzer::VBAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures): PEAnalyzer(disassembler, signatures)
+VBAnalyzer::VBAnalyzer(u32 petype, DisassemblerAPI *disassembler, const SignatureFiles &signatures): PEAnalyzer(petype, disassembler, signatures)
 {
     m_format = NULL;
     m_vbheader = NULL;

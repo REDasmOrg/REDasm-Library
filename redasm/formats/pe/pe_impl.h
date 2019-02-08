@@ -62,9 +62,9 @@ template<size_t b> std::string PeFormat<b>::assembler() const
 template<size_t b> Analyzer *PeFormat<b>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
     if(m_petype == PeType::VisualBasic)
-        return new VBAnalyzer(disassembler, signatures);
+        return new VBAnalyzer(this->m_petype, disassembler, signatures);
 
-    return new PEAnalyzer(disassembler, signatures);
+    return new PEAnalyzer(this->m_petype, disassembler, signatures);
 }
 
 template<size_t b> void PeFormat<b>::load()
@@ -144,9 +144,9 @@ template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
     BorlandVersion borlandver(packageinfo, ri, datasize);
 
     if(borlandver.isDelphi())
-        m_petype = PeFormat::Delphi;
+        m_petype = PeType::Delphi;
     else if(borlandver.isTurboCpp())
-        m_petype = PeFormat::TurboCpp;
+        m_petype = PeType::TurboCpp;
 
     std::string sig = borlandver.getSignature();
 
@@ -155,6 +155,36 @@ template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
 
     REDasm::log("Signature '" + sig + "' detected");
     m_signatures.push_back(sig);
+}
+
+template<size_t b> void PeFormat<b>::checkPeTypeHeuristic()
+{
+    REDasm::log("Running heuristic PEType checks...");
+
+    if(this->m_petype != PeType::None)
+        return;
+
+    const Segment* segment = m_document->segmentByName(".data");
+
+    if(!segment)
+        return;
+
+    BufferView view = this->viewSegment(segment);
+
+    if(view.eob())
+        return;
+
+    auto res = view.find(".?AVCWinApp");
+
+    if(!res.hasNext())
+        return;
+
+    res = view.find(".?AVCWnd");
+
+    if(!res.hasNext())
+        return;
+
+    m_petype = PeType::Msvc;
 }
 
 template<size_t b> void PeFormat<b>::checkResources()
@@ -187,6 +217,8 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
         REDasm::log("Debug info type: COFF");
     else if(debugdir->Type == IMAGE_DEBUG_TYPE_CODEVIEW)
     {
+        m_petype = PeType::Msvc;
+
         REDasm::log("Debug info type: CodeView");
         CVHeader* cvhdr = pointer<CVHeader>(debugdir->PointerToRawData);
 
@@ -223,7 +255,6 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
         REDasm::log("Debug info type: CLSID");
     else
         REDasm::log("Debug info type: " + REDasm::hex(debugdir->Type));
-
 }
 
 template<size_t b> ImageCorHeader* PeFormat<b>::checkDotNet()
@@ -271,6 +302,7 @@ template<size_t b> void PeFormat<b>::loadDefault()
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
+    this->checkPeTypeHeuristic();
 
     m_document->entry(m_entrypoint);
 }
@@ -454,6 +486,8 @@ template<size_t b> void PeFormat<b>::readDescriptor(const ImageImportDescriptor&
 
     if(descriptorname.find("msvbvm") != std::string::npos)
         this->m_petype = PeType::VisualBasic;
+    else if(PEUtils::checkMsvcImport(descriptorname))
+        this->m_petype = PeType::Msvc;
 
     for(size_t i = 0; thunk[i]; i++)
     {

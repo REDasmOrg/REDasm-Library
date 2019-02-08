@@ -1,6 +1,7 @@
 #include "pe_analyzer.h"
 #include "pe_utils.h"
 #include "pe_constants.h"
+#include "../../support/rtti/msvc/rtti_msvc.h"
 
 #define IMPORT_NAME(library, name) PEUtils::importName(library, name)
 #define IMPORT_TRAMPOLINE(library, name) ("_" + IMPORT_NAME(library, name))
@@ -8,7 +9,7 @@
 
 namespace REDasm {
 
-PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures): Analyzer(disassembler, signatures)
+PEAnalyzer::PEAnalyzer(u32 petype, DisassemblerAPI *disassembler, const SignatureFiles& signatures): Analyzer(disassembler, signatures), m_petype(petype)
 {
     ADD_WNDPROC_API(4, "DialogBoxA");
     ADD_WNDPROC_API(4, "DialogBoxW");
@@ -23,7 +24,21 @@ PEAnalyzer::PEAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& sign
 void PEAnalyzer::analyze()
 {
     Analyzer::analyze();
-    this->findCRTWinMain();
+
+    if(m_petype == PeType::Msvc)
+    {
+        this->findCRTWinMain();
+        this->findAllWndProc();
+
+        REDasm::log("MSVC Compiler detected, searching RTTI...");
+        RTTI::RTTIMsvc::search(m_disassembler);
+
+        return;
+    }
+
+    if(m_petype == PeType::None)
+        REDasm::log("WARNING: Cannot detect PE Type");
+
     this->findAllWndProc();
 }
 

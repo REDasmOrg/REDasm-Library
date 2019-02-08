@@ -159,11 +159,10 @@ template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
 
 template<size_t b> void PeFormat<b>::checkPeTypeHeuristic()
 {
-    REDasm::log("Running heuristic PEType checks...");
-
     if(this->m_petype != PeType::None)
         return;
 
+    REDasm::log("Running heuristic PEType checks...");
     const Segment* segment = m_document->segmentByName(".data");
 
     if(!segment)

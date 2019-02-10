@@ -188,8 +188,9 @@ void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem 
     {
         const Segment* segment = lock->segment(item->address);
         this->renderAddress(lock, item, rl);
+        this->renderIndent(rl, 3);
+        rl.push(symbol->name, "label_fg");
         this->renderIndent(rl);
-        rl.push(symbol->name + " ", "label_fg");
 
         if(!segment->is(SegmentTypes::Bss))
         {

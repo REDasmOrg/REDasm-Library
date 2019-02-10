@@ -153,7 +153,7 @@ void ListingRenderer::renderInstruction(const document_lock& lock, const Listing
     InstructionPtr instruction = lock->instruction(item->address);
 
     this->renderAddress(lock, item, rl);
-    this->renderIndent(rl);
+    this->renderIndent(rl, 3);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
     this->renderComments(lock, instruction, rl);

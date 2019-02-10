@@ -40,7 +40,7 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
 
         lock->lock(address, rttitypename + "ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
         lock->lock(rttiobjectaddress, rttitypename + "rtti_object");
-        disassembler->pushReference(address, rttiobjectaddress);
+        disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
         const Segment* segment = lock->segment(static_cast<u32>(*pobjectdata));

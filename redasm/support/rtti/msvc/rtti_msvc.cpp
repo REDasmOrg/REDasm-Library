@@ -28,7 +28,6 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
     {
         const RTTICompleteObjectLocator* rttiobject = rttivtableitem.first;
         const RTTITypeDescriptor* rttitype = format->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
-        const u32* pvtable = ++rttivtableitem.second; // Skip RTTICompleteObjectLocator
 
         auto it = rttiobjects.find(rttiobject);
 
@@ -36,19 +35,27 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
             continue;
 
         std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
-        const Segment* segment = lock->segment(static_cast<u32>(*pvtable));
+        const u32* pobjectdata = rttivtableitem.second;
+        address_t address = format->addressof(pobjectdata), rttiobjectaddress = format->addressof(rttiobject);
+
+        lock->lock(address, rttitypename + "ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
+        lock->lock(rttiobjectaddress, rttitypename + "rtti_object");
+        disassembler->pushReference(address, rttiobjectaddress);
+        pobjectdata++; // Skip RTTICompleteObjectLocator
+
+        const Segment* segment = lock->segment(static_cast<u32>(*pobjectdata));
 
         for(u32 i = 0; (segment && segment->is(SegmentTypes::Code)); i++) // Walk vtable
         {
-            address_t vtableidxaddress = format->addressof(pvtable);
+            address = format->addressof(pobjectdata);
 
-            disassembler->disassemble(*pvtable);
-            lock->lock(vtableidxaddress, rttitypename + "vidx_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
-            lock->function(*pvtable, rttitypename + "sub_" + REDasm::hex(static_cast<u32>(*pvtable)));
-            disassembler->pushReference(*pvtable, vtableidxaddress);
+            disassembler->disassemble(*pobjectdata);
+            lock->lock(address, rttitypename + "vidx_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
+            lock->function(*pobjectdata, rttitypename + "sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
+            disassembler->pushReference(*pobjectdata, address);
 
-            pvtable++;
-            segment = lock->segment(*pvtable);
+            pobjectdata++;
+            segment = lock->segment(*pobjectdata);
         }
     }
 }

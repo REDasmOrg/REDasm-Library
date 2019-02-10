@@ -78,6 +78,6 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
 
 } // namespace REDasm
 
-#include "cachemap.cpp"
+#include "cachemap_impl.h"
 
 #endif // CACHEMAP_H

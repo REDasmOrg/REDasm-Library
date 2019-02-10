@@ -27,110 +27,75 @@ set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_STATIC ON  CACHE BOOL "")
 add_subdirectory(${CAPSTONE_SRC})
 
-# Formats & Assemblers
-file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h)
-file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
+### LibREDasm
+
+# Support
+file(GLOB_RECURSE SUPPORT_HEADERS redasm/support/*.h)
+file(GLOB_RECURSE SUPPORT_SOURCES redasm/support/*.cpp)
+
+# Types
+file(GLOB_RECURSE TYPES_HEADERS redasm/types/*.h)
+file(GLOB_RECURSE TYPES_SOURCES redasm/types/*.cpp)
+
+# Plugin
+file(GLOB_RECURSE PLUGINS_HEADERS redasm/plugins/*.h)
+file(GLOB_RECURSE PLUGINS_SOURCES redasm/plugins/*.cpp)
+
+# Format
 file(GLOB_RECURSE FORMAT_HEADERS redasm/formats/*.h)
 file(GLOB_RECURSE FORMAT_SOURCES redasm/formats/*.cpp)
 
-# LibREDasm
+# Assembler
+file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h)
+file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
+
+# Analyzer
+file(GLOB_RECURSE ANALYZER_HEADERS redasm/analyzer/*.h)
+file(GLOB_RECURSE ANALYZER_SOURCES redasm/analyzer/*.cpp)
+
+# Emulator
+file(GLOB_RECURSE EMULATOR_HEADERS redasm/emulator/*.h)
+file(GLOB_RECURSE EMULATOR_SOURCES redasm/emulator/*.cpp)
+
+# Disassembler
+file(GLOB_RECURSE DISASSEMBLER_HEADERS redasm/disassembler/*.h)
+file(GLOB_RECURSE DISASSEMBLER_SOURCES redasm/disassembler/*.cpp)
+
+# Database
+file(GLOB_RECURSE DATABASE_HEADERS redasm/database/*.h)
+file(GLOB_RECURSE DATABASE_SOURCES redasm/database/*.cpp)
+
+# Graph
+file(GLOB_RECURSE GRAPH_HEADERS redasm/graph/*.h)
+file(GLOB_RECURSE GRAPH_SOURCES redasm/graph/*.cpp)
+
 SET(SOURCES
+    ${SUPPORT_SOURCES}
+    ${TYPES_SOURCES}
+    ${PLUGINS_SOURCES}
     ${FORMAT_SOURCES}
     ${ASSEMBLER_SOURCES}
-    redasm/plugins/plugins.cpp
-    redasm/plugins/format.cpp
-    redasm/analyzer/analyzer.cpp
-    redasm/disassembler/disassembler.cpp
-    redasm/plugins/assembler/printer.cpp
-    redasm/support/utils.cpp
-    redasm/support/demangler.cpp
-    redasm/support/rtti/msvc/rtti_msvc.cpp
-    redasm/disassembler/disassemblerbase.cpp
-    redasm/disassembler/types/referencetable.cpp
-    redasm/disassembler/types/symboltable.cpp
-    redasm/support/coff/coff_symboltable.cpp
-    redasm/support/serializer.cpp
-    redasm/disassembler/disassemblerapi.cpp
-    redasm/disassembler/graph/functiongraph.cpp
-    redasm/support/ordinals.cpp
-    redasm/plugins/assembler/assembler.cpp
-    redasm/disassembler/listing/listingdocument.cpp
-    redasm/disassembler/listing/listingrenderer.cpp
-    redasm/support/concurrent/jobspool.cpp
-    redasm/support/concurrent/job.cpp
-    redasm/disassembler/listing/listingcursor.cpp
-    redasm/graph/graph.cpp
-    redasm/plugins/assembler/algorithm/algorithm.cpp
-    redasm/plugins/assembler/algorithm/controlflow.cpp
-    redasm/plugins/assembler/algorithm/linearsweep.cpp
-    redasm/plugins/assembler/algorithm/statemachine.cpp
-    redasm/plugins/emulator.cpp
-    redasm/types/buffer/abstractbuffer.cpp
-    redasm/types/buffer/memorybuffer.cpp
-    redasm/types/buffer/bufferview.cpp
+    ${ANALYZER_SOURCES}
+    ${EMULATOR_SOURCES}
+    ${DISASSEMBLER_SOURCES}
+    ${DATABASE_SOURCES}
+    ${GRAPH_SOURCES}
     redasm/redasm_api.cpp
-    redasm/redasm_runtime.cpp
-    redasm/database/database.cpp
-    redasm/database/signaturedb.cpp
-    redasm/support/compression.cpp
-    redasm/disassembler/listing/instructioncache.cpp)
+    redasm/redasm_runtime.cpp)
 
 set(HEADERS
+    ${SUPPORT_HEADERS}
+    ${TYPES_HEADERS}
+    ${PLUGINS_HEADERS}
     ${FORMAT_HEADERS}
     ${ASSEMBLER_HEADERS}
+    ${ANALYZER_HEADERS}
+    ${EMULATOR_HEADERS}
+    ${DATABASE_HEADERS}
+    ${GRAPH_HEADERS}
     redasm/redasm.h
-    redasm/plugins/format.h
-    redasm/plugins/base.h
-    redasm/plugins/plugins.h
-    redasm/analyzer/analyzer.h
-    redasm/disassembler/disassembler.h
-    redasm/plugins/assembler/printer.h
-    redasm/support/demangler.h
-    redasm/support/utils.h
-    redasm/support/rtti/msvc/rtti_msvc.h
-    redasm/disassembler/disassemblerbase.h
-    redasm/disassembler/types/referencetable.h
-    redasm/disassembler/types/symboltable.h
-    redasm/support/coff/coff_symboltable.h
-    redasm/support/coff/coff_types.h
-    redasm/support/coff/coff_constants.h
-    redasm/support/cachemap.h
-    redasm/support/hash.h
-    redasm/support/safe_ptr.h
-    redasm/support/serializer.h
-    redasm/disassembler/disassemblerapi.h
-    redasm/disassembler/graph/functiongraph.h
-    redasm/support/ordinals.h
-    redasm/plugins/assembler/assembler.h
-    redasm/disassembler/listing/listingdocument.h
-    redasm/disassembler/listing/listingrenderer.h
-    redasm/support/concurrent/jobspool.h
-    redasm/support/concurrent/job.h
-    redasm/support/event.h
-    redasm/disassembler/listing/listingcursor.h
-    redasm/graph/graph.h
-    redasm/support/dispatcher.h
-    redasm/plugins/assembler/algorithm/algorithm.h
-    redasm/plugins/assembler/algorithm/controlflow.h
-    redasm/plugins/assembler/algorithm/linearsweep.h
-    redasm/plugins/assembler/algorithm/statemachine.h
-    redasm/emulator/emulator_alu.h
-    redasm/emulator/emulator_base.h
-    redasm/plugins/emulator.h
-    redasm/emulator/emulator_type.h
     redasm/redasm_api.h
-    redasm/redasm_runtime.h
-    redasm/database/database.h
-    redasm/database/signaturedb.h
-    redasm/support/compression.h
-    redasm/types/buffer/abstractbuffer.h
-    redasm/types/buffer/memorybuffer.h
-    redasm/types/buffer/bufferview.h
-    redasm/types/numeric_type.h
-    redasm/types/base_types.h
-    redasm/types/endianness/endianness.h
-    redasm/types/endianness/endianness_base.h
-    redasm/disassembler/listing/instructioncache.h)
+    redasm/redasm_runtime.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 add_dependencies(${PROJECT_NAME} capstone-static zlibstatic)

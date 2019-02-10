@@ -18,6 +18,6 @@ template<typename T> class EmulatorT: public EmulatorALU<T>
 
 } // namespace REDasm
 
-#include "emulator_type.cpp"
+#include "emulator_type_impl.h"
 
 #endif // EMULATOR_TYPE_H

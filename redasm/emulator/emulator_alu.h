@@ -32,6 +32,6 @@ template<typename T> class EmulatorALU: public EmulatorBase<T>
 
 } // namespace REDasm
 
-#include "emulator_alu.cpp"
+#include "emulator_alu_impl.h"
 
 #endif // EMULATOR_ALU_H

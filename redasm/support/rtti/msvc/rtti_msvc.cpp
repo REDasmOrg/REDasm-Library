@@ -37,7 +37,9 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
         std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
         const u32* pobjectdata = rttivtableitem.second;
         address_t address = format->addressof(pobjectdata), rttiobjectaddress = format->addressof(rttiobject);
+        std::string demangledname = Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 
+        lock->remark(address, demangledname);
         lock->lock(address, rttitypename + "ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
         lock->lock(rttiobjectaddress, rttitypename + "rtti_object");
         disassembler->pushReference(rttiobjectaddress, address);
@@ -45,13 +47,20 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
 
         const Segment* segment = lock->segment(static_cast<u32>(*pobjectdata));
 
-        for(u32 i = 0; (segment && segment->is(SegmentTypes::Code)); i++) // Walk vtable
+        while(segment && segment->is(SegmentTypes::Code)) // Walk vtable
         {
             address = format->addressof(pobjectdata);
-
+            SymbolPtr symbol = lock->symbol(*pobjectdata);
             disassembler->disassemble(*pobjectdata);
-            lock->lock(address, rttitypename + "vidx_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
-            lock->function(*pobjectdata, rttitypename + "sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
+
+            if(!symbol)
+            {
+                lock->lock(address, rttitypename + "_sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)), SymbolTypes::Data | SymbolTypes::Pointer);
+                lock->function(*pobjectdata, rttitypename + "sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
+            }
+            else
+                lock->lock(address, rttitypename + "_" + symbol->name, SymbolTypes::Data | SymbolTypes::Pointer);
+
             disassembler->pushReference(*pobjectdata, address);
 
             pobjectdata++;

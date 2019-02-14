@@ -26,16 +26,34 @@ class BufferView
                 T* m_data;
         };
 
-        template<typename T> struct SearchResult {
-            SearchResult(): view(NULL), result(NULL), searchdata(NULL), position(0), searchsize(0) { }
-            SearchResult(const BufferView* view, const u8* searchdata, u64 searchsize): view(view), result(NULL), searchdata(searchdata), position(0), searchsize(searchsize) { }
+    private:
+        static const std::string WILDCARD_BYTE;
+
+        template<typename T> struct SearchObject {
+            SearchObject(): view(NULL), result(NULL) { }
+            SearchObject(const BufferView* view, u64 searchsize): view(view), result(NULL), position(0), searchsize(searchsize) { }
             bool hasNext() const { return view && result; }
-            SearchResult<T> next() const { return view->find<T>(searchdata, searchsize, position + searchsize); }
 
             const BufferView* view;
-            const u8* searchdata;
             const T* result;
             u64 position, searchsize;
+        };
+
+    public:
+        template<typename T> struct SearchResult: public SearchObject<T> {
+            SearchResult(): SearchObject<T>(), searchdata(NULL) { }
+            SearchResult(const BufferView* view, const u8* searchdata, u64 searchsize): SearchObject<T>(view, searchsize), searchdata(searchdata) { }
+            SearchResult<T> next() const { return this->view->template find<T>(searchdata, this->searchsize, this->position + this->searchsize); }
+
+            const u8* searchdata;
+        };
+
+        template<typename T> struct WildcardResult: public SearchObject<T> {
+            WildcardResult(): SearchObject<T>() { }
+            WildcardResult(const BufferView* view, const std::string& searchwildcard, u64 searchsize): SearchObject<T>(view, searchsize), searchwildcard(searchwildcard) { }
+            WildcardResult<T> next() const { return this->view->template wildcard<T>(searchwildcard, this->position + this->searchsize); }
+
+            std::string searchwildcard;
         };
 
     public:
@@ -55,6 +73,7 @@ class BufferView
         constexpr bool eob() const { return !m_buffer || !this->data() || !m_size; }
         constexpr u64 size() const { return m_size; }
         u8 operator *() const { return *this->data(); }
+        template<typename T> WildcardResult<T> wildcard(std::string pattern, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const std::string& s, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const T* pack, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const std::initializer_list<u8> initlist, u64 startoffset = 0) const;
@@ -68,13 +87,48 @@ class BufferView
 
     private:
         template<typename T> SearchResult<T> find(const u8* searchdata, size_t searchsize, u64 startoffset = 0) const;
+        constexpr size_t patternLength(const std::string& pattern) const { return pattern.size() / 2; }
+        std::pair<u8, u8> patternRange(std::string &pattern, u64& startoffset, u64& endoffset, u64 &beginoffset) const;
+        bool comparePattern(const std::string& pattern, const u8* pdata) const;
+        bool preparePattern(std::string& pattern) const;
         u8* endData() const { return this->data() ? (this->data() + this->size()) : NULL; }
-
 
     protected:
         const AbstractBuffer* m_buffer;
         u64 m_offset, m_size;
 };
+
+template<typename T> BufferView::WildcardResult<T> BufferView::wildcard(std::string pattern, u64 startoffset) const
+{
+    if(!this->preparePattern(pattern))
+        return WildcardResult<T>();
+
+    u64 beginoffset = 0, endoffset = startoffset, searchsize = this->patternLength(pattern);
+    auto bp = this->patternRange(pattern, startoffset, endoffset, beginoffset);
+
+    WildcardResult<T> r(this, pattern, searchsize);
+    const u8* pdata = this->data() + startoffset;
+
+    while(pdata < (this->endData() - searchsize))
+    {
+        if((*pdata != bp.first) && ((*pdata + searchsize) != bp.second))
+        {
+            pdata++;
+            continue;
+        }
+
+        if(this->comparePattern(pattern, pdata))
+        {
+            r.result = reinterpret_cast<T*>(pdata);
+            r.position = (pdata - this->data()) - beginoffset;
+            break;
+        }
+
+        pdata++;
+    }
+
+    return r;
+}
 
 template<typename T> BufferView::SearchResult<T> BufferView::find(const T *pack, u64 startoffset) const
 {

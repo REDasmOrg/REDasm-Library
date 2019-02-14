@@ -364,7 +364,7 @@ bool ListingRenderer::renderSymbolPointer(const document_lock &lock, const Symbo
    if(!ptrsymbol)
        return false;
 
-   rl.push(ptrsymbol->name, "label_fg");
+   rl.push(ptrsymbol->name, ptrsymbol->isLocked() ? "locked_fg" : "label_fg");
    return true;
 }
 

@@ -511,7 +511,7 @@ template<size_t b> void PeFormat<b>::readDescriptor(const ImageImportDescriptor&
         {
             u16 ordinal = static_cast<u16>(ordinalflag ^ thunk[i]);
 
-            if(!PEImports::importName(descriptorname, ordinal, importname))
+            if(!PEImports::importName<b>(descriptorname, ordinal, importname))
                 importname = PEUtils::importName(descriptorname, ordinal);
             else
                 importname = PEUtils::importName(descriptorname, importname);

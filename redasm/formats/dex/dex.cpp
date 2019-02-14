@@ -283,7 +283,7 @@ void DEXFormat::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     const std::string& methodname = this->getMethodName(idx);
 
     if(!methodname.find("android."))
-        m_document->function(fileoffset(&dexcode->insns), methodname, idx);
+        m_document->lockFunction(fileoffset(&dexcode->insns), methodname, idx);
     else
         m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
 }

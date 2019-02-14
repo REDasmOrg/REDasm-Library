@@ -288,7 +288,7 @@ template<size_t b> void PeFormat<b>::loadDotNet(ImageCor20Header* corheader)
         return;
 
     m_dotnetreader->iterateTypes([this](u32 rva, const std::string& name) {
-        m_document->function(m_imagebase + rva, name);
+        m_document->lockFunction(m_imagebase + rva, name);
     });
 }
 

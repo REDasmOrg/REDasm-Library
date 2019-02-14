@@ -44,7 +44,7 @@ bool Analyzer::findNullSubs(const SymbolPtr& symbol)
     if(!instruction->is(InstructionTypes::Stop))
         return false;
 
-    m_document->rename(symbol->address, "nullsub_" + REDasm::hex(symbol->address));
+    m_document->lock(symbol->address, "nullsub_" + REDasm::hex(symbol->address));
     return true;
 }
 

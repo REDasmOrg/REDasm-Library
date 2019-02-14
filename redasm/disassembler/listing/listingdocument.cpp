@@ -272,6 +272,12 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
 
 void ListingDocumentType::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
+    if(address == 0x00401B3F)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     SymbolPtr symbol = m_symboltable.symbol(address);
 
     if(symbol)
@@ -388,7 +394,8 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
     this->insertSorted(address, ListingItem::SegmentItem);
 }
 
-void ListingDocumentType::function(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag); }
+void ListingDocumentType::lockFunction(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag);  }
+void ListingDocumentType::function(address_t address, const std::string &name, u32 tag) { this->symbol(address, name, SymbolTypes::Function, tag); }
 void ListingDocumentType::function(address_t address, u32 tag) { this->symbol(address, SymbolTypes::Function, tag); }
 void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Pointer, tag); }
 void ListingDocumentType::table(address_t address, u32 tag) { this->lock(address, SymbolTypes::Table, tag); }

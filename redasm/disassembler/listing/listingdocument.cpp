@@ -210,11 +210,11 @@ std::string ListingDocumentType::comment(address_t address, bool skipauto) const
     return cmt;
 }
 
-std::string ListingDocumentType::remark(address_t address) const
+std::string ListingDocumentType::info(address_t address) const
 {
-    auto it = m_remarks.find(address);
+    auto it = m_info.find(address);
 
-    if(it != m_remarks.end())
+    if(it != m_info.end())
         return it->second;
 
     return std::string();
@@ -222,11 +222,11 @@ std::string ListingDocumentType::remark(address_t address) const
 
 void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
-void ListingDocumentType::remark(address_t address, const std::string &remark)
+void ListingDocumentType::info(address_t address, const std::string &remark)
 {
-    m_remarks[address] = remark;
+    m_info[address] = remark;
     this->insertSorted(address, ListingItem::EmptyItem);
-    this->insertSorted(address, ListingItem::RemarkItem);
+    this->insertSorted(address, ListingItem::InfoItem);
 }
 
 void ListingDocumentType::comment(address_t address, const std::string &s)
@@ -280,7 +280,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
             return;
 
         this->removeSorted(address, ListingItem::EmptyItem);
-        this->removeSorted(address, ListingItem::RemarkItem);
+        this->removeSorted(address, ListingItem::InfoItem);
 
         if(symbol->isFunction())
             this->removeSorted(address, ListingItem::FunctionItem);
@@ -296,7 +296,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
     if(type & SymbolTypes::FunctionMask)
     {
         if(Demangler::isMangled(name))
-            this->remark(address, Demangler::demangled(name));
+            this->info(address, Demangler::demangled(name));
         else
             this->insertSorted(address, ListingItem::EmptyItem);
 

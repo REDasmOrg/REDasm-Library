@@ -22,7 +22,7 @@ struct ListingItem
 {
     enum: u32 {
         Undefined = 0,
-        SegmentItem, EmptyItem, RemarkItem, FunctionItem, SymbolItem, InstructionItem,
+        SegmentItem, EmptyItem, InfoItem, FunctionItem, SymbolItem, InstructionItem,
         AllItems = static_cast<u32>(-1)
     };
 
@@ -154,7 +154,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         typedef std::pair<address_t, std::string> CommentItem;
         typedef std::unordered_map<address_t, CommentSet> AutoCommentMap;
         typedef std::unordered_map<address_t, std::string> CommentMap;
-        typedef std::unordered_map<address_t, std::string> RemarkMap;
+        typedef std::unordered_map<address_t, std::string> InfoMap;
         typedef std::deque<ListingItem*> FunctionList;
 
     public:
@@ -187,9 +187,9 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         SymbolPtr functionStartSymbol(address_t address);
         ListingDocumentType::iterator entryInstruction();
         std::string comment(address_t address, bool skipauto = false) const;
-        std::string remark(address_t address) const;
+        std::string info(address_t address) const;
         void empty(address_t address);
-        void remark(address_t address, const std::string& remark);
+        void info(address_t address, const std::string& info);
         void comment(address_t address, const std::string& s);
         void autoComment(address_t address, const std::string& s);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
@@ -251,7 +251,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         SymbolPtr m_documententry;
         AutoCommentMap m_autocomments;
         CommentMap m_comments;
-        RemarkMap m_remarks;
+        InfoMap m_info;
 
      friend class FormatPlugin;
 };

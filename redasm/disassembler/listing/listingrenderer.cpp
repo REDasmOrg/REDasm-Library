@@ -119,8 +119,8 @@ bool ListingRenderer::getRendererLine(const document_lock &lock, size_t line, Re
         this->renderInstruction(lock, item, rl);
     else if(item->is(ListingItem::SymbolItem))
         this->renderSymbol(lock, item, rl);
-    else if(item->is(ListingItem::RemarkItem))
-        this->renderRemark(lock, item, rl);
+    else if(item->is(ListingItem::InfoItem))
+        this->renderInfo(lock, item, rl);
     else if(!item->is(ListingItem::EmptyItem))
         rl.push("Unknown Type: " + std::to_string(item->type));
 
@@ -231,10 +231,10 @@ void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem 
     }
 }
 
-void ListingRenderer::renderRemark(const document_lock &lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderInfo(const document_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push(".remark ", "dotted_fg").push(lock->remark(item->address), "comment_fg");
+    rl.push(".info ", "dotted_fg").push(lock->info(item->address), "comment_fg");
 }
 
 void ListingRenderer::renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl)

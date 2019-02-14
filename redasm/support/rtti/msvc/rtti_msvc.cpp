@@ -39,7 +39,7 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
         address_t address = format->addressof(pobjectdata), rttiobjectaddress = format->addressof(rttiobject);
         std::string demangledname = Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 
-        lock->remark(address, demangledname);
+        lock->info(address, demangledname);
         lock->lock(address, rttitypename + "ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
         lock->lock(rttiobjectaddress, rttitypename + "rtti_object");
         disassembler->pushReference(rttiobjectaddress, address);

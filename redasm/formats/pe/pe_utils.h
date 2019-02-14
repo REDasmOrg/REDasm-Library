@@ -10,6 +10,7 @@ class PEUtils
 {
     public:
         PEUtils() = delete;
+        static std::string sectionName(const char* psectionname);
         static std::string importName(std::string library, const std::string& name);
         static std::string importName(std::string library, s64 ordinal);
         static bool checkMsvcImport(const std::string& importdescriptor);

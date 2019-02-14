@@ -1,4 +1,5 @@
 #include "pe_utils.h"
+#include "pe_constants.h"
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
@@ -9,6 +10,19 @@ static bool endsWith(const std::string &str, const std::string &suffix)
 {
     return str.size() >= suffix.size() &&
            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+std::string PEUtils::sectionName(const char *psectionname)
+{
+    const char *pend = psectionname;
+
+    for(size_t i = 0; i < IMAGE_SIZEOF_SHORT_NAME; i++, pend++)
+    {
+        if(!*pend)
+            break;
+    }
+
+    return std::string(psectionname, pend);
 }
 
 std::string PEUtils::importName(std::string library, const std::string &name)

@@ -3,6 +3,7 @@
 #include "pe_header.h"
 #include "pe_analyzer.h"
 #include "pe_debug.h"
+#include "pe_utils.h"
 #include "dotnet/dotnet.h"
 #include "vb/vb_analyzer.h"
 #include "borland/borland_version.h"
@@ -332,7 +333,7 @@ template<size_t b> void PeFormat<b>::loadSections()
         if(diff)
             size += m_sectionalignment - diff;
 
-        std::string name = reinterpret_cast<const char*>(section.Name);
+        std::string name = PEUtils::sectionName(reinterpret_cast<const char*>(section.Name));
 
         if(name.empty()) // Rename unnamed sections
             name = "sect" + std::to_string(i);

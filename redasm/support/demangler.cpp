@@ -1,27 +1,58 @@
 #include "demangler.h"
+#include <undname.h> // MSVC Demangler
+#include <vector>
+#include <regex>
 
-#ifdef __GNUC__
-#include <cstdlib>
-#include <cxxabi.h>
-#endif
+#define DEMAGLER_BUFFER_SIZE 2048
+#define MSVC_MANGLED_REGEX   "(\\?.+Z)"
 
 namespace REDasm {
+namespace Demangler {
 
-std::string demangle(const std::string &s)
-{
-#ifdef __GNUC__
-    int status = 0;
-    char* ret = abi::__cxa_demangle(s.c_str(), NULL, NULL, &status);
+std::string demangleMSVC(const std::string& s, bool simplified) {
+    std::vector<char> v(DEMAGLER_BUFFER_SIZE);
+    unsigned short flags = 0;
 
-    if(!ret)
+    if(simplified)
+    {
+        flags = UNDNAME_NO_MS_KEYWORDS |
+                UNDNAME_NO_MEMBER_TYPE |
+                UNDNAME_NO_ACCESS_SPECIFIERS;
+    }
+
+    if(!__unDName(v.data(), s.c_str(), v.size(), std::malloc, std::free, flags))
         return s;
 
-    std::string demangled(ret);
-    std::free(ret);
-    return demangled;
-#else
-    return s;
-#endif
+    return v.data();
 }
 
+bool isMSVC(const std::string &s, std::string* result) {
+    std::smatch match;
+
+    if(!std::regex_search(s, match, std::regex(MSVC_MANGLED_REGEX)))
+        return false;
+
+    if(result)
+        *result = match[1];
+
+    return true;
 }
+
+bool isMangled(const std::string &s) {
+    if(s.empty())
+        return false;
+
+    return Demangler::isMSVC(s);
+}
+
+std::string demangled(const std::string &s, bool simplified) {
+    std::string result;
+
+    if(Demangler::isMSVC(s, &result))
+        return demangleMSVC(result, simplified);
+
+    return s;
+}
+
+} // namespace Demangler
+} // namespace REDasm

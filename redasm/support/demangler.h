@@ -4,9 +4,13 @@
 #include <string>
 
 namespace REDasm {
+namespace Demangler {
 
-std::string demangle(const std::string& s);
+bool isMSVC(const std::string &s, std::string *result = NULL);
+bool isMangled(const std::string& s);
+std::string demangled(const std::string& s, bool simplified = true);
 
-}
+} // namespace Demangler
+} // namespace REDasm
 
 #endif // DEMANGLER_H

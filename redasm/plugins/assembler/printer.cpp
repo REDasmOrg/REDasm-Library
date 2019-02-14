@@ -2,7 +2,7 @@
 #include "../../plugins/format.h"
 #include <cmath>
 
-#define HEADER_SYMBOL_COUNT 20
+#define HEADER_SYMBOL_COUNT 10
 
 namespace REDasm {
 
@@ -29,7 +29,7 @@ std::string Printer::out(const InstructionPtr &instruction) const
 
 void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
 {
-    std::string s(HEADER_SYMBOL_COUNT, '=');
+    std::string s(HEADER_SYMBOL_COUNT * 2, '=');
     int bits = m_disassembler->format()->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? REDasm::quoted(segment->name) : "???") +

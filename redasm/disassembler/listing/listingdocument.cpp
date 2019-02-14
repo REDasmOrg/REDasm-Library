@@ -1,6 +1,7 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
 #include "../../plugins/format.h"
+#include <redasm/support/demangler.h>
 #include <algorithm>
 #include <sstream>
 
@@ -209,6 +210,25 @@ std::string ListingDocumentType::comment(address_t address, bool skipauto) const
     return cmt;
 }
 
+std::string ListingDocumentType::remark(address_t address) const
+{
+    auto it = m_remarks.find(address);
+
+    if(it != m_remarks.end())
+        return it->second;
+
+    return std::string();
+}
+
+void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
+
+void ListingDocumentType::remark(address_t address, const std::string &remark)
+{
+    m_remarks[address] = remark;
+    this->insertSorted(address, ListingItem::EmptyItem);
+    this->insertSorted(address, ListingItem::RemarkItem);
+}
+
 void ListingDocumentType::comment(address_t address, const std::string &s)
 {
     if(!s.empty())
@@ -259,6 +279,9 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         if(symbol->isLocked() && !(type & SymbolTypes::Locked))
             return;
 
+        this->removeSorted(address, ListingItem::EmptyItem);
+        this->removeSorted(address, ListingItem::RemarkItem);
+
         if(symbol->isFunction())
             this->removeSorted(address, ListingItem::FunctionItem);
         else
@@ -271,7 +294,14 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         return;
 
     if(type & SymbolTypes::FunctionMask)
+    {
+        if(Demangler::isMangled(name))
+            this->remark(address, Demangler::demangled(name));
+        else
+            this->insertSorted(address, ListingItem::EmptyItem);
+
         this->insertSorted(address, ListingItem::FunctionItem);
+    }
     else
         this->insertSorted(address, ListingItem::SymbolItem);
 }

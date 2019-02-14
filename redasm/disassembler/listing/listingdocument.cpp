@@ -272,12 +272,6 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
 
 void ListingDocumentType::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    if(address == 0x00401B3F)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     SymbolPtr symbol = m_symboltable.symbol(address);
 
     if(symbol)

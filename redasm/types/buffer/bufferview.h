@@ -87,7 +87,7 @@ class BufferView
 
     private:
         template<typename T> SearchResult<T> find(const u8* searchdata, size_t searchsize, u64 startoffset = 0) const;
-        constexpr size_t patternLength(const std::string& pattern) const { return pattern.size() / 2; }
+        size_t patternLength(const std::string& pattern) const;
         std::pair<u8, u8> patternRange(std::string &pattern, u64& startoffset, u64& endoffset, u64 &beginoffset) const;
         bool comparePattern(const std::string& pattern, const u8* pdata) const;
         bool preparePattern(std::string& pattern) const;

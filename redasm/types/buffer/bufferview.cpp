@@ -1,5 +1,6 @@
 #include "bufferview.h"
 #include "../../support/utils.h"
+#include <cctype>
 
 namespace REDasm {
 namespace Buffer {
@@ -66,6 +67,7 @@ void BufferView::copyTo(AbstractBuffer *buffer)
 }
 
 void BufferView::resize(u64 size) { m_size = std::min(size, m_buffer->size()); }
+size_t BufferView::patternLength(const std::string &pattern) const { return pattern.size() / 2; }
 
 std::pair<u8, u8> BufferView::patternRange(std::string &pattern, u64 &startoffset, u64 &endoffset, u64& beginoffset) const
 {

@@ -17,6 +17,7 @@ std::string demangleMSVC(const std::string& s, bool simplified) {
     {
         flags = UNDNAME_NO_MS_KEYWORDS |
                 UNDNAME_NO_MEMBER_TYPE |
+                UNDNAME_NO_CV_THISTYPE |
                 UNDNAME_NO_FUNCTION_RETURNS |
                 UNDNAME_NO_ACCESS_SPECIFIERS;
     }

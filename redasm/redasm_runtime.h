@@ -3,6 +3,7 @@
 
 #include <libredasm_export.h>
 #include <functional>
+#include <chrono>
 #include <string>
 
 namespace REDasm {
@@ -17,8 +18,10 @@ struct Runtime
     static LIBREDASM_EXPORT LogCallback rntLogCallback;
     static LIBREDASM_EXPORT LogCallback rntStatusCallback;
     static LIBREDASM_EXPORT ProgressCallback rntProgressCallback;
+    static LIBREDASM_EXPORT std::chrono::steady_clock::time_point rntLastStatusReport;
 
     static const LIBREDASM_EXPORT std::string rntDirSeparator;
+    static const LIBREDASM_EXPORT std::chrono::milliseconds rntDebounceTimeout;
 
     static void cwd(const std::string& s);
     static void sync(bool b);

@@ -15,6 +15,8 @@ namespace REDasm {
 
 std::string Runtime::rntSearchPath;
 std::string Runtime::rntTempPath;
+std::chrono::steady_clock::time_point Runtime::rntLastStatusReport = std::chrono::steady_clock::now();
+const std::chrono::milliseconds Runtime::rntDebounceTimeout = std::chrono::milliseconds(100);
 
 #ifdef _WIN32
 const std::string Runtime::rntDirSeparator = "\\";

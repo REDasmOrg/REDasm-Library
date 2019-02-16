@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cstdint>
+#include <chrono>
 #include <string>
 #include <vector>
 #include <list>
@@ -32,9 +33,21 @@ namespace REDasm {
 
 inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
-inline void progress(size_t p) { Runtime::rntProgressCallback(p); }
-inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
-inline void status(const std::string& s, size_t p) { Runtime::rntStatusCallback(s); REDasm::progress(p); }
+
+inline void status(const std::string& s) {
+    Runtime::rntStatusCallback(s);
+}
+
+inline void status(const std::string& s, size_t p) {
+    auto now = std::chrono::steady_clock::now();
+
+    if((now - Runtime::rntLastStatusReport) < Runtime::rntDebounceTimeout)
+        return;
+
+    Runtime::rntLastStatusReport = now;
+    Runtime::rntStatusCallback(s);
+    Runtime::rntProgressCallback(p);
+}
 
 template<typename... T> std::string makePath(const std::string& p, T... args) {
     std::string path = p;

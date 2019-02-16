@@ -274,6 +274,11 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
 void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererLine &rl)
 {
     m_printer->out(instruction, [&](const REDasm::Operand* op, const std::string& opsize, const std::string& opstr) {
+        if(!op) {
+            rl.push(opstr, "immediate_fg");
+            return;
+        }
+
         if(op->index > 0)
             rl.push(", ");
 

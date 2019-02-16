@@ -19,31 +19,24 @@ VBAnalyzer::VBAnalyzer(u32 petype, DisassemblerAPI *disassembler, const Signatur
 
 void VBAnalyzer::analyze()
 {
-    SymbolPtr entrypoint = m_document->documentEntry();
+    InstructionPtr instruction = m_document->entryInstruction();
 
-    if(!entrypoint)
+    if(!instruction->is(InstructionTypes::Push) || (instruction->operands.size() != 1))
         return;
 
-    auto it = m_document->instructionItem(entrypoint->address);
-
-    if(it == m_document->end())
+    if(!instruction->op(0)->is(OperandTypes::Immediate))
         return;
 
-    const InstructionPtr& pushinstruction = m_document->instruction((*it)->address);
-    const InstructionPtr& callinstruction = m_document->instruction((*++it)->address);
+    address_t thunrtdata = instruction->op(0)->u_value;
 
-    if(!pushinstruction->is(InstructionTypes::Push) && !callinstruction->is(InstructionTypes::Call))
+    if(!m_document->segment(thunrtdata) || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Call))
         return;
 
-    if(pushinstruction->operands.size() != 1)
+    m_document->lock(thunrtdata, "thunRTData", SymbolTypes::Data);
+
+    if(!this->decompile(thunrtdata))
         return;
 
-    SymbolPtr thunrtdata = m_document->symbol(pushinstruction->op(0)->u_value);
-
-    if(thunrtdata)
-        m_document->lock(thunrtdata->address, "thunRTData", SymbolTypes::Data);
-
-    this->decompile(thunrtdata);
     PEAnalyzer::analyze();
 }
 
@@ -101,13 +94,14 @@ void VBAnalyzer::decompileObject(const VBPublicObjectDescriptor &pubobjdescr)
     }
 }
 
-void VBAnalyzer::decompile(const SymbolPtr& thunrtdata)
+bool VBAnalyzer::decompile(address_t thunrtdata)
 {
-    if(!thunrtdata)
-        return;
-
     m_format = m_disassembler->format();
-    m_vbheader = m_format->addrpointer<VBHeader>(thunrtdata->address);
+    m_vbheader = m_format->addrpointer<VBHeader>(thunrtdata);
+
+    if(std::strncmp(m_vbheader->szVbMagic, "VB5!", VB_SIGNATURE_SIZE))
+        return false;
+
     m_vbprojinfo = m_format->addrpointer<VBProjectInfo>(m_vbheader->lpProjectData);
     m_vbobjtable = m_format->addrpointer<VBObjectTable>(m_vbprojinfo->lpObjectTable);
     m_vbobjtreeinfo = m_format->addrpointer<VBObjectTreeInfo>(m_vbobjtable->lpObjectTreeInfo);
@@ -115,6 +109,8 @@ void VBAnalyzer::decompile(const SymbolPtr& thunrtdata)
 
     for(size_t i = 0; i < m_vbobjtable->wTotalObjects; i++)
         this->decompileObject(m_vbpubobjdescr[i]);
+
+    return true;
 }
 
 } // namespace REDasm

@@ -3,8 +3,6 @@
 
 namespace REDasm {
 
-ReferenceTable::ReferenceTable() { }
-
 void ReferenceTable::push(address_t address, address_t refbyaddress)
 {
     auto it = m_references.find(address);

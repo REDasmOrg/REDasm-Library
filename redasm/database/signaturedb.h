@@ -58,7 +58,7 @@ class SignatureDB
         typedef std::function<void(const Signature*)> SignatureFound;
 
     public:
-        SignatureDB();
+        SignatureDB() = default;
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
 

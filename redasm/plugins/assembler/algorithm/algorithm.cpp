@@ -3,13 +3,13 @@
 #include <thread>
 
 #define INVALID_MNEMONIC "db"
-#define DECODE_STATE(address) ENQUEUE_STATE(AssemblerAlgorithm::DecodeState, address, -1, NULL)
+#define DECODE_STATE(address) ENQUEUE_STATE(AssemblerAlgorithm::DecodeState, address, -1, nullptr)
 
 namespace REDasm {
 
-AssemblerAlgorithm::AssemblerAlgorithm(): StateMachine(), m_disassembler(NULL), m_assembler(NULL) { }
+AssemblerAlgorithm::AssemblerAlgorithm(): StateMachine(), m_disassembler(nullptr), m_assembler(nullptr) { }
 
-AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(NULL), m_analyzed(0)
+AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(nullptr), m_analyzed(0)
 {
     m_format = m_disassembler->format();
 
@@ -229,7 +229,7 @@ void AssemblerAlgorithm::addressTableState(const State *state)
 
         return;
     }
-    else if(c < 0)
+    if(c < 0)
         return;
 
     const Operand* op = state->operand();

@@ -47,7 +47,7 @@ ImageStreamHeader *PeDotNet::getStream(ImageCor20MetaData *cormetadata, const st
     }
 
     REDasm::log("Cannot find Stream Id " + REDasm::quoted(id));
-    return NULL;
+    return nullptr;
 }
 
 bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tables)

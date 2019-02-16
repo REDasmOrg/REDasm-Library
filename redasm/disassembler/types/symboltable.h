@@ -66,7 +66,7 @@ class SymbolTable: public Serializer::Serializable
         typedef std::unordered_map<std::string, address_t> SymbolsByName;
 
     public:
-        SymbolTable();
+        SymbolTable() = default;
         u64 size() const;
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
         SymbolPtr symbol(address_t address);

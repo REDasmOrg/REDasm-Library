@@ -1,7 +1,7 @@
 #include "pe_resources.h"
 
 #define ADD_RESOURCE_ID(id) m_resourcenames[PEResources::id] = #id
-#define NULL_RESOURCE std::make_pair<ImageResourceDirectory*, ImageResourceDirectoryEntry*>(NULL, NULL)
+#define NULL_RESOURCE std::make_pair<ImageResourceDirectory*, ImageResourceDirectoryEntry*>(nullptr, nullptr)
 
 namespace REDasm {
 

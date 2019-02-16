@@ -28,7 +28,7 @@ template<size_t b, endianness_t e> FORMAT_PLUGIN_TEST(ELF_ARG(ElfFormat<b, e>), 
     return false;
 }
 
-template<size_t b, endianness_t e> ElfFormat<b, e>::ElfFormat(AbstractBuffer *buffer): FormatPluginT<EHDR>(buffer), m_shdr(NULL)
+template<size_t b, endianness_t e> ElfFormat<b, e>::ElfFormat(AbstractBuffer *buffer): FormatPluginT<EHDR>(buffer), m_shdr(nullptr)
 {
     m_skipsections.insert(".comment");
     m_skipsections.insert(".attribute");
@@ -72,7 +72,7 @@ template<size_t b, endianness_t e> std::string ElfFormat<b, e>::assembler() cons
             break;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 template<size_t b, endianness_t e> void ElfFormat<b, e>::load()

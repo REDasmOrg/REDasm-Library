@@ -25,7 +25,7 @@ FORMAT_PLUGIN_TEST(DEXFormat, DEXHeader)
 
 const std::string DEXFormat::m_invalidstring;
 
-DEXFormat::DEXFormat(AbstractBuffer *buffer): FormatPluginT<DEXHeader>(buffer), m_types(NULL), m_strings(NULL), m_methods(NULL), m_fields(NULL), m_protos(NULL)
+DEXFormat::DEXFormat(AbstractBuffer *buffer): FormatPluginT<DEXHeader>(buffer), m_types(nullptr), m_strings(nullptr), m_methods(nullptr), m_fields(nullptr), m_protos(nullptr)
 {
     m_importbase = IMPORT_SECTION_ADDRESS;
 }
@@ -371,21 +371,21 @@ std::string DEXFormat::normalized(const std::string &type)
 
     if(type == "V")
         return "void";
-    else if(type == "Z")
+    if(type == "Z")
         return "boolean";
-    else if(type == "B")
+    if(type == "B")
         return "byte";
-    else if(type == "S")
+    if(type == "S")
         return "short";
-    else if(type == "C")
+    if(type == "C")
         return "char";
-    else if(type == "I")
+    if(type == "I")
         return "int";
-    else if(type == "J")
+    if(type == "J")
         return "long";
-    else if(type == "F")
+    if(type == "F")
         return "float";
-    else if(type == "D")
+    if(type == "D")
         return "double";
 
     std::string s = type;

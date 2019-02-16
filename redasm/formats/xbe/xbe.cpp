@@ -41,7 +41,7 @@ void XbeFormat::load()
 
 void XbeFormat::displayXbeInfo()
 {
-    XbeCertificate* certificate = this->memoryoffset<XbeCertificate>(m_format->CertificateAddress);
+    auto* certificate = this->memoryoffset<XbeCertificate>(m_format->CertificateAddress);
     std::string title = REDasm::wtoa(&certificate->TitleName, XBE_TITLENAME_SIZE);
 
     if(!title.empty())
@@ -83,7 +83,7 @@ bool XbeFormat::decodeEP(u32 encodedep, address_t& ep)
     else
         REDasm::log("Executable Type: RETAIL");
 
-    return segment != NULL;
+    return segment != nullptr;
 }
 
 bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
@@ -97,7 +97,7 @@ bool XbeFormat::decodeKernel(u32 encodedthunk, u32 &thunk)
         segment = m_document->segment(thunk);
     }
 
-    return segment != NULL;
+    return segment != nullptr;
 }
 
 void XbeFormat::loadSections(XbeSectionHeader *sectionhdr)

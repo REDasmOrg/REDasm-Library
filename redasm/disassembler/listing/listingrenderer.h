@@ -17,7 +17,7 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine(): userdata(NULL), documentindex(0), index(0), highlighted(false) { }
+    RendererLine(): userdata(nullptr), documentindex(0), index(0), highlighted(false) { }
 
     void* userdata;
     u64 documentindex, index;
@@ -43,7 +43,7 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
-        virtual void render(u64 start, u64 count, void* userdata = NULL);
+        virtual void render(u64 start, u64 count, void* userdata = nullptr);
         u64 getLastColumn(u64 line);
         std::string getLine(u64 line);
         std::string getSelectedText();

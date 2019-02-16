@@ -27,7 +27,7 @@ std::string Printer::out(const InstructionPtr &instruction) const
     return this->out(instruction, [](const Operand*, const std::string&, const std::string&) { });
 }
 
-void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
+void Printer::segment(const Segment *segment, const Printer::LineCallback& segmentfunc)
 {
     std::string s(HEADER_SYMBOL_COUNT * 2, '=');
     int bits = m_disassembler->format()->bits();
@@ -37,19 +37,19 @@ void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
                     " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
 }
 
-void Printer::function(const SymbolPtr &symbol, Printer::FunctionCallback functionfunc)
+void Printer::function(const SymbolPtr &symbol, const Printer::FunctionCallback& functionfunc)
 {
     std::string s(HEADER_SYMBOL_COUNT, '=');
     functionfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
-void Printer::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefunc)
+void Printer::prologue(const SymbolPtr &symbol, const LineCallback &prologuefunc)
 {
     RE_UNUSED(symbol);
     RE_UNUSED(prologuefunc);
 }
 
-void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
+void Printer::symbol(const SymbolPtr &symbol, const SymbolCallback &symbolfunc) const
 {
     if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
         return;
@@ -93,13 +93,13 @@ void Printer::symbol(const SymbolPtr &symbol, SymbolCallback symbolfunc) const
         symbolfunc(symbol, " \"" + m_disassembler->readString(symbol->address) + "\"");
 }
 
-void Printer::info(const InstructionPtr &instruction, LineCallback infofunc)
+void Printer::info(const InstructionPtr &instruction, const LineCallback &infofunc)
 {
     RE_UNUSED(instruction);
     RE_UNUSED(infofunc);
 }
 
-std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback opfunc) const
+std::string Printer::out(const InstructionPtr &instruction, const OpCallback &opfunc) const
 {
     const OperandList& operands = instruction->operands;
     std::string s = instruction->mnemonic;
@@ -110,7 +110,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         std::string hexstring = REDasm::hexstring(view, instruction->size);
 
         s += hexstring;
-        opfunc(NULL, std::string(), hexstring);
+        opfunc(nullptr, std::string(), hexstring);
         return s;
     }
 

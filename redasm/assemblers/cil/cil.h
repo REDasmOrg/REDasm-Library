@@ -8,7 +8,7 @@ namespace REDasm {
 class CILAssembler : public AssemblerPlugin
 {
     public:
-        CILAssembler();
+        CILAssembler() = default;
         virtual std::string name() const;
 
     protected:

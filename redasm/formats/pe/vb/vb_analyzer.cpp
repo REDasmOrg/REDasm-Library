@@ -9,12 +9,12 @@ namespace REDasm {
 
 VBAnalyzer::VBAnalyzer(u32 petype, DisassemblerAPI *disassembler, const SignatureFiles &signatures): PEAnalyzer(petype, disassembler, signatures)
 {
-    m_format = NULL;
-    m_vbheader = NULL;
-    m_vbprojinfo = NULL;
-    m_vbobjtable = NULL;
-    m_vbobjtreeinfo = NULL;
-    m_vbpubobjdescr = NULL;
+    m_format = nullptr;
+    m_vbheader = nullptr;
+    m_vbprojinfo = nullptr;
+    m_vbobjtable = nullptr;
+    m_vbobjtreeinfo = nullptr;
+    m_vbpubobjdescr = nullptr;
 }
 
 void VBAnalyzer::analyze()

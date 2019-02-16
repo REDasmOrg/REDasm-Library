@@ -30,7 +30,7 @@ template<size_t b> FORMAT_PLUGIN_TEST(PeFormat<b>, ImageDosHeader)
     return false;
 }
 
-template<size_t b> PeFormat<b>::PeFormat(AbstractBuffer *buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(NULL), m_ntheaders(NULL), m_sectiontable(NULL), m_datadirectory(NULL)
+template<size_t b> PeFormat<b>::PeFormat(AbstractBuffer *buffer): FormatPluginT<ImageDosHeader>(buffer), m_dosheader(nullptr), m_ntheaders(nullptr), m_sectiontable(nullptr), m_datadirectory(nullptr)
 {
     m_imagebase = m_sectionalignment = m_entrypoint = 0;
     m_petype = PeType::None;
@@ -57,7 +57,7 @@ template<size_t b> std::string PeFormat<b>::assembler() const
         return "arm";
     }
 
-    return NULL;
+    return nullptr;
 }
 
 template<size_t b> Analyzer *PeFormat<b>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
@@ -262,12 +262,12 @@ template<size_t b> ImageCorHeader* PeFormat<b>::checkDotNet()
     const ImageDataDirectory& dotnetdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_DOTNET];
 
     if(!dotnetdir.VirtualAddress)
-        return NULL;
+        return nullptr;
 
     ImageCorHeader* corheader = RVA_POINTER(ImageCorHeader, dotnetdir.VirtualAddress);
 
     if(corheader->cb < sizeof(ImageCorHeader))
-        return NULL;
+        return nullptr;
 
     return corheader;
 }

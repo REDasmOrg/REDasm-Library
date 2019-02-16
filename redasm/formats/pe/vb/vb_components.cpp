@@ -12,10 +12,6 @@ namespace REDasm {
 
 VBComponents::Components VBComponents::m_components;
 
-VBComponents::VBComponents()
-{
-}
-
 const VBComponents::Component *VBComponents::get(GUID *guid)
 {
     VBComponents::initComponents();
@@ -27,7 +23,7 @@ const VBComponents::Component *VBComponents::get(GUID *guid)
         return &(it->second);
 
     REDasm::log("Cannot find component " + guidstring);
-    return NULL;
+    return nullptr;
 }
 
 void VBComponents::initComponents()

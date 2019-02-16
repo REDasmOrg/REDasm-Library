@@ -5,7 +5,6 @@
 namespace REDasm {
 
 ARMAssembler::ARMAssembler(): ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>() { }
-ARMAssembler::~ARMAssembler() { }
 std::string ARMAssembler::name() const { return "ARM"; }
 u32 ARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
 Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }

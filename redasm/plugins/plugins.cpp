@@ -83,7 +83,7 @@ FormatPlugin *getFormat(AbstractBuffer *buffer)
             return fp;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 AssemblerPlugin *getAssembler(const std::string& id)
@@ -93,7 +93,7 @@ AssemblerPlugin *getAssembler(const std::string& id)
     if(it != Plugins::assemblers.end())
         return it->second();
 
-    return NULL;
+    return nullptr;
 }
 
 void setLoggerCallback(Runtime::LogCallback logcb) { Runtime::rntLogCallback = logcb; }

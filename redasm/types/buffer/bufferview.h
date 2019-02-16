@@ -30,8 +30,8 @@ class BufferView
         static const std::string WILDCARD_BYTE;
 
         template<typename T> struct SearchObject {
-            SearchObject(): view(NULL), result(NULL) { }
-            SearchObject(const BufferView* view, u64 searchsize): view(view), result(NULL), position(0), searchsize(searchsize) { }
+            SearchObject(): view(nullptr), result(nullptr) { }
+            SearchObject(const BufferView* view, u64 searchsize): view(view), result(nullptr), position(0), searchsize(searchsize) { }
             bool hasNext() const { return view && result; }
 
             const BufferView* view;
@@ -41,7 +41,7 @@ class BufferView
 
     public:
         template<typename T> struct SearchResult: public SearchObject<T> {
-            SearchResult(): SearchObject<T>(), searchdata(NULL) { }
+            SearchResult(): SearchObject<T>(), searchdata(nullptr) { }
             SearchResult(const BufferView* view, const u8* searchdata, u64 searchsize): SearchObject<T>(view, searchsize), searchdata(searchdata) { }
             SearchResult<T> next() const { return this->view->template find<T>(searchdata, this->searchsize, this->position + this->searchsize); }
 
@@ -91,7 +91,7 @@ class BufferView
         std::pair<u8, u8> patternRange(std::string &pattern, u64& startoffset, u64& endoffset, u64 &beginoffset) const;
         bool comparePattern(const std::string& pattern, const u8* pdata) const;
         bool preparePattern(std::string& pattern) const;
-        u8* endData() const { return this->data() ? (this->data() + this->size()) : NULL; }
+        u8* endData() const { return this->data() ? (this->data() + this->size()) : nullptr; }
 
     protected:
         const AbstractBuffer* m_buffer;

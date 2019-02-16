@@ -15,7 +15,7 @@ class ReferenceTable: public Serializer::Serializable
         typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
 
     public:
-        ReferenceTable();
+        ReferenceTable() = default;
         void push(address_t address, address_t refbyaddress);
         bool hasReferences(address_t address) const;
         ReferenceMap::const_iterator begin() const;

@@ -10,9 +10,9 @@ DalvikPrinter::DalvikPrinter(DisassemblerAPI *disassembler): Printer(disassemble
 
 }
 
-void DalvikPrinter::function(const SymbolPtr &symbol, Printer::FunctionCallback headerfunc)
+void DalvikPrinter::function(const SymbolPtr &symbol, const Printer::FunctionCallback& headerfunc)
 {
-    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
+    auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
 
     if(!dexformat)
     {
@@ -50,9 +50,9 @@ void DalvikPrinter::function(const SymbolPtr &symbol, Printer::FunctionCallback 
                symbol->name, dexformat->getParameters(symbol->tag));
 }
 
-void DalvikPrinter::prologue(const SymbolPtr &symbol, Printer::LineCallback prologuefunc)
+void DalvikPrinter::prologue(const SymbolPtr &symbol, const LineCallback &prologuefunc)
 {
-    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
+    auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
 
     if(!dexformat)
         return;
@@ -74,7 +74,7 @@ void DalvikPrinter::prologue(const SymbolPtr &symbol, Printer::LineCallback prol
     }
 }
 
-void DalvikPrinter::info(const InstructionPtr &instruction, Printer::LineCallback infofunc)
+void DalvikPrinter::info(const InstructionPtr &instruction, const LineCallback &infofunc)
 {
     if(m_currentdbginfo.line_start == DEX_NO_INDEX_U)
         return;
@@ -105,7 +105,7 @@ void DalvikPrinter::info(const InstructionPtr &instruction, Printer::LineCallbac
             if(debugdata.type_idx != DEX_NO_INDEX)
                 type = ": " + dexformat->getType(debugdata.type_idx);
 
-            infofunc(".local " + this->registerName(debugdata.register_num) + " = " + name + type);
+            infofunc(".local " + DalvikPrinter::registerName(debugdata.register_num) + " = " + name + type);
         }
         else if(debugdata.data_type == DEXDebugDataTypes::RestartLocal)
             this->restoreLocal(dexformat, debugdata.register_num);
@@ -140,7 +140,7 @@ std::string DalvikPrinter::reg(const RegisterOperand &regop) const
 
 std::string DalvikPrinter::imm(const Operand *op) const
 {
-    DEXFormat* dexformat = NULL;
+    DEXFormat* dexformat = nullptr;
 
     if(op->extra_type && (dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format())))
     {

@@ -14,8 +14,6 @@ namespace REDasm {
 std::unordered_map<u32, MIPSQuirks::DecodeCallback> MIPSQuirks::m_opcodetypes;
 std::unordered_map<u32, MIPSQuirks::InstructionCallback> MIPSQuirks::m_cop2map;
 
-MIPSQuirks::MIPSQuirks() { }
-
 bool MIPSQuirks::decode(const BufferView &view, const InstructionPtr &instruction)
 {
     initOpCodes();

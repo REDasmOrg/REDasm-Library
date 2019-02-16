@@ -9,7 +9,7 @@ MetaARMAlgorithm::MetaARMAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugi
 
 void MetaARMAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
-    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
+    auto* metaarm = dynamic_cast<MetaARMAssembler*>(m_assembler);
 
     if(metaarm->isPC(op) || metaarm->isLR(op)) // Don't generate references for PC/LR registers
         return;
@@ -25,7 +25,7 @@ void MetaARMAlgorithm::enqueueTarget(address_t target, const InstructionPtr &ins
 
 void MetaARMAlgorithm::decodeState(const State *state)
 {
-    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
+    auto* metaarm = dynamic_cast<MetaARMAssembler*>(m_assembler);
 
     if(state->address & 0x1)
     {

@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_format(NULL) { }
+ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_format(nullptr) { }
 
 bool ListingDocumentType::advance(InstructionPtr &instruction)
 {
@@ -145,7 +145,7 @@ ListingItems ListingDocumentType::getCalls(ListingItem *item)
 ListingItem *ListingDocumentType::functionStart(ListingItem *item)
 {
     if(!item)
-        return NULL;
+        return nullptr;
 
     return this->functionStart(item->address);
 }
@@ -155,7 +155,7 @@ ListingItem *ListingDocumentType::functionStart(address_t address)
     auto iit = this->instructionItem(address);
 
     if(iit == this->end())
-        return NULL;
+        return nullptr;
 
     auto fit = std::upper_bound(m_functions.begin(), m_functions.end(), iit->get(), [](const ListingItem* item1, const ListingItem* item2) {
         return item1->address < item2->address;
@@ -167,7 +167,7 @@ ListingItem *ListingDocumentType::functionStart(address_t address)
     if((*fit)->address > iit->get()->address)
     {
         if(fit == m_functions.begin()) // Function not found
-            return NULL;
+            return nullptr;
 
         fit--;
     }
@@ -178,7 +178,7 @@ ListingItem *ListingDocumentType::functionStart(address_t address)
 ListingItem *ListingDocumentType::currentItem()
 {
     if(m_cursor.currentLine() >= static_cast<u64>(this->size()))
-        return NULL;
+        return nullptr;
 
     return this->itemAt(m_cursor.currentLine());
 }
@@ -190,13 +190,13 @@ SymbolPtr ListingDocumentType::functionStartSymbol(address_t address)
     if(item)
         return this->symbol(item->address);
 
-    return NULL;
+    return nullptr;
 }
 
 InstructionPtr ListingDocumentType::entryInstruction()
 {
     if(!m_documententry)
-        return NULL;
+        return nullptr;
 
     return this->instruction(m_documententry->address);
 }
@@ -319,25 +319,25 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
 void ListingDocumentType::symbol(address_t address, u32 type, u32 tag)
 {
     if(type & SymbolTypes::TableMask)
-        this->symbol(address, this->symbolName("tbl", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("tbl", address), type, tag);
     else if(type & SymbolTypes::TableItem)
-        this->symbol(address, this->symbolName("tbi", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("tbi", address), type, tag);
     else if(type & SymbolTypes::Pointer)
-        this->symbol(address, this->symbolName("ptr", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("ptr", address), type, tag);
     else if(type & SymbolTypes::WideStringMask)
-        this->symbol(address, this->symbolName("wstr", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("wstr", address), type, tag);
     else if(type & SymbolTypes::StringMask)
-        this->symbol(address, this->symbolName("str", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("str", address), type, tag);
     else if(type & SymbolTypes::FunctionMask)
-        this->symbol(address, this->symbolName("sub", address), type, tag);
+        this->symbol(address, ListingDocumentType::symbolName("sub", address), type, tag);
     else
     {
         const Segment* segment = this->segment(address);
 
         if(segment && segment->is(SegmentTypes::Code))
-            this->symbol(address, this->symbolName("loc", address), type, tag);
+            this->symbol(address, ListingDocumentType::symbolName("loc", address), type, tag);
         else
-            this->symbol(address, this->symbolName("data", address), type, tag);
+            this->symbol(address, ListingDocumentType::symbolName("data", address), type, tag);
     }
 }
 
@@ -449,7 +449,7 @@ Segment *ListingDocumentType::segment(address_t address)
             return &(*it);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const Segment *ListingDocumentType::segment(address_t address) const { return const_cast<ListingDocumentType*>(this)->segment(address); }
@@ -465,7 +465,7 @@ const Segment *ListingDocumentType::segmentByName(const std::string &name) const
             return &segment;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void ListingDocumentType::instruction(const InstructionPtr &instruction)
@@ -541,7 +541,7 @@ int ListingDocumentType::symbolIndex(address_t address) { return this->index(add
 ListingItem* ListingDocumentType::itemAt(size_t i) const
 {
     if(i >= this->size())
-        return NULL;
+        return nullptr;
 
     return this->at(i).get();
 }

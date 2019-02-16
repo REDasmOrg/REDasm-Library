@@ -14,14 +14,14 @@ class DotNetReader
 
     public:
         DotNetReader(ImageCor20MetaData *cormetadata);
-        void iterateTypes(MethodCallback cbmethods) const;
+        void iterateTypes(const MethodCallback &cbmethods) const;
         bool isValid() const;
 
     private:
         const CorTableRows& getTableRows(u32 cortable) const;
         void buildType(std::string& s, u32 stringidx) const;
-        void iterateMethods(const CorTablePtr &cortypedef, u32 methodcount, MethodCallback cbmethods) const;
-        u32 getListCount(CorTableRows::const_iterator rowsit, const CorTableRows &cortablerows, u32 maxrows, IndexCallback cbindex) const;
+        void iterateMethods(const CorTablePtr &cortypedef, u32 methodcount, const MethodCallback &cbmethods) const;
+        u32 getListCount(CorTableRows::const_iterator rowsit, const CorTableRows &cortablerows, u32 maxrows, const IndexCallback &cbindex) const;
         std::string getString(u32 index) const;
 
     private:

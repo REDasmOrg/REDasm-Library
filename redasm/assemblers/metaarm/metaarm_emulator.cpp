@@ -23,14 +23,14 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
 
 void MetaARMEmulator::emulate(const InstructionPtr &instruction)
 {
-    ARMAbstractAssembler* arm = dynamic_cast<ARMAbstractAssembler*>(m_disassembler->assembler());
+    auto* arm = dynamic_cast<ARMAbstractAssembler*>(m_disassembler->assembler());
     this->writeReg(ARM_REG_PC, arm->pc(instruction));
     EmulatorT<u32>::emulate(instruction);
 }
 
 bool MetaARMEmulator::setTarget(const InstructionPtr &instruction)
 {
-    MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
+    auto* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
 
     if(metaarm->isPC(instruction->targetOperand()) || metaarm->isLR(instruction->targetOperand()))
         return false;

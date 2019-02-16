@@ -169,7 +169,7 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), target_idx(-1), type(0), size(0), id(0), userdata(NULL) { }
+    Instruction(): address(0), target_idx(-1), type(0), size(0), id(0), userdata(nullptr) { }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
@@ -195,7 +195,7 @@ struct Instruction
     address_t endAddress() const { return address + size; }
 
     Operand* targetOperand() { return &operands[target_idx]; }
-    Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : NULL; }
+    Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Immediate, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
@@ -230,7 +230,7 @@ struct Instruction
 
         if(free && userdata) {
             free(userdata);
-            userdata = NULL;
+            userdata = nullptr;
         }
     }
 };

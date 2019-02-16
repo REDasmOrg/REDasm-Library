@@ -11,7 +11,7 @@ class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
 {
     public:
         ARMAssembler();
-        virtual ~ARMAssembler();
+        virtual ~ARMAssembler() = default;
         virtual std::string name() const;
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;

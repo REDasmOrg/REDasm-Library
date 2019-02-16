@@ -22,8 +22,8 @@ class DisassemblerAPI
         SimpleEvent busyChanged;
 
     public:
-        DisassemblerAPI();
-        virtual ~DisassemblerAPI();
+        DisassemblerAPI() = default;
+        virtual ~DisassemblerAPI() = default;
         virtual FormatPlugin* format() = 0;
         virtual AssemblerPlugin* assembler() = 0;
         virtual safe_ptr<ListingDocumentType>& document() = 0;
@@ -35,7 +35,7 @@ class DisassemblerAPI
         virtual void checkLocation(address_t fromaddress, address_t address) = 0;
         virtual bool checkString(address_t fromaddress, address_t address) = 0;
         virtual int checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;
-        virtual u64 locationIsString(address_t address, bool *wide = NULL, bool *middle = NULL) const = 0;
+        virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const = 0;
         virtual std::string readString(const SymbolPtr& symbol) const = 0;
         virtual std::string readString(address_t address) const = 0;
         virtual std::string readWString(const SymbolPtr& symbol) const = 0;
@@ -44,7 +44,7 @@ class DisassemblerAPI
         virtual bool readAddress(address_t address, size_t size, u64 *value) const = 0;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const = 0;
         virtual bool dereference(address_t address, u64* value) const = 0;
-        virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = NULL) = 0;
+        virtual SymbolPtr dereferenceSymbol(const SymbolPtr& symbol, u64* value = nullptr) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
         virtual void disassemble(address_t address) = 0;
         virtual bool loadSignature(const std::string& sdbfile) = 0;

@@ -27,7 +27,7 @@ class PEResources
         ResourceItem find(const std::string& name, const ResourceItem& parentres) const;
 
     public:
-        template<typename T1, typename T2> T1* data(const PEResources::ResourceItem &item, T2 formatbase, RvaToOffsetCallback rtocb, u64* size = NULL) const;
+        template<typename T1, typename T2> T1* data(const PEResources::ResourceItem &item, T2 formatbase, RvaToOffsetCallback rtocb, u64* size = nullptr) const;
 
     private:
         ResourceItem find(u16 id, ImageResourceDirectory* resourcedir) const;
@@ -45,7 +45,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
     if(!item.second->DataIsDirectory)
     {
         if(!item.second->OffsetToData)
-            return NULL;
+            return nullptr;
 
         ImageResourceDataEntry* dataentry = RESOURCE_PTR(ImageResourceDataEntry, m_resourcedirectory, item.second->OffsetToData);
 
@@ -56,7 +56,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         offset_t offset = rtocb(dataentry->OffsetToData, &ok);
 
         if(!ok)
-            return NULL;
+            return nullptr;
 
         return reinterpret_cast<T1*>(reinterpret_cast<size_t>(formatbase) + offset);
     }
@@ -65,7 +65,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
     size_t c = resourcedir->NumberOfIdEntries + resourcedir->NumberOfNamedEntries;
 
     if(c != 1)
-        return NULL;
+        return nullptr;
 
     ImageResourceDirectoryEntry* entry = reinterpret_cast<ImageResourceDirectoryEntry*>(resourcedir + 1);
     return this->data<T1, T2>(std::make_pair(resourcedir, entry), formatbase, rtocb, size);

@@ -50,7 +50,7 @@ MemoryBuffer *Emulator::getSegmentMemory(address_t address, offset_t *offset)
         return it->second.get();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 BufferView Emulator::getMemory(address_t address)

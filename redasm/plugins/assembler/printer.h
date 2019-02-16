@@ -23,12 +23,12 @@ class Printer
         std::string out(const InstructionPtr& instruction) const;
 
     public:
-        virtual void segment(const Segment* segment, LineCallback segmentfunc);
-        virtual void function(const SymbolPtr& symbol, FunctionCallback functionfunc);
-        virtual void prologue(const SymbolPtr& symbol, LineCallback prologuefunc);
-        virtual void symbol(const SymbolPtr& symbol, SymbolCallback symbolfunc) const;
-        virtual void info(const InstructionPtr& instruction, LineCallback infofunc);
-        virtual std::string out(const InstructionPtr& instruction, OpCallback opfunc) const;
+        virtual void segment(const Segment* segment, const LineCallback &segmentfunc);
+        virtual void function(const SymbolPtr& symbol, const FunctionCallback &functionfunc);
+        virtual void prologue(const SymbolPtr& symbol, const LineCallback& prologuefunc);
+        virtual void symbol(const SymbolPtr& symbol, const SymbolCallback& symbolfunc) const;
+        virtual void info(const InstructionPtr& instruction, const LineCallback& infofunc);
+        virtual std::string out(const InstructionPtr& instruction, const OpCallback& opfunc) const;
 
     public: // Operand privitives
         virtual std::string reg(const RegisterOperand &regop) const;

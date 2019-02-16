@@ -36,7 +36,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         const DotNetReader *dotNetReader() const;
 
     private:
-        u64 rvaToOffset(u64 rva, bool *ok = NULL) const;
+        u64 rvaToOffset(u64 rva, bool *ok = nullptr) const;
         void readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag);
         void readTLSCallbacks(const ImageTlsDirectory* tlsdirectory);
         void checkPeTypeHeuristic();

@@ -16,7 +16,7 @@ class Analyzer
 {
     public:
         Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
-        virtual ~Analyzer();
+        virtual ~Analyzer() = default;
         virtual void analyzeFast();
         virtual void analyze();
 
@@ -25,8 +25,8 @@ class Analyzer
         bool findNullSubs(const SymbolPtr &symbol);
         void checkFunctions();
         void findTrampoline(const SymbolPtr &symbol);
-        SymbolPtr findTrampoline_x86(ListingDocumentType::iterator it);
-        SymbolPtr findTrampoline_arm(ListingDocumentType::iterator it);
+        SymbolPtr findTrampoline_x86(REDasm::ListingDocumentType::iterator &it);
+        SymbolPtr findTrampoline_arm(REDasm::ListingDocumentType::iterator &it);
 
     protected:
         ListingDocument& m_document;

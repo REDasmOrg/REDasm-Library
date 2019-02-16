@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): m_cormetadata(cormetadata), m_cortablesheader(NULL)
+DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): m_cormetadata(cormetadata), m_cortablesheader(nullptr)
 {
     REDasm::log(".NET Version: " + PeDotNet::getVersion(cormetadata));
     ImageStreamHeader* streamheader = PeDotNet::getStream(cormetadata, "#~");
@@ -24,7 +24,7 @@ DotNetReader::DotNetReader(ImageCor20MetaData *cormetadata): m_cormetadata(corme
     m_corstrings = REDasm::relpointer<char>(cormetadata, streamheader->Offset);
 }
 
-void DotNetReader::iterateTypes(MethodCallback cbmethods) const
+void DotNetReader::iterateTypes(const MethodCallback& cbmethods) const
 {
     const CorTableRows& cortdrows = this->getTableRows(CorMetadataTables::TypeDef);
     const CorTableRows& cormdrows = this->getTableRows(CorMetadataTables::MethodDef);
@@ -61,7 +61,7 @@ void DotNetReader::buildType(std::string &dest, u32 stringidx) const
     dest += s;
 }
 
-void DotNetReader::iterateMethods(const CorTablePtr& cortypedef, u32 methodcount, MethodCallback cbmethods) const
+void DotNetReader::iterateMethods(const CorTablePtr& cortypedef, u32 methodcount, const MethodCallback& cbmethods) const
 {
     std::string tname;
 
@@ -82,7 +82,7 @@ void DotNetReader::iterateMethods(const CorTablePtr& cortypedef, u32 methodcount
     }
 }
 
-u32 DotNetReader::getListCount(CorTableRows::const_iterator rowsit, const CorTableRows& cortablerows, u32 maxrows, IndexCallback cbindex) const
+u32 DotNetReader::getListCount(CorTableRows::const_iterator rowsit, const CorTableRows& cortablerows, u32 maxrows, const IndexCallback& cbindex) const
 {
     u32 index = cbindex(*rowsit), lastindex = 0;
     rowsit++;

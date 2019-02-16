@@ -5,7 +5,7 @@
 namespace REDasm {
 namespace Buffer {
 
-MemoryBuffer::MemoryBuffer(): m_data(NULL), m_size(0) { }
+MemoryBuffer::MemoryBuffer(): m_data(nullptr), m_size(0) { }
 MemoryBuffer::MemoryBuffer(u64 size): m_size(size) { m_data = reinterpret_cast<u8*>(std::malloc(size)); }
 
 MemoryBuffer::MemoryBuffer(u64 size, u8 val)
@@ -18,7 +18,7 @@ MemoryBuffer::MemoryBuffer(MemoryBuffer&& mb)
 {
     this->swap(mb);
 
-    mb.m_data = NULL;
+    mb.m_data = nullptr;
     mb.m_size = 0;
 }
 
@@ -27,7 +27,7 @@ MemoryBuffer::~MemoryBuffer()
     if(m_data)
         std::free(m_data);
 
-    m_data = NULL;
+    m_data = nullptr;
     m_size = 0;
 }
 
@@ -55,12 +55,12 @@ MemoryBuffer *MemoryBuffer::fromFile(const std::string &file)
     std::ifstream ifs(file, std::ios::in | std::ios::binary | std::ios::ate);
 
     if(!ifs.is_open())
-        return NULL;
+        return nullptr;
 
     size_t size = ifs.tellg();
 
     if(!size)
-        return NULL;
+        return nullptr;
 
     ifs.seekg(0, std::ios::beg);
 

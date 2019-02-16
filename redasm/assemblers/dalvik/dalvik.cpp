@@ -242,6 +242,7 @@ bool DalvikAssembler::decodeInvoke(BufferView& view, const InstructionPtr &instr
     u8 argc = firstb >> 4;
     bool needslast = false;
 
+    instruction->id = id;
     instruction->size = sizeof(u16) * 2;
 
     if((argc > 4) && ((argc % 4) == 1))

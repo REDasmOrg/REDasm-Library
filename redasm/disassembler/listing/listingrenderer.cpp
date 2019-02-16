@@ -203,7 +203,7 @@ void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem 
                     this->renderTable(lock, symbol, rl);
                     return;
                 }
-                else if(this->renderSymbolPointer(lock, symbol, rl))
+                if(this->renderSymbolPointer(lock, symbol, rl))
                     return;
             }
 

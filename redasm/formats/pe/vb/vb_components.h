@@ -15,10 +15,8 @@ class VBComponents
         struct Component { std::string name; EventList events; };
         typedef std::unordered_map<std::string, Component> Components;
 
-    private:
-        VBComponents();
-
     public:
+        VBComponents() = delete;
         static const Component* get(GUID* guid);
 
     private:

@@ -29,7 +29,7 @@ class AssemblerPlugin: public Plugin
 {
     public:
         AssemblerPlugin();
-        virtual ~AssemblerPlugin();
+        virtual ~AssemblerPlugin() = default;
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;

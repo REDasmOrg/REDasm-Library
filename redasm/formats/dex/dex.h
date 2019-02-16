@@ -33,7 +33,7 @@ class DEXFormat : public FormatPluginT<DEXHeader>
         bool getMethodInfo(u64 methodidx, DEXEncodedMethod& dexmethod);
         bool getDebugInfo(u64 methodidx, DEXDebugInfo& debuginfo);
         u32 getMethodSize(u32 methodidx) const;
-        address_t nextImport(address_t *res = NULL);
+        address_t nextImport(address_t *res = nullptr);
 
     private:
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);

@@ -21,7 +21,7 @@ class MIPSQuirks
         typedef std::function<void(u32, const InstructionPtr&)> InstructionCallback;
 
     private:
-        MIPSQuirks();
+        MIPSQuirks() = default;
         static void initOpCodes();
         static void decodeCop2(u32 data, const InstructionPtr& instruction);
         static void decodeCtc2(u32 data, const InstructionPtr& instruction);

@@ -23,10 +23,10 @@ class DisassemblerBase: public DisassemblerAPI
         virtual void checkLocation(address_t fromaddress, address_t address);
         virtual bool checkString(address_t fromaddress, address_t address);
         virtual int checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
-        virtual u64 locationIsString(address_t address, bool *wide = NULL, bool *middle = NULL) const;
+        virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const;
         virtual std::string readString(const SymbolPtr& symbol) const;
         virtual std::string readWString(const SymbolPtr& symbol) const;
-        virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = NULL);
+        virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = nullptr);
         virtual bool dereference(address_t address, u64 *value) const;
         virtual BufferView getFunctionBytes(address_t address);
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
@@ -37,7 +37,7 @@ class DisassemblerBase: public DisassemblerAPI
 
    private:
         template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;
-        template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle = NULL) const;
+        template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle = nullptr) const;
 
    protected:
         ListingDocument& m_document;

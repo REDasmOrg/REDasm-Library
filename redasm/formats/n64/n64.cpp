@@ -271,13 +271,13 @@ bool N64RomFormat::checkCountryCode(const N64RomHeader *format)
 
     if(format->country_code == 0x37)
         return true;
-    else if((format->country_code >= 0x41) && (format->country_code <= 0x4C))
+    if((format->country_code >= 0x41) && (format->country_code <= 0x4C))
         return true;
-    else if((format->country_code == 0x4E) || (format->country_code == 0x50))
+    if((format->country_code == 0x4E) || (format->country_code == 0x50))
         return true;
-    else if((format->country_code == 0x53) || (format->country_code == 0x55))
+    if((format->country_code == 0x53) || (format->country_code == 0x55))
         return true;
-    else if((format->country_code >= 0x57) && (format->country_code <= 0x59))
+    if((format->country_code >= 0x57) && (format->country_code <= 0x59))
         return true;
 
     return false;

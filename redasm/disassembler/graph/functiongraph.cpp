@@ -16,13 +16,13 @@ FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index)
 {
     for(auto& item : *this)
     {
-       FunctionBlock* v = static_cast<FunctionBlock*>(item.get());
+       auto* v = static_cast<FunctionBlock*>(item.get());
 
         if(v->contains(index))
             return v;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)

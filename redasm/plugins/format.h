@@ -20,7 +20,7 @@ template<typename T> T* getFormatPlugin(AbstractBuffer* buffer)
     BufferView view = buffer->view();
 
     if((sizeof(typename T::FormatHeader) > buffer->size()) || !T::test(format, view))
-        return NULL;
+        return nullptr;
 
     T* formatplugin = new T(buffer);
     formatplugin->load();

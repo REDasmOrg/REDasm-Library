@@ -3,8 +3,6 @@
 
 namespace REDasm {
 
-SymbolTable::SymbolTable() { }
-
 bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
 {
     auto it = m_byaddress.find(address);
@@ -29,7 +27,7 @@ SymbolPtr SymbolTable::symbol(const std::string &name)
     if(it != m_byname.end())
         return m_byaddress[it->second];
 
-    return NULL;
+    return nullptr;
 }
 
 SymbolPtr SymbolTable::symbol(address_t address)
@@ -37,7 +35,7 @@ SymbolPtr SymbolTable::symbol(address_t address)
     auto it = m_byaddress.find(address);
 
     if(it == m_byaddress.end())
-        return NULL;
+        return nullptr;
 
     return it->second;
 }

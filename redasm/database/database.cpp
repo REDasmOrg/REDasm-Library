@@ -49,13 +49,13 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     if(!ifs.is_open())
     {
         m_lasterror = "Cannot open " + REDasm::quoted(dbfilename);
-        return NULL;
+        return nullptr;
     }
 
     if(!Serializer::checkSignature(ifs, RDB_SIGNATURE))
     {
         m_lasterror = "Signature check failed for " + REDasm::quoted(dbfilename);
-        return NULL;
+        return nullptr;
     }
 
     u32 version = 0;
@@ -64,7 +64,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     if(version != RDB_VERSION)
     {
         m_lasterror = "Invalid version, got " + std::to_string(version) + " " + std::to_string(RDB_VERSION) + " required";
-        return NULL;
+        return nullptr;
     }
 
     MemoryBuffer buffer;
@@ -75,7 +75,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     if(!Serializer::decompressBuffer(ifs, &buffer))
     {
         m_lasterror = "Cannot decompress database " + REDasm::quoted(dbfilename);
-        return NULL;
+        return nullptr;
     }
 
     std::unique_ptr<FormatPlugin> format(REDasm::getFormat(&buffer));
@@ -83,7 +83,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     if(!format)
     {
         m_lasterror = "Unsupported format: " + REDasm::quoted(formatname);
-        return NULL;
+        return nullptr;
     }
 
     AssemblerPlugin* assembler = REDasm::getAssembler(format->assembler());
@@ -91,13 +91,13 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     if(!assembler)
     {
         m_lasterror = "Unsupported assembler: " + REDasm::quoted(format->assembler());
-        return NULL;
+        return nullptr;
     }
 
     auto& document = format->document();
     document->deserializeFrom(ifs);
 
-    Disassembler* disassembler = new Disassembler(assembler, format.release());
+    auto* disassembler = new Disassembler(assembler, format.release());
     ReferenceTable* references = disassembler->references();
     references->deserializeFrom(ifs);
     return disassembler;

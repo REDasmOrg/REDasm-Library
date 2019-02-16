@@ -240,7 +240,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         int index(address_t address, u32 type);
         std::string autoComment(address_t address) const;
         static std::string normalized(std::string s);
-        static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = NULL);
+        static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = nullptr);
 
     private:
         ListingCursor m_cursor;

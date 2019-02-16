@@ -21,8 +21,6 @@ bool Signature::isCompatible(const FormatPlugin *format) const
     return true;
 }
 
-SignatureDB::SignatureDB() { }
-
 bool SignatureDB::load(const std::string &sigfilename)
 {
     std::fstream ifs(sigfilename, std::ios::in | std::ios::binary);

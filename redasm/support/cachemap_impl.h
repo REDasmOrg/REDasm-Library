@@ -6,12 +6,12 @@
 
 namespace REDasm {
 
-template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(NULL))
+template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(nullptr))
 {
     m_file.exceptions(std::fstream::failbit);
 }
 
-template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(NULL))
+template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(nullptr))
 {
     std::string cachepath = REDasm::makePath(Runtime::rntTempPath, CACHE_FILE);
     m_file.open(cachepath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);

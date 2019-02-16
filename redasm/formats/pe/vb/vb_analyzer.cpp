@@ -35,7 +35,10 @@ void VBAnalyzer::analyze()
     if(!pushinstruction->is(InstructionTypes::Push) && !callinstruction->is(InstructionTypes::Call))
         return;
 
-    SymbolPtr thunrtdata = m_document->symbol(pushinstruction->operands[0].u_value);
+    if(pushinstruction->operands.size() != 1)
+        return;
+
+    SymbolPtr thunrtdata = m_document->symbol(pushinstruction->op(0)->u_value);
 
     if(thunrtdata)
         m_document->lock(thunrtdata->address, "thunRTData", SymbolTypes::Data);

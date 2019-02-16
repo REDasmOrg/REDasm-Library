@@ -33,10 +33,7 @@ namespace REDasm {
 
 inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
-
-inline void status(const std::string& s) {
-    Runtime::rntStatusCallback(s);
-}
+inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
 
 inline void status(const std::string& s, size_t p) {
     auto now = std::chrono::steady_clock::now();
@@ -124,11 +121,11 @@ struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
     Segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type): name(name), offset(offset), address(address), endaddress(address + size), type(type) { }
-    s64 size() const { return static_cast<s64>(endaddress - address); }
-    bool empty() const { return this->size() <= 0; }
-    bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
-    bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (this->offset + (endaddress - address)))); }
-    bool is(u32 t) const { return type & t; }
+    constexpr s64 size() const { return static_cast<s64>(endaddress - address); }
+    constexpr bool empty() const { return this->size() <= 0; }
+    constexpr bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
+    constexpr bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (this->offset + (endaddress - address)))); }
+    constexpr bool is(u32 t) const { return type & t; }
 
     std::string name;
     offset_t offset;
@@ -174,10 +171,10 @@ struct Operand
 
     union { s64 s_value; u64 u_value; };
 
-    bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
-    bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
-    bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
-    bool is(u32 t) const { return type & t; }
+    constexpr bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
+    constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
+    constexpr bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
+    constexpr bool is(u32 t) const { return type & t; }
 };
 
 struct Instruction
@@ -196,20 +193,20 @@ struct Instruction
     instruction_id_t id;            // Backend Specific
     void* userdata;                 // It doesn't survive after AssemblerPlugin::decode() by design
 
-    bool is(u32 t) const { return type & t; }
-    bool isTargetOperand(const Operand* op) const { return (target_idx == -1) ? false : (target_idx == op->index); }
-    bool isInvalid() const { return type == InstructionTypes::Invalid; }
-    bool hasTargets() const { return !targets.empty(); }
-    void target(address_t target) { targets.insert(target); }
-    void untarget(address_t target) { targets.erase(target); }
-    void op_size(s32 index, u32 size) { operands[index].size = size; }
-    u32 op_size(s32 index) const { return operands[index].size; }
-    address_t target() const { return *targets.begin(); }
-    address_t endAddress() const { return address + size; }
+    constexpr bool is(u32 t) const { return type & t; }
+    constexpr bool isTargetOperand(const Operand* op) const { return (target_idx == -1) ? false : (target_idx == op->index); }
+    constexpr bool isInvalid() const { return type == InstructionTypes::Invalid; }
+    inline bool hasTargets() const { return !targets.empty(); }
+    inline void target(address_t target) { targets.insert(target); }
+    inline void untarget(address_t target) { targets.erase(target); }
+    inline void op_size(s32 index, u32 size) { operands[index].size = size; }
+    inline u32 op_size(s32 index) const { return operands[index].size; }
+    inline address_t target() const { return *targets.begin(); }
+    constexpr address_t endAddress() const { return address + size; }
 
-    Operand* targetOperand() { return &operands[target_idx]; }
-    Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
-    Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
+    inline Operand* targetOperand() { return &operands[target_idx]; }
+    constexpr Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
+    inline Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Immediate, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }

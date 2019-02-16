@@ -15,11 +15,11 @@ namespace REDasm
 {
 
 std::string simplified(std::string s);
-std::string quoted(const std::string& s);
+inline std::string quoted(const std::string& s) {  return "\"" + s + "\""; }
+inline std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }
 std::string wtoa(const std::wstring& wide);
-std::string quoted(const char* s);
 std::string hexstring(const char* data, size_t size);
-std::string hexstring(const BufferView& view, size_t size);
+inline std::string hexstring(const BufferView& view, size_t size) { return hexstring(static_cast<const char*>(view), size); }
 MemoryBuffer bytes(const std::string& s);
 u8 byte(const std::string& s, int offset = 0);
 

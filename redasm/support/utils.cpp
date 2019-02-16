@@ -15,10 +15,6 @@ std::string wtoa(const std::wstring& ws)
     return s;
 }
 
-std::string quoted(const std::string &s) { return "\"" + s + "\""; }
-std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }
-std::string hexstring(const BufferView &view, size_t size) { return hexstring(static_cast<const char*>(view), size); }
-
 std::string hexstring(const char *data, size_t size)
 {
     std::stringstream ss;

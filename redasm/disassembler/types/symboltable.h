@@ -47,11 +47,11 @@ struct Symbol
     u64 size;
     std::string name;
 
-    bool is(u32 t) const { return type & t; }
-    bool isFunction() const { return type & SymbolTypes::FunctionMask; }
-    bool isTable() const { return type & SymbolTypes::TableMask; }
-    bool isImport() const { return type & SymbolTypes::ImportMask; }
-    bool isLocked() const { return type & SymbolTypes::Locked; }
+    constexpr bool is(u32 t) const { return type & t; }
+    constexpr bool isFunction() const { return type & SymbolTypes::FunctionMask; }
+    constexpr bool isTable() const { return type & SymbolTypes::TableMask; }
+    constexpr bool isImport() const { return type & SymbolTypes::ImportMask; }
+    constexpr bool isLocked() const { return type & SymbolTypes::Locked; }
 };
 
 typedef std::shared_ptr<Symbol> SymbolPtr;

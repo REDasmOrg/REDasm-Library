@@ -13,7 +13,7 @@ namespace REDasm {
 
 template<size_t b> FORMAT_PLUGIN_TEST(PeFormat<b>, ImageDosHeader)
 {
-    if(format->e_magic != IMAGE_DOS_SIGNATURE)
+    if((format->e_magic != IMAGE_DOS_SIGNATURE) || !view.inRange(format->e_lfanew))
         return false;
 
     const ImageNtHeaders* ntheaders = PeFormat::relpointer<const ImageNtHeaders>(format, format->e_lfanew);

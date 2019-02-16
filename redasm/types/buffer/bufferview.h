@@ -70,6 +70,7 @@ class BufferView
         iterator<u8> end() const { return iterator<u8>(this->endData()); }
         u8* data() const { return m_buffer->data() + m_offset; }
         constexpr const AbstractBuffer* buffer() const { return m_buffer; }
+        constexpr bool inRange(u64 offset) const { return (offset >= m_offset) && (offset < (m_offset + m_size)); }
         constexpr bool eob() const { return !m_buffer || !this->data() || !m_size; }
         constexpr u64 size() const { return m_size; }
         u8 operator *() const { return *this->data(); }

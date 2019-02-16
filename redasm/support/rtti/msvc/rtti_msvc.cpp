@@ -16,14 +16,22 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
     RTTITypeDescriptorMap rttitypes;
     DataSegmentList segments;
 
+    REDasm::status("Searching \"data\" segments...");
     RTTIMsvc::searchDataSegments(disassembler, segments);
+
+    REDasm::status("Searching RTTITypeDescriptors...");
     RTTIMsvc::searchTypeDescriptors(disassembler, rttitypes, segments);
+
+    REDasm::status("Searching RTTICompleteObjectLocators...");
     RTTIMsvc::searchCompleteObjects(disassembler, rttiobjects, rttitypes, segments);
+
+    REDasm::status("Searching VTables...");
     RTTIMsvc::searchVTables(disassembler, rttivtables, rttiobjects, segments);
 
     auto lock = x_lock_safe_ptr(disassembler->document());
     FormatPlugin* format = disassembler->format();
 
+    REDasm::status("Reading VTables...");
     for(auto& rttivtableitem : rttivtables)
     {
         const RTTICompleteObjectLocator* rttiobject = rttivtableitem.first;
@@ -71,7 +79,6 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
 
 void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList &segments)
 {
-    REDasm::status("Searching data segments...");
     const ListingDocument& document = disassembler->document();
 
     for(size_t i = 0; i < document->segmentsCount(); i++)
@@ -87,7 +94,6 @@ void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList
 
 void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
-    REDasm::status("Searching type descriptors...");
     const ListingDocument& document = disassembler->document();
     const FormatPlugin* format = disassembler->format();
 
@@ -114,7 +120,6 @@ void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDesc
 
 void RTTIMsvc::searchCompleteObjects(DisassemblerAPI *disassembler, RTTICompleteObjectMap& rttiobjects, const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
-    REDasm::status("Searching RTTI objects...");
     const FormatPlugin* format = disassembler->format();
     RTTICompleteObjectLocatorSearch searchobj = { 0, 0, 0, 0 };
 
@@ -138,7 +143,6 @@ void RTTIMsvc::searchCompleteObjects(DisassemblerAPI *disassembler, RTTIComplete
 
 void RTTIMsvc::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTableMap &vtables, const RTTIMsvc::RTTICompleteObjectMap &rttiobjects, const RTTIMsvc::DataSegmentList &segments)
 {
-    REDasm::status("Searching VTables...");
     const FormatPlugin* format = disassembler->format();
 
     for(const auto& item : rttiobjects)

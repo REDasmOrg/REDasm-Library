@@ -35,7 +35,7 @@ struct State
 
     bool operator ==(const State& rhs) const { return (id == rhs.id) && (address == rhs.address); }
     bool isFromOperand() const { return index > -1; }
-    const Operand& operand() const { return instruction->op(index); }
+    const Operand* operand() const { return instruction->op(index); }
 };
 
 class StateMachine

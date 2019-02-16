@@ -24,7 +24,7 @@ std::string Printer::symbol(const SymbolPtr &symbol) const
 
 std::string Printer::out(const InstructionPtr &instruction) const
 {
-    return this->out(instruction, [](const Operand&, const std::string&, const std::string&) { });
+    return this->out(instruction, [](const Operand*, const std::string&, const std::string&) { });
 }
 
 void Printer::segment(const Segment *segment, Printer::LineCallback segmentfunc)
@@ -110,7 +110,7 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         std::string hexstring = REDasm::hexstring(view, instruction->size);
 
         s += hexstring;
-        opfunc(Operand(), std::string(), hexstring);
+        opfunc(NULL, std::string(), hexstring);
         return s;
     }
 
@@ -126,20 +126,20 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
         const Operand& operand = *it;
 
         if(operand.is(OperandTypes::Immediate))
-            opstr = this->imm(operand);
+            opstr = this->imm(&operand);
         else if(operand.is(OperandTypes::Memory))
-            opstr = this->mem(operand);
+            opstr = this->mem(&operand);
         else if(operand.is(OperandTypes::Displacement))
-            opstr = this->disp(operand);
+            opstr = this->disp(&operand);
         else if(operand.is(OperandTypes::Register))
             opstr = this->reg(operand.reg);
         else
             continue;
 
-        std::string opsize = this->size(operand);
+        std::string opsize = this->size(&operand);
 
         if(opfunc)
-            opfunc(operand, opsize, opstr);
+            opfunc(&operand, opsize, opstr);
 
         if(!opsize.empty())
             s += opsize + " ";
@@ -150,45 +150,42 @@ std::string Printer::out(const InstructionPtr &instruction, Printer::OpCallback 
     return s;
 }
 
-std::string Printer::reg(const RegisterOperand &regop) const
-{
-    return "$" + std::to_string(regop.r);
-}
+std::string Printer::reg(const RegisterOperand &regop) const { return "$" + std::to_string(regop.r); }
 
-std::string Printer::disp(const Operand &operand) const
+std::string Printer::disp(const Operand *operand) const
 {
     std::string s;
 
-    if(operand.disp.base.isValid())
-        s += this->reg(operand.disp.base);
+    if(operand->disp.base.isValid())
+        s += this->reg(operand->disp.base);
 
-    if(operand.disp.index.isValid())
+    if(operand->disp.index.isValid())
     {
         if(!s.empty())
             s += " + ";
 
-        s += this->reg(operand.disp.index);
+        s += this->reg(operand->disp.index);
 
-        if(operand.disp.scale > 1)
-            s += " * " + REDasm::hex(operand.disp.scale);
+        if(operand->disp.scale > 1)
+            s += " * " + REDasm::hex(operand->disp.scale);
     }
 
-    if(operand.disp.displacement)
+    if(operand->disp.displacement)
     {
-        if(operand.disp.displacement > 0)
+        if(operand->disp.displacement > 0)
         {
-            SymbolPtr symbol = m_document->symbol(operand.disp.displacement);
+            SymbolPtr symbol = m_document->symbol(operand->disp.displacement);
 
             if(symbol)
                 s += " + " + symbol->name;
             else
-                s += " + " + REDasm::hex(operand.disp.displacement);
+                s += " + " + REDasm::hex(operand->disp.displacement);
         }
-        else if(operand.disp.displacement < 0)
-            s += " - " + REDasm::hex(std::abs(operand.disp.displacement));
+        else if(operand->disp.displacement < 0)
+            s += " - " + REDasm::hex(std::abs(operand->disp.displacement));
     }
 
-    if(operand.is(OperandTypes::Local) || operand.is(OperandTypes::Argument))
+    if(operand->is(OperandTypes::Local) || operand->is(OperandTypes::Argument))
     {
         std::string loc = this->loc(operand);
 
@@ -204,25 +201,25 @@ std::string Printer::disp(const Operand &operand) const
     return "[" + s + "]";
 }
 
-std::string Printer::loc(const Operand &operand) const
+std::string Printer::loc(const Operand *operand) const
 {
     RE_UNUSED(operand);
     return std::string();
 }
 
-std::string Printer::mem(const Operand &operand) const { return this->imm(operand); }
+std::string Printer::mem(const Operand *operand) const { return this->imm(operand); }
 
-std::string Printer::imm(const Operand &operand) const
+std::string Printer::imm(const Operand *operand) const
 {
-    SymbolPtr symbol = m_disassembler->document()->symbol(operand.u_value);
+    SymbolPtr symbol = m_disassembler->document()->symbol(operand->u_value);
 
-    if(operand.is(OperandTypes::Memory))
-        return "[" + (symbol ? symbol->name : REDasm::hex(operand.u_value)) + "]";
+    if(operand->is(OperandTypes::Memory))
+        return "[" + (symbol ? symbol->name : REDasm::hex(operand->u_value)) + "]";
 
-    return symbol ? symbol->name : REDasm::hex(operand.s_value);
+    return symbol ? symbol->name : REDasm::hex(operand->s_value);
 }
 
-std::string Printer::size(const Operand &operand) const { return OperandSizes::size(operand.size); }
+std::string Printer::size(const Operand *operand) const { return OperandSizes::size(operand->size); }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle) { }
 

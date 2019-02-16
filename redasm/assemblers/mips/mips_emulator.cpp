@@ -80,12 +80,12 @@ void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
     }
 
     u32 regvalue = 0, value = 0;
-    const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
+    const Operand *op1 = instruction->op(0), *op2 = instruction->op(1);
 
     if(!this->readOp(op2, &value))
         return;
 
-    value += op2.disp.displacement;
+    value += op2->disp.displacement;
 
     if(!this->readMem(value, &value, size))
         return;
@@ -119,7 +119,7 @@ void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
     }
 
     u32 regvalue = 0, memloc = 0, memvalue = 0;
-    const Operand &op1 = instruction->op(0), &op2 = instruction->op(1);
+    const Operand *op1 = instruction->op(0), *op2 = instruction->op(1);
 
     if(!this->readOp(op1, &regvalue) || !this->readOp(op2, &memloc))
         return;

@@ -85,7 +85,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkStop_0(const InstructionPtr &instruction) const
 {
     const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
-    instruction->op(1).size = sizeof(u32);
+    instruction->op(1)->size = sizeof(u32);
 
     if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op()))
     {

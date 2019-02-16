@@ -273,22 +273,22 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
 
 void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererLine &rl)
 {
-    m_printer->out(instruction, [&](const REDasm::Operand& operand, const std::string& opsize, const std::string& opstr) {
-        if(operand.index > 0)
+    m_printer->out(instruction, [&](const REDasm::Operand* op, const std::string& opsize, const std::string& opstr) {
+        if(op->index > 0)
             rl.push(", ");
 
         if(!opsize.empty())
             rl.push(opsize + " ");
 
-        if(operand.isNumeric()) {
-            if(operand.is(REDasm::OperandTypes::Memory))
+        if(op->isNumeric()) {
+            if(op->is(REDasm::OperandTypes::Memory))
                 rl.push(opstr, "memory_fg");
             else
                 rl.push(opstr, "immediate_fg");
         }
-        else if(operand.is(REDasm::OperandTypes::Displacement))
+        else if(op->is(REDasm::OperandTypes::Displacement))
             rl.push(opstr, "displacement_fg");
-        else if(operand.is(REDasm::OperandTypes::Register))
+        else if(op->is(REDasm::OperandTypes::Register))
             rl.push(opstr, "register_fg");
         else
             rl.push(opstr);

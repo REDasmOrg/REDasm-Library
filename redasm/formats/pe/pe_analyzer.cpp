@@ -94,13 +94,13 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
             if(arg == argidx)
             {
-                Operand& op = instruction->op(0);
-                Segment* segment = m_document->segment(op.u_value);
+                const Operand* op = instruction->op(0);
+                Segment* segment = m_document->segment(op->u_value);
 
                 if(segment && segment->is(SegmentTypes::Code))
                 {
-                    m_document->lockFunction(op.u_value, "DlgProc_" + REDasm::hex(op.u_value));
-                    m_disassembler->disassemble(op.u_value);
+                    m_document->lockFunction(op->u_value, "DlgProc_" + REDasm::hex(op->u_value));
+                    m_disassembler->disassemble(op->u_value);
                 }
             }
         }
@@ -114,10 +114,9 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
 
 void PEAnalyzer::findCRTWinMain()
 {
-    auto epit = m_document->entryInstruction();
-    InstructionPtr instruction = m_document->instruction((*epit)->address); // Look for call
+    InstructionPtr instruction = m_document->entryInstruction(); // Look for call
 
-    if(!instruction || !instruction->is(InstructionTypes::Call)) // || (instruction->target() != scfuncitem->address))
+    if(!instruction || !instruction->is(InstructionTypes::Call))
         return;
 
     SymbolPtr symbol = m_document->symbol(PE_SECURITY_COOKIE_SYMBOL);
@@ -140,12 +139,7 @@ void PEAnalyzer::findCRTWinMain()
         break;
     }
 
-    if(!found || !m_document->advance(epit))
-        return;
-
-    instruction = m_document->instruction((*epit)->address);
-
-    if(!instruction || !instruction->is(InstructionTypes::Jump))
+    if(!found || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Jump))
         return;
 
     m_document->lock(instruction->target(), "__mainCRTStartup", SymbolTypes::Function);

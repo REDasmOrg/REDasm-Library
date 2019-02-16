@@ -37,8 +37,8 @@ class AssemblerAlgorithm: public StateMachine
         virtual void onNewState(const State *state) const;
         virtual void onDecoded(const InstructionPtr& instruction);
         virtual void onDecodeFailed(const InstructionPtr& instruction);
-        virtual void onDecodedOperand(const Operand& op, const InstructionPtr& instruction);
-        virtual void onEmulatedOperand(const Operand& op, const InstructionPtr& instruction, u64 value);
+        virtual void onDecodedOperand(const Operand* op, const InstructionPtr& instruction);
+        virtual void onEmulatedOperand(const Operand* op, const InstructionPtr& instruction, u64 value);
 
     protected:
         virtual void decodeState(const State *state);
@@ -55,7 +55,7 @@ class AssemblerAlgorithm: public StateMachine
         bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const InstructionPtr& instruction);
         u32 disassemble(address_t address, const InstructionPtr& instruction);
-        void emulateOperand(const Operand& op, const InstructionPtr& instruction);
+        void emulateOperand(const Operand* op, const InstructionPtr& instruction);
         void emulate(const InstructionPtr& instruction);
 
     protected:

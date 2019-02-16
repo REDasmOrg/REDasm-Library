@@ -368,8 +368,8 @@ bool DalvikAssembler::decode26(BufferView& view, const InstructionPtr &instructi
 {
     decodeOp2_imm32(view, instruction, "fill-array-data", DalvikOpcodes::FillArrayData);
 
-    Operand& op = instruction->op(1);
-    op.u_value = instruction->address + (op.u_value * sizeof(u16)); // Offset in 16-bit code unitts
+    Operand* op = instruction->op(1);
+    op->u_value = instruction->address + (op->u_value * sizeof(u16)); // Offset in 16-bit code units
     return true;
 }
 

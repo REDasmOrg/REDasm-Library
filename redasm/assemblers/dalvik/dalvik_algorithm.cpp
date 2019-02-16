@@ -14,12 +14,12 @@ DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin*
 void DalvikAlgorithm::validateTarget(const InstructionPtr &) const { }
 void DalvikAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { REDasm::log("Found invalid instruction @ " + REDasm::hex(instruction->address)); }
 
-void DalvikAlgorithm::onDecodedOperand(const Operand& op, const InstructionPtr &instruction)
+void DalvikAlgorithm::onDecodedOperand(const Operand* op, const InstructionPtr &instruction)
 {
-    if(op.extra_type == DalvikOperands::StringIndex)
-        EXECUTE_STATE(DalvikAlgorithm::StringIndexState, op.extra_type, op.index, instruction);
-    else if(op.extra_type == DalvikOperands::MethodIndex)
-        EXECUTE_STATE(DalvikAlgorithm::MethodIndexState, op.extra_type, op.index, instruction);
+    if(op->extra_type == DalvikOperands::StringIndex)
+        EXECUTE_STATE(DalvikAlgorithm::StringIndexState, op->extra_type, op->index, instruction);
+    else if(op->extra_type == DalvikOperands::MethodIndex)
+        EXECUTE_STATE(DalvikAlgorithm::MethodIndexState, op->extra_type, op->index, instruction);
 }
 
 void DalvikAlgorithm::onDecoded(const InstructionPtr &instruction)
@@ -49,10 +49,10 @@ void DalvikAlgorithm::stringIndexState(const State *state)
     if(!m_dexformat)
         return;
 
-    const Operand& op = state->operand();
+    const Operand* op = state->operand();
     offset_t offset = 0;
 
-    if(!m_dexformat->getStringOffset(op.u_value, offset))
+    if(!m_dexformat->getStringOffset(op->u_value, offset))
         return;
 
     m_document->symbol(offset, SymbolTypes::String);
@@ -66,10 +66,10 @@ void DalvikAlgorithm::methodIndexState(const State *state)
 
     this->checkImport(state);
 
-    const Operand& op = state->operand();
+    const Operand* op = state->operand();
     offset_t offset = 0;
 
-    if(!m_dexformat->getMethodOffset(op.u_value, offset))
+    if(!m_dexformat->getMethodOffset(op->u_value, offset))
         return;
 
     m_disassembler->pushReference(offset, state->instruction->address);
@@ -77,8 +77,8 @@ void DalvikAlgorithm::methodIndexState(const State *state)
 
 void DalvikAlgorithm::checkImport(const State* state)
 {
-    const Operand& op = state->operand();
-    const std::string& methodname = m_dexformat->getMethodName(op.u_value);
+    const Operand* op = state->operand();
+    const std::string& methodname = m_dexformat->getMethodName(op->u_value);
 
     auto it = m_imports.find(methodname);
 

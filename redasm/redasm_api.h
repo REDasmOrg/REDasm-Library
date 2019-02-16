@@ -184,7 +184,7 @@ struct Instruction
     void* userdata;                 // It doesn't survive after AssemblerPlugin::decode() by design
 
     bool is(u32 t) const { return type & t; }
-    bool isTargetOperand(const Operand& op) const { return (target_idx == -1) ? false : (target_idx == op.index); }
+    bool isTargetOperand(const Operand* op) const { return (target_idx == -1) ? false : (target_idx == op->index); }
     bool isInvalid() const { return type == InstructionTypes::Invalid; }
     bool hasTargets() const { return !targets.empty(); }
     void target(address_t target) { targets.insert(target); }
@@ -194,8 +194,8 @@ struct Instruction
     address_t target() const { return *targets.begin(); }
     address_t endAddress() const { return address + size; }
 
-    Operand& targetOperand() { return operands[target_idx]; }
-    Operand& op(size_t idx = 0) { return operands[idx]; }
+    Operand* targetOperand() { return &operands[target_idx]; }
+    Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : NULL; }
     Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Immediate, extratype, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }

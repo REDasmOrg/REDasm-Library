@@ -22,9 +22,9 @@ bool Emulator::setTarget(const InstructionPtr &instruction)
    if(instruction->target_idx == -1)
        return false;
 
-   const Operand& op = instruction->targetOperand();
+   const Operand* op = instruction->targetOperand();
 
-   if(!op.is(OperandTypes::Register))
+   if(!op || !op->is(OperandTypes::Register))
        return false;
 
    u64 value = 0;

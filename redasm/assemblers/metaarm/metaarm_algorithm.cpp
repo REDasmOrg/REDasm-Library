@@ -7,7 +7,7 @@ namespace REDasm {
 
 MetaARMAlgorithm::MetaARMAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): ControlFlowAlgorithm(disassembler, assembler) { }
 
-void MetaARMAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
+void MetaARMAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
     MetaARMAssembler* metaarm = static_cast<MetaARMAssembler*>(m_assembler);
 

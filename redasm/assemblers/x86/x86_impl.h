@@ -213,8 +213,8 @@ template<cs_mode mode> bool X86Assembler<mode>::isIP(register_id_t reg) const
 
 template<cs_mode mode> void X86Assembler<mode>::initStackSize(const InstructionPtr& instruction)
 {
-    if(this->isSP(instruction->op(0).reg.r))
-        this->m_stacksize = instruction->op(1).u_value;
+    if(this->isSP(instruction->op(0)->reg.r))
+        this->m_stacksize = instruction->op(1)->u_value;
 }
 
 template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction) { instruction->targetOp(0); }
@@ -223,12 +223,12 @@ template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &i
 {
     instruction->type = InstructionTypes::Load;
 
-    Operand& op2 = instruction->op(1);
+    Operand* op2 = instruction->op(1);
 
-    if(!op2.is(OperandTypes::Memory))
+    if(!op2->is(OperandTypes::Memory))
         return;
 
-    op2.type = OperandTypes::Immediate;
+    op2->type = OperandTypes::Immediate;
 }
 
 } // namespace REDasm

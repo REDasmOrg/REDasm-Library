@@ -22,15 +22,15 @@ template<typename T> class EmulatorBase: public Emulator
     public:
         EmulatorBase(DisassemblerAPI* disassembler);
         virtual void emulate(const InstructionPtr& instruction);
-        bool readOp(const Operand& op, T* value);
+        bool readOp(const Operand *op, T* value);
 
     protected:
-        void writeOp(const Operand& op, T value);
+        void writeOp(const Operand *op, T value);
         void flag(T flag, bool set);
         bool flag(T flag) const;
         void writeReg(T r, T value);
         T readReg(T r) const;
-        void changeReg(const Operand& op, ST amount = 1);
+        void changeReg(const Operand *op, ST amount = 1);
         void changeSP(ST amount);
         bool writeMem(T address, T value, T size = sizeof(T));
         bool readMem(T address, T* value, T size = sizeof(T));

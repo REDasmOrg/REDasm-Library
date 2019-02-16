@@ -121,10 +121,10 @@ SymbolPtr Analyzer::findTrampoline_arm(ListingDocumentType::iterator it)
     if((instruction1->mnemonic != "ldr") && (instruction2->mnemonic != "ldr"))
         return NULL;
 
-    if(!instruction1->op(1).is(OperandTypes::Memory) || (instruction2->op(0).reg.r != ARM_REG_PC))
+    if(!instruction1->op(1)->is(OperandTypes::Memory) || (instruction2->op(0)->reg.r != ARM_REG_PC))
         return NULL;
 
-    u64 target = instruction1->op(1).u_value, importaddress = 0;
+    u64 target = instruction1->op(1)->u_value, importaddress = 0;
 
     if(!m_disassembler->readAddress(target, sizeof(u32), &importaddress))
         return NULL;

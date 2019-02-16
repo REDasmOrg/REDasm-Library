@@ -20,8 +20,8 @@ class Emulator
         Emulator(DisassemblerAPI* disassembler);
         virtual void emulate(const InstructionPtr& instruction);
         virtual bool hasError() const = 0;
-        virtual bool read(const Operand& op, u64* value) = 0;
-        virtual bool displacement(const Operand& op, u64* value) = 0;
+        virtual bool read(const Operand* op, u64* value) = 0;
+        virtual bool displacement(const Operand* op, u64* value) = 0;
 
     protected:
         virtual bool setTarget(const InstructionPtr& instruction);

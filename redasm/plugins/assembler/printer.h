@@ -12,7 +12,7 @@ namespace REDasm {
 class Printer
 {
     public:
-        typedef std::function<void(const Operand&, const std::string&, const std::string&)> OpCallback;
+        typedef std::function<void(const Operand*, const std::string&, const std::string&)> OpCallback;
         typedef std::function<void(const SymbolPtr&, const std::string&)> SymbolCallback;
         typedef std::function<void(const std::string&, const std::string&, const std::string&)> FunctionCallback;
         typedef std::function<void(const std::string&)> LineCallback;
@@ -32,11 +32,11 @@ class Printer
 
     public: // Operand privitives
         virtual std::string reg(const RegisterOperand &regop) const;
-        virtual std::string disp(const Operand &operand) const;
-        virtual std::string loc(const Operand& operand) const;
-        virtual std::string mem(const Operand& operand) const;
-        virtual std::string imm(const Operand& operand) const;
-        virtual std::string size(const Operand& operand) const;
+        virtual std::string disp(const Operand *operand) const;
+        virtual std::string loc(const Operand* operand) const;
+        virtual std::string mem(const Operand* operand) const;
+        virtual std::string imm(const Operand* operand) const;
+        virtual std::string size(const Operand* operand) const;
 
     protected:
         ListingDocument& m_document;

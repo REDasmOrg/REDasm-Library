@@ -23,8 +23,8 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
     public:
         ARMAssembler* armAssembler();
         ARMThumbAssembler* thumbAssembler();
-        bool isPC(const Operand& op) const;
-        bool isLR(const Operand& op) const;
+        bool isPC(const Operand* op) const;
+        bool isLR(const Operand* op) const;
         bool isArm() const;
         bool isThumb() const;
         void switchToThumb();

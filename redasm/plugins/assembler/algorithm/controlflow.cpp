@@ -16,12 +16,12 @@ void ControlFlowAlgorithm::enqueueTarget(address_t target, const InstructionPtr 
     this->enqueue(target);
 }
 
-void ControlFlowAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
+void ControlFlowAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
     if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(op))
     {
         this->enqueueTarget(value, instruction);
-        EXECUTE_STATE(AssemblerAlgorithm::BranchState, value, op.index, instruction);
+        EXECUTE_STATE(AssemblerAlgorithm::BranchState, value, op->index, instruction);
         return;
     }
 

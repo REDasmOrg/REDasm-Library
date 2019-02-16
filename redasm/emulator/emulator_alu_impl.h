@@ -7,11 +7,11 @@ namespace REDasm {
 
 template<typename T> EmulatorALU<T>::EmulatorALU(DisassemblerAPI *disassembler): EmulatorBase<T>(disassembler) { }
 
-template<typename T> bool EmulatorALU<T>::displacement(const Operand &op, u64 *value)
+template<typename T> bool EmulatorALU<T>::displacement(const Operand *op, u64 *value)
 {
     T tvalue = 0;
 
-    if(!this->displacementT(op.disp, &tvalue))
+    if(!this->displacementT(op->disp, &tvalue))
         return false;
 
     *value = static_cast<u64>(tvalue);

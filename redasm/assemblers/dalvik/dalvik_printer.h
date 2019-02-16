@@ -16,7 +16,7 @@ class DalvikPrinter : public Printer
         virtual void prologue(const SymbolPtr &symbol, LineCallback prologuefunc);
         virtual void info(const InstructionPtr &instruction, LineCallback infofunc);
         virtual std::string reg(const RegisterOperand &regop) const;
-        virtual std::string imm(const Operand& op) const;
+        virtual std::string imm(const Operand *op) const;
 
     private:
         static std::string registerName(register_id_t r);

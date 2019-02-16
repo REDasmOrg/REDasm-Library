@@ -4,7 +4,7 @@ namespace REDasm {
 
 template<typename T> EmulatorT<T>::EmulatorT(DisassemblerAPI *disassembler): EmulatorALU<T>(disassembler) { }
 
-template<typename T> bool EmulatorT<T>::read(const Operand &op, u64* value)
+template<typename T> bool EmulatorT<T>::read(const Operand *op, u64* value)
 {
     T tvalue = 0;
 

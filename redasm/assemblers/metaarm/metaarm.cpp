@@ -34,8 +34,8 @@ u64 MetaARMAssembler::pc(const InstructionPtr &instruction) const
 
 ARMAssembler *MetaARMAssembler::armAssembler() { return m_armassembler; }
 ARMThumbAssembler *MetaARMAssembler::thumbAssembler() { return m_thumbassembler; }
-bool MetaARMAssembler::isPC(const Operand &op) const { return m_armassembler->isPC(op); }
-bool MetaARMAssembler::isLR(const Operand &op) const { return m_armassembler->isLR(op); }
+bool MetaARMAssembler::isPC(const Operand *op) const { return m_armassembler->isPC(op); }
+bool MetaARMAssembler::isLR(const Operand *op) const { return m_armassembler->isLR(op); }
 bool MetaARMAssembler::isArm() const { return m_assembler == m_armassembler; }
 bool MetaARMAssembler::isThumb() const { return m_assembler == m_thumbassembler; }
 void MetaARMAssembler::switchToThumb() { m_assembler = m_thumbassembler; }

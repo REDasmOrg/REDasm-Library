@@ -64,17 +64,17 @@ void ElfAnalyzer::findMain_x86(ListingDocumentType::iterator it)
 
             if(instruction->is(InstructionTypes::Push))
             {
-                const Operand& op = instruction->op(0);
+                const Operand* op = instruction->op(0);
 
-                if(op.isNumeric())
+                if(op->isNumeric())
                 {
                     if(i == 0)
-                        m_libcmain["main"] = op.u_value;
+                        m_libcmain["main"] = op->u_value;
                     else if(i == 3)
-                        m_libcmain["init"] = op.u_value;
+                        m_libcmain["init"] = op->u_value;
                     else if(i == 4)
                     {
-                        m_libcmain["fini"] = op.u_value;
+                        m_libcmain["fini"] = op->u_value;
                         break;
                     }
                 }
@@ -100,19 +100,19 @@ void ElfAnalyzer::findMain_x86_64(ListingDocumentType::iterator it)
 
             if(instruction->is(InstructionTypes::Load))
             {
-                const Operand op1 = instruction->op(0);
-                const Operand op2 = instruction->op(1);
+                const Operand* op1 = instruction->op(0);
+                const Operand* op2 = instruction->op(1);
 
-                if(!op1.is(OperandTypes::Register) || !op2.isNumeric())
+                if(!op1->is(OperandTypes::Register) || !op2->isNumeric())
                     continue;
 
-                if(op1.reg.r == X86_REG_RDI)
-                    m_libcmain["main"] = op2.u_value;
-                else if(op1.reg.r == X86_REG_RCX)
-                    m_libcmain["init"] = op2.u_value;
-                else if(op1.reg.r == X86_REG_R8)
+                if(op1->reg.r == X86_REG_RDI)
+                    m_libcmain["main"] = op2->u_value;
+                else if(op1->reg.r == X86_REG_RCX)
+                    m_libcmain["init"] = op2->u_value;
+                else if(op1->reg.r == X86_REG_R8)
                 {
-                    m_libcmain["fini"] = op2.u_value;
+                    m_libcmain["fini"] = op2->u_value;
                     break;
                 }
             }

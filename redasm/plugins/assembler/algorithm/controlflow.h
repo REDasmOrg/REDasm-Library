@@ -13,7 +13,7 @@ class ControlFlowAlgorithm: public AssemblerAlgorithm
     protected:
         virtual void addressTableState(const State* state);
         virtual void enqueueTarget(address_t target, const InstructionPtr& frominstruction);
-        virtual void onEmulatedOperand(const Operand& op, const InstructionPtr& instruction, u64 value);
+        virtual void onEmulatedOperand(const Operand *op, const InstructionPtr& instruction, u64 value);
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:

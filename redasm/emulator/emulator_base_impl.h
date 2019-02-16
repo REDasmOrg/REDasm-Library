@@ -15,49 +15,58 @@ template<typename T> void EmulatorBase<T>::emulate(const InstructionPtr& instruc
     Emulator::emulate(instruction);
 }
 
-template<typename T> bool EmulatorBase<T>::readOp(const Operand &op, T* value)
+template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
 {
-    if(op.is(OperandTypes::Displacement))
+    if(!op)
+        return false;
+
+    if(op->is(OperandTypes::Displacement))
     {
-        if(this->displacementT(op.disp, value))
+        if(bool localValue = this->displacementT(op->disp, value))
             return true;
 
-        REDasm::log("Error reading displacement operand " + std::to_string(op.index));
+        REDasm::log("Error reading displacement operand " + std::to_string(op->index));
         this->fail();
         return false;
     }
 
-    if(op.is(OperandTypes::Register))
+    if(op->is(OperandTypes::Register))
     {
-        *value = this->readReg(op.reg.r);
+        *value = this->readReg(op->reg.r);
         return true;
     }
 
-    if(op.is(OperandTypes::Memory))
+    if(op->is(OperandTypes::Memory))
     {
-        if(this->readMem(op.u_value, value, op.size))
+        if(this->readMem(op->u_value, value, op->size))
             return true;
 
-        REDasm::log("Error reading memory operand " + std::to_string(op.index));
+        REDasm::log("Error reading memory operand " + std::to_string(op->index));
         this->fail();
         return false;
     }
 
-    *value = op.u_value;
+    *value = op->u_value;
     return true;
 }
 
-template<typename T> void EmulatorBase<T>::writeOp(const Operand &op, T value)
+template<typename T> void EmulatorBase<T>::writeOp(const Operand *op, T value)
 {
-    if(op.is(OperandTypes::Displacement))
+    if(!op)
     {
-        if(!this->displacementT(op.disp, &value))
+        this->fail();
+        return;
+    }
+
+    if(op->is(OperandTypes::Displacement))
+    {
+        if(!this->displacementT(op->disp, &value))
             this->fail();
     }
-    else if(op.is(OperandTypes::Memory))
-        this->writeMem(op.u_value, value);
-    else if(op.is(OperandTypes::Register))
-        this->writeReg(op.reg.r, value);
+    else if(op->is(OperandTypes::Memory))
+        this->writeMem(op->u_value, value);
+    else if(op->is(OperandTypes::Register))
+        this->writeReg(op->reg.r, value);
     else
         this->fail();
 }
@@ -83,12 +92,12 @@ template<typename T> T EmulatorBase<T>::readReg(T r) const
     return 0;
 }
 
-template<typename T> void EmulatorBase<T>::changeReg(const Operand &op, ST amount)
+template<typename T> void EmulatorBase<T>::changeReg(const Operand *op, ST amount)
 {
-    if(!op.is(OperandTypes::Register) || !amount)
+    if(!op->is(OperandTypes::Register) || !amount)
         return;
 
-    this->writeReg(op.reg.r, this->readReg(op.reg.r) + amount);
+    this->writeReg(op->reg.r, this->readReg(op->reg.r) + amount);
 }
 
 template<typename T> void EmulatorBase<T>::changeSP(ST amount)

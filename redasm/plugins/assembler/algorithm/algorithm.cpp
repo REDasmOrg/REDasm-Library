@@ -99,7 +99,7 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         if(!op.isNumeric() || op.displacementIsDynamic())
         {
             if(m_emulator && !m_emulator->hasError())
-                this->emulateOperand(op, instruction);
+                this->emulateOperand(&op, instruction);
 
             if(!op.is(OperandTypes::Displacement)) // Try static displacement analysis
                 continue;
@@ -117,21 +117,21 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         else
             EXECUTE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
-        this->onDecodedOperand(op, instruction);
+        this->onDecodedOperand(&op, instruction);
     }
 }
 
 void AssemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_UNUSED(instruction); }
 
-void AssemblerAlgorithm::onDecodedOperand(const Operand &op, const InstructionPtr &instruction)
+void AssemblerAlgorithm::onDecodedOperand(const Operand *op, const InstructionPtr &instruction)
 {
     RE_UNUSED(instruction);
     RE_UNUSED(op);
 }
 
-void AssemblerAlgorithm::onEmulatedOperand(const Operand &op, const InstructionPtr &instruction, u64 value)
+void AssemblerAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
-    EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op.index, instruction);
+    EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op->index, instruction);
 }
 
 void AssemblerAlgorithm::decodeState(const State *state)
@@ -232,9 +232,9 @@ void AssemblerAlgorithm::addressTableState(const State *state)
     else if(c < 0)
         return;
 
-    const Operand& op = state->operand();
+    const Operand* op = state->operand();
 
-    if(op.is(OperandTypes::Memory))
+    if(op->is(OperandTypes::Memory))
         FORWARD_STATE(AssemblerAlgorithm::MemoryState, state);
     else
         FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
@@ -339,16 +339,16 @@ u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &ins
     return result;
 }
 
-void AssemblerAlgorithm::emulateOperand(const Operand &op, const InstructionPtr &instruction)
+void AssemblerAlgorithm::emulateOperand(const Operand *op, const InstructionPtr &instruction)
 {
     u64 value = 0;
 
-    if(op.is(OperandTypes::Register))
+    if(op->is(OperandTypes::Register))
     {
         if(!m_emulator->read(op, &value))
             return;
     }
-    else if(op.is(OperandTypes::Displacement))
+    else if(op->is(OperandTypes::Displacement))
     {
         if(!m_emulator->displacement(op, &value))
             return;

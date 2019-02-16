@@ -63,9 +63,9 @@ void MetaARMEmulator::emulateMov(const InstructionPtr &instruction) { this->move
 void MetaARMEmulator::emulateLdr(const InstructionPtr &instruction)
 {
     u32 memvalue = 0;
-    const Operand& op2 = instruction->op(1);
+    const Operand* op2 = instruction->op(1);
 
-    if(!op2.is(OperandTypes::Memory) || !this->readOp(op2, &memvalue))
+    if(!op2->is(OperandTypes::Memory) || !this->readOp(op2, &memvalue))
         return;
 
     this->writeOp(instruction->op(0), memvalue);

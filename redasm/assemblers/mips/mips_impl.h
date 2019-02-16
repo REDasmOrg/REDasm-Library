@@ -136,7 +136,7 @@ template<s64 mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& ins
 
 template<s64 mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instruction) const
 {
-    if(instruction->op(0).reg.r != MIPS_REG_RA)
+    if(instruction->op(0)->reg.r != MIPS_REG_RA)
     {
         instruction->type = InstructionTypes::Jump;
         instruction->target_idx = 0;

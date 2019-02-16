@@ -20,8 +20,8 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
     public:
         ARMCommonAssembler();
         virtual ~ARMCommonAssembler();
-        bool isPC(const Operand& op) const { return op.is(OperandTypes::Register) && this->isPC(op.reg.r); };
-        bool isLR(const Operand& op) const { return op.is(OperandTypes::Register) && this->isLR(op.reg.r); };
+        bool isPC(const Operand* op) const { return op->is(OperandTypes::Register) && this->isPC(op->reg.r); };
+        bool isLR(const Operand* op) const { return op->is(OperandTypes::Register) && this->isLR(op->reg.r); };
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);

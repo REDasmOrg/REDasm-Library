@@ -10,6 +10,16 @@
 namespace REDasm {
 
 ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_format(NULL) { }
+
+bool ListingDocumentType::advance(InstructionPtr &instruction)
+{
+    if(!instruction)
+        return false;
+
+    instruction = this->instruction(instruction->endAddress());
+    return instruction && !instruction->isInvalid();
+}
+
 const ListingCursor *ListingDocumentType::cursor() const { return &m_cursor; }
 ListingCursor *ListingDocumentType::cursor() { return &m_cursor; }
 
@@ -183,12 +193,12 @@ SymbolPtr ListingDocumentType::functionStartSymbol(address_t address)
     return NULL;
 }
 
-ListingDocumentType::iterator ListingDocumentType::entryInstruction()
+InstructionPtr ListingDocumentType::entryInstruction()
 {
     if(!m_documententry)
-        return this->end();
+        return NULL;
 
-    return this->item(m_documententry->address);
+    return this->instruction(m_documententry->address);
 }
 
 std::string ListingDocumentType::comment(address_t address, bool skipauto) const

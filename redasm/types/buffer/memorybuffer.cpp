@@ -8,13 +8,13 @@ namespace Buffer {
 MemoryBuffer::MemoryBuffer(): m_data(nullptr), m_size(0) { }
 MemoryBuffer::MemoryBuffer(u64 size): m_size(size) { m_data = reinterpret_cast<u8*>(std::malloc(size)); }
 
-MemoryBuffer::MemoryBuffer(u64 size, u8 val)
+MemoryBuffer::MemoryBuffer(u64 size, u8 val): m_size(size)
 {
     m_data = reinterpret_cast<u8*>(std::malloc(size));
     std::fill_n(m_data, size, val);
 }
 
-MemoryBuffer::MemoryBuffer(MemoryBuffer&& mb)
+MemoryBuffer::MemoryBuffer(MemoryBuffer&& mb) noexcept
 {
     this->swap(mb);
 

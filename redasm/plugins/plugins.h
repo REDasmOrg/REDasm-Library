@@ -28,9 +28,9 @@ struct Plugins
 
 FormatPlugin* getFormat(AbstractBuffer* buffer);
 AssemblerPlugin* getAssembler(const std::string &id);
-void setLoggerCallback(Runtime::LogCallback logcb);
-void setStatusCallback(Runtime::LogCallback logcb);
-void setProgressCallback(Runtime::ProgressCallback pcb);
+void setLoggerCallback(const Runtime::LogCallback &logcb);
+void setStatusCallback(const Runtime::LogCallback& logcb);
+void setProgressCallback(const Runtime::ProgressCallback &pcb);
 void init(const std::string &temppath = std::string(), const std::string &searchpath = std::string());
 
 }

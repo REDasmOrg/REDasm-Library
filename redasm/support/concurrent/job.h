@@ -32,7 +32,7 @@ class Job
         void pause();
         void resume();
         void setOneShot(bool b);
-        void work(JobCallback cb, bool deferred = false);
+        void work(const JobCallback &cb, bool deferred = false);
 
     private:
         void sleep();

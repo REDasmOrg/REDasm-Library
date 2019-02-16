@@ -37,7 +37,7 @@ std::string PEUtils::importName(std::string library, const std::string &name)
     return ss.str();
 }
 
-std::string PEUtils::importName(std::string library, s64 ordinal)
+std::string PEUtils::importName(const std::string& library, s64 ordinal)
 {
     std::stringstream ss;
     ss << "Ordinal__" << std::uppercase << std::setw(4) << std::setfill('0') << std::setbase(16) << ordinal;

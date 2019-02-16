@@ -13,7 +13,7 @@ SymbolTable::SymbolTable(u8 *symdata, u64 count): m_count(count), m_symdata(symd
     m_stringtable = reinterpret_cast<char*>(m_symdata + (count * COFF_ENTRYSIZE));
 }
 
-void SymbolTable::read(SymbolCallback symbolcb)
+void SymbolTable::read(const SymbolCallback& symbolcb)
 {
     COFF_Entry* entry = reinterpret_cast<COFF_Entry*>(m_symdata);
     std::string name;
@@ -47,7 +47,7 @@ std::string SymbolTable::nameFromEntry(const char *name) const
     return std::string(name, len);
 }
 
-void loadSymbols(SymbolCallback symbolcb, u8 *symdata, u64 count)
+void loadSymbols(const SymbolCallback& symbolcb, u8 *symdata, u64 count)
 {
     SymbolTable symtable(symdata, count);
     symtable.read(symbolcb);

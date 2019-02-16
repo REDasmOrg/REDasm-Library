@@ -67,7 +67,7 @@ void Job::resume()
 
 void Job::setOneShot(bool b) { m_oneshot = b; }
 
-void Job::work(JobCallback cb, bool deferred)
+void Job::work(const JobCallback& cb, bool deferred)
 {
     if(this->active())
         return;

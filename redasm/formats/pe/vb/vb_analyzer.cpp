@@ -98,7 +98,7 @@ void VBAnalyzer::decompileObject(const VBPublicObjectDescriptor &pubobjdescr)
     }
 }
 
-void VBAnalyzer::decompile(SymbolPtr thunrtdata)
+void VBAnalyzer::decompile(const SymbolPtr& thunrtdata)
 {
     if(!thunrtdata)
         return;

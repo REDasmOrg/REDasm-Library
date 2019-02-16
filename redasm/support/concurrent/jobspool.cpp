@@ -93,7 +93,7 @@ void JobsPool::resume()
     stateChanged(m_jobs.back().get());
 }
 
-void JobsPool::work(JobCallback cb)
+void JobsPool::work(const JobCallback& cb)
 {
     for(auto& job : m_jobs)
         job->work(cb);

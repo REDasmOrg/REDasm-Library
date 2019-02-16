@@ -23,7 +23,7 @@ class JobsPool
         void stop();
         void pause();
         void resume();
-        void work(JobCallback cb);
+        void work(const JobCallback &cb);
 
     private:
         void notifyStateChanged(Job*job);

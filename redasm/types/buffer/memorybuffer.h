@@ -14,7 +14,7 @@ class MemoryBuffer: public AbstractBuffer
         MemoryBuffer(u64 size);
         MemoryBuffer(u64 size, u8 val);
         MemoryBuffer(const MemoryBuffer&) = delete;
-        MemoryBuffer(MemoryBuffer&&mb);
+        MemoryBuffer(MemoryBuffer&&mb) noexcept;
         ~MemoryBuffer();
         virtual u8* data() const;
         virtual u64 size() const;

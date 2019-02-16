@@ -16,7 +16,7 @@ class SymbolTable
 
     public:
         SymbolTable(u8* symdata, u64 count);
-        void read(SymbolCallback symbolcb);
+        void read(const SymbolCallback &symbolcb);
 
     private:
         std::string nameFromTable(u64 offset) const;
@@ -28,7 +28,7 @@ class SymbolTable
         char* m_stringtable;
 };
 
-void loadSymbols(SymbolCallback symbolcb, u8* symdata, u64 count);
+void loadSymbols(const SymbolCallback &symbolcb, u8* symdata, u64 count);
 
 } // namespace COFF
 } // namespace REDasm

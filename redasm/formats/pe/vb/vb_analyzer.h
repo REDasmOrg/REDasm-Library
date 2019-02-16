@@ -15,7 +15,7 @@ class VBAnalyzer : public PEAnalyzer
     private:
         void disassembleTrampoline(address_t eventva, const std::string &name);
         void decompileObject(const VBPublicObjectDescriptor& pubobjdescr);
-        void decompile( SymbolPtr thunrtdata);
+        void decompile(const SymbolPtr &thunrtdata);
 
     private:
         const FormatPlugin* m_format;

@@ -75,7 +75,7 @@ void init(const std::string& temppath, const std::string& searchpath)
 
 FormatPlugin *getFormat(AbstractBuffer *buffer)
 {
-    for(FormatPlugin_Entry formatentry : Plugins::formats)
+    for(const FormatPlugin_Entry& formatentry : Plugins::formats)
     {
         FormatPlugin* fp = formatentry(buffer);
 
@@ -96,8 +96,8 @@ AssemblerPlugin *getAssembler(const std::string& id)
     return nullptr;
 }
 
-void setLoggerCallback(Runtime::LogCallback logcb) { Runtime::rntLogCallback = logcb; }
-void setStatusCallback(Runtime::LogCallback logcb) { Runtime::rntStatusCallback = logcb; }
-void setProgressCallback(Runtime::ProgressCallback pcb) { Runtime::rntProgressCallback = pcb; }
+void setLoggerCallback(const Runtime::LogCallback& logcb) { Runtime::rntLogCallback = logcb; }
+void setStatusCallback(const Runtime::LogCallback& logcb) { Runtime::rntStatusCallback = logcb; }
+void setProgressCallback(const Runtime::ProgressCallback& pcb) { Runtime::rntProgressCallback = pcb; }
 
 }

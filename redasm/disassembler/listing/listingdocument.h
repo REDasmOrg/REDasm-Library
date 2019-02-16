@@ -210,6 +210,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void setDocumentEntry(address_t address);
         SymbolPtr documentEntry() const;
         size_t segmentsCount() const;
+        size_t functionsCount() const;
         Segment *segment(address_t address);
         const Segment *segment(address_t address) const;
         const Segment *segmentAt(size_t idx) const;
@@ -230,8 +231,6 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         SymbolPtr symbol(address_t address);
         SymbolPtr symbol(const std::string& name);
         SymbolTable* symbols();
-        InstructionCache* instructions();
-        FormatPlugin* format();
 
     private:
         void insertSorted(address_t address, u32 type);
@@ -248,7 +247,6 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         FunctionList m_functions;
         InstructionCache m_instructions;
         SymbolTable m_symboltable;
-        FormatPlugin* m_format;
         SymbolPtr m_documententry;
         AutoCommentMap m_autocomments;
         CommentMap m_comments;

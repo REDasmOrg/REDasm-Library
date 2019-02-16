@@ -57,7 +57,9 @@ template<typename T1, typename T2> T2 cache_map<T1, T2>::value(const T1 &key)
 
     T2 value;
 
+    auto v = m_file.rdstate();
     m_file.seekg(it->second, std::ios::beg);
+    v = m_file.rdstate();
     this->deserialize(value, m_file);
     return value;
 }

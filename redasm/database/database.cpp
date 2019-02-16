@@ -67,22 +67,23 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    MemoryBuffer buffer;
+    auto* buffer = new MemoryBuffer();
     std::string formatname;
     Serializer::deobfuscateString(ifs, filename);
     Serializer::deserializeString(ifs, formatname);
 
-    if(!Serializer::decompressBuffer(ifs, &buffer))
+    if(!Serializer::decompressBuffer(ifs, buffer))
     {
         m_lasterror = "Cannot decompress database " + REDasm::quoted(dbfilename);
         return nullptr;
     }
 
-    std::unique_ptr<FormatPlugin> format(REDasm::getFormat(&buffer));
+    std::unique_ptr<FormatPlugin> format(REDasm::getFormat(buffer)); // If found, FormatPlugin takes the ownership of the buffer
 
     if(!format)
     {
         m_lasterror = "Unsupported format: " + REDasm::quoted(formatname);
+        delete buffer;
         return nullptr;
     }
 
@@ -94,7 +95,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    auto& document = format->document();
+    auto& document = format->createDocument(); // Discard old document
     document->deserializeFrom(ifs);
 
     auto* disassembler = new Disassembler(assembler, format.release());

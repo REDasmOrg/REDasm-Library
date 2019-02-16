@@ -73,6 +73,7 @@ class SymbolTable: public Serializer::Serializable
         SymbolPtr symbol(const std::string& name);
         void iterate(u32 symbolflags, const std::function<bool(const SymbolPtr &)> &cb);
         bool erase(address_t address);
+        void clear();
 
     public:
         virtual void serializeTo(std::fstream& fs);

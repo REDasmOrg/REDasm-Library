@@ -103,7 +103,7 @@ void VBAnalyzer::decompile(SymbolPtr thunrtdata)
     if(!thunrtdata)
         return;
 
-    m_format = m_document->format();
+    m_format = m_disassembler->format();
     m_vbheader = m_format->addrpointer<VBHeader>(thunrtdata->address);
     m_vbprojinfo = m_format->addrpointer<VBProjectInfo>(m_vbheader->lpProjectData);
     m_vbobjtable = m_format->addrpointer<VBObjectTable>(m_vbprojinfo->lpObjectTable);

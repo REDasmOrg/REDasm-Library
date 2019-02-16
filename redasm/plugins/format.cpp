@@ -6,9 +6,9 @@ FormatPlugin::FormatPlugin(AbstractBuffer* buffer): Plugin()
 {
     m_buffer = std::unique_ptr<AbstractBuffer>(buffer); // Take ownership
     m_view = m_buffer->view(0);                         // Full View
-    m_document->m_format = this;
 }
 
+ListingDocument& FormatPlugin::createDocument() { m_document = ListingDocument(); return m_document; }
 ListingDocument &FormatPlugin::document() { return m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }

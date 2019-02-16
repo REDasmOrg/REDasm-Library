@@ -1,6 +1,5 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
-#include "../../plugins/format.h"
 #include <redasm/support/demangler.h>
 #include <algorithm>
 #include <sstream>
@@ -9,7 +8,7 @@
 
 namespace REDasm {
 
-ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_format(nullptr) { }
+ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>() { }
 
 bool ListingDocumentType::advance(InstructionPtr &instruction)
 {
@@ -37,6 +36,16 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
 {
     Serializer::serializeScalar(fs, m_cursor.currentLine());
     Serializer::serializeScalar(fs, m_cursor.currentColumn());
+    Serializer::serializeScalar(fs, m_documententry ? m_documententry->address : 0);
+
+    // Segments
+    Serializer::serializeArray<std::vector, Segment>(fs, m_segments, [&](const Segment& s) {
+        Serializer::serializeString(fs, s.name);
+        Serializer::serializeScalar(fs, s.offset);
+        Serializer::serializeScalar(fs, s.address);
+        Serializer::serializeScalar(fs, s.endaddress);
+        Serializer::serializeScalar(fs, s.type);
+    });
 
     // Auto Comments
     Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](const AutoCommentItem& aci) {
@@ -59,9 +68,22 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
 
 void ListingDocumentType::deserializeFrom(std::fstream &fs)
 {
+    address_t ep = 0;
     u64 line = 0, column = 0;
     Serializer::deserializeScalar(fs, &line);
     Serializer::deserializeScalar(fs, &column);
+    Serializer::deserializeScalar(fs, &ep);
+
+    // Segments
+    Serializer::deserializeArray<std::vector, Segment>(fs, m_segments, [&](Segment& s) {
+        Serializer::deserializeString(fs, s.name);
+        Serializer::deserializeScalar(fs, &s.offset);
+        Serializer::deserializeScalar(fs, &s.address);
+        Serializer::deserializeScalar(fs, &s.endaddress);
+        Serializer::deserializeScalar(fs, &s.type);
+
+        this->insertSorted(s.address, ListingItem::SegmentItem);
+    });
 
     // Auto Comments
     Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](AutoCommentItem& ci) {
@@ -95,6 +117,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     m_instructions.deserialized.removeLast();
     m_symboltable.deserialized.removeLast();
 
+    m_documententry = m_symboltable.symbol(ep);
     m_cursor.set(line, column);
 }
 
@@ -440,6 +463,7 @@ void ListingDocumentType::setDocumentEntry(address_t address)
 
 SymbolPtr ListingDocumentType::documentEntry() const { return m_documententry; }
 size_t ListingDocumentType::segmentsCount() const { return m_segments.size(); }
+size_t ListingDocumentType::functionsCount() const { return m_functions.size(); }
 
 Segment *ListingDocumentType::segment(address_t address)
 {
@@ -560,8 +584,6 @@ int ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(th
 SymbolPtr ListingDocumentType::symbol(address_t address) { return m_symboltable.symbol(address); }
 SymbolPtr ListingDocumentType::symbol(const std::string &name) { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 SymbolTable *ListingDocumentType::symbols() { return &m_symboltable; }
-InstructionCache *ListingDocumentType::instructions() { return &m_instructions; }
-FormatPlugin *ListingDocumentType::format() { return m_format; }
 
 void ListingDocumentType::insertSorted(address_t address, u32 type)
 {

@@ -78,6 +78,12 @@ bool SymbolTable::erase(address_t address)
     return true;
 }
 
+void SymbolTable::clear()
+{
+    m_byaddress.clear();
+    m_byname.clear();
+}
+
 void SymbolTable::serializeTo(std::fstream &fs)
 {
     Serializer::serializeMap<address_t, SymbolPtr>(fs, m_byaddress, [&](const std::pair<address_t, SymbolPtr>& item) {

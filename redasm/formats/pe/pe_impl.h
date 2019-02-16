@@ -207,9 +207,19 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
         return;
 
     ImageDebugDirectory* debugdir = RVA_POINTER(ImageDebugDirectory, debuginfodir.VirtualAddress);
+    u64 dbgoffset = 0;
 
-    if(!debugdir->PointerToRawData)
-        return;
+    if(debugdir->AddressOfRawData)
+    {
+        bool ok = false;
+        u64 offset = this->rvaToOffset(m_imagebase - debugdir->AddressOfRawData, &ok);
+
+        if(ok)
+            dbgoffset = offset;
+    }
+
+    if(!dbgoffset && debugdir->PointerToRawData)
+        dbgoffset = debugdir->PointerToRawData;
 
     if(debugdir->Type == IMAGE_DEBUG_TYPE_UNKNOWN)
         REDasm::log("Debug info type: UNKNOWN");
@@ -218,18 +228,21 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
     else if(debugdir->Type == IMAGE_DEBUG_TYPE_CODEVIEW)
     {
         REDasm::log("Debug info type: CodeView");
-        CVHeader* cvhdr = pointer<CVHeader>(debugdir->PointerToRawData);
+        m_petype = PeType::Msvc;
+
+        if(!m_view.inRange(dbgoffset))
+            return;
+
+        CVHeader* cvhdr = pointer<CVHeader>(dbgoffset);
 
         if(cvhdr->Signature == PE_PDB_NB10_SIGNATURE)
         {
-            m_petype = PeType::Msvc;
-            CvInfoPDB20* pdb20 = pointer<CvInfoPDB20>(debugdir->PointerToRawData);
+            CvInfoPDB20* pdb20 = pointer<CvInfoPDB20>(dbgoffset);
             REDasm::log("PDB 2.0 @ " + std::string(reinterpret_cast<const char*>(&pdb20->PdbFileName)));
         }
         else if(cvhdr->Signature == PE_PDB_RSDS_SIGNATURE)
         {
-            m_petype = PeType::Msvc;
-            CvInfoPDB70* pdb70 = pointer<CvInfoPDB70>(debugdir->PointerToRawData);
+            CvInfoPDB70* pdb70 = pointer<CvInfoPDB70>(dbgoffset);
             REDasm::log("PDB 7.0 @ " + std::string(reinterpret_cast<const char*>(&pdb70->PdbFileName)));
         }
         else

@@ -1,15 +1,15 @@
 #include "rtti_msvc.h"
-#include "../../../plugins/format.h"
 #include "../../../disassembler/disassemblerapi.h"
+#include "../../../plugins/format.h"
 
 #define RTTI_MSVC_CLASS_DESCRIPTOR_PREFIX ".?AV"
-#define RTTI_MSVC_FIXUP (sizeof(u32) * 2)
-#define RTTI_MSVC_TYPE_DESCRIPTOR(format, typedescriptorname) FormatPlugin::relpointer<RTTITypeDescriptor>(typedescriptorname, -RTTI_MSVC_FIXUP)
+#define RTTI_MSVC_FIXUP (sizeof(T) * 2)
+#define RTTI_MSVC_TYPE_DESCRIPTOR(typedescriptorname) FormatPlugin::relpointer<RTTITypeDescriptor>(typedescriptorname, -RTTI_MSVC_FIXUP)
 
 namespace REDasm {
 namespace RTTI {
 
-void RTTIMsvc::search(DisassemblerAPI *disassembler)
+template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
 {
     RTTIVTableMap rttivtables;
     RTTICompleteObjectMap rttiobjects;
@@ -34,7 +34,7 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
 
         std::string objectname = RTTIMsvc::objectName(disassembler, rttiobject);
         std::string vtablename = RTTIMsvc::vtableName(disassembler, rttiobject);
-        const u32* pobjectdata = rttivtableitem.second;
+        const T* pobjectdata = rttivtableitem.second;
         address_t address = format->addressof(pobjectdata), rttiobjectaddress = format->addressof(rttiobject);
 
         REDasm::status("Reading " + objectname + "'s VTable");
@@ -45,7 +45,7 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
         disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
-        const Segment* segment = lock->segment(static_cast<u32>(*pobjectdata));
+        const Segment* segment = lock->segment(static_cast<T>(*pobjectdata));
 
         for(u64 i = 0; segment && segment->is(SegmentTypes::Code); i++) // Walk vtable
         {
@@ -53,7 +53,7 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
             disassembler->disassemble(*pobjectdata);
 
             lock->lock(address, objectname + "::vftable_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
-            lock->function(*pobjectdata, objectname + "::sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
+            lock->function(*pobjectdata, objectname + "::sub_" + REDasm::hex(*pobjectdata));
 
             disassembler->pushReference(*pobjectdata, address);
 
@@ -63,21 +63,21 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
     }
 }
 
-std::string RTTIMsvc::objectName(DisassemblerAPI* disassembler, const RTTICompleteObjectLocator *rttiobject)
+template<typename T> std::string RTTIMsvc<T>::objectName(DisassemblerAPI* disassembler, const RTTICompleteObjectLocator *rttiobject)
 {
     const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
     std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
     return Demangler::demangled("?" + rttitypename.substr(4) + "6A@Z");
 }
 
-std::string RTTIMsvc::vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator *rttiobject)
+template<typename T> std::string RTTIMsvc<T>::vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator *rttiobject)
 {
     const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
     std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
     return Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 }
 
-void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList &segments)
+template<typename T> void RTTIMsvc<T>::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList &segments)
 {
     const ListingDocument& document = disassembler->document();
 
@@ -93,7 +93,7 @@ void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList
     }
 }
 
-void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
+template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
     const ListingDocument& document = disassembler->document();
     const FormatPlugin* format = disassembler->format();
@@ -110,7 +110,7 @@ void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDesc
         while(res.hasNext())
         {
             REDasm::statusAddress("Searching RTTITypeDescriptors in " + REDasm::quoted(segment->name), format->address(res.position));
-            const RTTITypeDescriptor* rttitype = RTTI_MSVC_TYPE_DESCRIPTOR(format, res.result);
+            const RTTITypeDescriptor* rttitype = RTTI_MSVC_TYPE_DESCRIPTOR(res.result);
 
             if(document->segment(rttitype->pVFTable))
                 rttitypes.emplace(segment->address + res.position - RTTI_MSVC_FIXUP, rttitype);
@@ -120,7 +120,7 @@ void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDesc
     }
 }
 
-void RTTIMsvc::searchCompleteObjects(DisassemblerAPI *disassembler, RTTICompleteObjectMap& rttiobjects, const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
+template<typename T> void RTTIMsvc<T>::searchCompleteObjects(DisassemblerAPI *disassembler, RTTICompleteObjectMap& rttiobjects, const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
     const FormatPlugin* format = disassembler->format();
     RTTICompleteObjectLocatorSearch searchobj = { 0, 0, 0, 0 };
@@ -144,7 +144,7 @@ void RTTIMsvc::searchCompleteObjects(DisassemblerAPI *disassembler, RTTIComplete
     }
 }
 
-void RTTIMsvc::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTableMap &vtables, const RTTIMsvc::RTTICompleteObjectMap &rttiobjects, const RTTIMsvc::DataSegmentList &segments)
+template<typename T> void RTTIMsvc<T>::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTableMap &vtables, const RTTIMsvc::RTTICompleteObjectMap &rttiobjects, const RTTIMsvc::DataSegmentList &segments)
 {
     const FormatPlugin* format = disassembler->format();
 
@@ -156,7 +156,7 @@ void RTTIMsvc::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTable
         for(const Segment* segment : segments)
         {
             BufferView view = format->viewSegment(segment);
-            auto res = view.find(reinterpret_cast<const u32*>(&item.second));
+            auto res = view.find(reinterpret_cast<const T*>(&item.second));
             bool found = false;
 
             while(res.hasNext())
@@ -175,7 +175,7 @@ void RTTIMsvc::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTable
             if(!found)
                 continue;
 
-            vtables.emplace(item.first, format->pointer<u32>(segment->offset + res.position));
+            vtables.emplace(item.first, format->pointer<T>(segment->offset + res.position));
             break;
         }
     }

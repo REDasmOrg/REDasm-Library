@@ -1,6 +1,7 @@
 #ifndef REDASM_BASE_TYPES_H
 #define REDASM_BASE_TYPES_H
 
+#include <visit_struct.hpp>
 #include <cstdint>
 #include <cstddef>
 

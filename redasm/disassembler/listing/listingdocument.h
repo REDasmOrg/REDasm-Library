@@ -1,7 +1,6 @@
 #ifndef LISTINGDOCUMENT_H
 #define LISTINGDOCUMENT_H
 
-#include <visit_struct.hpp>
 #include <unordered_set>
 #include <type_traits>
 #include <vector>

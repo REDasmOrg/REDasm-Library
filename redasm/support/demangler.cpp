@@ -25,7 +25,7 @@ std::string demangleMSVC(const std::string& s, bool simplified) {
     if(!__unDName(v.data(), s.c_str(), v.size(), std::malloc, std::free, flags))
         return s;
 
-    return s;
+    return v.data();
 }
 
 bool isMSVC(const std::string &s, std::string* result) {

@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <stdexcept>
 #include <iterator>
+#include <cstring>
 #include "../base_types.h"
 #include "../endianness/endianness.h"
 #include "abstractbuffer.h"
@@ -100,7 +101,10 @@ class BufferView
         u64 m_offset, m_size;
 };
 
-template<typename T> BufferView::SearchResult<T> BufferView::find(const char* s, u64 startoffset) const { return this->find<T>(std::string(s), startoffset); }
+template<typename T> BufferView::SearchResult<T> BufferView::find(const char* s, u64 startoffset) const
+{
+    return this->find<T>(reinterpret_cast<const u8*>(s), std::strlen(s), startoffset);
+}
 
 template<typename T> BufferView::WildcardResult<T> BufferView::wildcard(std::string pattern, u64 startoffset) const
 {

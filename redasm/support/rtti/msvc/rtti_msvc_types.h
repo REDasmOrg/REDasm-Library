@@ -38,7 +38,18 @@ template<typename T> struct RTTICompleteObjectLocatorT
 };
 
 } // namespace RTTI
+
 } // namespace REDasm
 
+VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u32>, pVFTable, spare, name);
+VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u64>, pVFTable, spare, name);
+
+VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocatorT<u32>,
+                 signature, offset, cdOffset,
+                 pTypeDescriptor, pClassHierarchyDescriptor);
+
+VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocatorT<u64>,
+                 signature, offset, cdOffset,
+                 pTypeDescriptor, pClassHierarchyDescriptor);
 
 #endif // RTTI_MSVC_TYPES_H

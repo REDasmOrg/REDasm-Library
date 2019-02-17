@@ -41,7 +41,7 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
 
         lock->info(address, vtablename);
         lock->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
-        lock->lock(rttiobjectaddress, objectname + "::rtti_object");
+        lock->symbolize<RTTICompleteObjectLocator>(rttiobjectaddress, objectname + "::rttiObject");
         disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
@@ -63,11 +63,16 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
     }
 }
 
+template<typename T> std::string RTTIMsvc<T>::objectName(const RTTIMsvc::RTTITypeDescriptor *rttitype)
+{
+    std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
+    return Demangler::demangled("?" + rttitypename.substr(4) + "6A@Z");
+}
+
 template<typename T> std::string RTTIMsvc<T>::objectName(DisassemblerAPI* disassembler, const RTTICompleteObjectLocator *rttiobject)
 {
     const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
-    std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
-    return Demangler::demangled("?" + rttitypename.substr(4) + "6A@Z");
+    return RTTIMsvc::objectName(rttitype);
 }
 
 template<typename T> std::string RTTIMsvc<T>::vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator *rttiobject)
@@ -95,8 +100,8 @@ template<typename T> void RTTIMsvc<T>::searchDataSegments(DisassemblerAPI *disas
 
 template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
-    const ListingDocument& document = disassembler->document();
     const FormatPlugin* format = disassembler->format();
+    ListingDocument& document = disassembler->document();
 
     for(const Segment* segment : segments)
     {
@@ -109,11 +114,15 @@ template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *di
 
         while(res.hasNext())
         {
-            REDasm::statusAddress("Searching RTTITypeDescriptors in " + REDasm::quoted(segment->name), format->address(res.position));
             const RTTITypeDescriptor* rttitype = RTTI_MSVC_TYPE_DESCRIPTOR(res.result);
+            address_t rttiaddress = format->addressof(rttitype);
+            REDasm::statusAddress("Searching RTTITypeDescriptors in " + REDasm::quoted(segment->name), rttiaddress);
 
             if(document->segment(rttitype->pVFTable))
+            {
+                document->symbolize<RTTITypeDescriptor>(rttiaddress, RTTIMsvc<T>::objectName(rttitype) + "::typeDescriptor");
                 rttitypes.emplace(segment->address + res.position - RTTI_MSVC_FIXUP, rttitype);
+            }
 
             res = res.next();
         }

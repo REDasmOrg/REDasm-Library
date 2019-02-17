@@ -32,6 +32,7 @@ template<typename T> class RTTIMsvc
         static void search(DisassemblerAPI *disassembler);
 
     private:
+        static std::string objectName(const RTTITypeDescriptor* rttitype);
         static std::string objectName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
         static std::string vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
         static void searchDataSegments(DisassemblerAPI* disassembler, DataSegmentList& segments);

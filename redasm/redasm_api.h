@@ -3,18 +3,18 @@
 
 #include <memory>
 #include <functional>
-#include <unordered_map>
 #include <algorithm>
 #include <cstdint>
-#include <chrono>
 #include <string>
 #include <vector>
-#include <list>
+#include <unordered_map>
 #include <map>
+#include <list>
 #include <set>
 #include "types/base_types.h"
 #include "types/buffer/abstractbuffer.h"
 #include "types/buffer/bufferview.h"
+#include "support/utils.h"
 #include "redasm_runtime.h"
 
 #if __cplusplus <= 201103L && __GNUC__
@@ -33,17 +33,21 @@ namespace REDasm {
 
 inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
 inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
-inline void status(const std::string& s) { Runtime::rntStatusCallback(s); }
 
-inline void status(const std::string& s, size_t p) {
-    auto now = std::chrono::steady_clock::now();
+inline void status(const std::string& s) {
+    RUNTIME_DEBOUNCE_CHECK
+    Runtime::rntStatusCallback(s);
+}
 
-    if((now - Runtime::rntLastStatusReport) < Runtime::rntDebounceTimeout)
-        return;
-
-    Runtime::rntLastStatusReport = now;
+inline void statusProgress(const std::string& s, size_t p) {
+    RUNTIME_DEBOUNCE_CHECK
     Runtime::rntStatusCallback(s);
     Runtime::rntProgressCallback(p);
+}
+
+inline void statusAddress(const std::string& s, address_t address) {
+    RUNTIME_DEBOUNCE_CHECK
+    Runtime::rntStatusCallback(s + " @ " + REDasm::hex(address));
 }
 
 template<typename... T> std::string makePath(const std::string& p, T... args) {

@@ -3,6 +3,7 @@
 
 #include "../../../redasm_api.h"
 #include "../../../types/buffer/bufferview.h"
+#include <unordered_map>
 #include <forward_list>
 
 namespace REDasm {
@@ -58,6 +59,8 @@ class RTTIMsvc
         static void search(DisassemblerAPI *disassembler);
 
     private:
+        static std::string objectName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
+        static std::string vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
         static void searchDataSegments(DisassemblerAPI* disassembler, DataSegmentList& segments);
         static void searchTypeDescriptors(DisassemblerAPI* disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments);
         static void searchCompleteObjects(DisassemblerAPI* disassembler, RTTICompleteObjectMap &rttiobjects,  const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments);

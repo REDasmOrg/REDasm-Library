@@ -6,6 +6,10 @@
 #include <chrono>
 #include <string>
 
+#define RUNTIME_DEBOUNCE_CHECK  auto now = std::chrono::steady_clock::now(); \
+                                if((now - Runtime::rntLastStatusReport) < Runtime::rntDebounceTimeout) return; \
+                                Runtime::rntLastStatusReport = now;
+
 namespace REDasm {
 
 struct Runtime

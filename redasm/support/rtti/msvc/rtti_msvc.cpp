@@ -16,41 +16,32 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
     RTTITypeDescriptorMap rttitypes;
     DataSegmentList segments;
 
-    REDasm::status("Searching \"data\" segments...");
     RTTIMsvc::searchDataSegments(disassembler, segments);
-
-    REDasm::status("Searching RTTITypeDescriptors...");
     RTTIMsvc::searchTypeDescriptors(disassembler, rttitypes, segments);
-
-    REDasm::status("Searching RTTICompleteObjectLocators...");
     RTTIMsvc::searchCompleteObjects(disassembler, rttiobjects, rttitypes, segments);
-
-    REDasm::status("Searching VTables...");
     RTTIMsvc::searchVTables(disassembler, rttivtables, rttiobjects, segments);
 
     auto lock = x_lock_safe_ptr(disassembler->document());
     FormatPlugin* format = disassembler->format();
 
-    REDasm::status("Reading VTables...");
     for(auto& rttivtableitem : rttivtables)
     {
         const RTTICompleteObjectLocator* rttiobject = rttivtableitem.first;
-        const RTTITypeDescriptor* rttitype = format->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
-
         auto it = rttiobjects.find(rttiobject);
 
         if(it == rttiobjects.end())
             continue;
 
-        std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
+        std::string objectname = RTTIMsvc::objectName(disassembler, rttiobject);
+        std::string vtablename = RTTIMsvc::vtableName(disassembler, rttiobject);
         const u32* pobjectdata = rttivtableitem.second;
         address_t address = format->addressof(pobjectdata), rttiobjectaddress = format->addressof(rttiobject);
-        std::string demangledname = Demangler::demangled("?" + rttitypename.substr(4) + "6A@Z") + "::";
-        std::string demanglednamevtable = Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 
-        lock->info(address, demanglednamevtable);
-        lock->lock(address, demangledname + "ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
-        lock->lock(rttiobjectaddress, demangledname + "rtti_object");
+        REDasm::status("Reading " + objectname + "'s VTable");
+
+        lock->info(address, vtablename);
+        lock->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
+        lock->lock(rttiobjectaddress, objectname + "::rtti_object");
         disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
@@ -61,8 +52,8 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
             address = format->addressof(pobjectdata);
             disassembler->disassemble(*pobjectdata);
 
-            lock->lock(address, demangledname + "vftable_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
-            lock->function(*pobjectdata, demangledname + "sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
+            lock->lock(address, objectname + "::vftable_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
+            lock->function(*pobjectdata, objectname + "::sub_" + REDasm::hex(static_cast<u32>(*pobjectdata)));
 
             disassembler->pushReference(*pobjectdata, address);
 
@@ -70,6 +61,20 @@ void RTTIMsvc::search(DisassemblerAPI *disassembler)
             segment = lock->segment(*pobjectdata);
         }
     }
+}
+
+std::string RTTIMsvc::objectName(DisassemblerAPI* disassembler, const RTTICompleteObjectLocator *rttiobject)
+{
+    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
+    std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
+    return Demangler::demangled("?" + rttitypename.substr(4) + "6A@Z");
+}
+
+std::string RTTIMsvc::vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator *rttiobject)
+{
+    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
+    std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
+    return Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 }
 
 void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList &segments)
@@ -83,6 +88,7 @@ void RTTIMsvc::searchDataSegments(DisassemblerAPI *disassembler, DataSegmentList
         if(segment->empty() || segment->is(SegmentTypes::Bss) || segment->is(SegmentTypes::Code) || (segment->name.find("data") == std::string::npos))
             continue;
 
+        REDasm::status("Checking segment '" + segment->name + "'");
         segments.push_front(segment);
     }
 }
@@ -103,6 +109,7 @@ void RTTIMsvc::searchTypeDescriptors(DisassemblerAPI *disassembler, RTTITypeDesc
 
         while(res.hasNext())
         {
+            REDasm::statusAddress("Searching RTTITypeDescriptors in " + REDasm::quoted(segment->name), format->address(res.position));
             const RTTITypeDescriptor* rttitype = RTTI_MSVC_TYPE_DESCRIPTOR(format, res.result);
 
             if(document->segment(rttitype->pVFTable))
@@ -130,6 +137,7 @@ void RTTIMsvc::searchCompleteObjects(DisassemblerAPI *disassembler, RTTIComplete
             if(!res.hasNext())
                 continue;
 
+            REDasm::statusProgress("Searching RTTICompleteObjectLocators in " + REDasm::quoted(segment->name), format->address(res.position));
             rttiobjects.emplace(reinterpret_cast<const RTTICompleteObjectLocator*>(res.result), segment->address + res.position);
             break;
         }
@@ -143,6 +151,7 @@ void RTTIMsvc::searchVTables(DisassemblerAPI *disassembler, RTTIMsvc::RTTIVTable
     for(const auto& item : rttiobjects)
     {
         const RTTICompleteObjectLocator* rttiobject = item.first;
+        REDasm::status("Searching VTables for " + REDasm::quoted(RTTIMsvc::objectName(disassembler, rttiobject)));
 
         for(const Segment* segment : segments)
         {

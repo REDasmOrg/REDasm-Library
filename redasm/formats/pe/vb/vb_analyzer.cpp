@@ -53,7 +53,7 @@ void VBAnalyzer::disassembleTrampoline(address_t eventva, const std::string& nam
         return;
     }
 
-    REDasm::status("Decoding " + name + " @ " + REDasm::hex(eventva));
+    REDasm::statusAddress("Decoding " + name, eventva);
 
     if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
     {

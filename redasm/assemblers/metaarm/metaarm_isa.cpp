@@ -12,7 +12,7 @@ int MetaARMAssemblerISA::classify(address_t address, const BufferView &view, Dis
 
     while(!cview.eob())
     {
-        REDasm::status("Classifing Instruction Set @ " + REDasm::hex(address));
+        REDasm::statusAddress("Classifing Instruction Set", address);
 
         if(!armassembler->decode(cview, instruction))
             return MetaARMAssemblerISA::Thumb;

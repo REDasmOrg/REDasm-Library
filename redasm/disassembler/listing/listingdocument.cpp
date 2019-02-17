@@ -255,9 +255,9 @@ std::string ListingDocumentType::info(address_t address) const
 
 void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
-void ListingDocumentType::info(address_t address, const std::string &remark)
+void ListingDocumentType::info(address_t address, const std::string &s)
 {
-    m_info[address] = remark;
+    m_info[address] = s;
     this->insertSorted(address, ListingItem::EmptyItem);
     this->insertSorted(address, ListingItem::InfoItem);
 }
@@ -536,12 +536,7 @@ std::string ListingDocumentType::autoComment(address_t address) const
 
 std::string ListingDocumentType::normalized(std::string s)
 {
-    for(char& ch : s)
-    {
-        if((ch == '.') || (ch == ' '))
-            ch = '_';
-    }
-
+    std::replace(s.begin(), s.end(), ' ', '_');
     return s;
 }
 

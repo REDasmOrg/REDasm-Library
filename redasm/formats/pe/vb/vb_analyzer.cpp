@@ -32,8 +32,6 @@ void VBAnalyzer::analyze()
     if(!m_document->segment(thunrtdata) || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Call))
         return;
 
-    m_document->lock(thunrtdata, "thunRTData", SymbolTypes::Data);
-
     if(!this->decompile(thunrtdata))
         return;
 
@@ -101,6 +99,8 @@ bool VBAnalyzer::decompile(address_t thunrtdata)
 
     if(std::strncmp(m_vbheader->szVbMagic, "VB5!", VB_SIGNATURE_SIZE))
         return false;
+
+    m_document->symbolize<VBHeader>(thunrtdata, "VBHeader");
 
     m_vbprojinfo = m_format->addrpointer<VBProjectInfo>(m_vbheader->lpProjectData);
     m_vbobjtable = m_format->addrpointer<VBObjectTable>(m_vbprojinfo->lpObjectTable);

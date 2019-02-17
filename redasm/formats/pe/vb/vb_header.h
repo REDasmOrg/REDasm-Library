@@ -1,6 +1,7 @@
 #ifndef VB_HEADER_H
 #define VB_HEADER_H
 
+#include <visit_struct.hpp>
 #include "../../../redasm.h"
 #include "../pe_common.h"
 
@@ -185,6 +186,14 @@ struct VBEventInfo // LocalDispatcher
     u32 lpEvents[1];                 //
 };
 
-}
+} // namespace REDasm
+
+VISITABLE_STRUCT(REDasm::VBHeader, szVbMagic, wRuntimeBuild, szLangDll, szSecLangDll,
+                 wRuntimeRevision, dwLCID, dwSecLCID, lpSubMain, lpProjectData,
+                 fMdlIntCtls, fMdlIntCtls2, dwThreadFlags, dwThreadCount,
+                 wFormCount, wExternalCount, dwThunkCount, lpGuiTable,
+                 lpExternalCompTable, lpComRegisterData,
+                 bszProjectDescription, bszProjectExeName,
+                 bszProjectHelpFile, bszProjectName);
 
 #endif // VB_HEADER_H

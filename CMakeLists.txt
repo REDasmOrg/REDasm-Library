@@ -12,7 +12,9 @@ set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 ### Dependencies
 
 # Single Headers
-set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR} ${DEPENDS_HEADERS_DIR}/json)
+set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}
+                           ${DEPENDS_HEADERS_DIR}/json
+                           ${DEPENDS_HEADERS_DIR}/visit_struct)
 
 #ZLib
 set(ZLIB_BUILD ${DEPENDS_BUILD_DIR}/zlib)

@@ -76,6 +76,7 @@ class BufferView
         u8 operator *() const { return *this->data(); }
         template<typename T> WildcardResult<T> wildcard(std::string pattern, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const std::string& s, u64 startoffset = 0) const;
+        template<typename T> SearchResult<T> find(const char* s, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const T* pack, u64 startoffset = 0) const;
         template<typename T> SearchResult<T> find(const std::initializer_list<u8> initlist, u64 startoffset = 0) const;
         template<typename T> iterator<T> begin() const { return iterator<T>(this->data()); }
@@ -98,6 +99,8 @@ class BufferView
         const AbstractBuffer* m_buffer;
         u64 m_offset, m_size;
 };
+
+template<typename T> BufferView::SearchResult<T> BufferView::find(const char* s, u64 startoffset) const { return this->find<T>(std::string(s), startoffset); }
 
 template<typename T> BufferView::WildcardResult<T> BufferView::wildcard(std::string pattern, u64 startoffset) const
 {

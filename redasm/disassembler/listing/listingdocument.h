@@ -2,7 +2,6 @@
 #define LISTINGDOCUMENT_H
 
 #include <unordered_set>
-#include <type_traits>
 #include <vector>
 #include <list>
 #include "../../redasm.h"
@@ -145,24 +144,6 @@ struct ListingDocumentChanged
 
 class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializer::Serializable
 {
-    private:
-        struct StructVisitor {
-            StructVisitor(ListingDocumentType* document, address_t address, const std::string& basename): address(address), document(document), basename(basename) { }
-
-            template<typename T> void operator()(const char* name, const visit_struct::type_c<T>& tag) {
-                if(std::is_array<T>::value && std::is_convertible<T, std::string>::value)
-                    document->lock(address, basename + "." + std::string(name), SymbolTypes::String);
-                else
-                    document->lock(address, basename + "." + std::string(name), SymbolTypes::Data);
-
-                address += sizeof(T);
-            }
-
-            address_t address;
-            ListingDocumentType* document;
-            const std::string& basename;
-        };
-
     public:
         Event<const ListingDocumentChanged*> changed;
 
@@ -250,9 +231,6 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         SymbolPtr symbol(const std::string& name);
         SymbolTable* symbols();
 
-    public:
-        template<typename T> void symbolize(address_t address, const std::string& name);
-
     private:
         void insertSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
@@ -275,20 +253,6 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
         friend class FormatPlugin;
 };
-
-template<typename T> void ListingDocumentType::symbolize(address_t address, const std::string& name)
-{
-    if(!std::is_pod<T>::value)
-    {
-        REDasm::log("Type " + REDasm::quoted(Demangler::typeName<T>()) + "is not POD");
-        return;
-    }
-
-    std::string symbolname = name + "_" + REDasm::hex(address); // Generate an unique name
-    StructVisitor visitor(this, address, symbolname);
-    visit_struct::visit_types<T>(visitor);
-    this->info(address, "struct " + symbolname); // Add later It may be removed from ListingDocument
-}
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;
 

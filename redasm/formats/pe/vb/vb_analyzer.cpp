@@ -1,6 +1,7 @@
 #include "vb_analyzer.h"
 #include "vb_components.h"
 #include "../pe.h"
+#include "../../../support/symbolize.h"
 
 #define HAS_OPTIONAL_INFO(objdescr, objinfo) (objdescr.lpObjectInfo + sizeof(VBObjectInfo) != objinfo->base.lpConstants)
 #define VB_METHODNAME(pubobj, control, method) (pubobj + "_" + control + "_" + method)
@@ -100,7 +101,7 @@ bool VBAnalyzer::decompile(address_t thunrtdata)
     if(std::strncmp(m_vbheader->szVbMagic, "VB5!", VB_SIGNATURE_SIZE))
         return false;
 
-    m_document->symbolize<VBHeader>(thunrtdata, "VBHeader");
+    REDasm::symbolize<VBHeader>(m_disassembler, thunrtdata, "VBHeader");
 
     m_vbprojinfo = m_format->addrpointer<VBProjectInfo>(m_vbheader->lpProjectData);
     m_vbobjtable = m_format->addrpointer<VBObjectTable>(m_vbprojinfo->lpObjectTable);

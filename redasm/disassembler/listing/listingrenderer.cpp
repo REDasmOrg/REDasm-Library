@@ -219,7 +219,7 @@ void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem 
                 FormatPlugin* format = m_disassembler->format();
 
                 if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
-                    rl.push(REDasm::hex(value, format->bits()), "data_fg");
+                    rl.push(REDasm::hex(value, format->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
                 else
                     rl.push("??", "data_fg");
             }

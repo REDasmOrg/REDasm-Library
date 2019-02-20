@@ -16,4 +16,6 @@ typedef u32 LCID;
 
 } // namespace REDasm
 
+VISITABLE_STRUCT(REDasm::GUID, data1, data2, data3, data4);
+
 #endif // PE_COMMON_H

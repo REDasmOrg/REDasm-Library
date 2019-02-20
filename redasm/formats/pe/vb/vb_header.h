@@ -196,4 +196,22 @@ VISITABLE_STRUCT(REDasm::VBHeader, szVbMagic, wRuntimeBuild, szLangDll, szSecLan
                  bszProjectDescription, bszProjectExeName,
                  bszProjectHelpFile, bszProjectName);
 
+VISITABLE_STRUCT(REDasm::VBProjectInfo, dwVersion, lpObjectTable, dwNull,
+                 lpCodeStart, lpCodeEnd, dwDataSize, lpThreadSpace, lpVbaSeh,
+                 lpNativeCode, szPathInformation, lpExternalTable, dwExternalCount);
+
+VISITABLE_STRUCT(REDasm::VBObjectTable, lpHeapLink, lpExecProj, lpObjectTreeInfo,
+                 dwReserved, dwNull, lpProjectObject, uuidObject, fCompileState,
+                 wTotalObjects, wCompiledObjects, wObjectsInUse, lpPubObjArray,
+                 fIdeFlag, lpIdeData, lpIdeData2, lpszProjectName, dwLcid,
+                 dwLcid2, lpIdeData3, dwIdentifier);
+
+VISITABLE_STRUCT(REDasm::VBObjectTreeInfo, lpHeapLink, lpObjectTable, dwReserved,
+                 lpFormList, dwUnused2, szProjectDescription, szProjectHelpFile,
+                 dwReserved2, dwHelpContextId);
+
+VISITABLE_STRUCT(REDasm::VBPublicObjectDescriptor, lpObjectInfo, dwReserved,
+                 lpPublicBytes, lpStaticBytes, lpModulePublic, lpszObjectName,
+                 dwMethodCount, lpMethodNames, bStaticVars, fObjectType, dwNull);
+
 #endif // VB_HEADER_H

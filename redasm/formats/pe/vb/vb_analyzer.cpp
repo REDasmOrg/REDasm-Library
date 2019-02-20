@@ -101,12 +101,16 @@ bool VBAnalyzer::decompile(address_t thunrtdata)
     if(std::strncmp(m_vbheader->szVbMagic, "VB5!", VB_SIGNATURE_SIZE))
         return false;
 
-    REDasm::symbolize<VBHeader>(m_disassembler, thunrtdata, "VBHeader");
-
     m_vbprojinfo = m_format->addrpointer<VBProjectInfo>(m_vbheader->lpProjectData);
     m_vbobjtable = m_format->addrpointer<VBObjectTable>(m_vbprojinfo->lpObjectTable);
     m_vbobjtreeinfo = m_format->addrpointer<VBObjectTreeInfo>(m_vbobjtable->lpObjectTreeInfo);
     m_vbpubobjdescr = m_format->addrpointer<VBPublicObjectDescriptor>(m_vbobjtable->lpPubObjArray);
+
+    REDASM_SYMBOLIZE(VBHeader, m_disassembler, thunrtdata);
+    REDASM_SYMBOLIZE(VBProjectInfo, m_disassembler, m_vbheader->lpProjectData);
+    REDASM_SYMBOLIZE(VBObjectTable, m_disassembler, m_vbprojinfo->lpObjectTable);
+    REDASM_SYMBOLIZE(VBObjectTreeInfo, m_disassembler, m_vbobjtable->lpObjectTreeInfo);
+    REDASM_SYMBOLIZE(VBPublicObjectDescriptor, m_disassembler, m_vbobjtable->lpPubObjArray);
 
     for(size_t i = 0; i < m_vbobjtable->wTotalObjects; i++)
         this->decompileObject(m_vbpubobjdescr[i]);

@@ -40,7 +40,7 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
 
         REDasm::status("Reading " + objectname + "'s VTable");
 
-        document->info(address, vtablename);
+        document->type(address, vtablename);
         document->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
 
         REDasm::symbolize<RTTICompleteObjectLocator>(disassembler, rttiobjectaddress, objectname + "::rttiObject");

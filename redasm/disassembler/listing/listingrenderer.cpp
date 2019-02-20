@@ -121,6 +121,8 @@ bool ListingRenderer::getRendererLine(const document_lock &lock, size_t line, Re
         this->renderSymbol(lock, item, rl);
     else if(item->is(ListingItem::InfoItem))
         this->renderInfo(lock, item, rl);
+    else if(item->is(ListingItem::TypeItem))
+        this->renderType(lock, item, rl);
     else if(!item->is(ListingItem::EmptyItem))
         rl.push("Unknown Type: " + std::to_string(item->type));
 
@@ -235,6 +237,12 @@ void ListingRenderer::renderInfo(const document_lock &lock, const ListingItem *i
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push(".info ", "dotted_fg").push(lock->info(item->address), "comment_fg");
+}
+
+void ListingRenderer::renderType(const document_lock &lock, const ListingItem *item, RendererLine &rl)
+{
+    this->renderAddressIndent(lock, item, rl);
+    rl.push(".type ", "dotted_fg").push(lock->type(item->address), "comment_fg");
 }
 
 void ListingRenderer::renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl)

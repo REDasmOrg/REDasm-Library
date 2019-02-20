@@ -253,13 +253,32 @@ std::string ListingDocumentType::info(address_t address) const
     return std::string();
 }
 
+std::string ListingDocumentType::type(address_t address) const
+{
+    auto it = m_types.find(address);
+
+    if(it != m_types.end())
+        return it->second;
+
+    return std::string();
+}
+
 void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
 void ListingDocumentType::info(address_t address, const std::string &s)
 {
     m_info[address] = s;
-    this->insertSorted(address, ListingItem::EmptyItem);
+
+    this->empty(address);
     this->insertSorted(address, ListingItem::InfoItem);
+}
+
+void ListingDocumentType::type(address_t address, const std::string &s)
+{
+    m_types[address] = s;
+
+    this->empty(address);
+    this->insertSorted(address, ListingItem::TypeItem);
 }
 
 void ListingDocumentType::comment(address_t address, const std::string &s)

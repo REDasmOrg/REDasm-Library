@@ -57,6 +57,7 @@ class ListingRenderer
         void renderInstruction(const document_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderSymbol(const document_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderInfo(const document_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderType(const document_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderMnemonic(const InstructionPtr& instruction, RendererLine &rl);
         void renderOperands(const InstructionPtr& instruction, RendererLine &rl);

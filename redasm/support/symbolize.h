@@ -64,7 +64,7 @@ struct StructVisitor {
         std::string symbolname = name + "_" + REDasm::hex(address); // Generate an unique name
         StructVisitor visitor(disassembler, address, symbolname);
         visit_struct::visit_types<T>(visitor);
-        document->info(address, "struct " + symbolname); // Add later, it may be removed from ListingDocument
+        document->type(address, symbolname);
         return true;
     }
 

@@ -51,7 +51,7 @@ void Disassembler::disassemble()
         return;
     }
 
-    SymbolTable* symboltable = m_document->symbols();
+    const SymbolTable* symboltable = m_document->symbols();
 
     // Preload format functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {

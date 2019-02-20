@@ -595,9 +595,9 @@ int ListingDocumentType::indexOf(address_t address)
 }
 
 int ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(this, item); }
-SymbolPtr ListingDocumentType::symbol(address_t address) { return m_symboltable.symbol(address); }
-SymbolPtr ListingDocumentType::symbol(const std::string &name) { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
-SymbolTable *ListingDocumentType::symbols() { return &m_symboltable; }
+SymbolPtr ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
+SymbolPtr ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
+const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }
 
 void ListingDocumentType::insertSorted(address_t address, u32 type)
 {

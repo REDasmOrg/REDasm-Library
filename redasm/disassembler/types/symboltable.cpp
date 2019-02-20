@@ -20,17 +20,17 @@ bool SymbolTable::create(address_t address, const std::string &name, u32 type, u
     return it == m_byaddress.end();
 }
 
-SymbolPtr SymbolTable::symbol(const std::string &name)
+SymbolPtr SymbolTable::symbol(const std::string &name) const
 {
     auto it = m_byname.find(name);
 
     if(it != m_byname.end())
-        return m_byaddress[it->second];
+        return m_byaddress.at(it->second);
 
     return nullptr;
 }
 
-SymbolPtr SymbolTable::symbol(address_t address)
+SymbolPtr SymbolTable::symbol(address_t address) const
 {
     auto it = m_byaddress.find(address);
 
@@ -40,7 +40,7 @@ SymbolPtr SymbolTable::symbol(address_t address)
     return it->second;
 }
 
-void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const SymbolPtr&)>& cb)
+void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const SymbolPtr&)>& cb) const
 {
     std::forward_list<SymbolPtr> symbols;
 

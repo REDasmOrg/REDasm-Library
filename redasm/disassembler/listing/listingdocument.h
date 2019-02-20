@@ -228,9 +228,9 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingItem* itemAt(size_t i) const;
         int indexOf(address_t address);
         int indexOf(ListingItem *item);
-        SymbolPtr symbol(address_t address);
-        SymbolPtr symbol(const std::string& name);
-        SymbolTable* symbols();
+        SymbolPtr symbol(address_t address) const;
+        SymbolPtr symbol(const std::string& name) const;
+        const SymbolTable* symbols() const;
 
     private:
         void insertSorted(address_t address, u32 type);

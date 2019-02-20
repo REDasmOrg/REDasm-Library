@@ -6,8 +6,6 @@
 
 namespace REDasm {
 
-using document_lock = s_locked_safe_ptr<ListingDocument>;
-
 struct RendererFormat
 {
     RendererFormat(s64 start, s64 length, const std::string& style): start(start), length(length), style(style) { }
@@ -52,23 +50,23 @@ class ListingRenderer
         virtual void renderLine(const RendererLine& rl) = 0;
         void setFlags(u32 flags);
         bool getRendererLine(size_t line, RendererLine& rl);
-        void renderSegment(const document_lock& lock, const ListingItem *item, RendererLine& rl);
-        void renderFunction(const document_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderInstruction(const document_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderSymbol(const document_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderInfo(const document_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderType(const document_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);
+        void renderFunction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderInstruction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderSymbol(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderInfo(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
+        void renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderMnemonic(const InstructionPtr& instruction, RendererLine &rl);
         void renderOperands(const InstructionPtr& instruction, RendererLine &rl);
-        void renderComments(const document_lock &lock, const InstructionPtr& instruction, RendererLine &rl);
-        void renderAddressIndent(const document_lock &lock, const ListingItem *item, RendererLine& rl);
+        void renderComments(const document_s_lock &lock, const InstructionPtr& instruction, RendererLine &rl);
+        void renderAddressIndent(const document_s_lock &lock, const ListingItem *item, RendererLine& rl);
         void renderIndent(RendererLine &rl, int n = 1);
 
     private:
-        void renderTable(const document_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const;
-        bool renderSymbolPointer(const document_lock &lock, const SymbolPtr& symbol, RendererLine& rl) const;
-        bool getRendererLine(const document_lock& lock, size_t line, RendererLine& rl);
+        void renderTable(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const;
+        bool renderSymbolPointer(const document_s_lock &lock, const SymbolPtr& symbol, RendererLine& rl) const;
+        bool getRendererLine(const document_s_lock& lock, size_t line, RendererLine& rl);
         static std::string escapeString(const std::string& s);
 
     protected:

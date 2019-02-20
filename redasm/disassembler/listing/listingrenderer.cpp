@@ -100,11 +100,11 @@ void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
 bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
 {
-    auto lock = document_lock(m_document);
+    auto lock = document_s_lock(m_document);
     return this->getRendererLine(lock, line, rl);
 }
 
-bool ListingRenderer::getRendererLine(const document_lock &lock, size_t line, RendererLine& rl)
+bool ListingRenderer::getRendererLine(const document_s_lock &lock, size_t line, RendererLine& rl)
 {
     const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
 
@@ -129,14 +129,14 @@ bool ListingRenderer::getRendererLine(const document_lock &lock, size_t line, Re
     return true;
 }
 
-void ListingRenderer::renderSegment(const document_lock& lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
     m_printer->segment(lock->segment(item->address), [&](const std::string& line) {
         rl.push(line, "segment_fg");
     });
 }
 
-void ListingRenderer::renderFunction(const document_lock& lock, const ListingItem *item, RendererLine& rl)
+void ListingRenderer::renderFunction(const document_s_lock& lock, const ListingItem *item, RendererLine& rl)
 {
     if(!(m_flags & ListingRenderer::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
@@ -152,7 +152,7 @@ void ListingRenderer::renderFunction(const document_lock& lock, const ListingIte
     });
 }
 
-void ListingRenderer::renderInstruction(const document_lock& lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderInstruction(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
     InstructionPtr instruction = lock->instruction(item->address);
 
@@ -163,7 +163,7 @@ void ListingRenderer::renderInstruction(const document_lock& lock, const Listing
     this->renderComments(lock, instruction, rl);
 }
 
-void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
     SymbolPtr symbol = lock->symbol(item->address);
 
@@ -233,19 +233,19 @@ void ListingRenderer::renderSymbol(const document_lock& lock, const ListingItem 
     }
 }
 
-void ListingRenderer::renderInfo(const document_lock &lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderInfo(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push(".info ", "dotted_fg").push(lock->info(item->address), "comment_fg");
 }
 
-void ListingRenderer::renderType(const document_lock &lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push(".type ", "dotted_fg").push(lock->type(item->address), "comment_fg");
 }
 
-void ListingRenderer::renderAddress(const document_lock &lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     if(m_flags & ListingRenderer::HideSegmentName && !(m_flags & ListingRenderer::HideAddress))
         rl.push(HEX_ADDRESS(item->address), "address_fg");
@@ -308,7 +308,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
     });
 }
 
-void ListingRenderer::renderComments(const document_lock &lock, const InstructionPtr &instruction, RendererLine &rl)
+void ListingRenderer::renderComments(const document_s_lock &lock, const InstructionPtr &instruction, RendererLine &rl)
 {
     std::string s = lock->comment(instruction->address);
 
@@ -319,7 +319,7 @@ void ListingRenderer::renderComments(const document_lock &lock, const Instructio
     rl.push("# " + ListingRenderer::escapeString(s), "comment_fg");
 }
 
-void ListingRenderer::renderAddressIndent(const document_lock& lock, const ListingItem* item, RendererLine &rl)
+void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const ListingItem* item, RendererLine &rl)
 {
     FormatPlugin* format = m_disassembler->format();
     const Segment* segment = lock->segment(item->address);
@@ -334,7 +334,7 @@ void ListingRenderer::renderAddressIndent(const document_lock& lock, const Listi
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
 
-void ListingRenderer::renderTable(const document_lock &lock, const SymbolPtr &symbol, RendererLine& rl) const
+void ListingRenderer::renderTable(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine& rl) const
 {
     u64 value = 0;
     FormatPlugin* format = m_disassembler->format();
@@ -364,7 +364,7 @@ void ListingRenderer::renderTable(const document_lock &lock, const SymbolPtr &sy
     rl.push("]");
 }
 
-bool ListingRenderer::renderSymbolPointer(const document_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const
+bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const
 {
     u64 value = 0;
     FormatPlugin* format = m_disassembler->format();

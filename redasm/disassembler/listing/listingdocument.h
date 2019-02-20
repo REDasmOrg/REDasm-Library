@@ -255,6 +255,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 };
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;
+using document_s_lock = s_locked_safe_ptr<ListingDocument>;
+using document_x_lock = x_locked_safe_ptr<ListingDocument>;
 
 } // namespace REDasm
 

@@ -27,7 +27,7 @@ namespace SymbolTypes {
 
         LockedMask         = ~Locked,
         FunctionMask       = Function                      & ~(Code      | Locked),
-        ExportMask         = (ExportData | ExportFunction) & ~(Function  | Data | Locked),
+        ExportMask         = (ExportData | EntryPoint | ExportFunction) & ~(Function  | Data | Locked),
         ImportMask         = Import                        & ~(Data      | Locked),
         EntryPointMask     = EntryPoint                    & ~(Function),
         StringMask         = String                        & ~(Pointer),

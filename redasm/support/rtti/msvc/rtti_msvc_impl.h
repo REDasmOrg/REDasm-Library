@@ -42,8 +42,8 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
         lock->type(address, vtablename);
         lock->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
 
-        REDasm::symbolize<RTTICompleteObjectLocator>(disassembler, rttiobjectaddress, objectname + "::rttiObject");
-        REDasm::symbolize<RTTIClassHierarchyDescriptor>(disassembler, rttiobject->pClassHierarchyDescriptor, objectname + "::classHierarchy");
+        REDasm::symbolize<RTTICompleteObjectLocator>(disassembler, rttiobjectaddress, objectname + "::rtti_object");
+        REDasm::symbolize<RTTIClassHierarchyDescriptor>(disassembler, rttiobject->pClassHierarchyDescriptor, objectname + "::class_hierarchy");
         disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
@@ -145,7 +145,7 @@ template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *di
 
             if(document->segment(rttitype->pVFTable))
             {
-                REDasm::symbolize<RTTITypeDescriptor>(disassembler, rttiaddress, RTTIMsvc<T>::objectName(rttitype) + "::typeDescriptor");
+                REDasm::symbolize<RTTITypeDescriptor>(disassembler, rttiaddress, RTTIMsvc<T>::objectName(rttitype) + "::type_descriptor");
                 rttitypes.emplace(segment->address + res.position - RTTI_MSVC_FIXUP, rttitype);
             }
 

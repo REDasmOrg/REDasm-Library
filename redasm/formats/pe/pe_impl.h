@@ -39,6 +39,8 @@ template<size_t b> PeFormat<b>::PeFormat(AbstractBuffer *buffer): FormatPluginT<
 template<size_t b> std::string PeFormat<b>::name() const { return "PE Format (" + std::to_string(b) + " bits)"; }
 template<size_t b> u32 PeFormat<b>::bits() const { return b; }
 template<size_t b> const DotNetReader *PeFormat<b>::dotNetReader() const { return m_dotnetreader.get(); }
+template<size_t b> address_t PeFormat<b>::rvaToVa(address_t rva) const { return rva + m_imagebase; }
+template<size_t b> address_t PeFormat<b>::vaToRva(address_t va) const { return va - m_imagebase; }
 
 template<size_t b> std::string PeFormat<b>::assembler() const
 {

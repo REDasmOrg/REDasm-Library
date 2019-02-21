@@ -18,12 +18,9 @@ template<typename T> class RTTIMsvc
 {
     private:
         typedef RTTITypeDescriptorT<T> RTTITypeDescriptor;
-        typedef RTTICompleteObjectLocatorT<T> RTTICompleteObjectLocator;
-        typedef RTTIClassHierarchyDescriptorT<T> RTTIClassHierarchyDescriptor;
-        typedef RTTIBaseClassDescriptorT<T> RTTIBaseClassDescriptor;
 
     private:
-        struct RTTICompleteObjectLocatorSearch { u32 signature, offset, cdOffset; T pTypeDescriptor; };
+        struct RTTICompleteObjectLocatorSearch { u32 signature, offset, cdOffset, pTypeDescriptor; };
         typedef std::forward_list<const Segment*> DataSegmentList;
         typedef std::unordered_map<address_t, const RTTITypeDescriptor*> RTTITypeDescriptorMap;
         typedef std::unordered_map<const RTTICompleteObjectLocator*, address_t> RTTICompleteObjectMap;
@@ -35,6 +32,8 @@ template<typename T> class RTTIMsvc
         static void search(DisassemblerAPI *disassembler);
 
     private:
+        static u32 rttiSignature(DisassemblerAPI* disassembler);
+        static address_t rttiAddress(DisassemblerAPI* disassembler, address_t address);
         static std::string objectName(const RTTITypeDescriptor* rttitype);
         static std::string objectName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
         static std::string vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);

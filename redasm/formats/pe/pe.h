@@ -34,6 +34,8 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual void load();
         const DotNetReader *dotNetReader() const;
+        address_t rvaToVa(address_t rva) const;
+        address_t vaToRva(address_t rva) const;
 
     private:
         u64 rvaToOffset(u64 rva, bool *ok = nullptr) const;

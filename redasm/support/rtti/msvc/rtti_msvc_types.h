@@ -6,21 +6,11 @@
 namespace REDasm {
 namespace RTTI {
 
-template<typename  T> struct RTTIPMD { T mdisp, pdisp, vdisp; };
+enum RTTISignatureType: u32 { x86 = 0, x64 = 1 };
+struct RTTIPMD { u32 mdisp, pdisp, vdisp; };
 
-template<typename  T> struct RTTIBaseClassDescriptorT
-{
-    T pTypeDescriptor;
-    u32 numContainedBases;
-    RTTIPMD<T> pmd;
-    u32 attributes;
-};
-
-template<typename T> struct RTTIClassHierarchyDescriptorT
-{
-    u32 signature, attributes, numBaseClasses;
-    T pBaseClassArray;
-};
+struct RTTIBaseClassDescriptor { u32 pTypeDescriptor, numContainedBases; RTTIPMD pmd; u32 attributes; };
+struct RTTIClassHierarchyDescriptor { u32 signature, attributes, numBaseClasses, pBaseClassArray; };
 
 template<typename T> struct RTTITypeDescriptorT
 {
@@ -28,34 +18,26 @@ template<typename T> struct RTTITypeDescriptorT
     char name[1];
 };
 
-template<typename T> struct RTTICompleteObjectLocatorT
+struct RTTICompleteObjectLocator
 {
-    u32 signature, offset, cdOffset;
-    T pTypeDescriptor, pClassHierarchyDescriptor;
+    u32 signature;
+    u32 offset, cdOffset;
+    u32 pTypeDescriptor;           // x86 -> VA, x64 -> RVA
+    u32 pClassHierarchyDescriptor;
+    //u32 pSelf;                   // x64 only
 };
 
 } // namespace RTTI
 
 } // namespace REDasm
 
-VISITABLE_STRUCT(REDasm::RTTI::RTTIPMD<u32>, mdisp, pdisp, vdisp);
-VISITABLE_STRUCT(REDasm::RTTI::RTTIPMD<u64>, mdisp, pdisp, vdisp);
-
-VISITABLE_STRUCT(REDasm::RTTI::RTTIBaseClassDescriptorT<u32>, pTypeDescriptor, numContainedBases, pmd, attributes);
-VISITABLE_STRUCT(REDasm::RTTI::RTTIBaseClassDescriptorT<u64>, pTypeDescriptor, numContainedBases, pmd, attributes);
-
-VISITABLE_STRUCT(REDasm::RTTI::RTTIClassHierarchyDescriptorT<u32>, signature, attributes, numBaseClasses, pBaseClassArray);
-VISITABLE_STRUCT(REDasm::RTTI::RTTIClassHierarchyDescriptorT<u64>, signature, attributes, numBaseClasses, pBaseClassArray);
+VISITABLE_STRUCT(REDasm::RTTI::RTTIPMD, mdisp, pdisp, vdisp);
+VISITABLE_STRUCT(REDasm::RTTI::RTTIBaseClassDescriptor, pTypeDescriptor, numContainedBases, pmd, attributes);
+VISITABLE_STRUCT(REDasm::RTTI::RTTIClassHierarchyDescriptor, signature, attributes, numBaseClasses, pBaseClassArray);
 
 VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u32>, pVFTable, spare, name);
 VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u64>, pVFTable, spare, name);
 
-VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocatorT<u32>,
-                 signature, offset, cdOffset,
-                 pTypeDescriptor, pClassHierarchyDescriptor);
-
-VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocatorT<u64>,
-                 signature, offset, cdOffset,
-                 pTypeDescriptor, pClassHierarchyDescriptor);
+VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocator, signature, offset, cdOffset, pTypeDescriptor, pClassHierarchyDescriptor);
 
 #endif // RTTI_MSVC_TYPES_H

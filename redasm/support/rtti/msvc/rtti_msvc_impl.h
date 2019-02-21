@@ -1,5 +1,6 @@
 #include "rtti_msvc.h"
 #include "../../../disassembler/disassemblerapi.h"
+#include "../../../formats/pe/pe.h"
 #include "../../symbolize.h"
 
 #define RTTI_MSVC_CLASS_DESCRIPTOR_PREFIX ".?AV"
@@ -42,8 +43,8 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
         lock->type(address, vtablename);
         lock->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
 
-        REDasm::symbolize<RTTICompleteObjectLocator>(disassembler, rttiobjectaddress, objectname + "::rtti_object");
-        REDasm::symbolize<RTTIClassHierarchyDescriptor>(disassembler, rttiobject->pClassHierarchyDescriptor, objectname + "::class_hierarchy");
+        REDasm::symbolize<RTTICompleteObjectLocator>(disassembler, rttiobjectaddress, objectname + "::rtti_complete_object_locator");
+        REDasm::symbolize<RTTIClassHierarchyDescriptor>(disassembler, rttiobject->pClassHierarchyDescriptor, objectname + "::rtti_class_hierarchy");
         disassembler->pushReference(rttiobjectaddress, address);
         pobjectdata++; // Skip RTTICompleteObjectLocator
 
@@ -67,6 +68,26 @@ template<typename T> void RTTIMsvc<T>::search(DisassemblerAPI *disassembler)
     }
 }
 
+template<typename T> u32 RTTIMsvc<T>::rttiSignature(DisassemblerAPI* disassembler)
+{
+    auto* peformat = static_cast<const PeFormat64*>(disassembler->format());
+
+    if(peformat->bits() == 64)
+        return RTTISignatureType::x64;
+
+    return RTTISignatureType::x86;
+}
+
+template<typename T> address_t RTTIMsvc<T>::rttiAddress(DisassemblerAPI* disassembler, address_t address)
+{
+    auto* peformat = static_cast<const PeFormat64*>(disassembler->format());
+
+    if(peformat->bits() == 64)
+        return peformat->rvaToVa(address);
+
+    return address;
+}
+
 template<typename T> std::string RTTIMsvc<T>::objectName(const RTTIMsvc::RTTITypeDescriptor *rttitype)
 {
     std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
@@ -75,13 +96,13 @@ template<typename T> std::string RTTIMsvc<T>::objectName(const RTTIMsvc::RTTITyp
 
 template<typename T> std::string RTTIMsvc<T>::objectName(DisassemblerAPI* disassembler, const RTTICompleteObjectLocator *rttiobject)
 {
-    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
+    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(RTTIMsvc<T>::rttiAddress(disassembler, rttiobject->pTypeDescriptor));
     return RTTIMsvc::objectName(rttitype);
 }
 
 template<typename T> std::string RTTIMsvc<T>::vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator *rttiobject)
 {
-    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(rttiobject->pTypeDescriptor);
+    const RTTITypeDescriptor* rttitype = disassembler->format()->addrpointer<RTTITypeDescriptor>(RTTIMsvc<T>::rttiAddress(disassembler, rttiobject->pTypeDescriptor));
     std::string rttitypename = reinterpret_cast<const char*>(&rttitype->name);
     return Demangler::demangled("??_7" + rttitypename.substr(4) + "6B@Z");
 }
@@ -90,19 +111,18 @@ template<typename T> void RTTIMsvc<T>::readHierarchy(DisassemblerAPI* disassembl
 {
     FormatPlugin* format = disassembler->format();
     std::string objectname = RTTIMsvc<T>::objectName(disassembler, rttiobject);
-
-    RTTIClassHierarchyDescriptor* pclasshierarchy = format->addrpointer<RTTIClassHierarchyDescriptor>(rttiobject->pClassHierarchyDescriptor);
-    T* pbcdescriptor = format->addrpointer<T>(pclasshierarchy->pBaseClassArray);
+    RTTIClassHierarchyDescriptor* pclasshierarchy = format->addrpointer<RTTIClassHierarchyDescriptor>(RTTIMsvc<T>::rttiAddress(disassembler, rttiobject->pClassHierarchyDescriptor));
+    u32* pbcdescriptor = format->addrpointer<u32>(RTTIMsvc<T>::rttiAddress(disassembler, pclasshierarchy->pBaseClassArray));
 
     for(u64 i = 0; i < pclasshierarchy->numBaseClasses; i++, pbcdescriptor++) // Walk class hierarchy
     {
         address_t bcaddress = format->addressof(pbcdescriptor);
-        RTTIBaseClassDescriptor* pbaseclass = format->addrpointer<RTTIBaseClassDescriptor>(*pbcdescriptor);
+        RTTIBaseClassDescriptor* pbaseclass = format->addrpointer<RTTIBaseClassDescriptor>(RTTIMsvc<T>::rttiAddress(disassembler, *pbcdescriptor));
 
-        lock->pointer(pclasshierarchy->pBaseClassArray, SymbolTypes::Data);
-        REDasm::symbolize<RTTIBaseClassDescriptor>(disassembler, format->addressof(pbaseclass), objectname + "::base_class");
+        lock->pointer(RTTIMsvc<T>::rttiAddress(disassembler, pclasshierarchy->pBaseClassArray), SymbolTypes::Data);
+        REDasm::symbolize<RTTIBaseClassDescriptor>(disassembler, format->addressof(pbaseclass), objectname + "::rtti_base_class");
 
-        RTTITypeDescriptor* rttitype = format->addrpointer<RTTITypeDescriptor>(pbaseclass->pTypeDescriptor);
+        RTTITypeDescriptor* rttitype = format->addrpointer<RTTITypeDescriptor>(RTTIMsvc<T>::rttiAddress(disassembler, pbaseclass->pTypeDescriptor));
         lock->lock(bcaddress, objectname + "::ptr_base_" + RTTIMsvc<T>::objectName(rttitype) + "_" + REDasm::hex(bcaddress), SymbolTypes::Data | SymbolTypes::Pointer);
     }
 }
@@ -145,7 +165,7 @@ template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *di
 
             if(document->segment(rttitype->pVFTable))
             {
-                REDasm::symbolize<RTTITypeDescriptor>(disassembler, rttiaddress, RTTIMsvc<T>::objectName(rttitype) + "::type_descriptor");
+                REDasm::symbolize<RTTITypeDescriptor>(disassembler, rttiaddress, RTTIMsvc<T>::objectName(rttitype) + "::rtti_type_descriptor");
                 rttitypes.emplace(segment->address + res.position - RTTI_MSVC_FIXUP, rttitype);
             }
 
@@ -157,11 +177,16 @@ template<typename T> void RTTIMsvc<T>::searchTypeDescriptors(DisassemblerAPI *di
 template<typename T> void RTTIMsvc<T>::searchCompleteObjects(DisassemblerAPI *disassembler, RTTICompleteObjectMap& rttiobjects, const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments)
 {
     const FormatPlugin* format = disassembler->format();
-    RTTICompleteObjectLocatorSearch searchobj = { 0, 0, 0, 0 };
+    RTTICompleteObjectLocatorSearch searchobj = { RTTIMsvc<T>::rttiSignature(disassembler), 0, 0, 0 };
 
     for(const auto& item : rttitypes)
     {
-        searchobj.pTypeDescriptor = item.first;
+        auto* peformat = static_cast<const PeFormat64*>(disassembler->format());
+
+        if(peformat->bits() == 64)
+            searchobj.pTypeDescriptor = peformat->vaToRva(item.first);
+        else
+            searchobj.pTypeDescriptor = item.first;
 
         for(const Segment* segment : segments)
         {

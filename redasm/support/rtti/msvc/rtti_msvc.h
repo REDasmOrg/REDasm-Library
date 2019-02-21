@@ -27,21 +27,33 @@ template<typename T> class RTTIMsvc
         typedef std::unordered_map<const RTTICompleteObjectLocator*, const T*> RTTIVTableMap;
 
     public:
-        RTTIMsvc() = delete;
-        RTTIMsvc(const RTTIMsvc&) = delete;
-        static void search(DisassemblerAPI *disassembler);
+        RTTIMsvc(DisassemblerAPI* disassembler);
+        void search();
 
     private:
-        static u32 rttiSignature(DisassemblerAPI* disassembler);
-        static address_t rttiAddress(DisassemblerAPI* disassembler, address_t address);
+        u32 rttiSignature() const;
+        address_t rttiAddress(address_t address) const;
+        std::string objectName(const RTTICompleteObjectLocator* rttiobject) const;
+        std::string vtableName(const RTTICompleteObjectLocator* rttiobject) const;
+        void readHierarchy(document_x_lock& lock, const RTTICompleteObjectLocator* rttiobject) const;
+        void searchDataSegments();
+        void searchTypeDescriptors();
+        void searchCompleteObjects();
+        void searchVTables();
+
+    private:
         static std::string objectName(const RTTITypeDescriptor* rttitype);
-        static std::string objectName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
-        static std::string vtableName(DisassemblerAPI *disassembler, const RTTICompleteObjectLocator* rttiobject);
-        static void readHierarchy(DisassemblerAPI* disassembler, document_x_lock& lock, const RTTICompleteObjectLocator* rttiobject);
-        static void searchDataSegments(DisassemblerAPI* disassembler, DataSegmentList& segments);
-        static void searchTypeDescriptors(DisassemblerAPI* disassembler, RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments);
-        static void searchCompleteObjects(DisassemblerAPI* disassembler, RTTICompleteObjectMap &rttiobjects,  const RTTITypeDescriptorMap &rttitypes, const DataSegmentList &segments);
-        static void searchVTables(DisassemblerAPI* disassembler, RTTIVTableMap& vtables, const RTTICompleteObjectMap &rttiobjects, const DataSegmentList &segments);
+
+    private:
+        DisassemblerAPI* m_disassembler;
+        ListingDocument& m_document;
+        const FormatPlugin* m_format;
+
+    private:
+        RTTIVTableMap m_rttivtables;
+        RTTICompleteObjectMap m_rttiobjects;
+        RTTITypeDescriptorMap m_rttitypes;
+        DataSegmentList m_segments;
 };
 
 } // namespace RTTI

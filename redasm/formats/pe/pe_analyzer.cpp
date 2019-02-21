@@ -35,9 +35,9 @@ void PEAnalyzer::analyze()
         REDasm::log("MSVC Compiler detected, searching RTTI...");
 
         if(m_disassembler->format()->bits() == 64)
-            RTTI::RTTIMsvc<u64>::search(m_disassembler);
+            RTTI::RTTIMsvc<u64>(m_disassembler).search();
         else
-            RTTI::RTTIMsvc<u32>::search(m_disassembler);
+            RTTI::RTTIMsvc<u32>(m_disassembler).search();
 
         return;
     }

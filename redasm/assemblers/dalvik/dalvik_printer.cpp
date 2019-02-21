@@ -129,10 +129,10 @@ std::string DalvikPrinter::reg(const RegisterOperand &regop) const
     else
         s = DalvikPrinter::registerName(regop.r);
 
-    if(regop.extra_type & DalvikOperands::ParameterFirst)
+    if(regop.tag & DalvikOperands::ParameterFirst)
         s = "{" + s;
 
-    if(regop.extra_type & DalvikOperands::ParameterLast)
+    if(regop.tag & DalvikOperands::ParameterLast)
         s += "}";
 
     return s;
@@ -142,9 +142,9 @@ std::string DalvikPrinter::imm(const Operand *op) const
 {
     DEXFormat* dexformat = nullptr;
 
-    if(op->extra_type && (dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format())))
+    if(op->tag && (dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format())))
     {
-        switch(op->extra_type)
+        switch(op->tag)
         {
             case DalvikOperands::StringIndex:
                 return REDasm::quoted(dexformat->getString(op->u_value));

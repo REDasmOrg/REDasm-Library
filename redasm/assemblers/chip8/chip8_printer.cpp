@@ -11,17 +11,17 @@ CHIP8Printer::CHIP8Printer(DisassemblerAPI *disassembler): Printer(disassembler)
 
 std::string CHIP8Printer::reg(const RegisterOperand &regop) const
 {
-    if(regop.extra_type == CHIP8_REG_I)
+    if(regop.tag == CHIP8_REG_I)
         return "i";
 
-    if(regop.extra_type == CHIP8_REG_DT)
+    if(regop.tag == CHIP8_REG_DT)
         return "dt";
 
-    if(regop.extra_type == CHIP8_REG_ST)
+    if(regop.tag == CHIP8_REG_ST)
         return "st";
 
     std::stringstream ss;
-    ss << ((regop.extra_type == CHIP8_REG_K) ? "k" : "v") << std::hex << regop.r;
+    ss << ((regop.tag == CHIP8_REG_K) ? "k" : "v") << std::hex << regop.r;
     return ss.str();
 }
 

@@ -16,10 +16,10 @@ void DalvikAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { REDasm
 
 void DalvikAlgorithm::onDecodedOperand(const Operand* op, const InstructionPtr &instruction)
 {
-    if(op->extra_type == DalvikOperands::StringIndex)
-        EXECUTE_STATE(DalvikAlgorithm::StringIndexState, op->extra_type, op->index, instruction);
-    else if(op->extra_type == DalvikOperands::MethodIndex)
-        EXECUTE_STATE(DalvikAlgorithm::MethodIndexState, op->extra_type, op->index, instruction);
+    if(op->tag == DalvikOperands::StringIndex)
+        EXECUTE_STATE(DalvikAlgorithm::StringIndexState, op->tag, op->index, instruction);
+    else if(op->tag == DalvikOperands::MethodIndex)
+        EXECUTE_STATE(DalvikAlgorithm::MethodIndexState, op->tag, op->index, instruction);
 }
 
 void DalvikAlgorithm::onDecoded(const InstructionPtr &instruction)

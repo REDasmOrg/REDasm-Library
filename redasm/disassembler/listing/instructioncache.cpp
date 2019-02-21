@@ -23,11 +23,11 @@ void InstructionCache::serialize(const InstructionPtr &value, std::fstream &fs)
     Serializer::serializeArray<std::vector, Operand>(fs, value->operands, [&](const Operand& op) {
         Serializer::serializeScalar(fs, op.loc_index);
         Serializer::serializeScalar(fs, op.type);
-        Serializer::serializeScalar(fs, op.extra_type);
+        Serializer::serializeScalar(fs, op.tag);
         Serializer::serializeScalar(fs, op.size);
         Serializer::serializeScalar(fs, op.index);
 
-        Serializer::serializeScalar(fs, op.reg.extra_type);
+        Serializer::serializeScalar(fs, op.reg.tag);
         Serializer::serializeScalar(fs, op.reg.r);
 
         Serializer::serializeScalar(fs, op.disp.base);
@@ -57,11 +57,11 @@ void InstructionCache::deserialize(InstructionPtr &value, std::fstream &fs)
     Serializer::deserializeArray<std::vector, Operand>(fs, value->operands, [&](Operand& op) {
         Serializer::deserializeScalar(fs, &op.loc_index);
         Serializer::deserializeScalar(fs, &op.type);
-        Serializer::deserializeScalar(fs, &op.extra_type);
+        Serializer::deserializeScalar(fs, &op.tag);
         Serializer::deserializeScalar(fs, &op.size);
         Serializer::deserializeScalar(fs, &op.index);
 
-        Serializer::deserializeScalar(fs, &op.reg.extra_type);
+        Serializer::deserializeScalar(fs, &op.reg.tag);
         Serializer::deserializeScalar(fs, &op.reg.r);
 
         Serializer::deserializeScalar(fs, &op.disp.base);

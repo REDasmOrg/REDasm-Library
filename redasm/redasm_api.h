@@ -139,11 +139,11 @@ struct Segment
 
 struct RegisterOperand
 {
-    RegisterOperand(): extra_type(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u64 type, register_id_t r): extra_type(type), r(r) { }
-    RegisterOperand(register_id_t r): extra_type(0), r(r) { }
+    RegisterOperand(): tag(0), r(REGISTER_INVALID) { }
+    RegisterOperand(u64 type, register_id_t r): tag(type), r(r) { }
+    RegisterOperand(register_id_t r): tag(0), r(r) { }
 
-    u64 extra_type;
+    u64 tag;
     register_id_t r;
 
     bool isValid() const { return r != REGISTER_INVALID; }
@@ -161,14 +161,14 @@ struct DisplacementOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandTypes::None), extra_type(0), size(OperandSizes::Undefined), index(-1), u_value(0) { }
-    Operand(u32 type, u32 extratype, s32 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), s_value(value) { }
-    Operand(u32 type, u32 extratype, u32 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), u_value(value) { }
-    Operand(u32 type, u32 extratype, s64 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), s_value(value) { }
-    Operand(u32 type, u32 extratype, u64 value, s64 idx): loc_index(-1), type(type), extra_type(extratype), size(OperandSizes::Undefined), index(idx), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandTypes::None), tag(0), size(OperandSizes::Undefined), index(-1), u_value(0) { }
+    Operand(u32 type, u32 tag, s32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), s_value(value) { }
+    Operand(u32 type, u32 tag, u32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), u_value(value) { }
+    Operand(u32 type, u32 tag, s64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), s_value(value) { }
+    Operand(u32 type, u32 tag, u64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), u_value(value) { }
 
     s64 loc_index;
-    u32 type, extra_type, size;
+    u32 type, tag, size;
     s64 index;
     RegisterOperand reg;
     DisplacementOperand disp;
@@ -210,8 +210,8 @@ struct Instruction
 
     inline Operand* targetOperand() { return &operands[target_idx]; }
     inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
-    inline Instruction& mem(address_t v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Memory, extratype, v, operands.size()); return *this; }
-    template<typename T> Instruction& imm(T v, u32 extratype = 0) { operands.emplace_back(OperandTypes::Immediate, extratype, v, operands.size()); return *this; }
+    inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandTypes::Memory, tag, v, operands.size()); return *this; }
+    template<typename T> Instruction& imm(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Immediate, tag, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);

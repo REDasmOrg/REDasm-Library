@@ -266,8 +266,16 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
         REDasm::log("Debug info type: Reserved10");
     else if(debugdir->Type == IMAGE_DEBUG_TYPE_CLSID)
         REDasm::log("Debug info type: CLSID");
+    else if(debugdir->Type == IMAGE_DEBUG_TYPE_VC_FEATURE)
+        REDasm::log("Debug info type: VC Feature");
+    else if(debugdir->Type == IMAGE_DEBUG_TYPE_POGO)
+        REDasm::log("Debug info type: POGO");
+    else if(debugdir->Type == IMAGE_DEBUG_TYPE_ILTCG)
+        REDasm::log("Debug info type: ILTCG");
+    else if(debugdir->Type == IMAGE_DEBUG_TYPE_REPRO)
+        REDasm::log("Debug info type: REPRO");
     else
-        REDasm::log("Debug info type: " + REDasm::hex(debugdir->Type));
+        REDasm::log("Unknown Debug info type (value " + REDasm::hex(debugdir->Type, 32, true) + ")");
 }
 
 template<size_t b> ImageCorHeader* PeFormat<b>::checkDotNet()

@@ -73,7 +73,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         if(isa(static_cast<T>(view)))
             alphacount++;
 
-        if(count >= MIN_STRING)
+        if(alphacount >= MIN_STRING)
             break;
 
         view += sizeof(T);

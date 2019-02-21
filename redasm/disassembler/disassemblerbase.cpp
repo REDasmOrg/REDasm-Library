@@ -113,14 +113,14 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide, bool* midd
     if(middle) *middle = false;
 
     u64 count = this->locationIsStringT<u8>(address,
-                                            ::isprint, [](u16 b) -> bool {  return ::isalnum(b) || ::isspace(b); },
+                                            ::isprint, [](u16 b) -> bool {  return (b == '_') || ::isalnum(b) || ::isspace(b); },
                                             middle);
 
     if(count == 1) // Try with wide strings
     {
         count = this->locationIsStringT<u16>(address,
                                              [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ::isprint(b1) && !b2; },
-                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return (::isspace(b1) || ::isalnum(b1)) && !b2; },
+                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; },
                                              middle);
 
         if(wide)

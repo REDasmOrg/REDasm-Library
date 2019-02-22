@@ -270,7 +270,7 @@ void AssemblerAlgorithm::pointerState(const State *state)
     }
 
     m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
-    m_disassembler->checkLocation(state->address, state->address); // Create Symbol + XRefs
+    m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
 }
 
 void AssemblerAlgorithm::immediateState(const State *state)

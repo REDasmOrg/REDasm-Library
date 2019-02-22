@@ -352,25 +352,22 @@ template<size_t b> void PeFormat<b>::loadSections()
         if((section.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) || (section.Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA))
             flags |= SegmentTypes::Data;
 
-        u64 size = section.SizeOfRawData;
+        u64 vsize = section.Misc.VirtualSize;
 
         if(!section.SizeOfRawData)
-        {
             flags |= SegmentTypes::Bss;
-            size = section.Misc.VirtualSize;
-        }
 
-        u64 diff = size & m_sectionalignment;
+        u64 diff = vsize & m_sectionalignment;
 
         if(diff)
-            size += m_sectionalignment - diff;
+            vsize += m_sectionalignment - diff;
 
         std::string name = PEUtils::sectionName(reinterpret_cast<const char*>(section.Name));
 
         if(name.empty()) // Rename unnamed sections
             name = "sect" + std::to_string(i);
 
-        m_document->segment(name, section.PointerToRawData, m_imagebase + section.VirtualAddress, size, flags);
+        m_document->segment(name, section.PointerToRawData, m_imagebase + section.VirtualAddress, section.SizeOfRawData, vsize, flags);
     }
 
     Segment* segment = m_document->segment(m_entrypoint);

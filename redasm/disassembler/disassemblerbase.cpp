@@ -73,7 +73,12 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
             break;
 
         items.insert(target);
-        instruction->target(target);
+
+        if(instruction->is(InstructionTypes::Branch))
+            instruction->target(target);
+        else
+            this->checkLocation(startaddress, target);
+
         address += m_format->addressWidth();
     }
 
@@ -87,7 +92,10 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
             u32 i = 0;
 
             for(auto it = items.begin(); it != items.end(); it++)
-                m_document->tableItem(*it, SymbolTypes::Code, i);
+            {
+                m_document->tableItem(*it, instruction->is(InstructionTypes::Branch) ? SymbolTypes::Code :
+                                                                                       SymbolTypes::Data, i);
+            }
 
             m_document->table(startaddress, items.size());
         }

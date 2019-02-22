@@ -357,7 +357,7 @@ template<size_t b> void PeFormat<b>::loadSections()
         if(!section.SizeOfRawData)
             flags |= SegmentTypes::Bss;
 
-        u64 diff = vsize & m_sectionalignment;
+        u64 diff = vsize % m_sectionalignment;
 
         if(diff)
             vsize += m_sectionalignment - diff;

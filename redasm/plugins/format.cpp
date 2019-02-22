@@ -49,7 +49,16 @@ Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const Sign
 bool FormatPlugin::isBinary() const { return false; }
 AbstractBuffer *FormatPlugin::buffer() const { return m_buffer.get(); }
 BufferView FormatPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
-BufferView FormatPlugin::view(address_t address) const { return this->viewOffset(this->offset(address)); }
+
+BufferView FormatPlugin::view(address_t address) const
+{
+    offset_location offset = this->offset(address);
+
+    if(!offset.valid)
+        return BufferView();
+
+    return this->viewOffset(offset);
+}
 
 BufferView FormatPlugin::viewSegment(const Segment *segment) const
 {

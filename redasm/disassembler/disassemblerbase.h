@@ -53,7 +53,7 @@ template<typename T> std::string DisassemblerBase::readStringT(address_t address
     while(!view.eob() && fill(static_cast<T>(view), s))
         view += sizeof(T);
 
-    return s;
+    return REDasm::simplified(s);
 }
 
 template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle) const

@@ -414,14 +414,11 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
 
 void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u32 vsize, u32 type)
 {
-    if(!psize)
+    if(!psize && !vsize)
     {
         REDasm::log("Skipping empty segment " + REDasm::quoted(name));
         return;
     }
-
-    if(!vsize)
-        vsize = psize;
 
     auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
         if(segment.is(SegmentTypes::Bss))

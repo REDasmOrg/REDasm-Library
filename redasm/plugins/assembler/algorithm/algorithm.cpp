@@ -296,6 +296,9 @@ bool AssemblerAlgorithm::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
         return false;
 
+    if(!m_format->offset(address))
+        return false;
+
     SymbolPtr symbol = m_document->symbol(address);
 
     if(symbol && !symbol->is(SymbolTypes::Code))

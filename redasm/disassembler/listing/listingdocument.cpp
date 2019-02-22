@@ -439,7 +439,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
         return s1.address < s2.address;
     });
 
-    it = m_segments.insert(it, segment);
+    m_segments.insert(it, segment);
     this->insertSorted(address, ListingItem::SegmentItem);
 }
 

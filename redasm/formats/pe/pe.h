@@ -56,7 +56,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         template<typename T> T* rvaPointer(u64 rva) const {
             offset_location offset = this->rvaToOffset(rva);
 
-            if(!offset) return nullptr;
+            if(!offset.valid) return nullptr;
             return this->pointer<T>(offset);
         }
 

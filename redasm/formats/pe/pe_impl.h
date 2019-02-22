@@ -221,7 +221,7 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
     {
         offset_location offset = this->rvaToOffset(m_imagebase - debugdir->AddressOfRawData);
 
-        if(offset)
+        if(offset.valid)
             dbgoffset = offset;
     }
 

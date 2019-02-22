@@ -54,7 +54,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
 
         offset_location offset = rtocb(dataentry->OffsetToData);
 
-        if(!offset)
+        if(!offset.valid)
             return nullptr;
 
         return reinterpret_cast<T1*>(reinterpret_cast<size_t>(formatbase) + offset);

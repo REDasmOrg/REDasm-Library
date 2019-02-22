@@ -124,11 +124,12 @@ namespace OperandSizes {
 struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
-    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u32 type): name(name), offset(offset), endoffset(address + psize), address(address), endaddress(address + vsize), type(type) { }
+    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u32 type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
     constexpr s64 size() const { return static_cast<s64>(endaddress - address); }
+    constexpr s64 rawSize() const { return static_cast<s64>(endoffset - offset); }
     constexpr bool empty() const { return this->size() <= 0; }
     constexpr bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
-    constexpr bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < (this->offset + (endoffset - offset)))); }
+    constexpr bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < this->endoffset)); }
     constexpr bool is(u32 t) const { return type & t; }
 
     std::string name;

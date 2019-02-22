@@ -135,7 +135,11 @@ bool XbeFormat::loadXBoxKrnl()
     if(!this->decodeKernel(m_format->KernelImageThunk, kernelimagethunk))
         return false;
 
-    offset_t thunkoffset = this->offset(kernelimagethunk);
+    offset_location thunkoffset = this->offset(kernelimagethunk);
+
+    if(!thunkoffset.valid)
+        return false;
+
     u32* pthunk = this->pointer<u32>(thunkoffset);
 
     while(*pthunk)

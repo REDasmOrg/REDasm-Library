@@ -35,7 +35,7 @@ template<typename T> struct location_of {
     location_of(): value(0), valid(false) { }
     location_of(T val, bool v): value(val), valid(v) { }
     location_of(const location_of<T>&) = default;
-    constexpr operator T() const { return std::is_same<T, bool>::value ? valid : value; }
+    constexpr operator T() const { return value; }
 };
 
 template<typename T> location_of<T> make_location(T val, bool v) { return location_of<T>(val, v); }

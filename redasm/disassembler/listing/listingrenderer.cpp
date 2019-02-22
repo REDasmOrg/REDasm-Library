@@ -197,7 +197,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         rl.push(symbol->name, "label_fg");
         this->renderIndent(rl);
 
-        if(!segment->is(SegmentTypes::Bss) && format->offset(symbol->address))
+        if(!segment->is(SegmentTypes::Bss) && format->offset(symbol->address).valid)
         {
             if(symbol->is(SymbolTypes::Pointer))
             {

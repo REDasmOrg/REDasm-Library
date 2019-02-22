@@ -32,7 +32,10 @@ template<typename T> void RTTIMsvc<T>::search()
         std::string objectname = this->objectName(rttiobject);
         std::string vtablename = this->vtableName(rttiobject);
         const T* pobjectdata = rttivtableitem.second;
-        address_t address = m_format->addressof(pobjectdata), rttiobjectaddress = m_format->addressof(rttiobject);
+        address_location address = m_format->addressof(pobjectdata), rttiobjectaddress = m_format->addressof(rttiobject);
+
+        if(!address || !rttiobjectaddress)
+            continue;
 
         REDasm::status("Reading " + objectname + "'s VTable");
 

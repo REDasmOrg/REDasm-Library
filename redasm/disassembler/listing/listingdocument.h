@@ -199,6 +199,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void lock(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u32 vsize, u32 type);
         void lockFunction(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, u32 tag = 0);

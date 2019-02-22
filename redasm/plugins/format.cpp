@@ -13,30 +13,36 @@ ListingDocument &FormatPlugin::document() { return m_document; }
 const SignatureFiles &FormatPlugin::signatures() const { return m_signatures; }
 u64 FormatPlugin::addressWidth() const { return this->bits() / 8; }
 
-offset_t FormatPlugin::offset(address_t address) const
+offset_location FormatPlugin::offset(address_t address) const
 {
     for(size_t i = 0; i < m_document->segmentsCount(); i++)
     {
         const Segment* segment = m_document->segmentAt(i);
 
         if(segment->contains(address))
-            return (address - segment->address) + segment->offset;
+        {
+            offset_t offset = (address - segment->address) + segment->offset;
+            return REDasm::make_location(offset, segment->containsOffset(offset));
+        }
     }
 
-    return address;
+    return REDasm::invalid_location<offset_t>();
 }
 
-address_t FormatPlugin::address(offset_t offset) const
+address_location FormatPlugin::address(offset_t offset) const
 {
     for(size_t i = 0; i < m_document->segmentsCount(); i++)
     {
         const Segment* segment = m_document->segmentAt(i);
 
         if(segment->containsOffset(offset))
-            return (offset - segment->offset) + segment->address;
+        {
+            address_t address = (offset - segment->offset) + segment->address;
+            return REDasm::make_location(address, segment->contains(address));
+        }
     }
 
-    return offset;
+    return REDasm::invalid_location<address_t>();
 }
 
 Analyzer* FormatPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }

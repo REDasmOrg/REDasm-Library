@@ -10,9 +10,6 @@
 #include "dotnet/dotnet_header.h"
 #include "dotnet/dotnet_reader.h"
 
-#define RVA_POINTER(type, rva)        (pointer<type>(rvaToOffset(rva)))
-#define RVA_POINTER_OK(type, rva, ok) (pointer<type>(rvaToOffset(rva, ok)))
-
 namespace REDasm {
 
 template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
@@ -38,7 +35,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         address_t vaToRva(address_t rva) const;
 
     private:
-        u64 rvaToOffset(u64 rva, bool *ok = nullptr) const;
+        offset_location rvaToOffset(u64 rva) const;
         void readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag);
         void readTLSCallbacks(const ImageTlsDirectory* tlsdirectory);
         void checkPeTypeHeuristic();
@@ -54,6 +51,14 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadImports();
         void loadConfig();
         void loadTLS();
+
+    private:
+        template<typename T> T* rvaPointer(u64 rva) const {
+            offset_location offset = this->rvaToOffset(rva);
+
+            if(!offset) return nullptr;
+            return this->pointer<T>(offset);
+        }
 
     private:
         std::unique_ptr<DotNetReader> m_dotnetreader;

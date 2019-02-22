@@ -42,6 +42,7 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
     Serializer::serializeArray<std::vector, Segment>(fs, m_segments, [&](const Segment& s) {
         Serializer::serializeString(fs, s.name);
         Serializer::serializeScalar(fs, s.offset);
+        Serializer::serializeScalar(fs, s.endoffset);
         Serializer::serializeScalar(fs, s.address);
         Serializer::serializeScalar(fs, s.endaddress);
         Serializer::serializeScalar(fs, s.type);
@@ -78,6 +79,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     Serializer::deserializeArray<std::vector, Segment>(fs, m_segments, [&](Segment& s) {
         Serializer::deserializeString(fs, s.name);
         Serializer::deserializeScalar(fs, &s.offset);
+        Serializer::deserializeScalar(fs, &s.endoffset);
         Serializer::deserializeScalar(fs, &s.address);
         Serializer::deserializeScalar(fs, &s.endaddress);
         Serializer::deserializeScalar(fs, &s.type);
@@ -408,14 +410,18 @@ void ListingDocumentType::lock(address_t address, const std::string &name)
 
 void ListingDocumentType::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
 void ListingDocumentType::lock(address_t address, const std::string &name, u32 type, u32 tag) { this->symbol(address, name, type | SymbolTypes::Locked, tag); }
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type) { this->segment(name, offset, address, size, size, type); }
 
-void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type)
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u32 vsize, u32 type)
 {
-    if(!size)
+    if(!psize)
     {
         REDasm::log("Skipping empty segment " + REDasm::quoted(name));
         return;
     }
+
+    if(!vsize)
+        vsize = psize;
 
     auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
         if(segment.is(SegmentTypes::Bss))
@@ -430,7 +436,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
         return;
     }
 
-    Segment segment(name, offset, address, size, type);
+    Segment segment(name, offset, address, psize, vsize, type);
 
     it = std::lower_bound(m_segments.begin(), m_segments.end(), segment, [](const Segment& s1, const Segment& s2) -> bool {
         return s1.address < s2.address;

@@ -100,7 +100,7 @@ template<size_t b> void PeFormat<b>::load()
         this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
 }
 
-template<size_t b> u64 PeFormat<b>::rvaToOffset(u64 rva, bool *ok) const
+template<size_t b> offset_location PeFormat<b>::rvaToOffset(u64 rva) const
 {
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
@@ -108,17 +108,15 @@ template<size_t b> u64 PeFormat<b>::rvaToOffset(u64 rva, bool *ok) const
 
         if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
         {
-            if(ok)
-                *ok = (section.SizeOfRawData != 0);
-
             if(!section.SizeOfRawData) // Check if section not BSS
                 break;
 
-            return section.PointerToRawData + (rva - section.VirtualAddress);
+            offset_t offset = section.PointerToRawData + (rva - section.VirtualAddress);
+            return REDasm::make_location(offset, offset < (section.PointerToRawData + section.SizeOfRawData));
         }
     }
 
-    return rva;
+    return REDasm::invalid_location<offset_t>();
 }
 
 template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
@@ -135,7 +133,7 @@ template<size_t b> void PeFormat<b>::checkDelphi(const PEResources& peresources)
 
     u64 datasize = 0;
     PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->m_format,
-                                                                         [this](address_t a, bool* ok) -> offset_t { return this->rvaToOffset(a, ok); },
+                                                                         [this](address_t a) -> offset_location { return this->rvaToOffset(a); },
                                                                          &datasize);
 
     if(!packageinfo)
@@ -196,7 +194,11 @@ template<size_t b> void PeFormat<b>::checkResources()
     if(!resourcedatadir.VirtualAddress)
         return;
 
-    ImageResourceDirectory* resourcedir = RVA_POINTER(ImageResourceDirectory, resourcedatadir.VirtualAddress);
+    ImageResourceDirectory* resourcedir = this->rvaPointer<ImageResourceDirectory>(resourcedatadir.VirtualAddress);
+
+    if(!resourcedir)
+        return;
+
     PEResources peresources(resourcedir);
     this->checkDelphi(peresources);
 }
@@ -208,15 +210,18 @@ template<size_t b> void PeFormat<b>::checkDebugInfo()
     if(!debuginfodir.VirtualAddress)
         return;
 
-    ImageDebugDirectory* debugdir = RVA_POINTER(ImageDebugDirectory, debuginfodir.VirtualAddress);
+    ImageDebugDirectory* debugdir = this->rvaPointer<ImageDebugDirectory>(debuginfodir.VirtualAddress);
+
+    if(!debugdir)
+        return;
+
     u64 dbgoffset = 0;
 
     if(debugdir->AddressOfRawData)
     {
-        bool ok = false;
-        u64 offset = this->rvaToOffset(m_imagebase - debugdir->AddressOfRawData, &ok);
+        offset_location offset = this->rvaToOffset(m_imagebase - debugdir->AddressOfRawData);
 
-        if(ok)
+        if(offset)
             dbgoffset = offset;
     }
 
@@ -287,9 +292,9 @@ template<size_t b> ImageCorHeader* PeFormat<b>::checkDotNet()
     if(!dotnetdir.VirtualAddress)
         return nullptr;
 
-    ImageCorHeader* corheader = RVA_POINTER(ImageCorHeader, dotnetdir.VirtualAddress);
+    ImageCorHeader* corheader = this->rvaPointer<ImageCorHeader>(dotnetdir.VirtualAddress);
 
-    if(corheader->cb < sizeof(ImageCorHeader))
+    if(!corheader || (corheader->cb < sizeof(ImageCorHeader)))
         return nullptr;
 
     return corheader;
@@ -305,7 +310,11 @@ template<size_t b> void PeFormat<b>::loadDotNet(ImageCor20Header* corheader)
         return;
     }
 
-    ImageCor20MetaData* cormetadata = RVA_POINTER(ImageCor20MetaData, corheader->MetaData.VirtualAddress);
+    ImageCor20MetaData* cormetadata = this->rvaPointer<ImageCor20MetaData>(corheader->MetaData.VirtualAddress);
+
+    if(!cormetadata)
+        return;
+
     m_dotnetreader = std::make_unique<DotNetReader>(cormetadata);
 
     if(!m_dotnetreader->isValid())
@@ -377,14 +386,20 @@ template<size_t b> void PeFormat<b>::loadExports()
     if(!exportdir.VirtualAddress)
         return;
 
-    bool ok = false;
-    ImageExportDirectory* exporttable = RVA_POINTER_OK(ImageExportDirectory, exportdir.VirtualAddress, &ok);
-    if(!ok)
+    ImageExportDirectory* exporttable = this->rvaPointer<ImageExportDirectory>(exportdir.VirtualAddress);
+
+    if(!exporttable)
         return;
 
-    u32* functions = RVA_POINTER(u32, exporttable->AddressOfFunctions);
-    u32* names = RVA_POINTER(u32, exporttable->AddressOfNames);
-    u16* nameords = RVA_POINTER(u16, exporttable->AddressOfNameOrdinals);
+    u32* functions = this->rvaPointer<u32>(exporttable->AddressOfFunctions);
+    u32* names = this->rvaPointer<u32>(exporttable->AddressOfNames);
+    u16* nameords = this->rvaPointer<u16>(exporttable->AddressOfNameOrdinals);
+
+    if(!functions || !names || !nameords)
+    {
+        REDasm::log("Corrupted export table");
+        return;
+    }
 
     for(size_t i = 0; i < exporttable->NumberOfFunctions; i++)
     {
@@ -407,7 +422,7 @@ template<size_t b> void PeFormat<b>::loadExports()
                 continue;
 
             namedfunction = true;
-            m_document->lock(funcep, RVA_POINTER(const char, names[j]), symboltype);
+            m_document->lock(funcep, this->rvaPointer<const char>(names[j]), symboltype);
             break;
         }
 
@@ -427,7 +442,10 @@ template<size_t b> void PeFormat<b>::loadImports()
     if(!importdir.VirtualAddress)
         return;
 
-    ImageImportDescriptor* importtable = RVA_POINTER(ImageImportDescriptor, importdir.VirtualAddress);
+    ImageImportDescriptor* importtable = this->rvaPointer<ImageImportDescriptor>(importdir.VirtualAddress);
+
+    if(!importtable)
+        return;
 
     for(size_t i = 0; i < importtable[i].FirstThunk; i++)
         this->readDescriptor(importtable[i], b == 64 ? IMAGE_ORDINAL_FLAG64 : IMAGE_ORDINAL_FLAG32);
@@ -440,9 +458,9 @@ template<size_t b> void PeFormat<b>::loadConfig()
     if(!configdir.VirtualAddress)
         return;
 
-    ImageLoadConfigDirectory* loadconfigdir = RVA_POINTER(ImageLoadConfigDirectory, configdir.VirtualAddress);
+    ImageLoadConfigDirectory* loadconfigdir = this->rvaPointer<ImageLoadConfigDirectory>(configdir.VirtualAddress);
 
-    if(!loadconfigdir->SecurityCookie)
+    if(!loadconfigdir || !loadconfigdir->SecurityCookie)
         return;
 
     m_document->lock(loadconfigdir->SecurityCookie, PE_SECURITY_COOKIE_SYMBOL, SymbolTypes::Data);
@@ -455,7 +473,10 @@ template<size_t b> void PeFormat<b>::loadTLS()
     if(!tlsdir.VirtualAddress)
         return;
 
-    this->readTLSCallbacks(RVA_POINTER(ImageTlsDirectory, tlsdir.VirtualAddress));
+    ImageTlsDirectory* imagetlsdir = this->rvaPointer<ImageTlsDirectory>(tlsdir.VirtualAddress);
+
+    if(imagetlsdir)
+        this->readTLSCallbacks(imagetlsdir);
 }
 
 template<size_t b> void PeFormat<b>::loadSymbolTable()
@@ -472,8 +493,7 @@ template<size_t b> void PeFormat<b>::loadSymbolTable()
                       const Segment* segment = m_document->segmentAt(entry->e_scnum - 1);
                       address_t address = segment->address + entry->e_value;
 
-                      if(segment->is(SegmentTypes::Code))// && (entry->e_sclass == C_EXT))
-                      {
+                      if(segment->is(SegmentTypes::Code)) /* && (entry->e_sclass == C_EXT)) */ {
                           m_document->lock(address, name, SymbolTypes::Function);
                           return;
                       }
@@ -505,10 +525,13 @@ template<size_t b> void PeFormat<b>::readTLSCallbacks(const ImageTlsDirectory *t
 template<size_t b> void PeFormat<b>::readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag)
 {
     // Check if OFT exists
-    ImageThunkData* thunk = RVA_POINTER(ImageThunkData, importdescriptor.OriginalFirstThunk ? importdescriptor.OriginalFirstThunk :
-                                                                                              importdescriptor.FirstThunk);
+    ImageThunkData* thunk = this->rvaPointer<ImageThunkData>(importdescriptor.OriginalFirstThunk ? importdescriptor.OriginalFirstThunk :
+                                                                                                   importdescriptor.FirstThunk);
 
-    std::string descriptorname = RVA_POINTER(const char, importdescriptor.Name);
+    if(!thunk)
+        return;
+
+    std::string descriptorname = this->rvaPointer<const char>(importdescriptor.Name);
     std::transform(descriptorname.begin(), descriptorname.end(), descriptorname.begin(), ::tolower);
 
     if(descriptorname.find("msvbvm") != std::string::npos)
@@ -523,10 +546,9 @@ template<size_t b> void PeFormat<b>::readDescriptor(const ImageImportDescriptor&
 
         if(!(thunk[i] & ordinalflag))
         {
-            bool ok = false;
-            ImageImportByName* importbyname = RVA_POINTER_OK(ImageImportByName, thunk[i], &ok);
+            ImageImportByName* importbyname = this->rvaPointer<ImageImportByName>(thunk[i]);
 
-            if(!ok)
+            if(!importbyname)
                 continue;
 
             importname = PEUtils::importName(descriptorname, reinterpret_cast<const char*>(&importbyname->Name));

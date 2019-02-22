@@ -227,7 +227,12 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    return this->readOffset(m_format->offset(address), size, value);
+    offset_location offset = m_format->offset(address);
+
+    if(!offset)
+        return false;
+
+    return this->readOffset(offset, size, value);
 }
 
 bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) const
@@ -288,11 +293,10 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
             return true;
 
         BufferView view = this->getFunctionBytes(symbol->address);
+        offset_location offset = m_format->offset(symbol->address);
 
-        if(view.eob())
+        if(view.eob() || !offset)
             return true;
-
-        offset_t offset = m_format->offset(symbol->address);
 
         sigdb.search(view, [&](const Signature* signature) {
             if(!signature->isCompatible(m_format.get()))

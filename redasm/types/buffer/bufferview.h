@@ -81,6 +81,7 @@ class BufferView
         template<typename T> SearchResult<T> find(const std::initializer_list<u8> initlist, u64 startoffset = 0) const;
         template<typename T> iterator<T> begin() const { return iterator<T>(this->data()); }
         template<typename T> iterator<T> end() const { return iterator<T>(this->endData()); }
+        template<typename T> bool inRange(const T* ptr) const { return (reinterpret_cast<const u8*>(ptr) >= this->data()) && (reinterpret_cast<const u8*>(ptr) < this->endData()); }
         template<typename T> explicit constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> constexpr operator T() const { return *reinterpret_cast<const T*>(this->data()); }
         template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type> BufferView operator +(T rhs) const;

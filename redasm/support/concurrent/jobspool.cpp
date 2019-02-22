@@ -16,7 +16,7 @@ JobsPool::JobsPool(): m_running(true)
     for(size_t i = 0; i < m_concurrency; i++)
     {
         auto job = std::make_unique<Job>();
-        job->stateChanged += std::bind(&JobsPool::notifyStateChanged, this, std::placeholders::_1);
+        EVENT_CONNECT(job, stateChanged, this, std::bind(&JobsPool::notifyStateChanged, this, std::placeholders::_1));
         m_jobs.push_back(std::move(job));
     }
 }

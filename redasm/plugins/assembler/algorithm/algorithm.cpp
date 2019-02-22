@@ -48,12 +48,12 @@ void AssemblerAlgorithm::analyze()
     m_document->moveToEP();
 
     // Trigger a Fast Analysis when post disassembling is completed
-    m_disassembler->busyChanged += [&]() {
+    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
         if(m_disassembler->busy())
             return;
 
         this->analyze();
-    };
+    });
 }
 
 void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const

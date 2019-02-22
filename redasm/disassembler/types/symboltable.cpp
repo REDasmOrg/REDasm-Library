@@ -94,7 +94,7 @@ void SymbolTable::serializeTo(std::fstream &fs)
 
 void SymbolTable::deserializeFrom(std::fstream &fs)
 {
-    this->deserialized += std::bind(&SymbolTable::bindName, this, std::placeholders::_1);
+    EVENT_CONNECT(this, deserialized, this, std::bind(&SymbolTable::bindName, this, std::placeholders::_1));
 
     Serializer::deserializeMap<address_t, SymbolPtr>(fs, m_byaddress, [&](std::pair<address_t, SymbolPtr>& item) {
         Serializer::deserializeScalar(fs, &item.first);

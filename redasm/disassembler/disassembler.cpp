@@ -11,9 +11,9 @@ Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): Di
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
     m_analyzejob.setOneShot(true);
-    m_analyzejob.stateChanged += [&](Job*) { busyChanged(); };
+    EVENT_CONNECT(&m_analyzejob, stateChanged, this, [&](Job*) { busyChanged(); });
     m_analyzejob.work(std::bind(&Disassembler::analyzeStep, this), true); // Deferred
-    m_jobs.stateChanged += [&](Job*) { busyChanged(); };
+    EVENT_CONNECT(&m_jobs, stateChanged, this, [&](Job*) { busyChanged(); });
 }
 
 void Disassembler::disassembleStep(Job* job)

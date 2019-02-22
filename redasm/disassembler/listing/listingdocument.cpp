@@ -102,16 +102,16 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
         Serializer::deserializeString(fs, ci.second);
     });
 
-    m_instructions.deserialized += [&](const InstructionPtr& instruction) {
+    EVENT_CONNECT(&m_instructions, deserialized, this, [&](const InstructionPtr& instruction) {
         this->insertSorted(instruction->address, ListingItem::InstructionItem);
-    };
+    });
 
-    m_symboltable.deserialized += [&](const SymbolPtr& symbol) {
+    EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const SymbolPtr& symbol) {
         if(symbol->type & SymbolTypes::FunctionMask)
             this->insertSorted(symbol->address, ListingItem::FunctionItem);
         else
             this->insertSorted(symbol->address, ListingItem::SymbolItem);
-    };
+    });
 
     m_instructions.deserializeFrom(fs);
     m_symboltable.deserializeFrom(fs);

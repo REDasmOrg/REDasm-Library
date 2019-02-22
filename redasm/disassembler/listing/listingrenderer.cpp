@@ -165,6 +165,7 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, const Listi
 
 void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
+    FormatPlugin* format = m_disassembler->format();
     SymbolPtr symbol = lock->symbol(item->address);
 
     if(symbol->is(SymbolTypes::Code)) // Label or Callback
@@ -196,7 +197,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         rl.push(symbol->name, "label_fg");
         this->renderIndent(rl);
 
-        if(!segment->is(SegmentTypes::Bss))
+        if(!segment->is(SegmentTypes::Bss) && format->offset(symbol->address))
         {
             if(symbol->is(SymbolTypes::Pointer))
             {
@@ -218,12 +219,8 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             else
             {
                 u64 value = 0;
-                FormatPlugin* format = m_disassembler->format();
-
-                if(m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
-                    rl.push(REDasm::hex(value, format->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
-                else
-                    rl.push("??", "data_fg");
+                m_disassembler->readAddress(symbol->address, format->addressWidth(), &value);
+                rl.push(REDasm::hex(value, format->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
         else if(symbol->is(SymbolTypes::ImportMask))

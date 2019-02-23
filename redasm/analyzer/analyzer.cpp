@@ -14,7 +14,7 @@ void Analyzer::analyze()
 
 void Analyzer::checkFunctions()
 {
-    m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](SymbolPtr symbol) -> bool {
+    m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](const SymbolPtr& symbol) -> bool {
         if(!this->findNullSubs(symbol))
             this->findTrampoline(symbol);
 
@@ -117,7 +117,7 @@ SymbolPtr Analyzer::findTrampoline_arm(ListingDocumentType::iterator& it)
     if(!instruction1 || !instruction2 || instruction1->isInvalid() || instruction2->isInvalid())
         return nullptr;
 
-    if((instruction1->mnemonic != "ldr") && (instruction2->mnemonic != "ldr"))
+    if((instruction1->mnemonic != "ldr") || (instruction2->mnemonic != "ldr"))
         return nullptr;
 
     if(!instruction1->op(1)->is(OperandTypes::Memory) || (instruction2->op(0)->reg.r != ARM_REG_PC))

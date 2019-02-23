@@ -48,7 +48,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadDefault();
         void loadSections();
         void loadExports();
-        void loadImports();
+        bool loadImports();
         void loadConfig();
         void loadTLS();
 
@@ -68,6 +68,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         ImageSectionHeader* m_sectiontable;
         ImageDataDirectory* m_datadirectory;
         pe_integer_t m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
+        std::unordered_set<std::string> m_validimportsections;
 };
 
 typedef PeFormat<32> PeFormat32;

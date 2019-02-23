@@ -34,6 +34,10 @@ template<size_t b> PeFormat<b>::PeFormat(AbstractBuffer *buffer): FormatPluginT<
 {
     m_imagebase = m_sectionalignment = m_entrypoint = 0;
     m_petype = PeType::None;
+
+    m_validimportsections.insert(".text");
+    m_validimportsections.insert(".idata");
+    m_validimportsections.insert(".rdata");
 }
 
 template<size_t b> std::string PeFormat<b>::name() const { return "PE Format (" + std::to_string(b) + " bits)"; }
@@ -328,7 +332,10 @@ template<size_t b> void PeFormat<b>::loadDotNet(ImageCor20Header* corheader)
 template<size_t b> void PeFormat<b>::loadDefault()
 {
     this->loadExports();
-    this->loadImports();
+
+    if(!this->loadImports())
+        REDasm::log("WARNING: This file seems to be PACKED");
+
     this->loadTLS();
     this->loadConfig();
     this->loadSymbolTable();
@@ -432,20 +439,23 @@ template<size_t b> void PeFormat<b>::loadExports()
     }
 }
 
-template<size_t b> void PeFormat<b>::loadImports()
+template<size_t b> bool PeFormat<b>::loadImports()
 {
     const ImageDataDirectory& importdir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
     if(!importdir.VirtualAddress)
-        return;
+        return false;
 
     ImageImportDescriptor* importtable = this->rvaPointer<ImageImportDescriptor>(importdir.VirtualAddress);
 
     if(!importtable)
-        return;
+        return false;
 
     for(size_t i = 0; i < importtable[i].FirstThunk; i++)
         this->readDescriptor(importtable[i], b == 64 ? IMAGE_ORDINAL_FLAG64 : IMAGE_ORDINAL_FLAG32);
+
+    Segment* segment = m_document->segment(m_imagebase + importdir.VirtualAddress);
+    return segment && (m_validimportsections.find(segment->name) != m_validimportsections.end());
 }
 
 template<size_t b> void PeFormat<b>::loadConfig()

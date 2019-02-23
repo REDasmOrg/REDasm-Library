@@ -23,6 +23,7 @@ class ListingCursor
         bool hasWordUnderCursor() const;
         void clearWordUnderCursor();
         void setWordUnderCursor(const std::string& s);
+        void clearSelection();
         const std::string& wordUnderCursor() const;
         const ListingCursor::Position& currentPosition() const;
         const ListingCursor::Position& currentSelection() const;

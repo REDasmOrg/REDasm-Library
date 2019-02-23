@@ -22,8 +22,7 @@ namespace SymbolTypes {
         Pointer            = 0x02000000,
         Locked             = 0x10000000,
 
-        Table              = 0x00010000 | Pointer | Data,
-        TableItem          = 0x00020000,
+        TableItem          = 0x00010000 | Pointer | Data,
 
         LockedMask         = ~Locked,
         FunctionMask       = Function                      & ~(Code      | Locked),
@@ -32,7 +31,6 @@ namespace SymbolTypes {
         EntryPointMask     = EntryPoint                    & ~(Function),
         StringMask         = String                        & ~(Pointer),
         WideStringMask     = WideString                    & ~(String    | Pointer),
-        TableMask          = Table                         & ~(Pointer   | Data),
     };
 }
 
@@ -49,7 +47,6 @@ struct Symbol
 
     constexpr bool is(u32 t) const { return type & t; }
     constexpr bool isFunction() const { return type & SymbolTypes::FunctionMask; }
-    constexpr bool isTable() const { return type & SymbolTypes::TableMask; }
     constexpr bool isImport() const { return type & SymbolTypes::ImportMask; }
     constexpr bool isLocked() const { return type & SymbolTypes::Locked; }
 };

@@ -201,11 +201,6 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         {
             if(symbol->is(SymbolTypes::Pointer))
             {
-                if(symbol->isTable())
-                {
-                    this->renderTable(lock, symbol, rl);
-                    return;
-                }
                 if(this->renderSymbolPointer(lock, symbol, rl))
                     return;
             }
@@ -330,36 +325,6 @@ void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const Lis
 }
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
-
-void ListingRenderer::renderTable(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine& rl) const
-{
-    u64 value = 0;
-    FormatPlugin* format = m_disassembler->format();
-    address_t address = symbol->address;
-
-    rl.push("[");
-
-    for(size_t i = 0; i < symbol->tag; i++, address += format->addressWidth())
-    {
-        if(i)
-            rl.push(", ");
-
-        if(!m_disassembler->readAddress(address, format->addressWidth(), &value))
-        {
-            rl.push("??", "data_fg");
-            continue;
-        }
-
-        SymbolPtr ptrsymbol = lock->symbol(value);
-
-        if(!ptrsymbol)
-            rl.push(REDasm::hex(value, format->bits()), "data_fg");
-        else
-            rl.push(ptrsymbol->name, "label_fg");
-    }
-
-    rl.push("]");
-}
 
 bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const
 {

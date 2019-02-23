@@ -362,11 +362,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
 
 void ListingDocumentType::symbol(address_t address, u32 type, u32 tag)
 {
-    if(type & SymbolTypes::TableMask)
-        this->symbol(address, ListingDocumentType::symbolName("tbl", address), type, tag);
-    else if(type & SymbolTypes::TableItem)
-        this->symbol(address, ListingDocumentType::symbolName("tbi", address), type, tag);
-    else if(type & SymbolTypes::Pointer)
+    if(type & SymbolTypes::Pointer)
         this->symbol(address, ListingDocumentType::symbolName("ptr", address), type, tag);
     else if(type & SymbolTypes::WideStringMask)
         this->symbol(address, ListingDocumentType::symbolName("wstr", address), type, tag);
@@ -447,21 +443,26 @@ void ListingDocumentType::lockFunction(address_t address, const std::string &nam
 void ListingDocumentType::function(address_t address, const std::string &name, u32 tag) { this->symbol(address, name, SymbolTypes::Function, tag); }
 void ListingDocumentType::function(address_t address, u32 tag) { this->symbol(address, SymbolTypes::Function, tag); }
 void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Pointer, tag); }
-void ListingDocumentType::table(address_t address, u32 tag) { this->lock(address, SymbolTypes::Table, tag); }
 
-void ListingDocumentType::tableItem(address_t address, u32 type, u32 tag)
+void ListingDocumentType::table(address_t address, u64 count, u32 tag)
 {
-    type |= SymbolTypes::TableItem;
+    this->lock(address, ListingDocumentType::symbolName("tbl", address) + "_0", SymbolTypes::TableItem, tag);
+    this->info(address, "Table with " + std::to_string(count) + " case(s)");
+}
+
+void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, u32 tag)
+{
     SymbolPtr symbol = this->symbol(address); // Don't override custom symbols, if any
 
     if(symbol)
     {
-        symbol->type |= type;
+        symbol->type |= SymbolTypes::TableItem;
         this->lock(address, symbol->name, symbol->type, tag);
         return;
     }
 
-    this->lock(address, type, tag);
+    this->lock(address, ListingDocumentType::symbolName("tbl", startaddress) + "_" + std::to_string(idx),
+               SymbolTypes::TableItem, tag);
 }
 
 void ListingDocumentType::entry(address_t address, u32 tag)

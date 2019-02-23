@@ -51,7 +51,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 {
     SymbolPtr symbol = m_document->symbol(startaddress);
 
-    if(symbol && (symbol->isTable() || symbol->is(SymbolTypes::TableItem)))
+    if(symbol && (symbol->is(SymbolTypes::Pointer) || symbol->is(SymbolTypes::TableItem)))
         return -1;
 
     address_t target = 0, address = startaddress;
@@ -81,23 +81,28 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     if(!items.empty())
     {
-        this->pushReference(startaddress, instruction->address);
         m_document->update(instruction);
 
         if(items.size() > 1)
         {
-            u32 i = 0;
+            u64 i = 0;
+            address = startaddress;
 
-            for(auto it = items.begin(); it != items.end(); it++)
+            for(auto it = items.begin(); it != items.end(); it++, address += m_format->addressWidth(), i++)
             {
-                m_document->tableItem(*it, instruction->is(InstructionTypes::Branch) ? SymbolTypes::Code :
-                                                                                       SymbolTypes::Data, i);
-            }
+                if(address == startaddress)
+                    m_document->table(address, items.size());
+                else
+                    m_document->tableItem(address, startaddress, i);
 
-            m_document->table(startaddress, items.size());
+                this->pushReference(address, instruction->address);
+            }
         }
         else
+        {
+            this->pushReference(startaddress, instruction->address);
             m_document->pointer(startaddress, SymbolTypes::Data);
+        }
     }
 
     return items.size();

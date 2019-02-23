@@ -220,7 +220,10 @@ void AssemblerAlgorithm::addressTableState(const State *state)
         else if(instruction->is(InstructionTypes::Jump))
             m_document->autoComment(instruction->address, "Jump Table with " + std::to_string(c) + " cases(s)");
         else
+        {
+            m_document->autoComment(instruction->address, "Address Table with " + std::to_string(c) + " cases(s)");
             fwdstate = AssemblerAlgorithm::MemoryState;
+        }
 
         size_t i = 0;
 

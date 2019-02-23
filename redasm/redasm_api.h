@@ -76,6 +76,8 @@ namespace SegmentTypes {
         Code = 0x00000001,
         Data = 0x00000002,
         Bss  = 0x00000004,
+
+        PureCode = Code & (~Data | ~Bss),
     };
 }
 

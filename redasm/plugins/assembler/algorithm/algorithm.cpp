@@ -131,6 +131,11 @@ void AssemblerAlgorithm::onDecodedOperand(const Operand *op, const InstructionPt
 
 void AssemblerAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
+    Segment* segment = m_document->segment(value);
+
+    if(!segment || segment->is(SegmentTypes::PureCode)) // Don't flood "Pure-Code" sections with symbols
+        return;
+
     EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op->index, instruction);
 }
 

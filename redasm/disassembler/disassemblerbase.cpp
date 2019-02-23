@@ -11,12 +11,9 @@ void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) 
 
 void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 {
-    if(this->checkString(fromaddress, address))
-        return;
-
     Segment* segment = m_document->segment(address);
 
-    if(!segment || (!segment->is(SegmentTypes::Data) && !segment->is(SegmentTypes::Bss))) // Don't flood "Pure-Code" sections with symbols
+    if(!segment || this->checkString(fromaddress, address))
         return;
 
     if(!m_document->symbol(address))

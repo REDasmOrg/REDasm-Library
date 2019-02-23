@@ -78,7 +78,7 @@ void Analyzer::findTrampoline(const SymbolPtr& symbol)
         }
         else if(symbol->address == symentry->address)
         {
-            m_document->rename(symtrampoline->address, START_FUNCTION);
+            m_document->lockFunction(symtrampoline->address, START_FUNCTION);
             m_document->setDocumentEntry(symtrampoline->address);
         }
     }

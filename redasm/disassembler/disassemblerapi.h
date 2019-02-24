@@ -36,10 +36,10 @@ class DisassemblerAPI
         virtual bool checkString(address_t fromaddress, address_t address) = 0;
         virtual int checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;
         virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const = 0;
-        virtual std::string readString(const SymbolPtr& symbol) const = 0;
-        virtual std::string readString(address_t address) const = 0;
-        virtual std::string readWString(const SymbolPtr& symbol) const = 0;
-        virtual std::string readWString(address_t address) const = 0;
+        virtual std::string readString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const = 0;
+        virtual std::string readString(address_t address, u64 len = std::numeric_limits<u64>::max()) const = 0;
+        virtual std::string readWString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const = 0;
+        virtual std::string readWString(address_t address, u64 len = std::numeric_limits<u64>::max()) const = 0;
         virtual BufferView getFunctionBytes(address_t address) = 0;
         virtual bool readAddress(address_t address, size_t size, u64 *value) const = 0;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const = 0;

@@ -4,6 +4,7 @@
 
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT       10
+#define STRING_THRESHOLD     48
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits())
 
 namespace REDasm {
@@ -206,9 +207,9 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             }
 
             if(symbol->is(SymbolTypes::WideStringMask))
-                rl.push(REDasm::quoted(m_disassembler->readWString(symbol)), "string_fg");
+                rl.push(REDasm::quoted(m_disassembler->readWString(symbol, STRING_THRESHOLD)), "string_fg");
             else if(symbol->is(SymbolTypes::StringMask))
-                rl.push(REDasm::quoted(m_disassembler->readString(symbol)), "string_fg");
+                rl.push(REDasm::quoted(m_disassembler->readString(symbol, STRING_THRESHOLD)), "string_fg");
             else if(symbol->is(SymbolTypes::ImportMask))
                 rl.push("<").push("import", "label_fg").push(">");
             else

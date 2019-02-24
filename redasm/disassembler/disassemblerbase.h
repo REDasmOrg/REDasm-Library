@@ -24,19 +24,19 @@ class DisassemblerBase: public DisassemblerAPI
         virtual bool checkString(address_t fromaddress, address_t address);
         virtual int checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
         virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const;
-        virtual std::string readString(const SymbolPtr& symbol) const;
-        virtual std::string readWString(const SymbolPtr& symbol) const;
         virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = nullptr);
         virtual bool dereference(address_t address, u64 *value) const;
         virtual BufferView getFunctionBytes(address_t address);
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
-        virtual std::string readString(address_t address) const;
-        virtual std::string readWString(address_t address) const;
+        virtual std::string readString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string readString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string readWString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string readWString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const;
         virtual bool loadSignature(const std::string& sdbfile);
 
    private:
-        template<typename T> std::string readStringT(address_t address, std::function<bool(T, std::string&)> fill) const;
+        template<typename T> std::string readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle = nullptr) const;
 
    protected:
@@ -45,15 +45,21 @@ class DisassemblerBase: public DisassemblerAPI
         ReferenceTable m_referencetable;
 };
 
-template<typename T> std::string DisassemblerBase::readStringT(address_t address, std::function<bool(T, std::string&)> fill) const
+template<typename T> std::string DisassemblerBase::readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const
 {
     BufferView view = m_format->view(address);
     std::string s;
+    u64 i;
 
-    while(!view.eob() && fill(static_cast<T>(view), s))
+    for(i = 0; (i < len) && !view.eob() && fill(static_cast<T>(view), s); i++)
         view += sizeof(T);
 
-    return REDasm::simplified(s);
+    std::string res = REDasm::simplified(s);
+
+    if(i >= len)
+        res += "...";
+
+    return res;
 }
 
 template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle) const

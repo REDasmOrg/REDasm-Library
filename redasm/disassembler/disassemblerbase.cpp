@@ -141,24 +141,24 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide, bool* midd
     return count;
 }
 
-std::string DisassemblerBase::readString(const SymbolPtr &symbol) const
+std::string DisassemblerBase::readString(const SymbolPtr &symbol, u64 len) const
 {
     address_t memaddress = 0;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
-        return this->readString(memaddress);
+        return this->readString(memaddress, len);
 
-    return this->readString(symbol->address);
+    return this->readString(symbol->address, len);
 }
 
-std::string DisassemblerBase::readWString(const SymbolPtr &symbol) const
+std::string DisassemblerBase::readWString(const SymbolPtr &symbol, u64 len) const
 {
     address_t memaddress = 0;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
-        return this->readWString(memaddress);
+        return this->readWString(memaddress, len);
 
-    return this->readWString(symbol->address);
+    return this->readWString(symbol->address, len);
 }
 
 SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
@@ -270,18 +270,18 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     return true;
 }
 
-std::string DisassemblerBase::readString(address_t address) const
+std::string DisassemblerBase::readString(address_t address, u64 len) const
 {
-    return this->readStringT<char>(address, [](char b, std::string& s) {
+    return this->readStringT<char>(address, len, [](char b, std::string& s) {
         bool r = ::isprint(b) || ::isspace(b);
         if(r) s += b;
         return r;
     });
 }
 
-std::string DisassemblerBase::readWString(address_t address) const
+std::string DisassemblerBase::readWString(address_t address, u64 len) const
 {
-    return this->readStringT<u16>(address, [](u16 wb, std::string& s) {
+    return this->readStringT<u16>(address, len, [](u16 wb, std::string& s) {
         u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8;
         bool r = !b2 && (::isprint(b1) || ::isspace(b1));
         if(r) s += static_cast<char>(b1);

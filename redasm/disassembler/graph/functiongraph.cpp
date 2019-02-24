@@ -4,12 +4,17 @@ namespace REDasm {
 namespace Graphing {
 
 FunctionGraph::FunctionGraph(ListingDocument& document): Graph(), m_document(document) { }
+address_location FunctionGraph::startAddress() const { return m_graphstart; }
 ListingDocument& FunctionGraph::document() { return m_document; }
 
-void FunctionGraph::build(address_t address)
+bool FunctionGraph::build(address_t address)
 {
     this->buildVertices(address);
-    this->buildEdges();
+
+    if(this->empty())
+        return false;
+
+    return this->buildEdges();
 }
 
 FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index)
@@ -87,7 +92,7 @@ void FunctionGraph::buildVertices(address_t startaddress)
     if(!item)
         return;
 
-    startaddress = item->address;
+    m_graphstart = REDasm::make_location(item->address);
 
     IndexQueue queue;
     queue.push(m_document->indexOf(item) + 1); // Skip declaration
@@ -102,14 +107,14 @@ void FunctionGraph::buildVertices(address_t startaddress)
 
         item = m_document->functionStart(m_document->itemAt(index));
 
-        if(!item || (item->address != startaddress) || this->vertexFromListingIndex(index))
+        if(!item || (item->address != m_graphstart) || this->vertexFromListingIndex(index))
             continue;
 
         this->buildNode(index, queue);
     }
 }
 
-void FunctionGraph::buildEdges()
+bool FunctionGraph::buildEdges()
 {
     for(auto& item : *this)
     {
@@ -118,7 +123,14 @@ void FunctionGraph::buildEdges()
         int index = data->startidx;
 
         if(data->labelbreak && (data->endidx + 1 < static_cast<s64>(m_document->size())))
-            this->addEdge(data, this->vertexFromListingIndex(data->endidx + 1));
+        {
+            FunctionBlock* block = this->vertexFromListingIndex(data->endidx + 1);
+
+            if(!block)
+                return false;
+
+            this->addEdge(data, block);
+        }
 
         for( ; (it != m_document->end()) && (index <= data->endidx); it++, index++)
         {
@@ -158,6 +170,8 @@ void FunctionGraph::buildEdges()
             }
         }
     }
+
+    return true;
 }
 
 } // namespace Graphing

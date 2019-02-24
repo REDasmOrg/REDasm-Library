@@ -39,17 +39,19 @@ class FunctionGraph: public Graph
 
     public:
         FunctionGraph(ListingDocument& document);
+        address_location startAddress() const;
         ListingDocument& document();
-        void build(address_t address);
+        bool build(address_t address);
 
     private:
         FunctionBlock* vertexFromListingIndex(s64 index);
         void buildVertices(address_t startaddress);
         void buildNode(int index, IndexQueue &indexqueue);
-        void buildEdges();
+        bool buildEdges();
 
     private:
         ListingDocument& m_document;
+        address_location m_graphstart;
 };
 
 } // namespace Graphing

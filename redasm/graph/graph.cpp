@@ -11,7 +11,7 @@ void Graph::addNode(Node *n)
         return;
 
     n->id = this->getId();
-    this->push_back(NodePtr(n));
+    this->emplace_back(n);
     m_graph[n->id] = AdjacencyList();
 }
 

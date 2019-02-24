@@ -51,7 +51,7 @@ int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 {
     SymbolPtr symbol = m_document->symbol(startaddress);
 
-    if(symbol && (symbol->is(SymbolTypes::Pointer) || symbol->is(SymbolTypes::TableItem)))
+    if(symbol && symbol->is(SymbolTypes::TableItemMask))
         return -1;
 
     address_t target = 0, address = startaddress;

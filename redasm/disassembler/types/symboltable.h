@@ -31,6 +31,7 @@ namespace SymbolTypes {
         EntryPointMask     = EntryPoint                    & ~(Function),
         StringMask         = String                        & ~(Pointer),
         WideStringMask     = WideString                    & ~(String    | Pointer),
+        TableItemMask      = TableItem                     & ~(Pointer   | Data),
     };
 }
 

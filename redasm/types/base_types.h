@@ -38,7 +38,7 @@ template<typename T> struct location_of {
     constexpr operator T() const { return value; }
 };
 
-template<typename T> location_of<T> make_location(T val, bool v) { return location_of<T>(val, v); }
+template<typename T> location_of<T> make_location(T val, bool v = true) { return location_of<T>(val, v); }
 template<typename T> location_of<T> invalid_location() { return location_of<T>(0, false); }
 
 REDASM_TYPE_BITS(8,  s8,  u8)

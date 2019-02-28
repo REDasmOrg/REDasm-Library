@@ -168,7 +168,7 @@ bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const S
             continue;
         }
 
-        REDasm::log("ERROR: Unknown pattern type @ " + offset);
+        REDasm::log("ERROR: Unknown pattern type @ " + REDasm::hex(offset));
         return false;
     }
 

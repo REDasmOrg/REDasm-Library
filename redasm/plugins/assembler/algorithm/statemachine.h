@@ -47,6 +47,7 @@ class StateMachine
 
     public:
         StateMachine();
+        virtual ~StateMachine() = default;
         size_t pending() const;
         bool hasNext();
         void next();

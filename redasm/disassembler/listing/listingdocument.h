@@ -167,6 +167,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
     public:
         ListingDocumentType();
+        virtual ~ListingDocumentType() = default;
         bool advance(InstructionPtr& instruction);
         const ListingCursor* cursor() const;
         ListingCursor* cursor();

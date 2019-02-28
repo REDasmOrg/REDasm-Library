@@ -297,13 +297,13 @@ void DEXFormat::loadClass(const DEXClassIdItem &dexclass)
 
     u16 idx = 0;
 
-    std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [this, dexclass, &idx](const DEXEncodedMethod& dexmethod) {
+    std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [&](const DEXEncodedMethod& dexmethod) {
         this->loadMethod(dexmethod, idx);
     });
 
     idx = 0;
 
-    std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [this, dexclass, &idx](const DEXEncodedMethod& dexmethod) {
+    std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [&](const DEXEncodedMethod& dexmethod) {
         this->loadMethod(dexmethod, idx);
     });
 }

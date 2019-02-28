@@ -25,7 +25,7 @@ class CHIP8Assembler : public AssemblerPlugin
 
     protected:
         virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
-        virtual void onDecoded(const InstructionPtr& instruction) const;
+        virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
         bool decode0xxx(u16 opcode, const InstructionPtr& instruction) const;

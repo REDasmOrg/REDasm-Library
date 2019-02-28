@@ -8,7 +8,7 @@ namespace REDasm {
 
 size_t Job::m_jobid = 0;
 
-Job::Job(): m_id(++m_jobid), m_oneshot(false), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL) { }
+Job::Job(): m_oneshot(false), m_state(Job::InactiveState), m_interval(JOB_BASE_INTERVAL), m_id(++m_jobid) { }
 
 Job::~Job()
 {

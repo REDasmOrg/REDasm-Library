@@ -18,6 +18,7 @@ class Emulator
 
     public:
         Emulator(DisassemblerAPI* disassembler);
+        virtual ~Emulator() = default;
         virtual void emulate(const InstructionPtr& instruction);
         virtual bool hasError() const = 0;
         virtual bool read(const Operand* op, u64* value) = 0;

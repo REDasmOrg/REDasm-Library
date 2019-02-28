@@ -27,6 +27,7 @@ class AssemblerAlgorithm: public StateMachine
 
     public:
         AssemblerAlgorithm();
+        virtual ~AssemblerAlgorithm() = default;
         u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
         void enqueue(address_t address);
         void analyze();

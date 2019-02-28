@@ -42,7 +42,7 @@ bool CHIP8Assembler::decodeInstruction(const BufferView& view, const Instruction
     return true;
 }
 
-void CHIP8Assembler::onDecoded(const InstructionPtr &instruction) const
+void CHIP8Assembler::onDecoded(const InstructionPtr &instruction)
 {
     if(instruction->mnemonic == "rts")
         instruction->type = InstructionTypes::Stop;

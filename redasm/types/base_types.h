@@ -32,8 +32,8 @@ template<typename T> struct location_of {
     bool valid;
     T value;
 
-    location_of(): value(0), valid(false) { }
-    location_of(T val, bool v): value(val), valid(v) { }
+    location_of(): valid(false), value(0) { }
+    location_of(T val, bool v): valid(v), value(val) { }
     location_of(const location_of<T>&) = default;
     constexpr operator T() const { return value; }
 };

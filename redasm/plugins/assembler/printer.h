@@ -19,6 +19,7 @@ class Printer
 
     public:
         Printer(DisassemblerAPI* disassembler);
+        virtual ~Printer() = default;
         std::string symbol(const SymbolPtr& symbol) const;
         std::string out(const InstructionPtr& instruction) const;
 

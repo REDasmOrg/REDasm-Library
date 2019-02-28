@@ -106,9 +106,9 @@ void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
 {
     size_t size = 0;
 
-    if((instruction->id == MIPS_INS_SB))
+    if(instruction->id == MIPS_INS_SB)
         size = sizeof(u8);
-    else if((instruction->id == MIPS_INS_SH))
+    else if(instruction->id == MIPS_INS_SH)
         size = sizeof(u16);
     else if((instruction->id == MIPS_INS_SW) || (instruction->id == MIPS_INS_SWL) || (instruction->id == MIPS_INS_SWR))
         size = sizeof(u32);

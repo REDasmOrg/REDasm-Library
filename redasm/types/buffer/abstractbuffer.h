@@ -14,6 +14,7 @@ class BufferView;
 class AbstractBuffer
 {
     public:
+        virtual ~AbstractBuffer() = default;
         u8& at(u64 idx);
         u8 at(u64 idx) const;
         bool empty() const;

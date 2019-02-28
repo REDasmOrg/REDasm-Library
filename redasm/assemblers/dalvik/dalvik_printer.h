@@ -12,8 +12,8 @@ class DalvikPrinter : public Printer
 {
     public:
         DalvikPrinter(DisassemblerAPI* disassembler);
-        virtual void function(const SymbolPtr &symbol, const FunctionCallback &plgfunc);
-        virtual void prologue(const SymbolPtr &symbol, const LineCallback& prologuefunc);
+        virtual void function(const Symbol* symbol, const FunctionCallback &plgfunc);
+        virtual void prologue(const Symbol* symbol, const LineCallback& prologuefunc);
         virtual void info(const InstructionPtr &instruction, const LineCallback& infofunc);
         virtual std::string reg(const RegisterOperand &regop) const;
         virtual std::string imm(const Operand *op) const;

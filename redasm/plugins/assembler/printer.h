@@ -13,21 +13,21 @@ class Printer
 {
     public:
         typedef std::function<void(const Operand*, const std::string&, const std::string&)> OpCallback;
-        typedef std::function<void(const SymbolPtr&, const std::string&)> SymbolCallback;
+        typedef std::function<void(const Symbol*, const std::string&)> SymbolCallback;
         typedef std::function<void(const std::string&, const std::string&, const std::string&)> FunctionCallback;
         typedef std::function<void(const std::string&)> LineCallback;
 
     public:
         Printer(DisassemblerAPI* disassembler);
         virtual ~Printer() = default;
-        std::string symbol(const SymbolPtr& symbol) const;
+        std::string symbol(const Symbol *symbol) const;
         std::string out(const InstructionPtr& instruction) const;
 
     public:
         virtual void segment(const Segment* segment, const LineCallback &segmentfunc);
-        virtual void function(const SymbolPtr& symbol, const FunctionCallback &functionfunc);
-        virtual void prologue(const SymbolPtr& symbol, const LineCallback& prologuefunc);
-        virtual void symbol(const SymbolPtr& symbol, const SymbolCallback& symbolfunc) const;
+        virtual void function(const Symbol *symbol, const FunctionCallback &functionfunc);
+        virtual void prologue(const Symbol *symbol, const LineCallback& prologuefunc);
+        virtual void symbol(const Symbol *symbol, const SymbolCallback& symbolfunc) const;
         virtual void info(const InstructionPtr& instruction, const LineCallback& infofunc);
         virtual std::string out(const InstructionPtr& instruction, const OpCallback& opfunc) const;
 
@@ -56,7 +56,7 @@ class CapstonePrinter: public Printer
         csh m_cshandle;
 };
 
-typedef std::shared_ptr<Printer> PrinterPtr;
+typedef std::unique_ptr<Printer> PrinterPtr;
 
 }
 

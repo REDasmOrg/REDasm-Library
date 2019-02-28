@@ -36,7 +36,7 @@ void DalvikAlgorithm::onDecoded(const InstructionPtr &instruction)
 
 void DalvikAlgorithm::decodeState(const State *state)
 {
-    SymbolPtr symbol = m_document->symbol(state->address);
+    Symbol* symbol = m_document->symbol(state->address);
 
     if(symbol && symbol->isFunction())
         m_methodbounds.insert(state->address + m_dexformat->getMethodSize(symbol->tag));

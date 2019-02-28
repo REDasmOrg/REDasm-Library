@@ -54,12 +54,12 @@ void Disassembler::disassemble()
     const SymbolTable* symboltable = m_document->symbols();
 
     // Preload format functions for analysis
-    symboltable->iterate(SymbolTypes::FunctionMask, [=](SymbolPtr symbol) -> bool {
+    symboltable->iterate(SymbolTypes::FunctionMask, [=](const Symbol* symbol) -> bool {
         m_algorithm->enqueue(symbol->address);
         return true;
     });
 
-    SymbolPtr entrypoint = m_document->documentEntry();
+    const Symbol* entrypoint = m_document->documentEntry();
 
     if(entrypoint)
         m_algorithm->enqueue(entrypoint->address); // Push entry point

@@ -167,7 +167,7 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, const Listi
 void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
     FormatPlugin* format = m_disassembler->format();
-    SymbolPtr symbol = lock->symbol(item->address);
+    const Symbol* symbol = lock->symbol(item->address);
 
     if(symbol->is(SymbolTypes::Code)) // Label or Callback
     {
@@ -327,7 +327,7 @@ void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const Lis
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
 
-bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const SymbolPtr &symbol, RendererLine &rl) const
+bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const Symbol* symbol, RendererLine &rl) const
 {
     u64 value = 0;
     FormatPlugin* format = m_disassembler->format();
@@ -335,7 +335,7 @@ bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const Sym
    if(!m_disassembler->readAddress(symbol->address, format->addressWidth(), &value))
        return false;
 
-   SymbolPtr ptrsymbol = lock->symbol(value);
+   const Symbol* ptrsymbol = lock->symbol(value);
 
    if(!ptrsymbol)
        return false;

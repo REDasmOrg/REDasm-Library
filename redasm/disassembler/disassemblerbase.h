@@ -24,15 +24,15 @@ class DisassemblerBase: public DisassemblerAPI
         virtual bool checkString(address_t fromaddress, address_t address);
         virtual int checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
         virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const;
-        virtual SymbolPtr dereferenceSymbol(const SymbolPtr &symbol, u64 *value = nullptr);
+        virtual Symbol* dereferenceSymbol(const Symbol* symbol, u64 *value = nullptr);
         virtual bool dereference(address_t address, u64 *value) const;
         virtual BufferView getFunctionBytes(address_t address);
         virtual bool readAddress(address_t address, size_t size, u64 *value) const;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const;
-        virtual std::string readString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string readString(const Symbol *symbol, u64 len = std::numeric_limits<u64>::max()) const;
         virtual std::string readString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
         virtual std::string readWString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
-        virtual std::string readWString(const SymbolPtr& symbol, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string readWString(const Symbol *symbol, u64 len = std::numeric_limits<u64>::max()) const;
         virtual bool loadSignature(const std::string& sdbfile);
 
    private:

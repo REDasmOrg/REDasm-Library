@@ -15,7 +15,7 @@ void GbaAnalyzer::analyze()
 
 void GbaAnalyzer::renameEPBranch()
 {
-    SymbolPtr symbol = m_document->documentEntry();
+    const Symbol* symbol = m_document->documentEntry();
 
     if(!symbol)
         return;

@@ -183,7 +183,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingItem* functionStart(ListingItem* item);
         ListingItem* functionStart(address_t address);
         ListingItem* currentItem();
-        SymbolPtr functionStartSymbol(address_t address);
+        Symbol *functionStartSymbol(address_t address);
         InstructionPtr entryInstruction();
         std::string comment(address_t address, bool skipauto = false) const;
         std::string info(address_t address) const;
@@ -210,7 +210,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void entry(address_t address, u32 tag = 0);
         void eraseSymbol(address_t address);
         void setDocumentEntry(address_t address);
-        SymbolPtr documentEntry() const;
+        const Symbol *documentEntry() const;
         size_t segmentsCount() const;
         size_t functionsCount() const;
         Segment *segment(address_t address);
@@ -230,8 +230,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingItem* itemAt(size_t i) const;
         int indexOf(address_t address);
         int indexOf(ListingItem *item);
-        SymbolPtr symbol(address_t address) const;
-        SymbolPtr symbol(const std::string& name) const;
+        Symbol *symbol(address_t address) const;
+        Symbol *symbol(const std::string& name) const;
         const SymbolTable* symbols() const;
 
     private:
@@ -249,7 +249,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         FunctionList m_functions;
         InstructionCache m_instructions;
         SymbolTable m_symboltable;
-        SymbolPtr m_documententry;
+        Symbol* m_documententry;
         AutoCommentMap m_autocomments;
         AddressStringMap m_comments, m_info, m_types;
 

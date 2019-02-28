@@ -52,12 +52,12 @@ struct Symbol
     constexpr bool isLocked() const { return type & SymbolTypes::Locked; }
 };
 
-typedef std::shared_ptr<Symbol> SymbolPtr;
+typedef std::unique_ptr<Symbol> SymbolPtr;
 
 class SymbolTable: public Serializer::Serializable
 {
     public:
-        Event<const SymbolPtr&> deserialized;
+        Event<const Symbol*> deserialized;
 
     private:
         typedef std::unordered_map<address_t, SymbolPtr> SymbolsByAddress;
@@ -67,9 +67,9 @@ class SymbolTable: public Serializer::Serializable
         SymbolTable() = default;
         u64 size() const;
         bool create(address_t address, const std::string& name, u32 type, u32 tag = 0);
-        SymbolPtr symbol(address_t address) const;
-        SymbolPtr symbol(const std::string& name) const;
-        void iterate(u32 symbolflags, const std::function<bool(const SymbolPtr &)> &cb) const;
+        Symbol *symbol(address_t address) const;
+        Symbol *symbol(const std::string& name) const;
+        void iterate(u32 symbolflags, const std::function<bool(const Symbol*)> &cb) const;
         bool erase(address_t address);
         void clear();
 
@@ -80,7 +80,7 @@ class SymbolTable: public Serializer::Serializable
     private:
         void serializeSymbol(std::fstream& fs, const SymbolPtr& value);
         void deserializeSymbol(std::fstream& fs, SymbolPtr& value);
-        void bindName(const SymbolPtr& symbol);
+        void bindName(const Symbol *symbol);
 
     private:
         SymbolsByAddress m_byaddress;

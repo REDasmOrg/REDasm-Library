@@ -12,13 +12,13 @@ class ElfAnalyzer: public Analyzer
         virtual void analyze();
 
     private:
-        void findMain_x86(const SymbolPtr &symlibcmain);
+        void findMain_x86(const Symbol* symlibcmain);
         void findMain_x86_64(ListingDocumentType::iterator it);
         void findMain_x86(ListingDocumentType::iterator it);
 
    private:
         void disassembleLibStartMain();
-        SymbolPtr getLibStartMain();
+        Symbol *getLibStartMain();
 
    protected:
         std::unordered_map<std::string, address_t> m_libcmain;

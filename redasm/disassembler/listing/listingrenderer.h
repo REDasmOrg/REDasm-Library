@@ -64,7 +64,7 @@ class ListingRenderer
         void renderIndent(RendererLine &rl, int n = 1);
 
     private:
-        bool renderSymbolPointer(const document_s_lock &lock, const SymbolPtr& symbol, RendererLine& rl) const;
+        bool renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine& rl) const;
         bool getRendererLine(const document_s_lock& lock, size_t line, RendererLine& rl);
         static std::string escapeString(const std::string& s);
 

@@ -10,7 +10,7 @@ DalvikPrinter::DalvikPrinter(DisassemblerAPI *disassembler): Printer(disassemble
 
 }
 
-void DalvikPrinter::function(const SymbolPtr &symbol, const Printer::FunctionCallback& headerfunc)
+void DalvikPrinter::function(const Symbol *symbol, const Printer::FunctionCallback& headerfunc)
 {
     auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
 
@@ -50,7 +50,7 @@ void DalvikPrinter::function(const SymbolPtr &symbol, const Printer::FunctionCal
                symbol->name, dexformat->getParameters(symbol->tag));
 }
 
-void DalvikPrinter::prologue(const SymbolPtr &symbol, const LineCallback &prologuefunc)
+void DalvikPrinter::prologue(const Symbol* symbol, const LineCallback &prologuefunc)
 {
     auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
 

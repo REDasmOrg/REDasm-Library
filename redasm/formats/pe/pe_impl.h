@@ -505,7 +505,7 @@ template<size_t b> void PeFormat<b>::loadSymbolTable()
                           return;
                       }
 
-                      SymbolPtr symbol = m_document->symbol(address);
+                      Symbol* symbol = m_document->symbol(address);
 
                       if(symbol && symbol->isImport())
                           return;

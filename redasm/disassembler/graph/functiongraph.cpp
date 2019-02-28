@@ -52,7 +52,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
             if(index == data->startidx) // Skip first label
                 continue;
 
-            SymbolPtr symbol = m_document->symbol(item->address);
+            const Symbol* symbol = m_document->symbol(item->address);
 
             if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
                 indexqueue.push(index);

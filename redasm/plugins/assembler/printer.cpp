@@ -8,14 +8,14 @@ namespace REDasm {
 
 Printer::Printer(DisassemblerAPI *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
 
-std::string Printer::symbol(const SymbolPtr &symbol) const
+std::string Printer::symbol(const Symbol* symbol) const
 {
     if(symbol->is(SymbolTypes::Pointer))
         return symbol->name;
 
     std::string s;
 
-    this->symbol(symbol, [&s](const SymbolPtr&, std::string line) {
+    this->symbol(symbol, [&s](const Symbol*, std::string line) {
         s = line;
     });
 
@@ -37,31 +37,31 @@ void Printer::segment(const Segment *segment, const Printer::LineCallback& segme
                     " END: " + REDasm::hex(segment->endaddress, bits) + " " + s);
 }
 
-void Printer::function(const SymbolPtr &symbol, const Printer::FunctionCallback& functionfunc)
+void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& functionfunc)
 {
     std::string s(HEADER_SYMBOL_COUNT, '=');
     functionfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
-void Printer::prologue(const SymbolPtr &symbol, const LineCallback &prologuefunc)
+void Printer::prologue(const Symbol* symbol, const LineCallback &prologuefunc)
 {
     RE_UNUSED(symbol);
     RE_UNUSED(prologuefunc);
 }
 
-void Printer::symbol(const SymbolPtr &symbol, const SymbolCallback &symbolfunc) const
+void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) const
 {
     if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
         return;
 
-    Segment* segment = m_disassembler->document()->segment(symbol->address);
+    const Segment* segment = m_disassembler->document()->segment(symbol->address);
 
     if(!segment)
         return;
 
     if(symbol->is(SymbolTypes::Pointer))
     {
-        SymbolPtr ptrsymbol = m_disassembler->dereferenceSymbol(symbol);
+        const Symbol* ptrsymbol = m_disassembler->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
         {
@@ -174,7 +174,7 @@ std::string Printer::disp(const Operand *operand) const
     {
         if(operand->disp.displacement > 0)
         {
-            SymbolPtr symbol = m_document->symbol(operand->disp.displacement);
+            Symbol* symbol = m_document->symbol(operand->disp.displacement);
 
             if(symbol)
                 s += " + " + symbol->name;
@@ -211,7 +211,7 @@ std::string Printer::mem(const Operand *operand) const { return this->imm(operan
 
 std::string Printer::imm(const Operand *operand) const
 {
-    SymbolPtr symbol = m_disassembler->document()->symbol(operand->u_value);
+    Symbol* symbol = m_disassembler->document()->symbol(operand->u_value);
 
     if(operand->is(OperandTypes::Memory))
         return "[" + (symbol ? symbol->name : REDasm::hex(operand->u_value)) + "]";

@@ -13,7 +13,7 @@ std::string MetaARMPrinter::mem(const Operand *operand) const
     if(!m_disassembler->readAddress(operand->u_value, operand->size, &value))
         return CapstonePrinter::mem(operand);
 
-    SymbolPtr symbol = m_document->symbol(value);
+    Symbol* symbol = m_document->symbol(value);
     return "=" + (symbol ? symbol->name : REDasm::hex(value, m_disassembler->format()->bits()));
 }
 

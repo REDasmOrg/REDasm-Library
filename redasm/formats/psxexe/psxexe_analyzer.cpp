@@ -15,7 +15,7 @@ void PsxExeAnalyzer::analyze()
 
 void PsxExeAnalyzer::detectMain()
 {
-    SymbolPtr symep = m_document->documentEntry();
+    const Symbol* symep = m_document->documentEntry();
 
     if(!symep)
         return;
@@ -33,7 +33,7 @@ void PsxExeAnalyzer::detectMain()
         if(instruction->id != MIPS_INS_JAL)
             continue;
 
-        SymbolPtr symbol = m_document->symbol(instruction->target());
+        Symbol* symbol = m_document->symbol(instruction->target());
 
         if(!symbol)
             continue; // Continue until InitHeap is found

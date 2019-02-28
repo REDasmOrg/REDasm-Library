@@ -10,12 +10,12 @@ ElfAnalyzer::ElfAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &si
 void ElfAnalyzer::analyze()
 {
     Analyzer::analyze();
-    SymbolPtr symbol = m_document->symbol("main");
+    Symbol* symbol = m_document->symbol("main");
 
     if(!symbol)
     {
         AssemblerPlugin* assembler = m_disassembler->assembler();
-        SymbolPtr symlibcmain = this->getLibStartMain();
+        Symbol* symlibcmain = this->getLibStartMain();
 
         if(symlibcmain)
         {
@@ -34,7 +34,7 @@ void ElfAnalyzer::analyze()
         REDasm::log("WARNING: Cannot find 'main' symbol");
 }
 
-void ElfAnalyzer::findMain_x86(const SymbolPtr& symlibcmain)
+void ElfAnalyzer::findMain_x86(const Symbol *symlibcmain)
 {
     ReferenceVector refs = m_disassembler->getReferences(symlibcmain->address);
 
@@ -132,9 +132,9 @@ void ElfAnalyzer::disassembleLibStartMain()
     m_libcmain.clear();
 }
 
-SymbolPtr ElfAnalyzer::getLibStartMain()
+Symbol* ElfAnalyzer::getLibStartMain()
 {
-    SymbolPtr symlibcmain = m_document->symbol(REDasm::trampoline(LIBC_START_MAIN));
+    Symbol* symlibcmain = m_document->symbol(REDasm::trampoline(LIBC_START_MAIN));
 
     if(!symlibcmain)
         symlibcmain = m_document->symbol(LIBC_START_MAIN);

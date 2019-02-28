@@ -20,22 +20,24 @@ class Serializable
 template<typename T> void serializeScalar(std::fstream& fs, T scalar, u64 size = sizeof(T)) { fs.write(reinterpret_cast<const char*>(&scalar), size); }
 template<typename T> void deserializeScalar(std::fstream& fs, T* scalar, u64 size = sizeof(T)) { fs.read(reinterpret_cast<char*>(scalar), size); }
 
-template<template<typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::allocator<T> >& v, std::function<void(const T&)> cb) {
+template<template<typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::allocator<T> >& v, const std::function<void(const T&)>& cb) {
     Serializer::serializeScalar(fs, v.size(), sizeof(u32));
     std::for_each(v.begin(), v.end(), cb);
 }
 
-template<template<typename, typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::less<T>, std::allocator<T> >& v, std::function<void(const T&)> cb) {
+template<template<typename, typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::less<T>, std::allocator<T> >& v, const std::function<void(const T&)>& cb) {
     Serializer::serializeScalar(fs, v.size(), sizeof(u32));
     std::for_each(v.begin(), v.end(), cb);
 }
 
-template<typename K, typename V> void serializeMap(std::fstream& fs, const std::unordered_map<K, V>& v, std::function<void(const std::pair<K, V>&)> cb) {
+template<typename K, typename V> void serializeMap(std::fstream& fs, const std::unordered_map<K, V>& v, const std::function<void(K, const V&)>& cb) {
     Serializer::serializeScalar(fs, v.size(), sizeof(u32));
-    std::for_each(v.begin(), v.end(), cb);
+
+    for(const auto& item : v)
+        cb(item.first, item.second);
 }
 
-template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, std::function<void(T&)> cb) {
+template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, const std::function<void(T&)>& cb) {
     u32 size = 0;
     Serializer::deserializeScalar(fs, &size, sizeof(u32));
 
@@ -46,18 +48,18 @@ template<template<typename, typename> class V, typename T> void deserializeArray
     }
 }
 
-template<typename K, typename V> void deserializeMap(std::fstream& fs, std::unordered_map<K, V>& v, std::function<void(std::pair<K, V>&)> cb) {
+template<typename K, typename V> void deserializeMap(std::fstream& fs, std::unordered_map<K, V>& v, const std::function<void(K&, V&)>& cb) {
     u32 size = 0;
     Serializer::deserializeScalar(fs, &size, sizeof(u32));
 
     for(u32 i = 0; i < size; i++) {
-        std::pair<K, V> p;
-        cb(p);
-        v.emplace(p.first, p.second);
+        K key; V value;
+        cb(key, value);
+        v.emplace(key, std::move(value));
     }
 }
 
-template<template<typename, typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::less<T>, std::allocator<T> >& v, std::function<void(T&)> cb) {
+template<template<typename, typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::less<T>, std::allocator<T> >& v, const std::function<void(T&)>& cb) {
 
     u32 size = 0;
     Serializer::deserializeScalar(fs, &size, sizeof(u32));

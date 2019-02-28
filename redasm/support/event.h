@@ -4,8 +4,8 @@
 #include <functional>
 #include <list>
 
-#define EVENT_CONNECT(sender, event, owner, handler) (sender)->event.pushBack(this, handler)
-#define EVENT_DISCONNECT(sender, event, owner)       (sender)->event.disconnect(this)
+#define EVENT_CONNECT(sender, event, owner, handler) (sender)->event.pushBack(owner, handler)
+#define EVENT_DISCONNECT(sender, event, owner)       (sender)->event.disconnect(owner)
 
 namespace REDasm {
 

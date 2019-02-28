@@ -22,11 +22,11 @@ class Analyzer
 
     private:
         void loadSignatures();
-        bool findNullSubs(const SymbolPtr &symbol);
+        bool findNullSubs(const Symbol* symbol);
         void checkFunctions();
-        void findTrampoline(const SymbolPtr &symbol);
-        SymbolPtr findTrampoline_x86(REDasm::ListingDocumentType::iterator &it);
-        SymbolPtr findTrampoline_arm(REDasm::ListingDocumentType::iterator &it);
+        void findTrampoline(const Symbol* symbol);
+        Symbol* findTrampoline_x86(REDasm::ListingDocumentType::iterator &it);
+        Symbol* findTrampoline_arm(REDasm::ListingDocumentType::iterator &it);
 
     protected:
         ListingDocument& m_document;

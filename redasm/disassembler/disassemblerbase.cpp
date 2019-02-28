@@ -49,7 +49,7 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 
 int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
-    SymbolPtr symbol = m_document->symbol(startaddress);
+    Symbol* symbol = m_document->symbol(startaddress);
 
     if(symbol && symbol->is(SymbolTypes::TableItemMask))
         return -1;
@@ -141,7 +141,7 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide, bool* midd
     return count;
 }
 
-std::string DisassemblerBase::readString(const SymbolPtr &symbol, u64 len) const
+std::string DisassemblerBase::readString(const Symbol* symbol, u64 len) const
 {
     address_t memaddress = 0;
 
@@ -151,7 +151,7 @@ std::string DisassemblerBase::readString(const SymbolPtr &symbol, u64 len) const
     return this->readString(symbol->address, len);
 }
 
-std::string DisassemblerBase::readWString(const SymbolPtr &symbol, u64 len) const
+std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
 {
     address_t memaddress = 0;
 
@@ -161,10 +161,10 @@ std::string DisassemblerBase::readWString(const SymbolPtr &symbol, u64 len) cons
     return this->readWString(symbol->address, len);
 }
 
-SymbolPtr DisassemblerBase::dereferenceSymbol(const SymbolPtr& symbol, u64* value)
+Symbol* DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
 {
     address_t address = 0;
-    SymbolPtr ptrsymbol;
+    Symbol* ptrsymbol = nullptr;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &address))
         ptrsymbol = m_document->symbol(address);
@@ -202,7 +202,7 @@ BufferView DisassemblerBase::getFunctionBytes(address_t address)
     {
         if((*it)->type == ListingItem::SymbolItem)
         {
-            SymbolPtr symbol = m_document->symbol((*it)->address);
+            const Symbol* symbol = m_document->symbol((*it)->address);
 
             if(!symbol->is(SymbolTypes::Code))
                 break;
@@ -299,7 +299,7 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
     REDasm::log("Loading Signature: " + REDasm::quoted(sdbfile));
     bool found = true;
 
-    m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const SymbolPtr& symbol) -> bool {
+    m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
         if(symbol->isLocked())
             return true;
 

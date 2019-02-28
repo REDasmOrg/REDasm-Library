@@ -183,7 +183,7 @@ void AssemblerAlgorithm::branchState(const State *state)
 
 void AssemblerAlgorithm::branchMemoryState(const State *state)
 {
-    SymbolPtr symbol = m_document->symbol(state->address);
+    Symbol* symbol = m_document->symbol(state->address);
 
     if(symbol && symbol->isImport()) // Don't dereference imports
         return;
@@ -305,7 +305,7 @@ bool AssemblerAlgorithm::canBeDisassembled(address_t address)
     if(!m_format->offset(address).valid)
         return false;
 
-    SymbolPtr symbol = m_document->symbol(address);
+    Symbol* symbol = m_document->symbol(address);
 
     if(symbol && !symbol->is(SymbolTypes::Code))
         return false;

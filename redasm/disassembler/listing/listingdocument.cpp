@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>() { }
+ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_documententry(nullptr) { }
 
 bool ListingDocumentType::advance(InstructionPtr &instruction)
 {
@@ -49,18 +49,18 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
     });
 
     // Auto Comments
-    Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](const AutoCommentItem& aci) {
-        Serializer::serializeScalar(fs, aci.first);
+    Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t k, const CommentSet& v) {
+        Serializer::serializeScalar(fs, k);
 
-        Serializer::serializeArray<std::set, std::string>(fs, aci.second, [&](const std::string& s) {
+        Serializer::serializeArray<std::set, std::string>(fs, v, [&](const std::string& s) {
             Serializer::serializeString(fs, s);
         });
     });
 
     // User Comments
-    Serializer::serializeMap<address_t, std::string>(fs, m_comments, [&](const CommentItem& ci) {
-        Serializer::serializeScalar(fs, ci.first);
-        Serializer::serializeString(fs, ci.second);
+    Serializer::serializeMap<address_t, std::string>(fs, m_comments, [&](address_t k, const std::string& v) {
+        Serializer::serializeScalar(fs, k);
+        Serializer::serializeString(fs, v);
     });
 
     m_instructions.serializeTo(fs);
@@ -88,25 +88,25 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     });
 
     // Auto Comments
-    Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](AutoCommentItem& ci) {
-        Serializer::deserializeScalar(fs, &ci.first);
+    Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t& k, CommentSet& v) {
+        Serializer::deserializeScalar(fs, &k);
 
-        Serializer::deserializeArray<std::set, std::string>(fs, ci.second, [&](std::string& s) {
+        Serializer::deserializeArray<std::set, std::string>(fs, v, [&](std::string& s) {
             Serializer::deserializeString(fs, s);
         });
     });
 
     // User Comments
-    Serializer::deserializeMap<address_t, std::string>(fs, m_comments, [&](CommentItem& ci) {
-        Serializer::deserializeScalar(fs, &ci.first);
-        Serializer::deserializeString(fs, ci.second);
+    Serializer::deserializeMap<address_t, std::string>(fs, m_comments, [&](address_t& k, std::string& v) {
+        Serializer::deserializeScalar(fs, &k);
+        Serializer::deserializeString(fs, v);
     });
 
     EVENT_CONNECT(&m_instructions, deserialized, this, [&](const InstructionPtr& instruction) {
         this->insertSorted(instruction->address, ListingItem::InstructionItem);
     });
 
-    EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const SymbolPtr& symbol) {
+    EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const Symbol* symbol) {
         if(symbol->type & SymbolTypes::FunctionMask)
             this->insertSorted(symbol->address, ListingItem::FunctionItem);
         else
@@ -155,7 +155,7 @@ ListingItems ListingDocumentType::getCalls(ListingItem *item)
         }
         else if(item->is(ListingItem::SymbolItem))
         {
-            SymbolPtr symbol = this->symbol(item->address);
+            const Symbol* symbol = this->symbol(item->address);
 
             if(!symbol->is(SymbolTypes::Code))
                 break;
@@ -208,7 +208,7 @@ ListingItem *ListingDocumentType::currentItem()
     return this->itemAt(m_cursor.currentLine());
 }
 
-SymbolPtr ListingDocumentType::functionStartSymbol(address_t address)
+Symbol* ListingDocumentType::functionStartSymbol(address_t address)
 {
     ListingItem* item = this->functionStart(address);
 
@@ -326,7 +326,7 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
 
 void ListingDocumentType::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
-    SymbolPtr symbol = m_symboltable.symbol(address);
+    Symbol* symbol = m_symboltable.symbol(address);
 
     if(symbol)
     {
@@ -386,7 +386,7 @@ void ListingDocumentType::rename(address_t address, const std::string &name)
     if(name.empty())
         return;
 
-    SymbolPtr symbol = this->symbol(address);
+    const Symbol* symbol = this->symbol(address);
 
     if(!symbol)
         return;
@@ -396,7 +396,7 @@ void ListingDocumentType::rename(address_t address, const std::string &name)
 
 void ListingDocumentType::lock(address_t address, const std::string &name)
 {
-    SymbolPtr symbol = m_symboltable.symbol(address);
+    const Symbol* symbol = m_symboltable.symbol(address);
 
     if(!symbol)
         this->lock(address, name.empty() ? symbol->name : name, SymbolTypes::Data);
@@ -452,7 +452,7 @@ void ListingDocumentType::table(address_t address, u64 count, u32 tag)
 
 void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, u32 tag)
 {
-    SymbolPtr symbol = this->symbol(address); // Don't override custom symbols, if any
+    Symbol* symbol = this->symbol(address); // Don't override custom symbols, if any
 
     if(symbol)
     {
@@ -467,7 +467,7 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
 
 void ListingDocumentType::entry(address_t address, u32 tag)
 {
-    SymbolPtr symep = this->symbol(address); // Don't override custom symbols, if any
+    const Symbol* symep = this->symbol(address); // Don't override custom symbols, if any
     this->lock(address, symep ? symep->name : ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
     this->setDocumentEntry(address);
 }
@@ -484,7 +484,7 @@ void ListingDocumentType::setDocumentEntry(address_t address)
     m_cursor.set(this->functionIndex(address));
 }
 
-SymbolPtr ListingDocumentType::documentEntry() const { return m_documententry; }
+const Symbol *ListingDocumentType::documentEntry() const { return m_documententry; }
 size_t ListingDocumentType::segmentsCount() const { return m_segments.size(); }
 size_t ListingDocumentType::functionsCount() const { return m_functions.size(); }
 
@@ -599,8 +599,8 @@ int ListingDocumentType::indexOf(address_t address)
 }
 
 int ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(this, item); }
-SymbolPtr ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
-SymbolPtr ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
+Symbol* ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
+Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }
 
 void ListingDocumentType::insertSorted(address_t address, u32 type)

@@ -48,9 +48,9 @@ void PEAnalyzer::analyze()
     this->findAllWndProc();
 }
 
-SymbolPtr PEAnalyzer::getImport(const std::string &library, const std::string &api)
+Symbol* PEAnalyzer::getImport(const std::string &library, const std::string &api)
 {
-    SymbolPtr symbol = m_disassembler->document()->symbol(IMPORT_TRAMPOLINE(library, api));
+    Symbol* symbol = m_disassembler->document()->symbol(IMPORT_TRAMPOLINE(library, api));
 
     if(!symbol)
         symbol = m_disassembler->document()->symbol(IMPORT_NAME(library, api));
@@ -60,7 +60,7 @@ SymbolPtr PEAnalyzer::getImport(const std::string &library, const std::string &a
 
 ReferenceVector PEAnalyzer::getAPIReferences(const std::string &library, const std::string &api)
 {
-    SymbolPtr symbol = this->getImport(library, api);
+    Symbol* symbol = this->getImport(library, api);
 
     if(!symbol)
         return ReferenceVector();
@@ -124,7 +124,7 @@ void PEAnalyzer::findCRTWinMain()
     if(!instruction || !instruction->is(InstructionTypes::Call))
         return;
 
-    SymbolPtr symbol = m_document->symbol(PE_SECURITY_COOKIE_SYMBOL);
+    Symbol* symbol = m_document->symbol(PE_SECURITY_COOKIE_SYMBOL);
 
     if(!symbol)
         return;

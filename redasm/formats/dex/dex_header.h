@@ -91,7 +91,7 @@ struct DEXDebugInfo
     DEXDebugInfo(): line_start(DEX_NO_INDEX_U), parameters_size(0) { }
 
     u32 line_start, parameters_size;
-    std::vector<std::string> parameter_names;
+    std::deque<std::string> parameter_names;
     std::unordered_map<u16, std::list<DEXDebugData> > debug_data;
 };
 
@@ -100,10 +100,10 @@ struct DEXClassData
     u32 static_fields_size, instance_fields_size;
     u32 direct_methods_size, virtual_methods_size;
 
-    std::vector<DEXEncodedField> static_fields;
-    std::vector<DEXEncodedField> instance_fields;
-    std::vector<DEXEncodedMethod> direct_methods;
-    std::vector<DEXEncodedMethod> virtual_methods;
+    std::deque<DEXEncodedField> static_fields;
+    std::deque<DEXEncodedField> instance_fields;
+    std::deque<DEXEncodedMethod> direct_methods;
+    std::deque<DEXEncodedMethod> virtual_methods;
 };
 
 } // namespace REDasm

@@ -34,7 +34,7 @@ bool SignatureDB::load(const std::string &sigfilename)
     if(version != SDB_VERSION)
         return false;
 
-    Serializer::deserializeArray<std::vector, std::string>(ifs, m_assemblers, [&](std::string& assembler) {
+    Serializer::deserializeArray<std::deque, std::string>(ifs, m_assemblers, [&](std::string& assembler) {
         Serializer::deserializeString(ifs, assembler);
     });
 
@@ -70,7 +70,7 @@ bool SignatureDB::save(const std::string &sigfilename)
     ofs.write(SDB_SIGNATURE, SDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, SDB_VERSION, sizeof(u32));
 
-    Serializer::serializeArray<std::vector, std::string>(ofs, m_assemblers, [&](const std::string& assembler) {
+    Serializer::serializeArray<std::deque, std::string>(ofs, m_assemblers, [&](const std::string& assembler) {
         Serializer::serializeString(ofs, assembler);
     });
 

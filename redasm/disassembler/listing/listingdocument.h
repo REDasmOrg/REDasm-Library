@@ -34,7 +34,7 @@ struct ListingItem
 };
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
-typedef std::vector<ListingItem*> ListingItems;
+typedef std::deque<ListingItem*> ListingItems;
 
 namespace Listing {
     template<typename T> struct ListingComparator {

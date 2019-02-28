@@ -39,7 +39,7 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
     Serializer::serializeScalar(fs, m_documententry ? m_documententry->address : 0);
 
     // Segments
-    Serializer::serializeArray<std::vector, Segment>(fs, m_segments, [&](const Segment& s) {
+    Serializer::serializeArray<std::deque, Segment>(fs, m_segments, [&](const Segment& s) {
         Serializer::serializeString(fs, s.name);
         Serializer::serializeScalar(fs, s.offset);
         Serializer::serializeScalar(fs, s.endoffset);
@@ -76,7 +76,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     Serializer::deserializeScalar(fs, &ep);
 
     // Segments
-    Serializer::deserializeArray<std::vector, Segment>(fs, m_segments, [&](Segment& s) {
+    Serializer::deserializeArray<std::deque, Segment>(fs, m_segments, [&](Segment& s) {
         Serializer::deserializeString(fs, s.name);
         Serializer::deserializeScalar(fs, &s.offset);
         Serializer::deserializeScalar(fs, &s.endoffset);

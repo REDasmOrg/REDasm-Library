@@ -7,7 +7,7 @@
 #define SDB_VERSION          1
 
 #include <functional>
-#include <vector>
+#include <deque>
 #include <string>
 #include <list>
 #include "../types/buffer/bufferview.h"
@@ -77,7 +77,7 @@ class SignatureDB
 
     private:
         std::list<Signature> m_signatures;
-        std::vector<std::string> m_assemblers;
+        std::deque<std::string> m_assemblers;
 };
 
 } // namespace REDasm

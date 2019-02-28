@@ -11,7 +11,7 @@ namespace REDasm {
 class VBComponents
 {
     public:
-        typedef std::vector<std::string> EventList;
+        typedef std::deque<std::string> EventList;
         struct Component { std::string name; EventList events; };
         typedef std::unordered_map<std::string, Component> Components;
 

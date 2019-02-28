@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-typedef std::vector<address_t> ReferenceVector;
+typedef std::deque<address_t> ReferenceVector;
 
 class ReferenceTable: public Serializer::Serializable
 {

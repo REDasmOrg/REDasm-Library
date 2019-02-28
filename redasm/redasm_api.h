@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <deque>
 #include <unordered_map>
 #include <map>
 #include <list>
@@ -52,7 +53,7 @@ inline void statusAddress(const std::string& s, address_t address) {
 
 template<typename... T> std::string makePath(const std::string& p, T... args) {
     std::string path = p;
-    std::vector<std::string> v = { args... };
+    std::deque<std::string> v = { args... };
 
     for(size_t i = 0; i < v.size(); i++)
     {
@@ -193,7 +194,7 @@ struct Instruction
 
     std::string mnemonic;
     std::set<address_t> targets;    // Jump/JumpTable/Call destination(s)
-    std::vector<Operand> operands;
+    std::deque<Operand> operands;
     address_t address;
     s32 target_idx;                 // Target's operand index
     u32 type, size;
@@ -285,9 +286,8 @@ template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t
 }
 
 typedef std::shared_ptr<Instruction> InstructionPtr;
-typedef std::vector<Operand> OperandList;
-typedef std::vector<address_t> AddressList;
-typedef std::vector<Segment> SegmentList;
+typedef std::deque<Operand> OperandList;
+typedef std::deque<Segment> SegmentList;
 typedef std::list<std::string> SignatureFiles;
 
 } // namespace REDasm

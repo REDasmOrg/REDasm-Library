@@ -114,8 +114,11 @@ void ListingCursor::moveTo(u64 line, u64 column, bool save)
 
     if(save && !this->hasSelection())
     {
-        m_backstack.push(m_position);
-        backChanged();
+        if(m_backstack.empty() || (!m_backstack.empty() && (m_backstack.top() != m_position)))
+        {
+            m_backstack.push(m_position);
+            backChanged();
+        }
     }
 
     m_selection = pos;

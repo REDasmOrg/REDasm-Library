@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <memory>
 #include <list>
-#include <set>
 
 namespace REDasm {
 namespace Graphing {
@@ -12,10 +11,12 @@ namespace Graphing {
 struct Node { int id; };
 
 typedef std::unique_ptr<Node> NodePtr;
-typedef std::set<Node*> AdjacencyList;
 
 class Graph: protected std::list<NodePtr>
 {
+    public:
+        typedef std::list<Node*> AdjacencyList;
+
     private:
         typedef std::list<NodePtr> Type;
 
@@ -31,7 +32,11 @@ class Graph: protected std::list<NodePtr>
         const AdjacencyList& edges(const NodePtr& np) const;
         const AdjacencyList& edges(Node *n) const;
 
+    protected:
+        virtual bool compareEdge(const Node *n1, const Node *n2) const;
+
     private:
+        bool edgeExists(const AdjacencyList& adjlist, Node* search) const;
         int getId();
 
     private:

@@ -34,17 +34,18 @@ struct FunctionBlock: public Node
 class FunctionGraph: public Graph
 {
     private:
-        typedef std::queue<address_t> AddressQueue;
         typedef std::queue<s64> IndexQueue;
 
     public:
         FunctionGraph(ListingDocument& document);
         address_location startAddress() const;
-        ListingDocument& document();
         bool build(address_t address);
 
+    protected:
+        virtual bool compareEdge(const Node *n1, const Node *n2) const;
+
     private:
-        FunctionBlock* vertexFromListingIndex(s64 index);
+        FunctionBlock* vertexFromListingIndex(s64 index) const;
         void buildVertices(address_t startaddress);
         void buildNode(int index, IndexQueue &indexqueue);
         bool buildEdges();

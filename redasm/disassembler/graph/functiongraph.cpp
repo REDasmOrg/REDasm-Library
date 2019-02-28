@@ -5,10 +5,14 @@ namespace Graphing {
 
 FunctionGraph::FunctionGraph(ListingDocument& document): Graph(), m_document(document) { }
 address_location FunctionGraph::startAddress() const { return m_graphstart; }
-ListingDocument& FunctionGraph::document() { return m_document; }
 
 bool FunctionGraph::build(address_t address)
 {
+    ListingItem* item = m_document->functionStart(address);
+
+    if(!item)
+        return false;
+
     this->buildVertices(address);
 
     if(this->empty())
@@ -17,7 +21,13 @@ bool FunctionGraph::build(address_t address)
     return this->buildEdges();
 }
 
-FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index)
+bool FunctionGraph::compareEdge(const Node *n1, const Node *n2) const
+{
+    return static_cast<const FunctionBlock*>(n1)->startidx <
+           static_cast<const FunctionBlock*>(n2)->startidx;
+}
+
+FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index) const
 {
     for(auto& item : *this)
     {
@@ -37,7 +47,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
     if(it == m_document->end())
         return;
 
-    std::unique_ptr<FunctionBlock> data = std::make_unique<FunctionBlock>(index);
+    auto fb = std::make_unique<FunctionBlock>(index);
     ListingItem* item = it->get();
 
     for( ; it != m_document->end(); it++, index++)
@@ -45,11 +55,14 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
         item = it->get();
 
         if(this->vertexFromListingIndex(index))
+        {
+            fb->labelbreak = true;
             break;
+        }
 
         if(item->is(ListingItem::SymbolItem))
         {
-            if(index == data->startidx) // Skip first label
+            if(index == fb->startidx) // Skip first label
                 continue;
 
             const Symbol* symbol = m_document->symbol(item->address);
@@ -57,14 +70,14 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
             if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
                 indexqueue.push(index);
 
-            data->labelbreak = true;
+            fb->labelbreak = true;
             break;
         }
 
         if(!item->is(ListingItem::InstructionItem))
             break;
 
-        data->endidx = index;
+        fb->endidx = index;
         InstructionPtr instruction = m_document->instruction(item->address);
 
         if(instruction->is(InstructionTypes::Jump))
@@ -82,7 +95,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
             break;
     }
 
-    this->addNode(data.release());
+    this->addNode(fb.release());
 }
 
 void FunctionGraph::buildVertices(address_t startaddress)

@@ -3,7 +3,7 @@
 
 #include "../types/buffer/abstractbuffer.h"
 #include <functional>
-#include <zlib.h>
+#include <miniz.h>
 
 namespace REDasm {
 

@@ -14,12 +14,12 @@ set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 # Single Headers
 set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}
                            ${DEPENDS_HEADERS_DIR}/json
-                           ${DEPENDS_HEADERS_DIR}/visit_struct)
+                           ${DEPENDS_HEADERS_DIR}/visit_struct
+                           ${DEPENDS_SRC_DIR}/miniz)
 
-#ZLib
-set(ZLIB_BUILD ${DEPENDS_BUILD_DIR}/zlib)
-set(ZLIB_INCLUDE ${DEPENDS_SRC_DIR}/zlib)
-add_subdirectory(${DEPENDS_SRC_DIR}/zlib)
+# MiniZ
+set(MINIZ_HEADERS ${DEPENDS_SRC_DIR}/miniz/miniz.h)
+set(MINIZ_SOURCES ${DEPENDS_SRC_DIR}/miniz/miniz.c)
 
 # Capstone (Override Settings)
 set(CAPSTONE_SRC ${DEPENDS_SRC_DIR}/capstone)
@@ -72,6 +72,7 @@ file(GLOB_RECURSE GRAPH_HEADERS redasm/graph/*.h)
 file(GLOB_RECURSE GRAPH_SOURCES redasm/graph/*.cpp)
 
 SET(SOURCES
+    ${MINIZ_SOURCES}
     ${SUPPORT_SOURCES}
     ${TYPES_SOURCES}
     ${PLUGINS_SOURCES}
@@ -86,6 +87,7 @@ SET(SOURCES
     redasm/redasm_runtime.cpp)
 
 set(HEADERS
+    ${MINIZ_HEADERS}
     ${SUPPORT_HEADERS}
     ${TYPES_HEADERS}
     ${PLUGINS_HEADERS}
@@ -101,7 +103,7 @@ set(HEADERS
     redasm/redasm_runtime.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
-add_dependencies(${PROJECT_NAME} capstone-static zlibstatic)
+add_dependencies(${PROJECT_NAME} capstone-static)
 
 if(MSVC)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -111,13 +113,11 @@ include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${ZLIB_BUILD}
-                           ${ZLIB_INCLUDE}
                            ${CAPSTONE_INCLUDE}
                            ${DEPENDS_SINGLE_HEADERS}
                            ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-target_link_libraries(${PROJECT_NAME} capstone-static zlibstatic)
+target_link_libraries(${PROJECT_NAME} capstone-static)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread)

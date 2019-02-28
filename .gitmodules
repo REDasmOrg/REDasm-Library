@@ -1,6 +1,3 @@
-[submodule "depends/zlib"]
-	path = depends/zlib
-	url = https://github.com/madler/zlib.git
 [submodule "depends/capstone"]
 	path = depends/capstone
 	url = https://github.com/aquynh/capstone.git

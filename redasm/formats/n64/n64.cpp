@@ -1,4 +1,4 @@
-#include <zlib.h>
+#include <miniz.h>
 #include "n64.h"
 #include "n64_analyzer.h"
 

@@ -1,5 +1,4 @@
 #include "gba.h"
-#include "gba_analyzer.h"
 #include <cstring>
 #include <cctype>
 
@@ -52,11 +51,6 @@ GbaRomFormat::GbaRomFormat(AbstractBuffer *buffer): FormatPluginT<GbaRomHeader>(
 std::string GbaRomFormat::name() const { return "Game Boy Advance ROM"; }
 u32 GbaRomFormat::bits() const { return 32; }
 std::string GbaRomFormat::assembler() const { return "metaarm"; }
-
-Analyzer *GbaRomFormat::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
-{
-    return new GbaAnalyzer(disassembler, signatures);
-}
 
 void GbaRomFormat::load()
 {

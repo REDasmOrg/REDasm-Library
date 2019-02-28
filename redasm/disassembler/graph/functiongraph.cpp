@@ -100,7 +100,7 @@ void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
 
 void FunctionGraph::buildVertices(address_t startaddress)
 {
-    REDasm::ListingItem* item = m_document->functionStart(startaddress);
+    ListingItem* item = m_document->functionStart(startaddress);
 
     if(!item)
         return;
@@ -108,7 +108,11 @@ void FunctionGraph::buildVertices(address_t startaddress)
     m_graphstart = REDasm::make_location(item->address);
 
     IndexQueue queue;
-    queue.push(m_document->indexOf(item) + 1); // Skip declaration
+
+    if(!item->is(ListingItem::InstructionItem) && !item->is(ListingItem::SymbolItem))
+        queue.push(m_document->indexOf(item) + 1); // Skip declaration
+    else
+        queue.push(m_document->indexOf(item));
 
     while(!queue.empty())
     {

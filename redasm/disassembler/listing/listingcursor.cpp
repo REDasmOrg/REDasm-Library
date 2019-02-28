@@ -91,6 +91,7 @@ void ListingCursor::goBack()
 
     m_forwardstack.push(m_position);
     this->moveTo(pos.first, pos.second, false);
+    backChanged();
     forwardChanged();
 }
 
@@ -104,6 +105,7 @@ void ListingCursor::goForward()
 
     m_backstack.push(m_position);
     this->moveTo(pos.first, pos.second, false);
+    backChanged();
     forwardChanged();
 }
 

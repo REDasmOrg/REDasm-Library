@@ -182,6 +182,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingItems getCalls(ListingItem* item);
         ListingItem* functionStart(ListingItem* item);
         ListingItem* functionStart(address_t address);
+        ListingItem* currentFunction();
         ListingItem* currentItem();
         Symbol *functionStartSymbol(address_t address);
         InstructionPtr entryInstruction();

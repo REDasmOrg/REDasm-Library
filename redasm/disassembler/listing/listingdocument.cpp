@@ -200,6 +200,14 @@ ListingItem *ListingDocumentType::functionStart(address_t address)
     return *fit;
 }
 
+ListingItem *ListingDocumentType::currentFunction()
+{
+    if(!this->currentItem())
+        return nullptr;
+
+    return this->functionStart(this->currentItem());
+}
+
 ListingItem *ListingDocumentType::currentItem()
 {
     if(m_cursor.currentLine() >= static_cast<u64>(this->size()))

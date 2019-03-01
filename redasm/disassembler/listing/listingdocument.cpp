@@ -142,7 +142,7 @@ ListingItems ListingDocumentType::getCalls(ListingItem *item)
 
     for( ; it != this->end(); it++)
     {
-        ListingItem* item = it->get();
+        item = it->get();
 
         if(item->is(ListingItem::InstructionItem))
         {

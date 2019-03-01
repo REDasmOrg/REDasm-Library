@@ -60,7 +60,7 @@ void MIPSEmulator::emulateLui(const InstructionPtr &instruction)
     if(!this->read(instruction->op(1), &value))
         return;
 
-    this->writeOp(instruction->op(0), value << 16);
+    this->writeOp(instruction->op(0), static_cast<u32>(value << 16));
 }
 
 void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
@@ -85,9 +85,9 @@ void MIPSEmulator::emulateLxx(const InstructionPtr &instruction)
     if(!this->readOp(op2, &value))
         return;
 
-    value += op2->disp.displacement;
+    value += static_cast<u32>(op2->disp.displacement);
 
-    if(!this->readMem(value, &value, size))
+    if(!this->readMem(static_cast<u32>(value), &value, static_cast<u32>(size)))
         return;
 
     this->readOp(op1, &regvalue);
@@ -124,7 +124,7 @@ void MIPSEmulator::emulateSxx(const InstructionPtr &instruction)
     if(!this->readOp(op1, &regvalue) || !this->readOp(op2, &memloc))
         return;
 
-    this->readMem(memloc, &memvalue, size);
+    this->readMem(static_cast<u32>(memloc), &memvalue, static_cast<u32>(size));
 
     if(instruction->id == MIPS_INS_SWL)
         regvalue = (regvalue & 0xFFFF) | (memvalue & 0xFFFF0000);

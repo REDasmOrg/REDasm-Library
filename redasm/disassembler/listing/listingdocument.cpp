@@ -414,9 +414,9 @@ void ListingDocumentType::lock(address_t address, const std::string &name)
 
 void ListingDocumentType::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
 void ListingDocumentType::lock(address_t address, const std::string &name, u32 type, u32 tag) { this->symbol(address, name, type | SymbolTypes::Locked, tag); }
-void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u32 type) { this->segment(name, offset, address, size, size, type); }
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u64 type) { this->segment(name, offset, address, size, size, type); }
 
-void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u32 vsize, u32 type)
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type)
 {
     if(!psize && !vsize)
     {
@@ -543,7 +543,7 @@ InstructionPtr ListingDocumentType::instruction(address_t address)
 
 ListingDocumentType::iterator ListingDocumentType::functionItem(address_t address) { return this->item(address, ListingItem::FunctionItem); }
 ListingDocumentType::iterator ListingDocumentType::item(address_t address, u32 type) { return Listing::binarySearch(this, address, type); }
-int ListingDocumentType::index(address_t address, u32 type) { return Listing::indexOf(this, address, type); }
+s64 ListingDocumentType::index(address_t address, u32 type) { return Listing::indexOf(this, address, type); }
 
 std::string ListingDocumentType::autoComment(address_t address) const
 {
@@ -584,9 +584,9 @@ ListingDocumentType::iterator ListingDocumentType::item(address_t address)
     return it;
 }
 
-int ListingDocumentType::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
-int ListingDocumentType::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
-int ListingDocumentType::symbolIndex(address_t address) { return this->index(address, ListingItem::SymbolItem); }
+s64 ListingDocumentType::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
+s64 ListingDocumentType::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
+s64 ListingDocumentType::symbolIndex(address_t address) { return this->index(address, ListingItem::SymbolItem); }
 
 ListingItem* ListingDocumentType::itemAt(size_t i) const
 {
@@ -596,9 +596,9 @@ ListingItem* ListingDocumentType::itemAt(size_t i) const
     return this->at(i).get();
 }
 
-int ListingDocumentType::indexOf(address_t address)
+s64 ListingDocumentType::indexOf(address_t address)
 {
-    int idx = this->symbolIndex(address);
+    s64 idx = this->symbolIndex(address);
 
     if(idx == -1)
         idx = this->instructionIndex(address);
@@ -606,7 +606,7 @@ int ListingDocumentType::indexOf(address_t address)
     return idx;
 }
 
-int ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(this, item); }
+s64 ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(this, item); }
 Symbol* ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
 Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }

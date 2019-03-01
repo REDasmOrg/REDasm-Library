@@ -206,7 +206,7 @@ void AssemblerAlgorithm::addressTableState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
     size_t targetstart = instruction->targets.size();
-    int c = m_disassembler->checkAddressTable(instruction, state->address);
+    s64 c = m_disassembler->checkAddressTable(instruction, state->address);
 
     if(c > 1)
     {

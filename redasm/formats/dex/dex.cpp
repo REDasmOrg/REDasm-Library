@@ -200,7 +200,7 @@ bool DEXFormat::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
             debuginfo.parameter_names.push_back(this->getNormalizedString(idx));
     }
 
-    DEXStateMachine dexstatemachine(fileoffset(&dexcode->insns), debuginfo);
+    DEXStateMachine dexstatemachine(static_cast<u16>(fileoffset(&dexcode->insns)), debuginfo);
     dexstatemachine.execute(pdebuginfo);
     return true;
 }

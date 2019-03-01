@@ -117,7 +117,7 @@ std::string SignatureDB::uniqueAssembler(u32 idx) const
 
 s32 SignatureDB::uniqueAssemblerIdx(const Signature &signature) const
 {
-    for(size_t i = 0; i < m_assemblers.size(); i++)
+    for(s32 i = 0; i < m_assemblers.size(); i++)
     {
         if(m_assemblers[i] == signature.assembler)
             return i;

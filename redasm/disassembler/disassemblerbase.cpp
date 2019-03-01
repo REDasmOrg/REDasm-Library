@@ -47,7 +47,7 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
     return true;
 }
 
-int DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
+s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
     Symbol* symbol = m_document->symbol(startaddress);
 

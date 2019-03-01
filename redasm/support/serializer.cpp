@@ -8,9 +8,9 @@ namespace Serializer {
 
 std::string& xorify(std::string& s)
 {
-    u32 len = s.size();
+    size_t len = s.size();
 
-    for(u32 i = 0; i < len; i++)
+    for(size_t i = 0; i < len; i++)
         s[i] ^= ((len - i) % 0x100u);
 
     return s;

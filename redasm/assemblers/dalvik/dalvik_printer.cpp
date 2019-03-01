@@ -79,7 +79,7 @@ void DalvikPrinter::info(const InstructionPtr &instruction, const LineCallback &
     if(m_currentdbginfo.line_start == DEX_NO_INDEX_U)
         return;
 
-    auto dbgit = m_currentdbginfo.debug_data.find(instruction->address);
+    auto dbgit = m_currentdbginfo.debug_data.find(static_cast<u16>(instruction->address));
 
     if(dbgit == m_currentdbginfo.debug_data.end())
         return;

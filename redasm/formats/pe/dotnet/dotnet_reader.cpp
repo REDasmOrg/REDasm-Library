@@ -31,7 +31,7 @@ void DotNetReader::iterateTypes(const MethodCallback& cbmethods) const
 
     for(auto it = cortdrows.begin(); it != cortdrows.end(); it++)
     {
-        u32 c = this->getListCount(it, cortdrows, cormdrows.size(), [](const CorTablePtr& cortable) -> u32 {
+        u32 c = this->getListCount(it, cortdrows, static_cast<u32>(cormdrows.size()), [](const CorTablePtr& cortable) -> u32 {
             return cortable->typeDef.methodList + 1; // "methodList" is the last index
         });
 

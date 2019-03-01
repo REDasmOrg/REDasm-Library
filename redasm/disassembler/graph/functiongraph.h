@@ -17,7 +17,7 @@ struct FunctionBlock: public Node
 
     FunctionBlock(s64 startidx): startidx(startidx), endidx(startidx), labelbreak(false) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
-    int count() const { return (endidx - startidx) + 1; }
+    s64 count() const { return (endidx - startidx) + 1; }
     void bTrue(const FunctionBlock* v) { colors[v] = "green"; }
     void bFalse(const FunctionBlock* v) { colors[v] = "red"; }
     void bLoop(const FunctionBlock* v) { colors[v] = "magenta"; }
@@ -48,7 +48,7 @@ class FunctionGraph: public Graph
     private:
         FunctionBlock* vertexFromListingIndex(s64 index) const;
         void buildVertices(address_t startaddress);
-        void buildNode(int index, IndexQueue &indexqueue);
+        void buildNode(s64 index, IndexQueue &indexqueue);
         bool buildEdges();
 
     private:

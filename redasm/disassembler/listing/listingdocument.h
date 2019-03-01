@@ -2,6 +2,7 @@
 #define LISTINGDOCUMENT_H
 
 #include <unordered_set>
+#include <algorithm>
 #include <vector>
 #include <list>
 #include "../../redasm.h"
@@ -109,7 +110,7 @@ namespace Listing {
         return Listing::binarySearch(container, item->address, item->type);
     }
 
-    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> int indexOf(T* container, V* item) {
+    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> s64 indexOf(T* container, V* item) {
         auto it = Listing::binarySearch(container, item);
 
         if(it == container->end())
@@ -118,7 +119,7 @@ namespace Listing {
         return std::distance(container->begin(), it);
     }
 
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> int indexOf(T* container, address_t address, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> s64 indexOf(T* container, address_t address, u32 type) {
         auto it = Listing::binarySearch(container, address, type);
 
         if(it == container->end())
@@ -200,8 +201,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void lock(address_t address, const std::string& name);
         void lock(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
-        void segment(const std::string& name, offset_t offset, address_t address, u64 size, u32 type);
-        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u32 vsize, u32 type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 size, u64 type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type);
         void lockFunction(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, const std::string& name, u32 tag = 0);
         void function(address_t address, u32 tag = 0);
@@ -225,12 +226,12 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         ListingDocumentType::iterator instructionItem(address_t address);
         ListingDocumentType::iterator symbolItem(address_t address);
         ListingDocumentType::iterator item(address_t address);
-        int functionIndex(address_t address);
-        int instructionIndex(address_t address);
-        int symbolIndex(address_t address);
+        s64 functionIndex(address_t address);
+        s64 instructionIndex(address_t address);
+        s64 symbolIndex(address_t address);
         ListingItem* itemAt(size_t i) const;
-        int indexOf(address_t address);
-        int indexOf(ListingItem *item);
+        s64 indexOf(address_t address);
+        s64 indexOf(ListingItem *item);
         Symbol *symbol(address_t address) const;
         Symbol *symbol(const std::string& name) const;
         const SymbolTable* symbols() const;
@@ -239,7 +240,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void insertSorted(address_t address, u32 type);
         void removeSorted(address_t address, u32 type);
         ListingDocumentType::iterator item(address_t address, u32 type);
-        int index(address_t address, u32 type);
+        s64 index(address_t address, u32 type);
         std::string autoComment(address_t address) const;
         static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = nullptr);

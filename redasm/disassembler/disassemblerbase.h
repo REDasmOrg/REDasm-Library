@@ -22,7 +22,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual void pushReference(address_t address, address_t refbyaddress);
         virtual void checkLocation(address_t fromaddress, address_t address);
         virtual bool checkString(address_t fromaddress, address_t address);
-        virtual int checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
+        virtual s64 checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
         virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const;
         virtual Symbol* dereferenceSymbol(const Symbol* symbol, u64 *value = nullptr);
         virtual bool dereference(address_t address, u64 *value) const;

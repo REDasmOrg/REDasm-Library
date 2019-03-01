@@ -24,7 +24,7 @@ MetaARMEmulator::MetaARMEmulator(DisassemblerAPI *disassembler): EmulatorT<u32>(
 void MetaARMEmulator::emulate(const InstructionPtr &instruction)
 {
     auto* arm = dynamic_cast<ARMAbstractAssembler*>(m_disassembler->assembler());
-    this->writeReg(ARM_REG_PC, arm->pc(instruction));
+    this->writeReg(ARM_REG_PC, static_cast<u32>(arm->pc(instruction)));
     EmulatorT<u32>::emulate(instruction);
 }
 

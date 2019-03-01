@@ -32,13 +32,13 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
 
     if(op->is(OperandTypes::Register))
     {
-        *value = this->readReg(op->reg.r);
+        *value = this->readReg(static_cast<T>(op->reg.r));
         return true;
     }
 
     if(op->is(OperandTypes::Memory))
     {
-        if(this->readMem(op->u_value, value, op->size))
+        if(this->readMem(static_cast<T>(op->u_value), value, op->size))
             return true;
 
         REDasm::log("Error reading memory operand " + std::to_string(op->index));
@@ -46,7 +46,7 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
         return false;
     }
 
-    *value = op->u_value;
+    *value = static_cast<T>(op->u_value);
     return true;
 }
 
@@ -64,9 +64,9 @@ template<typename T> void EmulatorBase<T>::writeOp(const Operand *op, T value)
             this->fail();
     }
     else if(op->is(OperandTypes::Memory))
-        this->writeMem(op->u_value, value);
+        this->writeMem(static_cast<T>(op->u_value), value);
     else if(op->is(OperandTypes::Register))
-        this->writeReg(op->reg.r, value);
+        this->writeReg(static_cast<T>(op->reg.r), value);
     else
         this->fail();
 }
@@ -97,7 +97,7 @@ template<typename T> void EmulatorBase<T>::changeReg(const Operand *op, ST amoun
     if(!op->is(OperandTypes::Register) || !amount)
         return;
 
-    this->writeReg(op->reg.r, this->readReg(op->reg.r) + amount);
+    this->writeReg(static_cast<T>(op->reg.r), this->readReg(static_cast<T>(op->reg.r)) + amount);
 }
 
 template<typename T> void EmulatorBase<T>::changeSP(ST amount)
@@ -156,11 +156,11 @@ template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size)
     if(size == sizeof(u8))
         *value = static_cast<u8>(memoryview);
     else if(size == sizeof(u16))
-        *value = static_cast<u16>(memoryview);
+        *value = static_cast<T>(static_cast<u16>(memoryview));
     else if(size == sizeof(u32))
-        *value = static_cast<u32>(memoryview);
+        *value = static_cast<T>(static_cast<u32>(memoryview));
     else if(size == sizeof(u64))
-        *value = static_cast<u64>(memoryview);
+        *value = static_cast<T>(static_cast<u64>(memoryview));
     else
     {
         REDasm::log("ReadMemory: Invalid size (" + std::to_string(size) + ")");
@@ -204,16 +204,16 @@ template<typename T> bool EmulatorBase<T>::displacementT(const DisplacementOpera
     T address = 0;
 
     if(dispop.base.isValid())
-        address = this->readReg(dispop.base.r);
+        address = this->readReg(static_cast<T>(dispop.base.r));
 
     address += static_cast<typename std::make_signed<T>::type>(dispop.displacement);
 
     T index = 0;
 
     if(dispop.index.isValid())
-        index = this->readReg(dispop.index.r);
+        index = this->readReg(static_cast<T>(dispop.index.r));
 
-    *value = address + (index * dispop.scale);
+    *value = static_cast<T>(address + (index * dispop.scale));
     return true;
 }
 

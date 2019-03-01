@@ -22,7 +22,7 @@ std::string demangleMSVC(const std::string& s, bool simplified) {
                 UNDNAME_NO_ACCESS_SPECIFIERS;
     }
 
-    if(!__unDName(v.data(), s.c_str(), v.size(), std::malloc, std::free, flags))
+    if(!__unDName(v.data(), s.c_str(), static_cast<int>(v.size()), std::malloc, std::free, flags))
         return s;
 
     return v.data();

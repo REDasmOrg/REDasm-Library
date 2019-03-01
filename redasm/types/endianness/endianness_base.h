@@ -1,6 +1,10 @@
 #ifndef ENDIANNESS_BASE_H
 #define ENDIANNESS_BASE_H
 
+#if _MSC_VER
+    #pragma warning(disable: 4309)
+#endif //_MSC_VER
+
 #include "../base_types.h"
 #include <algorithm>
 

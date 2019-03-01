@@ -351,7 +351,7 @@ template<size_t b> void PeFormat<b>::loadSections()
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
         const ImageSectionHeader& section = m_sectiontable[i];
-        u32 flags = SegmentTypes::None;
+        u64 flags = SegmentTypes::None;
 
         if((section.Characteristics & IMAGE_SCN_CNT_CODE) || (section.Characteristics & IMAGE_SCN_MEM_EXECUTE))
             flags |= SegmentTypes::Code;

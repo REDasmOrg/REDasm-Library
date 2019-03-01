@@ -87,7 +87,7 @@ std::pair<u8, u8> BufferView::patternRange(std::string &pattern, u64 &startoffse
         break;
     }
 
-    for(int i = pattern.size() - 2; i >= 0; i -= 2)
+    for(s64 i = pattern.size() - 2; i >= 0; i -= 2)
     {
         std::string hexb = pattern.substr(i, 2);
 

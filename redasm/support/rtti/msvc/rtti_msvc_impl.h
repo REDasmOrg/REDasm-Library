@@ -3,6 +3,10 @@
 #include "../../../formats/pe/pe.h"
 #include "../../symbolize.h"
 
+#if _MSC_VER
+    #pragma warning(disable: 4146)
+#endif // _MSC_VER
+
 #define RTTI_MSVC_CLASS_DESCRIPTOR_PREFIX ".?AV"
 #define RTTI_MSVC_FIXUP (sizeof(T) * 2)
 #define RTTI_MSVC_TYPE_DESCRIPTOR(typedescriptorname) FormatPlugin::relpointer<RTTITypeDescriptor>(typedescriptorname, -RTTI_MSVC_FIXUP)
@@ -181,9 +185,9 @@ template<typename T> void RTTIMsvc<T>::searchCompleteObjects()
         const auto* peformat = static_cast<const PeFormat64*>(m_format);
 
         if(peformat->bits() == 64)
-            searchobj.pTypeDescriptor = peformat->vaToRva(item.first);
+            searchobj.pTypeDescriptor = static_cast<u32>(peformat->vaToRva(item.first));
         else
-            searchobj.pTypeDescriptor = item.first;
+            searchobj.pTypeDescriptor = static_cast<u32>(item.first);
 
         for(const Segment* segment : m_segments)
         {

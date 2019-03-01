@@ -127,7 +127,7 @@ namespace OperandSizes {
 struct Segment
 {
     Segment(): offset(0), address(0), endaddress(0), type(0) { }
-    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u32 type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
+    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
     constexpr s64 size() const { return static_cast<s64>(endaddress - address); }
     constexpr s64 rawSize() const { return static_cast<s64>(endoffset - offset); }
     constexpr bool empty() const { return this->size() <= 0; }
@@ -138,7 +138,7 @@ struct Segment
     std::string name;
     offset_t offset, endoffset;
     address_t address, endaddress;
-    u32 type;
+    u64 type;
 };
 
 struct RegisterOperand
@@ -156,10 +156,10 @@ struct RegisterOperand
 struct DisplacementOperand
 {
     DisplacementOperand(): scale(1), displacement(0) { }
-    DisplacementOperand(const RegisterOperand& base, const RegisterOperand& index, s32 scale, s64 displacement): base(base), index(index), scale(scale), displacement(displacement) { }
+    DisplacementOperand(const RegisterOperand& base, const RegisterOperand& index, s64 scale, s64 displacement): base(base), index(index), scale(scale), displacement(displacement) { }
 
     RegisterOperand base, index;
-    s32 scale;
+    s64 scale;
     s64 displacement;
 };
 

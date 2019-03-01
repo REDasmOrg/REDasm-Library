@@ -60,7 +60,7 @@ bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tab
     u32* tabledata = REDasm::relpointer<u32>(cortablesheader, sizeof(ImageCor20TablesHeader));
 
     // Read rows
-    for(u64 i = 0; i < REDasm::bitwidth<u64>::value; i++)
+    for(u32 i = 0; i < static_cast<u32>(REDasm::bitwidth<u64>::value); i++)
     {
         u64 tablebit = (static_cast<u64>(1) << i);
 

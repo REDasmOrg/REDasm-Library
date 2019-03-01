@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <type_traits>
 #include <sstream>
 #include <string>
 #include <iomanip>
@@ -78,11 +79,11 @@ template<typename T> std::string dec(T t)
     return ss.str();
 }
 
-template<typename T> std::string hex(T t, unsigned int bits = 0, bool withprefix = false)
+template<typename T> std::string hex(T t, u64 bits = 0, bool withprefix = false)
 {
     std::stringstream ss;
 
-    if(withprefix && (t > 9))
+    if(withprefix && (t > (std::is_signed<T>::value ? 9 : 9u)))
         ss << "0x";
 
     ss << std::uppercase << std::hex;

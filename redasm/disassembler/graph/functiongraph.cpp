@@ -40,7 +40,7 @@ FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index) const
     return nullptr;
 }
 
-void FunctionGraph::buildNode(int index, FunctionGraph::IndexQueue &indexqueue)
+void FunctionGraph::buildNode(s64 index, FunctionGraph::IndexQueue &indexqueue)
 {
     auto it = std::next(m_document->begin(), index);
 
@@ -137,7 +137,7 @@ bool FunctionGraph::buildEdges()
     {
         FunctionBlock* fb = static_cast<FunctionBlock*>(item.get());
         auto it = std::next(m_document->begin(), fb->startidx);
-        int index = fb->startidx;
+        s64 index = fb->startidx;
 
         if(fb->labelbreak && (fb->endidx + 1 < static_cast<s64>(m_document->size())))
         {
@@ -163,7 +163,7 @@ bool FunctionGraph::buildEdges()
 
             for(address_t target : instruction->targets)
             {
-                int tgtindex = m_document->symbolIndex(target);
+                s64 tgtindex = m_document->symbolIndex(target);
                 FunctionBlock* tofb = this->vertexFromListingIndex(tgtindex);
 
                 if(!tofb)

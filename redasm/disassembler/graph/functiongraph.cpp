@@ -135,21 +135,21 @@ bool FunctionGraph::buildEdges()
 {
     for(auto& item : *this)
     {
-        FunctionBlock* data = static_cast<FunctionBlock*>(item.get());
-        auto it = std::next(m_document->begin(), data->startidx);
-        int index = data->startidx;
+        FunctionBlock* fb = static_cast<FunctionBlock*>(item.get());
+        auto it = std::next(m_document->begin(), fb->startidx);
+        int index = fb->startidx;
 
-        if(data->labelbreak && (data->endidx + 1 < static_cast<s64>(m_document->size())))
+        if(fb->labelbreak && (fb->endidx + 1 < static_cast<s64>(m_document->size())))
         {
-            FunctionBlock* block = this->vertexFromListingIndex(data->endidx + 1);
+            FunctionBlock* block = this->vertexFromListingIndex(fb->endidx + 1);
 
             if(!block)
                 return false;
 
-            this->addEdge(data, block);
+            this->addEdge(fb, block);
         }
 
-        for( ; (it != m_document->end()) && (index <= data->endidx); it++, index++)
+        for( ; (it != m_document->end()) && (index <= fb->endidx); it++, index++)
         {
             ListingItem* item = it->get();
 
@@ -164,15 +164,17 @@ bool FunctionGraph::buildEdges()
             for(address_t target : instruction->targets)
             {
                 int tgtindex = m_document->symbolIndex(target);
-                FunctionBlock* todata = this->vertexFromListingIndex(tgtindex);
+                FunctionBlock* tofb = this->vertexFromListingIndex(tgtindex);
 
-                if(!todata)
+                if(!tofb)
                     continue;
 
-                this->addEdge(data, todata);
+                this->addEdge(fb, tofb);
 
-                if(instruction->is(InstructionTypes::Conditional))
-                    data->bTrue(todata);
+                if(fb == tofb)
+                    fb->bLoop(tofb);
+                else if(instruction->is(InstructionTypes::Conditional))
+                    fb->bTrue(tofb);
             }
 
             if(instruction->is(InstructionTypes::Conditional))
@@ -182,8 +184,8 @@ bool FunctionGraph::buildEdges()
                 if(!todata)
                     continue;
 
-                this->addEdge(data, todata);
-                data->bFalse(todata);
+                this->addEdge(fb, todata);
+                fb->bFalse(todata);
             }
         }
     }

@@ -20,6 +20,7 @@ struct FunctionBlock: public Node
     int count() const { return (endidx - startidx) + 1; }
     void bTrue(const FunctionBlock* v) { colors[v] = "green"; }
     void bFalse(const FunctionBlock* v) { colors[v] = "red"; }
+    void bLoop(const FunctionBlock* v) { colors[v] = "magenta"; }
 
     std::string color(const FunctionBlock* to) const {
         auto it = colors.find(to);

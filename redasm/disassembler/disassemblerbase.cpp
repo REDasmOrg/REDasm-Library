@@ -161,6 +161,29 @@ std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
     return this->readWString(symbol->address, len);
 }
 
+std::string DisassemblerBase::getHexDump(address_t address, const Symbol **ressymbol)
+{
+    REDasm::ListingItem* item = m_document->currentFunction();
+
+    if(!item)
+        return std::string();
+
+    const REDasm::Symbol* symbol = m_document->symbol(item->address);
+
+    if(!symbol)
+        return std::string();
+
+    REDasm::BufferView br = this->getFunctionBytes(symbol->address);
+
+    if(br.eob())
+        return std::string();
+
+    if(ressymbol)
+        *ressymbol = symbol;
+
+    return REDasm::hexstring(br, br.size());
+}
+
 Symbol* DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
 {
     address_t address = 0;

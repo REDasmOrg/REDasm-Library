@@ -33,6 +33,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual std::string readString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
         virtual std::string readWString(address_t address, u64 len = std::numeric_limits<u64>::max()) const;
         virtual std::string readWString(const Symbol *symbol, u64 len = std::numeric_limits<u64>::max()) const;
+        virtual std::string getHexDump(address_t address, const Symbol** ressymbol = nullptr);
         virtual bool loadSignature(const std::string& sdbfile);
 
    private:

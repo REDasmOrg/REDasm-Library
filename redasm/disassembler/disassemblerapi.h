@@ -40,6 +40,7 @@ class DisassemblerAPI
         virtual std::string readString(address_t address, u64 len = std::numeric_limits<u64>::max()) const = 0;
         virtual std::string readWString(const Symbol* symbol, u64 len = std::numeric_limits<u64>::max()) const = 0;
         virtual std::string readWString(address_t address, u64 len = std::numeric_limits<u64>::max()) const = 0;
+        virtual std::string getHexDump(address_t address, const Symbol** ressymbol = nullptr) = 0;
         virtual BufferView getFunctionBytes(address_t address) = 0;
         virtual bool readAddress(address_t address, size_t size, u64 *value) const = 0;
         virtual bool readOffset(offset_t offset, size_t size, u64 *value) const = 0;

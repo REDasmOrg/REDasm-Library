@@ -32,10 +32,11 @@ class AbstractBuffer
 
 template<typename T, typename InBufferType, typename OutBufferType> void swapEndianness(const InBufferType* inbuffer, OutBufferType* outbuffer, size_t size = 0)
 {
-    if(!size)
-        size = inbuffer->size();
+    size_t inbufferSize = inbuffer->size();
+    if (!size)
+        size = inbufferSize;
 
-    size = std::min(size, inbuffer->size());
+    size = std::min(size, inbufferSize);
 
     if(outbuffer->size() < size)
         outbuffer->resize(size);

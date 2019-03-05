@@ -22,7 +22,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     const ListingCursor* cur = lock->cursor();
     u64 end = start + count, line = start;
 
-    for(u64 i = 0; line < std::min(lock->length(), end); i++, line++)
+    for(u64 i = 0; line < std::min<u64>(lock->length(), end); i++, line++)
     {
         RendererLine rl;
         rl.userdata = userdata;
@@ -143,7 +143,7 @@ bool ListingRenderer::getRendererLine(u64 line, RendererLine &rl)
 
 bool ListingRenderer::getRendererLine(const document_s_lock &lock, u64 line, RendererLine& rl)
 {
-    const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
+    const ListingItem* item = lock->itemAt(std::min<u64>(line, lock->lastLine()));
 
     if(!item)
         return false;

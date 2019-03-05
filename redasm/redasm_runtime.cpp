@@ -32,7 +32,7 @@ void Runtime::cwd(const std::string &s)
 {
 #ifdef _WIN32
     SetCurrentDirectory(s.c_str());
-#elif __unix__
+#elif defined(__unix__) || defined(__APPLE__)
     chdir(s.c_str());
 #else
     #error "cwd: Unsupported Platform"

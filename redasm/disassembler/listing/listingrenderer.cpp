@@ -6,7 +6,6 @@
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT       10
 #define STRING_THRESHOLD     48
-#define REGEX_WORD           "[\\w_\\.]+"
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits())
 
 namespace REDasm {
@@ -53,7 +52,7 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
     }
 
     // Fallback to word matching
-    std::regex rgxword(REGEX_WORD);
+    std::regex rgxword(REDASM_WORD_REGEX);
     auto it = std::sregex_token_iterator(rl.text.begin(), rl.text.end(), rgxword);
     auto end = std::sregex_token_iterator();
 

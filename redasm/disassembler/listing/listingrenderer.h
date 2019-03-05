@@ -4,7 +4,7 @@
 #include "../../plugins/assembler/printer.h"
 #include "listingdocument.h"
 
-#define REDASM_WORD_REGEX    "[\\w_\\.]+"
+#define REDASM_WORD_REGEX    "([\\w_\\.]+)"
 
 namespace REDasm {
 

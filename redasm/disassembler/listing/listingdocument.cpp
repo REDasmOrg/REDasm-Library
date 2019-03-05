@@ -357,14 +357,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         return;
 
     if(type & SymbolTypes::FunctionMask)
-    {
-        if(Demangler::isMangled(name))
-            this->info(address, Demangler::demangled(name));
-        else
-            this->insertSorted(address, ListingItem::EmptyItem);
-
         this->insertSorted(address, ListingItem::FunctionItem);
-    }
     else
         this->insertSorted(address, ListingItem::SymbolItem);
 }
@@ -568,6 +561,9 @@ std::string ListingDocumentType::autoComment(address_t address) const
 
 std::string ListingDocumentType::normalized(std::string s)
 {
+    if(Demangler::isMangled(s))
+        return Demangler::demangled(s);
+
     std::replace(s.begin(), s.end(), ' ', '_');
     return s;
 }

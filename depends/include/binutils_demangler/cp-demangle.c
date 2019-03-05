@@ -107,29 +107,10 @@
 #endif
 
 #include <stdio.h>
-
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-
-#ifdef HAVE_ALLOCA_H
-# include <alloca.h>
-#else
-# ifndef alloca
-#  ifdef __GNUC__
-#   define alloca __builtin_alloca
-#  else
-extern char *alloca ();
-#  endif /* __GNUC__ */
-# endif /* alloca */
-#endif /* HAVE_ALLOCA_H */
-
-#ifdef HAVE_LIMITS_H
 #include <limits.h>
-#endif
+
 #ifndef INT_MAX
 # define INT_MAX       (int)(((unsigned int) ~0) >> 1)          /* 0x7FFFFFFF */ 
 #endif
@@ -4320,10 +4301,10 @@ cplus_demangle_print_callback (int options,
     dpi.saved_scopes = scopes;
     dpi.copy_templates = temps;
 #else
-    dpi.saved_scopes = alloca (dpi.num_saved_scopes
-			       * sizeof (*dpi.saved_scopes));
-    dpi.copy_templates = alloca (dpi.num_copy_templates
-				 * sizeof (*dpi.copy_templates));
+    dpi.saved_scopes = malloc (dpi.num_saved_scopes
+                   * sizeof (*dpi.saved_scopes));
+    dpi.copy_templates = malloc (dpi.num_copy_templates
+                 * sizeof (*dpi.copy_templates));
 #endif
 
     d_print_comp (&dpi, options, dc);
@@ -6279,8 +6260,8 @@ d_demangle_callback (const char *mangled, int options,
     di.comps = comps;
     di.subs = subs;
 #else
-    di.comps = alloca (di.num_comps * sizeof (*di.comps));
-    di.subs = alloca (di.num_subs * sizeof (*di.subs));
+    di.comps = malloc (di.num_comps * sizeof (*di.comps));
+    di.subs = malloc (di.num_subs * sizeof (*di.subs));
 #endif
 
     switch (type)
@@ -6560,8 +6541,8 @@ is_ctor_or_dtor (const char *mangled,
     di.comps = comps;
     di.subs = subs;
 #else
-    di.comps = alloca (di.num_comps * sizeof (*di.comps));
-    di.subs = alloca (di.num_subs * sizeof (*di.subs));
+    di.comps = malloc (di.num_comps * sizeof (*di.comps));
+    di.subs = malloc (di.num_subs * sizeof (*di.subs));
 #endif
 
     dc = cplus_demangle_mangled_name (&di, 1);

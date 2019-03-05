@@ -1,10 +1,12 @@
 ﻿#include "listingrenderer.h"
 #include "../../plugins/assembler/assembler.h"
 #include "../../plugins/format.h"
+#include <regex>
 
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT       10
 #define STRING_THRESHOLD     48
+#define REGEX_WORD           "[\\w_\\.]+"
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->format()->bits())
 
 namespace REDasm {
@@ -32,6 +34,41 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
         this->getRendererLine(lock, line, rl);
         this->renderLine(rl);
     }
+}
+
+std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos)
+{
+    RendererLine rl;
+    this->getRendererLine(pos.first, rl);
+
+    for(const RendererFormat& rf : rl.formats)
+    {
+        if(!rf.contains(pos.second))
+            continue;
+
+        std::string word = rl.formatText(rf);
+
+        if(m_document->symbol(word))
+            return word;
+    }
+
+    // Fallback to word matching
+    std::regex rgxword(REGEX_WORD);
+    auto it = std::sregex_token_iterator(rl.text.begin(), rl.text.end(), rgxword);
+    auto end = std::sregex_token_iterator();
+
+    for(; it != end; it++)
+    {
+        u64 start = static_cast<u64>(it->first - rl.text.begin());
+        u64 end = static_cast<u64>(it->second - rl.text.begin() - 1);
+
+        if((pos.second < start) || (pos.second > end))
+            continue;
+
+        return *it;
+    }
+
+    return std::string();
 }
 
 u64 ListingRenderer::getLastColumn(u64 line)

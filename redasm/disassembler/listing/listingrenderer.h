@@ -11,6 +11,8 @@ struct RendererFormat
     RendererFormat(s64 start, s64 length, const std::string& style): start(start), length(length), style(style) { }
     s64 start, length;
     std::string style;
+
+    bool contains(s64 pos) const { return (pos >= start) && (pos < (start + length)); }
 };
 
 struct RendererLine
@@ -23,6 +25,7 @@ struct RendererLine
     std::list<RendererFormat> formats;
     std::string text;
 
+    std::string formatText(const RendererFormat& rf) const { return text.substr(rf.start, rf.start + rf.length - 1); }
     size_t length() const { return text.length(); }
 
     RendererLine& push(const std::string& text, const std::string& style = std::string()) {
@@ -42,6 +45,7 @@ class ListingRenderer
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
         virtual void render(u64 start, u64 count, void* userdata = nullptr);
+        std::string wordFromPosition(const ListingCursor::Position& pos);
         u64 getLastColumn(u64 line);
         std::string getLine(u64 line);
         std::string getSelectedText();

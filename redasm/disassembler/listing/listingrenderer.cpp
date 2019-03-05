@@ -21,7 +21,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     const ListingCursor* cur = lock->cursor();
     u64 end = start + count, line = start;
 
-    for(u64 i = 0; line < std::min(lock->size(), end); i++, line++)
+    for(u64 i = 0; line < std::min(lock->length(), end); i++, line++)
     {
         RendererLine rl;
         rl.userdata = userdata;
@@ -99,13 +99,13 @@ std::string ListingRenderer::getSelectedText()
 
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
-bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
+bool ListingRenderer::getRendererLine(u64 line, RendererLine &rl)
 {
     auto lock = document_s_lock(m_document);
     return this->getRendererLine(lock, line, rl);
 }
 
-bool ListingRenderer::getRendererLine(const document_s_lock &lock, size_t line, RendererLine& rl)
+bool ListingRenderer::getRendererLine(const document_s_lock &lock, u64 line, RendererLine& rl)
 {
     const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
 

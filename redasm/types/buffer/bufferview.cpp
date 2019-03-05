@@ -10,7 +10,7 @@ const std::string BufferView::WILDCARD_BYTE = "??";
 BufferView::BufferView(): m_buffer(nullptr), m_offset(0), m_size(0) { }
 BufferView::BufferView(const AbstractBuffer *buffer, u64 offset, u64 size): m_buffer(buffer), m_offset(offset), m_size(size) { }
 
-BufferView BufferView::view(size_t offset, size_t size) const
+BufferView BufferView::view(u64 offset, u64 size) const
 {
     if(!size)
         size = m_size - offset;

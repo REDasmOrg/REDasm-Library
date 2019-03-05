@@ -30,6 +30,7 @@ void ListingDocumentType::moveToEP()
     m_cursor.set(this->functionIndex(m_documententry->address));
 }
 
+u64 ListingDocumentType::length() const { return static_cast<u64>(this->size()); }
 u64 ListingDocumentType::lastLine() const { return static_cast<u64>(this->size()) - 1; }
 
 void ListingDocumentType::serializeTo(std::fstream &fs)

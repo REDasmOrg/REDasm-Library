@@ -49,7 +49,7 @@ class ListingRenderer
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
         void setFlags(u32 flags);
-        bool getRendererLine(size_t line, RendererLine& rl);
+        bool getRendererLine(u64 line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);
         void renderFunction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderInstruction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
@@ -65,7 +65,7 @@ class ListingRenderer
 
     private:
         bool renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine& rl) const;
-        bool getRendererLine(const document_s_lock& lock, size_t line, RendererLine& rl);
+        bool getRendererLine(const document_s_lock& lock, u64 line, RendererLine& rl);
         static std::string escapeString(const std::string& s);
 
     protected:

@@ -163,8 +163,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         using std::deque<ListingItemPtr>::end;
         using std::deque<ListingItemPtr>::rbegin;
         using std::deque<ListingItemPtr>::rend;
-        using std::deque<ListingItemPtr>::size;
         using std::deque<ListingItemPtr>::empty;
+        using std::deque<ListingItemPtr>::size;
 
     public:
         ListingDocumentType();
@@ -173,6 +173,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         const ListingCursor* cursor() const;
         ListingCursor* cursor();
         void moveToEP();
+        u64 length() const;
         u64 lastLine() const;
 
     public:

@@ -30,7 +30,7 @@ class AbstractBuffer
         template<typename T> explicit constexpr operator T*() const { return reinterpret_cast<T*>(this->data()); }
 };
 
-template<typename T, typename InBufferType, typename OutBufferType> void swapEndianness(const InBufferType* inbuffer, OutBufferType* outbuffer, size_t size = 0)
+template<typename T, typename InBufferType, typename OutBufferType> void swapEndianness(const InBufferType* inbuffer, OutBufferType* outbuffer, u64 size = 0)
 {
     if(!size)
         size = inbuffer->size();
@@ -44,7 +44,7 @@ template<typename T, typename InBufferType, typename OutBufferType> void swapEnd
     Endianness::swap<T>(outbuffer->data(), size);
 }
 
-template<typename T, typename BufferType> void swapEndianness(BufferType* buffer, size_t size = 0)
+template<typename T, typename BufferType> void swapEndianness(BufferType* buffer, u64 size = 0)
 {
     if(!size)
         size = buffer->size();

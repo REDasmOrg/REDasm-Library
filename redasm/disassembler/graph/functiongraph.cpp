@@ -139,7 +139,7 @@ bool FunctionGraph::buildEdges()
         auto it = std::next(m_document->begin(), fb->startidx);
         s64 index = fb->startidx;
 
-        if(fb->labelbreak && (fb->endidx + 1 < static_cast<s64>(m_document->size())))
+        if(fb->labelbreak && (fb->endidx + 1 < static_cast<s64>(m_document->length())))
         {
             FunctionBlock* block = this->vertexFromListingIndex(fb->endidx + 1);
 

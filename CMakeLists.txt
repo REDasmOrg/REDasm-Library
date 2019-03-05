@@ -15,11 +15,17 @@ set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}
                            ${DEPENDS_HEADERS_DIR}/json
                            ${DEPENDS_HEADERS_DIR}/visit_struct
+                           ${DEPENDS_HEADERS_DIR}/binutils_demangler
                            ${DEPENDS_SRC_DIR}/miniz)
 
 # MiniZ
 set(MINIZ_HEADERS ${DEPENDS_SRC_DIR}/miniz/miniz.h)
 set(MINIZ_SOURCES ${DEPENDS_SRC_DIR}/miniz/miniz.c)
+
+# Binutils Demangler (libiberty)
+set(BINUTILS_DEMANGLER_DIR ${DEPENDS_HEADERS_DIR}/binutils_demangler)
+set(BINUTILS_DEMANGLER_HEADERS ${BINUTILS_DEMANGLER_DIR}/demangle.h ${BINUTILS_DEMANGLER_DIR}/cp-demangle.h)
+set(BINUTILS_DEMANGLER_SOURCES ${BINUTILS_DEMANGLER_DIR}/cp-demangle.c)
 
 # Capstone (Override Settings)
 set(CAPSTONE_SRC ${DEPENDS_SRC_DIR}/capstone)
@@ -73,6 +79,7 @@ file(GLOB_RECURSE GRAPH_SOURCES redasm/graph/*.cpp)
 
 SET(SOURCES
     ${MINIZ_SOURCES}
+    ${BINUTILS_DEMANGLER_SOURCES}
     ${SUPPORT_SOURCES}
     ${TYPES_SOURCES}
     ${PLUGINS_SOURCES}
@@ -88,6 +95,7 @@ SET(SOURCES
 
 set(HEADERS
     ${MINIZ_HEADERS}
+    ${BINUTILS_DEMANGLER_HEADERS}
     ${SUPPORT_HEADERS}
     ${TYPES_HEADERS}
     ${PLUGINS_HEADERS}

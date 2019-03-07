@@ -333,6 +333,20 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
     changed(&ldc);
 }
 
+void ListingDocumentType::branch(address_t address, s64 direction, u32 tag)
+{
+    std::string name = REDasm::hex(address);
+
+    if(direction < 0)
+        name = "loop_" + name;
+    else if(!direction)
+        name = "infinite_loop_" + name;
+    else
+        name = "loc_" + name;
+
+    this->symbol(address, name, SymbolTypes::Code, tag);
+}
+
 void ListingDocumentType::symbol(address_t address, const std::string &name, u32 type, u32 tag)
 {
     Symbol* symbol = m_symboltable.symbol(address);

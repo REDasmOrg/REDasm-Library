@@ -157,7 +157,7 @@ void AssemblerAlgorithm::jumpState(const State *state)
     if(!dir)
         m_document->autoComment(state->instruction->address, "Infinite loop");
 
-    m_document->symbol(state->address, SymbolTypes::Code);
+    m_document->branch(state->address, dir);
     m_disassembler->pushReference(state->address, state->instruction->address);
     DECODE_STATE(state->address);
 }

@@ -196,6 +196,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void type(address_t address, const std::string& s);
         void comment(address_t address, const std::string& s);
         void autoComment(address_t address, const std::string& s);
+        void branch(address_t address, s64 direction, u32 tag = 0);
         void symbol(address_t address, const std::string& name, u32 type, u32 tag = 0);
         void symbol(address_t address, u32 type, u32 tag = 0);
         void rename(address_t address, const std::string& name);

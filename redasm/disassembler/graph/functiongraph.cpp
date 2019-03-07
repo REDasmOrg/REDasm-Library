@@ -171,10 +171,18 @@ bool FunctionGraph::buildEdges()
 
                 this->addEdge(fb, tofb);
 
-                if(fb == tofb)
-                    fb->bLoop(tofb);
-                else if(instruction->is(InstructionTypes::Conditional))
-                    fb->bTrue(tofb);
+                if(instruction->is(InstructionTypes::Conditional))
+                {
+                    if(tofb->startidx < fb->startidx)
+                    {
+                        if(instruction->is(InstructionTypes::Conditional))
+                            fb->bLoopConditional(tofb);
+                        else
+                            fb->bLoop(tofb);
+                    }
+                    else
+                        fb->bTrue(tofb);
+                }
             }
 
             if(instruction->is(InstructionTypes::Conditional))

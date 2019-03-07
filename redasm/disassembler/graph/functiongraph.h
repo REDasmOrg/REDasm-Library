@@ -13,20 +13,21 @@ struct FunctionBlock: public Node
     s64 startidx, endidx;
     bool labelbreak;
 
-    std::unordered_map<const FunctionBlock*, std::string> colors;
+    std::unordered_map<const FunctionBlock*, std::string> styles;
 
     FunctionBlock(s64 startidx): startidx(startidx), endidx(startidx), labelbreak(false) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     s64 count() const { return (endidx - startidx) + 1; }
-    void bTrue(const FunctionBlock* v) { colors[v] = "green"; }
-    void bFalse(const FunctionBlock* v) { colors[v] = "red"; }
-    void bLoop(const FunctionBlock* v) { colors[v] = "magenta"; }
+    void bTrue(const FunctionBlock* v) { styles[v] = "graph_edge_true"; }
+    void bFalse(const FunctionBlock* v) { styles[v] = "graph_edge_false"; }
+    void bLoop(const FunctionBlock* v) { styles[v] = "graph_edge_loop"; }
+    void bLoopConditional(const FunctionBlock* v) { styles[v] = "graph_edge_loop_c"; }
 
-    std::string color(const FunctionBlock* to) const {
-        auto it = colors.find(to);
+    std::string style(const FunctionBlock* to) const {
+        auto it = styles.find(to);
 
-        if(it == colors.end())
-            return "blue";
+        if(it == styles.end())
+            return "graph_edge";
 
         return it->second;
     }

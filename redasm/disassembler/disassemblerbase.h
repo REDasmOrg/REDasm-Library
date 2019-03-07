@@ -23,7 +23,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual void checkLocation(address_t fromaddress, address_t address);
         virtual bool checkString(address_t fromaddress, address_t address);
         virtual s64 checkAddressTable(const InstructionPtr &instruction, address_t startaddress);
-        virtual u64 locationIsString(address_t address, bool *wide = nullptr, bool *middle = nullptr) const;
+        virtual u64 locationIsString(address_t address, bool *wide = nullptr) const;
         virtual Symbol* dereferenceSymbol(const Symbol* symbol, u64 *value = nullptr);
         virtual bool dereference(address_t address, u64 *value) const;
         virtual BufferView getFunctionBytes(address_t address);
@@ -38,7 +38,7 @@ class DisassemblerBase: public DisassemblerAPI
 
    private:
         template<typename T> std::string readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const;
-        template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle = nullptr) const;
+        template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
    protected:
         ListingDocument& m_document;
@@ -63,7 +63,7 @@ template<typename T> std::string DisassemblerBase::readStringT(address_t address
     return res;
 }
 
-template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa, bool* middle) const
+template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const
 {
     Segment* segment = m_document->segment(address);
 
@@ -88,15 +88,6 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
 
     if(!count || ((static_cast<double>(alphacount) / count) < 0.51)) // ...it might be just data, check alpha ratio...
         return 0;
-
-    if(middle)
-    {
-        *middle = false;
-        address_t prevaddress = address - sizeof(T);
-
-        if((address >= sizeof(T)) && (m_document->segment(prevaddress) == segment))
-            *middle = isa(static_cast<T>(m_format->view(prevaddress)));
-    }
 
     return count;
 }

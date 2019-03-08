@@ -337,9 +337,7 @@ void ListingDocumentType::branch(address_t address, s64 direction, u32 tag)
 {
     std::string name = REDasm::hex(address);
 
-    if(direction < 0)
-        name = "loop_" + name;
-    else if(!direction)
+    if(!direction)
         name = "infinite_loop_" + name;
     else
         name = "loc_" + name;

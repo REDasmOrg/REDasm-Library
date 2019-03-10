@@ -162,12 +162,12 @@ std::string Printer::disp(const Operand *operand) const
     if(operand->disp.index.isValid())
     {
         if(!s.empty())
-            s += " + ";
+            s += "+";
 
         s += this->reg(operand->disp.index);
 
         if(operand->disp.scale > 1)
-            s += " * " + REDasm::hex(operand->disp.scale);
+            s += "*" + REDasm::hex(operand->disp.scale);
     }
 
     if(operand->disp.displacement)
@@ -177,12 +177,12 @@ std::string Printer::disp(const Operand *operand) const
             Symbol* symbol = m_document->symbol(operand->disp.displacement);
 
             if(symbol)
-                s += " + " + symbol->name;
+                s += "+" + symbol->name;
             else
-                s += " + " + REDasm::hex(operand->disp.displacement);
+                s += "+" + REDasm::hex(operand->disp.displacement);
         }
         else if(operand->disp.displacement < 0)
-            s += " - " + REDasm::hex(std::abs(operand->disp.displacement));
+            s += "-" + REDasm::hex(std::abs(operand->disp.displacement));
     }
 
     if(operand->is(OperandTypes::Local) || operand->is(OperandTypes::Argument))
@@ -192,7 +192,7 @@ std::string Printer::disp(const Operand *operand) const
         if(!loc.empty())
         {
             if(!s.empty())
-                s += " + ";
+                s += "+";
 
             s += loc;
         }

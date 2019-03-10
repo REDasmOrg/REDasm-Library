@@ -338,6 +338,7 @@ template<size_t b> void PeFormat<b>::loadDefault()
 
     this->loadTLS();
     this->loadConfig();
+    this->loadExceptions();
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
@@ -456,6 +457,40 @@ template<size_t b> bool PeFormat<b>::loadImports()
 
     Segment* segment = m_document->segment(m_imagebase + importdir.VirtualAddress);
     return segment && (m_validimportsections.find(segment->name) != m_validimportsections.end());
+}
+
+template<size_t b> void PeFormat<b>::loadExceptions()
+{
+    const ImageDataDirectory& exceptiondir = m_datadirectory[IMAGE_DIRECTORY_ENTRY_EXCEPTION];
+
+    if(!exceptiondir.VirtualAddress || !exceptiondir.Size)
+        return;
+
+    ImageRuntimeFunctionEntry* runtimeentry = this->rvaPointer<ImageRuntimeFunctionEntry>(exceptiondir.VirtualAddress);
+
+    if(!runtimeentry)
+        return;
+
+    u64 c = 0;
+
+    for(pe_integer_t i = 0; i < exceptiondir.Size; i += sizeof(ImageRuntimeFunctionEntry))
+    {
+        address_t va = m_imagebase + runtimeentry[i].BeginAddress;
+
+        if(!m_document->segment(va) || (runtimeentry[i].UnwindInfoAddress & 1))
+            continue;
+
+        UnwindInfo* unwindinfo = this->rvaPointer<UnwindInfo>(runtimeentry[i].UnwindInfoAddress & ~1u);
+
+        if(!unwindinfo || (unwindinfo->Flags & UNW_FLAG_CHAININFO))
+            continue;
+
+        m_document->function(va);
+        c++;
+    }
+
+    if(c)
+        REDasm::log("Found " + std::to_string(c) + " function(s) in Exception Directory");
 }
 
 template<size_t b> void PeFormat<b>::loadConfig()

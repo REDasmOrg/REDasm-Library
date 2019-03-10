@@ -124,6 +124,11 @@
 #define IMAGE_DEBUG_TYPE_MPX                                  15
 #define IMAGE_DEBUG_TYPE_REPRO                                16
 
+#define UNW_FLAG_NHANDLER                                      0
+#define UNW_FLAG_EHANDLER                                      1
+#define UNW_FLAG_UHANDLER                                      2
+#define UNW_FLAG_CHAININFO                                     4
+
 #define PE_SECURITY_COOKIE_SYMBOL                             "__security_cookie"
 
 namespace REDasm {

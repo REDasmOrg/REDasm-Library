@@ -49,6 +49,7 @@ template<size_t b> class PeFormat: public FormatPluginT<ImageDosHeader>
         void loadSections();
         void loadExports();
         bool loadImports();
+        void loadExceptions();
         void loadConfig();
         void loadTLS();
 

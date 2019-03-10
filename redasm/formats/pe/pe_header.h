@@ -203,6 +203,30 @@ struct ImageLoadConfigDirectory64
     u32 GuardFlags;
 };
 
-}
+struct ImageRuntimeFunctionEntry { u32 BeginAddress, EndAddress, UnwindInfoAddress; };
+
+union UnwindCodeU
+{
+    struct {
+        u8 CodeOffset;
+        u8 UnwindOp : 4;
+        u8 OpInfo : 4;
+    };
+
+    u16 FrameOffset;
+};
+
+struct UnwindInfo
+{
+    u8 Version : 3;
+    u8 Flags : 5;
+    u8 SizeOfProlog;
+    u8 CountOfCodes;
+    u8 FrameRegister : 4;
+    u8 FrameOffset : 4;
+    UnwindCodeU UnwindCode[1];
+};
+
+} // namespace REDasm
 
 #endif // PE_HEADERS_H

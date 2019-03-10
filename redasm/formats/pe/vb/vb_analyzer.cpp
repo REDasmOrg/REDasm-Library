@@ -33,6 +33,9 @@ void VBAnalyzer::analyze()
     if(!m_document->segment(thunrtdata) || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Call))
         return;
 
+    instruction->type |= InstructionTypes::Stop;
+    m_document->update(instruction);
+
     if(!this->decompile(thunrtdata))
         return;
 

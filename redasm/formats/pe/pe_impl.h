@@ -471,9 +471,9 @@ template<size_t b> void PeFormat<b>::loadExceptions()
     if(!runtimeentry)
         return;
 
-    u64 c = 0;
+    u64 c = 0, csize = 0;
 
-    for(pe_integer_t i = 0; i < exceptiondir.Size; i += sizeof(ImageRuntimeFunctionEntry))
+    for(pe_integer_t i = 0; csize < exceptiondir.Size; i++, csize += sizeof(ImageRuntimeFunctionEntry))
     {
         address_t va = m_imagebase + runtimeentry[i].BeginAddress;
 

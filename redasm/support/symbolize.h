@@ -11,7 +11,7 @@ namespace REDasm {
 
 struct StructVisitor {
     template<typename T, typename = void> struct VisitorImpl {
-        static bool visit(DisassemblerAPI* disassembler, address_t address, const std::string& basename, const char* name) {
+        static bool visit(DisassemblerAPI* disassembler, address_t address, const std::string& basename, const char* name) { // Basic Types
             u64 value = 0;
 
             if(disassembler->dereference(address, &value) && disassembler->document()->segment(value))
@@ -23,14 +23,14 @@ struct StructVisitor {
         }
     };
 
-    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, std::string>::value>::type> {
+    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, std::string>::value>::type> { // Arrays
         static bool visit(DisassemblerAPI* disassembler, address_t address, const std::string& basename, const char* name) {
             disassembler->document()->lock(address, basename + "." + std::string(name), SymbolTypes::String);
             return true;
         }
     };
 
-    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_class<T>::value>::type> {
+    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_class<T>::value>::type> { // Classes
         static bool visit(DisassemblerAPI* disassembler, address_t address, const std::string& basename, const char* name) {
             if(!StructVisitor::symbolize<T>(disassembler, address, basename + "." + name))
                 return false;

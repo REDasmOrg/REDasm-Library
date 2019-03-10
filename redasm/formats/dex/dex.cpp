@@ -112,7 +112,7 @@ const std::string& DEXFormat::getMethodName(u64 idx)
         }
 
         const DEXMethodIdItem& dexmethod = m_methods[idx];
-        s = this->getType(dexmethod.class_idx) + "->" + this->getNormalizedString(dexmethod.name_idx);
+        s = this->getType(dexmethod.class_idx) + "." + this->getNormalizedString(dexmethod.name_idx);
     });
 }
 
@@ -132,7 +132,7 @@ const std::string& DEXFormat::getField(u64 idx)
         }
 
         const DEXFieldIdItem& dexfield = m_fields[idx];
-        s = this->getType(dexfield.class_idx) + "->" + this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
+        s = this->getType(dexfield.class_idx) + "." + this->getNormalizedString(dexfield.name_idx) + ":" + this->getType(dexfield.type_idx);
     });
 }
 

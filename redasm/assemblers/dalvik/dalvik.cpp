@@ -135,6 +135,18 @@ bool DalvikAssembler::decodeOp2_16(BufferView& view, const InstructionPtr &instr
     return true;
 }
 
+bool DalvikAssembler::decodeOp2_16_16(BufferView &view, const InstructionPtr &instruction, const std::string &mnemonic, instruction_id_t id)
+{
+    view++; // Skip first byte
+    instruction->mnemonic = mnemonic;
+    instruction->id = id;
+    instruction->size = sizeof(u16) * 2;
+    instruction->reg(static_cast<u16>(view));
+    view += sizeof(u16);
+    instruction->reg(static_cast<u16>(view));
+    return true;
+}
+
 bool DalvikAssembler::decodeOp2_imm4(BufferView& view, const InstructionPtr &instruction, const std::string &mnemonic, instruction_id_t id)
 {
     instruction->mnemonic = mnemonic;
@@ -162,6 +174,16 @@ bool DalvikAssembler::decodeOp2_imm32(BufferView& view, const InstructionPtr &in
     instruction->size = sizeof(u16) * 3;
     instruction->reg(*view++);
     instruction->imm(static_cast<u32>(view));
+    return true;
+}
+
+bool DalvikAssembler::decodeOp2_imm64(BufferView &view, const InstructionPtr &instruction, const std::string &mnemonic, instruction_id_t id)
+{
+    instruction->mnemonic = mnemonic;
+    instruction->id = id;
+    instruction->size = sizeof(u16) + sizeof(u64);
+    instruction->reg(*view++);
+    instruction->imm(static_cast<u64>(view));
     return true;
 }
 
@@ -288,20 +310,44 @@ bool DalvikAssembler::decodeInvoke(BufferView& view, const InstructionPtr &instr
     return true;
 }
 
-bool DalvikAssembler::decode00(BufferView& view, const InstructionPtr &instruction) { return decodeOp0(view, instruction, "nop", DalvikOpcodes::Nop); }
+bool DalvikAssembler::decodeInvokeRange(BufferView &view, const InstructionPtr &instruction, const std::string &kind, instruction_id_t id)
+{
+    instruction->id = id;
+    instruction->size = sizeof(u16) * 3;
+    instruction->type = InstructionTypes::Call;
+    instruction->mnemonic = "invoke-" + kind + "/range";
+
+    u8 argc = view++;
+    u16 midx = view;
+    view += sizeof(u16);
+    u16 regbase = view;
+    view += sizeof(u16);
+
+    for(u8 i = 0; i < argc; i++)
+    {
+        u64 regtype = DalvikOperands::Normal;
+
+        if(argc > 1)
+        {
+            if(!i)
+                regtype |= DalvikOperands::ParameterFirst;
+
+            if(i == (argc - 1))
+                regtype |= DalvikOperands::ParameterLast;
+        }
+
+        instruction->reg(regbase + i, regtype);
+    }
+
+    instruction->imm(midx, DalvikOperands::MethodIndex);
+    return true;
+}
+
+bool DalvikAssembler::decode00(BufferView& view, const InstructionPtr &instruction) { return decodeOp0(view, instruction, "nop", DalvikOpcodes::Nop, InstructionTypes::Nop); }
 bool DalvikAssembler::decode01(BufferView& view, const InstructionPtr &instruction) { return decodeOp2(view, instruction, "move", DalvikOpcodes::Move); }
 bool DalvikAssembler::decode02(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_16(view, instruction, "move/from16", DalvikOpcodes::MoveFrom16); }
-
-bool DalvikAssembler::decode03(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode04(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
+bool DalvikAssembler::decode03(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_16(view, instruction, "move/16", DalvikOpcodes::Move_16); }
+bool DalvikAssembler::decode04(BufferView& view, const InstructionPtr &instruction) { return decodeOp2(view, instruction, "move-wide", DalvikOpcodes::MoveWide); }
 bool DalvikAssembler::decode05(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_16(view, instruction, "move-wide/from16", DalvikOpcodes::MoveWideFrom16); }
 
 bool DalvikAssembler::decode06(BufferView& view, const InstructionPtr &instruction)
@@ -311,12 +357,7 @@ bool DalvikAssembler::decode06(BufferView& view, const InstructionPtr &instructi
 
 bool DalvikAssembler::decode07(BufferView& view, const InstructionPtr &instruction) { return decodeOp2(view, instruction, "move-object", DalvikOpcodes::MoveObject); }
 bool DalvikAssembler::decode08(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_16(view, instruction, "move-object/from16", DalvikOpcodes::MoveObjectFrom16); }
-
-bool DalvikAssembler::decode09(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
+bool DalvikAssembler::decode09(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_16(view, instruction, "move-object/16", DalvikOpcodes::MoveObject_16); }
 bool DalvikAssembler::decode0A(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "move-result", DalvikOpcodes::MoveResult); }
 bool DalvikAssembler::decode0B(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "move-result-wide", DalvikOpcodes::MoveResultWide); }
 bool DalvikAssembler::decode0C(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "move-result-object", DalvikOpcodes::MoveResultObject) ;}
@@ -325,19 +366,13 @@ bool DalvikAssembler::decode0E(BufferView& view, const InstructionPtr &instructi
 bool DalvikAssembler::decode0F(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "return", DalvikOpcodes::Return, InstructionTypes::Stop); }
 bool DalvikAssembler::decode10(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "return-wide", DalvikOpcodes::ReturnWide, InstructionTypes::Stop); }
 bool DalvikAssembler::decode11(BufferView& view, const InstructionPtr &instruction) { return decodeOp1(view, instruction, "return-object", DalvikOpcodes::ReturnObject, InstructionTypes::Stop); }
-
 bool DalvikAssembler::decode12(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm4(view, instruction, "const/4", DalvikOpcodes::Const_4); }
 bool DalvikAssembler::decode13(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm16(view, instruction, "const/16", DalvikOpcodes::Const_16); }
 bool DalvikAssembler::decode14(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm32(view, instruction, "const", DalvikOpcodes::Const); }
 bool DalvikAssembler::decode15(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm16(view, instruction, "const-high/16", DalvikOpcodes::ConstHigh16); }
 bool DalvikAssembler::decode16(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm16(view, instruction, "const-wide/16", DalvikOpcodes::ConstWide_16); }
 bool DalvikAssembler::decode17(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm32(view, instruction, "const-wide/32", DalvikOpcodes::ConstWide_32);  }
-
-bool DalvikAssembler::decode18(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
+bool DalvikAssembler::decode18(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm64(view, instruction, "const-wide", DalvikOpcodes::ConstWide); }
 bool DalvikAssembler::decode19(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_imm16(view, instruction, "const-wide-high/16", DalvikOpcodes::ConstWideHigh16); }
 bool DalvikAssembler::decode1A(BufferView& view, const InstructionPtr &instruction) { return decodeOp2_s(view, instruction, "const-string", DalvikOpcodes::ConstString); }
 
@@ -389,6 +424,8 @@ bool DalvikAssembler::decode28(BufferView& view, const InstructionPtr &instructi
 
 bool DalvikAssembler::decode29(BufferView& view, const InstructionPtr &instruction)
 {
+    view++; // Skip byte
+
     instruction->mnemonic = "goto/16";
     instruction->id = DalvikOpcodes::Goto_16;
     instruction->type = InstructionTypes::Jump;
@@ -405,12 +442,24 @@ bool DalvikAssembler::decode2A(BufferView& view, const InstructionPtr &instructi
 
 bool DalvikAssembler::decode2B(BufferView& view, const InstructionPtr &instruction)
 {
-    return false;
+    instruction->mnemonic = "packed-switch";
+    instruction->id = DalvikOpcodes::PackedSwitch;
+    instruction->type = InstructionTypes::Jump;
+    instruction->size = sizeof(u16) * 3;
+    instruction->reg(*view++);
+    instruction->imm(instruction->address + (static_cast<s32>(view) * sizeof(u16)), DalvikOperands::PackedSwitchTable);
+    return true;
 }
 
 bool DalvikAssembler::decode2C(BufferView& view, const InstructionPtr &instruction)
 {
-    return false;
+    instruction->mnemonic = "sparse-switch";
+    instruction->id = DalvikOpcodes::SparseSwitch;
+    instruction->type = InstructionTypes::Jump;
+    instruction->size = sizeof(u16) * 3;
+    instruction->reg(*view++);
+    instruction->imm(instruction->address + (static_cast<s32>(view) * sizeof(u16)), DalvikOperands::SparseSwitchTable);
+    return true;
 }
 
 bool DalvikAssembler::decode2D(BufferView& view, const InstructionPtr &instruction) { return decodeOp3(view, instruction, "cmpl-float", DalvikOpcodes::CmplFloat); }
@@ -508,36 +557,12 @@ bool DalvikAssembler::decode6F(BufferView& view, const InstructionPtr &instructi
 bool DalvikAssembler::decode70(BufferView& view, const InstructionPtr &instruction) { return decodeInvoke(view, instruction, "direct", DalvikOpcodes::InvokeDirect); }
 bool DalvikAssembler::decode71(BufferView& view, const InstructionPtr &instruction) { return decodeInvoke(view, instruction, "static", DalvikOpcodes::InvokeStatic); }
 bool DalvikAssembler::decode72(BufferView& view, const InstructionPtr &instruction) { return decodeInvoke(view, instruction, "interface", DalvikOpcodes::InvokeInterface); }
-
-bool DalvikAssembler::decode73(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode74(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode75(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode76(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode77(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
-
-bool DalvikAssembler::decode78(BufferView& view, const InstructionPtr &instruction)
-{
-    return false;
-}
+bool DalvikAssembler::decode73(BufferView&, const InstructionPtr &) { /* Unused */ return false; }
+bool DalvikAssembler::decode74(BufferView& view, const InstructionPtr &instruction) { return decodeInvokeRange(view, instruction, "virtual", DalvikOpcodes::InvokeVirtualRange); }
+bool DalvikAssembler::decode75(BufferView& view, const InstructionPtr &instruction) { return decodeInvokeRange(view, instruction, "super", DalvikOpcodes::InvokeSuperRange); }
+bool DalvikAssembler::decode76(BufferView& view, const InstructionPtr &instruction) { return decodeInvokeRange(view, instruction, "direct", DalvikOpcodes::InvokeDirectRange); }
+bool DalvikAssembler::decode77(BufferView& view, const InstructionPtr &instruction) { return decodeInvokeRange(view, instruction, "static", DalvikOpcodes::InvokeStaticRange); }
+bool DalvikAssembler::decode78(BufferView& view, const InstructionPtr &instruction) { return decodeInvokeRange(view, instruction, "interface", DalvikOpcodes::InvokeInterfaceRange); }
 
 bool DalvikAssembler::decode79(BufferView& view, const InstructionPtr &instruction)
 {

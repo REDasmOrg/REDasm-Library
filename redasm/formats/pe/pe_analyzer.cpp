@@ -93,6 +93,9 @@ void PEAnalyzer::findWndProc(address_t address, size_t argidx)
     {
         const InstructionPtr& instruction = m_document->instruction((*it)->address);
 
+        if(!instruction)
+            break;
+
         if(instruction->is(InstructionTypes::Push))
         {
             arg++;

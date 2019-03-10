@@ -23,11 +23,12 @@
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
-#define REGISTER_FORMAT_PLUGIN(id)    REDasm::Plugins::formats.push_back(&id##_formatPlugin)
+#define REGISTER_FORMAT_PLUGIN(id)    REDasm::Plugins::formats.push_front(&id##_formatPlugin); Plugins::formatsCount++
 #define REGISTER_ASSEMBLER_PLUGIN(id) REDasm::Plugins::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
+size_t Plugins::formatsCount = 0;
 EntryListT<FormatPlugin_Entry>::Type Plugins::formats;
 EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
 
@@ -36,18 +37,18 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntTempPath = temppath;
     Runtime::rntSearchPath = searchpath;
 
-    REGISTER_FORMAT_PLUGIN(pe32);
-    REGISTER_FORMAT_PLUGIN(pe64);
-    REGISTER_FORMAT_PLUGIN(elf32le);
-    REGISTER_FORMAT_PLUGIN(elf32be);
-    REGISTER_FORMAT_PLUGIN(elf64le);
-    REGISTER_FORMAT_PLUGIN(elf64be);
-    REGISTER_FORMAT_PLUGIN(psxexe);
-    REGISTER_FORMAT_PLUGIN(dex);
-    REGISTER_FORMAT_PLUGIN(xbe);
-    REGISTER_FORMAT_PLUGIN(gbarom);
-    REGISTER_FORMAT_PLUGIN(n64rom);
     REGISTER_FORMAT_PLUGIN(binary); // Always last choice
+    REGISTER_FORMAT_PLUGIN(n64rom);
+    REGISTER_FORMAT_PLUGIN(gbarom);
+    REGISTER_FORMAT_PLUGIN(xbe);
+    REGISTER_FORMAT_PLUGIN(dex);
+    REGISTER_FORMAT_PLUGIN(psxexe);
+    REGISTER_FORMAT_PLUGIN(elf64be);
+    REGISTER_FORMAT_PLUGIN(elf64le);
+    REGISTER_FORMAT_PLUGIN(elf32be);
+    REGISTER_FORMAT_PLUGIN(elf32le);
+    REGISTER_FORMAT_PLUGIN(pe64);
+    REGISTER_FORMAT_PLUGIN(pe32);
 
     REGISTER_ASSEMBLER_PLUGIN(x86_16);
     REGISTER_ASSEMBLER_PLUGIN(x86_32);

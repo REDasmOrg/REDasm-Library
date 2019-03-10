@@ -1,15 +1,15 @@
 #ifndef PLUGINS_H
 #define PLUGINS_H
 
+#include <forward_list>
 #include <unordered_map>
 #include <string>
-#include <list>
 #include "format.h"
 #include "assembler/assembler.h"
 
 namespace REDasm {
 
-template<typename T> struct EntryListT { typedef std::list<T> Type; };
+template<typename T> struct EntryListT { typedef std::forward_list<T> Type; };
 template<typename T> struct EntryMapT { typedef std::unordered_map<std::string, T> Type; };
 
 template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry(const std::string& id, const typename EntryMapT<T>::Type& pm)
@@ -22,6 +22,7 @@ template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry
 
 struct Plugins
 {
+    static LIBREDASM_EXPORT size_t formatsCount;
     static LIBREDASM_EXPORT EntryListT<FormatPlugin_Entry>::Type formats;
     static LIBREDASM_EXPORT EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
 };

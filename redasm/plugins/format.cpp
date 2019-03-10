@@ -2,6 +2,13 @@
 
 namespace REDasm {
 
+FORMAT_PLUGIN_TEST(FormatPluginB, u8)
+{
+    RE_UNUSED(format);
+    RE_UNUSED(view);
+    return true;
+}
+
 FormatPlugin::FormatPlugin(AbstractBuffer* buffer): Plugin()
 {
     m_buffer = std::unique_ptr<AbstractBuffer>(buffer); // Take ownership
@@ -68,4 +75,4 @@ BufferView FormatPlugin::viewSegment(const Segment *segment) const
     return m_buffer->view(segment->offset, segment->size());
 }
 
-}
+} // namespace REDasm

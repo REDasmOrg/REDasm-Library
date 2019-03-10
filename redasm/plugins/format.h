@@ -79,6 +79,8 @@ template<typename T> class FormatPluginT: public FormatPlugin
 
 class FormatPluginB: public FormatPluginT<u8>
 {
+    DEFINE_FORMAT_PLUGIN_TEST(u8);
+
     public:
         FormatPluginB(AbstractBuffer* buffer): FormatPluginT<u8>(buffer) { }
 };

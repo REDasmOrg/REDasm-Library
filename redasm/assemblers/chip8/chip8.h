@@ -1,5 +1,5 @@
-#ifndef CHIP8_H
-#define CHIP8_H
+#ifndef CHIP8_ASSEMBLER_H
+#define CHIP8_ASSEMBLER_H
 
 /*
  * References:
@@ -53,4 +53,4 @@ DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8)
 
 } // namespace REDasm
 
-#endif // CHIP8_H
+#endif // CHIP8_ASSEMBLER_H

@@ -20,7 +20,7 @@ struct DalvikSparseSwitchPayload {
 struct DalvikFillArrayDataPayload {
     u16 ident, element_width;
     u32 size;
-    u8 data[];
+    u8 data[1];
 };
 
 } // namespace REDasm

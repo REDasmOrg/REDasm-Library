@@ -23,12 +23,14 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
 
     auto& document = disassembler->document();
     LoaderPlugin* loader = disassembler->loader();
+    AssemblerPlugin* assembler = disassembler->assembler();
     ReferenceTable* references = disassembler->references();
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, RDB_VERSION, sizeof(u32));
     Serializer::obfuscateString(ofs, filename);
     Serializer::serializeString(ofs, loader->name());
+    Serializer::serializeString(ofs, assembler->name());
 
     if(!Serializer::compressBuffer(ofs, loader->buffer()))
     {
@@ -68,9 +70,10 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     }
 
     auto* buffer = new MemoryBuffer();
-    std::string loadername;
+    std::string loadername, assemblername;
     Serializer::deobfuscateString(ifs, filename);
     Serializer::deserializeString(ifs, loadername);
+    Serializer::deserializeString(ifs, assemblername);
 
     if(!Serializer::decompressBuffer(ifs, buffer))
     {
@@ -78,27 +81,29 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    std::unique_ptr<LoaderPlugin> loader; //NOTE: (REDasm::getLoader(buffer)); // If found, LoaderPlugin takes the ownership of the buffer
+    const LoaderPlugin_Entry* loaderentry = REDasm::getLoader(loadername);
 
-    if(!loader)
+    if(!loaderentry)
     {
         m_lasterror = "Unsupported loader: " + REDasm::quoted(loadername);
         delete buffer;
         return nullptr;
     }
 
-    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(loader->assembler());
+    LoadRequest request(filename, buffer);
+    std::unique_ptr<LoaderPlugin> loader(loaderentry->init(request)); // LoaderPlugin takes the ownership of the buffer
+    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(assemblername);
 
     if(!assemblerentry)
     {
-        m_lasterror = "Unsupported assembler: " + REDasm::quoted(loader->assembler());
+        m_lasterror = "Unsupported assembler: " + REDasm::quoted(assemblername);
         return nullptr;
     }
 
     auto& document = loader->createDocument(); // Discard old document
     document->deserializeFrom(ifs);
 
-    auto* disassembler = new Disassembler(assemblerentry->init(), loader.release());
+    auto* disassembler = new Disassembler(assemblerentry->init(), loader.release()); // Take ownership
     ReferenceTable* references = disassembler->references();
     references->deserializeFrom(ifs);
     return disassembler;

@@ -7,6 +7,7 @@
 //     u32 version;
 //     std::string filename;          // XORified
 //     std::string loader;
+//     std::string assembler;
 //
 //     Buffer buffer;                 // ZLib compressed stream
 //

@@ -8,9 +8,21 @@
 #include "../types/endianness/endianness.h"
 #include "base.h"
 
-#define DECLARE_LOADER_PLUGIN(T, id)              inline LoaderPlugin* id##_loaderPlugin(AbstractBuffer* buffer) { return REDasm::getLoaderPlugin<T>(buffer); }
-#define DEFINE_LOADER_PLUGIN_TEST(T)              public: static bool test(const T* loader, BufferView& buffer); private:
-#define LOADER_PLUGIN_TEST(T, H)                  bool T::test(const H* header, BufferView& view)
+#define DECLARE_LOADER_PLUGIN_BASE(T, id)         inline bool id##_plugin_loader_test(const LoadRequest& request) { return REDasm::testLoaderPlugin<T>(request); } \
+                                                  inline LoaderPlugin* id##_plugin_loader_init(const LoadRequest& request) { return REDasm::initLoaderPlugin<T>(request); } \
+                                                  inline std::string id##_plugin_loader_name() { return T::Name; }
+
+#define DECLARE_LOADER_PLUGIN(T, id)              DECLARE_LOADER_PLUGIN_BASE(T, id) \
+                                                  inline u32 id##_plugin_loader_flags() { return LoaderFlags::None; }
+
+#define DECLARE_LOADER_PLUGIN_FLAGS(T, id, flags) DECLARE_LOADER_PLUGIN_BASE(T, id) \
+                                                  inline u32 id##_plugin_loader_flags() { return flags; }
+
+
+#define DEFINE_LOADER_PLUGIN_TEST(T)              public: static bool test(const LoadRequest& request, const T* header); private:
+#define LOADER_PLUGIN_TEST(T, H)                  bool T::test(const LoadRequest& request, const H* header)
+
+#define LOADER_PLUGIN_ENTRY(id)                   { &id##_plugin_loader_test, &id##_plugin_loader_init, &id##_plugin_loader_name, &id##_plugin_loader_flags }
 
 #define LOADER_CTOR AbstractBuffer* buffer
 #define LOADER_ARGS buffer
@@ -18,15 +30,31 @@
 
 namespace REDasm {
 
-template<typename T> T* getLoaderPlugin(AbstractBuffer* buffer)
+namespace LoaderFlags {
+    enum: u32 { None = 0, CustomAssembler = 1, CustomAddressing = 2, Binary = 0xFFFFFFFF};
+}
+
+struct LoadRequest
 {
-    const typename T::HeaderType* loader = reinterpret_cast<const typename T::HeaderType*>(buffer->data());
-    BufferView view = buffer->view();
+    LoadRequest(const std::string& filepath, AbstractBuffer* buffer): filepath(filepath), buffer(buffer), view(buffer->view()) { }
+    std::string filepath;
+    AbstractBuffer* buffer;
+    BufferView view;
+};
 
-    if((sizeof(typename T::HeaderType) > buffer->size()) || !T::test(loader, view))
-        return nullptr;
+template<typename T> bool testLoaderPlugin(const LoadRequest& request)
+{
+    const typename T::HeaderType* header = reinterpret_cast<const typename T::HeaderType*>(request.buffer->data());
 
-    T* loaderplugin = new T(buffer);
+    if((sizeof(typename T::HeaderType) > request.buffer->size()) || !T::test(request, header))
+        return false;
+
+    return true;
+}
+
+template<typename T> LoaderPlugin* initLoaderPlugin(const LoadRequest& request)
+{
+    T* loaderplugin = new T(request.buffer);
     loaderplugin->load();
     return loaderplugin;
 }
@@ -34,7 +62,7 @@ template<typename T> T* getLoaderPlugin(AbstractBuffer* buffer)
 class LoaderPlugin: public Plugin
 {
     public:
-        LoaderPlugin(AbstractBuffer *view);
+        LoaderPlugin(AbstractBuffer *buffer);
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
         BufferView view(address_t address) const;
@@ -45,7 +73,6 @@ class LoaderPlugin: public Plugin
         u64 addressWidth() const;
 
     public:
-        virtual bool isBinary() const;
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
@@ -89,7 +116,13 @@ class LoaderPluginB: public LoaderPluginT<u8>
         LoaderPluginB(AbstractBuffer* buffer): LoaderPluginT<u8>(buffer) { }
 };
 
-typedef std::function<LoaderPlugin*(AbstractBuffer*)> LoaderPlugin_Entry;
+struct LoaderPlugin_Entry
+{
+    std::function<bool(const LoadRequest&)> test;
+    std::function<LoaderPlugin*(const LoadRequest&)> init;
+    std::function<std::string()> name;
+    std::function<u32()> flags;
+};
 
 }
 

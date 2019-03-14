@@ -78,7 +78,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    std::unique_ptr<LoaderPlugin> loader(REDasm::getLoader(buffer)); // If found, LoaderPlugin takes the ownership of the buffer
+    std::unique_ptr<LoaderPlugin> loader; //NOTE: (REDasm::getLoader(buffer)); // If found, LoaderPlugin takes the ownership of the buffer
 
     if(!loader)
     {
@@ -87,9 +87,9 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    AssemblerPlugin* assembler = REDasm::getAssembler(loader->assembler());
+    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(loader->assembler());
 
-    if(!assembler)
+    if(!assemblerentry)
     {
         m_lasterror = "Unsupported assembler: " + REDasm::quoted(loader->assembler());
         return nullptr;
@@ -98,7 +98,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     auto& document = loader->createDocument(); // Discard old document
     document->deserializeFrom(ifs);
 
-    auto* disassembler = new Disassembler(assembler, loader.release());
+    auto* disassembler = new Disassembler(assemblerentry->init(), loader.release());
     ReferenceTable* references = disassembler->references();
     references->deserializeFrom(ifs);
     return disassembler;

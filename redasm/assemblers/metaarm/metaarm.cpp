@@ -17,7 +17,7 @@ MetaARMAssembler::~MetaARMAssembler()
     delete m_armassembler;
 }
 
-u32 MetaARMAssembler::flags() const { return AssemblerFlags::HasEmulator; }
+u32 MetaARMAssembler::flags() const { return AssemblerFlags::CanEmulate; }
 Emulator *MetaARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
 Printer *MetaARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_armassembler->handle(), disassembler); }
 AssemblerAlgorithm *MetaARMAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new MetaARMAlgorithm(disassembler, this); }

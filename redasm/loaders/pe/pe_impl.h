@@ -13,7 +13,7 @@ namespace REDasm {
 
 template<size_t b> LOADER_PLUGIN_TEST(PELoader<b>, ImageDosHeader)
 {
-    if((header->e_magic != IMAGE_DOS_SIGNATURE) || !view.inRange(header->e_lfanew))
+    if((header->e_magic != IMAGE_DOS_SIGNATURE) || !request.view.inRange(header->e_lfanew))
         return false;
 
     const ImageNtHeaders* ntheaders = PELoader::relpointer<const ImageNtHeaders>(header, header->e_lfanew);

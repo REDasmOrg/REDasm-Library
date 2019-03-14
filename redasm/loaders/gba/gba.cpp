@@ -44,7 +44,7 @@ LOADER_PLUGIN_TEST(GbaLoader, GbaRomHeader)
     if(!GbaLoader::isUppercaseAscii(header->maker_code, GBA_MAKER_CODE_SIZE))
         return false;
 
-    return header->header_checksum == GbaLoader::calculateChecksum(view);
+    return header->header_checksum == GbaLoader::calculateChecksum(request.view);
 }
 
 GbaLoader::GbaLoader(AbstractBuffer *buffer): LoaderPluginT<GbaRomHeader>(buffer) { }

@@ -12,7 +12,11 @@
 #include "../base.h"
 #include "printer.h"
 
-#define DECLARE_ASSEMBLER_PLUGIN(assembler, id)      inline AssemblerPlugin* id##_assemblerPlugin() { return new assembler(); }
+#define DECLARE_ASSEMBLER_PLUGIN(T, id)              inline AssemblerPlugin* id##_plugin_assembler_init() { return new T(); } \
+                                                     inline std::string id##_plugin_assembler_name() { return T::Name; }
+
+#define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name }
+
 #define ASSEMBLER_IS(assembler, arch)                (assembler->name().find(arch) != std::string::npos)
 #define REGISTER_INSTRUCTION(id, cb)                 this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)
 #define SET_INSTRUCTION_TYPE(id, type)               this->m_instructiontypes[id] = type
@@ -21,7 +25,7 @@
 namespace REDasm {
 
 namespace AssemblerFlags {
-    enum: u32 { None = 0, HasEmulator = 1 };
+    enum: u32 { None = 0, CanEmulate = 1 };
 }
 
 class AssemblerAlgorithm;
@@ -110,7 +114,12 @@ template<cs_arch arch, s64 mode> bool CapstoneAssemblerPlugin<arch, mode>::decod
     return true;
 }
 
-typedef std::function<AssemblerPlugin*()> AssemblerPlugin_Entry;
+struct AssemblerPlugin_Entry
+{
+    std::function<AssemblerPlugin*()> init;
+    std::function<std::string()> name;
+};
+
 }
 
 #endif // ASSEMBLER_H

@@ -25,34 +25,14 @@
 //#include ASSEMBLER_PLUGIN(arm64)
 #include ASSEMBLER_PLUGIN(chip8)
 
-#define EXT_LIST(...) { __VA_ARGS__ }
-#define REGISTER_LOADER_PLUGIN_EXT(ext, desc, id) registerLoaderByExt(#ext, desc, &id##_loaderPlugin); Plugins::loaderCount++
-
-#define REGISTER_LOADER_PLUGIN_EXT_LIST(extlist, desc, id) for(const auto& ext : extlist) \
-                                                             registerLoaderByExt(ext, desc, &id##_loaderPlugin); \
-                                                           Plugins::loadersCount++;
-
-#define REGISTER_LOADER_PLUGIN(id)                REDasm::Plugins::loaders.emplace_front(&id##_loaderPlugin); Plugins::loadersCount++
-#define REGISTER_ASSEMBLER_PLUGIN(id)             REDasm::Plugins::assemblers[#id] = &id##_assemblerPlugin
+#define REGISTER_LOADER_PLUGIN(id)                REDasm::Plugins::loaders.push_front(LOADER_PLUGIN_ENTRY(id)); Plugins::loadersCount++
+#define REGISTER_ASSEMBLER_PLUGIN(id)             REDasm::Plugins::assemblers[#id] = ASSEMBLER_PLUGIN_ENTRY(id)
 
 namespace REDasm {
 
 size_t Plugins::loadersCount = 0;
 EntryListT<LoaderPlugin_Entry>::Type Plugins::loaders;
-EntryMapT<LoaderEntryListByExt>::Type Plugins::loadersByExt;
 EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
-
-static void registerLoaderByExt(std::string ext, const std::string& description, const LoaderPlugin_Entry& cb)
-{
-    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-
-    auto it = Plugins::loadersByExt.find(ext);
-
-    if(it != Plugins::loadersByExt.end())
-        it->second.emplace_front(std::make_pair(cb, description));
-    else
-        Plugins::loadersByExt[ext] = { std::make_pair(cb, description) };
-}
 
 void init(const std::string& temppath, const std::string& searchpath)
 {
@@ -72,7 +52,7 @@ void init(const std::string& temppath, const std::string& searchpath)
     REGISTER_LOADER_PLUGIN(pe64);
     REGISTER_LOADER_PLUGIN(pe32);
 
-    REGISTER_LOADER_PLUGIN_EXT_LIST(EXT_LIST("chip8", "ch8", "rom"), "CHIP-8 Rom", chip8);
+    //REGISTER_LOADER_PLUGIN_EXT_LIST(EXT_LIST("chip8", "ch8", "rom"), "CHIP-8 Rom", chip8);
 
     // Assemblers
     REGISTER_ASSEMBLER_PLUGIN(x86_16);
@@ -99,25 +79,12 @@ void init(const std::string& temppath, const std::string& searchpath)
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 
-LoaderPlugin *getLoader(AbstractBuffer *buffer)
-{
-    for(const LoaderPlugin_Entry& loaderentry : Plugins::loaders)
-    {
-        LoaderPlugin* lp = loaderentry(buffer);
-
-        if(lp)
-            return lp;
-    }
-
-    return nullptr;
-}
-
-AssemblerPlugin *getAssembler(const std::string& id)
+const AssemblerPlugin_Entry *getAssembler(const std::string& id)
 {
     auto it = REDasm::findPluginEntry<AssemblerPlugin_Entry>(id, Plugins::assemblers);
 
     if(it != Plugins::assemblers.end())
-        return it->second();
+        return &it->second;
 
     return nullptr;
 }
@@ -126,15 +93,19 @@ void setLoggerCallback(const Runtime::LogCallback& logcb) { Runtime::rntLogCallb
 void setStatusCallback(const Runtime::LogCallback& logcb) { Runtime::rntStatusCallback = logcb; }
 void setProgressCallback(const Runtime::ProgressCallback& pcb) { Runtime::rntProgressCallback = pcb; }
 
-bool getLoaderByExt(std::string ext, LoaderEntryListByExt **entries)
+LoaderList getLoaders(const LoadRequest &request)
 {
-    auto it = Plugins::loadersByExt.find(ext);
+    LoaderList loaders;
 
-    if(it == Plugins::loadersByExt.end())
-        return false;
+    for(const LoaderPlugin_Entry& entry : Plugins::loaders)
+    {
+        if(!entry.test(request))
+            continue;
 
-    *entries = &it->second;
-    return true;
+        loaders.push_back(&entry);
+    }
+
+    return loaders;
 }
 
 }

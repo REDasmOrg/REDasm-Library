@@ -14,7 +14,6 @@ class BinaryLoader : public LoaderPluginB
         BinaryLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
         virtual u32 bits() const;
-        virtual bool isBinary() const;
         virtual void load();
         void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u32 segmenttype = SegmentTypes::Code | SegmentTypes::Data);
 
@@ -23,7 +22,7 @@ class BinaryLoader : public LoaderPluginB
         u32 m_bits;
 };
 
-DECLARE_LOADER_PLUGIN(BinaryLoader, binary)
+DECLARE_LOADER_PLUGIN_FLAGS(BinaryLoader, binary, LoaderFlags::Binary)
 
 } // namespace REDasm
 

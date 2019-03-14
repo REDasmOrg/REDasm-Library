@@ -4,8 +4,8 @@ namespace REDasm {
 
 LOADER_PLUGIN_TEST(LoaderPluginB, u8)
 {
+    RE_UNUSED(request);
     RE_UNUSED(header);
-    RE_UNUSED(view);
     return true;
 }
 
@@ -53,7 +53,6 @@ address_location LoaderPlugin::address(offset_t offset) const
 }
 
 Analyzer* LoaderPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }
-bool LoaderPlugin::isBinary() const { return false; }
 AbstractBuffer *LoaderPlugin::buffer() const { return m_buffer.get(); }
 BufferView LoaderPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 

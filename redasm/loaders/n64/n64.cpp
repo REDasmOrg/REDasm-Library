@@ -42,7 +42,7 @@ LOADER_PLUGIN_TEST(N64Loader, N64RomHeader)
 
     if(magic != N64_MAGIC_BE)
     {
-        Buffer::swapEndianness<u16>(view.buffer(), &swappedbuffer, sizeof(N64RomHeader)); // Swap the header
+        Buffer::swapEndianness<u16>(request.view.buffer(), &swappedbuffer, sizeof(N64RomHeader)); // Swap the header
         header = static_cast<const N64RomHeader*>(swappedbuffer);
     }
 
@@ -51,14 +51,14 @@ LOADER_PLUGIN_TEST(N64Loader, N64RomHeader)
 
     if(!swappedbuffer.empty()) // Swap all
     {
-        Buffer::swapEndianness<u16>(view.buffer(), &swappedbuffer);
+        Buffer::swapEndianness<u16>(request.view.buffer(), &swappedbuffer);
         header = static_cast<const N64RomHeader*>(swappedbuffer);
 
         BufferView swappedview = swappedbuffer.view();
         return N64Loader::checkChecksum(header, swappedview);
     }
 
-    return N64Loader::checkChecksum(header, view);
+    return N64Loader::checkChecksum(header, request.view);
 }
 
 N64Loader::N64Loader(AbstractBuffer *buffer): LoaderPluginT<N64RomHeader>(buffer) { }

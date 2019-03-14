@@ -13,7 +13,7 @@ AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerP
 {
     m_loader = m_disassembler->loader();
 
-    if(assembler->hasFlag(AssemblerFlags::HasEmulator))
+    if(assembler->hasFlag(AssemblerFlags::CanEmulate))
         m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
 
     REGISTER_STATE(AssemblerAlgorithm::DecodeState, &AssemblerAlgorithm::decodeState);

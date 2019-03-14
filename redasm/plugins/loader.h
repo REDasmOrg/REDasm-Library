@@ -10,7 +10,8 @@
 
 #define DECLARE_LOADER_PLUGIN_BASE(T, id)         inline bool id##_plugin_loader_test(const LoadRequest& request) { return REDasm::testLoaderPlugin<T>(request); } \
                                                   inline LoaderPlugin* id##_plugin_loader_init(const LoadRequest& request) { return REDasm::initLoaderPlugin<T>(request); } \
-                                                  inline std::string id##_plugin_loader_name() { return T::Name; }
+                                                  inline std::string id##_plugin_loader_name() { return T::Name; } \
+                                                  inline std::string id##_plugin_loader_id() { return #id; }
 
 #define DECLARE_LOADER_PLUGIN(T, id)              DECLARE_LOADER_PLUGIN_BASE(T, id) \
                                                   inline u32 id##_plugin_loader_flags() { return LoaderFlags::None; }
@@ -22,7 +23,7 @@
 #define DEFINE_LOADER_PLUGIN_TEST(T)              public: static bool test(const LoadRequest& request, const T* header); private:
 #define LOADER_PLUGIN_TEST(T, H)                  bool T::test(const LoadRequest& request, const H* header)
 
-#define LOADER_PLUGIN_ENTRY(id)                   { &id##_plugin_loader_test, &id##_plugin_loader_init, &id##_plugin_loader_name, &id##_plugin_loader_flags }
+#define LOADER_PLUGIN_ENTRY(id)                   { &id##_plugin_loader_test, &id##_plugin_loader_init, &id##_plugin_loader_name, &id##_plugin_loader_flags, &id##_plugin_loader_id }
 
 #define LOADER_CTOR AbstractBuffer* buffer
 #define LOADER_ARGS buffer
@@ -122,6 +123,7 @@ struct LoaderPlugin_Entry
     std::function<LoaderPlugin*(const LoadRequest&)> init;
     std::function<std::string()> name;
     std::function<u32()> flags;
+    std::function<std::string()> id;
 };
 
 }

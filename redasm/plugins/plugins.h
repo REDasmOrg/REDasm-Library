@@ -31,6 +31,7 @@ struct Plugins
 };
 
 LoaderList getLoaders(const LoadRequest& request);
+const LoaderPlugin_Entry* getLoader(const std::string& id);
 const AssemblerPlugin_Entry* getAssembler(const std::string &id);
 void setLoggerCallback(const Runtime::LogCallback &logcb);
 void setStatusCallback(const Runtime::LogCallback& logcb);

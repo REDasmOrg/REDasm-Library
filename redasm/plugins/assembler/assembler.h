@@ -13,9 +13,10 @@
 #include "printer.h"
 
 #define DECLARE_ASSEMBLER_PLUGIN(T, id)              inline AssemblerPlugin* id##_plugin_assembler_init() { return new T(); } \
-                                                     inline std::string id##_plugin_assembler_name() { return T::Name; }
+                                                     inline std::string id##_plugin_assembler_name() { return T::Name; } \
+                                                     inline std::string id##_plugin_assembler_id() { return #id; }
 
-#define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name }
+#define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name, &id##_plugin_assembler_id }
 
 #define ASSEMBLER_IS(assembler, arch)                (assembler->name().find(arch) != std::string::npos)
 #define REGISTER_INSTRUCTION(id, cb)                 this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)
@@ -118,6 +119,7 @@ struct AssemblerPlugin_Entry
 {
     std::function<AssemblerPlugin*()> init;
     std::function<std::string()> name;
+    std::function<std::string()> id;
 };
 
 }

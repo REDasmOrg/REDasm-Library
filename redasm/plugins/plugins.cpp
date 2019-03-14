@@ -108,4 +108,15 @@ LoaderList getLoaders(const LoadRequest &request)
     return loaders;
 }
 
+const LoaderPlugin_Entry *getLoader(const std::string &id)
+{
+    for(const LoaderPlugin_Entry& entry : Plugins::loaders)
+    {
+        if(entry.id() == id)
+            return &entry;
+    }
+
+    return nullptr;
+}
+
 }

@@ -6,8 +6,8 @@
 //     char signature[3];
 //     u32 version;
 //     std::string filename;          // XORified
-//     std::string loader;
-//     std::string assembler;
+//     std::string loaderid;
+//     std::string assemblerid;
 //
 //     Buffer buffer;                 // ZLib compressed stream
 //

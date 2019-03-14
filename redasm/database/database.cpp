@@ -29,8 +29,8 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer::serializeScalar(ofs, RDB_VERSION, sizeof(u32));
     Serializer::obfuscateString(ofs, filename);
-    Serializer::serializeString(ofs, loader->name());
-    Serializer::serializeString(ofs, assembler->name());
+    Serializer::serializeString(ofs, loader->id());
+    Serializer::serializeString(ofs, assembler->id());
 
     if(!Serializer::compressBuffer(ofs, loader->buffer()))
     {
@@ -70,10 +70,10 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     }
 
     auto* buffer = new MemoryBuffer();
-    std::string loadername, assemblername;
+    std::string loaderid, assemblerid;
     Serializer::deobfuscateString(ifs, filename);
-    Serializer::deserializeString(ifs, loadername);
-    Serializer::deserializeString(ifs, assemblername);
+    Serializer::deserializeString(ifs, loaderid);
+    Serializer::deserializeString(ifs, assemblerid);
 
     if(!Serializer::decompressBuffer(ifs, buffer))
     {
@@ -81,22 +81,22 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    const LoaderPlugin_Entry* loaderentry = REDasm::getLoader(loadername);
+    const LoaderPlugin_Entry* loaderentry = REDasm::getLoader(loaderid);
 
     if(!loaderentry)
     {
-        m_lasterror = "Unsupported loader: " + REDasm::quoted(loadername);
+        m_lasterror = "Unsupported loader: " + REDasm::quoted(loaderid);
         delete buffer;
         return nullptr;
     }
 
     LoadRequest request(filename, buffer);
     std::unique_ptr<LoaderPlugin> loader(loaderentry->init(request)); // LoaderPlugin takes the ownership of the buffer
-    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(assemblername);
+    const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(assemblerid);
 
     if(!assemblerentry)
     {
-        m_lasterror = "Unsupported assembler: " + REDasm::quoted(assemblername);
+        m_lasterror = "Unsupported assembler: " + REDasm::quoted(assemblerid);
         return nullptr;
     }
 

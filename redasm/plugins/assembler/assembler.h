@@ -12,7 +12,7 @@
 #include "../base.h"
 #include "printer.h"
 
-#define DECLARE_ASSEMBLER_PLUGIN(T, id)              inline AssemblerPlugin* id##_plugin_assembler_init() { return new T(); } \
+#define DECLARE_ASSEMBLER_PLUGIN(T, id)              inline AssemblerPlugin* id##_plugin_assembler_init() { T* t = new T(); t->setId(#id); return t; } \
                                                      inline std::string id##_plugin_assembler_name() { return T::Name; } \
                                                      inline std::string id##_plugin_assembler_id() { return #id; }
 

@@ -15,7 +15,7 @@ class BinaryLoader : public LoaderPluginB
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual void load();
-        void build(const std::string& assembler, u32 bits, offset_t offset, address_t baseaddress, address_t entrypoint, u32 segmenttype = SegmentTypes::Code | SegmentTypes::Data);
+        virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
 
     private:
         std::string m_assembler;

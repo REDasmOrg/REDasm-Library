@@ -9,7 +9,7 @@
 #include "base.h"
 
 #define DECLARE_LOADER_PLUGIN_BASE(T, id)         inline bool id##_plugin_loader_test(const LoadRequest& request) { return REDasm::testLoaderPlugin<T>(request); } \
-                                                  inline LoaderPlugin* id##_plugin_loader_init(const LoadRequest& request) { return REDasm::initLoaderPlugin<T>(request); } \
+                                                  inline LoaderPlugin* id##_plugin_loader_init(const LoadRequest& request) { return REDasm::initLoaderPlugin<T>(request, #id); } \
                                                   inline std::string id##_plugin_loader_name() { return T::Name; } \
                                                   inline std::string id##_plugin_loader_id() { return #id; }
 
@@ -32,13 +32,13 @@
 namespace REDasm {
 
 namespace LoaderFlags {
-    enum: u32 { None = 0, CustomAssembler = 1, CustomAddressing = 2, Binary = 0xFFFFFFFF};
+    enum: u32 { None = 0, CustomAssembler = 1, CustomAddressing = 2, Binary = 0xFFFFFFFF };
 }
 
 struct LoadRequest
 {
     LoadRequest(const std::string& filepath, AbstractBuffer* buffer): filepath(filepath), buffer(buffer), view(buffer->view()) { }
-    std::string filepath;
+    std::string id, filepath;
     AbstractBuffer* buffer;
     BufferView view;
 };
@@ -53,9 +53,10 @@ template<typename T> bool testLoaderPlugin(const LoadRequest& request)
     return true;
 }
 
-template<typename T> LoaderPlugin* initLoaderPlugin(const LoadRequest& request)
+template<typename T> LoaderPlugin* initLoaderPlugin(const LoadRequest& request, const std::string& id)
 {
     T* loaderplugin = new T(request.buffer);
+    loaderplugin->setId(id);
     loaderplugin->load();
     return loaderplugin;
 }
@@ -76,6 +77,7 @@ class LoaderPlugin: public Plugin
     public:
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
+        virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
         virtual std::string assembler() const = 0;
         virtual u32 bits() const = 0;

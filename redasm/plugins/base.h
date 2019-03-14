@@ -26,6 +26,11 @@ class Plugin
         Plugin() { }
         virtual ~Plugin() { }
         virtual std::string name() const = 0;
+        std::string id() const { return m_id; }
+        void setId(const std::string& id) { m_id = id; }
+
+    private:
+        std::string m_id;
 };
 
 }

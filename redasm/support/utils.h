@@ -6,6 +6,7 @@
 #include <string>
 #include <iomanip>
 #include <climits>
+#include <cmath>
 #include <cassert>
 #include "demangler.h"
 #include "../types/base_types.h"
@@ -97,6 +98,26 @@ template<typename T> std::string hex(T t, u64 bits = 0, bool withprefix = false)
         ss << t;
 
     return ss.str();
+}
+
+template<typename T> u64 countbits(T val)
+{
+    double bytes = std::log(static_cast<double>(val)) / std::log(256.0);
+    return static_cast<u64>(std::ceil(bytes)) * 8;
+}
+
+template<typename T> u64 countbits_r(T val)
+{
+    u64 bits = countbits(val);
+
+    if(bits <= 8)
+        return 8;
+    if(bits <= 16)
+        return 16;
+    if(bits <= 64)
+        return 64;
+
+    throw std::runtime_error("Bits out of range: " + std::to_string(bits));
 }
 
 }

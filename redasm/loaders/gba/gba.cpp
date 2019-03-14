@@ -48,7 +48,6 @@ LOADER_PLUGIN_TEST(GbaLoader, GbaRomHeader)
 }
 
 GbaLoader::GbaLoader(AbstractBuffer *buffer): LoaderPluginT<GbaRomHeader>(buffer) { }
-std::string GbaLoader::name() const { return "Game Boy Advance ROM"; }
 u32 GbaLoader::bits() const { return 32; }
 std::string GbaLoader::assembler() const { return "metaarm"; }
 

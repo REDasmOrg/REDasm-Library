@@ -7,11 +7,11 @@ namespace REDasm {
 
 class BinaryLoader : public LoaderPluginB
 {
+    PLUGIN_NAME("Binary")
     DEFINE_LOADER_PLUGIN_TEST(u8)
 
     public:
         BinaryLoader(AbstractBuffer* buffer);
-        virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual bool isBinary() const;

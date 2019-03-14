@@ -12,7 +12,6 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
 {
     public:
         X86Assembler();
-        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new X86Printer(this->m_cshandle, disassembler); }
 
     protected:
@@ -33,10 +32,9 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         s64 m_stacksize;
 };
 
-
-typedef X86Assembler<CS_MODE_16> X86_16Assembler;
-typedef X86Assembler<CS_MODE_32> X86_32Assembler;
-typedef X86Assembler<CS_MODE_64> X86_64Assembler;
+ASSEMBLER_INHERIT(X86_16Assembler, (X86Assembler<CS_MODE_16>), "x86_16")
+ASSEMBLER_INHERIT(X86_32Assembler, (X86Assembler<CS_MODE_32>), "x86_32")
+ASSEMBLER_INHERIT(X86_64Assembler, (X86Assembler<CS_MODE_64>), "x86_64")
 
 DECLARE_ASSEMBLER_PLUGIN(X86_16Assembler, x86_16)
 DECLARE_ASSEMBLER_PLUGIN(X86_32Assembler, x86_32)

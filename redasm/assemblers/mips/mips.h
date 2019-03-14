@@ -13,7 +13,6 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
 {
     public:
         MIPSAssembler();
-        virtual std::string name() const;
         virtual u32 flags() const { return AssemblerFlags::HasEmulator; }
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
@@ -30,19 +29,19 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
         void checkJr(const InstructionPtr& instruction) const;
 };
 
-typedef MIPSAssembler<CS_MODE_MIPS32> MIPS32LEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS64> MIPS64LEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS32R6> MIPS32R6LEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS2> MIPS2LEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS3> MIPS3LEAssembler;
-typedef MIPSAssembler<CS_MODE_MICRO> MIPSMicroLEAssembler;
+ASSEMBLER_INHERIT(MIPS32LEAssembler, (MIPSAssembler<CS_MODE_MIPS32>), "MIPS 32 LE")
+ASSEMBLER_INHERIT(MIPS64LEAssembler, (MIPSAssembler<CS_MODE_MIPS64>), "MIPS 64 LE")
+ASSEMBLER_INHERIT(MIPS32R6LEAssembler, (MIPSAssembler<CS_MODE_MIPS32R6>), "MIPS 32r6 LE")
+ASSEMBLER_INHERIT(MIPS2LEAssembler, (MIPSAssembler<CS_MODE_MIPS2>), "MIPS II LE")
+ASSEMBLER_INHERIT(MIPS3LEAssembler, (MIPSAssembler<CS_MODE_MIPS3>), "MIPS III LE")
+ASSEMBLER_INHERIT(MIPSMicroLEAssembler, (MIPSAssembler<CS_MODE_MICRO>), "Micro MIPS LE")
 
-typedef MIPSAssembler<CS_MODE_MIPS32 | CS_MODE_BIG_ENDIAN> MIPS32BEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS64 | CS_MODE_BIG_ENDIAN> MIPS64BEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS32R6 | CS_MODE_BIG_ENDIAN> MIPS32R6BEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS2 | CS_MODE_BIG_ENDIAN> MIPS2BEAssembler;
-typedef MIPSAssembler<CS_MODE_MIPS3 | CS_MODE_BIG_ENDIAN> MIPS3BEAssembler;
-typedef MIPSAssembler<CS_MODE_MICRO | CS_MODE_BIG_ENDIAN> MIPSMicroBEAssembler;
+ASSEMBLER_INHERIT(MIPS32BEAssembler, (MIPSAssembler<CS_MODE_MIPS32 | CS_MODE_BIG_ENDIAN>), "MIPS 32 BE")
+ASSEMBLER_INHERIT(MIPS64BEAssembler, (MIPSAssembler<CS_MODE_MIPS64 | CS_MODE_BIG_ENDIAN>), "MIPS 64 BE")
+ASSEMBLER_INHERIT(MIPS32R6BEAssembler, (MIPSAssembler<CS_MODE_MIPS32R6 | CS_MODE_BIG_ENDIAN>), "MIPS 32r6 BE")
+ASSEMBLER_INHERIT(MIPS2BEAssembler, (MIPSAssembler<CS_MODE_MIPS2 | CS_MODE_BIG_ENDIAN>), "MIPS II BE")
+ASSEMBLER_INHERIT(MIPS3BEAssembler, (MIPSAssembler<CS_MODE_MIPS3 | CS_MODE_BIG_ENDIAN>), "MIPS III BE")
+ASSEMBLER_INHERIT(MIPSMicroBEAssembler, (MIPSAssembler<CS_MODE_MICRO | CS_MODE_BIG_ENDIAN>), "Micro MIPS BE")
 
 DECLARE_ASSEMBLER_PLUGIN(MIPS32LEAssembler, mips32le)
 DECLARE_ASSEMBLER_PLUGIN(MIPS64LEAssembler, mips64le)

@@ -14,7 +14,6 @@ LOADER_PLUGIN_TEST(XbeLoader, XbeImageHeader)
 }
 
 XbeLoader::XbeLoader(AbstractBuffer *buffer): LoaderPluginT<XbeImageHeader>(buffer) { }
-std::string XbeLoader::name() const { return "XBox Executable"; }
 u32 XbeLoader::bits() const { return 32; }
 std::string XbeLoader::assembler() const { return "x86_32"; }
 

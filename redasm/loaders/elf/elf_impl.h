@@ -34,8 +34,6 @@ template<size_t b, endianness_t e> ELFLoader<b, e>::ELFLoader(AbstractBuffer *bu
     m_skipsections.insert(".attribute");
 }
 
-template<size_t b, endianness_t e> std::string ELFLoader<b, e>::name() const { return "ELF" + std::to_string(this->bits()) + " Executable (" + Endianness::name(e) + ")"; }
-
 template<size_t b, endianness_t e> u32 ELFLoader<b, e>::bits() const
 {
     if(this->m_header->e_ident[EI_CLASS] == ELFCLASS32)

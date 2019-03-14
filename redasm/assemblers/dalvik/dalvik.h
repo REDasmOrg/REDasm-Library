@@ -16,9 +16,10 @@ namespace REDasm {
 
 class DalvikAssembler : public AssemblerPlugin
 {
+    PLUGIN_NAME("Dalvik")
+
     public:
         DalvikAssembler();
-        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
 

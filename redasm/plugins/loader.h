@@ -8,9 +8,13 @@
 #include "../types/endianness/endianness.h"
 #include "base.h"
 
-#define DECLARE_LOADER_PLUGIN(T, id) inline LoaderPlugin* id##_loaderPlugin(AbstractBuffer* buffer) { return REDasm::getLoaderPlugin<T>(buffer); }
-#define DEFINE_LOADER_PLUGIN_TEST(T) public: static bool test(const T* loader, BufferView& buffer); private:
-#define LOADER_PLUGIN_TEST(T, H) bool T::test(const H* header, BufferView& view)
+#define DECLARE_LOADER_PLUGIN(T, id)              inline LoaderPlugin* id##_loaderPlugin(AbstractBuffer* buffer) { return REDasm::getLoaderPlugin<T>(buffer); }
+#define DEFINE_LOADER_PLUGIN_TEST(T)              public: static bool test(const T* loader, BufferView& buffer); private:
+#define LOADER_PLUGIN_TEST(T, H)                  bool T::test(const H* header, BufferView& view)
+
+#define LOADER_CTOR AbstractBuffer* buffer
+#define LOADER_ARGS buffer
+#define LOADER_INHERIT(classname, basename, name) PLUGIN_INHERIT(classname, basename, name, LOADER_CTOR, LOADER_ARGS)
 
 namespace REDasm {
 

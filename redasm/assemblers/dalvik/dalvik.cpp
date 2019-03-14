@@ -27,7 +27,6 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
     SET_DECODE_TO(C); SET_DECODE_TO(D); SET_DECODE_TO(E); SET_DECODE_TO(F);
 }
 
-std::string DalvikAssembler::name() const { return "Dalvik VM"; }
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const  { return new DalvikPrinter(disassembler); }
 AssemblerAlgorithm *DalvikAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new DalvikAlgorithm(disassembler, this); }
 

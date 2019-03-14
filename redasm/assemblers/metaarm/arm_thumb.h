@@ -7,9 +7,10 @@ namespace REDasm {
 
 class ARMThumbAssembler : public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>
 {
+    PLUGIN_NAME("ARM Thumb")
+
     public:
         ARMThumbAssembler();
-        virtual std::string name() const;
         virtual u64 pc(const InstructionPtr& instruction) const;
 };
 

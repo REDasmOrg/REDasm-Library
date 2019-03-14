@@ -9,10 +9,11 @@ namespace REDasm {
 
 class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
 {
+    PLUGIN_NAME("ARM")
+
     public:
         ARMAssembler();
         virtual ~ARMAssembler() = default;
-        virtual std::string name() const;
         virtual u32 flags() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;

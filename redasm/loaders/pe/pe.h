@@ -25,7 +25,6 @@ template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
 
     public:
         PELoader(AbstractBuffer* buffer);
-        virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
@@ -72,11 +71,11 @@ template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
         std::unordered_set<std::string> m_validimportsections;
 };
 
-typedef PELoader<32> PELoader32;
-typedef PELoader<64> PELoader64;
+LOADER_INHERIT(PE32Loader, (PELoader<32>), "Portable Executable (32 bits)")
+LOADER_INHERIT(PE64Loader, (PELoader<64>), "Portable Executable (64 bits)")
 
-DECLARE_LOADER_PLUGIN(PELoader32, pe32)
-DECLARE_LOADER_PLUGIN(PELoader64, pe64)
+DECLARE_LOADER_PLUGIN(PE32Loader, pe32)
+DECLARE_LOADER_PLUGIN(PE64Loader, pe64)
 
 }
 

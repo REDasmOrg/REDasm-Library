@@ -25,7 +25,6 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
 
     public:
         ELFLoader(AbstractBuffer* buffer);
-        virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual void load();
@@ -47,10 +46,10 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
         PHDR* m_phdr;
 };
 
-typedef ELFLoader<32, Endianness::LittleEndian> ELF32LELoader;
-typedef ELFLoader<32, Endianness::BigEndian> ELF32BELoader;
-typedef ELFLoader<64, Endianness::LittleEndian> ELF64LELoader;
-typedef ELFLoader<64, Endianness::BigEndian> ELF64BELoader;
+LOADER_INHERIT(ELF32LELoader, (ELFLoader<32, Endianness::LittleEndian>), "ELF Executable (32 bits, LE)")
+LOADER_INHERIT(ELF32BELoader, (ELFLoader<32, Endianness::BigEndian>), "ELF Executable (32b bits, BE)")
+LOADER_INHERIT(ELF64LELoader, (ELFLoader<64, Endianness::LittleEndian>), "ELF Executable (64 bits, LE)")
+LOADER_INHERIT(ELF64BELoader, (ELFLoader<64, Endianness::BigEndian>), "ELF Executable (64 bits, BE)")
 
 DECLARE_LOADER_PLUGIN(ELF32LELoader, elf32le)
 DECLARE_LOADER_PLUGIN(ELF32BELoader, elf32be)

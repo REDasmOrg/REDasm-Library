@@ -84,24 +84,6 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_BBIT132, &MIPSAssembler::setTargetOp2);
 }
 
-template<s64 mode> std::string MIPSAssembler<mode>::name() const
-{
-    if(mode & CS_MODE_MIPS32)
-        return "MIPS 32";
-    else if(mode & CS_MODE_MIPS64)
-        return "MIPS 64";
-    else if(mode & CS_MODE_MIPS32R6)
-        return "MIPS 32r6";
-    else if(mode & CS_MODE_MIPS2)
-        return "MIPS II";
-    else if(mode & CS_MODE_MIPS3)
-        return "MIPS III";
-    else if(mode & CS_MODE_MICRO)
-        return "Micro MIPS";
-
-    return "Unknown MIPS";
-}
-
 template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(const BufferView &view, const InstructionPtr& instruction)
 {
     if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(view, instruction))

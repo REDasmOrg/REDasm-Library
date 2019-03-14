@@ -7,9 +7,10 @@ namespace REDasm {
 
 class CILAssembler : public AssemblerPlugin
 {
+    PLUGIN_NAME("CIL/MSIL")
+
     public:
         CILAssembler() = default;
-        virtual std::string name() const;
 
     protected:
         virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);

@@ -40,7 +40,6 @@ template<size_t b> PELoader<b>::PELoader(AbstractBuffer *buffer): LoaderPluginT<
     m_validimportsections.insert(".rdata");
 }
 
-template<size_t b> std::string PELoader<b>::name() const { return "Portable Executable (" + std::to_string(b) + " bits)"; }
 template<size_t b> u32 PELoader<b>::bits() const { return b; }
 template<size_t b> const DotNetReader *PELoader<b>::dotNetReader() const { return m_dotnetreader.get(); }
 template<size_t b> address_t PELoader<b>::rvaToVa(address_t rva) const { return rva + m_imagebase; }

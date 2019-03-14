@@ -10,7 +10,6 @@ LOADER_PLUGIN_TEST(BinaryLoader, u8)
 }
 
 BinaryLoader::BinaryLoader(AbstractBuffer *buffer): LoaderPluginB(buffer), m_bits(0) {  }
-std::string BinaryLoader::name() const { return "Binary"; }
 std::string BinaryLoader::assembler() const { return m_assembler.c_str(); }
 u32 BinaryLoader::bits() const { return m_bits; }
 bool BinaryLoader::isBinary() const { return true; }

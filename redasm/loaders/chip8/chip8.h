@@ -7,9 +7,10 @@ namespace REDasm {
 
 class CHIP8Loader: public LoaderPluginB
 {
+    PLUGIN_NAME("CHIP-8 ROM")
+
     public:
         CHIP8Loader(AbstractBuffer* buffer);
-        virtual std::string name() const;
         virtual std::string assembler() const;
         virtual u32 bits() const;
         virtual void load();

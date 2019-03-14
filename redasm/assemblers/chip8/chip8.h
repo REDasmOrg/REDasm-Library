@@ -15,12 +15,13 @@ namespace REDasm {
 
 class CHIP8Assembler : public AssemblerPlugin
 {
+    PLUGIN_NAME("CHIP-8")
+
     private:
         typedef std::function<bool(u16, const InstructionPtr& instruction)> OpCodeCallback;
 
     public:
         CHIP8Assembler();
-        virtual std::string name() const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
 
     protected:

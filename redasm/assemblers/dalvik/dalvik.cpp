@@ -1,5 +1,5 @@
 #include "dalvik.h"
-#include "../../formats/dex/dex.h"
+#include "../../loaders/dex/dex.h"
 #include "dalvik_printer.h"
 #include "dalvik_opcodes.h"
 #include "dalvik_metadata.h"

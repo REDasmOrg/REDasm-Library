@@ -1,7 +1,7 @@
 #include "dalvik_printer.h"
 #include "dalvik_metadata.h"
-#include "../../formats/dex/dex.h"
-#include "../../formats/dex/dex_constants.h"
+#include "../../loaders/dex/dex.h"
+#include "../../loaders/dex/dex_constants.h"
 
 namespace REDasm {
 
@@ -12,9 +12,9 @@ DalvikPrinter::DalvikPrinter(DisassemblerAPI *disassembler): Printer(disassemble
 
 void DalvikPrinter::function(const Symbol *symbol, const Printer::FunctionCallback& headerfunc)
 {
-    auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
+    auto* dexloader = dynamic_cast<DEXLoader*>(m_disassembler->loader());
 
-    if(!dexformat)
+    if(!dexloader)
     {
         Printer::function(symbol, headerfunc);
         return;
@@ -28,7 +28,7 @@ void DalvikPrinter::function(const Symbol *symbol, const Printer::FunctionCallba
     DEXEncodedMethod dexmethod;
     std::string access;
 
-    if(dexformat->getMethodInfo(symbol->tag, dexmethod))
+    if(dexloader->getMethodInfo(symbol->tag, dexmethod))
     {
         if(dexmethod.access_flags & DexAccessFlags::Public)
             access += access.empty() ? "public" : " public";
@@ -46,23 +46,23 @@ void DalvikPrinter::function(const Symbol *symbol, const Printer::FunctionCallba
             access += " ";
     }
 
-    headerfunc(access + dexformat->getReturnType(symbol->tag) + " ",
-               symbol->name, dexformat->getParameters(symbol->tag));
+    headerfunc(access + dexloader->getReturnType(symbol->tag) + " ",
+               symbol->name, dexloader->getParameters(symbol->tag));
 }
 
 void DalvikPrinter::prologue(const Symbol* symbol, const LineCallback &prologuefunc)
 {
-    auto* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
+    auto* dexloader = dynamic_cast<DEXLoader*>(m_disassembler->loader());
 
-    if(!dexformat)
+    if(!dexloader)
         return;
 
     DEXEncodedMethod dexmethod;
 
-    if(!dexformat->getMethodInfo(symbol->tag, dexmethod))
+    if(!dexloader->getMethodInfo(symbol->tag, dexmethod))
         return;
 
-    if(!dexformat->getDebugInfo(symbol->tag, m_currentdbginfo))
+    if(!dexloader->getDebugInfo(symbol->tag, m_currentdbginfo))
         return;
 
     u32 delta = (dexmethod.access_flags & DexAccessFlags::Static) ? 0 : 1;
@@ -84,9 +84,9 @@ void DalvikPrinter::info(const InstructionPtr &instruction, const LineCallback &
     if(dbgit == m_currentdbginfo.debug_data.end())
         return;
 
-    DEXFormat* dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format());
+    DEXLoader* dexloader = dynamic_cast<DEXLoader*>(m_disassembler->loader());
 
-    if(!dexformat)
+    if(!dexloader)
         return;
 
     for(auto it = dbgit->second.begin(); it != dbgit->second.end(); it++)
@@ -98,17 +98,17 @@ void DalvikPrinter::info(const InstructionPtr &instruction, const LineCallback &
             if(debugdata.name_idx == DEX_NO_INDEX)
                 continue;
 
-            this->startLocal(dexformat, debugdata);
-            const std::string& name = dexformat->getString(debugdata.name_idx);
+            this->startLocal(dexloader, debugdata);
+            const std::string& name = dexloader->getString(debugdata.name_idx);
             std::string type;
 
             if(debugdata.type_idx != DEX_NO_INDEX)
-                type = ": " + dexformat->getType(debugdata.type_idx);
+                type = ": " + dexloader->getType(debugdata.type_idx);
 
             infofunc(".local " + DalvikPrinter::registerName(debugdata.register_num) + " = " + name + type);
         }
         else if(debugdata.data_type == DEXDebugDataTypes::RestartLocal)
-            this->restoreLocal(dexformat, debugdata.register_num);
+            this->restoreLocal(dexloader, debugdata.register_num);
         else if(debugdata.data_type == DEXDebugDataTypes::EndLocal)
             this->endLocal(debugdata.register_num);
         else if(debugdata.data_type == DEXDebugDataTypes::PrologueEnd)
@@ -140,23 +140,23 @@ std::string DalvikPrinter::reg(const RegisterOperand &regop) const
 
 std::string DalvikPrinter::imm(const Operand *op) const
 {
-    DEXFormat* dexformat = nullptr;
+    DEXLoader* dexloader = nullptr;
 
-    if(op->tag && (dexformat = dynamic_cast<DEXFormat*>(m_disassembler->format())))
+    if(op->tag && (dexloader = dynamic_cast<DEXLoader*>(m_disassembler->loader())))
     {
         switch(op->tag)
         {
             case DalvikOperands::StringIndex:
-                return REDasm::quoted(dexformat->getString(op->u_value));
+                return REDasm::quoted(dexloader->getString(op->u_value));
 
             case DalvikOperands::TypeIndex:
-                return dexformat->getType(op->u_value);
+                return dexloader->getType(op->u_value);
 
             case DalvikOperands::MethodIndex:
-                return dexformat->getMethodProto(op->u_value);
+                return dexloader->getMethodProto(op->u_value);
 
             case DalvikOperands::FieldIndex:
-                return dexformat->getField(op->u_value);
+                return dexloader->getField(op->u_value);
 
             default:
                 break;
@@ -168,13 +168,13 @@ std::string DalvikPrinter::imm(const Operand *op) const
 
 std::string DalvikPrinter::registerName(register_id_t r) { return "v" + std::to_string(r); }
 
-void DalvikPrinter::startLocal(DEXFormat* dexformat, const DEXDebugData &debugdata)
+void DalvikPrinter::startLocal(DEXLoader* dexloader, const DEXDebugData &debugdata)
 {
     m_regoverrides[debugdata.register_num] = debugdata;
-    m_regnames[debugdata.register_num] = dexformat->getString(debugdata.name_idx);
+    m_regnames[debugdata.register_num] = dexloader->getString(debugdata.name_idx);
 }
 
-void DalvikPrinter::restoreLocal(DEXFormat* dexformat, register_id_t r)
+void DalvikPrinter::restoreLocal(DEXLoader* dexloader, register_id_t r)
 {
     auto it = m_regoverrides.find(r);
 
@@ -182,7 +182,7 @@ void DalvikPrinter::restoreLocal(DEXFormat* dexformat, register_id_t r)
         return;
 
     const DEXDebugData& debugdata = it->second;
-    m_regnames[r] = dexformat->getString(debugdata.name_idx);
+    m_regnames[r] = dexloader->getString(debugdata.name_idx);
 }
 
 void DalvikPrinter::endLocal(register_id_t r)

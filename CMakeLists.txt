@@ -45,23 +45,23 @@ file(GLOB_RECURSE SUPPORT_SOURCES redasm/support/*.cpp)
 file(GLOB_RECURSE TYPES_HEADERS redasm/types/*.h)
 file(GLOB_RECURSE TYPES_SOURCES redasm/types/*.cpp)
 
-# Plugin
+# Plugins
 file(GLOB_RECURSE PLUGINS_HEADERS redasm/plugins/*.h)
 file(GLOB_RECURSE PLUGINS_SOURCES redasm/plugins/*.cpp)
 
-# Format
-file(GLOB_RECURSE FORMAT_HEADERS redasm/formats/*.h)
-file(GLOB_RECURSE FORMAT_SOURCES redasm/formats/*.cpp)
+# Loaders
+file(GLOB_RECURSE LOADER_HEADERS redasm/loaders/*.h)
+file(GLOB_RECURSE LOADER_SOURCES redasm/loaders/*.cpp)
 
-# Assembler
+# Assemblers
 file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h)
 file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
 
-# Analyzer
+# Analyzers
 file(GLOB_RECURSE ANALYZER_HEADERS redasm/analyzer/*.h)
 file(GLOB_RECURSE ANALYZER_SOURCES redasm/analyzer/*.cpp)
 
-# Emulator
+# Emulators
 file(GLOB_RECURSE EMULATOR_HEADERS redasm/emulator/*.h)
 file(GLOB_RECURSE EMULATOR_SOURCES redasm/emulator/*.cpp)
 
@@ -83,7 +83,7 @@ SET(SOURCES
     ${SUPPORT_SOURCES}
     ${TYPES_SOURCES}
     ${PLUGINS_SOURCES}
-    ${FORMAT_SOURCES}
+    ${LOADER_SOURCES}
     ${ASSEMBLER_SOURCES}
     ${ANALYZER_SOURCES}
     ${EMULATOR_SOURCES}
@@ -99,7 +99,7 @@ set(HEADERS
     ${SUPPORT_HEADERS}
     ${TYPES_HEADERS}
     ${PLUGINS_HEADERS}
-    ${FORMAT_HEADERS}
+    ${LOADER_HEADERS}
     ${ASSEMBLER_HEADERS}
     ${ANALYZER_HEADERS}
     ${EMULATOR_HEADERS}

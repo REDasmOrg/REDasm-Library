@@ -6,7 +6,7 @@
 //     char signature[3];
 //     u32 version;
 //     std::string filename;          // XORified
-//     std::string format;
+//     std::string loader;
 //
 //     Buffer buffer;                 // ZLib compressed stream
 //

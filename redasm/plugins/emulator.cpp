@@ -1,6 +1,6 @@
 #include "emulator.h"
 #include "../disassembler/listing/listingdocument.h"
-#include "format.h"
+#include "loader.h"
 #include <cstring>
 
 namespace REDasm {
@@ -69,7 +69,7 @@ BufferView Emulator::getStack(offset_t sp) { return m_stack->view(sp); }
 void Emulator::remap()
 {
     auto& document = m_disassembler->document();
-    FormatPlugin* format = m_disassembler->format();
+    LoaderPlugin* loader = m_disassembler->loader();
 
     REDasm::log("MAPPING 'stack'");
     m_stack = std::make_unique<MemoryBuffer>(STACK_SIZE, 0);
@@ -85,7 +85,7 @@ void Emulator::remap()
 
         if(!segment->is(SegmentTypes::Bss))
         {
-            BufferView view = format->view(segment->address);
+            BufferView view = loader->view(segment->address);
 
             if(segment->size() > static_cast<s64>(view.size()))
                 return;

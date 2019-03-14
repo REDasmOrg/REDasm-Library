@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(AssemblerPlugin *assembler, FormatPlugin *format): DisassemblerBase(format)
+Disassembler::Disassembler(AssemblerPlugin *assembler, LoaderPlugin *loader): DisassemblerBase(loader)
 {
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
@@ -53,7 +53,7 @@ void Disassembler::disassemble()
 
     const SymbolTable* symboltable = m_document->symbols();
 
-    // Preload format functions for analysis
+    // Preload loader functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](const Symbol* symbol) -> bool {
         m_algorithm->enqueue(symbol->address);
         return true;

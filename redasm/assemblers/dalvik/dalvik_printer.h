@@ -2,11 +2,11 @@
 #define DALVIK_PRINTER_H
 
 #include "../../plugins/assembler/printer.h"
-#include "../../formats/dex/dex_header.h"
+#include "../../loaders/dex/dex_header.h"
 
 namespace REDasm {
 
-class DEXFormat;
+class DEXLoader;
 
 class DalvikPrinter : public Printer
 {
@@ -20,8 +20,8 @@ class DalvikPrinter : public Printer
 
     private:
         static std::string registerName(register_id_t r);
-        void startLocal(REDasm::DEXFormat *dexformat, const DEXDebugData& debugdata);
-        void restoreLocal(REDasm::DEXFormat *dexformat, register_id_t r);
+        void startLocal(REDasm::DEXLoader *dexloader, const DEXDebugData& debugdata);
+        void restoreLocal(REDasm::DEXLoader *dexloader, register_id_t r);
         void endLocal(register_id_t r);
 
     private:

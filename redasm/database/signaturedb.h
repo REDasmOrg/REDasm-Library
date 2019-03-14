@@ -15,7 +15,7 @@
 
 namespace REDasm {
 
-class FormatPlugin;
+class LoaderPlugin;
 
 /*
  * SignaturePattern valid fields:
@@ -49,7 +49,7 @@ struct Signature
     std::string name, assembler;
     std::list<SignaturePattern> patterns;
 
-    bool isCompatible(const FormatPlugin* format) const;
+    bool isCompatible(const LoaderPlugin* loader) const;
 };
 
 class SignatureDB

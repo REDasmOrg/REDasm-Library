@@ -1,20 +1,20 @@
 #define WRAP_TO_STRING(...)         #__VA_ARGS__
-#define FORMAT_PLUGIN(format)       WRAP_TO_STRING(../formats/format/format.h)
+#define LOADER_PLUGIN(loadername)   WRAP_TO_STRING(../loaders/loadername/loadername.h)
 #define ASSEMBLER_PLUGIN(assembler) WRAP_TO_STRING(../assemblers/assembler/assembler.h)
 
 #include <algorithm>
 #include "plugins.h"
 
-/* *** Formats *** */
-#include FORMAT_PLUGIN(binary)
-#include FORMAT_PLUGIN(chip8)
-#include FORMAT_PLUGIN(pe)
-#include FORMAT_PLUGIN(elf)
-#include FORMAT_PLUGIN(psxexe)
-#include FORMAT_PLUGIN(dex)
-#include FORMAT_PLUGIN(xbe)
-#include FORMAT_PLUGIN(gba)
-#include FORMAT_PLUGIN(n64)
+/* *** Loaders *** */
+#include LOADER_PLUGIN(binary)
+#include LOADER_PLUGIN(chip8)
+#include LOADER_PLUGIN(pe)
+#include LOADER_PLUGIN(elf)
+#include LOADER_PLUGIN(psxexe)
+#include LOADER_PLUGIN(dex)
+#include LOADER_PLUGIN(xbe)
+#include LOADER_PLUGIN(gba)
+#include LOADER_PLUGIN(n64)
 
 /* *** Assemblers *** */
 #include ASSEMBLER_PLUGIN(x86)
@@ -26,32 +26,32 @@
 #include ASSEMBLER_PLUGIN(chip8)
 
 #define EXT_LIST(...) { __VA_ARGS__ }
-#define REGISTER_FORMAT_PLUGIN_EXT(ext, desc, id) registerFormatByExt(#ext, desc, &id##_formatPlugin); Plugins::formatsCount++
+#define REGISTER_LOADER_PLUGIN_EXT(ext, desc, id) registerLoaderByExt(#ext, desc, &id##_loaderPlugin); Plugins::loaderCount++
 
-#define REGISTER_FORMAT_PLUGIN_EXT_LIST(extlist, desc, id) for(const auto& ext : extlist) \
-                                                             registerFormatByExt(ext, desc, &id##_formatPlugin); \
-                                                           Plugins::formatsCount++;
+#define REGISTER_LOADER_PLUGIN_EXT_LIST(extlist, desc, id) for(const auto& ext : extlist) \
+                                                             registerLoaderByExt(ext, desc, &id##_loaderPlugin); \
+                                                           Plugins::loadersCount++;
 
-#define REGISTER_FORMAT_PLUGIN(id)                REDasm::Plugins::formats.emplace_front(&id##_formatPlugin); Plugins::formatsCount++
+#define REGISTER_LOADER_PLUGIN(id)                REDasm::Plugins::loaders.emplace_front(&id##_loaderPlugin); Plugins::loadersCount++
 #define REGISTER_ASSEMBLER_PLUGIN(id)             REDasm::Plugins::assemblers[#id] = &id##_assemblerPlugin
 
 namespace REDasm {
 
-size_t Plugins::formatsCount = 0;
-EntryListT<FormatPlugin_Entry>::Type Plugins::formats;
-EntryMapT<FormatEntryListByExt>::Type Plugins::formatsByExt;
+size_t Plugins::loadersCount = 0;
+EntryListT<LoaderPlugin_Entry>::Type Plugins::loaders;
+EntryMapT<LoaderEntryListByExt>::Type Plugins::loadersByExt;
 EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
 
-static void registerFormatByExt(std::string ext, const std::string& description, const FormatPlugin_Entry& cb)
+static void registerLoaderByExt(std::string ext, const std::string& description, const LoaderPlugin_Entry& cb)
 {
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-    auto it = Plugins::formatsByExt.find(ext);
+    auto it = Plugins::loadersByExt.find(ext);
 
-    if(it != Plugins::formatsByExt.end())
+    if(it != Plugins::loadersByExt.end())
         it->second.emplace_front(std::make_pair(cb, description));
     else
-        Plugins::formatsByExt[ext] = { std::make_pair(cb, description) };
+        Plugins::loadersByExt[ext] = { std::make_pair(cb, description) };
 }
 
 void init(const std::string& temppath, const std::string& searchpath)
@@ -59,22 +59,20 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntTempPath = temppath;
     Runtime::rntSearchPath = searchpath;
 
-    // By format
-    REGISTER_FORMAT_PLUGIN(binary); // Always last choice
-    REGISTER_FORMAT_PLUGIN(n64rom);
-    REGISTER_FORMAT_PLUGIN(gbarom);
-    REGISTER_FORMAT_PLUGIN(xbe);
-    REGISTER_FORMAT_PLUGIN(dex);
-    REGISTER_FORMAT_PLUGIN(psxexe);
-    REGISTER_FORMAT_PLUGIN(elf64be);
-    REGISTER_FORMAT_PLUGIN(elf64le);
-    REGISTER_FORMAT_PLUGIN(elf32be);
-    REGISTER_FORMAT_PLUGIN(elf32le);
-    REGISTER_FORMAT_PLUGIN(pe64);
-    REGISTER_FORMAT_PLUGIN(pe32);
+    REGISTER_LOADER_PLUGIN(binary); // Always last choice
+    REGISTER_LOADER_PLUGIN(n64rom);
+    REGISTER_LOADER_PLUGIN(gbarom);
+    REGISTER_LOADER_PLUGIN(xbe);
+    REGISTER_LOADER_PLUGIN(dex);
+    REGISTER_LOADER_PLUGIN(psxexe);
+    REGISTER_LOADER_PLUGIN(elf64be);
+    REGISTER_LOADER_PLUGIN(elf64le);
+    REGISTER_LOADER_PLUGIN(elf32be);
+    REGISTER_LOADER_PLUGIN(elf32le);
+    REGISTER_LOADER_PLUGIN(pe64);
+    REGISTER_LOADER_PLUGIN(pe32);
 
-    // By extension
-    REGISTER_FORMAT_PLUGIN_EXT_LIST(EXT_LIST("chip8", "ch8", "rom"), "CHIP-8 Rom", chip8);
+    REGISTER_LOADER_PLUGIN_EXT_LIST(EXT_LIST("chip8", "ch8", "rom"), "CHIP-8 Rom", chip8);
 
     // Assemblers
     REGISTER_ASSEMBLER_PLUGIN(x86_16);
@@ -101,14 +99,14 @@ void init(const std::string& temppath, const std::string& searchpath)
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 
-FormatPlugin *getFormat(AbstractBuffer *buffer)
+LoaderPlugin *getLoader(AbstractBuffer *buffer)
 {
-    for(const FormatPlugin_Entry& formatentry : Plugins::formats)
+    for(const LoaderPlugin_Entry& loaderentry : Plugins::loaders)
     {
-        FormatPlugin* fp = formatentry(buffer);
+        LoaderPlugin* lp = loaderentry(buffer);
 
-        if(fp)
-            return fp;
+        if(lp)
+            return lp;
     }
 
     return nullptr;
@@ -128,11 +126,11 @@ void setLoggerCallback(const Runtime::LogCallback& logcb) { Runtime::rntLogCallb
 void setStatusCallback(const Runtime::LogCallback& logcb) { Runtime::rntStatusCallback = logcb; }
 void setProgressCallback(const Runtime::ProgressCallback& pcb) { Runtime::rntProgressCallback = pcb; }
 
-bool getFormatsByExt(std::string ext, FormatEntryListByExt **entries)
+bool getLoaderByExt(std::string ext, LoaderEntryListByExt **entries)
 {
-    auto it = Plugins::formatsByExt.find(ext);
+    auto it = Plugins::loadersByExt.find(ext);
 
-    if(it == Plugins::formatsByExt.end())
+    if(it == Plugins::loadersByExt.end())
         return false;
 
     *entries = &it->second;

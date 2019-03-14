@@ -12,7 +12,7 @@ namespace REDasm {
 class Disassembler: public DisassemblerBase
 {
     public:
-        Disassembler(AssemblerPlugin* assembler, FormatPlugin* format);
+        Disassembler(AssemblerPlugin* assembler, LoaderPlugin* loader);
         virtual void disassemble();
 
     public: // Primitive functions

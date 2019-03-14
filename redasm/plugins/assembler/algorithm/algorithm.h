@@ -64,7 +64,7 @@ class AssemblerAlgorithm: public StateMachine
         ListingDocument m_document;
         DisassemblerAPI* m_disassembler;
         AssemblerPlugin* m_assembler;
-        FormatPlugin* m_format;
+        LoaderPlugin* m_loader;
 
     private:
         DecodedAddresses m_disassembled;

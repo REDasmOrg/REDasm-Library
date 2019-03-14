@@ -2,7 +2,7 @@
 #define DISASSEMBLERBASE_H
 
 #include <functional>
-#include "../plugins/format.h"
+#include "../plugins/loader.h"
 #include "types/referencetable.h"
 #include "disassemblerapi.h"
 
@@ -11,10 +11,10 @@ namespace REDasm {
 class DisassemblerBase: public DisassemblerAPI
 {
     public:
-        DisassemblerBase(FormatPlugin* format);
+        DisassemblerBase(LoaderPlugin* loader);
 
     public: // Primitive functions
-        virtual FormatPlugin* format();
+        virtual LoaderPlugin* loader();
         virtual ListingDocument &document();
         virtual ReferenceTable* references();
         virtual ReferenceVector getReferences(address_t address);
@@ -42,13 +42,13 @@ class DisassemblerBase: public DisassemblerAPI
 
    protected:
         ListingDocument& m_document;
-        std::unique_ptr<FormatPlugin> m_format;
+        std::unique_ptr<LoaderPlugin> m_loader;
         ReferenceTable m_referencetable;
 };
 
 template<typename T> std::string DisassemblerBase::readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const
 {
-    BufferView view = m_format->view(address);
+    BufferView view = m_loader->view(address);
     std::string s;
     u64 i;
 
@@ -71,7 +71,7 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         return 0;
 
     u64 alphacount = 0, count = 0;
-    BufferView view = m_format->view(address);
+    BufferView view = m_loader->view(address);
 
     while(!view.eob() && isp(static_cast<T>(view)))
     {

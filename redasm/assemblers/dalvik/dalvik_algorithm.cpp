@@ -1,5 +1,5 @@
 #include "dalvik_algorithm.h"
-#include "../../formats/dex/dex.h"
+#include "../../loaders/dex/dex.h"
 #include "../../redasm/support/symbolize.h"
 #include "dalvik_payload.h"
 
@@ -7,7 +7,7 @@ namespace REDasm {
 
 DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin): AssemblerAlgorithm(disassembler, assemblerplugin)
 {
-    m_dexformat = dynamic_cast<DEXFormat*>(disassembler->format());
+    m_dexloader = dynamic_cast<DEXLoader*>(disassembler->loader());
 
     REGISTER_STATE(DalvikAlgorithm::StringIndexState, &DalvikAlgorithm::stringIndexState);
     REGISTER_STATE(DalvikAlgorithm::MethodIndexState, &DalvikAlgorithm::methodIndexState);
@@ -50,20 +50,20 @@ void DalvikAlgorithm::decodeState(const State *state)
     Symbol* symbol = m_document->symbol(state->address);
 
     if(symbol && symbol->isFunction())
-        m_methodbounds.insert(state->address + m_dexformat->getMethodSize(symbol->tag));
+        m_methodbounds.insert(state->address + m_dexloader->getMethodSize(symbol->tag));
 
     AssemblerAlgorithm::decodeState(state);
 }
 
 void DalvikAlgorithm::stringIndexState(const State *state)
 {
-    if(!m_dexformat)
+    if(!m_dexloader)
         return;
 
     const Operand* op = state->operand();
     offset_t offset = 0;
 
-    if(!m_dexformat->getStringOffset(op->u_value, offset))
+    if(!m_dexloader->getStringOffset(op->u_value, offset))
         return;
 
     m_document->symbol(offset, SymbolTypes::String);
@@ -72,7 +72,7 @@ void DalvikAlgorithm::stringIndexState(const State *state)
 
 void DalvikAlgorithm::methodIndexState(const State *state)
 {
-    if(!m_dexformat)
+    if(!m_dexloader)
         return;
 
     this->checkImport(state);
@@ -80,7 +80,7 @@ void DalvikAlgorithm::methodIndexState(const State *state)
     const Operand* op = state->operand();
     offset_t offset = 0;
 
-    if(!m_dexformat->getMethodOffset(op->u_value, offset))
+    if(!m_dexloader->getMethodOffset(op->u_value, offset))
         return;
 
     m_disassembler->pushReference(offset, state->instruction->address);
@@ -90,7 +90,7 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
 {
     const Operand* op = state->operand();
     REDasm::symbolize<DalvikPackedSwitchPayload>(m_disassembler, op->u_value, "packed_switch");
-    DalvikPackedSwitchPayload* packedswitchpayload = m_format->addrpointer<DalvikPackedSwitchPayload>(op->u_value);
+    DalvikPackedSwitchPayload* packedswitchpayload = m_loader->addrpointer<DalvikPackedSwitchPayload>(op->u_value);
 
     if(!packedswitchpayload)
         return;
@@ -106,7 +106,7 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
         address_t address = instruction->address + (*targets * sizeof(u16));
         this->enqueue(address);
 
-        m_document->lock(m_format->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolTypes::Pointer | SymbolTypes::Data);
+        m_document->lock(m_loader->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolTypes::Pointer | SymbolTypes::Data);
         m_document->symbol(address, SymbolTypes::Code);
         m_disassembler->pushReference(address, instruction->address);
         instruction->target(address);
@@ -153,7 +153,7 @@ void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::Cas
 void DalvikAlgorithm::checkImport(const State* state)
 {
     const Operand* op = state->operand();
-    const std::string& methodname = m_dexformat->getMethodName(op->u_value);
+    const std::string& methodname = m_dexloader->getMethodName(op->u_value);
 
     auto it = m_imports.find(methodname);
 
@@ -164,7 +164,7 @@ void DalvikAlgorithm::checkImport(const State* state)
     address_t importaddress = 0;
 
     if(!methodname.find("java."))
-        m_document->symbol(m_dexformat->nextImport(&importaddress), methodname, SymbolTypes::Import);
+        m_document->symbol(m_dexloader->nextImport(&importaddress), methodname, SymbolTypes::Import);
     else
         return;
 

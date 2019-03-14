@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-class FormatPlugin;
+class LoaderPlugin;
 
 class InstructionCache: public cache_map<address_t, InstructionPtr>
 {

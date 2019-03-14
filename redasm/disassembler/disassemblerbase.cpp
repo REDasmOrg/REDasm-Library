@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(FormatPlugin *format): DisassemblerAPI(), m_document(format->document()) { m_format = std::unique_ptr<FormatPlugin>(format); }
+DisassemblerBase::DisassemblerBase(LoaderPlugin *loader): DisassemblerAPI(), m_document(loader->document()) { m_loader = std::unique_ptr<LoaderPlugin>(loader); }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
@@ -53,13 +53,13 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     address_t target = 0, address = startaddress;
 
-    if(!this->readAddress(address, m_format->addressWidth(), &target))
+    if(!this->readAddress(address, m_loader->addressWidth(), &target))
         return 0;
 
     REDasm::statusAddress("Checking address table", startaddress);
     std::unordered_set<address_t> items;
 
-    while(this->readAddress(address, m_format->addressWidth(), &target))
+    while(this->readAddress(address, m_loader->addressWidth(), &target))
     {
         const Segment* segment = m_document->segment(target);
 
@@ -73,7 +73,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         else
             this->checkLocation(startaddress, target);
 
-        address += m_format->addressWidth();
+        address += m_loader->addressWidth();
     }
 
     if(!items.empty())
@@ -85,7 +85,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
             u64 i = 0;
             address = startaddress;
 
-            for(auto it = items.begin(); it != items.end(); it++, address += m_format->addressWidth(), i++)
+            for(auto it = items.begin(); it != items.end(); it++, address += m_loader->addressWidth(), i++)
             {
                 if(address == startaddress)
                     m_document->table(address, items.size());
@@ -105,7 +105,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     return items.size();
 }
 
-FormatPlugin *DisassemblerBase::format() { return m_format.get(); }
+LoaderPlugin *DisassemblerBase::loader() { return m_loader.get(); }
 ListingDocument& DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
@@ -197,7 +197,7 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
     if(!value)
         return false;
 
-    return this->readAddress(address, m_format->addressWidth(), value);
+    return this->readAddress(address, m_loader->addressWidth(), value);
 }
 
 BufferView DisassemblerBase::getFunctionBytes(address_t address)
@@ -237,7 +237,7 @@ BufferView DisassemblerBase::getFunctionBytes(address_t address)
         break;
     }
 
-    BufferView view = m_format->view(address);
+    BufferView view = m_loader->view(address);
 
     if(it != m_document->end())
         view.resize(endaddress - address);
@@ -255,7 +255,7 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
 
-    offset_location offset = m_format->offset(address);
+    offset_location offset = m_loader->offset(address);
 
     if(!offset.valid)
         return false;
@@ -268,7 +268,7 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
     if(!value)
         return false;
 
-    BufferView viewdest = m_format->viewOffset(offset);
+    BufferView viewdest = m_loader->viewOffset(offset);
 
     if(size == 1)
         *value = static_cast<u8>(viewdest);
@@ -321,13 +321,13 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
             return true;
 
         BufferView view = this->getFunctionBytes(symbol->address);
-        offset_location offset = m_format->offset(symbol->address);
+        offset_location offset = m_loader->offset(symbol->address);
 
         if(view.eob() || !offset.valid)
             return true;
 
         sigdb.search(view, [&](const Signature* signature) {
-            if(!signature->isCompatible(m_format.get()))
+            if(!signature->isCompatible(m_loader.get()))
                 return;
 
             REDasm::log("Found " + REDasm::quoted(signature->name) + " @ " + REDasm::hex(symbol->address));

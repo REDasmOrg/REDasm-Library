@@ -1,5 +1,5 @@
 #include "signaturedb.h"
-#include "../plugins/format.h"
+#include "../plugins/loader.h"
 #include "../support/serializer.h"
 #include "../support/utils.h"
 #include "../support/hash.h"
@@ -10,12 +10,12 @@
 
 namespace REDasm {
 
-bool Signature::isCompatible(const FormatPlugin *format) const
+bool Signature::isCompatible(const LoaderPlugin *loader) const
 {
-    if(this->assembler != format->assembler())
+    if(this->assembler != loader->assembler())
         return false;
 
-    if(this->bits != format->bits())
+    if(this->bits != loader->bits())
         return false;
 
     return true;

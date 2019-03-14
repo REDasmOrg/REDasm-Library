@@ -2,7 +2,7 @@
 #define RTTIMSVC_H
 
 #include "../../../types/buffer/bufferview.h"
-#include "../../../plugins/format.h"
+#include "../../../plugins/loader.h"
 #include "../../../redasm_api.h"
 #include "rtti_msvc_types.h"
 #include <unordered_map>
@@ -47,7 +47,7 @@ template<typename T> class RTTIMsvc
     private:
         DisassemblerAPI* m_disassembler;
         ListingDocument& m_document;
-        const FormatPlugin* m_format;
+        const LoaderPlugin* m_loader;
 
     private:
         RTTIVTableMap m_rttivtables;

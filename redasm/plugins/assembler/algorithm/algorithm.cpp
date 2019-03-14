@@ -1,5 +1,5 @@
 #include "algorithm.h"
-#include "../../../plugins/format.h"
+#include "../../../plugins/loader.h"
 #include <thread>
 
 #define INVALID_MNEMONIC "db"
@@ -11,7 +11,7 @@ AssemblerAlgorithm::AssemblerAlgorithm(): StateMachine(), m_disassembler(nullptr
 
 AssemblerAlgorithm::AssemblerAlgorithm(DisassemblerAPI *disassembler, AssemblerPlugin *assembler): StateMachine(), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(assembler), m_currentsegment(nullptr), m_analyzed(0)
 {
-    m_format = m_disassembler->format();
+    m_loader = m_disassembler->loader();
 
     if(assembler->hasFlag(AssemblerFlags::HasEmulator))
         m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
@@ -40,8 +40,8 @@ void AssemblerAlgorithm::analyze()
     }
 
     m_analyzed = true;
-    FormatPlugin* format = m_disassembler->format();
-    m_analyzer.reset(format->createAnalyzer(m_disassembler, format->signatures()));
+    LoaderPlugin* loader = m_disassembler->loader();
+    m_analyzer.reset(loader->createAnalyzer(m_disassembler, loader->signatures()));
 
     REDasm::status("Analyzing...");
     m_analyzer->analyze();
@@ -74,7 +74,7 @@ bool AssemblerAlgorithm::validateState(const State &state) const
 
 void AssemblerAlgorithm::onNewState(const State* state) const
 {
-    REDasm::statusProgress("Analyzing @ " + REDasm::hex(state->address, m_format->bits()) +
+    REDasm::statusProgress("Analyzing @ " + REDasm::hex(state->address, m_loader->bits()) +
                            " >> " + state->name, this->pending());
 }
 
@@ -85,7 +85,7 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
     instruction->address = address;
 
-    BufferView view = m_format->view(address);
+    BufferView view = m_loader->view(address);
     return m_assembler->decode(view, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
 }
 
@@ -178,7 +178,7 @@ void AssemblerAlgorithm::branchState(const State *state)
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
         REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
-                                                            + REDasm::hex(instruction->address, m_format->bits()));
+                                                            + REDasm::hex(instruction->address, m_loader->bits()));
 }
 
 void AssemblerAlgorithm::branchMemoryState(const State *state)
@@ -291,7 +291,7 @@ void AssemblerAlgorithm::immediateState(const State *state)
 
 bool AssemblerAlgorithm::canBeDisassembled(address_t address)
 {
-    BufferView view = m_format->view(address);
+    BufferView view = m_loader->view(address);
 
     if(view.eob())
         return false;
@@ -302,7 +302,7 @@ bool AssemblerAlgorithm::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
         return false;
 
-    if(!m_format->offset(address).valid)
+    if(!m_loader->offset(address).valid)
         return false;
 
     Symbol* symbol = m_document->symbol(address);

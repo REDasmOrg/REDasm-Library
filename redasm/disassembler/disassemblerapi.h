@@ -12,7 +12,7 @@
 namespace REDasm {
 
 class Printer;
-class FormatPlugin;
+class LoaderPlugin;
 class AssemblerPlugin;
 class ListingDocumentType;
 
@@ -24,7 +24,7 @@ class DisassemblerAPI
     public:
         DisassemblerAPI() = default;
         virtual ~DisassemblerAPI() = default;
-        virtual FormatPlugin* format() = 0;
+        virtual LoaderPlugin* loader() = 0;
         virtual AssemblerPlugin* assembler() = 0;
         virtual safe_ptr<ListingDocumentType>& document() = 0;
         virtual ReferenceTable* references() = 0;

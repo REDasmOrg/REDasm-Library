@@ -1,5 +1,5 @@
 #include "metaarm_printer.h"
-#include "../../plugins/format.h"
+#include "../../plugins/loader.h"
 
 namespace REDasm {
 
@@ -14,7 +14,7 @@ std::string MetaARMPrinter::mem(const Operand *operand) const
         return CapstonePrinter::mem(operand);
 
     Symbol* symbol = m_document->symbol(value);
-    return "=" + (symbol ? symbol->name : REDasm::hex(value, m_disassembler->format()->bits()));
+    return "=" + (symbol ? symbol->name : REDasm::hex(value, m_disassembler->loader()->bits()));
 }
 
 } // namespace REDasm

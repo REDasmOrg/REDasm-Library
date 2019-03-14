@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-class DEXFormat;
+class DEXLoader;
 
 class DalvikAlgorithm: public AssemblerAlgorithm
 {
@@ -36,7 +36,7 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         bool canContinue(const InstructionPtr& instruction);
 
     private:
-        DEXFormat* m_dexformat;
+        DEXLoader* m_dexloader;
         std::unordered_set<std::string> m_imports;
         std::unordered_set<address_t> m_methodbounds;
 };

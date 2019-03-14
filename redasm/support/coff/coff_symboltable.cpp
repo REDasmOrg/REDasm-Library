@@ -1,5 +1,5 @@
 #include "coff_symboltable.h"
-#include "../../plugins/format.h"
+#include "../../plugins/loader.h"
 
 #define	COFF_ENTRYSIZE    18
 #define	COFF_AUXENTRYSIZE 18

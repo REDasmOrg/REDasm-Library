@@ -1,6 +1,6 @@
 #include "instructioncache.h"
 #include "../../support/serializer.h"
-#include "../../plugins/format.h"
+#include "../../plugins/loader.h"
 
 namespace REDasm {
 

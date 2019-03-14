@@ -16,7 +16,7 @@
 
 namespace REDasm {
 
-class FormatPlugin;
+class LoaderPlugin;
 
 struct ListingItem
 {
@@ -257,7 +257,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         AutoCommentMap m_autocomments;
         AddressStringMap m_comments, m_info, m_types;
 
-        friend class FormatPlugin;
+        friend class LoaderPlugin;
 };
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;

@@ -12,7 +12,7 @@ typedef std::function<void(const std::string&, COFF::COFF_Entry*)> SymbolCallbac
 
 class SymbolTable
 {
-    friend class FormatPlugin;
+    friend class LoaderPlugin;
 
     public:
         SymbolTable(u8* symdata, u64 count);

@@ -1,5 +1,5 @@
 #include "printer.h"
-#include "../../plugins/format.h"
+#include "../../plugins/loader.h"
 #include <cmath>
 
 #define HEADER_SYMBOL_COUNT 10
@@ -30,7 +30,7 @@ std::string Printer::out(const InstructionPtr &instruction) const
 void Printer::segment(const Segment *segment, const Printer::LineCallback& segmentfunc)
 {
     std::string s(HEADER_SYMBOL_COUNT * 2, '=');
-    int bits = m_disassembler->format()->bits();
+    int bits = m_disassembler->loader()->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? REDasm::quoted(segment->name) : "???") +
                     " START: " + REDasm::hex(segment->address, bits) +
@@ -79,13 +79,13 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
             return;
         }
 
-        FormatPlugin* formatplugin = m_disassembler->format();
+        LoaderPlugin* loader = m_disassembler->loader();
         u64 value = 0;
 
-        if(!m_disassembler->readAddress(symbol->address, formatplugin->addressWidth(), &value))
+        if(!m_disassembler->readAddress(symbol->address, loader->addressWidth(), &value))
             return;
 
-        symbolfunc(symbol, REDasm::hex(value, formatplugin->addressWidth()));
+        symbolfunc(symbol, REDasm::hex(value, loader->addressWidth()));
     }
     else if(symbol->is(SymbolTypes::WideStringMask))
         symbolfunc(symbol, " \"" + m_disassembler->readWString(symbol->address) + "\"");
@@ -106,7 +106,7 @@ std::string Printer::out(const InstructionPtr &instruction, const OpCallback &op
 
     if(instruction->isInvalid())
     {
-        BufferView view = m_disassembler->format()->view(instruction->address);
+        BufferView view = m_disassembler->loader()->view(instruction->address);
         std::string hexstring = REDasm::hexstring(view, instruction->size);
 
         s += hexstring;

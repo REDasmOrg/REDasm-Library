@@ -66,4 +66,19 @@ std::string simplified(std::string s)
     return s;
 }
 
+std::string pathext(const std::string &s)
+{
+    size_t lastidx = s.find_last_of(".");
+
+    if(lastidx == std::string::npos)
+        return std::string();
+
+    lastidx++; // Skip '.'
+
+    if(lastidx == std::string::npos)
+        return std::string();
+
+    return s.substr(lastidx);
+}
+
 }

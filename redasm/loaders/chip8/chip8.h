@@ -8,6 +8,7 @@ namespace REDasm {
 class CHIP8Loader: public LoaderPluginB
 {
     PLUGIN_NAME("CHIP-8 ROM")
+    DEFINE_LOADER_PLUGIN_TEST(u8)
 
     public:
         CHIP8Loader(AbstractBuffer* buffer);

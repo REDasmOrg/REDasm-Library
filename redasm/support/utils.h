@@ -17,6 +17,8 @@ namespace REDasm
 {
 
 std::string simplified(std::string s);
+std::string pathext(const std::string& s);
+inline bool pathext_is(const std::string& s, const std::string& ext) { return pathext(s) == ext; }
 inline std::string quoted(const std::string& s) {  return "\"" + s + "\""; }
 inline std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }
 std::string wtoa(const std::wstring& wide);

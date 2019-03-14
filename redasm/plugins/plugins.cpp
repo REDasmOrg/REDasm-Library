@@ -40,6 +40,7 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntSearchPath = searchpath;
 
     REGISTER_LOADER_PLUGIN(binary); // Always last choice
+    REGISTER_LOADER_PLUGIN(chip8);
     REGISTER_LOADER_PLUGIN(n64rom);
     REGISTER_LOADER_PLUGIN(gbarom);
     REGISTER_LOADER_PLUGIN(xbe);
@@ -51,8 +52,6 @@ void init(const std::string& temppath, const std::string& searchpath)
     REGISTER_LOADER_PLUGIN(elf32le);
     REGISTER_LOADER_PLUGIN(pe64);
     REGISTER_LOADER_PLUGIN(pe32);
-
-    //REGISTER_LOADER_PLUGIN_EXT_LIST(EXT_LIST("chip8", "ch8", "rom"), "CHIP-8 Rom", chip8);
 
     // Assemblers
     REGISTER_ASSEMBLER_PLUGIN(x86_16);

@@ -2,17 +2,16 @@
 #define PLUGINS_H
 
 #include <forward_list>
-#include <unordered_map>
 #include <string>
 #include <deque>
-#include "loader.h"
+#include <map>
 #include "assembler/assembler.h"
+#include "loader.h"
 
 namespace REDasm {
 
 template<typename T> struct EntryListT { typedef std::forward_list<T> Type; };
-template<typename T> struct EntryMapT { typedef std::unordered_map<std::string, T> Type; };
-
+template<typename T> struct EntryMapT { typedef std::map<std::string, T> Type; };
 typedef std::deque<const LoaderPlugin_Entry*> LoaderList;
 
 template<typename T> typename EntryMapT<T>::Type::const_iterator findPluginEntry(const std::string& id, const typename EntryMapT<T>::Type& pm)

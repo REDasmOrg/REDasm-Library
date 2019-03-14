@@ -30,7 +30,7 @@ struct Plugins
     static LIBREDASM_EXPORT EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
 };
 
-LoaderList getLoaders(const LoadRequest& request);
+LoaderList getLoaders(const LoadRequest& request, bool skipbinaries = false);
 const LoaderPlugin_Entry* getLoader(const std::string& id);
 const AssemblerPlugin_Entry* getAssembler(const std::string &id);
 void setLoggerCallback(const Runtime::LogCallback &logcb);

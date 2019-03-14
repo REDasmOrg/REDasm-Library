@@ -93,13 +93,13 @@ void setLoggerCallback(const Runtime::LogCallback& logcb) { Runtime::rntLogCallb
 void setStatusCallback(const Runtime::LogCallback& logcb) { Runtime::rntStatusCallback = logcb; }
 void setProgressCallback(const Runtime::ProgressCallback& pcb) { Runtime::rntProgressCallback = pcb; }
 
-LoaderList getLoaders(const LoadRequest &request)
+LoaderList getLoaders(const LoadRequest &request, bool skipbinaries)
 {
     LoaderList loaders;
 
     for(const LoaderPlugin_Entry& entry : Plugins::loaders)
     {
-        if(!entry.test(request))
+        if(!entry.test(request) || (skipbinaries && (entry.flags() & LoaderFlags::Binary)))
             continue;
 
         loaders.push_back(&entry);

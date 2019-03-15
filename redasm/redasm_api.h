@@ -24,6 +24,10 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 }
 #endif
 
+#define DO_UNPAREN(...) __VA_ARGS__
+#define INVOKE(expr)    expr
+#define UNPAREN(args)   INVOKE(DO_UNPAREN args)
+
 #define RE_UNUSED(x)                               (void)x
 #define ENTRYPOINT_FUNCTION                        "__redasm_ep__"
 #define START_FUNCTION                             "__redasm_start__"
@@ -102,10 +106,11 @@ namespace InstructionTypes {
 namespace OperandTypes {
     enum: u32 {
         None          = 0x00000000,
-        Register      = 0x00000001,  // Register
-        Immediate     = 0x00000002,  // Immediate Value
-        Memory        = 0x00000004,  // Direct Memory Pointer
-        Displacement  = 0x00000008,  // Indirect Memory Pointer
+        Constant      = 0x00000001,  // Simple constant
+        Register      = 0x00000002,  // Register
+        Immediate     = 0x00000004,  // Immediate Value
+        Memory        = 0x00000008,  // Direct Memory Pointer
+        Displacement  = 0x00000010,  // Indirect Memory Pointer
 
         Local         = 0x00010000,  // Local Variable
         Argument      = 0x00020000,  // Function Argument
@@ -181,7 +186,7 @@ struct Operand
 
     constexpr bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
     constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
-    constexpr bool isNumeric() const { return is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
+    constexpr bool isNumeric() const { return is(OperandTypes::Constant) || is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     constexpr bool is(u32 t) const { return type & t; }
 };
 
@@ -215,6 +220,7 @@ struct Instruction
     inline Operand* targetOperand() { return &operands[target_idx]; }
     inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
     inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandTypes::Memory, tag, v, operands.size()); return *this; }
+    template<typename T> Instruction& cnst(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Constant, tag, v, operands.size()); return *this; }
     template<typename T> Instruction& imm(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Immediate, tag, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }

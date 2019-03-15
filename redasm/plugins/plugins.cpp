@@ -7,6 +7,7 @@
 
 /* *** Loaders *** */
 #include LOADER_PLUGIN(binary)
+#include LOADER_PLUGIN(ihex)
 #include LOADER_PLUGIN(chip8)
 #include LOADER_PLUGIN(pe)
 #include LOADER_PLUGIN(elf)
@@ -23,6 +24,7 @@
 #include ASSEMBLER_PLUGIN(cil)
 #include ASSEMBLER_PLUGIN(metaarm)
 //#include ASSEMBLER_PLUGIN(arm64)
+#include ASSEMBLER_PLUGIN(avr8)
 #include ASSEMBLER_PLUGIN(chip8)
 
 #define REGISTER_LOADER_PLUGIN(id)                REDasm::Plugins::loaders.push_front(LOADER_PLUGIN_ENTRY(id)); Plugins::loadersCount++
@@ -40,6 +42,7 @@ void init(const std::string& temppath, const std::string& searchpath)
     Runtime::rntSearchPath = searchpath;
 
     REGISTER_LOADER_PLUGIN(binary); // Always last choice
+    REGISTER_LOADER_PLUGIN(ihex);
     REGISTER_LOADER_PLUGIN(chip8);
     REGISTER_LOADER_PLUGIN(n64rom);
     REGISTER_LOADER_PLUGIN(gbarom);
@@ -75,6 +78,7 @@ void init(const std::string& temppath, const std::string& searchpath)
     //REGISTER_ASSEMBLER_PLUGIN(arm64);
     REGISTER_ASSEMBLER_PLUGIN(dalvik);
     REGISTER_ASSEMBLER_PLUGIN(cil);
+    REGISTER_ASSEMBLER_PLUGIN(avr8);
     REGISTER_ASSEMBLER_PLUGIN(chip8);
 }
 

@@ -122,6 +122,8 @@ void AVR8Assembler::decodeOperand(u32 opvalue, const InstructionPtr &instruction
         instruction->reg(opvalue * 2, avrop.tag);
     else if(avrop.tag == AVR8Operands::RegisterEvenPairStartR24)
         instruction->reg(24 + opvalue * 2, avrop.tag);
+    else if(avrop.tag == AVR8Operands::Register)
+        instruction->reg(opvalue);
     else
         instruction->cnst(opvalue, avrop.tag);
 }

@@ -114,7 +114,7 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
         }
         else if(op.is(OperandTypes::Memory))
             EXECUTE_STATE(AssemblerAlgorithm::MemoryState, op.u_value, op.index, instruction);
-        else
+        else if(op.is(OperandTypes::Immediate))
             EXECUTE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
         this->onDecodedOperand(&op, instruction);

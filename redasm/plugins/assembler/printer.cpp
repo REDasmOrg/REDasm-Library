@@ -125,7 +125,9 @@ std::string Printer::out(const InstructionPtr &instruction, const OpCallback &op
         std::string opstr;
         const Operand& operand = *it;
 
-        if(operand.is(OperandTypes::Immediate))
+        if(operand.is(OperandTypes::Constant))
+            opstr = REDasm::hex(operand.u_value, 0, true);
+        else if(operand.is(OperandTypes::Immediate))
             opstr = this->imm(&operand);
         else if(operand.is(OperandTypes::Memory))
             opstr = this->mem(&operand);

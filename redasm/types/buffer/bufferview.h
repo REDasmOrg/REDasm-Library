@@ -15,17 +15,20 @@ namespace Buffer {
 class BufferView
 {
     public:
-        template<typename T> struct iterator: public std::iterator<std::forward_iterator_tag, u8> {
-            explicit iterator(u8* data) { m_data = reinterpret_cast<T*>(data); }
+        template<typename T> struct iterator: public std::iterator<std::forward_iterator_tag, T> {
+            explicit iterator(const T* data) { m_data = reinterpret_cast<const T*>(data); }
             iterator<T>& operator++() { m_data++; return *this; }
-            iterator<T> operator ++(int) { iterator<T> ret(reinterpret_cast<u8*>(m_data)); m_data++; return ret; }
+            iterator<T> operator ++(int) { iterator<T> ret(reinterpret_cast<const T*>(m_data)); m_data++; return ret; }
             constexpr T operator *() const { return *m_data; }
+            const T* data() const { return m_data; }
             bool operator ==(const iterator<T>& rhs) const { return m_data == rhs.m_data; }
             bool operator !=(const iterator<T>& rhs) const { return m_data != rhs.m_data; }
 
             private:
-                T* m_data;
+                const T* m_data;
         };
+
+        typedef iterator<u8> byte_iterator;
 
     private:
         static const std::string WILDCARD_BYTE;
@@ -66,9 +69,10 @@ class BufferView
         BufferView operator ++(int);
         BufferView view(u64 offset, u64 size = 0) const;
         void copyTo(AbstractBuffer* buffer);
+        std::string toString() const;
         void resize(u64 size);
-        iterator<u8> begin() const { return iterator<u8>(this->data()); }
-        iterator<u8> end() const { return iterator<u8>(this->endData()); }
+        byte_iterator begin() const { return byte_iterator(this->data()); }
+        byte_iterator end() const { return byte_iterator(this->endData()); }
         u8* data() const { return m_buffer->data() + m_offset; }
         constexpr const AbstractBuffer* buffer() const { return m_buffer; }
         constexpr bool inRange(u64 offset) const { return (offset >= m_offset) && (offset < (m_offset + m_size)); }

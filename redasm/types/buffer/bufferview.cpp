@@ -66,6 +66,7 @@ void BufferView::copyTo(AbstractBuffer *buffer)
     std::copy_n(this->data(), m_size, buffer->data());
 }
 
+std::string BufferView::toString() const { return std::string(reinterpret_cast<const char*>(this->data()), this->size()); }
 void BufferView::resize(u64 size) { m_size = std::min(size, m_buffer->size()); }
 size_t BufferView::patternLength(const std::string &pattern) const { return pattern.size() / 2; }
 
@@ -81,7 +82,7 @@ std::pair<u8, u8> BufferView::patternRange(std::string &pattern, u64 &startoffse
             continue;
 
         pattern = pattern.substr(i);     // Trim leading wildcards
-        bp.first = REDasm::byte(hexb);
+        REDasm::byte(hexb, &bp.first);
         beginoffset = i / 2;
         startoffset += i / 2;
         break;
@@ -95,7 +96,7 @@ std::pair<u8, u8> BufferView::patternRange(std::string &pattern, u64 &startoffse
             continue;
 
         pattern = pattern.substr(0, i); // Trim trailing wildcards
-        bp.second = REDasm::byte(hexb);
+        REDasm::byte(hexb, &bp.second);
         endoffset = startoffset + (i / 2);
         break;
     }
@@ -114,7 +115,9 @@ bool BufferView::comparePattern(const std::string &pattern, const u8 *pdata) con
         if(hexb == BufferView::WILDCARD_BYTE)
             continue;
 
-        if(REDasm::byte(hexb) != *pcurr)
+        u8 b = 0;
+
+        if(!REDasm::byte(hexb, &b) || (b != *pcurr))
             return false;
     }
 

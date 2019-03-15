@@ -54,6 +54,7 @@ address_location LoaderPlugin::address(offset_t offset) const
 
 void LoaderPlugin::build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to LoaderPlugin::build()"); }
 Analyzer* LoaderPlugin::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles& signatures) const { return new Analyzer(disassembler, signatures); }
+std::string LoaderPlugin::assembler() const { return std::string(); }
 AbstractBuffer *LoaderPlugin::buffer() const { return m_buffer.get(); }
 BufferView LoaderPlugin::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 

@@ -1,7 +1,7 @@
 #include "chip8.h"
 #include "chip8_printer.h"
 
-#define SET_DECODE_TO(opmask, cb) m_opcodemap[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
+#define SET_DECODE_TO(opmask, cb) m_opcodes[opmask] = [this](u16 opcode, const InstructionPtr& instruction) -> bool { return cb(opcode, instruction); };
 
 namespace REDasm {
 
@@ -33,9 +33,9 @@ bool CHIP8Assembler::decodeInstruction(const BufferView& view, const Instruction
     instruction->id = opcode;
     instruction->size = sizeof(u16);
 
-    auto it = m_opcodemap.find(opcode & 0xF000);
+    auto it = m_opcodes.find(opcode & 0xF000);
 
-    if((it == m_opcodemap.end()) || !it->second(opcode, instruction))
+    if((it == m_opcodes.end()) || !it->second(opcode, instruction))
         return false;
 
     return true;

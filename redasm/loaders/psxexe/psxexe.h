@@ -22,7 +22,7 @@ struct PsxExeHeader
 class PsxExeLoader: public LoaderPluginT<PsxExeHeader>
 {
     PLUGIN_NAME("PS-X Executable")
-    DEFINE_LOADER_PLUGIN_TEST(PsxExeHeader)
+    DECLARE_LOADER_PLUGIN_TEST(PsxExeHeader)
 
     public:
         PsxExeLoader(AbstractBuffer* buffer);

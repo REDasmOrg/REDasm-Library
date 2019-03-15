@@ -8,7 +8,7 @@ namespace REDasm {
 class BinaryLoader : public LoaderPluginB
 {
     PLUGIN_NAME("Binary")
-    DEFINE_LOADER_PLUGIN_TEST(u8)
+    DECLARE_LOADER_PLUGIN_TEST(u8)
 
     public:
         BinaryLoader(AbstractBuffer* buffer);

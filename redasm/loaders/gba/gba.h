@@ -35,7 +35,7 @@ struct GbaRomHeader // From: http://problemkaputt.de/gbatek.htm#gbacartridgehead
 class GbaLoader: public LoaderPluginT<GbaRomHeader>
 {
     PLUGIN_NAME("Game Boy Advance ROM")
-    DEFINE_LOADER_PLUGIN_TEST(GbaRomHeader)
+    DECLARE_LOADER_PLUGIN_TEST(GbaRomHeader)
 
     public:
         GbaLoader(AbstractBuffer* buffer);

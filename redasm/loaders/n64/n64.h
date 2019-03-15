@@ -54,7 +54,7 @@ struct N64RomHeader // From: http://en64.shoutwiki.com/wiki/ROM#Cartridge_ROM_He
 class N64Loader: public LoaderPluginT<N64RomHeader>
 {
     PLUGIN_NAME("Nintendo 64 ROM")
-    DEFINE_LOADER_PLUGIN_TEST(N64RomHeader)
+    DECLARE_LOADER_PLUGIN_TEST(N64RomHeader)
 
     public:
         N64Loader(AbstractBuffer* buffer);

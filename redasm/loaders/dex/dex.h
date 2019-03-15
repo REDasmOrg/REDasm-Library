@@ -12,7 +12,7 @@ namespace REDasm {
 class DEXLoader : public LoaderPluginT<DEXHeader>
 {
     PLUGIN_NAME("Dalvik Executable")
-    DEFINE_LOADER_PLUGIN_TEST(DEXHeader)
+    DECLARE_LOADER_PLUGIN_TEST(DEXHeader)
 
     public:
         DEXLoader(AbstractBuffer* buffer);

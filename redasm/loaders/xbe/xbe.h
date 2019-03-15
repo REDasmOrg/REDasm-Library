@@ -11,7 +11,7 @@ namespace REDasm {
 class XbeLoader : public LoaderPluginT<XbeImageHeader>
 {
     PLUGIN_NAME("XBox Executable")
-    DEFINE_LOADER_PLUGIN_TEST(XbeImageHeader)
+    DECLARE_LOADER_PLUGIN_TEST(XbeImageHeader)
 
     public:
         XbeLoader(AbstractBuffer* buffer);

@@ -6,7 +6,6 @@
 #include "../../redasm.h"
 
 namespace REDasm {
-
 namespace DalvikOpcodes {
 
 enum: u16 {
@@ -269,8 +268,7 @@ enum: u16 {
     InvokeInterfaceJumbo = 0x26ff,
 };
 
-}
-
-} // namespace REDasm;
+} // namespace DalvikOpcodes
+} // namespace REDasm
 
 #endif // DALVIK_OPCODES_H

@@ -20,7 +20,7 @@
                                                   inline u32 id##_plugin_loader_flags() { return flags; }
 
 
-#define DEFINE_LOADER_PLUGIN_TEST(T)              public: static bool test(const LoadRequest& request, const T* header); private:
+#define DECLARE_LOADER_PLUGIN_TEST(T)             public: static bool test(const LoadRequest& request, const T* header); private:
 #define LOADER_PLUGIN_TEST(T, H)                  bool T::test(const LoadRequest& request, const H* header)
 
 #define LOADER_PLUGIN_ENTRY(id)                   { &id##_plugin_loader_test, &id##_plugin_loader_init, &id##_plugin_loader_name, &id##_plugin_loader_flags, &id##_plugin_loader_id }
@@ -79,7 +79,7 @@ class LoaderPlugin: public Plugin
         virtual address_location address(offset_t offset) const;
         virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
-        virtual std::string assembler() const = 0;
+        virtual std::string assembler() const;
         virtual u32 bits() const = 0;
         virtual void load() = 0;
 
@@ -113,7 +113,7 @@ template<typename T> class LoaderPluginT: public LoaderPlugin
 
 class LoaderPluginB: public LoaderPluginT<u8>
 {
-    DEFINE_LOADER_PLUGIN_TEST(u8);
+    DECLARE_LOADER_PLUGIN_TEST(u8);
 
     public:
         LoaderPluginB(AbstractBuffer* buffer): LoaderPluginT<u8>(buffer) { }

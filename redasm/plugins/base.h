@@ -4,10 +4,6 @@
 #include <functional>
 #include "../redasm.h"
 
-#define DO_UNPAREN(...) __VA_ARGS__
-#define INVOKE(expr)    expr
-#define UNPAREN(args)   INVOKE(DO_UNPAREN args)
-
 #define PLUGIN_NAME(pluginname) public: \
                                 static constexpr const char* Name = pluginname; \
                                 virtual std::string name() const { return pluginname; } \

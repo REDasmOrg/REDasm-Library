@@ -21,7 +21,7 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
         typedef typename std::conditional<b == 64, Elf64_Phdr<e>, Elf32_Phdr<e> >::type PHDR;
         typedef typename std::conditional<b == 64, Elf64_Sym<e>, Elf32_Sym<e> >::type SYM;
 
-    DEFINE_LOADER_PLUGIN_TEST(ELF_ARG(Elf_Ehdr<b, e>))
+    DECLARE_LOADER_PLUGIN_TEST(ELF_ARG(Elf_Ehdr<b, e>))
 
     public:
         ELFLoader(AbstractBuffer* buffer);

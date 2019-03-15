@@ -47,7 +47,7 @@ class CHIP8Assembler : public AssemblerPlugin
         bool decodeFxxx(u16 opcode, const InstructionPtr& instruction) const;
 
     private:
-        std::map<u16, OpCodeCallback> m_opcodemap;
+        std::unordered_map<u16, OpCodeCallback> m_opcodes;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8)

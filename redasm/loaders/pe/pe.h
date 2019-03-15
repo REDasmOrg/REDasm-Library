@@ -14,7 +14,7 @@ namespace REDasm {
 
 template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
 {
-    DEFINE_LOADER_PLUGIN_TEST(ImageDosHeader)
+    DECLARE_LOADER_PLUGIN_TEST(ImageDosHeader)
 
     private:
         typedef typename std::conditional<b == 64, u64, u32>::type pe_integer_t;

@@ -30,6 +30,7 @@ template<size_t b, endianness_t e> LOADER_PLUGIN_TEST(ELF_ARG(ELFLoader<b, e>), 
 
 template<size_t b, endianness_t e> ELFLoader<b, e>::ELFLoader(AbstractBuffer *buffer): LoaderPluginT<EHDR>(buffer), m_shdr(nullptr)
 {
+    m_skipsections.insert(".pdr");
     m_skipsections.insert(".comment");
     m_skipsections.insert(".attribute");
 }
@@ -49,6 +50,9 @@ template<size_t b, endianness_t e> std::string ELFLoader<b, e>::assembler() cons
 {
     switch(this->m_header->e_machine)
     {
+        case EM_AVR:
+            return "avr8";
+
         case EM_386:
             return "x86_32";
 
@@ -133,7 +137,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSegments()
     {
         const SHDR& shdr = this->m_shdr[i];
 
-        if(!shdr.sh_addr || (shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
+        if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
             continue;
 
         u32 type = SegmentTypes::Data;

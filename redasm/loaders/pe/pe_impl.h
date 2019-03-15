@@ -40,7 +40,6 @@ template<size_t b> PELoader<b>::PELoader(AbstractBuffer *buffer): LoaderPluginT<
     m_validimportsections.insert(".rdata");
 }
 
-template<size_t b> u32 PELoader<b>::bits() const { return b; }
 template<size_t b> const DotNetReader *PELoader<b>::dotNetReader() const { return m_dotnetreader.get(); }
 template<size_t b> address_t PELoader<b>::rvaToVa(address_t rva) const { return rva + m_imagebase; }
 template<size_t b> address_t PELoader<b>::vaToRva(address_t va) const { return va - m_imagebase; }
@@ -68,9 +67,9 @@ template<size_t b> std::string PELoader<b>::assembler() const
 template<size_t b> Analyzer *PELoader<b>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
 {
     if(m_petype == PeType::VisualBasic)
-        return new VBAnalyzer(this->m_petype, disassembler, signatures);
+        return new VBAnalyzer(this->m_petype, b, disassembler, signatures);
 
-    return new PEAnalyzer(this->m_petype, disassembler, signatures);
+    return new PEAnalyzer(this->m_petype, b, disassembler, signatures);
 }
 
 template<size_t b> void PELoader<b>::load()

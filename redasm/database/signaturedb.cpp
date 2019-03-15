@@ -1,5 +1,6 @@
 #include "signaturedb.h"
 #include "../plugins/loader.h"
+#include "../plugins/assembler/assembler.h"
 #include "../support/serializer.h"
 #include "../support/utils.h"
 #include "../support/hash.h"
@@ -10,12 +11,12 @@
 
 namespace REDasm {
 
-bool Signature::isCompatible(const LoaderPlugin *loader) const
+bool Signature::isCompatible(const DisassemblerAPI *disassembler) const
 {
-    if(this->assembler != loader->assembler())
+    if(this->assembler != disassembler->loader()->assembler())
         return false;
 
-    if(this->bits != loader->bits())
+    if(this->bits != disassembler->assembler()->bits())
         return false;
 
     return true;

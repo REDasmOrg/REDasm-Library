@@ -35,17 +35,6 @@ template<size_t b, endianness_t e> ELFLoader<b, e>::ELFLoader(AbstractBuffer *bu
     m_skipsections.insert(".attribute");
 }
 
-template<size_t b, endianness_t e> u32 ELFLoader<b, e>::bits() const
-{
-    if(this->m_header->e_ident[EI_CLASS] == ELFCLASS32)
-        return 32;
-
-    if(this->m_header->e_ident[EI_CLASS] == ELFCLASS64)
-        return 64;
-
-    return 0;
-}
-
 template<size_t b, endianness_t e> std::string ELFLoader<b, e>::assembler() const
 {
     switch(this->m_header->e_machine)
@@ -68,7 +57,12 @@ template<size_t b, endianness_t e> std::string ELFLoader<b, e>::assembler() cons
         }
 
         case EM_ARM:
-            return this->bits() == 32 ? "metaarm" : "arm64";
+        {
+            if(this->m_header->e_ident[EI_CLASS] == ELFCLASS64)
+                return "arm64";
+
+            return "metaarm";
+        }
 
         default:
             break;
@@ -244,7 +238,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::parseSegments()
         {
             const SHDR& shstr = ELF_STRING_TABLE;
             REDasm::log("Section" + REDasm::quoted(ELF_STRING(&shstr, shdr.sh_name)) + " contains a "
-                        "symbol table @ offset " + REDasm::hex(shdr.sh_offset, this->bits()));
+                        "symbol table @ offset " + REDasm::hex(shdr.sh_offset));
 
             this->loadSymbols(shdr);
         }

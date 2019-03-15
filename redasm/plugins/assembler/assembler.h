@@ -37,12 +37,16 @@ class AssemblerPlugin: public Plugin
         AssemblerPlugin();
         virtual ~AssemblerPlugin() = default;
         virtual u32 flags() const;
+        virtual u32 bits() const = 0;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
-        bool hasFlag(u32 flag) const;
         virtual bool decode(const BufferView &view, const InstructionPtr& instruction);
         virtual bool decodeInstruction(const BufferView& view, const InstructionPtr& instruction);
+
+    public:
+        bool hasFlag(u32 flag) const;
+        u64 addressWidth() const;
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);

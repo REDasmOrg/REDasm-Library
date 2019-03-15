@@ -14,7 +14,6 @@ class IHexLoader: public LoaderPluginB
 
     public:
         IHexLoader(AbstractBuffer* buffer);
-        virtual u32 bits() const;
         virtual void load();
 };
 

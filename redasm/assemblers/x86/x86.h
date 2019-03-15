@@ -13,6 +13,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
     public:
         X86Assembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const { return new X86Printer(this->m_cshandle, disassembler); }
+        virtual u32 bits() const;
 
     protected:
         virtual void onDecoded(const InstructionPtr& instruction);

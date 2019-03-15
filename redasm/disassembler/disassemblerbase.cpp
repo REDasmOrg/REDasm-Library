@@ -4,7 +4,14 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(LoaderPlugin *loader): DisassemblerAPI(), m_document(loader->document()) { m_loader = std::unique_ptr<LoaderPlugin>(loader); }
+DisassemblerBase::DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin *loader): DisassemblerAPI(), m_document(loader->document())
+{
+    m_loader = std::unique_ptr<LoaderPlugin>(loader);
+    m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
+}
+
+LoaderPlugin *DisassemblerBase::loader() const { return m_loader.get(); }
+AssemblerPlugin *DisassemblerBase::assembler() const { return m_assembler.get(); }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
@@ -53,13 +60,13 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     address_t target = 0, address = startaddress;
 
-    if(!this->readAddress(address, m_loader->addressWidth(), &target))
+    if(!this->readAddress(address, m_assembler->addressWidth(), &target))
         return 0;
 
     REDasm::statusAddress("Checking address table", startaddress);
     std::unordered_set<address_t> items;
 
-    while(this->readAddress(address, m_loader->addressWidth(), &target))
+    while(this->readAddress(address, m_assembler->addressWidth(), &target))
     {
         const Segment* segment = m_document->segment(target);
 
@@ -73,7 +80,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         else
             this->checkLocation(startaddress, target);
 
-        address += m_loader->addressWidth();
+        address += m_assembler->addressWidth();
     }
 
     if(!items.empty())
@@ -85,7 +92,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
             u64 i = 0;
             address = startaddress;
 
-            for(auto it = items.begin(); it != items.end(); it++, address += m_loader->addressWidth(), i++)
+            for(auto it = items.begin(); it != items.end(); it++, address += m_assembler->addressWidth(), i++)
             {
                 if(address == startaddress)
                     m_document->table(address, items.size());
@@ -105,7 +112,6 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     return items.size();
 }
 
-LoaderPlugin *DisassemblerBase::loader() { return m_loader.get(); }
 ListingDocument& DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
@@ -197,7 +203,7 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
     if(!value)
         return false;
 
-    return this->readAddress(address, m_loader->addressWidth(), value);
+    return this->readAddress(address, m_assembler->addressWidth(), value);
 }
 
 BufferView DisassemblerBase::getFunctionBytes(address_t address)
@@ -327,7 +333,7 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
             return true;
 
         sigdb.search(view, [&](const Signature* signature) {
-            if(!signature->isCompatible(m_loader.get()))
+            if(!signature->isCompatible(this))
                 return;
 
             REDasm::log("Found " + REDasm::quoted(signature->name) + " @ " + REDasm::hex(symbol->address));

@@ -27,7 +27,6 @@ class PsxExeLoader: public LoaderPluginT<PsxExeHeader>
     public:
         PsxExeLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual void load();
 };

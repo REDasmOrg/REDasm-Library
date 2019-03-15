@@ -22,6 +22,7 @@ void AssemblerPlugin::setInstructionType(const InstructionPtr &instruction) cons
 }
 
 bool AssemblerPlugin::hasFlag(u32 flag) const { return this->flags() & flag; }
+u64 AssemblerPlugin::addressWidth() const { return this->bits() / CHAR_BIT; }
 
 bool AssemblerPlugin::decode(const BufferView& view, const InstructionPtr &instruction)
 {

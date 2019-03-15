@@ -12,7 +12,7 @@ class PEAnalyzer: public Analyzer
         typedef std::pair<size_t, std::string> APIInfo;
 
     public:
-        PEAnalyzer(u64 petype, DisassemblerAPI* disassembler, const SignatureFiles &signatures);
+        PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler, const SignatureFiles &signatures);
         virtual void analyze();
 
     private:
@@ -24,6 +24,7 @@ class PEAnalyzer: public Analyzer
 
     private:
         std::forward_list<APIInfo> m_wndprocapi;
+        size_t m_pebits;
         u64 m_petype;
 };
 

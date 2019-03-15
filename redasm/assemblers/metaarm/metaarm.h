@@ -15,6 +15,7 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
         MetaARMAssembler();
         virtual ~MetaARMAssembler();
         virtual u32 flags() const;
+        virtual u32 bits() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);

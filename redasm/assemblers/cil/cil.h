@@ -11,6 +11,7 @@ class CILAssembler : public AssemblerPlugin
 
     public:
         CILAssembler() = default;
+        virtual u32 bits() const;
 
     protected:
         virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);

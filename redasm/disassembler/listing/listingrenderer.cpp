@@ -6,7 +6,7 @@
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT       10
 #define STRING_THRESHOLD     48
-#define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->loader()->bits())
+#define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->assembler()->bits())
 
 namespace REDasm {
 
@@ -203,6 +203,7 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, const Listi
 void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
     LoaderPlugin* loader = m_disassembler->loader();
+    AssemblerPlugin* assembler = m_disassembler->assembler();
     const Symbol* symbol = lock->symbol(item->address);
 
     if(symbol->is(SymbolTypes::Code)) // Label or Callback
@@ -251,8 +252,8 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             else
             {
                 u64 value = 0;
-                m_disassembler->readAddress(symbol->address, loader->addressWidth(), &value);
-                rl.push(REDasm::hex(value, loader->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
+                m_disassembler->readAddress(symbol->address, assembler->addressWidth(), &value);
+                rl.push(REDasm::hex(value, m_disassembler->assembler()->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
         else if(symbol->is(SymbolTypes::ImportMask))
@@ -350,10 +351,9 @@ void ListingRenderer::renderComments(const document_s_lock &lock, const Instruct
 
 void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const ListingItem* item, RendererLine &rl)
 {
-    LoaderPlugin* loader = m_disassembler->loader();
     const Segment* segment = lock->segment(item->address);
 
-    s64 count = loader->bits() / 4;
+    s64 count = m_disassembler->assembler()->bits() / 4;
 
     if(segment)
         count += segment->name.length();
@@ -366,9 +366,9 @@ void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::strin
 bool ListingRenderer::renderSymbolPointer(const document_s_lock &lock, const Symbol* symbol, RendererLine &rl) const
 {
     u64 value = 0;
-    LoaderPlugin* loader = m_disassembler->loader();
+    AssemblerPlugin* assembler = m_disassembler->assembler();
 
-   if(!m_disassembler->readAddress(symbol->address, loader->addressWidth(), &value))
+   if(!m_disassembler->readAddress(symbol->address, assembler->addressWidth(), &value))
        return false;
 
    const Symbol* ptrsymbol = lock->symbol(value);

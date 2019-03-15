@@ -11,10 +11,11 @@ namespace REDasm {
 class DisassemblerBase: public DisassemblerAPI
 {
     public:
-        DisassemblerBase(LoaderPlugin* loader);
+        DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin* loader);
 
     public: // Primitive functions
-        virtual LoaderPlugin* loader();
+        virtual LoaderPlugin* loader() const;
+        virtual AssemblerPlugin* assembler() const;
         virtual ListingDocument &document();
         virtual ReferenceTable* references();
         virtual ReferenceVector getReferences(address_t address);
@@ -42,6 +43,7 @@ class DisassemblerBase: public DisassemblerAPI
 
    protected:
         ListingDocument& m_document;
+        std::unique_ptr<AssemblerPlugin> m_assembler;
         std::unique_ptr<LoaderPlugin> m_loader;
         ReferenceTable m_referencetable;
 };

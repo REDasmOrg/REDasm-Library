@@ -30,7 +30,6 @@ DEXLoader::DEXLoader(AbstractBuffer *buffer): LoaderPluginT<DEXHeader>(buffer), 
     m_importbase = IMPORT_SECTION_ADDRESS;
 }
 
-u32 DEXLoader::bits() const { return 32; }
 std::string DEXLoader::assembler() const { return "dalvik"; }
 
 void DEXLoader::load()

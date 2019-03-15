@@ -72,7 +72,6 @@ class LoaderPlugin: public Plugin
         ListingDocument& createDocument();
         ListingDocument& document();
         const SignatureFiles& signatures() const;
-        u64 addressWidth() const;
 
     public:
         virtual offset_location offset(address_t address) const;
@@ -80,7 +79,6 @@ class LoaderPlugin: public Plugin
         virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
         virtual std::string assembler() const;
-        virtual u32 bits() const = 0;
         virtual void load() = 0;
 
     public:

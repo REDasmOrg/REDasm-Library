@@ -26,6 +26,7 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 }
 
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
+u32 CHIP8Assembler::bits() const { return 16; }
 
 bool CHIP8Assembler::decodeInstruction(const BufferView& view, const InstructionPtr &instruction)
 {
@@ -86,12 +87,12 @@ bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) c
     else if((opcode & 0x00F0) == 0x00C0) // SuperChip only
     {
         instruction->mnemonic = "scdown";
-        instruction->imm(opcode & 0x000F);
+        instruction->cnst(opcode & 0x000F);
     }
     else
     {
         instruction->mnemonic = "sys";
-        instruction->imm(opcode & 0x0FFF);
+        instruction->cnst(opcode & 0x0FFF);
     }
 
     return true;
@@ -147,7 +148,7 @@ bool CHIP8Assembler::decode6xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "mov";
     instruction->reg((opcode & 0x0F00) >> 8);
-    instruction->imm(opcode & 0x00FF);
+    instruction->cnst(opcode & 0x00FF);
     return true;
 }
 
@@ -155,7 +156,7 @@ bool CHIP8Assembler::decode7xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "add";
     instruction->reg((opcode & 0x0F00) >> 8);
-    instruction->imm(opcode & 0x00FF);
+    instruction->cnst(opcode & 0x00FF);
     return true;
 }
 
@@ -208,7 +209,7 @@ bool CHIP8Assembler::decodeAxxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "mov";
     instruction->reg(CHIP8_REG_I_ID, CHIP8_REG_I);
-    instruction->imm(opcode & 0x0FFF);
+    instruction->cnst(opcode & 0x0FFF);
     return true;
 }
 
@@ -223,7 +224,7 @@ bool CHIP8Assembler::decodeCxxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "rand";
     instruction->reg((opcode & 0x0F00) >> 8);
-    instruction->imm(opcode & 0x00FF);
+    instruction->cnst(opcode & 0x00FF);
     return true;
 }
 
@@ -232,7 +233,7 @@ bool CHIP8Assembler::decodeDxxx(u16 opcode, const InstructionPtr &instruction) c
     instruction->mnemonic = "draw";
     instruction->reg((opcode & 0x0F00) >> 8);
     instruction->reg((opcode & 0x00F0) >> 4);
-    instruction->imm(opcode & 0x000F);
+    instruction->cnst(opcode & 0x000F);
     return true;
 }
 

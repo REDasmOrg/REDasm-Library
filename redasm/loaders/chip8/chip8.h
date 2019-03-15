@@ -13,7 +13,6 @@ class CHIP8Loader: public LoaderPluginB
     public:
         CHIP8Loader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
 };
 

@@ -14,11 +14,6 @@ IHexLoader::IHexLoader(AbstractBuffer *buffer): LoaderPluginB(buffer)
 
 }
 
-u32 IHexLoader::bits() const
-{
-    return 32;
-}
-
 void IHexLoader::load()
 {
 

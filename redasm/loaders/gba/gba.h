@@ -40,7 +40,6 @@ class GbaLoader: public LoaderPluginT<GbaRomHeader>
     public:
         GbaLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
 
     public:

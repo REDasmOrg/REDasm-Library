@@ -5,9 +5,8 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(AssemblerPlugin *assembler, LoaderPlugin *loader): DisassemblerBase(loader)
+Disassembler::Disassembler(AssemblerPlugin *assembler, LoaderPlugin *loader): DisassemblerBase(assembler, loader)
 {
-    m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
     m_algorithm = REDasm::safe_ptr<AssemblerAlgorithm>(m_assembler->createAlgorithm(this));
 
     m_analyzejob.setOneShot(true);
@@ -69,7 +68,6 @@ void Disassembler::disassemble()
 }
 
 Printer *Disassembler::createPrinter() { return m_assembler->createPrinter(this); }
-AssemblerPlugin *Disassembler::assembler() { return m_assembler.get(); }
 
 void Disassembler::disassemble(address_t address)
 {

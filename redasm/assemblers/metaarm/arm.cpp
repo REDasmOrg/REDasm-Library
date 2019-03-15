@@ -6,6 +6,7 @@ namespace REDasm {
 
 ARMAssembler::ARMAssembler(): ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>() { }
 u32 ARMAssembler::flags() const { return AssemblerFlags::CanEmulate; }
+u32 ARMAssembler::bits() const { return 32; }
 Emulator *ARMAssembler::createEmulator(DisassemblerAPI *disassembler) const { return new MetaARMEmulator(disassembler); }
 Printer *ARMAssembler::createPrinter(DisassemblerAPI *disassembler) const { return new MetaARMPrinter(m_cshandle, disassembler); }
 

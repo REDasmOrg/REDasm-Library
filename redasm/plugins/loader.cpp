@@ -18,7 +18,6 @@ LoaderPlugin::LoaderPlugin(AbstractBuffer* buffer): Plugin()
 ListingDocument& LoaderPlugin::createDocument() { m_document = ListingDocument(); return m_document; }
 ListingDocument &LoaderPlugin::document() { return m_document; }
 const SignatureFiles &LoaderPlugin::signatures() const { return m_signatures; }
-u64 LoaderPlugin::addressWidth() const { return this->bits() / 8; }
 
 offset_location LoaderPlugin::offset(address_t address) const
 {

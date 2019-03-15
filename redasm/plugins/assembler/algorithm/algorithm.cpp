@@ -74,7 +74,7 @@ bool AssemblerAlgorithm::validateState(const State &state) const
 
 void AssemblerAlgorithm::onNewState(const State* state) const
 {
-    REDasm::statusProgress("Analyzing @ " + REDasm::hex(state->address, m_loader->bits()) +
+    REDasm::statusProgress("Analyzing @ " + REDasm::hex(state->address, m_assembler->bits()) +
                            " >> " + state->name, this->pending());
 }
 
@@ -178,7 +178,7 @@ void AssemblerAlgorithm::branchState(const State *state)
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
         REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
-                                                            + REDasm::hex(instruction->address, m_loader->bits()));
+                                                            + REDasm::hex(instruction->address, m_assembler->bits()));
 }
 
 void AssemblerAlgorithm::branchMemoryState(const State *state)

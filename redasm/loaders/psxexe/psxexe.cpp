@@ -12,7 +12,6 @@ namespace REDasm {
 LOADER_PLUGIN_TEST(PsxExeLoader, PsxExeHeader) { return !strncmp(header->id, PSXEXE_SIGNATURE, PSXEXE_SIGNATURE_SIZE); }
 
 PsxExeLoader::PsxExeLoader(AbstractBuffer *buffer): LoaderPluginT<PsxExeHeader>(buffer) { }
-u32 PsxExeLoader::bits() const { return 32; }
 std::string PsxExeLoader::assembler() const { return "mips32le"; }
 Analyzer *PsxExeLoader::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new PsxExeAnalyzer(disassembler, signatures); }
 

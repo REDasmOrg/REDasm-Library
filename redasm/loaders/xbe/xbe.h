@@ -16,7 +16,6 @@ class XbeLoader : public LoaderPluginT<XbeImageHeader>
     public:
         XbeLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
 
     private:

@@ -29,6 +29,7 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
 
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const  { return new DalvikPrinter(disassembler); }
 AssemblerAlgorithm *DalvikAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new DalvikAlgorithm(disassembler, this); }
+u32 DalvikAssembler::bits() const { return 16; }
 
 bool DalvikAssembler::decodeInstruction(const BufferView &view, const InstructionPtr &instruction)
 {

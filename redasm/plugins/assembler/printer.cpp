@@ -30,7 +30,7 @@ std::string Printer::out(const InstructionPtr &instruction) const
 void Printer::segment(const Segment *segment, const Printer::LineCallback& segmentfunc)
 {
     std::string s(HEADER_SYMBOL_COUNT * 2, '=');
-    int bits = m_disassembler->loader()->bits();
+    u32 bits = m_disassembler->assembler()->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? REDasm::quoted(segment->name) : "???") +
                     " START: " + REDasm::hex(segment->address, bits) +
@@ -79,13 +79,13 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
             return;
         }
 
-        LoaderPlugin* loader = m_disassembler->loader();
+        AssemblerPlugin* assembler = m_disassembler->assembler();
         u64 value = 0;
 
-        if(!m_disassembler->readAddress(symbol->address, loader->addressWidth(), &value))
+        if(!m_disassembler->readAddress(symbol->address, assembler->addressWidth(), &value))
             return;
 
-        symbolfunc(symbol, REDasm::hex(value, loader->addressWidth()));
+        symbolfunc(symbol, REDasm::hex(value, assembler->addressWidth()));
     }
     else if(symbol->is(SymbolTypes::WideStringMask))
         symbolfunc(symbol, " \"" + m_disassembler->readWString(symbol->address) + "\"");

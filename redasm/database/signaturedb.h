@@ -15,7 +15,7 @@
 
 namespace REDasm {
 
-class LoaderPlugin;
+class DisassemblerAPI;
 
 /*
  * SignaturePattern valid fields:
@@ -49,7 +49,7 @@ struct Signature
     std::string name, assembler;
     std::list<SignaturePattern> patterns;
 
-    bool isCompatible(const LoaderPlugin* loader) const;
+    bool isCompatible(const DisassemblerAPI *disassembler) const;
 };
 
 class SignatureDB

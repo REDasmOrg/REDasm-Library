@@ -17,7 +17,6 @@ class Disassembler: public DisassemblerBase
 
     public: // Primitive functions
         virtual Printer* createPrinter();
-        virtual AssemblerPlugin* assembler();
         virtual InstructionPtr disassembleInstruction(address_t address);
         virtual void disassemble(address_t address);
         virtual void stop();
@@ -34,7 +33,6 @@ class Disassembler: public DisassemblerBase
 
     private:
         std::chrono::steady_clock::time_point m_starttime;
-        std::unique_ptr<AssemblerPlugin> m_assembler;
         safe_ptr<AssemblerAlgorithm> m_algorithm;
         Job m_analyzejob;
         JobsPool m_jobs;

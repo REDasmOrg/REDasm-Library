@@ -18,7 +18,6 @@ LOADER_PLUGIN_TEST(CHIP8Loader, u8)
 
 CHIP8Loader::CHIP8Loader(AbstractBuffer *buffer): LoaderPluginB(buffer) { }
 std::string CHIP8Loader::assembler() const { return "chip8"; }
-u32 CHIP8Loader::bits() const { return 8; }
 
 void CHIP8Loader::load()
 {

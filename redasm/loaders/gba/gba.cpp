@@ -48,7 +48,6 @@ LOADER_PLUGIN_TEST(GbaLoader, GbaRomHeader)
 }
 
 GbaLoader::GbaLoader(AbstractBuffer *buffer): LoaderPluginT<GbaRomHeader>(buffer) { }
-u32 GbaLoader::bits() const { return 32; }
 std::string GbaLoader::assembler() const { return "metaarm"; }
 
 void GbaLoader::load()

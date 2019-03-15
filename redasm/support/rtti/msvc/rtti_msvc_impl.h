@@ -80,7 +80,7 @@ template<typename T> u32 RTTIMsvc<T>::rttiSignature() const
 {
     auto* peformat = static_cast<const PE64Loader*>(m_loader);
 
-    if(peformat->bits() == 64)
+    if(REDasm::bitwidth<T>::value == 64)
         return RTTISignatureType::x64;
 
     return RTTISignatureType::x86;
@@ -90,7 +90,7 @@ template<typename T> address_t RTTIMsvc<T>::rttiAddress(address_t address) const
 {
     auto* peformat = static_cast<const PE64Loader*>(m_loader);
 
-    if(peformat->bits() == 64)
+    if(REDasm::bitwidth<T>::value == 64)
         return peformat->rvaToVa(address);
 
     return address;
@@ -184,7 +184,7 @@ template<typename T> void RTTIMsvc<T>::searchCompleteObjects()
     {
         const auto* peformat = static_cast<const PE64Loader*>(m_loader);
 
-        if(peformat->bits() == 64)
+        if(REDasm::bitwidth<T>::value == 64)
             searchobj.pTypeDescriptor = static_cast<u32>(peformat->vaToRva(item.first));
         else
             searchobj.pTypeDescriptor = static_cast<u32>(item.first);

@@ -59,7 +59,6 @@ class N64Loader: public LoaderPluginT<N64RomHeader>
     public:
         N64Loader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
         virtual void load();
 

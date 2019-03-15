@@ -22,6 +22,7 @@ class DalvikAssembler : public AssemblerPlugin
         DalvikAssembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
+        virtual u32 bits() const;
 
     protected:
         virtual bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction);

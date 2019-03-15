@@ -1,6 +1,7 @@
 #ifndef AVR8_H
 #define AVR8_H
 
+// http://roncella.iet.unipi.it/Didattica/Corsi/Elettronica/Risorse/Atmel-0856-AVR-Instruction-Set-Manual.pdf
 // Based on: https://github.com/vsergeev/vavrdisasm
 
 #include "../../plugins/plugins.h"
@@ -18,6 +19,7 @@ class AVR8Assembler: public AssemblerPlugin
     public:
         AVR8Assembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
+        virtual u32 bits() const;
 
     private:
         void compileInstruction(const InstructionPtr& instruction, const AVR8Operand &avrop, size_t opindex);

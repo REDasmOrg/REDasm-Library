@@ -14,6 +14,7 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
     public:
         MIPSAssembler();
         virtual u32 flags() const { return AssemblerFlags::CanEmulate; }
+        virtual u32 bits() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) { return new MIPSAlgorithm(disassembler, this); }

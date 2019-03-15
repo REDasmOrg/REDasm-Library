@@ -13,7 +13,6 @@ class BinaryLoader : public LoaderPluginB
     public:
         BinaryLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
         virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
 

@@ -17,7 +17,6 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
     public:
         DEXLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
 
     public:

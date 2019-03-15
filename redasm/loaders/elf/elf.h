@@ -26,7 +26,6 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
     public:
         ELFLoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual u32 bits() const;
         virtual void load();
         virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
 

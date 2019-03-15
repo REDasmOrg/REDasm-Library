@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-PEAnalyzer::PEAnalyzer(u64 petype, DisassemblerAPI *disassembler, const SignatureFiles& signatures): Analyzer(disassembler, signatures), m_petype(petype)
+PEAnalyzer::PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI *disassembler, const SignatureFiles& signatures): Analyzer(disassembler, signatures), m_pebits(pebits), m_petype(petype)
 {
     ADD_WNDPROC_API(4, "DialogBoxA");
     ADD_WNDPROC_API(4, "DialogBoxW");
@@ -34,7 +34,7 @@ void PEAnalyzer::analyze()
 
         REDasm::log("MSVC Compiler detected, searching RTTI...");
 
-        if(m_disassembler->loader()->bits() == 64)
+        if(m_pebits == 64)
             RTTI::RTTIMsvc<u64>(m_disassembler).search();
         else
             RTTI::RTTIMsvc<u32>(m_disassembler).search();

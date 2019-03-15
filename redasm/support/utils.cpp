@@ -31,28 +31,34 @@ std::string hexstring(const char *data, size_t size)
     return ss.str();
 }
 
-u8 byte(const std::string& s, int offset)
+bool byte(const std::string& s, u8 *val, u64 offset)
 {
-    std::stringstream ss;
+    if(offset > (s.size() - 2))
+        return false;
 
-    if(offset < 0)
-        ss << std::hex << s.substr(s.size() + offset, 2);
-    else
-        ss << std::hex << s.substr(offset, 2);
+    if(!std::isxdigit(s[offset]) || !std::isxdigit(s[offset + 1]))
+        return false;
 
-    u64 val = 0;
-    ss >> val;
-
-    return static_cast<u8>(val);
+    *val = static_cast<u8>(std::stoi(s.substr(offset, 2), nullptr, 16));
+    return true;
 }
 
-MemoryBuffer bytes(const std::string &s)
+MemoryBuffer bytes(const std::string &s, u64 offset, u64 hexlen)
 {
-    MemoryBuffer buffer;
-    buffer.resize(s.size() / 2);
+    if(offset >= s.length())
+        return false;
 
-    for(int i = 0, j = 0; i < s.size(); i += 2, j++)
-         buffer[j] = REDasm::byte(s, i);
+    if(!hexlen || (hexlen > s.size()))
+        hexlen = s.size();
+
+    MemoryBuffer buffer;
+    buffer.resize(hexlen / 2);
+
+    for(u64 i = 0, j = 0; i < hexlen; i += 2, j++)
+    {
+        if(!REDasm::byte(s.substr(offset + i, 2), &buffer[j]))
+            return MemoryBuffer();
+    }
 
     return buffer;
 }

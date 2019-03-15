@@ -24,21 +24,37 @@ inline std::string quoted(const char* s) { return REDasm::quoted(std::string(s))
 std::string wtoa(const std::wstring& wide);
 std::string hexstring(const char* data, size_t size);
 inline std::string hexstring(const BufferView& view, size_t size) { return hexstring(static_cast<const char*>(view), size); }
-MemoryBuffer bytes(const std::string& s);
-u8 byte(const std::string& s, int offset = 0);
-
-template<typename T> struct bitwidth { static constexpr size_t value = sizeof(T) * CHAR_BIT; };
-
+MemoryBuffer bytes(const std::string& s, u64 offset = 0, u64 hexlen = 0);
+bool byte(const std::string& s, u8* val, u64 offset = 0);
 inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
+
+template<typename T> struct bitwidth { static constexpr T value = sizeof(T) * CHAR_BIT; };
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
 template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 
-template<typename T, typename U> inline T readpointer(U** p)
-{
+template<typename T> T unmask(T val, T mask) {
+    T result = 0;
+
+    for(T i = 0, j = 0; i < bitwidth<T>::value; i++) {
+        if(!(mask & (1 << i))) // Check if mask bit is set
+            continue;
+
+        if(val & (1 << i)) // Check if data bit is set
+            result |= (1 << j);
+
+        j++;
+    }
+
+    return result;
+}
+
+template<typename T, typename U> inline T readpointer(U** p) {
     T v = *reinterpret_cast<T*>(*p);
     *p = REDasm::relpointer<U>(*p, sizeof(T));
     return v;
 }
+
+template<typename T, typename ST = typename signed_of<T>::type> ST twoc(T val) { return static_cast<ST>((~val) + 1); }
 
 template<typename T, typename U> T rol(T n, U c) {
     assert(c < bitwidth<T>::value);
@@ -58,14 +74,12 @@ template<typename T, typename U> T ror(T n, U c) {
     return (n >> c) | (n << (bitwidth<T>::value - c));
 }
 
-template<typename T, typename U> T aligned(T t, U a)
-{
+template<typename T, typename U> T aligned(T t, U a) {
     T r = t % a;
     return r ? (t + (a - r)) : t;
 }
 
-template<typename T> std::string wtoa(T* ws, size_t len)
-{
+template<typename T> std::string wtoa(T* ws, size_t len) {
     std::string s;
     char* p = reinterpret_cast<char*>(ws);
 
@@ -75,15 +89,13 @@ template<typename T> std::string wtoa(T* ws, size_t len)
     return s;
 }
 
-template<typename T> std::string dec(T t)
-{
+template<typename T> std::string dec(T t) {
     std::stringstream ss;
     ss << t;
     return ss.str();
 }
 
-template<typename T> std::string hex(T t, u64 bits = 0, bool withprefix = false)
-{
+template<typename T> std::string hex(T t, u64 bits = 0, bool withprefix = false) {
     std::stringstream ss;
 
     if(withprefix && (t > (std::is_signed<T>::value ? 9 : 9u)))
@@ -102,14 +114,12 @@ template<typename T> std::string hex(T t, u64 bits = 0, bool withprefix = false)
     return ss.str();
 }
 
-template<typename T> u64 countbits(T val)
-{
+template<typename T> u64 countbits(T val) {
     double bytes = std::log(static_cast<double>(val)) / std::log(256.0);
     return static_cast<u64>(std::ceil(bytes)) * 8;
 }
 
-template<typename T> u64 countbits_r(T val)
-{
+template<typename T> u64 countbits_r(T val) {
     u64 bits = countbits(val);
 
     if(bits <= 8)

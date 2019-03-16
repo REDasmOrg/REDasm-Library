@@ -35,7 +35,7 @@ std::string DEXLoader::assembler() const { return "dalvik"; }
 void DEXLoader::load()
 {
     REDasm::log("Loading DEX Version " + std::string(m_header->version, 3));
-    m_skipandroid = r_ui->askYN("DEX Loader", "Skip android.* packages?");
+    m_skipandroid = r_ui->askYN("DEX Loader", "Skip Android packages?");
 
     m_types = pointer<DEXTypeIdItem>(m_header->type_ids_off);
     m_strings = pointer<DEXStringIdItem>(m_header->string_ids_off);
@@ -281,7 +281,7 @@ void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
 
     const std::string& methodname = this->getMethodName(idx);
 
-    if(!methodname.find("android."))
+    if(!methodname.find("android.") || !methodname.find("com.google."))
     {
         if(m_skipandroid)
             m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolTypes::Import, idx);

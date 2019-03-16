@@ -36,10 +36,22 @@ size_t Plugins::loadersCount = 0;
 EntryListT<LoaderPlugin_Entry>::Type Plugins::loaders;
 EntryMapT<AssemblerPlugin_Entry>::Type Plugins::assemblers;
 
-void init(const std::string& temppath, const std::string& searchpath)
+static void checkContextSettings()
 {
-    Runtime::rntTempPath = temppath;
-    Runtime::rntSearchPath = searchpath;
+    if(!Context::settings.logCallback)
+        Context::settings.logCallback = [](const std::string& s) { std::cout << s << std::endl; };
+
+    if(!Context::settings.statusCallback)
+        Context::settings.statusCallback = [](const std::string& s) { };
+
+    if(!Context::settings.progressCallback)
+        Context::settings.progressCallback = [](size_t) { };
+}
+
+void init(const ContextSettings& settings)
+{
+    Context::settings = std::move(settings);
+    checkContextSettings();
 
     REGISTER_LOADER_PLUGIN(binary); // Always last choice
     REGISTER_LOADER_PLUGIN(ihex);
@@ -92,9 +104,9 @@ const AssemblerPlugin_Entry *getAssembler(const std::string& id)
     return nullptr;
 }
 
-void setLoggerCallback(const Runtime::LogCallback& logcb) { Runtime::rntLogCallback = logcb; }
-void setStatusCallback(const Runtime::LogCallback& logcb) { Runtime::rntStatusCallback = logcb; }
-void setProgressCallback(const Runtime::ProgressCallback& pcb) { Runtime::rntProgressCallback = pcb; }
+void setLoggerCallback(const Context_LogCallback& logcb) { Context::settings.logCallback = logcb; }
+void setStatusCallback(const Context_LogCallback& logcb) { Context::settings.statusCallback = logcb; }
+void setProgressCallback(const Context_ProgressCallback& pcb) { Context::settings.progressCallback = pcb; }
 
 LoaderList getLoaders(const LoadRequest &request, bool skipbinaries)
 {

@@ -1,5 +1,5 @@
 #include "jobspool.h"
-#include "../../redasm_runtime.h"
+#include "../../redasm_context.h"
 #include <iostream>
 #include <algorithm>
 #include <thread>
@@ -10,7 +10,7 @@ JobsPool::JobsPool(): m_running(true)
 {
     m_concurrency = std::thread::hardware_concurrency();
 
-    if(!m_concurrency || REDasm::Runtime::sync())
+    if(!m_concurrency || REDasm::Context::sync())
         m_concurrency = 1;
 
     for(size_t i = 0; i < m_concurrency; i++)

@@ -91,7 +91,7 @@ SET(SOURCES
     ${DATABASE_SOURCES}
     ${GRAPH_SOURCES}
     redasm/redasm_api.cpp
-    redasm/redasm_runtime.cpp)
+    redasm/redasm_context.cpp)
 
 set(HEADERS
     ${MINIZ_HEADERS}
@@ -108,7 +108,7 @@ set(HEADERS
     ${GRAPH_HEADERS}
     redasm/redasm.h
     redasm/redasm_api.h
-    redasm/redasm_runtime.h)
+    redasm/redasm_context.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 add_dependencies(${PROJECT_NAME} capstone-static)

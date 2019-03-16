@@ -32,10 +32,10 @@ struct Plugins
 LoaderList getLoaders(const LoadRequest& request, bool skipbinaries = false);
 const LoaderPlugin_Entry* getLoader(const std::string& id);
 const AssemblerPlugin_Entry* getAssembler(const std::string &id);
-void setLoggerCallback(const Runtime::LogCallback &logcb);
-void setStatusCallback(const Runtime::LogCallback& logcb);
-void setProgressCallback(const Runtime::ProgressCallback &pcb);
-void init(const std::string &temppath = std::string(), const std::string &searchpath = std::string());
+void setLoggerCallback(const Context_LogCallback &logcb);
+void setStatusCallback(const Context_LogCallback& logcb);
+void setProgressCallback(const Context_ProgressCallback &pcb);
+void init(const ContextSettings &settings);
 
 }
 

@@ -1,5 +1,5 @@
 #include "job.h"
-#include "../../redasm_runtime.h"
+#include "../../redasm_context.h"
 #include <algorithm>
 
 #define JOB_BASE_INTERVAL 1 // 1ms
@@ -32,7 +32,7 @@ void Job::start()
 
     m_state = Job::ActiveState;
 
-    if(REDasm::Runtime::sync())
+    if(REDasm::Context::sync())
         this->doWorkSync();
     else
         m_cv.notify_one();
@@ -76,7 +76,7 @@ void Job::work(const JobCallback& cb, bool deferred)
     m_jobcallback = cb;
     stateChanged(this);
 
-    if(REDasm::Runtime::sync())
+    if(REDasm::Context::sync())
     {
         this->doWorkSync();
         return;

@@ -1,5 +1,5 @@
 #include "cachemap.h"
-#include "../redasm_runtime.h"
+#include "../redasm_context.h"
 #include "../redasm_api.h"
 #include "utils.h"
 #include <ios>
@@ -13,7 +13,7 @@ template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_
 
 template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(nullptr))
 {
-    std::string cachepath = REDasm::makePath(Runtime::rntTempPath, CACHE_FILE);
+    std::string cachepath = REDasm::makePath(Context::settings.tempPath, CACHE_FILE);
     m_file.open(cachepath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
     if(!m_file.is_open())
@@ -26,7 +26,7 @@ template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
         return;
 
     m_file.close();
-    std::remove(REDasm::makePath(Runtime::rntTempPath, CACHE_FILE).c_str());
+    std::remove(REDasm::makePath(Context::settings.tempPath, CACHE_FILE).c_str());
 }
 
 template<typename T1, typename T2> u64 cache_map<T1, T2>::size() const { return m_offsets.size(); }

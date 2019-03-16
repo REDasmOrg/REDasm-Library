@@ -16,7 +16,7 @@
 #include "types/buffer/abstractbuffer.h"
 #include "types/buffer/bufferview.h"
 #include "support/utils.h"
-#include "redasm_runtime.h"
+#include "redasm_context.h"
 
 #if __cplusplus <= 201103L && __GNUC__
 namespace std {
@@ -36,23 +36,22 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 
 namespace REDasm {
 
-inline const std::string& searchPath() {  return Runtime::rntSearchPath; }
-inline void log(const std::string& s) { Runtime::rntLogCallback(s); }
+inline void log(const std::string& s) { Context::settings.logCallback(s); }
 
 inline void status(const std::string& s) {
-    RUNTIME_DEBOUNCE_CHECK
-    Runtime::rntStatusCallback(s);
+    CONTEXT_DEBOUNCE_CHECK
+    Context::settings.statusCallback(s);
 }
 
 inline void statusProgress(const std::string& s, size_t p) {
-    RUNTIME_DEBOUNCE_CHECK
-    Runtime::rntStatusCallback(s);
-    Runtime::rntProgressCallback(p);
+    CONTEXT_DEBOUNCE_CHECK
+    Context::settings.statusCallback(s);
+    Context::settings.progressCallback(p);
 }
 
 inline void statusAddress(const std::string& s, address_t address) {
-    RUNTIME_DEBOUNCE_CHECK
-    Runtime::rntStatusCallback(s + " @ " + REDasm::hex(address));
+    CONTEXT_DEBOUNCE_CHECK
+    Context::settings.statusCallback(s + " @ " + REDasm::hex(address));
 }
 
 template<typename... T> std::string makePath(const std::string& p, T... args) {
@@ -61,8 +60,8 @@ template<typename... T> std::string makePath(const std::string& p, T... args) {
 
     for(size_t i = 0; i < v.size(); i++)
     {
-        if(!path.empty() && (path.back() != Runtime::rntDirSeparator[0]))
-            path += Runtime::rntDirSeparator;
+        if(!path.empty() && (path.back() != Context::dirSeparator[0]))
+            path += Context::dirSeparator;
 
         path += v[i];
     }
@@ -70,7 +69,7 @@ template<typename... T> std::string makePath(const std::string& p, T... args) {
     return path;
 }
 
-template<typename...T> std::string makeRntPath(const std::string& p, T... args) { return REDasm::makePath(Runtime::rntSearchPath, p, args...); }
+template<typename...T> std::string makeRntPath(const std::string& p, T... args) { return REDasm::makePath(Context::settings.searchPath, p, args...); }
 template<typename...T> std::string makeDbPath(const std::string& p, T... args) { return REDasm::makeRntPath("database", p, args...); }
 template<typename...T> std::string makeSdbPath(const std::string& p, T... args) { return REDasm::makeDbPath("sdb", p, args...); }
 template<typename...T> std::string makeLoaderPath(const std::string& p, T... args) { return REDasm::makeDbPath("loaders", p, args...); }

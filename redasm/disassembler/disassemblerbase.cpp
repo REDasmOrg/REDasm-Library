@@ -163,7 +163,7 @@ std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
 
 std::string DisassemblerBase::getHexDump(address_t address, const Symbol **ressymbol)
 {
-    REDasm::ListingItem* item = m_document->currentFunction();
+    REDasm::ListingItem* item = m_document->functionStart(address);
 
     if(!item)
         return std::string();

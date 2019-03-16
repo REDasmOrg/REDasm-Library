@@ -127,7 +127,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
 ListingItems ListingDocumentType::getCalls(ListingItem *item)
 {
     ListingItems calls;
-    ListingDocumentType::iterator it = this->end();
+    auto it = this->end();
 
     if(item->is(ListingItem::InstructionItem))
     {

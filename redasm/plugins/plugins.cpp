@@ -50,7 +50,7 @@ static void checkContextSettings()
 
 void init(const ContextSettings& settings)
 {
-    Context::settings = std::move(settings);
+    Context::settings = settings;
     checkContextSettings();
 
     REGISTER_LOADER_PLUGIN(binary); // Always last choice

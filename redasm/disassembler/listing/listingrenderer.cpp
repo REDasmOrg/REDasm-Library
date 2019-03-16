@@ -384,9 +384,9 @@ std::string ListingRenderer::escapeString(const std::string &s)
 {
     std::string res;
 
-    for(size_t i = 0; i < s.size(); i++)
+    for(char ch : s)
     {
-        switch(s[i])
+        switch(ch)
         {
             case '\n':
                 res += "\\\n";
@@ -401,7 +401,7 @@ std::string ListingRenderer::escapeString(const std::string &s)
                 break;
 
             default:
-                res += s[i];
+                res += ch;
                 break;
         }
     }

@@ -74,7 +74,7 @@ std::string simplified(std::string s)
 
 std::string pathext(const std::string &s)
 {
-    size_t lastidx = s.find_last_of(".");
+    size_t lastidx = s.find_last_of('.');
 
     if(lastidx == std::string::npos)
         return std::string();

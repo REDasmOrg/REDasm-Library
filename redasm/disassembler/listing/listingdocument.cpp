@@ -64,6 +64,16 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
         Serializer::serializeString(fs, v);
     });
 
+    // Metadata
+    Serializer::serializeMap<address_t, MetaList>(fs, m_meta, [&](address_t k, const MetaList& v) {
+        Serializer::serializeScalar(fs, k);
+
+        Serializer::serializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](const std::pair<std::string, std::string>& m) {
+            Serializer::serializeString(fs, m.first);
+            Serializer::serializeString(fs, m.second);
+        });
+    });
+
     m_instructions.serializeTo(fs);
     m_symboltable.serializeTo(fs);
 }
@@ -103,13 +113,33 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
         Serializer::deserializeString(fs, v);
     });
 
+    // Metadata
+    Serializer::deserializeMap<address_t, MetaList>(fs, m_meta, [&](address_t& k, MetaList& v) {
+        Serializer::deserializeScalar(fs, &k);
+        size_t idx = 0;
+
+        Serializer::deserializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](std::pair<std::string, std::string>& m) {
+            Serializer::deserializeString(fs, m.first);
+            Serializer::deserializeString(fs, m.second);
+
+            if(!idx)
+                this->insertSorted(k, ListingItem::EmptyItem);
+
+            this->insertSorted(k, ListingItem::MetaItem, idx);
+            idx++;
+        });
+    });
+
     EVENT_CONNECT(&m_instructions, deserialized, this, [&](const InstructionPtr& instruction) {
         this->insertSorted(instruction->address, ListingItem::InstructionItem);
     });
 
     EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const Symbol* symbol) {
         if(symbol->type & SymbolTypes::FunctionMask)
+        {
+            this->insertSorted(symbol->address, ListingItem::EmptyItem);
             this->insertSorted(symbol->address, ListingItem::FunctionItem);
+        }
         else
             this->insertSorted(symbol->address, ListingItem::SymbolItem);
     });

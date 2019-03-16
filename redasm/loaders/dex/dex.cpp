@@ -25,7 +25,7 @@ LOADER_PLUGIN_TEST(DEXLoader, DEXHeader)
 
 const std::string DEXLoader::m_invalidstring;
 
-DEXLoader::DEXLoader(AbstractBuffer *buffer): LoaderPluginT<DEXHeader>(buffer), m_types(nullptr), m_strings(nullptr), m_methods(nullptr), m_fields(nullptr), m_protos(nullptr), m_skipandroid(true)
+DEXLoader::DEXLoader(AbstractBuffer *buffer): LoaderPluginT<DEXHeader>(buffer), m_types(nullptr), m_strings(nullptr), m_methods(nullptr), m_fields(nullptr), m_protos(nullptr)
 {
     m_importbase = IMPORT_SECTION_ADDRESS;
 }
@@ -35,7 +35,6 @@ std::string DEXLoader::assembler() const { return "dalvik"; }
 void DEXLoader::load()
 {
     REDasm::log("Loading DEX Version " + std::string(m_header->version, 3));
-    m_skipandroid = r_ui->askYN("DEX Loader", "Skip Android packages?");
 
     m_types = pointer<DEXTypeIdItem>(m_header->type_ids_off);
     m_strings = pointer<DEXStringIdItem>(m_header->string_ids_off);
@@ -49,9 +48,7 @@ void DEXLoader::load()
     m_document->segment("IMPORT", 0, IMPORT_SECTION_ADDRESS, IMPORT_SECTION_SIZE, SegmentTypes::Bss);
 
     DEXClassIdItem* dexclasses = pointer<DEXClassIdItem>(m_header->class_defs_off);
-
-    for(u32 i = 0; i < m_header->class_defs_size; i++)
-        this->loadClass(dexclasses[i]);
+    this->filterClasses(dexclasses);
 }
 
 bool DEXLoader::getMethodOffset(u64 idx, offset_t &offset) const
@@ -264,7 +261,7 @@ bool DEXLoader::getClassData(const DEXClassIdItem &dexclass, DEXClassData &dexcl
     return true;
 }
 
-void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
+void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx, bool filter)
 {
     if(!dexmethod.code_off)
         return;
@@ -281,18 +278,13 @@ void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
 
     const std::string& methodname = this->getMethodName(idx);
 
-    if(!methodname.find("android.") || !methodname.find("com.google."))
-    {
-        if(m_skipandroid)
-            m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolTypes::Import, idx);
-        else
-            m_document->lockFunction(fileoffset(&dexcode->insns), methodname, idx);
-    }
+    if(filter)
+        m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolTypes::Import, idx);
     else
         m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
 }
 
-void DEXLoader::loadClass(const DEXClassIdItem &dexclass)
+void DEXLoader::loadClass(const DEXClassIdItem &dexclass, bool filter)
 {
     DEXClassData dexclassdata;
 
@@ -302,14 +294,35 @@ void DEXLoader::loadClass(const DEXClassIdItem &dexclass)
     u16 idx = 0;
 
     std::for_each(dexclassdata.direct_methods.begin(), dexclassdata.direct_methods.end(), [&](const DEXEncodedMethod& dexmethod) {
-        this->loadMethod(dexmethod, idx);
+        this->loadMethod(dexmethod, idx, filter);
     });
 
     idx = 0;
 
     std::for_each(dexclassdata.virtual_methods.begin(), dexclassdata.virtual_methods.end(), [&](const DEXEncodedMethod& dexmethod) {
-        this->loadMethod(dexmethod, idx);
+        this->loadMethod(dexmethod, idx, filter);
     });
+}
+
+void DEXLoader::filterClasses(const DEXClassIdItem *dexclasses)
+{
+    UI::CheckList items;
+
+    for(u32 i = 0; i < m_header->class_defs_size; i++)
+    {
+        const std::string& classtype = this->getType(dexclasses[i].class_idx);
+        bool precheck = true;
+
+        if(!classtype.find("android.") || !classtype.find("com.google.")) // Apply prefiltering
+            precheck = false;
+
+        items.push_back({ classtype , precheck });
+    }
+
+    r_ui->checkList("Class Loader", "Select one or more classes from the list below", items);
+
+    for(u32 i = 0; i < m_header->class_defs_size; i++)
+        this->loadClass(dexclasses[i], !items[i].second);
 }
 
 const std::string& DEXLoader::getNormalizedString(u64 idx)

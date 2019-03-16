@@ -35,9 +35,10 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
         address_t nextImport(address_t *res = nullptr);
 
     private:
+        void filterClasses(const DEXClassIdItem* dexclasses);
         bool getClassData(const DEXClassIdItem& dexclass, DEXClassData& dexclassdata);
-        void loadMethod(const DEXEncodedMethod& dexmethod, u16 &idx);
-        void loadClass(const DEXClassIdItem& dexclass);
+        void loadMethod(const DEXEncodedMethod& dexmethod, u16 &idx, bool filter);
+        void loadClass(const DEXClassIdItem& dexclass, bool filter);
         const std::string &getNormalizedString(u64 idx);
         const std::string &getTypeList(u64 typelistoff);
 
@@ -68,9 +69,6 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
         std::unordered_map<u64, std::string> m_cachedparameters;
         std::unordered_map<u64, std::string> m_cachedmethodnames;
         std::unordered_map<u64, std::string> m_cachedmethodproto;
-
-   private:
-        bool m_skipandroid;
 };
 
 DECLARE_LOADER_PLUGIN(DEXLoader, dex)

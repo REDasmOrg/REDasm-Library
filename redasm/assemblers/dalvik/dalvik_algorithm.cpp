@@ -172,7 +172,7 @@ void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::Cas
             casestring += "#" + std::to_string(caseidx);
         });
 
-        m_document->meta(item.first, "Packaged Switch Table @ " + REDasm::hex(address) + " (Case(s) " + casestring + ")");
+        m_document->meta(item.first, "@ " + REDasm::hex(address) + " (Case(s) " + casestring + ")", "packaged_switch_table");
     }
 }
 
@@ -207,16 +207,16 @@ void DalvikAlgorithm::emitDebugData(const DEXDebugInfo &dexdebuginfo)
                 if(dbgdata.type_idx != DEX_NO_INDEX)
                     type = ": " + m_dexloader->getType(dbgdata.type_idx);
 
-                m_document->meta(item.first, "localstart " + DalvikAssembler::registerName(dbgdata.register_num) + " = " + name + type);
+                m_document->meta(item.first, DalvikAssembler::registerName(dbgdata.register_num) + " = " + name + type, "localstart");
             }
             else if(dbgdata.data_type == DEXDebugDataTypes::RestartLocal)
-                m_document->meta(item.first, "localrestart " + DalvikAssembler::registerName(dbgdata.register_num));
+                m_document->meta(item.first, DalvikAssembler::registerName(dbgdata.register_num), "localrestart");
             else if(dbgdata.data_type == DEXDebugDataTypes::EndLocal)
-                m_document->meta(item.first, "localend " + DalvikAssembler::registerName(dbgdata.register_num));
+                m_document->meta(item.first,  DalvikAssembler::registerName(dbgdata.register_num), "localend");
             else if(dbgdata.data_type == DEXDebugDataTypes::PrologueEnd)
-                m_document->meta(item.first, "prologue_end");
+                m_document->meta(item.first, std::string(), "prologue_end");
             else if(dbgdata.data_type == DEXDebugDataTypes::Line)
-                m_document->meta(item.first, "line " + std::to_string(dbgdata.line_no));
+                m_document->meta(item.first, std::to_string(dbgdata.line_no), "line");
         }
     }
 }

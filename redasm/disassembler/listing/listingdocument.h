@@ -154,12 +154,12 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
     private:
         typedef std::set<std::string> CommentSet;
-        typedef std::deque<std::string> StringList;
+        typedef std::deque< std::pair<std::string, std::string> > MetaList;
         typedef std::pair<address_t, CommentSet> AutoCommentItem;
         typedef std::pair<address_t, std::string> CommentItem;
         typedef std::unordered_map<address_t, CommentSet> AutoCommentMap;
         typedef std::unordered_map<address_t, std::string> AddressStringMap;
-        typedef std::unordered_map<address_t, StringList> AddressListMap;
+        typedef std::unordered_map<address_t, MetaList> MetaMap;
         typedef std::deque<ListingItem*> FunctionList;
 
     public:
@@ -195,10 +195,10 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         Symbol *functionStartSymbol(address_t address);
         InstructionPtr entryInstruction();
         std::string comment(address_t address, bool skipauto = false) const;
-        std::string meta(address_t address, size_t index) const;
+        std::pair<std::string, std::string> meta(address_t address, size_t index) const;
         std::string type(address_t address) const;
         void empty(address_t address);
-        void meta(address_t address, const std::string& s);
+        void meta(address_t address, const std::string& s, const std::string& name = std::string());
         void type(address_t address, const std::string& s);
         void comment(address_t address, const std::string& s);
         void autoComment(address_t address, const std::string& s);
@@ -262,7 +262,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         Symbol* m_documententry;
         AutoCommentMap m_autocomments;
         AddressStringMap m_comments, m_types;
-        AddressListMap m_meta;
+        MetaMap m_meta;
 
         friend class LoaderPlugin;
 };

@@ -254,14 +254,14 @@ std::string ListingDocumentType::comment(address_t address, bool skipauto) const
     return cmt;
 }
 
-std::string ListingDocumentType::meta(address_t address, size_t index) const
+std::pair<std::string, std::string> ListingDocumentType::meta(address_t address, size_t index) const
 {
     auto it = m_meta.find(address);
 
     if((it != m_meta.end()) && (index < it->second.size()))
         return it->second[index];
 
-    return std::string();
+    return { };
 }
 
 std::string ListingDocumentType::type(address_t address) const
@@ -276,7 +276,7 @@ std::string ListingDocumentType::type(address_t address) const
 
 void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
-void ListingDocumentType::meta(address_t address, const std::string &s)
+void ListingDocumentType::meta(address_t address, const std::string &s, const std::string &name)
 {
     size_t index = 0;
     auto it = m_meta.find(address);
@@ -284,11 +284,19 @@ void ListingDocumentType::meta(address_t address, const std::string &s)
     if(it != m_meta.end())
     {
         index = it->second.size();
-        m_meta[address].push_back(s);
+
+        if(name.empty())
+            m_meta[address].emplace_back(std::make_pair(".meta", s));
+        else
+            m_meta[address].emplace_back(std::make_pair("." + name, s));
     }
     else
     {
-        m_meta[address] = { s };
+        if(name.empty())
+            m_meta[address] = { std::make_pair(".meta", s) };
+        else
+            m_meta[address] = { std::make_pair("." + name, s) };
+
         this->empty(address);
     }
 

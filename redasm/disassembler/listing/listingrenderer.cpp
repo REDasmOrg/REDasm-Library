@@ -266,7 +266,8 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push(".meta ", "dotted_fg").push(lock->meta(item->address, item->index), "comment_fg");
+    auto metaitem = lock->meta(item->address, item->index);
+    rl.push(metaitem.first + " ", "dotted_fg").push(metaitem.second, "comment_fg");
 }
 
 void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)

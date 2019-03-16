@@ -46,6 +46,9 @@ static void checkContextSettings()
 
     if(!Context::settings.progressCallback)
         Context::settings.progressCallback = [](size_t) { };
+
+    if(!Context::settings.ui)
+        Context::settings.ui = std::make_unique<AbstractUI>();
 }
 
 void init(const ContextSettings& settings)

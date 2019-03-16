@@ -3,8 +3,10 @@
 
 #include <libredasm_export.h>
 #include <functional>
+#include <memory>
 #include <chrono>
 #include <string>
+#include "redasm_ui.h"
 
 #define CONTEXT_DEBOUNCE_CHECK  auto now = std::chrono::steady_clock::now(); \
                                 if((now - Context::lastStatusReport) < Context::debounceTimeout) return; \
@@ -22,11 +24,11 @@ struct ContextSettings
     Context_LogCallback logCallback;
     Context_LogCallback statusCallback;
     Context_ProgressCallback progressCallback;
+    std::shared_ptr<AbstractUI> ui;
 };
 
 struct Context
 {
-
     static LIBREDASM_EXPORT ContextSettings settings;
     static LIBREDASM_EXPORT std::chrono::steady_clock::time_point lastStatusReport;
 
@@ -37,6 +39,8 @@ struct Context
     static void sync(bool b);
     static bool sync();
 };
+
+#define r_ui Context::settings.ui
 
 } // namespace REDasm
 

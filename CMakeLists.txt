@@ -91,6 +91,7 @@ SET(SOURCES
     ${DATABASE_SOURCES}
     ${GRAPH_SOURCES}
     redasm/redasm_api.cpp
+    redasm/redasm_ui.cpp
     redasm/redasm_context.cpp)
 
 set(HEADERS
@@ -108,6 +109,7 @@ set(HEADERS
     ${GRAPH_HEADERS}
     redasm/redasm.h
     redasm/redasm_api.h
+    redasm/redasm_ui.h
     redasm/redasm_context.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})

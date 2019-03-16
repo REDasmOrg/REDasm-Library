@@ -254,12 +254,12 @@ std::string ListingDocumentType::comment(address_t address, bool skipauto) const
     return cmt;
 }
 
-std::string ListingDocumentType::info(address_t address) const
+std::string ListingDocumentType::meta(address_t address, size_t index) const
 {
-    auto it = m_info.find(address);
+    auto it = m_meta.find(address);
 
-    if(it != m_info.end())
-        return it->second;
+    if((it != m_meta.end()) && (index < it->second.size()))
+        return it->second[index];
 
     return std::string();
 }
@@ -276,12 +276,23 @@ std::string ListingDocumentType::type(address_t address) const
 
 void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
-void ListingDocumentType::info(address_t address, const std::string &s)
+void ListingDocumentType::meta(address_t address, const std::string &s)
 {
-    m_info[address] = s;
+    size_t index = 0;
+    auto it = m_meta.find(address);
 
-    this->empty(address);
-    this->insertSorted(address, ListingItem::InfoItem);
+    if(it != m_meta.end())
+    {
+        index = it->second.size();
+        m_meta[address].push_back(s);
+    }
+    else
+    {
+        m_meta[address] = { s };
+        this->empty(address);
+    }
+
+    this->insertSorted(address, ListingItem::MetaItem, index);
 }
 
 void ListingDocumentType::type(address_t address, const std::string &s)
@@ -355,7 +366,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
             return;
 
         this->removeSorted(address, ListingItem::EmptyItem);
-        this->removeSorted(address, ListingItem::InfoItem);
+        this->removeSorted(address, ListingItem::MetaItem);
 
         if(symbol->isFunction())
             this->removeSorted(address, ListingItem::FunctionItem);
@@ -461,7 +472,7 @@ void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->
 void ListingDocumentType::table(address_t address, u64 count, u32 tag)
 {
     this->lock(address, ListingDocumentType::symbolName("tbl", address) + "_0", SymbolTypes::TableItem, tag);
-    this->info(address, "Table with " + std::to_string(count) + " case(s)");
+    this->meta(address, "Table with " + std::to_string(count) + " case(s)");
 }
 
 void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, u32 tag)
@@ -620,9 +631,9 @@ Symbol* ListingDocumentType::symbol(address_t address) const { return m_symbolta
 Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }
 
-void ListingDocumentType::insertSorted(address_t address, u32 type)
+void ListingDocumentType::insertSorted(address_t address, u32 type, size_t index)
 {
-    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type);
+    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type, index);
 
     if(type == ListingItem::FunctionItem)
     {
@@ -644,19 +655,20 @@ void ListingDocumentType::removeSorted(address_t address, u32 type)
 {
     auto it = Listing::binarySearch(this, address, type);
 
-    if(it == this->end())
-        return;
-
-    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Removed);
-    changed(&ldc);
-
-    if(type == ListingItem::FunctionItem)
+    while(it != this->end())
     {
-        auto it = Listing::binarySearch(&m_functions, address, type);
-        m_functions.erase(it);
-    }
+        ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Removed);
+        changed(&ldc);
 
-    this->erase(it);
+        if(type == ListingItem::FunctionItem)
+        {
+            auto it = Listing::binarySearch(&m_functions, address, type);
+            m_functions.erase(it);
+        }
+
+        this->erase(it);
+        it = Listing::binarySearch(this, address, type);
+    }
 }
 
 std::string ListingDocumentType::symbolName(const std::string &prefix, address_t address, const Segment *segment)

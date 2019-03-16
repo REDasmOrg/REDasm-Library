@@ -92,7 +92,7 @@ struct DEXDebugInfo
 
     u32 line_start, parameters_size;
     std::deque<std::string> parameter_names;
-    std::unordered_map<u16, std::list<DEXDebugData> > debug_data;
+    std::unordered_map<address_t, std::list<DEXDebugData> > debug_data;
 };
 
 struct DEXClassData

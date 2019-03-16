@@ -30,6 +30,7 @@ DalvikAssembler::DalvikAssembler(): AssemblerPlugin()
 Printer *DalvikAssembler::createPrinter(DisassemblerAPI *disassembler) const  { return new DalvikPrinter(disassembler); }
 AssemblerAlgorithm *DalvikAssembler::createAlgorithm(DisassemblerAPI *disassembler) { return new DalvikAlgorithm(disassembler, this); }
 u32 DalvikAssembler::bits() const { return 16; }
+std::string DalvikAssembler::registerName(register_id_t regid) { return "v" + std::to_string(regid); }
 
 bool DalvikAssembler::decodeInstruction(const BufferView &view, const InstructionPtr &instruction)
 {

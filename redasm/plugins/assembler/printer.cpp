@@ -43,12 +43,6 @@ void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& fu
     functionfunc(s + " FUNCTION ", symbol->name, " " + s);
 }
 
-void Printer::prologue(const Symbol* symbol, const LineCallback &prologuefunc)
-{
-    RE_UNUSED(symbol);
-    RE_UNUSED(prologuefunc);
-}
-
 void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) const
 {
     if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
@@ -91,12 +85,6 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
         symbolfunc(symbol, " \"" + m_disassembler->readWString(symbol->address) + "\"");
     else if(symbol->is(SymbolTypes::String))
         symbolfunc(symbol, " \"" + m_disassembler->readString(symbol->address) + "\"");
-}
-
-void Printer::info(const InstructionPtr &instruction, const LineCallback &infofunc)
-{
-    RE_UNUSED(instruction);
-    RE_UNUSED(infofunc);
 }
 
 std::string Printer::out(const InstructionPtr &instruction, const OpCallback &opfunc) const

@@ -20,18 +20,18 @@ class LoaderPlugin;
 
 struct ListingItem
 {
-    enum: u32 {
+    enum: size_t {
         Undefined = 0,
-        SegmentItem, EmptyItem, InfoItem, TypeItem, FunctionItem, SymbolItem, InstructionItem,
-        AllItems = static_cast<u32>(-1)
+        SegmentItem, EmptyItem, FunctionItem, TypeItem, MetaItem, SymbolItem, InstructionItem,
+        AllItems = static_cast<size_t>(-1)
     };
 
-    ListingItem(): address(0), type(ListingItem::Undefined) { }
-    ListingItem(address_t address, u32 type): address(address), type(type) { }
-    bool is(u32 t) const { return type == t; }
+    ListingItem(): address(0), type(ListingItem::Undefined), index(0) { }
+    ListingItem(address_t address, size_t type, size_t index): address(address), type(type), index(index) { }
+    bool is(size_t t) const { return type == t; }
 
     address_t address;
-    u32 type;
+    size_t type, index;
 };
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
@@ -40,8 +40,12 @@ typedef std::deque<ListingItem*> ListingItems;
 namespace Listing {
     template<typename T> struct ListingComparator {
         bool operator()(const T& t1, const T& t2) {
-            if(t1->address == t2->address)
+            if(t1->address == t2->address) {
+                if(t1->type == t2->type)
+                    return t1->index < t2->index;
+
                 return t1->type < t2->type;
+            }
 
             return t1->address < t2->address;
         }
@@ -150,10 +154,12 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
 
     private:
         typedef std::set<std::string> CommentSet;
+        typedef std::deque<std::string> StringList;
         typedef std::pair<address_t, CommentSet> AutoCommentItem;
         typedef std::pair<address_t, std::string> CommentItem;
         typedef std::unordered_map<address_t, CommentSet> AutoCommentMap;
         typedef std::unordered_map<address_t, std::string> AddressStringMap;
+        typedef std::unordered_map<address_t, StringList> AddressListMap;
         typedef std::deque<ListingItem*> FunctionList;
 
     public:
@@ -189,10 +195,10 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         Symbol *functionStartSymbol(address_t address);
         InstructionPtr entryInstruction();
         std::string comment(address_t address, bool skipauto = false) const;
-        std::string info(address_t address) const;
+        std::string meta(address_t address, size_t index) const;
         std::string type(address_t address) const;
         void empty(address_t address);
-        void info(address_t address, const std::string& s);
+        void meta(address_t address, const std::string& s);
         void type(address_t address, const std::string& s);
         void comment(address_t address, const std::string& s);
         void autoComment(address_t address, const std::string& s);
@@ -239,7 +245,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         const SymbolTable* symbols() const;
 
     private:
-        void insertSorted(address_t address, u32 type);
+        void insertSorted(address_t address, u32 type, size_t index = 0);
         void removeSorted(address_t address, u32 type);
         ListingDocumentType::iterator item(address_t address, u32 type);
         s64 index(address_t address, u32 type);
@@ -255,7 +261,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         SymbolTable m_symboltable;
         Symbol* m_documententry;
         AutoCommentMap m_autocomments;
-        AddressStringMap m_comments, m_info, m_types;
+        AddressStringMap m_comments, m_types;
+        AddressListMap m_meta;
 
         friend class LoaderPlugin;
 };

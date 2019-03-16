@@ -6,11 +6,14 @@
 namespace REDasm {
 
 class DEXLoader;
+class DEXDebugInfo;
+class DEXEncodedMethod;
 
 class DalvikAlgorithm: public AssemblerAlgorithm
 {
     DEFINE_STATES(StringIndexState = UserState, MethodIndexState,
-                  PackedSwitchTableState, SparseSwitchTableState, FillArrayDataState)
+                  PackedSwitchTableState, SparseSwitchTableState, FillArrayDataState,
+                  DebugInfoState)
 
     private:
         typedef std::unordered_map<address_t, std::list<u32> > CaseMap;
@@ -29,9 +32,12 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         virtual void packedSwitchTableState(const State* state);
         virtual void sparseSwitchTableState(const State* state);
         virtual void fillArrayDataState(const State* state);
+        virtual void debugInfoState(const State* state);
 
     private:
         void emitCaseInfo(address_t address, const CaseMap& casemap);
+        void emitArguments(const State* state, const DEXEncodedMethod &dexmethod, const DEXDebugInfo &dexdebuginfo);
+        void emitDebugData(const DEXDebugInfo &dexdebuginfo);
         void checkImport(const State *state);
         bool canContinue(const InstructionPtr& instruction);
 

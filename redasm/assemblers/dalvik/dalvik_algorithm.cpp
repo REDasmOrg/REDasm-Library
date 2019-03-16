@@ -1,5 +1,6 @@
 #include "dalvik_algorithm.h"
 #include "../../loaders/dex/dex.h"
+#include "../../assemblers/dalvik/dalvik.h"
 #include "../../redasm/support/symbolize.h"
 #include "dalvik_payload.h"
 
@@ -14,6 +15,7 @@ DalvikAlgorithm::DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin*
     REGISTER_STATE(DalvikAlgorithm::PackedSwitchTableState, &DalvikAlgorithm::packedSwitchTableState);
     REGISTER_STATE(DalvikAlgorithm::SparseSwitchTableState, &DalvikAlgorithm::sparseSwitchTableState);
     REGISTER_STATE(DalvikAlgorithm::FillArrayDataState, &DalvikAlgorithm::fillArrayDataState);
+    REGISTER_STATE(DalvikAlgorithm::DebugInfoState, &DalvikAlgorithm::debugInfoState);
 }
 
 void DalvikAlgorithm::validateTarget(const InstructionPtr &) const { /* Nop */ }
@@ -50,7 +52,10 @@ void DalvikAlgorithm::decodeState(const State *state)
     Symbol* symbol = m_document->symbol(state->address);
 
     if(symbol && symbol->isFunction())
+    {
         m_methodbounds.insert(state->address + m_dexloader->getMethodSize(symbol->tag));
+        FORWARD_STATE(DalvikAlgorithm::DebugInfoState, state);
+    }
 
     AssemblerAlgorithm::decodeState(state);
 }
@@ -133,6 +138,27 @@ void DalvikAlgorithm::fillArrayDataState(const State *state)
 
 }
 
+void DalvikAlgorithm::debugInfoState(const State *state)
+{
+    Symbol* symbol = m_document->symbol(state->address);
+
+    if(!symbol || !symbol->isFunction())
+        return;
+
+    DEXEncodedMethod dexmethod;
+
+    if(!m_dexloader->getMethodInfo(symbol->tag, dexmethod))
+        return;
+
+    DEXDebugInfo dexdebuginfo;
+
+    if(!m_dexloader->getDebugInfo(symbol->tag, dexdebuginfo))
+        return;
+
+    this->emitArguments(state, dexmethod, dexdebuginfo);
+    this->emitDebugData(dexdebuginfo);
+}
+
 void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::CaseMap &casemap)
 {
     for(const auto& item : casemap)
@@ -146,7 +172,52 @@ void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::Cas
             casestring += "#" + std::to_string(caseidx);
         });
 
-        m_document->info(item.first, "Packaged Switch Table @ " + REDasm::hex(address) + " (Case(s) " + casestring + ")");
+        m_document->meta(item.first, "Packaged Switch Table @ " + REDasm::hex(address) + " (Case(s) " + casestring + ")");
+    }
+}
+
+void DalvikAlgorithm::emitArguments(const State* state, const DEXEncodedMethod& dexmethod, const DEXDebugInfo& dexdebuginfo)
+{
+    u32 delta = (dexmethod.access_flags & DexAccessFlags::Static) ? 0 : 1;
+
+    for(size_t i = 0; i < dexdebuginfo.parameter_names.size(); i++)
+    {
+        const std::string& param = dexdebuginfo.parameter_names[i];
+        m_document->meta(state->address, "arg_" + std::to_string(i + delta) + ": " + param);
+    }
+}
+
+void DalvikAlgorithm::emitDebugData(const DEXDebugInfo &dexdebuginfo)
+{
+    if(dexdebuginfo.line_start == DEX_NO_INDEX_U)
+        return;
+
+    for(const auto& item: dexdebuginfo.debug_data)
+    {
+        for(const auto& dbgdata : item.second)
+        {
+            if((dbgdata.data_type == DEXDebugDataTypes::StartLocal) || ((dbgdata.data_type == DEXDebugDataTypes::StartLocalExtended)))
+            {
+                if(dbgdata.name_idx == DEX_NO_INDEX)
+                    continue;
+
+                const std::string& name = m_dexloader->getString(dbgdata.name_idx);
+                std::string type;
+
+                if(dbgdata.type_idx != DEX_NO_INDEX)
+                    type = ": " + m_dexloader->getType(dbgdata.type_idx);
+
+                m_document->meta(item.first, "localstart " + DalvikAssembler::registerName(dbgdata.register_num) + " = " + name + type);
+            }
+            else if(dbgdata.data_type == DEXDebugDataTypes::RestartLocal)
+                m_document->meta(item.first, "localrestart " + DalvikAssembler::registerName(dbgdata.register_num));
+            else if(dbgdata.data_type == DEXDebugDataTypes::EndLocal)
+                m_document->meta(item.first, "localend " + DalvikAssembler::registerName(dbgdata.register_num));
+            else if(dbgdata.data_type == DEXDebugDataTypes::PrologueEnd)
+                m_document->meta(item.first, "prologue_end");
+            else if(dbgdata.data_type == DEXDebugDataTypes::Line)
+                m_document->meta(item.first, "line " + std::to_string(dbgdata.line_no));
+        }
     }
 }
 
@@ -168,7 +239,7 @@ void DalvikAlgorithm::checkImport(const State* state)
     else
         return;
 
-            m_disassembler->pushReference(importaddress, state->instruction->address);
+    m_disassembler->pushReference(importaddress, state->instruction->address);
 }
 
 bool DalvikAlgorithm::canContinue(const InstructionPtr &instruction)

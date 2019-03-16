@@ -21,7 +21,7 @@ class DEXStateMachine
         typedef std::unordered_map<u8, StateCallback> StatesMap;
 
     public:
-        DEXStateMachine(u16 address, DEXDebugInfo& debuginfo);
+        DEXStateMachine(address_t address, DEXDebugInfo& debuginfo);
         void execute(u8* data);
 
     private:
@@ -43,8 +43,8 @@ class DEXStateMachine
     private:
         StatesMap m_statesmap;
         DEXDebugInfo& m_debuginfo;
-        u16 m_address;
-        u32 m_line;
+        address_t m_address;
+        u16 m_line;
         bool m_atend;
 };
 

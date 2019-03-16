@@ -4,8 +4,8 @@
 #include "dex_utils.h"
 #include <cctype>
 
-#define IMPORT_SECTION_ADDRESS        0x100000000
-#define IMPORT_SECTION_SIZE           0x10000000
+#define IMPORT_SECTION_ADDRESS        0x10000000
+#define IMPORT_SECTION_SIZE           0x1000000
 
 namespace REDasm {
 
@@ -198,7 +198,7 @@ bool DEXLoader::getDebugInfo(u64 methodidx, DEXDebugInfo &debuginfo)
             debuginfo.parameter_names.push_back(this->getNormalizedString(idx));
     }
 
-    DEXStateMachine dexstatemachine(static_cast<u16>(fileoffset(&dexcode->insns)), debuginfo);
+    DEXStateMachine dexstatemachine(fileoffset(&dexcode->insns), debuginfo);
     dexstatemachine.execute(pdebuginfo);
     return true;
 }

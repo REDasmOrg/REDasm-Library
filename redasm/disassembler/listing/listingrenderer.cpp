@@ -156,8 +156,8 @@ bool ListingRenderer::getRendererLine(const document_s_lock &lock, u64 line, Ren
         this->renderInstruction(lock, item, rl);
     else if(item->is(ListingItem::SymbolItem))
         this->renderSymbol(lock, item, rl);
-    else if(item->is(ListingItem::InfoItem))
-        this->renderInfo(lock, item, rl);
+    else if(item->is(ListingItem::MetaItem))
+        this->renderMeta(lock, item, rl);
     else if(item->is(ListingItem::TypeItem))
         this->renderType(lock, item, rl);
     else if(!item->is(ListingItem::EmptyItem))
@@ -263,10 +263,10 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
     }
 }
 
-void ListingRenderer::renderInfo(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
+void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push(".info ", "dotted_fg").push(lock->info(item->address), "comment_fg");
+    rl.push(".meta ", "dotted_fg").push(lock->meta(item->address, item->index), "comment_fg");
 }
 
 void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)

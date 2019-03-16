@@ -24,6 +24,9 @@ class DalvikAssembler : public AssemblerPlugin
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
         virtual u32 bits() const;
 
+    public:
+        static std::string registerName(register_id_t regid);
+
     protected:
         virtual bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction);
 

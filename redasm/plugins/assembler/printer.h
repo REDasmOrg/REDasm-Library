@@ -26,9 +26,7 @@ class Printer
     public:
         virtual void segment(const Segment* segment, const LineCallback &segmentfunc);
         virtual void function(const Symbol *symbol, const FunctionCallback &functionfunc);
-        virtual void prologue(const Symbol *symbol, const LineCallback& prologuefunc);
         virtual void symbol(const Symbol *symbol, const SymbolCallback& symbolfunc) const;
-        virtual void info(const InstructionPtr& instruction, const LineCallback& infofunc);
         virtual std::string out(const InstructionPtr& instruction, const OpCallback& opfunc) const;
 
     public: // Operand privitives

@@ -10,7 +10,7 @@
 
 namespace REDasm {
 
-DEXStateMachine::DEXStateMachine(u16 address, DEXDebugInfo &debuginfo): m_debuginfo(debuginfo), m_address(address), m_line(debuginfo.line_start), m_atend(false)
+DEXStateMachine::DEXStateMachine(address_t address, DEXDebugInfo &debuginfo): m_debuginfo(debuginfo), m_address(address), m_line(debuginfo.line_start), m_atend(false)
 {
     BIND_STATE(0x00);
     BIND_STATE(0x01);

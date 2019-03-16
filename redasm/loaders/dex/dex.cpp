@@ -25,7 +25,7 @@ LOADER_PLUGIN_TEST(DEXLoader, DEXHeader)
 
 const std::string DEXLoader::m_invalidstring;
 
-DEXLoader::DEXLoader(AbstractBuffer *buffer): LoaderPluginT<DEXHeader>(buffer), m_types(nullptr), m_strings(nullptr), m_methods(nullptr), m_fields(nullptr), m_protos(nullptr)
+DEXLoader::DEXLoader(AbstractBuffer *buffer): LoaderPluginT<DEXHeader>(buffer), m_types(nullptr), m_strings(nullptr), m_methods(nullptr), m_fields(nullptr), m_protos(nullptr), m_skipandroid(true)
 {
     m_importbase = IMPORT_SECTION_ADDRESS;
 }
@@ -35,6 +35,7 @@ std::string DEXLoader::assembler() const { return "dalvik"; }
 void DEXLoader::load()
 {
     REDasm::log("Loading DEX Version " + std::string(m_header->version, 3));
+    m_skipandroid = r_ui->askYN("DEX Loader", "Skip android.* packages?");
 
     m_types = pointer<DEXTypeIdItem>(m_header->type_ids_off);
     m_strings = pointer<DEXStringIdItem>(m_header->string_ids_off);
@@ -281,7 +282,12 @@ void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx)
     const std::string& methodname = this->getMethodName(idx);
 
     if(!methodname.find("android."))
-        m_document->lockFunction(fileoffset(&dexcode->insns), methodname, idx);
+    {
+        if(m_skipandroid)
+            m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolTypes::Import, idx);
+        else
+            m_document->lockFunction(fileoffset(&dexcode->insns), methodname, idx);
+    }
     else
         m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
 }

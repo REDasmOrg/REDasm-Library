@@ -68,6 +68,9 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
         std::unordered_map<u64, std::string> m_cachedparameters;
         std::unordered_map<u64, std::string> m_cachedmethodnames;
         std::unordered_map<u64, std::string> m_cachedmethodproto;
+
+   private:
+        bool m_skipandroid;
 };
 
 DECLARE_LOADER_PLUGIN(DEXLoader, dex)

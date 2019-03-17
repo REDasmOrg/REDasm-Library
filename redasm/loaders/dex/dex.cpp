@@ -96,6 +96,12 @@ const std::string& DEXLoader::getType(u64 idx)
 
         const DEXTypeIdItem& dextype = m_types[idx];
         s = this->getNormalizedString(dextype.descriptor_idx);
+
+        // Strip full qualified name
+        size_t idx = s.find_last_of(".");
+
+        if(idx != std::string::npos)
+            s = s.substr(idx + 1);
     });
 }
 

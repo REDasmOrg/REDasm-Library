@@ -22,7 +22,7 @@ struct ListingItem
 {
     enum: size_t {
         Undefined = 0,
-        SegmentItem, EmptyItem, FunctionItem, TypeItem, MetaItem, SymbolItem, InstructionItem,
+        SegmentItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem,
         AllItems = static_cast<size_t>(-1)
     };
 

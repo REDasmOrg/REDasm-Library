@@ -267,13 +267,13 @@ void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem 
 {
     this->renderAddressIndent(lock, item, rl);
     auto metaitem = lock->meta(item->address, item->index);
-    rl.push(metaitem.first + " ", "dotted_fg").push(metaitem.second, "comment_fg");
+    rl.push(metaitem.first + " ", "meta_fg").push(metaitem.second, "comment_fg");
 }
 
 void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push(".type ", "dotted_fg").push(lock->type(item->address), "comment_fg");
+    rl.push(".type ", "meta_fg").push(lock->type(item->address), "comment_fg");
 }
 
 void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)

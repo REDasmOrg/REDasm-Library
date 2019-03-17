@@ -13,25 +13,56 @@ bool FunctionGraph::build(address_t address)
     if(!item)
         return false;
 
-    this->buildVertices(address);
+    m_graphstart = REDasm::make_location(item->address);
+    this->buildBasicBlocks();
 
     if(this->empty())
         return false;
 
-    return this->buildEdges();
+    return this->connectBasicBlocks();
 }
 
 bool FunctionGraph::compareEdge(const Node *n1, const Node *n2) const
 {
-    return static_cast<const FunctionBlock*>(n1)->startidx <
-           static_cast<const FunctionBlock*>(n2)->startidx;
+    return static_cast<const FunctionBasicBlock*>(n1)->startidx <
+           static_cast<const FunctionBasicBlock*>(n2)->startidx;
 }
 
-FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index) const
+void FunctionGraph::buildBasicBlocks()
+{
+    auto it = m_document->functionItem(m_graphstart);
+
+    while(it != m_document->end())
+    {
+         if(!this->isStopItem(it->get()))
+             break;
+
+        it++;
+    }
+
+    if(it == m_document->end())
+        return;
+
+    IndexQueue pending;
+    pending.push(std::distance(m_document->begin(), it));
+
+    while(!pending.empty())
+    {
+        s64 index = pending.front();
+        pending.pop();
+
+        if((index < 0) || (index >= m_document->size()))
+            continue;
+
+        this->buildBasicBlock(index, pending);
+    }
+}
+
+FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(s64 index) const
 {
     for(auto& item : *this)
     {
-       auto* v = static_cast<FunctionBlock*>(item.get());
+       auto* v = static_cast<FunctionBasicBlock*>(item.get());
 
         if(v->contains(index))
             return v;
@@ -40,204 +71,176 @@ FunctionBlock *FunctionGraph::vertexFromListingIndex(s64 index) const
     return nullptr;
 }
 
-void FunctionGraph::buildNode(s64 index, FunctionGraph::IndexQueue &indexqueue)
+void FunctionGraph::setConnectionType(const InstructionPtr &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
 {
-    auto it = std::next(m_document->begin(), index);
+    if(tofbb->startidx < fromfbb->startidx)
+    {
+        if(instruction->is(InstructionTypes::Conditional))
+            fromfbb->bLoopConditional(tofbb);
+        else
+            fromfbb->bLoop(tofbb);
 
-    if(it == m_document->end())
+        return;
+    }
+
+    if(!instruction->is(InstructionTypes::Conditional))
         return;
 
-    auto fb = std::make_unique<FunctionBlock>(index);
-    ListingItem* item = it->get();
+    if(condition)
+        fromfbb->bTrue(tofbb);
+    else
+        fromfbb->bFalse(tofbb);
+}
 
-    for( ; it != m_document->end(); it++, index++)
+void FunctionGraph::incomplete() const { REDasm::log("WARNING: Incomplete graph @ " + REDasm::hex(m_graphstart)); }
+
+bool FunctionGraph::isStopItem(ListingItem *item)
+{
+    switch(item->type)
     {
-        item = it->get();
+        case ListingItem::FunctionItem:
+        case ListingItem::SegmentItem:
+            return true;
 
-        if(item->is(ListingItem::MetaItem) || item->is(ListingItem::EmptyItem))
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool FunctionGraph::connectBasicBlocks()
+{
+    for(auto it = this->begin(); it != this->end(); it++)
+    {
+        FunctionBasicBlock* fromfbb = static_cast<FunctionBasicBlock*>(it->get());
+        ListingItem* lastitem = m_document->itemAt(this->instructionIndexFromIndex(fromfbb->endidx));
+
+        if(!lastitem || !lastitem->is(ListingItem::InstructionItem))
+        {
+            this->incomplete();
             continue;
-
-        if(this->vertexFromListingIndex(index))
-        {
-            fb->labelbreak = true;
-            break;
         }
 
-        if(item->is(ListingItem::SymbolItem))
-        {
-            if(index == fb->startidx) // Skip first label
-                continue;
-
-            const Symbol* symbol = m_document->symbol(item->address);
-
-            if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
-                indexqueue.push(index);
-
-            fb->endidx = index - 1;
-            fb->labelbreak = true;
-            break;
-        }
-
-        if(!this->isValidItem(item))
-            break;
-
-        fb->endidx = index;
-        InstructionPtr instruction = m_document->instruction(item->address);
+        InstructionPtr instruction = m_document->instruction(lastitem->address);
 
         if(instruction->is(InstructionTypes::Jump))
         {
             for(address_t target : instruction->targets)
-                indexqueue.push(m_document->symbolIndex(target));
-
-            if(instruction->is(InstructionTypes::Conditional))
-                indexqueue.push(index + 1);
-
-            break;
-        }
-
-        if(instruction->is(InstructionTypes::Stop))
-            break;
-    }
-
-    this->addNode(fb.release());
-}
-
-bool FunctionGraph::isValidFirstItem(ListingItem *item)
-{
-    switch(item->type)
-    {
-        case ListingItem::MetaItem:
-        case ListingItem::EmptyItem:
-        case ListingItem::SymbolItem:
-        case ListingItem::InstructionItem:
-            return true;
-
-        default:
-            break;
-    }
-
-    return false;
-}
-
-bool FunctionGraph::isValidItem(ListingItem *item)
-{
-    switch(item->type)
-    {
-        case ListingItem::MetaItem:
-        case ListingItem::EmptyItem:
-        case ListingItem::InstructionItem:
-            return true;
-
-        default:
-            break;
-    }
-
-    return false;
-}
-
-void FunctionGraph::buildVertices(address_t startaddress)
-{
-    ListingItem* item = m_document->functionStart(startaddress);
-
-    if(!item)
-        return;
-
-    m_graphstart = REDasm::make_location(item->address);
-    IndexQueue queue;
-
-    if(!this->isValidFirstItem(item))
-        queue.push(m_document->indexOf(item) + 1); // Skip declaration
-    else
-        queue.push(m_document->indexOf(item));
-
-    while(!queue.empty())
-    {
-        s64 index = queue.front();
-        queue.pop();
-
-        if(index == -1)
-            continue;
-
-        item = m_document->functionStart(m_document->itemAt(index));
-
-        if(!item || (item->address != m_graphstart) || this->vertexFromListingIndex(index))
-            continue;
-
-        this->buildNode(index, queue);
-    }
-}
-
-bool FunctionGraph::buildEdges()
-{
-    for(auto& item : *this)
-    {
-        FunctionBlock* fb = static_cast<FunctionBlock*>(item.get());
-        auto it = std::next(m_document->begin(), fb->startidx);
-        s64 index = fb->startidx;
-
-        if(fb->labelbreak && (fb->endidx + 1 < static_cast<s64>(m_document->length())))
-        {
-            FunctionBlock* block = this->vertexFromListingIndex(fb->endidx + 1);
-
-            if(!block)
             {
-                REDasm::log("WARNING: Incomplete Graph @ " + REDasm::hex(m_graphstart));
-                return true;
-            }
+                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->symbolIndex(target));
 
-            this->addEdge(fb, block);
-        }
-
-        for( ; (it != m_document->end()) && (index <= fb->endidx); it++, index++)
-        {
-            ListingItem* item = it->get();
-
-            if(!item->is(ListingItem::InstructionItem))
-                continue;
-
-            InstructionPtr instruction = m_document->instruction(item->address);
-
-            if(!instruction->is(InstructionTypes::Jump))
-                continue;
-
-            for(address_t target : instruction->targets)
-            {
-                s64 tgtindex = m_document->symbolIndex(target);
-                FunctionBlock* tofb = this->vertexFromListingIndex(tgtindex);
-
-                if(!tofb)
-                    continue;
-
-                this->addEdge(fb, tofb);
-
-                if(instruction->is(InstructionTypes::Conditional))
+                if(tofbb)
                 {
-                    if(tofb->startidx < fb->startidx)
-                    {
-                        if(instruction->is(InstructionTypes::Conditional))
-                            fb->bLoopConditional(tofb);
-                        else
-                            fb->bLoop(tofb);
-                    }
-                    else
-                        fb->bTrue(tofb);
+                    this->setConnectionType(instruction, fromfbb, tofbb, true);
+                    this->addEdge(fromfbb, tofbb);
                 }
+                else
+                    this->incomplete();
             }
 
             if(instruction->is(InstructionTypes::Conditional))
             {
-                FunctionBlock* todata = this->vertexFromListingIndex(index + 1);
+                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->instructionIndexFromIndex(fromfbb->endidx + 1));
 
-                if(!todata)
-                    continue;
-
-                this->addEdge(fb, todata);
-                fb->bFalse(todata);
+                if(tofbb)
+                {
+                    this->setConnectionType(instruction, fromfbb, tofbb, false);
+                    this->addEdge(fromfbb, tofbb);
+                }
+                else
+                    this->incomplete();
             }
+        }
+        else if(!instruction->is(InstructionTypes::Stop))
+        {
+            FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->symbolIndexFromIndex(fromfbb->endidx + 1));
+
+            if(tofbb)
+                this->addEdge(fromfbb, tofbb);
         }
     }
 
     return true;
+}
+
+s64 FunctionGraph::instructionIndexFromIndex(s64 idx) const
+{
+    ListingItem* item = m_document->itemAt(idx);
+
+    if(item)
+        return m_document->instructionIndex(item->address);
+
+    return -1;
+}
+
+s64 FunctionGraph::symbolIndexFromIndex(s64 idx) const
+{
+    ListingItem* item = m_document->itemAt(idx);
+
+    if(item)
+        return m_document->symbolIndex(item->address);
+
+    return -1;
+}
+
+void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
+{
+    if(this->basicBlockFromIndex(index))
+        return;
+
+    std::unique_ptr<FunctionBasicBlock> fbb = std::make_unique<FunctionBasicBlock>(index);
+    ListingItem* item = nullptr;
+    s64 startindex = index;
+
+    for(auto it = m_document->begin() + index ; it != m_document->end(); it++, index++)
+    {
+        item = it->get();
+
+        if(this->isStopItem(item))
+            break;
+
+        if(item->is(ListingItem::InstructionItem))
+        {
+            InstructionPtr instruction = m_document->instruction(item->address);
+
+            if(instruction->is(InstructionTypes::Jump))
+            {
+                for(address_t target : instruction->targets)
+                    pending.push(m_document->symbolIndex(target));
+
+                if(instruction->hasTargets() && instruction->is(InstructionTypes::Conditional))
+                    pending.push(m_document->instructionIndex(instruction->endAddress()));
+
+                break;
+            }
+            else if(instruction->is(InstructionTypes::Stop))
+                break;
+        }
+        else if(item->is(ListingItem::SymbolItem))
+        {
+            const Symbol* symbol = m_document->symbol(item->address);
+
+            if(symbol && symbol->is(SymbolTypes::Code) && !symbol->isFunction())
+                pending.push(index);
+
+            if(index != startindex)
+                break;
+        }
+    }
+
+    if(!item)
+        return;
+
+    fbb->endidx = m_document->indexOf(item);
+
+    if(this->isStopItem(item) || item->is(ListingItem::SymbolItem))
+        fbb->endidx--;
+
+    if(fbb->isEmpty())
+        return;
+
+    this->addNode(fbb.release());
 }
 
 } // namespace Graphing

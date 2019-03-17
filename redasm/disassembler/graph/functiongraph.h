@@ -1,4 +1,4 @@
-#ifndef FUNCTIONGRAPH_H
+﻿#ifndef FUNCTIONGRAPH_H
 #define FUNCTIONGRAPH_H
 
 #include "../listing/listingdocument.h"
@@ -8,22 +8,21 @@
 namespace REDasm {
 namespace Graphing {
 
-struct FunctionBlock: public Node
+struct FunctionBasicBlock: public Node
 {
     s64 startidx, endidx; // [startidx, endidx]
-    bool labelbreak;
+    std::unordered_map<const FunctionBasicBlock*, std::string> styles;
 
-    std::unordered_map<const FunctionBlock*, std::string> styles;
-
-    FunctionBlock(s64 startidx): startidx(startidx), endidx(startidx), labelbreak(false) { }
+    FunctionBasicBlock(s64 startidx): startidx(startidx), endidx(startidx) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
+    bool isEmpty() const { return startidx > endidx; }
     s64 count() const { return (endidx - startidx) + 1; }
-    void bTrue(const FunctionBlock* v) { styles[v] = "graph_edge_true"; }
-    void bFalse(const FunctionBlock* v) { styles[v] = "graph_edge_false"; }
-    void bLoop(const FunctionBlock* v) { styles[v] = "graph_edge_loop"; }
-    void bLoopConditional(const FunctionBlock* v) { styles[v] = "graph_edge_loop_c"; }
+    void bTrue(const FunctionBasicBlock* v) { styles[v] = "graph_edge_true"; }
+    void bFalse(const FunctionBasicBlock* v) { styles[v] = "graph_edge_false"; }
+    void bLoop(const FunctionBasicBlock* v) { styles[v] = "graph_edge_loop"; }
+    void bLoopConditional(const FunctionBasicBlock* v) { styles[v] = "graph_edge_loop_c"; }
 
-    std::string style(const FunctionBlock* to) const {
+    std::string style(const FunctionBasicBlock* to) const {
         auto it = styles.find(to);
 
         if(it == styles.end())
@@ -47,12 +46,17 @@ class FunctionGraph: public Graph
         virtual bool compareEdge(const Node *n1, const Node *n2) const;
 
     private:
-        FunctionBlock* vertexFromListingIndex(s64 index) const;
-        void buildVertices(address_t startaddress);
-        void buildNode(s64 index, IndexQueue &indexqueue);
-        bool isValidFirstItem(ListingItem* item);
-        bool isValidItem(ListingItem* item);
-        bool buildEdges();
+        FunctionBasicBlock* basicBlockFromIndex(s64 index) const;
+        void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock* fromfbb, FunctionBasicBlock* tofbb, bool condition);
+        void incomplete() const;
+        bool isStopItem(ListingItem* item);
+        void buildBasicBlock(s64 index, IndexQueue &pending);
+        void buildBasicBlocks();
+        bool connectBasicBlocks();
+
+    private:
+        s64 instructionIndexFromIndex(s64 idx) const;
+        s64 symbolIndexFromIndex(s64 idx) const;
 
     private:
         ListingDocument& m_document;

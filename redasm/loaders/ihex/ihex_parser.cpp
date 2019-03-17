@@ -1,4 +1,5 @@
 #include "ihex_parser.h"
+#include <cctype>
 
 namespace REDasm {
 

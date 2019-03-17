@@ -10,7 +10,7 @@ namespace Graphing {
 
 struct FunctionBlock: public Node
 {
-    s64 startidx, endidx;
+    s64 startidx, endidx; // [startidx, endidx]
     bool labelbreak;
 
     std::unordered_map<const FunctionBlock*, std::string> styles;
@@ -50,6 +50,8 @@ class FunctionGraph: public Graph
         FunctionBlock* vertexFromListingIndex(s64 index) const;
         void buildVertices(address_t startaddress);
         void buildNode(s64 index, IndexQueue &indexqueue);
+        bool isValidFirstItem(ListingItem* item);
+        bool isValidItem(ListingItem* item);
         bool buildEdges();
 
     private:

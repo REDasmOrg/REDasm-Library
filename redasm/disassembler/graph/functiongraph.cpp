@@ -54,6 +54,9 @@ void FunctionGraph::buildNode(s64 index, FunctionGraph::IndexQueue &indexqueue)
     {
         item = it->get();
 
+        if(item->is(ListingItem::MetaItem) || item->is(ListingItem::EmptyItem))
+            continue;
+
         if(this->vertexFromListingIndex(index))
         {
             fb->labelbreak = true;
@@ -70,11 +73,12 @@ void FunctionGraph::buildNode(s64 index, FunctionGraph::IndexQueue &indexqueue)
             if(symbol->is(SymbolTypes::Code) && !symbol->isFunction())
                 indexqueue.push(index);
 
+            fb->endidx = index - 1;
             fb->labelbreak = true;
             break;
         }
 
-        if(!item->is(ListingItem::InstructionItem))
+        if(!this->isValidItem(item))
             break;
 
         fb->endidx = index;
@@ -98,6 +102,39 @@ void FunctionGraph::buildNode(s64 index, FunctionGraph::IndexQueue &indexqueue)
     this->addNode(fb.release());
 }
 
+bool FunctionGraph::isValidFirstItem(ListingItem *item)
+{
+    switch(item->type)
+    {
+        case ListingItem::MetaItem:
+        case ListingItem::EmptyItem:
+        case ListingItem::SymbolItem:
+        case ListingItem::InstructionItem:
+            return true;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool FunctionGraph::isValidItem(ListingItem *item)
+{
+    switch(item->type)
+    {
+        case ListingItem::MetaItem:
+        case ListingItem::EmptyItem:
+        case ListingItem::InstructionItem:
+            return true;
+
+        default:
+            break;
+    }
+
+    return false;
+}
+
 void FunctionGraph::buildVertices(address_t startaddress)
 {
     ListingItem* item = m_document->functionStart(startaddress);
@@ -106,10 +143,9 @@ void FunctionGraph::buildVertices(address_t startaddress)
         return;
 
     m_graphstart = REDasm::make_location(item->address);
-
     IndexQueue queue;
 
-    if(!item->is(ListingItem::InstructionItem) && !item->is(ListingItem::SymbolItem))
+    if(!this->isValidFirstItem(item))
         queue.push(m_document->indexOf(item) + 1); // Skip declaration
     else
         queue.push(m_document->indexOf(item));
@@ -144,7 +180,10 @@ bool FunctionGraph::buildEdges()
             FunctionBlock* block = this->vertexFromListingIndex(fb->endidx + 1);
 
             if(!block)
-                return false;
+            {
+                REDasm::log("WARNING: Incomplete Graph @ " + REDasm::hex(m_graphstart));
+                return true;
+            }
 
             this->addEdge(fb, block);
         }

@@ -16,7 +16,8 @@ class DalvikAlgorithm: public AssemblerAlgorithm
                   DebugInfoState)
 
     private:
-        typedef std::unordered_map<address_t, std::list<u32> > CaseMap;
+        typedef std::unordered_map<address_t, std::list<u32> > PackagedCaseMap;
+        typedef std::unordered_map<u64, address_t> SparseCaseMap;
 
     public:
         DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
@@ -35,7 +36,8 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         virtual void debugInfoState(const State* state);
 
     private:
-        void emitCaseInfo(address_t address, const CaseMap& casemap);
+        void emitCaseInfo(address_t address, const PackagedCaseMap& casemap);
+        void emitCaseInfo(address_t address, const InstructionPtr &instruction, const SparseCaseMap& casemap);
         void emitArguments(const State* state, const DEXEncodedMethod &dexmethod, const DEXDebugInfo &dexdebuginfo);
         void emitDebugData(const DEXDebugInfo &dexdebuginfo);
         void checkImport(const State *state);

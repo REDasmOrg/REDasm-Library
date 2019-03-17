@@ -94,34 +94,37 @@ void DalvikAlgorithm::methodIndexState(const State *state)
 void DalvikAlgorithm::packedSwitchTableState(const State *state)
 {
     const Operand* op = state->operand();
-    REDasm::symbolize<DalvikPackedSwitchPayload>(m_disassembler, op->u_value, "packed_switch");
-    DalvikPackedSwitchPayload* packedswitchpayload = m_loader->addrpointer<DalvikPackedSwitchPayload>(op->u_value);
+    const DalvikPackedSwitchPayload* packedswitchpayload = m_loader->addrpointer<const DalvikPackedSwitchPayload>(op->u_value);
 
-    if(!packedswitchpayload)
+    if(!packedswitchpayload || (packedswitchpayload->ident != DALVIK_PACKED_SWITCH_IDENT))
         return;
+
+    REDasm::symbolize<DalvikPackedSwitchPayload>(m_disassembler, op->u_value, "packed_switch");
 
     InstructionPtr instruction = state->instruction;
     m_document->autoComment(instruction->address, std::to_string(packedswitchpayload->size) + " case(s)");
-    u32* targets = packedswitchpayload->targets;
-    CaseMap cases;
+    const u32* targets = packedswitchpayload->targets;
+    PackagedCaseMap cases;
 
     for(u16 i = 0; i < packedswitchpayload->size; i++, targets++)
     {
         u32 caseidx = packedswitchpayload->first_key + i;
-        address_t address = instruction->address + (*targets * sizeof(u16));
-        this->enqueue(address);
+        address_t target = instruction->address + (*targets * sizeof(u16));
+        this->enqueue(target);
 
         m_document->lock(m_loader->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolTypes::Pointer | SymbolTypes::Data);
-        m_document->symbol(address, SymbolTypes::Code);
-        m_disassembler->pushReference(address, instruction->address);
-        instruction->target(address);
+        m_document->symbol(target, SymbolTypes::Code);
+        m_disassembler->pushReference(target, instruction->address);
+        instruction->target(target);
 
-        auto it = cases.find(address);
+        this->enqueue(target);
+
+        auto it = cases.find(target);
 
         if(it != cases.end())
             it->second.push_back(caseidx);
         else
-            cases[address] = { caseidx };
+            cases[target] = { caseidx };
     }
 
     this->emitCaseInfo(op->u_value, cases);
@@ -130,12 +133,54 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
 
 void DalvikAlgorithm::sparseSwitchTableState(const State *state)
 {
+    const Operand* op = state->operand();
+    const DalvikSparseSwitchPayload* sparseswitchpayload = m_loader->addrpointer<const DalvikSparseSwitchPayload>(op->u_value);
 
+    if(!sparseswitchpayload || (sparseswitchpayload->ident != DALVIK_SPARSE_SWITCH_IDENT))
+        return;
+
+    REDasm::symbolize<DalvikSparseSwitchPayload>(m_disassembler, op->u_value, "sparse_switch");
+
+    InstructionPtr instruction = state->instruction;
+    m_document->autoComment(instruction->address, std::to_string(sparseswitchpayload->size) + " case(s)");
+    const u32* keys = sparseswitchpayload->keys;
+    const u32* targets = REDasm::relpointer<const u32>(keys, sizeof(u32) * sparseswitchpayload->size);
+
+    SparseCaseMap cases;
+
+    for(u32 i = 0; i < sparseswitchpayload->size; i++)
+    {
+        address_t address = m_loader->addressof(&keys[i]);
+        m_document->symbol(address, REDasm::uniquename("sparse_switch.key", address), SymbolTypes::Data);
+    }
+
+    for(u32 i = 0; i < sparseswitchpayload->size; i++)
+    {
+        address_t address = m_loader->addressof(&targets[i]);
+        address_t target = instruction->address + (targets[i] * sizeof(u16));
+        m_document->symbol(address, REDasm::uniquename("sparse_switch.target", address), SymbolTypes::Pointer | SymbolTypes::Data);
+        m_document->symbol(target, SymbolTypes::Code);
+        m_disassembler->pushReference(target, instruction->address);
+        instruction->target(target);
+        cases[keys[i]] = target;
+        this->enqueue(target);
+    }
+
+    instruction->target(instruction->endAddress());
+    this->enqueue(instruction->endAddress());
+    this->emitCaseInfo(op->u_value, instruction, cases);
+    m_document->update(instruction);
 }
 
 void DalvikAlgorithm::fillArrayDataState(const State *state)
 {
+    const Operand* op = state->operand();
+    const DalvikFillArrayDataPayload* fillarraydatapayload = m_loader->addrpointer<const DalvikFillArrayDataPayload>(op->u_value);
 
+    if(!fillarraydatapayload || (fillarraydatapayload->ident != DALVIK_FILL_ARRAY_DATA_IDENT))
+        return;
+
+    REDasm::symbolize<DalvikFillArrayDataPayload>(m_disassembler, op->u_value, "array_payload");
 }
 
 void DalvikAlgorithm::debugInfoState(const State *state)
@@ -159,7 +204,7 @@ void DalvikAlgorithm::debugInfoState(const State *state)
     this->emitDebugData(dexdebuginfo);
 }
 
-void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::CaseMap &casemap)
+void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::PackagedCaseMap &casemap)
 {
     for(const auto& item : casemap)
     {
@@ -176,6 +221,14 @@ void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::Cas
     }
 }
 
+void DalvikAlgorithm::emitCaseInfo(address_t address, const InstructionPtr& instruction, const DalvikAlgorithm::SparseCaseMap &casemap)
+{
+    for(const auto& item : casemap)
+        m_document->meta(item.second, "@ " + REDasm::hex(address) + " (Case Key " + REDasm::hex(item.first, 0, true) + ")", "sparse_switch_table");
+
+    m_document->meta(instruction->endAddress(), "@ " + REDasm::hex(address) + " (Default)", "sparse_switch_table");
+}
+
 void DalvikAlgorithm::emitArguments(const State* state, const DEXEncodedMethod& dexmethod, const DEXDebugInfo& dexdebuginfo)
 {
     u32 delta = (dexmethod.access_flags & DexAccessFlags::Static) ? 0 : 1;
@@ -183,7 +236,7 @@ void DalvikAlgorithm::emitArguments(const State* state, const DEXEncodedMethod& 
     for(size_t i = 0; i < dexdebuginfo.parameter_names.size(); i++)
     {
         const std::string& param = dexdebuginfo.parameter_names[i];
-        m_document->meta(state->address, "arg_" + std::to_string(i + delta) + ": " + param);
+        m_document->meta(state->address, std::to_string(i + delta) + ": " + param, "arg");
     }
 }
 

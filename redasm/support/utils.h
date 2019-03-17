@@ -132,6 +132,8 @@ template<typename T> u64 countbits_r(T val) {
     throw std::runtime_error("Bits out of range: " + std::to_string(bits));
 }
 
+inline std::string uniquename(const std::string& s, address_t address) { return s + "_"  + REDasm::hex(address); }
+
 }
 
 #endif // UTILS_H

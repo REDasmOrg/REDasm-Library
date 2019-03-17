@@ -3,6 +3,10 @@
 
 #include "../../redasm.h"
 
+#define DALVIK_PACKED_SWITCH_IDENT   0x0100
+#define DALVIK_SPARSE_SWITCH_IDENT   0x0200
+#define DALVIK_FILL_ARRAY_DATA_IDENT 0x0300
+
 namespace REDasm {
 
 struct DalvikPackedSwitchPayload {

@@ -447,6 +447,7 @@ bool DalvikAssembler::decode26(BufferView& view, const InstructionPtr &instructi
 
     Operand* op = instruction->op(1);
     op->u_value = instruction->address + (op->u_value * sizeof(u16)); // Offset in 16-bit code units
+    op->tag = DalvikOperands::FillArrayData;
     return true;
 }
 
@@ -496,7 +497,7 @@ bool DalvikAssembler::decode2C(BufferView& view, const InstructionPtr &instructi
 {
     instruction->mnemonic = "sparse-switch";
     instruction->id = DalvikOpcodes::SparseSwitch;
-    instruction->type = InstructionTypes::Jump;
+    instruction->type = InstructionTypes::ConditionalJump;
     instruction->size = sizeof(u16) * 3;
     instruction->reg(*view++);
     instruction->imm(instruction->address + (static_cast<s32>(view) * sizeof(u16)), DalvikOperands::SparseSwitchTable);

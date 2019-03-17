@@ -11,7 +11,7 @@ namespace REDasm {
 
 struct DalvikPackedSwitchPayload {
     u16 ident, size;
-    u32 first_key;
+    s32 first_key;
     u32 targets[1];
 };
 

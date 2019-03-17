@@ -16,7 +16,7 @@ class DalvikAlgorithm: public AssemblerAlgorithm
                   DebugInfoState)
 
     private:
-        typedef std::unordered_map<address_t, std::list<u32> > PackagedCaseMap;
+        typedef std::unordered_map<address_t, std::list<s32> > PackagedCaseMap;
         typedef std::unordered_map<u64, address_t> SparseCaseMap;
 
     public:

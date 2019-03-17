@@ -108,7 +108,7 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
 
     for(u16 i = 0; i < packedswitchpayload->size; i++, targets++)
     {
-        u32 caseidx = packedswitchpayload->first_key + i;
+        s32 caseidx = packedswitchpayload->first_key + i;
         address_t target = instruction->address + (*targets * sizeof(u16));
         this->enqueue(target);
 
@@ -166,8 +166,6 @@ void DalvikAlgorithm::sparseSwitchTableState(const State *state)
         this->enqueue(target);
     }
 
-    instruction->target(instruction->endAddress());
-    this->enqueue(instruction->endAddress());
     this->emitCaseInfo(op->u_value, instruction, cases);
     m_document->update(instruction);
 }
@@ -210,7 +208,7 @@ void DalvikAlgorithm::emitCaseInfo(address_t address, const DalvikAlgorithm::Pac
     {
         std::string casestring;
 
-        std::for_each(item.second.begin(), item.second.end(), [&casestring](u32 caseidx) {
+        std::for_each(item.second.begin(), item.second.end(), [&casestring](s32 caseidx) {
             if(!casestring.empty())
                 casestring += ", ";
 

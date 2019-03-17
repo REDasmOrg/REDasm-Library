@@ -59,7 +59,7 @@ namespace Listing {
         return std::lower_bound(container->begin(), container->end(), item, ListingComparator<V>());
     }
 
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT _adjustSearch(T* container, IT it, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT _adjustSearch(T* container, IT it, size_t type) {
         int offset = type - (*it)->type;
         address_t searchaddress = (*it)->address;
 
@@ -77,7 +77,7 @@ namespace Listing {
         return container->end();
     }
 
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, address_t address, u32 type) {
+    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, address_t address, size_t type) {
         if(!container->size())
             return container->end();
 

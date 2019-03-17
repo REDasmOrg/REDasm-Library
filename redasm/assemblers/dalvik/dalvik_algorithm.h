@@ -6,8 +6,8 @@
 namespace REDasm {
 
 class DEXLoader;
-class DEXDebugInfo;
-class DEXEncodedMethod;
+struct DEXDebugInfo;
+struct DEXEncodedMethod;
 
 class DalvikAlgorithm: public AssemblerAlgorithm
 {

@@ -18,7 +18,7 @@ std::chrono::steady_clock::time_point Context::lastStatusReport = std::chrono::s
 const std::chrono::milliseconds Context::debounceTimeout = std::chrono::milliseconds(100);
 
 #ifdef _WIN32
-const std::string Context::rntDirSeparator = "\\";
+const std::string Context::dirSeparator = "\\";
 #else
 const std::string Context::dirSeparator = "/";
 #endif

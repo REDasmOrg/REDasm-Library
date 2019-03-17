@@ -75,7 +75,7 @@ bool IHexParser::readLine(const std::string& hexstring, u64& i, IHexLine& line)
     if(!this->readHex(hexstring, &line.checksum, i))
         return false;
 
-    while(std::isspace(hexstring[i]))
+    while(::isspace(hexstring[i]))
     {
         if(i >= hexstring.size())
             return false;

@@ -19,18 +19,13 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
-        void resetStackSize(const InstructionPtr&) { m_stacksize = 0; }
-        void initStackSize(const InstructionPtr& instruction);
         void setBranchTarget(const InstructionPtr& instruction);
         void checkLea(const InstructionPtr& instruction);
-        s64 localIndex(s64 disp, u32& type) const;
-        s64 stackLocalIndex(s64 disp) const;
+        s64 bpIndex(s64 disp, u32& type) const;
+        s64 spIndex(s64 disp) const;
         bool isSP(register_id_t reg) const;
         bool isBP(register_id_t reg) const;
         bool isIP(register_id_t reg) const;
-
-    private:
-        s64 m_stacksize;
 };
 
 ASSEMBLER_INHERIT(X86_16Assembler, (X86Assembler<CS_MODE_16>), "x86_16")

@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>(), m_stacksize(0)
+template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>()
 {
     SET_INSTRUCTION_TYPE(X86_INS_JA, InstructionTypes::Conditional);
     SET_INSTRUCTION_TYPE(X86_INS_JAE, InstructionTypes::Conditional);
@@ -62,9 +62,6 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     REGISTER_INSTRUCTION(X86_INS_JS, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_JMP, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_CALL, &X86Assembler::setBranchTarget);
-    REGISTER_INSTRUCTION(X86_INS_HLT, &X86Assembler::resetStackSize);
-    REGISTER_INSTRUCTION(X86_INS_RET, &X86Assembler::resetStackSize);
-    REGISTER_INSTRUCTION(X86_INS_SUB, &X86Assembler::initStackSize);
     REGISTER_INSTRUCTION(X86_INS_LEA, &X86Assembler::checkLea);
 }
 
@@ -97,16 +94,16 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
             if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check locals/arguments
             {
                 u32 type = 0;
-                locindex = this->localIndex(mem.disp, type);
+                locindex = this->bpIndex(mem.disp, type);
                 instruction->local(locindex, X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.disp, type);
             }
-            else if(m_stacksize && this->isSP(mem.base)) // Check locals
+            else if(this->isSP(mem.base)) // Check locals
             {
-                locindex = this->stackLocalIndex(mem.disp);
+                locindex = this->spIndex(mem.disp);
 
                 if(locindex != -1)
                     instruction->local(locindex, X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.disp);
-                else // It's not a local...
+                else
                     instruction->disp(X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.scale, mem.disp);
             }
             else if((mem.index == X86_REG_INVALID) && this->isIP(mem.base)) // Handle case [xip + disp]
@@ -123,12 +120,13 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
     }
 }
 
-template<cs_mode mode> s64 X86Assembler<mode>::localIndex(s64 disp, u32& type) const
+template<cs_mode mode> s64 X86Assembler<mode>::bpIndex(s64 disp, u32& type) const
 {
-    if(disp > 0)
-        type = OperandTypes::Argument;
-    else if(disp < 0)
+    if(disp < 0)
+    {
         type = OperandTypes::Local;
+        return -disp;
+    }
 
     s32 size = 0;
 
@@ -139,34 +137,21 @@ template<cs_mode mode> s64 X86Assembler<mode>::localIndex(s64 disp, u32& type) c
     else if(mode == CS_MODE_64)
         size = 8;
 
-    s64 index = (disp / size);
-
-    if(disp > 0)
-        index--; // disp == size -> return_address
-
-    if(index < 0)
-        index *= -1;
-
-    return index;
-}
-
-template<cs_mode mode> s64 X86Assembler<mode>::stackLocalIndex(s64 disp) const
-{
-    s32 size = 0;
-
-    if(mode == CS_MODE_16)
-        size = 2;
-    else if(mode == CS_MODE_32)
-        size = 4;
-    else if(mode == CS_MODE_64)
-        size = 8;
-
-    s64 stackpos = this->m_stacksize - disp;
-
-    if(stackpos > this->m_stacksize)
+    if(disp < (size * 2))
         return -1;
 
-    return stackpos / size;
+    if(disp > 0)
+        type = OperandTypes::Argument;
+
+    return disp;
+}
+
+template<cs_mode mode> s64 X86Assembler<mode>::spIndex(s64 disp) const
+{
+    if(disp <= 0)
+        return -1;
+
+    return disp;
 }
 
 template<cs_mode mode> bool X86Assembler<mode>::isSP(register_id_t reg) const
@@ -209,12 +194,6 @@ template<cs_mode mode> bool X86Assembler<mode>::isIP(register_id_t reg) const
         return reg == X86_REG_RIP;
 
     return false;
-}
-
-template<cs_mode mode> void X86Assembler<mode>::initStackSize(const InstructionPtr& instruction)
-{
-    if(this->isSP(instruction->op(0)->reg.r))
-        this->m_stacksize = instruction->op(1)->u_value;
 }
 
 template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction) { instruction->targetOp(0); }

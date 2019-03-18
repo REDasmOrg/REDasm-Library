@@ -149,6 +149,20 @@ std::string Printer::disp(const Operand *operand) const
     if(operand->disp.base.isValid())
         s += this->reg(operand->disp.base);
 
+    if(operand->is(OperandTypes::Local) || operand->is(OperandTypes::Argument))
+    {
+        std::string loc = this->loc(operand);
+
+        if(!loc.empty())
+        {
+            if(!s.empty())
+                s += "+";
+
+            s += loc;
+            return "[" + s + "]";
+        }
+    }
+
     if(operand->disp.index.isValid())
     {
         if(!s.empty())
@@ -173,19 +187,6 @@ std::string Printer::disp(const Operand *operand) const
         }
         else if(operand->disp.displacement < 0)
             s += "-" + REDasm::hex(std::abs(operand->disp.displacement));
-    }
-
-    if(operand->is(OperandTypes::Local) || operand->is(OperandTypes::Argument))
-    {
-        std::string loc = this->loc(operand);
-
-        if(!loc.empty())
-        {
-            if(!s.empty())
-                s += "+";
-
-            s += loc;
-        }
     }
 
     return "[" + s + "]";

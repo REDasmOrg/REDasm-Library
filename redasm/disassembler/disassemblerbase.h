@@ -67,13 +67,13 @@ template<typename T> std::string DisassemblerBase::readStringT(address_t address
 
 template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const
 {
-    Segment* segment = m_document->segment(address);
+    BufferView view = m_loader->view(address);
 
-    if(!segment)
+    if(view.eob())
         return 0;
 
     u64 alphacount = 0, count = 0;
-    BufferView view = m_loader->view(address);
+    u8 firstchar = *view;
 
     while(!view.eob() && isp(static_cast<T>(view)))
     {
@@ -88,7 +88,13 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
         view += sizeof(T);
     }
 
-    if(!count || ((static_cast<double>(alphacount) / count) < 0.51)) // ...it might be just data, check alpha ratio...
+    if(!count)
+        return 0;
+
+    if(firstchar == '%') // Special case for C-style formatting
+        return MIN_STRING;
+
+    if((static_cast<double>(alphacount) / count) < 0.51) // ...it might be just data, check alpha ratio...
         return 0;
 
     return count;

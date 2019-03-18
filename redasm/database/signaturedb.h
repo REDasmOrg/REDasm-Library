@@ -1,19 +1,19 @@
 #ifndef SIGNATUREDB_H
 #define SIGNATUREDB_H
 
-#define SDB_SIGNATURE        "SDB"
-#define SDB_SIGNATURE_EXT    "sdb"
 #define SDB_SIGNATURE_LENGTH 3
 #define SDB_VERSION          1
 
 #include <functional>
-#include <deque>
 #include <string>
 #include <list>
+#include <json.hpp>
 #include "../types/buffer/bufferview.h"
 #include "../types/base_types.h"
 
 namespace REDasm {
+
+using json = nlohmann::json;
 
 class DisassemblerAPI;
 
@@ -48,17 +48,17 @@ struct Signature
     u64 size;
     std::string name, assembler;
     std::list<SignaturePattern> patterns;
-
-    bool isCompatible(const DisassemblerAPI *disassembler) const;
 };
 
 class SignatureDB
 {
     public:
-        typedef std::function<void(const Signature*)> SignatureFound;
+        typedef std::function<void(const json&)> SignatureFound;
 
     public:
-        SignatureDB() = default;
+        SignatureDB();
+        static bool isCompatible(const json &signature, const DisassemblerAPI *disassembler);
+        void setName(const std::string& name);
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
 
@@ -70,14 +70,11 @@ class SignatureDB
         std::string uniqueAssembler(u32 idx) const;
         s32 uniqueAssemblerIdx(const Signature& signature) const;
         void pushUniqueAssembler(const Signature &signature);
-        void searchSignature(const BufferView& view, const Signature& sig, const SignatureFound& cb) const;
-        bool checkPatterns(const BufferView& view, offset_t offset, const Signature &sig) const;
-        void serializePattern(std::fstream& ofs, const SignaturePattern& sigpattern) const;
-        void deserializePattern(std::fstream& ifs, SignaturePattern& sigpattern) const;
+        void searchSignature(const BufferView& view, const json& sig, const SignatureFound& cb) const;
+        bool checkPatterns(const BufferView& view, offset_t offset, const json &sig) const;
 
     private:
-        std::list<Signature> m_signatures;
-        std::deque<std::string> m_assemblers;
+        json m_json;
 };
 
 } // namespace REDasm

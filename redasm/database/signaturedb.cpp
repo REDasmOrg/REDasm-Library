@@ -11,90 +11,57 @@
 
 namespace REDasm {
 
-bool Signature::isCompatible(const DisassemblerAPI *disassembler) const
+SignatureDB::SignatureDB()
 {
-    if(this->assembler != disassembler->loader()->assembler())
+    m_json["name"] = "Unknown Signature";
+    m_json["version"] = SDB_VERSION;
+    m_json["assemblers"] = json::array();
+    m_json["signatures"] = json::array();
+}
+
+bool SignatureDB::isCompatible(const json& signature, const DisassemblerAPI *disassembler)
+{
+    if(signature["assembler"] != disassembler->loader()->assembler())
         return false;
 
-    if(this->bits != disassembler->assembler()->bits())
+    if(signature["bits"] != disassembler->assembler()->bits())
         return false;
 
     return true;
 }
 
+void SignatureDB::setName(const std::string &name) { m_json["name"] = name; }
 bool SignatureDB::load(const std::string &sigfilename)
 {
-    std::fstream ifs(sigfilename, std::ios::in | std::ios::binary);
+    std::ifstream ifs(sigfilename, std::ios::in);
 
-    if(!ifs.is_open() || !Serializer::checkSignature(ifs, SDB_SIGNATURE))
+    if(!ifs.is_open())
         return false;
 
-    u32 version = 0;
-    Serializer::deserializeScalar(ifs, &version);
+    ifs >> m_json;
 
-    if(version != SDB_VERSION)
+    if(m_json["version"] != SDB_VERSION)
         return false;
-
-    Serializer::deserializeArray<std::deque, std::string>(ifs, m_assemblers, [&](std::string& assembler) {
-        Serializer::deserializeString(ifs, assembler);
-    });
-
-    Serializer::deserializeArray<std::list, Signature>(ifs, m_signatures, [&](Signature& signature) {
-        u32 assembleridx = -1;
-
-        Serializer::deserializeScalar(ifs, &assembleridx);
-        Serializer::deserializeScalar(ifs, &signature.bits);
-        Serializer::deserializeScalar(ifs, &signature.symboltype);
-        Serializer::deserializeScalar(ifs, &signature.size);
-        Serializer::deserializeString(ifs, signature.name);
-
-        Serializer::deserializeArray<std::list, SignaturePattern>(ifs, signature.patterns, [&](SignaturePattern& sigpattern) {
-            this->deserializePattern(ifs, sigpattern);
-        });
-
-        signature.assembler = this->uniqueAssembler(assembleridx);
-
-        if(signature.assembler.empty())
-            REDasm::log("Invalid assembler for " + REDasm::quoted(signature.name));
-    });
 
     return true;
 }
 
 bool SignatureDB::save(const std::string &sigfilename)
 {
-    std::fstream ofs(sigfilename, std::ios::out | std::ios::binary | std::ios::trunc);
+    std::ofstream ofs(sigfilename, std::ios::out | std::ios::trunc);
 
     if(!ofs.is_open())
         return false;
 
-    ofs.write(SDB_SIGNATURE, SDB_SIGNATURE_LENGTH);
-    Serializer::serializeScalar(ofs, SDB_VERSION, sizeof(u32));
-
-    Serializer::serializeArray<std::deque, std::string>(ofs, m_assemblers, [&](const std::string& assembler) {
-        Serializer::serializeString(ofs, assembler);
-    });
-
-    Serializer::serializeArray<std::list, Signature>(ofs, m_signatures, [&](const Signature& signature) {
-        Serializer::serializeScalar(ofs, this->uniqueAssemblerIdx(signature));
-        Serializer::serializeScalar(ofs, signature.bits);
-        Serializer::serializeScalar(ofs, signature.symboltype);
-        Serializer::serializeScalar(ofs, signature.size);
-        Serializer::serializeString(ofs, signature.name);
-
-        Serializer::serializeArray<std::list, SignaturePattern>(ofs, signature.patterns, [&](const SignaturePattern& sigpattern) {
-            this->serializePattern(ofs, sigpattern);
-        });
-    });
-
+    ofs << m_json.dump(2);
     return true;
 }
 
 void SignatureDB::search(const BufferView &view, const SignatureDB::SignatureFound &cb) const
 {
-    for(const Signature& sig : m_signatures)
+    for(const auto& sig : m_json["signatures"])
     {
-        if(sig.size != view.size())
+        if(sig["size"] != view.size())
             continue;
 
        this->searchSignature(view, sig, cb);
@@ -104,23 +71,44 @@ void SignatureDB::search(const BufferView &view, const SignatureDB::SignatureFou
 SignatureDB &SignatureDB::operator <<(const Signature &signature)
 {
     this->pushUniqueAssembler(signature);
-    m_signatures.push_back(signature);
+
+    json signatureobj = json::object();
+    signatureobj["bits"] = signature.bits;
+    signatureobj["symboltype"] = signature.symboltype;
+    signatureobj["size"] = signature.size;
+    signatureobj["name"] = signature.name;
+    signatureobj["assembler"] = signature.assembler;
+    signatureobj["patterns"] = json::array();
+
+    for(const auto& pattern : signature.patterns)
+    {
+        json patternobj = json::object();
+        patternobj["type"] = pattern.type;
+        patternobj["size"] = pattern.size;
+        patternobj["checksum"] = pattern.checksum;
+
+        signatureobj["patterns"].push_back(patternobj);
+    }
+
+    m_json["signatures"].push_back(signatureobj);
     return *this;
 }
 
 std::string SignatureDB::uniqueAssembler(u32 idx) const
 {
-    if(idx >= m_assemblers.size())
+    if(idx >= m_json["assemblers"].size())
         return std::string();
 
-    return m_assemblers[idx];
+    return m_json["assemblers"][idx];
 }
 
 s32 SignatureDB::uniqueAssemblerIdx(const Signature &signature) const
 {
-    for(s32 i = 0; i < m_assemblers.size(); i++)
+    const auto& assemblers = m_json["assemblers"];
+
+    for(s32 i = 0; i < assemblers.size(); i++)
     {
-        if(m_assemblers[i] == signature.assembler)
+        if(assemblers[i] == signature.assembler)
             return i;
     }
 
@@ -132,10 +120,10 @@ void SignatureDB::pushUniqueAssembler(const Signature& signature)
     if(this->uniqueAssemblerIdx(signature) > -1)
         return;
 
-    m_assemblers.push_back(signature.assembler);
+    m_json["assemblers"].push_back(signature.assembler);
 }
 
-void SignatureDB::searchSignature(const BufferView &view, const Signature &sig, const SignatureDB::SignatureFound &cb) const
+void SignatureDB::searchSignature(const BufferView &view, const json &sig, const SignatureDB::SignatureFound &cb) const
 {
     for(offset_t i = 0; i < view.size(); )
     {
@@ -145,27 +133,27 @@ void SignatureDB::searchSignature(const BufferView &view, const Signature &sig, 
             continue;
         }
 
-        cb(&sig);
+        cb(sig);
         break;
     }
 }
 
-bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const Signature &sig) const
+bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const json &sig) const
 {
-    for(const SignaturePattern& pattern : sig.patterns)
+    for(const json& pattern : sig["patterns"])
     {
-        if(pattern.type == SignaturePatternType::Skip)
+        if(pattern["type"] == SignaturePatternType::Skip)
         {
-            offset += pattern.size;
+            offset += static_cast<offset_t>(pattern["size"]);
             continue;
         }
 
-        if(pattern.type == SignaturePatternType::CheckSum)
+        if(pattern["type"] == SignaturePatternType::CheckSum)
         {
-            if(Hash::crc16(&view + offset, pattern.size) != pattern.checksum)
+            if(Hash::crc16(&view + offset, pattern["size"]) != pattern["checksum"])
                 return false;
 
-            offset += pattern.size;
+            offset += static_cast<offset_t>(pattern["size"]);
             continue;
         }
 
@@ -174,24 +162,6 @@ bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const S
     }
 
     return true;
-}
-
-void SignatureDB::serializePattern(std::fstream &ofs, const SignaturePattern &sigpattern) const
-{
-    Serializer::serializeScalar(ofs, sigpattern.type);
-    Serializer::serializeScalar(ofs, sigpattern.size);
-
-    if(sigpattern.type == SignaturePatternType::CheckSum)
-        Serializer::serializeScalar(ofs, sigpattern.checksum);
-}
-
-void SignatureDB::deserializePattern(std::fstream &ifs, SignaturePattern &sigpattern) const
-{
-    Serializer::deserializeScalar(ifs, &sigpattern.type);
-    Serializer::deserializeScalar(ifs, &sigpattern.size);
-
-    if(sigpattern.type == SignaturePatternType::CheckSum)
-        Serializer::deserializeScalar(ifs, &sigpattern.checksum);
 }
 
 } // namespace REDasm

@@ -135,8 +135,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     });
 
     EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const Symbol* symbol) {
-        if(symbol->type & SymbolTypes::FunctionMask)
-        {
+        if(symbol->type & SymbolTypes::FunctionMask) {
             this->insertSorted(symbol->address, ListingItem::EmptyItem);
             this->insertSorted(symbol->address, ListingItem::FunctionItem);
         }
@@ -407,7 +406,10 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         this->removeSorted(address, ListingItem::MetaItem);
 
         if(symbol->isFunction())
+        {
+            this->insertSorted(address, ListingItem::EmptyItem);
             this->removeSorted(address, ListingItem::FunctionItem);
+        }
         else
             this->removeSorted(address, ListingItem::SymbolItem);
 
@@ -418,7 +420,10 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         return;
 
     if(type & SymbolTypes::FunctionMask)
+    {
+        this->insertSorted(address, ListingItem::EmptyItem);
         this->insertSorted(address, ListingItem::FunctionItem);
+    }
     else
         this->insertSorted(address, ListingItem::SymbolItem);
 }

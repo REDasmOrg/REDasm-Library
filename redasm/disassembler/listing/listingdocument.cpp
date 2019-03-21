@@ -510,7 +510,7 @@ void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->
 void ListingDocumentType::table(address_t address, u64 count, u32 tag)
 {
     this->lock(address, ListingDocumentType::symbolName("tbl", address) + "_0", SymbolTypes::TableItem, tag);
-    this->meta(address, "Table with " + std::to_string(count) + " case(s)");
+    this->type(address, "Table with " + std::to_string(count) + " case(s)");
 }
 
 void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, u32 tag)

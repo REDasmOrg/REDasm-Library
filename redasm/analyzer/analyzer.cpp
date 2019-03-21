@@ -1,9 +1,10 @@
 #include "analyzer.h"
 #include "../support/hash.h"
+#include "../plugins/loader.h"
 
 namespace REDasm {
 
-Analyzer::Analyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): m_document(disassembler->document()), m_disassembler(disassembler), m_signaturefiles(signaturefiles) { }
+Analyzer::Analyzer(DisassemblerAPI *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
 void Analyzer::analyzeFast()  { this->checkFunctions(); }
 
 void Analyzer::analyze()
@@ -24,7 +25,7 @@ void Analyzer::checkFunctions()
 
 void Analyzer::loadSignatures()
 {
-    for(const std::string& sdbfile : m_signaturefiles)
+    for(const std::string& sdbfile : m_disassembler->loader()->signatures())
         m_disassembler->loadSignature(REDasm::makeSdbPath(sdbfile));
 }
 

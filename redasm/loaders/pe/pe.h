@@ -26,7 +26,7 @@ template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
     public:
         PELoader(AbstractBuffer* buffer);
         virtual std::string assembler() const;
-        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const;
+        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler) const;
         virtual void load();
         const DotNetReader *dotNetReader() const;
         address_t rvaToVa(address_t rva) const;

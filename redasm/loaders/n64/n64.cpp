@@ -63,7 +63,7 @@ LOADER_PLUGIN_TEST(N64Loader, N64RomHeader)
 
 N64Loader::N64Loader(AbstractBuffer *buffer): LoaderPluginT<N64RomHeader>(buffer) { }
 std::string N64Loader::assembler() const { return "mips64be"; }
-Analyzer *N64Loader::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new N64Analyzer(disassembler, signatures); }
+Analyzer *N64Loader::createAnalyzer(DisassemblerAPI *disassembler) const { return new N64Analyzer(disassembler); }
 
 void N64Loader::load()
 {

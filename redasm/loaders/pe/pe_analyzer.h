@@ -12,7 +12,7 @@ class PEAnalyzer: public Analyzer
         typedef std::pair<size_t, std::string> APIInfo;
 
     public:
-        PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler, const SignatureFiles &signatures);
+        PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler);
         virtual void analyze();
 
     private:

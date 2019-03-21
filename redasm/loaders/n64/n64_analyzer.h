@@ -8,7 +8,7 @@ namespace REDasm {
 class N64Analyzer : public Analyzer
 {
     public:
-        N64Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
+        N64Analyzer(DisassemblerAPI* disassembler);
         virtual void analyze();       
 };
 

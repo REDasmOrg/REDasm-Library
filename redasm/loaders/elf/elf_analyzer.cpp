@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-ElfAnalyzer::ElfAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures): Analyzer(disassembler, signatures) { }
+ElfAnalyzer::ElfAnalyzer(DisassemblerAPI *disassembler): Analyzer(disassembler) { }
 
 void ElfAnalyzer::analyze()
 {

@@ -8,7 +8,7 @@ namespace REDasm {
 class PsxExeAnalyzer: public Analyzer
 {
     public:
-        PsxExeAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
+        PsxExeAnalyzer(DisassemblerAPI* disassembler);
         virtual void analyze();
 
     private:

@@ -64,12 +64,12 @@ template<size_t b> std::string PELoader<b>::assembler() const
     return nullptr;
 }
 
-template<size_t b> Analyzer *PELoader<b>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
+template<size_t b> Analyzer *PELoader<b>::createAnalyzer(DisassemblerAPI *disassembler) const
 {
     if(m_petype == PeType::VisualBasic)
-        return new VBAnalyzer(this->m_petype, b, disassembler, signatures);
+        return new VBAnalyzer(this->m_petype, b, disassembler);
 
-    return new PEAnalyzer(this->m_petype, b, disassembler, signatures);
+    return new PEAnalyzer(this->m_petype, b, disassembler);
 }
 
 template<size_t b> void PELoader<b>::load()

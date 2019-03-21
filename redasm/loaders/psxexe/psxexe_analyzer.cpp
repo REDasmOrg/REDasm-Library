@@ -3,9 +3,7 @@
 
 namespace REDasm {
 
-PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signaturefiles): Analyzer(disassembler, signaturefiles)
-{
-}
+PsxExeAnalyzer::PsxExeAnalyzer(DisassemblerAPI *disassembler): Analyzer(disassembler) { }
 
 void PsxExeAnalyzer::analyze()
 {
@@ -45,7 +43,7 @@ void PsxExeAnalyzer::detectMain()
             break;
         }
 
-        if(symbol->name == "LIBAPI_InitHeap")
+        if(symbol->name == "LIBAPI.InitHeap")
             initheap = true;
     }
 }

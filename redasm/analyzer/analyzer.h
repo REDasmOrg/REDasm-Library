@@ -15,7 +15,7 @@ namespace REDasm {
 class Analyzer
 {
     public:
-        Analyzer(DisassemblerAPI* disassembler, const SignatureFiles& signaturefiles);
+        Analyzer(DisassemblerAPI* disassembler);
         virtual ~Analyzer() = default;
         virtual void analyzeFast();
         virtual void analyze();
@@ -32,7 +32,6 @@ class Analyzer
         ListingDocument& m_document;
         DisassemblerAPI* m_disassembler;
         Dispatcher<std::string, void*> m_archdispatcher;
-        const SignatureFiles& m_signaturefiles;
 };
 
 }

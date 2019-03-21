@@ -81,10 +81,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::load()
     this->m_document->entry(this->m_header->e_entry);
 }
 
-template<size_t b, endianness_t e> Analyzer* ELFLoader<b, e>::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const
-{
-    return new ElfAnalyzer(disassembler, signatures);
-}
+template<size_t b, endianness_t e> Analyzer* ELFLoader<b, e>::createAnalyzer(DisassemblerAPI *disassembler) const { return new ElfAnalyzer(disassembler); }
 
 template<size_t b, endianness_t e> u64 ELFLoader<b, e>::relocationSymbol(const REL* rel) const
 {

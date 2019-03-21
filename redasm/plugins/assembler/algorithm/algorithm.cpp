@@ -41,7 +41,7 @@ void AssemblerAlgorithm::analyze()
 
     m_analyzed = true;
     LoaderPlugin* loader = m_disassembler->loader();
-    m_analyzer.reset(loader->createAnalyzer(m_disassembler, loader->signatures()));
+    m_analyzer.reset(loader->createAnalyzer(m_disassembler));
 
     REDasm::status("Analyzing...");
     m_analyzer->analyze();

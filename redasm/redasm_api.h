@@ -294,7 +294,6 @@ template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t
 typedef std::shared_ptr<Instruction> InstructionPtr;
 typedef std::deque<Operand> OperandList;
 typedef std::deque<Segment> SegmentList;
-typedef std::list<std::string> SignatureFiles;
 
 } // namespace REDasm
 

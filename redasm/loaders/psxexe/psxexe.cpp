@@ -13,11 +13,11 @@ LOADER_PLUGIN_TEST(PsxExeLoader, PsxExeHeader) { return !strncmp(header->id, PSX
 
 PsxExeLoader::PsxExeLoader(AbstractBuffer *buffer): LoaderPluginT<PsxExeHeader>(buffer) { }
 std::string PsxExeLoader::assembler() const { return "mips32le"; }
-Analyzer *PsxExeLoader::createAnalyzer(DisassemblerAPI *disassembler, const SignatureFiles &signatures) const { return new PsxExeAnalyzer(disassembler, signatures); }
+Analyzer *PsxExeLoader::createAnalyzer(DisassemblerAPI *disassembler) const { return new PsxExeAnalyzer(disassembler); }
 
 void PsxExeLoader::load()
 {
-    m_signatures.push_back("psyq47");
+    m_signatures.push_back("psyq");
 
     if(m_header->t_addr > PSX_USER_RAM_START)
         m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_header->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);

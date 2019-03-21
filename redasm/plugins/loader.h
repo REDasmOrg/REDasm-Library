@@ -31,6 +31,8 @@
 
 namespace REDasm {
 
+typedef std::list<std::string> SignatureFiles;
+
 namespace LoaderFlags {
     enum: u32 { None = 0, CustomAssembler = 1, CustomAddressing = 2, Binary = 0xFFFFFFFF };
 }
@@ -77,7 +79,7 @@ class LoaderPlugin: public Plugin
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
         virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
-        virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler, const SignatureFiles &signatures) const;
+        virtual Analyzer *createAnalyzer(DisassemblerAPI* disassembler) const;
         virtual std::string assembler() const;
         virtual void load() = 0;
 

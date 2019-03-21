@@ -9,7 +9,7 @@ namespace REDasm {
 class VBAnalyzer : public PEAnalyzer
 {
     public:
-        VBAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler, const SignatureFiles& signatures);
+        VBAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler);
         virtual void analyze();
 
     private:

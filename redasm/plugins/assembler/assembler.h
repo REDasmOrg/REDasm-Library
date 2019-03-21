@@ -17,7 +17,7 @@
                                                      inline std::string id##_plugin_assembler_id() { return #id; } \
                                                      inline u32 id##_plugin_assembler_bits() { return bits; }
 
-#define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name, &id##_plugin_assembler_id }
+#define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name, &id##_plugin_assembler_id, &id##_plugin_assembler_bits }
 
 #define ASSEMBLER_IS(assembler, arch)                (assembler->name().find(arch) != std::string::npos)
 #define REGISTER_INSTRUCTION(id, cb)                 this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)

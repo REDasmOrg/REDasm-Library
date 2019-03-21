@@ -9,7 +9,7 @@ namespace REDasm {
 
 AssemblerPlugin::AssemblerPlugin(): Plugin() { }
 u32 AssemblerPlugin::flags() const { return AssemblerFlags::None; }
-u32 AssemblerPlugin::bits() const { return Plugins::assemblers[this->name()].bits(); }
+u32 AssemblerPlugin::bits() const { return Plugins::assemblers[this->id()].bits(); }
 Emulator *AssemblerPlugin::createEmulator(DisassemblerAPI *disassembler) const { RE_UNUSED(disassembler); return nullptr; }
 Printer *AssemblerPlugin::createPrinter(DisassemblerAPI *disassembler) const { return new Printer(disassembler); }
 AssemblerAlgorithm *AssemblerPlugin::createAlgorithm(DisassemblerAPI *disassembler) { return new ControlFlowAlgorithm(disassembler, this); }

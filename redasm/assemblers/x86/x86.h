@@ -20,6 +20,7 @@ template<cs_mode mode> class X86Assembler: public CapstoneAssemblerPlugin<CS_ARC
     private:
         void setBranchTarget(const InstructionPtr& instruction);
         void checkLea(const InstructionPtr& instruction);
+        void compareOp1(const InstructionPtr& instruction);
         s64 bpIndex(s64 disp, u32& type) const;
         s64 spIndex(s64 disp) const;
         bool isSP(register_id_t reg) const;

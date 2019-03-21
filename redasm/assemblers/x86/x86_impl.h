@@ -41,6 +41,7 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     SET_INSTRUCTION_TYPE(X86_INS_RET, InstructionTypes::Stop);
     SET_INSTRUCTION_TYPE(X86_INS_NOP, InstructionTypes::Nop);
     SET_INSTRUCTION_TYPE(X86_INS_MOV, InstructionTypes::Load);
+    SET_INSTRUCTION_TYPE(X86_INS_TEST, InstructionTypes::Compare);
 
     REGISTER_INSTRUCTION(X86_INS_JA, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_JAE, &X86Assembler::setBranchTarget);
@@ -63,6 +64,7 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     REGISTER_INSTRUCTION(X86_INS_JMP, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_CALL, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_LEA, &X86Assembler::checkLea);
+    REGISTER_INSTRUCTION(X86_INS_CMP, &X86Assembler::compareOp1);
 }
 
 template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &instruction)
@@ -190,13 +192,19 @@ template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const Instructio
 template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
 {
     instruction->type = InstructionTypes::Load;
+    Operand* op1 = instruction->op(1);
 
-    Operand* op2 = instruction->op(1);
-
-    if(!op2->is(OperandTypes::Memory))
+    if(!op1->is(OperandTypes::Memory))
         return;
 
-    op2->type = OperandTypes::Immediate;
+    op1->type = OperandTypes::Immediate;
+}
+
+template<cs_mode mode> void X86Assembler<mode>::compareOp1(const InstructionPtr &instruction)
+{
+    instruction->type = InstructionTypes::Compare;
+    Operand* op1 = instruction->op(1);
+    op1->checkCharacter();
 }
 
 } // namespace REDasm

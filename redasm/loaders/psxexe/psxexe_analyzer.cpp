@@ -23,6 +23,9 @@ void PsxExeAnalyzer::detectMain()
 
     for(; it != m_document->end(); it++)
     {
+        if((*it)->is(ListingItem::SymbolItem))
+            continue;
+
         if(!(*it)->is(ListingItem::InstructionItem))
             break;
 
@@ -40,6 +43,7 @@ void PsxExeAnalyzer::detectMain()
         {
             m_document->lock(symbol->address, "main");
             m_document->setDocumentEntry(symbol->address);
+            REDasm::log("Found 'main' @ " + REDasm::hex(symbol->address));
             break;
         }
 

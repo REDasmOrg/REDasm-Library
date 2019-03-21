@@ -6,8 +6,8 @@ namespace REDasm {
 
 MetaARMAssembler::MetaARMAssembler(): AssemblerPlugin()
 {
-    m_armassembler = new ARMAssembler();
-    m_thumbassembler = new ARMThumbAssembler();
+    m_armassembler = REDasm::createAssembler<ARMAssembler>("arm");
+    m_thumbassembler = REDasm::createAssembler<ARMThumbAssembler>("armthumb");
     m_assembler = m_armassembler;
 }
 

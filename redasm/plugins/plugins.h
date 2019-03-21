@@ -29,6 +29,17 @@ struct Plugins
     static LIBREDASM_EXPORT EntryMapT<AssemblerPlugin_Entry>::Type assemblers;
 };
 
+template<typename T> T* createAssembler(const std::string &id)
+{
+    auto it = Plugins::assemblers.find(id);
+
+    if(it != Plugins::assemblers.end())
+        return static_cast<T*>(it->second.init());
+
+    REDasm::log("Cannot find " + REDasm::quoted(id) + " assembler");
+    return nullptr;
+}
+
 LoaderList getLoaders(const LoadRequest& request, bool skipbinaries = false);
 const LoaderPlugin_Entry* getLoader(const std::string& id);
 const AssemblerPlugin_Entry* getAssembler(const std::string &id);

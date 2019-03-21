@@ -183,13 +183,21 @@ struct Operand
     s64 index;
     RegisterOperand reg;
     DisplacementOperand disp;
-
     union { s64 s_value; u64 u_value; };
 
     constexpr bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
     constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
+    constexpr bool isCharacter() const { return is(OperandTypes::Constant) && (u_value <= 0xFF) && ::isprint(u_value); }
     constexpr bool isNumeric() const { return is(OperandTypes::Constant) || is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     constexpr bool is(u32 t) const { return type & t; }
+
+    bool checkCharacter() {
+        if(!is(OperandTypes::Immediate) || (u_value > 0xFF) || !::isprint(u_value))
+            return false;
+
+        type = OperandTypes::Constant;
+        return true;
+    }
 };
 
 struct Instruction

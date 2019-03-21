@@ -125,8 +125,11 @@ void AssemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction) { RE_
 
 void AssemblerAlgorithm::onDecodedOperand(const Operand *op, const InstructionPtr &instruction)
 {
-    RE_UNUSED(instruction);
-    RE_UNUSED(op);
+    if(!op->isCharacter())
+        return;
+
+    std::string charinfo = REDasm::hex(op->u_value, 8, true) + "=" + REDasm::quoted_s(std::string(1, static_cast<char>(op->u_value)));
+    m_document->autoComment(instruction->address, charinfo);
 }
 
 void AssemblerAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)

@@ -111,25 +111,25 @@ std::string Printer::out(const InstructionPtr &instruction, const OpCallback &op
             s += ", ";
 
         std::string opstr;
-        const Operand& operand = *it;
+        const Operand& op = *it;
 
-        if(operand.is(OperandTypes::Constant))
-            opstr = REDasm::hex(operand.u_value, 0, true);
-        else if(operand.is(OperandTypes::Immediate))
-            opstr = this->imm(&operand);
-        else if(operand.is(OperandTypes::Memory))
-            opstr = this->mem(&operand);
-        else if(operand.is(OperandTypes::Displacement))
-            opstr = this->disp(&operand);
-        else if(operand.is(OperandTypes::Register))
-            opstr = this->reg(operand.reg);
+        if(op.is(OperandTypes::Constant))
+            opstr = REDasm::hex(op.u_value, 0, true);
+        else if(op.is(OperandTypes::Immediate))
+            opstr = this->imm(&op);
+        else if(op.is(OperandTypes::Memory))
+            opstr = this->mem(&op);
+        else if(op.is(OperandTypes::Displacement))
+            opstr = this->disp(&op);
+        else if(op.is(OperandTypes::Register))
+            opstr = this->reg(op.reg);
         else
             continue;
 
-        std::string opsize = this->size(&operand);
+        std::string opsize = this->size(&op);
 
         if(opfunc)
-            opfunc(&operand, opsize, opstr);
+            opfunc(&op, opsize, opstr);
 
         if(!opsize.empty())
             s += opsize + " ";

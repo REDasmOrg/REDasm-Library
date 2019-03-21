@@ -299,6 +299,8 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
         rl.push(mnemonic, "instruction_nop");
     else if(instruction->is(REDasm::InstructionTypes::Call))
         rl.push(mnemonic, "instruction_call");
+    else if(instruction->is(REDasm::InstructionTypes::Compare))
+        rl.push(mnemonic, "instruction_compare");
     else if(instruction->is(REDasm::InstructionTypes::Jump))
     {
         if(instruction->is(REDasm::InstructionTypes::Conditional))
@@ -324,7 +326,8 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
         if(!opsize.empty())
             rl.push(opsize + " ");
 
-        if(op->isNumeric()) {
+        if(op->isNumeric())
+        {
             if(op->is(REDasm::OperandTypes::Memory))
                 rl.push(opstr, "memory_fg");
             else

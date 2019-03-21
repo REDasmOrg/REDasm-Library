@@ -32,8 +32,17 @@ bool SignatureDB::load(const std::string &sigfilename)
 
     ifs >> m_json;
 
-    if(m_json["version"] != SDB_VERSION)
+    if(!m_json.contains("version"))
+    {
+        REDasm::log("Missing 'version' field");
         return false;
+    }
+
+    if(m_json["version"] != SDB_VERSION)
+    {
+        REDasm::log("Invalid version: Expected " + REDasm::quoted(SDB_VERSION) + ", got " + REDasm::quoted(static_cast<size_t>(m_json["version"])));
+        return false;
+    }
 
     return true;
 }

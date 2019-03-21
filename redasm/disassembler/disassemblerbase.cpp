@@ -312,12 +312,22 @@ std::string DisassemblerBase::readWString(address_t address, u64 len) const
     });
 }
 
-bool DisassemblerBase::loadSignature(const std::string &sdbfile)
+bool DisassemblerBase::loadSignature(const std::string &signame)
 {
+    std::string signaturefile = REDasm::makeSignaturePath(signame) + ".json";
     SignatureDB sigdb;
 
-    if(!sigdb.load(sdbfile) || !sigdb.isCompatible(this))
+    if(!sigdb.load(signaturefile))
+    {
+        REDasm::log("Failed to load " + REDasm::quoted(signaturefile));
         return false;
+    }
+
+    if(!sigdb.isCompatible(this))
+    {
+        REDasm::log("Signature " + REDasm::quoted(sigdb.name()) + " is not compatible");
+        return false;
+    }
 
     REDasm::log("Loading Signature: " + REDasm::quoted(sigdb.name()));
     bool found = true;

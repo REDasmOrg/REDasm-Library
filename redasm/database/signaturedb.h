@@ -34,9 +34,9 @@ struct Signature: public json
     SIGNATURE_FIELD(u32, symboltype)
     SIGNATURE_FIELD(u64, size)
     SIGNATURE_FIELD(std::string, name)
-    SIGNATURE_FIELD(std::string, assembler)
 
-    json patterns() const { return (*this)["patterns"]; }
+    json& patterns() { return (*this)["patterns"]; }
+    const json& patterns() const { return (*this)["patterns"]; }
     void patterns(const json& p) { (*this)["patterns"] = p; }
 };
 
@@ -47,19 +47,16 @@ class SignatureDB
 
     public:
         SignatureDB();
-        static bool isCompatible(const Signature& signature, const DisassemblerAPI *disassembler);
+        bool isCompatible(const DisassemblerAPI *disassembler);
+        std::string name() const;
+        void setAssembler(const std::string& assembler);
         void setName(const std::string& name);
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
-
-    public:
         void search(const BufferView& view, const SignatureFound& cb) const;
         SignatureDB& operator <<(const Signature &signature);
 
     private:
-        std::string uniqueAssembler(u32 idx) const;
-        s32 uniqueAssemblerIdx(const Signature& signature) const;
-        void pushUniqueAssembler(const Signature &signature);
         void searchSignature(const BufferView& view, const json& sig, const SignatureFound& cb) const;
         bool checkPatterns(const BufferView& view, offset_t offset, const Signature &sig) const;
 

@@ -13,17 +13,15 @@ namespace REDasm {
 
 SignatureDB::SignatureDB()
 {
-    m_json["name"] = "Unknown Signature";
     m_json["version"] = SDB_VERSION;
-    m_json["assemblers"] = json::array();
+    m_json["name"] = "Unknown Signature";
+    m_json["assembler"] = std::string();
     m_json["signatures"] = json::array();
 }
 
-bool SignatureDB::isCompatible(const Signature &signature, const DisassemblerAPI *disassembler)
-{
-    return signature.assembler() != disassembler->loader()->assembler();
-}
-
+bool SignatureDB::isCompatible(const DisassemblerAPI *disassembler) { return m_json["assembler"] == disassembler->loader()->assembler(); }
+std::string SignatureDB::name() const { return m_json["name"]; }
+void SignatureDB::setAssembler(const std::string &assembler) { m_json["assembler"] = assembler; }
 void SignatureDB::setName(const std::string &name) { m_json["name"] = name; }
 bool SignatureDB::load(const std::string &sigfilename)
 {
@@ -64,39 +62,8 @@ void SignatureDB::search(const BufferView &view, const SignatureDB::SignatureFou
 
 SignatureDB &SignatureDB::operator <<(const Signature &signature)
 {
-    this->pushUniqueAssembler(signature);
-
     m_json["signatures"].push_back(signature);
     return *this;
-}
-
-std::string SignatureDB::uniqueAssembler(u32 idx) const
-{
-    if(idx >= m_json["assemblers"].size())
-        return std::string();
-
-    return m_json["assemblers"][idx];
-}
-
-s32 SignatureDB::uniqueAssemblerIdx(const Signature &signature) const
-{
-    const auto& assemblers = m_json["assemblers"];
-
-    for(s32 i = 0; i < assemblers.size(); i++)
-    {
-        if(assemblers[i] == signature.assembler())
-            return i;
-    }
-
-    return -1;
-}
-
-void SignatureDB::pushUniqueAssembler(const Signature& signature)
-{
-    if(this->uniqueAssemblerIdx(signature) > -1)
-        return;
-
-    m_json["assemblers"].push_back(signature.assembler());
 }
 
 void SignatureDB::searchSignature(const BufferView &view, const json &sig, const SignatureDB::SignatureFound &cb) const

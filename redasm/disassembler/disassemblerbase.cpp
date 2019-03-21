@@ -316,10 +316,10 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
 {
     SignatureDB sigdb;
 
-    if(!sigdb.load(sdbfile))
+    if(!sigdb.load(sdbfile) || !sigdb.isCompatible(this))
         return false;
 
-    REDasm::log("Loading Signature: " + REDasm::quoted(sdbfile));
+    REDasm::log("Loading Signature: " + REDasm::quoted(sigdb.name()));
     bool found = true;
 
     m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
@@ -333,9 +333,6 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
             return true;
 
         sigdb.search(view, [&](const Signature& signature) {
-            if(!SignatureDB::isCompatible(signature, this))
-                return;
-
             REDasm::log("Found " + REDasm::quoted(signature.name()) + " @ " + REDasm::hex(symbol->address));
             m_document->lock(symbol->address, signature.name(), signature["symboltype"]);
             found = true;

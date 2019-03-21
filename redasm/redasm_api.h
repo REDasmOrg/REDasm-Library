@@ -73,6 +73,7 @@ template<typename...T> std::string makeRntPath(const std::string& p, T... args) 
 template<typename...T> std::string makeDbPath(const std::string& p, T... args) { return REDasm::makeRntPath("database", p, args...); }
 template<typename...T> std::string makeSdbPath(const std::string& p, T... args) { return REDasm::makeDbPath("sdb", p, args...); }
 template<typename...T> std::string makeLoaderPath(const std::string& p, T... args) { return REDasm::makeDbPath("loaders", p, args...); }
+template<typename...T> std::string makeSignaturePath(const std::string& p, T... args) { return REDasm::makeDbPath("signatures", p, args...); }
 
 namespace SegmentTypes {
     enum: u32 {

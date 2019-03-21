@@ -26,7 +26,7 @@ void Analyzer::checkFunctions()
 void Analyzer::loadSignatures()
 {
     for(const std::string& sdbfile : m_disassembler->loader()->signatures())
-        m_disassembler->loadSignature(REDasm::makeSdbPath(sdbfile));
+        m_disassembler->loadSignature(REDasm::makeSignaturePath(sdbfile));
 }
 
 bool Analyzer::findNullSubs(const Symbol* symbol)

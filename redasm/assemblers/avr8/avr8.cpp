@@ -43,7 +43,6 @@ AVR8Assembler::AVR8Assembler(): AssemblerPlugin()
 }
 
 Printer *AVR8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new AVR8Printer(disassembler); }
-u32 AVR8Assembler::bits() const { return 16; }
 
 void AVR8Assembler::compileInstruction(const InstructionPtr &instruction, const AVR8Operand& avrop, size_t opindex)
 {

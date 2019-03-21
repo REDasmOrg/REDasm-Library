@@ -332,13 +332,12 @@ bool DisassemblerBase::loadSignature(const std::string &sdbfile)
         if(view.eob() || !offset.valid)
             return true;
 
-        sigdb.search(view, [&](const json& signature) {
+        sigdb.search(view, [&](const Signature& signature) {
             if(!SignatureDB::isCompatible(signature, this))
                 return;
 
-            std::string signame = signature["name"];
-            REDasm::log("Found " + REDasm::quoted(signame) + " @ " + REDasm::hex(symbol->address));
-            m_document->lock(symbol->address, signame, signature["symboltype"]);
+            REDasm::log("Found " + REDasm::quoted(signature.name()) + " @ " + REDasm::hex(symbol->address));
+            m_document->lock(symbol->address, signature.name(), signature["symboltype"]);
             found = true;
         });
 

@@ -14,7 +14,6 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
     public:
         MIPSAssembler();
         virtual u32 flags() const { return AssemblerFlags::CanEmulate; }
-        virtual u32 bits() const;
         virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) { return new MIPSAlgorithm(disassembler, this); }
@@ -44,19 +43,19 @@ ASSEMBLER_INHERIT(MIPS2BEAssembler, (MIPSAssembler<CS_MODE_MIPS2 | CS_MODE_BIG_E
 ASSEMBLER_INHERIT(MIPS3BEAssembler, (MIPSAssembler<CS_MODE_MIPS3 | CS_MODE_BIG_ENDIAN>), "MIPS III BE")
 ASSEMBLER_INHERIT(MIPSMicroBEAssembler, (MIPSAssembler<CS_MODE_MICRO | CS_MODE_BIG_ENDIAN>), "Micro MIPS BE")
 
-DECLARE_ASSEMBLER_PLUGIN(MIPS32LEAssembler, mips32le)
-DECLARE_ASSEMBLER_PLUGIN(MIPS64LEAssembler, mips64le)
-DECLARE_ASSEMBLER_PLUGIN(MIPS32R6LEAssembler, mips32r6le)
-DECLARE_ASSEMBLER_PLUGIN(MIPS2LEAssembler, mips2le)
-DECLARE_ASSEMBLER_PLUGIN(MIPS3LEAssembler, mips3le)
-DECLARE_ASSEMBLER_PLUGIN(MIPSMicroLEAssembler, mipsmicrole)
+DECLARE_ASSEMBLER_PLUGIN(MIPS32LEAssembler, mips32le, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS64LEAssembler, mips64le, 64)
+DECLARE_ASSEMBLER_PLUGIN(MIPS32R6LEAssembler, mips32r6le, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS2LEAssembler, mips2le, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS3LEAssembler, mips3le, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPSMicroLEAssembler, mipsmicrole, 32)
 
-DECLARE_ASSEMBLER_PLUGIN(MIPS32BEAssembler, mips32be)
-DECLARE_ASSEMBLER_PLUGIN(MIPS64BEAssembler, mips64be)
-DECLARE_ASSEMBLER_PLUGIN(MIPS32R6BEAssembler, mips32r6be)
-DECLARE_ASSEMBLER_PLUGIN(MIPS2BEAssembler, mips2be)
-DECLARE_ASSEMBLER_PLUGIN(MIPS3BEAssembler, mips3be)
-DECLARE_ASSEMBLER_PLUGIN(MIPSMicroBEAssembler, mipsmicrobe)
+DECLARE_ASSEMBLER_PLUGIN(MIPS32BEAssembler, mips32be, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS64BEAssembler, mips64be, 64)
+DECLARE_ASSEMBLER_PLUGIN(MIPS32R6BEAssembler, mips32r6be, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS2BEAssembler, mips2be, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPS3BEAssembler, mips3be, 32)
+DECLARE_ASSEMBLER_PLUGIN(MIPSMicroBEAssembler, mipsmicrobe, 32)
 
 } // namespace REDasm
 

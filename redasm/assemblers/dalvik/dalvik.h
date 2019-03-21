@@ -22,7 +22,6 @@ class DalvikAssembler : public AssemblerPlugin
         DalvikAssembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
-        virtual u32 bits() const;
 
     public:
         static std::string registerName(register_id_t regid);
@@ -80,7 +79,7 @@ class DalvikAssembler : public AssemblerPlugin
 
 };
 
-DECLARE_ASSEMBLER_PLUGIN(DalvikAssembler, dalvik)
+DECLARE_ASSEMBLER_PLUGIN(DalvikAssembler, dalvik, 32)
 
 } // namespace REDasm
 

@@ -26,7 +26,6 @@ CHIP8Assembler::CHIP8Assembler(): AssemblerPlugin()
 }
 
 Printer *CHIP8Assembler::createPrinter(DisassemblerAPI *disassembler) const { return new CHIP8Printer(disassembler); }
-u32 CHIP8Assembler::bits() const { return 16; }
 
 bool CHIP8Assembler::decodeInstruction(const BufferView& view, const InstructionPtr &instruction)
 {

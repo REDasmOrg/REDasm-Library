@@ -84,14 +84,6 @@ template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin
     REGISTER_INSTRUCTION(MIPS_INS_BBIT132, &MIPSAssembler::setTargetOp2);
 }
 
-template<s64 mode> u32 MIPSAssembler<mode>::bits() const
-{
-    if(mode & CS_MODE_MIPS64)
-        return 64;
-
-    return 32;
-}
-
 template<s64 mode> bool MIPSAssembler<mode>::decodeInstruction(const BufferView &view, const InstructionPtr& instruction)
 {
     if(CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::decodeInstruction(view, instruction))

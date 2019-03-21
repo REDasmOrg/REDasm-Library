@@ -4,7 +4,6 @@
 namespace REDasm {
 
 ARMThumbAssembler::ARMThumbAssembler(): ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>() { }
-u32 ARMThumbAssembler::bits() const { return 16; }
 
 u64 ARMThumbAssembler::pc(const InstructionPtr &instruction) const
 {

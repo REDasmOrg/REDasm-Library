@@ -19,7 +19,6 @@ class AVR8Assembler: public AssemblerPlugin
     public:
         AVR8Assembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual u32 bits() const;
 
     private:
         void compileInstruction(const InstructionPtr& instruction, const AVR8Operand &avrop, size_t opindex);
@@ -32,7 +31,7 @@ class AVR8Assembler: public AssemblerPlugin
         std::unordered_map<u16, OpCodeCallback> m_opcodes;
 };
 
-DECLARE_ASSEMBLER_PLUGIN(AVR8Assembler, avr8)
+DECLARE_ASSEMBLER_PLUGIN(AVR8Assembler, avr8, 16)
 
 } // namespace REDasm
 

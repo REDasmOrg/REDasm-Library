@@ -23,7 +23,6 @@ class CHIP8Assembler : public AssemblerPlugin
     public:
         CHIP8Assembler();
         virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual u32 bits() const;
 
     protected:
         virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
@@ -51,7 +50,7 @@ class CHIP8Assembler : public AssemblerPlugin
         std::unordered_map<u16, OpCodeCallback> m_opcodes;
 };
 
-DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8)
+DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8, 16)
 
 } // namespace REDasm
 

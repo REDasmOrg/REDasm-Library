@@ -38,7 +38,7 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
         AssemblerPlugin* m_assembler;
 };
 
-DECLARE_ASSEMBLER_PLUGIN(MetaARMAssembler, metaarm)
+DECLARE_ASSEMBLER_PLUGIN(MetaARMAssembler, metaarm, 32)
 
 } // namespace REDasm
 

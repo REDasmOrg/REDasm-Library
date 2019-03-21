@@ -11,11 +11,10 @@ class ARMThumbAssembler : public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>
 
     public:
         ARMThumbAssembler();
-        virtual u32 bits() const;
         virtual u64 pc(const InstructionPtr& instruction) const;
 };
 
-DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb)
+DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb, 16)
 
 } // namespace REDasm
 

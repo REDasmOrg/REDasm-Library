@@ -12,16 +12,17 @@
 #include "../base.h"
 #include "printer.h"
 
-#define DECLARE_ASSEMBLER_PLUGIN(T, id)              inline AssemblerPlugin* id##_plugin_assembler_init() { T* t = new T(); t->setId(#id); return t; } \
+#define DECLARE_ASSEMBLER_PLUGIN(T, id, bits)        inline AssemblerPlugin* id##_plugin_assembler_init() { T* t = new T(); t->setId(#id); return t; } \
                                                      inline std::string id##_plugin_assembler_name() { return T::Name; } \
-                                                     inline std::string id##_plugin_assembler_id() { return #id; }
+                                                     inline std::string id##_plugin_assembler_id() { return #id; } \
+                                                     inline u32 id##_plugin_assembler_bits() { return bits; }
 
 #define ASSEMBLER_PLUGIN_ENTRY(id)                   { &id##_plugin_assembler_init, &id##_plugin_assembler_name, &id##_plugin_assembler_id }
 
 #define ASSEMBLER_IS(assembler, arch)                (assembler->name().find(arch) != std::string::npos)
 #define REGISTER_INSTRUCTION(id, cb)                 this->m_dispatcher[id] = std::bind(cb, this, std::placeholders::_1)
 #define SET_INSTRUCTION_TYPE(id, type)               this->m_instructiontypes[id] = type
-#define ASSEMBLER_INHERIT(classname, basename, name)  PLUGIN_INHERIT(classname, basename, name, , )
+#define ASSEMBLER_INHERIT(classname, basename, name) PLUGIN_INHERIT(classname, basename, name, , )
 
 namespace REDasm {
 
@@ -37,7 +38,7 @@ class AssemblerPlugin: public Plugin
         AssemblerPlugin();
         virtual ~AssemblerPlugin() = default;
         virtual u32 flags() const;
-        virtual u32 bits() const = 0;
+        virtual u32 bits() const;
         virtual Emulator* createEmulator(DisassemblerAPI* disassembler) const;
         virtual Printer* createPrinter(DisassemblerAPI* disassembler) const;
         virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
@@ -124,6 +125,7 @@ struct AssemblerPlugin_Entry
     std::function<AssemblerPlugin*()> init;
     std::function<std::string()> name;
     std::function<std::string()> id;
+    std::function<u32()> bits;
 };
 
 }

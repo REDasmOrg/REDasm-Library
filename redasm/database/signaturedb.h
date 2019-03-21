@@ -11,53 +11,43 @@
 #include "../types/buffer/bufferview.h"
 #include "../types/base_types.h"
 
+#define SIGNATURE_FIELD(T, name) T name() const { return (*this)[#name]; } \
+                                 void name(const T& v) { (*this)[#name] = v; }
+
 namespace REDasm {
 
 using json = nlohmann::json;
-
 class DisassemblerAPI;
 
-/*
- * SignaturePattern valid fields:
- * - Checksum: type, size, checksum
- * - Skip: type, size
- */
+struct SignaturePattern: public json {
+    SignaturePattern(): json() { }
 
-namespace SignaturePatternType {
-
-enum : u32 {
-    First = 0,
-    CheckSum, Skip,
-    Last = Skip
+    SIGNATURE_FIELD(u64, offset)
+    SIGNATURE_FIELD(u64, size)
+    SIGNATURE_FIELD(u16, checksum) // CRC-16
 };
 
-}
-
-struct SignaturePattern
+struct Signature: public json
 {
-    SignaturePattern(): type(0), size(0), checksum(0) { }
+    Signature(): json() { (*this)["patterns"] = json::array(); }
 
-    u32 type;
-    u64 size;
-    u16 checksum; // CRC-16
-};
+    SIGNATURE_FIELD(u32, symboltype)
+    SIGNATURE_FIELD(u64, size)
+    SIGNATURE_FIELD(std::string, name)
+    SIGNATURE_FIELD(std::string, assembler)
 
-struct Signature
-{
-    u32 bits, symboltype;
-    u64 size;
-    std::string name, assembler;
-    std::list<SignaturePattern> patterns;
+    json patterns() const { return (*this)["patterns"]; }
+    void patterns(const json& p) { (*this)["patterns"] = p; }
 };
 
 class SignatureDB
 {
     public:
-        typedef std::function<void(const json&)> SignatureFound;
+        typedef std::function<void(const SignaturePattern&)> SignatureFound;
 
     public:
         SignatureDB();
-        static bool isCompatible(const json &signature, const DisassemblerAPI *disassembler);
+        static bool isCompatible(const Signature& signature, const DisassemblerAPI *disassembler);
         void setName(const std::string& name);
         bool load(const std::string& sigfilename);
         bool save(const std::string& sigfilename);
@@ -71,7 +61,7 @@ class SignatureDB
         s32 uniqueAssemblerIdx(const Signature& signature) const;
         void pushUniqueAssembler(const Signature &signature);
         void searchSignature(const BufferView& view, const json& sig, const SignatureFound& cb) const;
-        bool checkPatterns(const BufferView& view, offset_t offset, const json &sig) const;
+        bool checkPatterns(const BufferView& view, offset_t offset, const Signature &sig) const;
 
     private:
         json m_json;

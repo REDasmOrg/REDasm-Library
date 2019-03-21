@@ -65,17 +65,6 @@ template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlug
     REGISTER_INSTRUCTION(X86_INS_LEA, &X86Assembler::checkLea);
 }
 
-template<cs_mode mode> u32 X86Assembler<mode>::bits() const
-{
-    if(mode == CS_MODE_16)
-        return 16;
-
-    if(mode == CS_MODE_64)
-        return 64;
-
-    return 32;
-}
-
 template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &instruction)
 {
     CapstoneAssemblerPlugin<CS_ARCH_X86, mode>::onDecoded(instruction);

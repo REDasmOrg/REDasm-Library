@@ -84,8 +84,6 @@ namespace SegmentTypes {
         Code = 0x00000001,
         Data = 0x00000002,
         Bss  = 0x00000004,
-
-        PureCode = Code & (~Data | ~Bss),
     };
 }
 
@@ -142,6 +140,7 @@ struct Segment
     constexpr bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
     constexpr bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < this->endoffset)); }
     constexpr bool is(u32 t) const { return type & t; }
+    constexpr bool isPureCode() const { return type == SegmentTypes::Code; }
 
     std::string name;
     offset_t offset, endoffset;

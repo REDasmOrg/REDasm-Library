@@ -133,7 +133,7 @@ void AssemblerAlgorithm::onEmulatedOperand(const Operand *op, const InstructionP
 {
     Segment* segment = m_document->segment(value);
 
-    if(!segment || segment->is(SegmentTypes::PureCode)) // Don't flood "Pure-Code" sections with symbols
+    if(!segment || segment->isPureCode()) // Don't flood "Pure-Code" segments with symbols
         return;
 
     EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, value, op->index, instruction);

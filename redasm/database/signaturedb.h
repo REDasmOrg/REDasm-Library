@@ -1,7 +1,6 @@
 #ifndef SIGNATUREDB_H
 #define SIGNATUREDB_H
 
-#define SDB_SIGNATURE_LENGTH 3
 #define SDB_VERSION          1
 
 #include <functional>

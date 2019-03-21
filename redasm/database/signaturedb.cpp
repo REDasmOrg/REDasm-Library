@@ -51,7 +51,7 @@ bool SignatureDB::save(const std::string &sigfilename)
 
 void SignatureDB::search(const BufferView &view, const SignatureDB::SignatureFound &cb) const
 {
-    for(const auto& sig : m_json["signatures"])
+    for(const json& sig : m_json["signatures"])
     {
         if(sig["size"] != view.size())
             continue;
@@ -81,11 +81,15 @@ void SignatureDB::searchSignature(const BufferView &view, const json &sig, const
     }
 }
 
-bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const Signature &sig) const
+bool SignatureDB::checkPatterns(const BufferView &view, offset_t offset, const json &sig) const
 {
-    for(const SignaturePattern& pattern : sig.patterns())
+    for(const json& pattern : sig["patterns"])
     {
-        if(Hash::crc16(&view + pattern.offset(), pattern.size()) != pattern.checksum())
+        offset_t patternoffset = pattern["offset"];
+        u64 patternsize = pattern["size"];
+        u16 patternchecksum = pattern["checksum"];
+
+        if(Hash::crc16(view.data() + patternoffset, patternsize) != patternchecksum)
             return false;
     }
 

@@ -22,7 +22,7 @@ class DisassemblerAPI;
 struct SignaturePattern: public json {
     SignaturePattern(): json() { }
 
-    SIGNATURE_FIELD(u64, offset)
+    SIGNATURE_FIELD(offset_t, offset)
     SIGNATURE_FIELD(u64, size)
     SIGNATURE_FIELD(u16, checksum) // CRC-16
 };
@@ -43,7 +43,7 @@ struct Signature: public json
 class SignatureDB
 {
     public:
-        typedef std::function<void(const SignaturePattern&)> SignatureFound;
+        typedef std::function<void(const json&)> SignatureFound;
 
     public:
         SignatureDB();
@@ -57,8 +57,8 @@ class SignatureDB
         SignatureDB& operator <<(const Signature &signature);
 
     private:
-        void searchSignature(const BufferView& view, const json& sig, const SignatureFound& cb) const;
-        bool checkPatterns(const BufferView& view, offset_t offset, const Signature &sig) const;
+        void searchSignature(const BufferView& view, const json &sig, const SignatureFound& cb) const;
+        bool checkPatterns(const BufferView& view, offset_t offset, const json &sig) const;
 
     private:
         json m_json;

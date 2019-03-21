@@ -69,6 +69,10 @@ template<typename... T> std::string makePath(const std::string& p, T... args) {
     return path;
 }
 
+std::string fileName(const std::string& path);
+std::string fileNameOnly(const std::string& path);
+std::string filePath(const std::string& path);
+
 template<typename...T> std::string makeRntPath(const std::string& p, T... args) { return REDasm::makePath(Context::settings.searchPath, p, args...); }
 template<typename...T> std::string makeDbPath(const std::string& p, T... args) { return REDasm::makeRntPath("database", p, args...); }
 template<typename...T> std::string makeSdbPath(const std::string& p, T... args) { return REDasm::makeDbPath("sdb", p, args...); }

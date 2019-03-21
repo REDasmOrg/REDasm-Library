@@ -187,12 +187,12 @@ struct Operand
 
     constexpr bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
     constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
-    constexpr bool isCharacter() const { return is(OperandTypes::Constant) && (u_value <= 0xFF) && ::isprint(u_value); }
+    constexpr bool isCharacter() const { return is(OperandTypes::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
     constexpr bool isNumeric() const { return is(OperandTypes::Constant) || is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
     constexpr bool is(u32 t) const { return type & t; }
 
     bool checkCharacter() {
-        if(!is(OperandTypes::Immediate) || (u_value > 0xFF) || !::isprint(u_value))
+        if(!is(OperandTypes::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
             return false;
 
         type = OperandTypes::Constant;

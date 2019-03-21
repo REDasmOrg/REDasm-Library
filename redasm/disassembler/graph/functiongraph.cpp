@@ -51,7 +51,7 @@ void FunctionGraph::buildBasicBlocks()
         s64 index = pending.front();
         pending.pop();
 
-        if((index < 0) || (index >= m_document->size()))
+        if((index < 0) || (static_cast<u64>(index) >= m_document->length()))
             continue;
 
         this->buildBasicBlock(index, pending);

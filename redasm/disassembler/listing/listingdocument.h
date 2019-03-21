@@ -60,7 +60,7 @@ namespace Listing {
     }
 
     template<typename T, typename IT = typename IteratorSelector<T>::Type> IT _adjustSearch(T* container, IT it, size_t type) {
-        int offset = type - (*it)->type;
+        s64 offset = type - (*it)->type;
         address_t searchaddress = (*it)->address;
 
         while((it != container->end()) && (searchaddress == (*it)->address))

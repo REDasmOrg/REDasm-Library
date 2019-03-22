@@ -36,11 +36,11 @@ void MSCOFFLoader::load()
 {
     this->readMemberHeaders();
 
-    if(m_machines.size() != 1)
-    {
-        REDasm::log("Invalid number of assemblers, expected 1, got " + std::to_string(m_machines.size()));
+    if(m_machines.size() == 1)
         return;
-    }
+
+    REDasm::log("Invalid number of assemblers, expected 1, got " + std::to_string(m_machines.size()));
+    m_document = this->createDocument(); // Reset document
 }
 
 std::string MSCOFFLoader::getLongName(const std::string &stroffset)

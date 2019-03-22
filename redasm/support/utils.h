@@ -17,6 +17,9 @@ namespace REDasm
 {
 
 std::string simplified(std::string s);
+std::string ltrimmed(std::string s);
+std::string rtrimmed(std::string s);
+std::string trimmed(std::string s);
 std::string pathext(const std::string& s);
 inline bool pathext_is(const std::string& s, const std::string& ext) { return pathext(s) == ext; }
 inline std::string quoted_s(const std::string& s) {  return "'" + s + "'"; }

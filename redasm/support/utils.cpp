@@ -72,6 +72,21 @@ std::string simplified(std::string s)
     return s;
 }
 
+std::string trimmed(std::string s)
+{
+    // Left
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+
+    // Right
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+
+    return s;
+}
+
 std::string pathext(const std::string &s)
 {
     size_t lastidx = s.find_last_of('.');
@@ -87,4 +102,22 @@ std::string pathext(const std::string &s)
     return s.substr(lastidx);
 }
 
+std::string ltrimmed(std::string s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+        return !std::isspace(ch);
+    }));
+
+    return s;
 }
+
+std::string rtrimmed(std::string s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+
+    return s;
+}
+
+} // namespace REDasm

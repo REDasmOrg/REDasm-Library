@@ -16,6 +16,7 @@
 #include LOADER_PLUGIN(xbe)
 #include LOADER_PLUGIN(gba)
 #include LOADER_PLUGIN(n64)
+#include LOADER_PLUGIN(mscoff)
 
 /* *** Assemblers *** */
 #include ASSEMBLER_PLUGIN(x86)
@@ -57,8 +58,9 @@ void init(const ContextSettings& settings)
     checkContextSettings();
 
     REGISTER_LOADER_PLUGIN(binary); // Always last choice
-    REGISTER_LOADER_PLUGIN(ihex);
     REGISTER_LOADER_PLUGIN(chip8);
+    REGISTER_LOADER_PLUGIN(ihex);
+    REGISTER_LOADER_PLUGIN(mscoff);
     REGISTER_LOADER_PLUGIN(n64rom);
     REGISTER_LOADER_PLUGIN(gbarom);
     REGISTER_LOADER_PLUGIN(xbe);

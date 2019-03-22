@@ -22,7 +22,7 @@ void SymbolTable::read(const SymbolCallback& symbolcb)
     // All needed info for disassemblers & symbol tables: http://wiki.osdev.org/COFF#Symbol_Table
     while(reinterpret_cast<const size_t*>(entry) < reinterpret_cast<const size_t*>(m_stringtable))
     {
-        if(entry->e_value && (entry->e_scnum > 0) && COFF_IS_FUNCTION(entry->e_type) && ((entry->e_sclass == C_LABEL) || (entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
+        if((entry->e_scnum > 0) && COFF_IS_FUNCTION(entry->e_type) && ((entry->e_sclass == C_LABEL) || (entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
         {
             if(!entry->e_zeroes)
                 name = this->nameFromTable(entry->e_offset);

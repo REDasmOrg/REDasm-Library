@@ -2,6 +2,7 @@
 #define BASE_H
 
 #include <functional>
+#include <json.hpp>
 #include "../redasm.h"
 
 #define PLUGIN_NAME(pluginname) public: \
@@ -16,6 +17,8 @@
 
 namespace REDasm {
 
+typedef nlohmann::json PluginSettings;
+
 class Plugin
 {
     public:
@@ -24,6 +27,9 @@ class Plugin
         virtual std::string name() const = 0;
         std::string id() const { return m_id; }
         void setId(const std::string& id) { m_id = id; }
+
+    protected:
+        PluginSettings m_settings;
 
     private:
         std::string m_id;

@@ -24,7 +24,6 @@ class DalvikAlgorithm: public AssemblerAlgorithm
 
     protected:
         virtual void validateTarget(const InstructionPtr&) const;
-        virtual void onDecodeFailed(const InstructionPtr& instruction);
         virtual void onDecodedOperand(const Operand *op, const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
         virtual void decodeState(const State *state);

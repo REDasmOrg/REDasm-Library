@@ -11,7 +11,6 @@ class LinearSweepAlgorithm: public AssemblerAlgorithm
         LinearSweepAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
-        virtual void onDecodeFailed(const InstructionPtr& instruction);
         virtual void onDecoded(const InstructionPtr& instruction);
 };
 

@@ -526,27 +526,10 @@ template<size_t b> void PELoader<b>::loadSymbolTable()
 
     REDasm::log("Loading symbol table @ " + REDasm::hex(m_ntheaders->FileHeader.PointerToSymbolTable));
 
-    COFF::loadSymbols([this](const std::string& name, COFF::COFF_Entry* entry) {
-                      if(m_document->segmentByName(name)) // Ignore segment informations
-                          return;
-
+    COFF::loadSymbols([&](const std::string& name, const COFF::COFF_Entry* entry) {
                       const Segment* segment = m_document->segmentAt(entry->e_scnum - 1);
-                      address_t address = segment->address + entry->e_value;
-
-                      if(segment->is(SegmentTypes::Code)) /* && (entry->e_sclass == C_EXT)) */ {
-                          m_document->lock(address, name, SymbolTypes::Function);
-                          return;
-                      }
-
-                      Symbol* symbol = m_document->symbol(address);
-
-                      if(symbol && symbol->isImport())
-                          return;
-
-                      m_document->lock(address, name, symbol ? symbol->type : SymbolTypes::Data,
-                                                     symbol ? symbol->tag : 0); // Copy symbol type & tag, if exists
+                      m_document->lock(segment->address + entry->e_value, name, SymbolTypes::Function);
     },
-
     pointer<u8>(m_ntheaders->FileHeader.PointerToSymbolTable),
     m_ntheaders->FileHeader.NumberOfSymbols);
 }

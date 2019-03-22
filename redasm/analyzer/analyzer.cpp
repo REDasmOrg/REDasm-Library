@@ -81,14 +81,18 @@ void Analyzer::findTrampoline(const Symbol* symbol)
 
             m_document->rename(symbol->address, REDasm::trampoline(symtrampoline->name, "jmp_to"));
         }
-        else if(symbol->address == symentry->address)
+        else if(symentry && (symbol->address == symentry->address))
         {
             m_document->lockFunction(symtrampoline->address, START_FUNCTION);
             m_document->setDocumentEntry(symtrampoline->address);
         }
+        else
+            return;
     }
-    else if(symbol->address != symentry->address)
+    else if(symentry && (symbol->address != symentry->address))
         m_document->lock(symbol->address, REDasm::trampoline(symtrampoline->name));
+    else
+        return;
 
     InstructionPtr instruction = m_document->instruction(symbol->address);
 

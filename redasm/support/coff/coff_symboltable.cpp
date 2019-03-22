@@ -3,25 +3,26 @@
 
 #define	COFF_ENTRYSIZE    18
 #define	COFF_AUXENTRYSIZE 18
-#define COFF_NEXTENTRY(symentry) reinterpret_cast<COFF_Entry*>(reinterpret_cast<u8*>(symentry) + COFF_ENTRYSIZE + (symentry->e_numaux * COFF_AUXENTRYSIZE))
+#define COFF_NEXTENTRY(symentry) reinterpret_cast<const COFF_Entry*>(reinterpret_cast<const u8*>(symentry) + COFF_ENTRYSIZE + (symentry->e_numaux * COFF_AUXENTRYSIZE))
+#define COFF_IS_FUNCTION(x)      (((x) & N_TMASK) == (IMAGE_SYM_DTYPE_FUNCTION << N_BTSHFT))
 
 namespace REDasm {
 namespace COFF {
 
-SymbolTable::SymbolTable(u8 *symdata, u64 count): m_count(count), m_symdata(symdata)
+SymbolTable::SymbolTable(const u8 *symdata, u64 count): m_count(count), m_symdata(symdata)
 {
-    m_stringtable = reinterpret_cast<char*>(m_symdata + (count * COFF_ENTRYSIZE));
+    m_stringtable = reinterpret_cast<const char*>(m_symdata + (count * COFF_ENTRYSIZE));
 }
 
 void SymbolTable::read(const SymbolCallback& symbolcb)
 {
-    COFF_Entry* entry = reinterpret_cast<COFF_Entry*>(m_symdata);
+    const COFF_Entry* entry = reinterpret_cast<const COFF_Entry*>(m_symdata);
     std::string name;
 
     // All needed info for disassemblers & symbol tables: http://wiki.osdev.org/COFF#Symbol_Table
-    while(reinterpret_cast<size_t*>(entry) < reinterpret_cast<size_t*>(m_stringtable))
+    while(reinterpret_cast<const size_t*>(entry) < reinterpret_cast<const size_t*>(m_stringtable))
     {
-        if(entry->e_value && (entry->e_scnum > 0) && ((entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
+        if(entry->e_value && (entry->e_scnum > 0) && COFF_IS_FUNCTION(entry->e_type) && ((entry->e_sclass == C_LABEL) || (entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
         {
             if(!entry->e_zeroes)
                 name = this->nameFromTable(entry->e_offset);
@@ -47,7 +48,7 @@ std::string SymbolTable::nameFromEntry(const char *name) const
     return std::string(name, len);
 }
 
-void loadSymbols(const SymbolCallback& symbolcb, u8 *symdata, u64 count)
+void loadSymbols(const SymbolCallback& symbolcb, const u8 *symdata, u64 count)
 {
     SymbolTable symtable(symdata, count);
     symtable.read(symbolcb);

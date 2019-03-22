@@ -8,14 +8,14 @@
 namespace REDasm {
 namespace COFF {
 
-typedef std::function<void(const std::string&, COFF::COFF_Entry*)> SymbolCallback;
+typedef std::function<void(const std::string&, const COFF::COFF_Entry*)> SymbolCallback;
 
 class SymbolTable
 {
     friend class LoaderPlugin;
 
     public:
-        SymbolTable(u8* symdata, u64 count);
+        SymbolTable(const u8* symdata, u64 count);
         void read(const SymbolCallback &symbolcb);
 
     private:
@@ -24,11 +24,11 @@ class SymbolTable
 
     private:
         u64 m_count;
-        u8* m_symdata;
-        char* m_stringtable;
+        const u8* m_symdata;
+        const char* m_stringtable;
 };
 
-void loadSymbols(const SymbolCallback &symbolcb, u8* symdata, u64 count);
+void loadSymbols(const SymbolCallback &symbolcb, const u8 *symdata, u64 count);
 
 } // namespace COFF
 } // namespace REDasm

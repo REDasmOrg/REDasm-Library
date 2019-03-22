@@ -16,7 +16,7 @@ struct COFF_Entry
 
     u32 e_value;
     s16 e_scnum;
-    u8 e_type[2];
+    u16 e_type;
     s8 e_sclass;
     u8 e_numaux;
 };

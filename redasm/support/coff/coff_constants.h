@@ -35,4 +35,12 @@
 #define C_HIDDEN    106 // ext symbol in dmert public lib
 #define C_EFCN      255 // physical end of function
 
+#define N_BTSHFT    4
+#define N_TMASK     0x0030
+
+#define IMAGE_SYM_DTYPE_NULL     0
+#define IMAGE_SYM_DTYPE_POINTER  1
+#define IMAGE_SYM_DTYPE_FUNCTION 2
+#define IMAGE_SYM_DTYPE_ARRAY    3
+
 #endif // COFF_CONSTANTS_H

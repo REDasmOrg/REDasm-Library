@@ -74,20 +74,7 @@ void MSCOFFLoader::readMemberHeaders()
     }
 }
 
-const ImageSectionHeader *MSCOFFLoader::segmentByName(const ImageFileHeader *fileheader, const ImageSectionHeader *sectionheader, const std::string &name) const
-{
-    for(u32 i = 0; i < fileheader->NumberOfSections; i++)
-    {
-        std::string sectionname = PEUtils::sectionName(reinterpret_cast<const char*>(&sectionheader[i].Name));
-
-        if(sectionname == name)
-            return &sectionheader[i];
-    }
-
-    return nullptr;
-}
-
-const ImageSectionHeader* MSCOFFLoader::loadSegments(const ImageFileHeader *fileheader)
+const ImageSectionHeader* MSCOFFLoader::loadSegments(const ImageFileHeader *fileheader, const std::string &membername)
 {
     const ImageSectionHeader* sectionheader = relpointer<ImageSectionHeader>(fileheader, sizeof(ImageFileHeader) + fileheader->SizeOfOptionalHeader);
 
@@ -105,7 +92,7 @@ const ImageSectionHeader* MSCOFFLoader::loadSegments(const ImageFileHeader *file
 
         ok = true;
         u64 sectionoffset = fileoffset(fileheader) + section.PointerToRawData;
-        std::string sectionname = PEUtils::sectionName(reinterpret_cast<const char*>(&section.Name));
+        std::string sectionname = membername + "_" + PEUtils::sectionName(reinterpret_cast<const char*>(&section.Name));
         m_document->segment(sectionname, sectionoffset, sectionoffset, section.SizeOfRawData, SegmentTypes::Code);
     }
 
@@ -150,7 +137,7 @@ void MSCOFFLoader::readMember(const ImageArchiveMemberHeader *memberhdr, const s
     if(!symboltable)
         return;
 
-    const ImageSectionHeader* sectionheader = this->loadSegments(fileheader);
+    const ImageSectionHeader* sectionheader = this->loadSegments(fileheader, membername);
 
     if(!sectionheader)
         return;

@@ -27,8 +27,7 @@ class MSCOFFLoader : public LoaderPluginT<ImageArchiveHeader>
         void readMemberHeaders();
 
     private:
-        const ImageSectionHeader* segmentByName(const ImageFileHeader* fileheader, const ImageSectionHeader* sectionheader, const std::string& name) const;
-        const ImageSectionHeader *loadSegments(const ImageFileHeader* fileheader);
+        const ImageSectionHeader* loadSegments(const ImageFileHeader* fileheader, const std::string& membername);
 
     private:
         const ImageArchiveMemberHeader *m_firstlinkerhdr, *m_secondlinkerhdr, *m_longnameshdr;

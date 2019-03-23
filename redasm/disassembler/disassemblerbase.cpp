@@ -314,9 +314,9 @@ std::string DisassemblerBase::readWString(address_t address, u64 len) const
 
 bool DisassemblerBase::loadSignature(const std::string &signame)
 {
-    std::string signaturefile = REDasm::makeSignaturePath(signame);
+    std::string signaturefile = REDasm::isPath(signame) ? signame : REDasm::makeSignaturePath(signame);
 
-    if(!REDasm::endsWith(signame, ".json"))
+    if(!REDasm::endsWith(signaturefile, ".json"))
         signaturefile += ".json";
 
     SignatureDB sigdb;

@@ -1,5 +1,6 @@
 #include "utils.h"
 #include <algorithm>
+#include <fstream>
 #include <sstream>
 #include <cctype>
 
@@ -118,6 +119,12 @@ std::string rtrimmed(std::string s)
     }).base(), s.end());
 
     return s;
+}
+
+bool isPath(const std::string &s)
+{
+    std::ifstream ifs(s);
+    return ifs.is_open();
 }
 
 } // namespace REDasm

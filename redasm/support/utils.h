@@ -22,6 +22,8 @@ std::string rtrimmed(std::string s);
 std::string trimmed(std::string s);
 std::string pathext(const std::string& s);
 inline bool pathext_is(const std::string& s, const std::string& ext) { return pathext(s) == ext; }
+inline bool startsWith(const std::string& s, const std::string& b) { return s.find( b) == 0; }
+inline bool endsWith(const std::string& s, const std::string& e) { return s.size() >= e.size() && s.compare(s.size() - e.size(), s.size(), s) == 0; }
 inline std::string quoted_s(const std::string& s) {  return "'" + s + "'"; }
 inline std::string quoted(const std::string& s) {  return "\"" + s + "\""; }
 inline std::string quoted(const char* s) { return REDasm::quoted(std::string(s)); }

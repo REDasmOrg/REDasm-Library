@@ -1,6 +1,8 @@
 #ifndef COFF_SYMBOLTABLE_H
 #define COFF_SYMBOLTABLE_H
 
+// http://wiki.osdev.org/COFF#Symbol_Table
+
 #include <functional>
 #include "coff_types.h"
 #include "../../redasm.h"
@@ -17,6 +19,7 @@ class SymbolTable
     public:
         SymbolTable(const u8* symdata, u64 count);
         void read(const SymbolCallback &symbolcb);
+        const COFF_Entry* at(u32 index) const;
 
     private:
         std::string nameFromTable(u64 offset) const;
@@ -29,6 +32,7 @@ class SymbolTable
 };
 
 void loadSymbols(const SymbolCallback &symbolcb, const u8 *symdata, u64 count);
+const COFF_Entry* getSymbolAt(const u8* symdata, u64 count, u32 idx);
 
 } // namespace COFF
 } // namespace REDasm

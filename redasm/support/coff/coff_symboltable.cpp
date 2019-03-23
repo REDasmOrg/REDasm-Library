@@ -19,7 +19,6 @@ void SymbolTable::read(const SymbolCallback& symbolcb)
     const COFF_Entry* entry = reinterpret_cast<const COFF_Entry*>(m_symdata);
     std::string name;
 
-    // All needed info for disassemblers & symbol tables: http://wiki.osdev.org/COFF#Symbol_Table
     while(reinterpret_cast<const size_t*>(entry) < reinterpret_cast<const size_t*>(m_stringtable))
     {
         if((entry->e_scnum > 0) && COFF_IS_FUNCTION(entry->e_type) && ((entry->e_sclass == C_LABEL) || (entry->e_sclass == C_EXT) || (entry->e_sclass == C_STAT)))
@@ -37,10 +36,16 @@ void SymbolTable::read(const SymbolCallback& symbolcb)
     }
 }
 
-std::string SymbolTable::nameFromTable(u64 offset) const
+const COFF_Entry *SymbolTable::at(u32 index) const
 {
-    return std::string(reinterpret_cast<const char*>(m_stringtable + offset));
+    if(index >= m_count)
+        return nullptr;
+
+    const COFF_Entry* entry = reinterpret_cast<const COFF_Entry*>(m_symdata);
+    return &entry[index];
 }
+
+std::string SymbolTable::nameFromTable(u64 offset) const { return std::string(reinterpret_cast<const char*>(m_stringtable + offset)); }
 
 std::string SymbolTable::nameFromEntry(const char *name) const
 {
@@ -52,6 +57,12 @@ void loadSymbols(const SymbolCallback& symbolcb, const u8 *symdata, u64 count)
 {
     SymbolTable symtable(symdata, count);
     symtable.read(symbolcb);
+}
+
+const COFF_Entry *getSymbolAt(const u8 *symdata, u64 count, u32 idx)
+{
+    SymbolTable symtable(symdata, count);
+    return symtable.at(idx);
 }
 
 } // namespace COFF

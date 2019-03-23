@@ -33,6 +33,12 @@ struct ImageSecondLinker {
     u32 offsets[1];
 };
 
+struct ImageRelocation {
+    u32 VirtualAddress;
+    u32 SymbolTableIndex;
+    u16 Type;
+};
+
 } // namespace REDasm
 
 #endif // ARCHIVIER_HEADER_H

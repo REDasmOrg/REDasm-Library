@@ -117,10 +117,17 @@ void MSCOFFLoader::readRelocations_x86_32(const ImageSectionHeader *sectionheade
         {
             case IMAGE_REL_I386_DIR16:
             case IMAGE_REL_I386_REL16:
+            case IMAGE_REL_I386_REL32:
+            case IMAGE_REL_I386_DIR32:
+            case IMAGE_REL_I386_DIR32NB:
+            case IMAGE_REL_I386_SECREL:
             case IMAGE_REL_BASED_HIGHLOW:
             case IMAGE_REL_BASED_HIGHADJ:
-            case IMAGE_REL_BASED_SECTION:
                 m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u32) });
+                break;
+
+            case IMAGE_REL_I386_SECTION:
+                m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u16) });
                 break;
 
             default:
@@ -143,7 +150,18 @@ void MSCOFFLoader::readRelocations_x86_64(const ImageSectionHeader *sectionheade
             case IMAGE_REL_AMD64_REL32_3:
             case IMAGE_REL_AMD64_REL32_4:
             case IMAGE_REL_AMD64_REL32_5:
+            case IMAGE_REL_AMD64_SECREL:
+            case IMAGE_REL_AMD64_SREL32:
+            case IMAGE_REL_AMD64_SSPAN32:
                 m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u32) });
+                break;
+
+            case IMAGE_REL_AMD64_SECREL7:
+                m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u16) });
+                break;
+
+            case IMAGE_REL_AMD64_SECTION:
+                m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u16) });
                 break;
 
             case IMAGE_REL_AMD64_ADDR64:
@@ -165,10 +183,17 @@ void MSCOFFLoader::readRelocations_arm(const ImageSectionHeader *sectionheader, 
             case IMAGE_REL_ARM_ADDR32:
             case IMAGE_REL_ARM_ADDR32NB:
             case IMAGE_REL_ARM_BRANCH24:
+            case IMAGE_REL_ARM_SECREL:
+            case IMAGE_REL_ARM_MOV32:
+            case IMAGE_REL_THUMB_MOV32:
+            case IMAGE_REL_THUMB_BRANCH20:
+            case IMAGE_REL_THUMB_BRANCH24:
+            case IMAGE_REL_THUMB_BLX23:
                 m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u32) });
                 break;
 
             case IMAGE_REL_ARM_BRANCH11:
+            case IMAGE_REL_ARM_SECTION:
                 m_relocations[sectionheader].push_back({ relocations[i].VirtualAddress, sizeof(u16) });
                 break;
 

@@ -1,6 +1,8 @@
 #ifndef PE_CONSTANTS_H
 #define PE_CONSTANTS_H
 
+// https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format
+
 #include "../../redasm/types/base_types.h"
 
 // Signatures
@@ -142,6 +144,12 @@
 #define IMAGE_REL_ARM_BRANCH11   0x0004
 #define IMAGE_REL_ARM_SECTION    0x000e
 #define IMAGE_REL_ARM_SECREL     0x000f
+#define IMAGE_REL_ARM_MOV32      0x0010
+#define IMAGE_REL_THUMB_MOV32    0x0011
+#define IMAGE_REL_THUMB_BRANCH20 0x0012
+#define IMAGE_REL_THUMB_BRANCH24 0x0014
+#define IMAGE_REL_THUMB_BLX23    0x0015
+
 
 // Debug Info
 #define IMAGE_DEBUG_TYPE_UNKNOWN                               0

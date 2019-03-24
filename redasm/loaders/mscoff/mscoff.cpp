@@ -252,9 +252,9 @@ void MSCOFFLoader::readMember(const ImageArchiveMemberHeader *memberhdr, const s
         this->readRelocations(&sectionheader[i], fileheader);
 
     COFF::loadSymbols([&](const std::string& name, const COFF::COFF_Entry* entry) {
-                      u16 idx = entry->e_scnum - 1;
+                      u16 idx = static_cast<u16>(entry->e_scnum - 1);
 
-                      if((idx < 0) || (idx >= fileheader->NumberOfSections))
+                      if(idx >= fileheader->NumberOfSections)
                           return;
 
                       offset_t offset = fileoffset(fileheader) + sectionheader[idx].PointerToRawData + entry->e_value;

@@ -334,7 +334,7 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
     }
 
     REDasm::log("Loading Signature: " + REDasm::quoted(sigdb.name()));
-    bool found = true;
+    u64 c = 0;
 
     m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
         if(symbol->isLocked())
@@ -348,16 +348,17 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
 
         sigdb.search(view, [&](const json& signature) {
             std::string signame = signature["name"];
-            REDasm::log("Found " + REDasm::quoted(signame) + " @ " + REDasm::hex(symbol->address));
             m_document->lock(symbol->address, signame, signature["symboltype"]);
-            found = true;
+            c++;
         });
 
         return true;
     });
 
-    if(!found)
-        REDasm::log("No Signatures Found");
+    if(c)
+        REDasm::log("Found " + std::to_string(c) + " signature(s)");
+    else
+        REDasm::log("No signatures found");
 
     return true;
 }

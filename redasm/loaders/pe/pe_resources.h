@@ -3,6 +3,7 @@
 
 #include "pe_constants.h"
 #include "pe_header.h"
+#include "pe_utils.h"
 
 #define RESOURCE_PTR(t, resdir, offset) reinterpret_cast<t*>(reinterpret_cast<size_t>(resdir) + offset)
 
@@ -27,7 +28,7 @@ class PEResources
         ResourceItem find(const std::string& name, const ResourceItem& parentres) const;
 
     public:
-        template<typename T1, typename T2> T1* data(const PEResources::ResourceItem &item, T2 loaderbase, RvaToOffsetCallback rtocb, u64* size = nullptr) const;
+        template<typename T1, typename T2> T1* data(const PEResources::ResourceItem &item, T2 loaderbase, const ImageNtHeaders* ntheaders, u64* size = nullptr) const;
 
     private:
         ResourceItem find(u16 id, ImageResourceDirectory* resourcedir) const;
@@ -40,7 +41,7 @@ class PEResources
         ImageResourceDirectory* m_resourcedirectory;
 };
 
-template<typename T1, typename T2> T1* PEResources::data(const PEResources::ResourceItem &item, T2 loaderbase, RvaToOffsetCallback rtocb, u64* size) const
+template<typename T1, typename T2> T1* PEResources::data(const PEResources::ResourceItem &item, T2 loaderbase, const ImageNtHeaders* ntheaders, u64* size) const
 {
     if(!item.second->DataIsDirectory)
     {
@@ -52,7 +53,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         if(size)
             *size = dataentry->Size;
 
-        offset_location offset = rtocb(dataentry->OffsetToData);
+        offset_location offset = PEUtils::rvaToOffset(ntheaders, dataentry->OffsetToData);
 
         if(!offset.valid)
             return nullptr;
@@ -67,7 +68,7 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
         return nullptr;
 
     ImageResourceDirectoryEntry* entry = reinterpret_cast<ImageResourceDirectoryEntry*>(resourcedir + 1);
-    return this->data<T1, T2>(std::make_pair(resourcedir, entry), loaderbase, rtocb, size);
+    return this->data<T1, T2>(std::make_pair(resourcedir, entry), loaderbase, ntheaders, size);
 }
 
 } // namespace REDasm

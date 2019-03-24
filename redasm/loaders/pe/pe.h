@@ -7,6 +7,8 @@
 #include "pe_resources.h"
 #include "pe_imports.h"
 #include "pe_utils.h"
+#include "pe_utils.h"
+#include "pe_classifier.h"
 #include "dotnet/dotnet_header.h"
 #include "dotnet/dotnet_reader.h"
 
@@ -33,14 +35,11 @@ template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
         address_t vaToRva(address_t rva) const;
 
     private:
-        offset_location rvaToOffset(u64 rva) const;
+        ImageCorHeader *checkDotNet();
         void readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag);
         void readTLSCallbacks(const ImageTlsDirectory* tlsdirectory);
-        void checkPeTypeHeuristic();
-        void checkDelphi(const REDasm::PEResources &peresources);
         void checkResources();
         void checkDebugInfo();
-        ImageCorHeader *checkDotNet();
         void loadDotNet(ImageCor20Header* corheader);
         void loadSymbolTable();
         void loadDefault();
@@ -53,20 +52,21 @@ template<size_t b> class PELoader: public LoaderPluginT<ImageDosHeader>
 
     private:
         template<typename T> T* rvaPointer(u64 rva) const {
-            offset_location offset = this->rvaToOffset(rva);
+            offset_location offset = PEUtils::rvaToOffset(m_ntheaders, rva);
 
             if(!offset.valid) return nullptr;
             return this->pointer<T>(offset);
         }
 
     private:
+        PEClassifier m_classifier;
         std::unique_ptr<DotNetReader> m_dotnetreader;
         ImageDosHeader* m_dosheader;
         ImageNtHeaders* m_ntheaders;
         ImageOptionalHeader* m_optionalheader;
         ImageSectionHeader* m_sectiontable;
         ImageDataDirectory* m_datadirectory;
-        pe_integer_t m_petype, m_imagebase, m_sectionalignment, m_entrypoint;
+        pe_integer_t m_imagebase, m_sectionalignment, m_entrypoint;
         std::unordered_set<std::string> m_validimportsections;
 };
 

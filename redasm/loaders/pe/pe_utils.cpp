@@ -50,4 +50,25 @@ bool PEUtils::checkMsvcImport(const std::string &importdescriptor)
     return false;
 }
 
+offset_location PEUtils::rvaToOffset(const ImageNtHeaders *ntheaders, u64 rva)
+{
+    const ImageSectionHeader* sectiontable = IMAGE_FIRST_SECTION(ntheaders);
+
+    for(size_t i = 0; i < ntheaders->FileHeader.NumberOfSections; i++)
+    {
+        const ImageSectionHeader& section = sectiontable[i];
+
+        if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
+        {
+            if(!section.SizeOfRawData) // Check if section not BSS
+                break;
+
+            offset_t offset = section.PointerToRawData + (rva - section.VirtualAddress);
+            return REDasm::make_location(offset, offset < (section.PointerToRawData + section.SizeOfRawData));
+        }
+    }
+
+    return REDasm::invalid_location<offset_t>();
+}
+
 } // namespace REDasm

@@ -3,20 +3,9 @@
 
 namespace REDasm {
 
-BorlandVersion::BorlandVersion(PackageInfoHeader *packageinfo, const PEResources::ResourceItem &resourceitem, u64 size): m_packageinfo(packageinfo), m_resourceitem(resourceitem), m_size(size)
-{
-
-}
-
-bool BorlandVersion::isDelphi() const
-{
-    return IS_PASCAL(m_packageinfo) || IS_PRE_V4(m_packageinfo);
-}
-
-bool BorlandVersion::isTurboCpp() const
-{
-    return IS_CPP(m_packageinfo);
-}
+BorlandVersion::BorlandVersion(PackageInfoHeader *packageinfo, const PEResources::ResourceItem &resourceitem, u64 size): m_packageinfo(packageinfo), m_resourceitem(resourceitem), m_size(size) { }
+bool BorlandVersion::isDelphi() const { return IS_PASCAL(m_packageinfo) || IS_PRE_V4(m_packageinfo); }
+bool BorlandVersion::isCpp() const { return IS_CPP(m_packageinfo); }
 
 std::string BorlandVersion::getSignature() const
 {
@@ -30,10 +19,10 @@ std::string BorlandVersion::getSignature() const
         return "delphiXE";
 
     if(this->contains("StrUtils"))
-        return "delphi09_10";
+        return "delphi9_10";
 
     if(this->contains("ImageHlp"))
-        return "delphi06";
+        return "delphi6";
 
     if(this->contains("SysInit"))
         return "delphi7";

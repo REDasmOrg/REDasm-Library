@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-VBAnalyzer::VBAnalyzer(u64 petype, size_t pebits, DisassemblerAPI *disassembler): PEAnalyzer(petype, pebits, disassembler)
+VBAnalyzer::VBAnalyzer(const PEClassifier *classifier, DisassemblerAPI *disassembler): PEAnalyzer(classifier, disassembler)
 {
     m_loader = nullptr;
     m_vbheader = nullptr;

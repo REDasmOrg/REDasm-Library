@@ -169,12 +169,4 @@
 
 #define PE_SECURITY_COOKIE_SYMBOL                             "__security_cookie"
 
-namespace REDasm {
-
-enum PeType: u32 { None = 0, Msvc,
-                   DotNet, VisualBasic, Delphi, TurboCpp };
-
-} // namespace REDasm
-
-
 #endif // PE_CONSTANTS_H

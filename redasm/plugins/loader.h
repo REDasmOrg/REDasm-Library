@@ -31,7 +31,7 @@
 
 namespace REDasm {
 
-typedef std::list<std::string> SignatureFiles;
+typedef std::unordered_set<std::string> SignatureIdentifiers;
 
 namespace LoaderFlags {
     enum: u32 { None = 0, CustomAssembler = 1, CustomAddressing = 2, Binary = 0xFFFFFFFF };
@@ -73,7 +73,7 @@ class LoaderPlugin: public Plugin
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
         ListingDocument& document();
-        const SignatureFiles& signatures() const;
+        const SignatureIdentifiers& signatures() const;
 
     public:
         virtual offset_location offset(address_t address) const;
@@ -95,7 +95,7 @@ class LoaderPlugin: public Plugin
         std::unique_ptr<AbstractBuffer> m_buffer;
         BufferView m_view;
         ListingDocument m_document;
-        SignatureFiles m_signatures;
+        SignatureIdentifiers m_signatures;
 };
 
 template<typename T> class LoaderPluginT: public LoaderPlugin

@@ -33,7 +33,7 @@ template<size_t b> LOADER_PLUGIN_TEST(PELoader<b>, ImageDosHeader)
 template<size_t b> PELoader<b>::PELoader(AbstractBuffer *buffer): LoaderPluginT<ImageDosHeader>(buffer), m_dosheader(nullptr), m_ntheaders(nullptr), m_sectiontable(nullptr), m_datadirectory(nullptr)
 {
     m_imagebase = m_sectionalignment = m_entrypoint = 0;
-    m_petype = PeType::None;
+    m_classifier.setBits(b);
 
     m_validimportsections.insert(".text");
     m_validimportsections.insert(".idata");
@@ -46,7 +46,7 @@ template<size_t b> address_t PELoader<b>::vaToRva(address_t va) const { return v
 
 template<size_t b> std::string PELoader<b>::assembler() const
 {
-    if(m_petype == PeType::DotNet)
+    if(m_classifier.checkDotNet())
         return "cil";
     if(m_ntheaders->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
         return "x86_32";
@@ -66,10 +66,10 @@ template<size_t b> std::string PELoader<b>::assembler() const
 
 template<size_t b> Analyzer *PELoader<b>::createAnalyzer(DisassemblerAPI *disassembler) const
 {
-    if(m_petype == PeType::VisualBasic)
-        return new VBAnalyzer(this->m_petype, b, disassembler);
+    if(m_classifier.checkVisualBasic())
+        return new VBAnalyzer(&m_classifier, disassembler);
 
-    return new PEAnalyzer(this->m_petype, b, disassembler);
+    return new PEAnalyzer(&m_classifier, disassembler);
 }
 
 template<size_t b> void PELoader<b>::load()
@@ -91,102 +91,14 @@ template<size_t b> void PELoader<b>::load()
     this->loadSections();
     ImageCorHeader* corheader = this->checkDotNet();
 
-    if(corheader && (corheader->MajorRuntimeVersion == 1))
-    {
+    if(m_classifier.checkDotNet() == PEClassifications::DotNet_1)
         REDasm::log(".NET 1.x is not supported");
-        return;
-    }
     else if(!corheader)
         this->loadDefault();
     else
         this->loadDotNet(reinterpret_cast<ImageCor20Header*>(corheader));
-}
 
-template<size_t b> offset_location PELoader<b>::rvaToOffset(u64 rva) const
-{
-    for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
-    {
-        const ImageSectionHeader& section = m_sectiontable[i];
-
-        if((rva >= section.VirtualAddress) && (rva < (section.VirtualAddress + section.Misc.VirtualSize)))
-        {
-            if(!section.SizeOfRawData) // Check if section not BSS
-                break;
-
-            offset_t offset = section.PointerToRawData + (rva - section.VirtualAddress);
-            return REDasm::make_location(offset, offset < (section.PointerToRawData + section.SizeOfRawData));
-        }
-    }
-
-    return REDasm::invalid_location<offset_t>();
-}
-
-template<size_t b> void PELoader<b>::checkDelphi(const PEResources& peresources)
-{
-    PEResources::ResourceItem ri = peresources.find(PEResources::RCDATA);
-
-    if(!ri.second)
-        return;
-
-    ri = peresources.find("PACKAGEINFO", ri);
-
-    if(!ri.second)
-        return;
-
-    u64 datasize = 0;
-    PackageInfoHeader* packageinfo = peresources.data<PackageInfoHeader>(ri, this->m_header,
-                                                                         [this](address_t a) -> offset_location { return this->rvaToOffset(a); },
-                                                                         &datasize);
-
-    if(!packageinfo)
-    {
-        REDasm::log("WARNING: Cannot parse 'PACKAGEINFO' header");
-        return;
-    }
-
-    BorlandVersion borlandver(packageinfo, ri, datasize);
-
-    if(borlandver.isDelphi())
-        m_petype = PeType::Delphi;
-    else if(borlandver.isTurboCpp())
-        m_petype = PeType::TurboCpp;
-
-    std::string sig = borlandver.getSignature();
-
-    if(sig.empty())
-        return;
-
-    REDasm::log("Signature '" + sig + "' detected");
-    m_signatures.push_back(sig);
-}
-
-template<size_t b> void PELoader<b>::checkPeTypeHeuristic()
-{
-    if(this->m_petype != PeType::None)
-        return;
-
-    REDasm::log("Running heuristic PEType checks...");
-    const Segment* segment = m_document->segmentByName(".data");
-
-    if(!segment)
-        return;
-
-    BufferView view = this->viewSegment(segment);
-
-    if(view.eob())
-        return;
-
-    auto res = view.find(".?AVCWinApp");
-
-    if(!res.hasNext())
-        return;
-
-    res = view.find(".?AVCWnd");
-
-    if(!res.hasNext())
-        return;
-
-    m_petype = PeType::Msvc;
+    m_classifier.display();
 }
 
 template<size_t b> void PELoader<b>::checkResources()
@@ -202,7 +114,7 @@ template<size_t b> void PELoader<b>::checkResources()
         return;
 
     PEResources peresources(resourcedir);
-    this->checkDelphi(peresources);
+    m_classifier.classifyDelphi(m_dosheader, m_ntheaders, resourcedir);
 }
 
 template<size_t b> void PELoader<b>::checkDebugInfo()
@@ -221,7 +133,7 @@ template<size_t b> void PELoader<b>::checkDebugInfo()
 
     if(debugdir->AddressOfRawData)
     {
-        offset_location offset = this->rvaToOffset(m_imagebase - debugdir->AddressOfRawData);
+        offset_location offset = PEUtils::rvaToOffset(m_ntheaders, m_imagebase - debugdir->AddressOfRawData);
 
         if(offset.valid)
             dbgoffset = offset;
@@ -237,7 +149,7 @@ template<size_t b> void PELoader<b>::checkDebugInfo()
     else if(debugdir->Type == IMAGE_DEBUG_TYPE_CODEVIEW)
     {
         REDasm::log("Debug info type: CodeView");
-        m_petype = PeType::Msvc;
+        m_classifier.classifyVisualStudio();
 
         if(!m_view.inRange(dbgoffset))
             return;
@@ -295,17 +207,12 @@ template<size_t b> ImageCorHeader* PELoader<b>::checkDotNet()
         return nullptr;
 
     ImageCorHeader* corheader = this->rvaPointer<ImageCorHeader>(dotnetdir.VirtualAddress);
-
-    if(!corheader || (corheader->cb < sizeof(ImageCorHeader)))
-        return nullptr;
-
+    m_classifier.classifyDotNet(corheader);
     return corheader;
 }
 
 template<size_t b> void PELoader<b>::loadDotNet(ImageCor20Header* corheader)
 {
-    m_petype = PeType::DotNet;
-
     if(!corheader->MetaData.VirtualAddress)
     {
         REDasm::log("Invalid .NET MetaData");
@@ -340,9 +247,10 @@ template<size_t b> void PELoader<b>::loadDefault()
     this->loadSymbolTable();
     this->checkDebugInfo();
     this->checkResources();
-    this->checkPeTypeHeuristic();
 
     m_document->entry(m_entrypoint);
+    m_classifier.classify(m_ntheaders);
+    m_signatures = m_classifier.signatures();
 }
 
 template<size_t b> void PELoader<b>::loadSections()
@@ -556,11 +464,7 @@ template<size_t b> void PELoader<b>::readDescriptor(const ImageImportDescriptor&
 
     std::string descriptorname = this->rvaPointer<const char>(importdescriptor.Name);
     std::transform(descriptorname.begin(), descriptorname.end(), descriptorname.begin(), ::tolower);
-
-    if(descriptorname.find("msvbvm") != std::string::npos)
-        this->m_petype = PeType::VisualBasic;
-    else if(PEUtils::checkMsvcImport(descriptorname))
-        this->m_petype = PeType::Msvc;
+    m_classifier.classifyImport(descriptorname);
 
     for(size_t i = 0; thunk[i]; i++)
     {

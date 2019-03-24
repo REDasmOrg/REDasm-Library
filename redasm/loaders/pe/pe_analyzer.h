@@ -1,7 +1,8 @@
-#ifndef PE_ANALYZER_H
+﻿#ifndef PE_ANALYZER_H
 #define PE_ANALYZER_H
 
 #include "../../analyzer/analyzer.h"
+#include "pe_classifier.h"
 #include <forward_list>
 
 namespace REDasm {
@@ -12,7 +13,7 @@ class PEAnalyzer: public Analyzer
         typedef std::pair<size_t, std::string> APIInfo;
 
     public:
-        PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI* disassembler);
+        PEAnalyzer(const PEClassifier* classifier, DisassemblerAPI* disassembler);
         virtual void analyze();
 
     private:
@@ -22,10 +23,11 @@ class PEAnalyzer: public Analyzer
         void findCRTWinMain();
         void findAllWndProc();
 
+    protected:
+        const PEClassifier* m_classifier;
+
     private:
         std::forward_list<APIInfo> m_wndprocapi;
-        size_t m_pebits;
-        u64 m_petype;
 };
 
 }

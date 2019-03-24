@@ -17,7 +17,7 @@ Analyzer *PsxExeLoader::createAnalyzer(DisassemblerAPI *disassembler) const { re
 
 void PsxExeLoader::load()
 {
-    m_signatures.push_back("psyq");
+    m_signatures.insert("psyq");
 
     if(m_header->t_addr > PSX_USER_RAM_START)
         m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_header->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);

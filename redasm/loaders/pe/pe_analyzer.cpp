@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-PEAnalyzer::PEAnalyzer(u64 petype, size_t pebits, DisassemblerAPI *disassembler): Analyzer(disassembler), m_pebits(pebits), m_petype(petype)
+PEAnalyzer::PEAnalyzer(const PEClassifier *classifier, DisassemblerAPI *disassembler): Analyzer(disassembler), m_classifier(classifier)
 {
     ADD_WNDPROC_API(4, "DialogBoxA");
     ADD_WNDPROC_API(4, "DialogBoxW");
@@ -25,25 +25,21 @@ void PEAnalyzer::analyze()
 {
     Analyzer::analyze();
 
-    if(m_petype <= PeType::Msvc)
+    if(!m_classifier->isClassified() || m_classifier->checkVisualStudio())
         this->findCRTWinMain();
 
-    if(m_petype == PeType::Msvc)
+    if(m_classifier->checkVisualStudio())
     {
         this->findAllWndProc();
+        REDasm::log("Searching MSVC RTTI...");
 
-        REDasm::log("MSVC Compiler detected, searching RTTI...");
-
-        if(m_pebits == 64)
+        if(m_classifier->bits() == 64)
             RTTI::RTTIMsvc<u64>(m_disassembler).search();
         else
             RTTI::RTTIMsvc<u32>(m_disassembler).search();
 
         return;
     }
-
-    if(m_petype == PeType::None)
-        REDasm::log("WARNING: Cannot detect PE Type");
 
     this->findAllWndProc();
 }

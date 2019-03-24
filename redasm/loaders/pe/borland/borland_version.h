@@ -11,7 +11,7 @@ class BorlandVersion
     public:
         BorlandVersion(PackageInfoHeader* packageinfo, const PEResources::ResourceItem& resourceitem, u64 size);
         bool isDelphi() const;
-        bool isTurboCpp() const;
+        bool isCpp() const;
         std::string getSignature() const;
 
     private:

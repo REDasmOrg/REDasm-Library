@@ -160,11 +160,24 @@ void PEClassifier::classify(const ImageNtHeaders *ntheaders)
     if(this->checkBorland())
         this->addSignature(m_borlandsignature);
     else if(m_classification == PEClassifications::VisualStudio_6)
+    {
         this->addSignature("msvc6");
+        this->addSignature("mfc60");
+    }
     else if(m_classification == PEClassifications::VisualStudio_2003)
     {
         this->addSignature("msvc2003");
         this->addSignature("mfc71");
+    }
+    else if(m_classification == PEClassifications::VisualStudio_2005)
+    {
+        this->addSignature("msvc2005");
+        this->addSignature("mfc80");
+    }
+    else if(m_classification == PEClassifications::VisualStudio_2008)
+    {
+        this->addSignature("msvc2008");
+        this->addSignature("mfc90");
     }
     else if(m_classification == PEClassifications::VisualStudio_2017)
         this->addSignature("msvc2017");

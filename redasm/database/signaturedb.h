@@ -47,7 +47,10 @@ class SignatureDB
     public:
         SignatureDB();
         bool isCompatible(const DisassemblerAPI *disassembler);
+        std::string assembler() const;
         std::string name() const;
+        u64 size() const;
+        const json& at(u64 index) const;
         void setAssembler(const std::string& assembler);
         void setName(const std::string& name);
         bool load(const std::string& sigfilename);

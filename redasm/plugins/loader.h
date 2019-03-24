@@ -73,7 +73,7 @@ class LoaderPlugin: public Plugin
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
         ListingDocument& document();
-        const SignatureIdentifiers& signatures() const;
+        SignatureIdentifiers &signatures();
 
     public:
         virtual offset_location offset(address_t address) const;

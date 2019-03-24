@@ -20,7 +20,38 @@ SignatureDB::SignatureDB()
 }
 
 bool SignatureDB::isCompatible(const DisassemblerAPI *disassembler) { return m_json["assembler"] == disassembler->loader()->assembler(); }
-std::string SignatureDB::name() const { return m_json["name"]; }
+
+std::string SignatureDB::assembler() const
+{
+    auto it = m_json.find("assembler");
+
+    if(it != m_json.end())
+        return *it;
+
+    return std::string();
+}
+
+std::string SignatureDB::name() const
+{
+    auto it = m_json.find("name");
+
+    if(it != m_json.end())
+        return *it;
+
+    return std::string();
+}
+
+u64 SignatureDB::size() const
+{
+    auto it = m_json.find("signatures");
+
+    if(it != m_json.end())
+        return it->size();
+
+    return 0;
+}
+
+const json &SignatureDB::at(u64 index) const { return m_json["signatures"][index]; }
 void SignatureDB::setAssembler(const std::string &assembler) { m_json["assembler"] = assembler; }
 void SignatureDB::setName(const std::string &name) { m_json["name"] = name; }
 bool SignatureDB::load(const std::string &sigfilename)

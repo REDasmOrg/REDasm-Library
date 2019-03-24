@@ -5,13 +5,14 @@
 namespace REDasm {
 
 Analyzer::Analyzer(DisassemblerAPI *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
-void Analyzer::analyzeFast()  { this->checkFunctions(); }
 
-void Analyzer::analyze()
+void Analyzer::analyzeFast()
 {
     this->loadSignatures();
     this->checkFunctions();
 }
+
+void Analyzer::analyze() { this->analyzeFast(); }
 
 void Analyzer::checkFunctions()
 {

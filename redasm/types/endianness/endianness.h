@@ -40,11 +40,11 @@ typedef numeric_type<u64, Endianness::BigEndian> u64be;
 
 template<typename T> struct of { };
 
-REDASM_ENDIANNESS_OF(s8, s8, s8, s8, Endianness::current)
-REDASM_ENDIANNESS_OF(s16, s16, s16le, s16be, Endianness::current)
-REDASM_ENDIANNESS_OF(s32, s32, s32le, s32be, Endianness::current)
-REDASM_ENDIANNESS_OF(s64, s64, s64le, s64be, Endianness::current)
-REDASM_ENDIANNESS_OF(u8, u8, u8, u8, Endianness::current)
+REDASM_ENDIANNESS_OF(s8, s8, s8, s8, Endianness::current)         // lgtm [cpp/comparison-of-identical-expressions]
+REDASM_ENDIANNESS_OF(s16, s16, s16le, s16be, Endianness::current) // lgtm [cpp/comparison-of-identical-expressions]
+REDASM_ENDIANNESS_OF(s32, s32, s32le, s32be, Endianness::current) // lgtm [cpp/comparison-of-identical-expressions]
+REDASM_ENDIANNESS_OF(s64, s64, s64le, s64be, Endianness::current) // lgtm [cpp/comparison-of-identical-expressions]
+REDASM_ENDIANNESS_OF(u8, u8, u8, u8, Endianness::current)         // lgtm [cpp/comparison-of-identical-expressions]
 REDASM_ENDIANNESS_OF(u16, u16, u16le, u16be, Endianness::current)
 REDASM_ENDIANNESS_OF(u32, u32, u32le, u32be, Endianness::current)
 REDASM_ENDIANNESS_OF(u64, u64, u64le, u64be, Endianness::current)

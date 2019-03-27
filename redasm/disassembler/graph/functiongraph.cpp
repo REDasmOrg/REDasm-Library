@@ -3,7 +3,8 @@
 namespace REDasm {
 namespace Graphing {
 
-FunctionGraph::FunctionGraph(ListingDocument& document): Graph(), m_document(document) { }
+FunctionGraph::FunctionGraph(DisassemblerAPI *disassembler): Graph(), m_disassembler(disassembler), m_document(disassembler->document()) { }
+
 address_location FunctionGraph::startAddress() const { return m_graphstart; }
 
 bool FunctionGraph::build(address_t address)
@@ -126,7 +127,7 @@ bool FunctionGraph::connectBasicBlocks()
 
         if(instruction->is(InstructionTypes::Jump))
         {
-            for(address_t target : instruction->targets)
+            for(address_t target : m_disassembler->getTargets(instruction->address))
             {
                 FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->symbolIndex(target));
 
@@ -206,10 +207,12 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
 
             if(instruction->is(InstructionTypes::Jump))
             {
-                for(address_t target : instruction->targets)
+                ReferenceSet targets = m_disassembler->getTargets(instruction->address);
+
+                for(address_t target : targets)
                     pending.push(m_document->symbolIndex(target));
 
-                if(instruction->hasTargets() && instruction->is(InstructionTypes::Conditional))
+                if(!targets.empty() && instruction->is(InstructionTypes::Conditional))
                     pending.push(m_document->instructionIndex(instruction->endAddress()));
 
                 break;

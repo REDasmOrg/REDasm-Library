@@ -7,33 +7,39 @@
 namespace REDasm {
 
 typedef std::deque<address_t> ReferenceVector;
+typedef std::set<address_t> ReferenceSet;
 
 class ReferenceTable: public Serializer::Serializable
 {
     private:
-        typedef std::set<address_t> ReferenceSet;
         typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
 
     public:
         ReferenceTable() = default;
-        void push(address_t address, address_t refbyaddress);
-        bool hasReferences(address_t address) const;
-        ReferenceMap::const_iterator begin() const;
-        ReferenceMap::const_iterator end() const;
+        void push(address_t address, address_t refby);
+        void pushTarget(address_t target, address_t pointedby);
+        void popTarget(address_t target, address_t pointedby);
         ReferenceMap::const_iterator references(address_t address) const;
-        size_t size() const;
+        ReferenceSet targets(address_t address) const;
+        address_location target(address_t address) const;
         u64 referencesCount(address_t address) const;
+        u64 targetsCount(address_t address) const;
         ReferenceVector referencesToVector(address_t address) const;
 
     public:
         virtual void serializeTo(std::fstream& fs);
         virtual void deserializeFrom(std::fstream& fs);
 
+    private:
+        void serializeMap(const ReferenceMap& rm, std::fstream& fs);
+        void deserializeMap(ReferenceMap& rm, std::fstream& fs);
+
     public:
         static ReferenceVector toVector(const ReferenceSet& refset);
 
     private:
         ReferenceMap m_references;
+        ReferenceMap m_targets;
 };
 
 }

@@ -115,6 +115,7 @@ namespace OperandTypes {
 
         Local         = 0x00010000,  // Local Variable
         Argument      = 0x00020000,  // Function Argument
+        Target        = 0x00040000,  // Branch destination
     };
 }
 
@@ -189,7 +190,9 @@ struct Operand
     constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
     constexpr bool isCharacter() const { return is(OperandTypes::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
     constexpr bool isNumeric() const { return is(OperandTypes::Constant) || is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
+    constexpr bool isTarget() const { return type & OperandTypes::Target; }
     constexpr bool is(u32 t) const { return type & t; }
+    void asTarget() { type |= OperandTypes::Target; }
 
     bool checkCharacter() {
         if(!is(OperandTypes::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
@@ -202,32 +205,41 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), target_idx(-1), type(0), size(0), id(0), userdata(nullptr) { }
+    Instruction(): address(0), type(0), size(0), id(0) { meta.userdata = nullptr; }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
 
     std::string mnemonic;
-    std::set<address_t> targets;    // Jump/JumpTable/Call destination(s)
     std::deque<Operand> operands;
     address_t address;
-    s32 target_idx;                 // Target's operand index
     u32 type, size;
-    instruction_id_t id;            // Backend Specific
-    void* userdata;                 // It doesn't survive after AssemblerPlugin::decode() by design
+    instruction_id_t id;             // Backend Specific
+
+    struct {
+        void* userdata;              // It doesn't survive after AssemblerPlugin::decode() by design
+        std::set<address_t> targets; // Precalulated targets
+    } meta;                          // 'meta' is not serialized
 
     constexpr bool is(u32 t) const { return type & t; }
-    constexpr bool isTargetOperand(const Operand* op) const { return (target_idx == -1) ? false : (target_idx == op->index); }
     constexpr bool isInvalid() const { return type == InstructionTypes::Invalid; }
-    inline bool hasTargets() const { return !targets.empty(); }
-    inline void target(address_t target) { targets.insert(target); }
-    inline void untarget(address_t target) { targets.erase(target); }
-    inline void op_size(s32 index, u32 size) { operands[index].size = size; }
-    inline u32 op_size(s32 index) const { return operands[index].size; }
-    inline address_t target() const { return *targets.begin(); }
+    inline void opSize(s32 index, u32 size) { operands[index].size = size; }
+    inline u32 opSize(s32 index) const { return operands[index].size; }
     constexpr address_t endAddress() const { return address + size; }
 
-    inline Operand* targetOperand() { return &operands[target_idx]; }
+    inline std::set<address_t> targets() const { return meta.targets; }
+    inline void target(address_t address) { meta.targets.insert(address); }
+
+    inline void targetIdx(size_t idx) {
+        if(idx >= operands.size())
+            return;
+
+        operands[idx].asTarget();
+
+        if(operands[idx].isNumeric())
+            meta.targets.insert(operands[idx].u_value);
+    }
+
     inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
     inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandTypes::Memory, tag, v, operands.size()); return *this; }
     template<typename T> Instruction& cnst(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Constant, tag, v, operands.size()); return *this; }
@@ -237,13 +249,6 @@ struct Instruction
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);
     template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
     template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, u32 type = OperandTypes::Local);
-
-    void targetOp(s32 index) {
-        target_idx = index;
-
-        if((index < operands.size()) && operands[index].isNumeric())
-            this->target(operands[index].u_value);
-    }
 
     Instruction& reg(register_id_t r, u64 type = 0) {
         Operand op;
@@ -255,16 +260,22 @@ struct Instruction
         return *this;
     }
 
-    void reset() {
-        target_idx = -1;
-        type = size = 0;
+    const Operand* target() const {
+        for(const Operand& op : operands) {
+            if(op.isTarget())
+                return &op;
+        }
 
-        targets.clear();
+        return nullptr;
+    }
+
+    void reset() {
+        type = size = 0;
         operands.clear();
 
-        if(free && userdata) {
-            free(userdata);
-            userdata = nullptr;
+        if(free && meta.userdata) {
+            free(meta.userdata);
+            meta.userdata = nullptr;
         }
     }
 };

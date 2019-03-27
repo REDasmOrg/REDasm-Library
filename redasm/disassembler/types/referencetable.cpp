@@ -3,30 +3,77 @@
 
 namespace REDasm {
 
-void ReferenceTable::push(address_t address, address_t refbyaddress)
+void ReferenceTable::push(address_t address, address_t refby)
 {
     auto it = m_references.find(address);
 
     if(it == m_references.end())
     {
-        ReferenceSet rs;
-        rs.insert(refbyaddress);
-        m_references[address] = rs;
+        m_references[address] = {refby};
         return;
     }
 
-    it->second.insert(refbyaddress);
+    it->second.insert(refby);
 }
 
-bool ReferenceTable::hasReferences(address_t address) const { return this->references(address) != m_references.end(); }
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::begin() const { return m_references.begin(); }
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::end() const { return m_references.end(); }
+void ReferenceTable::pushTarget(address_t target, address_t pointedby)
+{
+    auto it = m_targets.find(pointedby);
+
+    if(it == m_targets.end())
+    {
+        m_targets[pointedby] = {target};
+        return;
+    }
+
+    it->second.insert(target);
+}
+
+void ReferenceTable::popTarget(address_t target, address_t pointedby)
+{
+    auto it = m_targets.find(pointedby);
+
+    if(it != m_targets.end())
+        it->second.erase(target);
+
+    it->second.insert(target);
+}
+
 ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const { return m_references.find(address); }
-size_t ReferenceTable::size() const { return m_references.size(); }
+
+ReferenceSet ReferenceTable::targets(address_t address) const
+{
+    auto it = m_targets.find(address);
+
+    if(it != m_targets.end())
+        return it->second;
+
+    return ReferenceSet();
+}
+
+address_location ReferenceTable::target(address_t address) const
+{
+    auto it = m_targets.find(address);
+
+    if((it != m_targets.end()) && !it->second.empty())
+        return REDasm::make_location(*it->second.begin());
+
+    return REDasm::invalid_location<address_t>();
+}
 
 u64 ReferenceTable::referencesCount(address_t address) const
 {
     auto it = this->references(address);
+
+    if(it != m_references.end())
+        return it->second.size();
+
+    return 0;
+}
+
+u64 ReferenceTable::targetsCount(address_t address) const
+{
+    auto it = m_targets.find(address);
 
     if(it != m_references.end())
         return it->second.size();
@@ -46,9 +93,21 @@ ReferenceVector ReferenceTable::referencesToVector(address_t address) const
 
 void ReferenceTable::serializeTo(std::fstream &fs)
 {
-    Serializer::serializeScalar(fs, m_references.size(), sizeof(u64));
+    this->serializeMap(m_references, fs);
+    this->serializeMap(m_targets, fs);
+}
 
-    for(auto it = m_references.begin(); it != m_references.end(); it++)
+void ReferenceTable::deserializeFrom(std::fstream &fs)
+{
+    this->deserializeMap(m_references, fs);
+    this->deserializeMap(m_targets, fs);
+}
+
+void ReferenceTable::serializeMap(const ReferenceTable::ReferenceMap &rm, std::fstream &fs)
+{
+    Serializer::serializeScalar(fs, rm.size(), sizeof(u64));
+
+    for(auto it = rm.begin(); it != rm.end(); it++)
     {
         Serializer::serializeScalar(fs, it->first);
 
@@ -58,7 +117,7 @@ void ReferenceTable::serializeTo(std::fstream &fs)
     }
 }
 
-void ReferenceTable::deserializeFrom(std::fstream &fs)
+void ReferenceTable::deserializeMap(ReferenceTable::ReferenceMap &rm, std::fstream &fs)
 {
     u64 count = 0;
     Serializer::deserializeScalar(fs, &count);
@@ -74,7 +133,7 @@ void ReferenceTable::deserializeFrom(std::fstream &fs)
             Serializer::deserializeScalar(fs, &ref);
         });
 
-        m_references[address] = references;
+        rm[address] = references;
     }
 }
 

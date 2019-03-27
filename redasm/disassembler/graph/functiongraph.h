@@ -1,6 +1,7 @@
 ﻿#ifndef FUNCTIONGRAPH_H
 #define FUNCTIONGRAPH_H
 
+#include "../disassemblerapi.h"
 #include "../listing/listingdocument.h"
 #include "../../graph/graph.h"
 #include <queue>
@@ -38,7 +39,7 @@ class FunctionGraph: public Graph
         typedef std::queue<s64> IndexQueue;
 
     public:
-        FunctionGraph(ListingDocument& document);
+        FunctionGraph(DisassemblerAPI* disassembler);
         address_location startAddress() const;
         bool build(address_t address);
 
@@ -59,6 +60,7 @@ class FunctionGraph: public Graph
         s64 symbolIndexFromIndex(s64 idx) const;
 
     private:
+        DisassemblerAPI* m_disassembler;
         ListingDocument& m_document;
         address_location m_graphstart;
 };

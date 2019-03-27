@@ -114,8 +114,7 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
         m_document->lock(m_loader->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolTypes::Pointer | SymbolTypes::Data);
         m_document->symbol(target, SymbolTypes::Code);
         m_disassembler->pushReference(target, instruction->address);
-        instruction->target(target);
-
+        m_disassembler->pushTarget(target, instruction->address);
         this->enqueue(target);
 
         auto it = cases.find(target);
@@ -160,7 +159,7 @@ void DalvikAlgorithm::sparseSwitchTableState(const State *state)
         m_document->symbol(address, REDasm::uniquename("sparse_switch.target", address), SymbolTypes::Pointer | SymbolTypes::Data);
         m_document->symbol(target, SymbolTypes::Code);
         m_disassembler->pushReference(target, instruction->address);
-        instruction->target(target);
+        m_disassembler->pushTarget(target, instruction->address);
         cases[keys[i]] = target;
         this->enqueue(target);
     }

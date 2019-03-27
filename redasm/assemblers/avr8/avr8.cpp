@@ -47,7 +47,7 @@ Printer *AVR8Assembler::createPrinter(DisassemblerAPI *disassembler) const { ret
 void AVR8Assembler::compileInstruction(const InstructionPtr &instruction, const AVR8Operand& avrop, size_t opindex)
 {
     if(avrop.tag == AVR8Operands::BranchAddress)
-        instruction->targetOp(opindex);
+        instruction->targetIdx(opindex);
 }
 
 bool AVR8Assembler::decodeInstruction(const BufferView &view, const InstructionPtr &instruction)
@@ -97,7 +97,7 @@ void AVR8Assembler::decodeOperand(u32 opvalue, const InstructionPtr &instruction
 
         opres *= 2;
         instruction->imm(static_cast<u32>(instruction->endAddress() + opres), avrop.tag);
-        instruction->targetOp(opidx);
+        instruction->targetIdx(opidx);
     }
     else if(avrop.tag == AVR8Operands::RelativeAddress) // Relative address is 12 bits, two's complement form
     {
@@ -112,7 +112,7 @@ void AVR8Assembler::decodeOperand(u32 opvalue, const InstructionPtr &instruction
 
         opres *= 2;
         instruction->imm(static_cast<u32>(instruction->endAddress() + opres), avrop.tag);
-        instruction->targetOp(opidx);
+        instruction->targetIdx(opidx);
     }
     else if(avrop.tag == AVR8Operands::LongAbsoluteAddress)
         instruction->imm(opvalue, avrop.tag);

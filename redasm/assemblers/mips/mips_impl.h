@@ -96,7 +96,7 @@ template<s64 mode> void MIPSAssembler<mode>::onDecoded(const InstructionPtr& ins
 {
     CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>::onDecoded(instruction);
 
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->meta.userdata);
 
     if(!insn)
         return;
@@ -121,7 +121,7 @@ template<s64 mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instr
     if(instruction->op(0)->reg.r != MIPS_REG_RA)
     {
         instruction->type = InstructionTypes::Jump;
-        instruction->target_idx = 0;
+        instruction->op(0)->asTarget();
     }
     else
         instruction->type = InstructionTypes::Stop;

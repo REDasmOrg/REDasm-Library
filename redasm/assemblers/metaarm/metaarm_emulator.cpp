@@ -32,16 +32,15 @@ bool MetaARMEmulator::setTarget(const InstructionPtr &instruction)
 {
     auto* metaarm = static_cast<MetaARMAssembler*>(m_disassembler->assembler());
 
-    if(metaarm->isPC(instruction->targetOperand()) || metaarm->isLR(instruction->targetOperand()))
+    if(metaarm->isPC(instruction->target()) || metaarm->isLR(instruction->target()))
         return false;
 
     if(!EmulatorT<u32>::setTarget(instruction))
         return false;
 
-    address_t target = instruction->target();
-    instruction->untarget(target);
-    instruction->target(target & 0xFFFFFFFE);
-    m_disassembler->document()->update(instruction);
+    address_t target = m_disassembler->getTarget(instruction->address);
+    m_disassembler->popTarget(target, instruction->address);
+    m_disassembler->pushTarget(target & 0xFFFFFFFE, instruction->address);
     return true;
 }
 

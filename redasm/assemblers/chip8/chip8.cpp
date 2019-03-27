@@ -101,7 +101,7 @@ bool CHIP8Assembler::decode1xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "jmp";
     instruction->imm(opcode & 0x0FFF);
-    instruction->targetOp(0);
+    instruction->targetIdx(0);
     return true;
 }
 
@@ -109,7 +109,7 @@ bool CHIP8Assembler::decode2xxx(u16 opcode, const InstructionPtr &instruction) c
 {
     instruction->mnemonic = "call";
     instruction->imm(opcode & 0x0FFF);
-    instruction->targetOp(0);
+    instruction->targetIdx(0);
     return true;
 }
 

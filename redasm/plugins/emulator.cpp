@@ -11,7 +11,7 @@ void Emulator::emulate(const InstructionPtr &instruction)
 {
     m_currentinstruction = instruction;
 
-    if(instruction->is(InstructionTypes::Branch) && instruction->hasTargets())
+    if(instruction->is(InstructionTypes::Branch))
         this->setTarget(instruction);
 
     m_dispatcher(instruction->id, instruction);
@@ -19,10 +19,7 @@ void Emulator::emulate(const InstructionPtr &instruction)
 
 bool Emulator::setTarget(const InstructionPtr &instruction)
 {
-   if(instruction->target_idx == -1)
-       return false;
-
-   const Operand* op = instruction->targetOperand();
+   const Operand* op = instruction->target();
 
    if(!op || !op->is(OperandTypes::Register))
        return false;
@@ -32,8 +29,7 @@ bool Emulator::setTarget(const InstructionPtr &instruction)
    if(!this->read(op, &value))
        return false;
 
-   instruction->target(value);
-   m_disassembler->document()->update(instruction);
+   m_disassembler->pushReference(value, instruction->address);
    return true;
 }
 

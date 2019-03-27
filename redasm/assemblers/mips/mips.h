@@ -23,9 +23,9 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
         virtual void onDecoded(const InstructionPtr& instruction);
 
     private:
-        void setTargetOp0(const InstructionPtr& instruction) const { instruction->targetOp(0); }
-        void setTargetOp1(const InstructionPtr& instruction) const { instruction->targetOp(1); }
-        void setTargetOp2(const InstructionPtr& instruction) const { instruction->targetOp(2); }
+        void setTargetOp0(const InstructionPtr& instruction) const { instruction->targetIdx(0); }
+        void setTargetOp1(const InstructionPtr& instruction) const { instruction->targetIdx(1); }
+        void setTargetOp2(const InstructionPtr& instruction) const { instruction->targetIdx(2); }
         void checkJr(const InstructionPtr& instruction) const;
 };
 

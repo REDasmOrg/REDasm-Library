@@ -153,50 +153,6 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
     m_cursor.set(line, column);
 }
 
-ListingItems ListingDocumentType::getCalls(ListingItem *item)
-{
-    ListingItems calls;
-    auto it = this->end();
-
-    if(item->is(ListingItem::InstructionItem))
-    {
-        InstructionPtr instruction = this->instruction(item->address);
-
-        if(!instruction->hasTargets())
-            return ListingItems();
-
-        it = this->instructionItem(instruction->target());
-    }
-    else
-        it = this->instructionItem(item->address);
-
-    for( ; it != this->end(); it++)
-    {
-        item = it->get();
-
-        if(item->is(ListingItem::InstructionItem))
-        {
-            InstructionPtr instruction = this->instruction(item->address);
-
-            if(!instruction->is(InstructionTypes::Call))
-                continue;
-
-            calls.push_back(item);
-        }
-        else if(item->is(ListingItem::SymbolItem))
-        {
-            const Symbol* symbol = this->symbol(item->address);
-
-            if(!symbol->is(SymbolTypes::Code))
-                break;
-        }
-        else
-            break;
-    }
-
-    return calls;
-}
-
 ListingItem *ListingDocumentType::functionStart(ListingItem *item)
 {
     if(!item)

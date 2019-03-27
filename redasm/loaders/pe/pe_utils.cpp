@@ -23,7 +23,7 @@ std::string PEUtils::importName(std::string library, const std::string &name)
 {
     std::transform(library.begin(), library.end(), library.begin(), ::tolower);
 
-    if(!endsWith(library, ".dll"))
+    if(!REDasm::endsWith(library, ".dll"))
         library += ".dll";
 
     std::stringstream ss;

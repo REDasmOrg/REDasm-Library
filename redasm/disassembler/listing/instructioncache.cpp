@@ -10,15 +10,10 @@ void InstructionCache::update(const InstructionPtr &instruction) { this->commit(
 void InstructionCache::serialize(const InstructionPtr &value, std::fstream &fs)
 {
     Serializer::serializeScalar(fs, value->address);
-    Serializer::serializeScalar(fs, value->target_idx);
     Serializer::serializeScalar(fs, value->type);
     Serializer::serializeScalar(fs, value->size);
     Serializer::serializeScalar(fs, value->id);
     Serializer::serializeString(fs, value->mnemonic);
-
-    Serializer::serializeArray<std::set, address_t>(fs, value->targets, [&](address_t target) {
-        Serializer::serializeScalar(fs, target);
-    });
 
     Serializer::serializeArray<std::deque, Operand>(fs, value->operands, [&](const Operand& op) {
         Serializer::serializeScalar(fs, op.loc_index);
@@ -44,15 +39,10 @@ void InstructionCache::deserialize(InstructionPtr &value, std::fstream &fs)
     value = std::make_shared<Instruction>();
 
     Serializer::deserializeScalar(fs, &value->address);
-    Serializer::deserializeScalar(fs, &value->target_idx);
     Serializer::deserializeScalar(fs, &value->type);
     Serializer::deserializeScalar(fs, &value->size);
     Serializer::deserializeScalar(fs, &value->id);
     Serializer::deserializeString(fs, value->mnemonic);
-
-    Serializer::deserializeArray<std::set, address_t>(fs, value->targets, [&](address_t& target) {
-        Serializer::deserializeScalar(fs, &target);
-    });
 
     Serializer::deserializeArray<std::deque, Operand>(fs, value->operands, [&](Operand& op) {
         Serializer::deserializeScalar(fs, &op.loc_index);

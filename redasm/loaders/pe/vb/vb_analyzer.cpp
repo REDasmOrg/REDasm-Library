@@ -57,10 +57,15 @@ void VBAnalyzer::disassembleTrampoline(address_t eventva, const std::string& nam
 
     REDasm::statusAddress("Decoding " + name, eventva);
 
-    if(instruction->is(InstructionTypes::Jump) && instruction->hasTargets())
+    if(instruction->is(InstructionTypes::Branch))
     {
-        m_disassembler->disassemble(instruction->target());
-        m_document->lock(instruction->target(), name, SymbolTypes::Function);
+        const Operand* op = instruction->target();
+
+        if(!op)
+            return;
+
+        m_disassembler->disassemble(op->u_value);
+        m_document->lock(op->u_value, name, SymbolTypes::Function);
     }
 }
 

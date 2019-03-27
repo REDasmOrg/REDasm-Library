@@ -14,9 +14,48 @@ LoaderPlugin *DisassemblerBase::loader() const { return m_loader.get(); }
 AssemblerPlugin *DisassemblerBase::assembler() const { return m_assembler.get(); }
 const ListingDocument& DisassemblerBase::document() const { return m_loader->document(); }
 ListingDocument& DisassemblerBase::document() { return m_loader->document(); }
-ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
-u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
-void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
+ReferenceVector DisassemblerBase::getReferences(address_t address) const { return m_referencetable.referencesToVector(address); }
+ReferenceSet DisassemblerBase::getTargets(address_t address) const { return m_referencetable.targets(address); }
+
+ListingItems DisassemblerBase::getCalls(address_t address)
+{
+    auto& document = this->document();
+    auto it = document->instructionItem(address);
+    ListingItems calls;
+
+    for( ; it != document->end(); it++)
+    {
+        ListingItem* item = it->get();
+
+        if(item->is(ListingItem::InstructionItem))
+        {
+            InstructionPtr instruction = document->instruction(item->address);
+
+            if(!instruction->is(InstructionTypes::Call))
+                continue;
+
+            calls.push_back(item);
+        }
+        else if(item->is(ListingItem::SymbolItem))
+        {
+            const Symbol* symbol = document->symbol(item->address);
+
+            if(!symbol->is(SymbolTypes::Code))
+                break;
+        }
+        else
+            break;
+    }
+
+    return calls;
+}
+
+address_location DisassemblerBase::getTarget(address_t address) const { return m_referencetable.target(address); }
+u64 DisassemblerBase::getTargetsCount(address_t address) const { return m_referencetable.targetsCount(address); }
+u64 DisassemblerBase::getReferencesCount(address_t address) const { return m_referencetable.referencesCount(address); }
+void DisassemblerBase::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
+void DisassemblerBase::pushTarget(address_t address, address_t pointedby) { m_referencetable.pushTarget(address, pointedby); }
+void DisassemblerBase::pushReference(address_t address, address_t refby) { m_referencetable.push(address, refby); }
 
 void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 {
@@ -66,7 +105,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         return 0;
 
     REDasm::statusAddress("Checking address table", startaddress);
-    std::unordered_set<address_t> items;
+    std::unordered_set<address_t> targets;
 
     while(this->readAddress(address, m_assembler->addressWidth(), &target))
     {
@@ -75,29 +114,27 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
 
-        items.insert(target);
+        targets.insert(target);
 
         if(instruction->is(InstructionTypes::Branch))
-            instruction->target(target);
+            this->pushTarget(target, instruction->address);
         else
             this->checkLocation(startaddress, target);
 
         address += m_assembler->addressWidth();
     }
 
-    if(!items.empty())
+    if(!targets.empty())
     {
-        this->document()->update(instruction);
-
-        if(items.size() > 1)
+        if(targets.size() > 1)
         {
             u64 i = 0;
             address = startaddress;
 
-            for(auto it = items.begin(); it != items.end(); it++, address += m_assembler->addressWidth(), i++)
+            for(auto it = targets.begin(); it != targets.end(); it++, address += m_assembler->addressWidth(), i++)
             {
                 if(address == startaddress)
-                    this->document()->table(address, items.size());
+                    this->document()->table(address, targets.size());
                 else
                     this->document()->tableItem(address, startaddress, i);
 
@@ -111,7 +148,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         }
     }
 
-    return items.size();
+    return targets.size();
 }
 
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }

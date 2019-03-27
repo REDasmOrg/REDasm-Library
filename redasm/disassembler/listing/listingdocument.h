@@ -187,7 +187,6 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         virtual void deserializeFrom(std::fstream& fs);
 
     public:
-        ListingItems getCalls(ListingItem* item);
         ListingItem* functionStart(ListingItem* item);
         ListingItem* functionStart(address_t address);
         ListingItem* currentFunction();

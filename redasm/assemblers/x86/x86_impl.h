@@ -71,7 +71,7 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
 {
     CapstoneAssemblerPlugin<CS_ARCH_X86, mode>::onDecoded(instruction);
 
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->meta.userdata);
     const cs_x86& x86 = insn->detail->x86;
 
     for(size_t i = 0; i < x86.op_count; i++)
@@ -187,7 +187,7 @@ template<cs_mode mode> bool X86Assembler<mode>::isIP(register_id_t reg) const
     return false;
 }
 
-template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction) { instruction->targetOp(0); }
+template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const InstructionPtr& instruction) { instruction->targetIdx(0); }
 
 template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
 {

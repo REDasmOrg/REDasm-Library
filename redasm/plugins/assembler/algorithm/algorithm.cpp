@@ -56,12 +56,23 @@ void AssemblerAlgorithm::analyze()
     });
 }
 
+void AssemblerAlgorithm::loadTargets(const InstructionPtr &instruction)
+{
+    for(address_t target : instruction->meta.targets) // Get precalculated targets
+        m_disassembler->pushTarget(target, instruction->address);
+}
+
 void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const
 {
-    if(instruction->target_idx != -1)
+    if(m_disassembler->getTargetsCount(instruction->address))
         return;
 
-    REDasm::log("Invalid target index for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
+    const Operand* op = instruction->target();
+
+    if(op && !op->isNumeric())
+        return;
+
+    REDasm::log("No targets found for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const
@@ -92,7 +103,10 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
     if(instruction->is(InstructionTypes::Branch))
+    {
+        this->loadTargets(instruction);
         this->validateTarget(instruction);
+    }
 
     for(const Operand& op : instruction->operands)
     {
@@ -169,15 +183,10 @@ void AssemblerAlgorithm::jumpState(const State *state)
         m_document->autoComment(state->instruction->address, "Infinite loop");
 
     m_document->branch(state->address, dir);
-    m_disassembler->pushReference(state->address, state->instruction->address);
     DECODE_STATE(state->address);
 }
 
-void AssemblerAlgorithm::callState(const State *state)
-{
-    m_document->symbol(state->address, SymbolTypes::Function);
-    m_disassembler->pushReference(state->address, state->instruction->address);
-}
+void AssemblerAlgorithm::callState(const State *state) { m_document->symbol(state->address, SymbolTypes::Function); }
 
 void AssemblerAlgorithm::branchState(const State *state)
 {
@@ -188,12 +197,21 @@ void AssemblerAlgorithm::branchState(const State *state)
     else if(instruction->is(InstructionTypes::Jump))
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
-        REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) + " @ "
-                                                            + REDasm::hex(instruction->address, m_assembler->bits()));
+    {
+        REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) +
+                    " @ " + REDasm::hex(instruction->address, m_assembler->bits()));
+        return;
+    }
+
+    m_disassembler->pushReference(state->address, instruction->address);
+    m_disassembler->pushTarget(state->address, instruction->address);
 }
 
 void AssemblerAlgorithm::branchMemoryState(const State *state)
 {
+    InstructionPtr instruction = state->instruction;
+    m_disassembler->pushTarget(state->address, instruction->address);
+
     Symbol* symbol = m_document->symbol(state->address);
 
     if(symbol && symbol->isImport()) // Don't dereference imports
@@ -202,8 +220,6 @@ void AssemblerAlgorithm::branchMemoryState(const State *state)
     u64 value = 0;
     m_disassembler->dereference(state->address, &value);
     m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
-
-    InstructionPtr instruction = state->instruction;
 
     if(instruction->is(InstructionTypes::Call))
         m_document->symbol(value, SymbolTypes::Function);
@@ -216,7 +232,6 @@ void AssemblerAlgorithm::branchMemoryState(const State *state)
 void AssemblerAlgorithm::addressTableState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
-    size_t targetstart = instruction->targets.size();
     s64 c = m_disassembler->checkAddressTable(instruction, state->address);
 
     if(c < 0)
@@ -237,15 +252,10 @@ void AssemblerAlgorithm::addressTableState(const State *state)
             fwdstate = AssemblerAlgorithm::MemoryState;
         }
 
-        size_t i = 0;
+        ReferenceSet targets = m_disassembler->getTargets(instruction->address);
 
-        for(address_t target : instruction->targets)
-        {
-            if(i >= targetstart)  // Skip decoded targets
-                FORWARD_STATE_VALUE(fwdstate, target, state);
-
-            i++;
-        }
+        for(address_t target : targets)
+            FORWARD_STATE_VALUE(fwdstate, target, state);
 
         return;
     }
@@ -273,7 +283,7 @@ void AssemblerAlgorithm::memoryState(const State *state)
     InstructionPtr instruction = state->instruction;
     m_disassembler->pushReference(state->address, instruction->address);
 
-    if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(state->operand()))
+    if(instruction->is(InstructionTypes::Branch) && state->operand()->isTarget())
         FORWARD_STATE(AssemblerAlgorithm::BranchMemoryState, state);
     else
         FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
@@ -297,7 +307,7 @@ void AssemblerAlgorithm::immediateState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 
-    if(instruction->is(InstructionTypes::Branch) && instruction->isTargetOperand(state->operand()))
+    if(instruction->is(InstructionTypes::Branch) && state->operand()->isTarget())
         FORWARD_STATE(AssemblerAlgorithm::BranchState, state);
     else
         m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs

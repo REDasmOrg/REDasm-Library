@@ -32,7 +32,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecod
 {
     CapstoneAssemblerPlugin<arch, mode>::onDecoded(instruction);
 
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->meta.userdata);
     const cs_arm& arm = insn->detail->arm;
 
     for(size_t i = 0; i < arm.op_count; i++)
@@ -57,17 +57,17 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::onDecod
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkB(const InstructionPtr &instruction) const
 {
-    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
+    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->meta.userdata)->detail->arm;
 
     if(arm.cc != ARM_CC_AL)
         instruction->type |= InstructionTypes::Conditional;
 
-    instruction->targetOp(0);
+    instruction->targetIdx(0);
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkStop(const InstructionPtr &instruction) const
 {
-    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
+    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->meta.userdata)->detail->arm;
 
     if(arm.cc != ARM_CC_AL)
         return;
@@ -84,7 +84,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkStop_0(const InstructionPtr &instruction) const
 {
-    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->userdata)->detail->arm;
+    const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->meta.userdata)->detail->arm;
     instruction->op(1)->size = sizeof(u32);
 
     if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op()))
@@ -97,13 +97,13 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkJumpT0(const InstructionPtr &instruction) const
 {
     instruction->type = InstructionTypes::Jump;
-    instruction->targetOp(0);
+    instruction->targetIdx(0);
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkCallT0(const InstructionPtr &instruction) const
 {
     instruction->type = InstructionTypes::Call;
-    instruction->targetOp(0);
+    instruction->targetIdx(0);
 }
 
 } // namespace REDasm

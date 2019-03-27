@@ -34,7 +34,7 @@ void PsxExeAnalyzer::detectMain()
         if(instruction->id != MIPS_INS_JAL)
             continue;
 
-        Symbol* symbol = m_document->symbol(instruction->target());
+        Symbol* symbol = m_document->symbol(m_disassembler->getTarget(instruction->address));
 
         if(!symbol)
             continue; // Continue until InitHeap is found

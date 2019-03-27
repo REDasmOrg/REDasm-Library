@@ -15,6 +15,7 @@ class Printer;
 class LoaderPlugin;
 class AssemblerPlugin;
 class ListingDocumentType;
+struct ListingItem;
 
 class DisassemblerAPI
 {
@@ -28,11 +29,17 @@ class DisassemblerAPI
         virtual AssemblerPlugin* assembler() const = 0;
         virtual const safe_ptr<ListingDocumentType>& document() const = 0;
         virtual safe_ptr<ListingDocumentType>& document() = 0;
+        virtual std::deque<ListingItem*> getCalls(address_t address) = 0;
         virtual ReferenceTable* references() = 0;
         virtual Printer* createPrinter() = 0;
-        virtual ReferenceVector getReferences(address_t address) = 0;
-        virtual u64 getReferencesCount(address_t address) = 0;
-        virtual void pushReference(address_t address, address_t refbyaddress) = 0;
+        virtual ReferenceVector getReferences(address_t address) const = 0;
+        virtual ReferenceSet getTargets(address_t address) const = 0;
+        virtual address_location getTarget(address_t address) const = 0;
+        virtual u64 getTargetsCount(address_t address) const = 0;
+        virtual u64 getReferencesCount(address_t address) const = 0;
+        virtual void popTarget(address_t address, address_t pointedby) = 0;
+        virtual void pushTarget(address_t address, address_t pointedby) = 0;
+        virtual void pushReference(address_t address, address_t refby) = 0;
         virtual void checkLocation(address_t fromaddress, address_t address) = 0;
         virtual bool checkString(address_t fromaddress, address_t address) = 0;
         virtual s64 checkAddressTable(const InstructionPtr& instruction, address_t address) = 0;

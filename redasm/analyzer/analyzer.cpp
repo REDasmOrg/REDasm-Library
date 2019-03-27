@@ -107,10 +107,15 @@ Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::iterator& it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
-    if(!instruction->is(InstructionTypes::Jump) || !instruction->hasTargets())
+    if(!instruction->is(InstructionTypes::Jump))
         return nullptr;
 
-    return m_disassembler->document()->symbol(instruction->target());
+    auto target = m_disassembler->getTarget((*it)->address);
+
+    if(!target.valid)
+        return nullptr;
+
+    return m_disassembler->document()->symbol(target);
 }
 
 Symbol* Analyzer::findTrampoline_arm(ListingDocumentType::iterator& it)

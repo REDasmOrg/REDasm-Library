@@ -19,9 +19,15 @@ class DisassemblerBase: public DisassemblerAPI
         virtual const ListingDocument& document() const;
         virtual ListingDocument& document();
         virtual ReferenceTable* references();
-        virtual ReferenceVector getReferences(address_t address);
-        virtual u64 getReferencesCount(address_t address);
-        virtual void pushReference(address_t address, address_t refbyaddress);
+        virtual ReferenceVector getReferences(address_t address) const;
+        virtual ReferenceSet getTargets(address_t address) const;
+        virtual ListingItems getCalls(address_t address);
+        virtual address_location getTarget(address_t address) const;
+        virtual u64 getTargetsCount(address_t address) const;
+        virtual u64 getReferencesCount(address_t address) const;
+        virtual void popTarget(address_t address, address_t pointedby);
+        virtual void pushTarget(address_t address, address_t pointedby);
+        virtual void pushReference(address_t address, address_t refby);
         virtual void checkLocation(address_t fromaddress, address_t address);
         virtual bool checkString(address_t fromaddress, address_t address);
         virtual s64 checkAddressTable(const InstructionPtr &instruction, address_t startaddress);

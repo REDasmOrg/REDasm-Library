@@ -84,7 +84,7 @@ template<cs_arch arch, s64 mode> CapstoneAssemblerPlugin<arch, mode>::CapstoneAs
 
 template<cs_arch arch, s64 mode> void CapstoneAssemblerPlugin<arch, mode>::onDecoded(const InstructionPtr& instruction)
 {
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->meta.userdata);
 
     if(!insn)
         return;
@@ -115,7 +115,7 @@ template<cs_arch arch, s64 mode> bool CapstoneAssemblerPlugin<arch, mode>::decod
     instruction->mnemonic = insn->mnemonic;
     instruction->id = insn->id;
     instruction->size = insn->size;
-    instruction->userdata = insn;
+    instruction->meta.userdata = insn;
     instruction->free = [](void* userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); };
     return true;
 }

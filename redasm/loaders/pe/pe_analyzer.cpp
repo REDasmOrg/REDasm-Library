@@ -128,6 +128,11 @@ void PEAnalyzer::findCRTWinMain()
     if(!symbol)
         return;
 
+    auto target = m_disassembler->getTarget(instruction->address);
+
+    if(!target.valid)
+        return;
+
     bool found = false;
     ReferenceVector refs = m_disassembler->getReferences(symbol->address);
 
@@ -135,7 +140,7 @@ void PEAnalyzer::findCRTWinMain()
     {
         ListingItem* scfuncitem = m_document->functionStart(ref);
 
-        if(!scfuncitem || ((instruction->target() != scfuncitem->address)))
+        if(!scfuncitem || ((target != scfuncitem->address)))
             continue;
 
         m_document->lock(scfuncitem->address, "__security_init_cookie");
@@ -146,8 +151,8 @@ void PEAnalyzer::findCRTWinMain()
     if(!found || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Jump))
         return;
 
-    m_document->lock(instruction->target(), "__mainCRTStartup", SymbolTypes::Function);
-    m_document->setDocumentEntry(instruction->target());
+    m_document->lock(target, "__mainCRTStartup", SymbolTypes::Function);
+    m_document->setDocumentEntry(target);
 }
 
 }

@@ -219,6 +219,9 @@ void AssemblerAlgorithm::addressTableState(const State *state)
     size_t targetstart = instruction->targets.size();
     s64 c = m_disassembler->checkAddressTable(instruction, state->address);
 
+    if(c < 0)
+        return;
+
     if(c > 1)
     {
         m_disassembler->pushReference(state->address, instruction->address);
@@ -246,12 +249,12 @@ void AssemblerAlgorithm::addressTableState(const State *state)
 
         return;
     }
-    if(c < 0)
-        return;
 
     const Operand* op = state->operand();
 
-    if(op->is(OperandTypes::Memory))
+    if(op->is(OperandTypes::Displacement))
+        FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
+    else if(op->is(OperandTypes::Memory))
         FORWARD_STATE(AssemblerAlgorithm::MemoryState, state);
     else
         FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);

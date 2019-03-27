@@ -18,7 +18,6 @@ class BinaryLoader : public LoaderPluginB
 
     private:
         std::string m_assembler;
-        u32 m_bits;
 };
 
 DECLARE_LOADER_PLUGIN_FLAGS(BinaryLoader, binary, LoaderFlags::Binary)

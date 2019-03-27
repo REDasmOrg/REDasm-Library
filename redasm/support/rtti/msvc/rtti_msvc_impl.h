@@ -78,8 +78,6 @@ template<typename T> void RTTIMsvc<T>::search()
 
 template<typename T> u32 RTTIMsvc<T>::rttiSignature() const
 {
-    auto* peformat = static_cast<const PE64Loader*>(m_loader);
-
     if(REDasm::bitwidth<T>::value == 64)
         return RTTISignatureType::x64;
 

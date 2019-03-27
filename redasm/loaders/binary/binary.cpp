@@ -9,7 +9,7 @@ LOADER_PLUGIN_TEST(BinaryLoader, u8)
     return true;
 }
 
-BinaryLoader::BinaryLoader(AbstractBuffer *buffer): LoaderPluginB(buffer), m_bits(0) {  }
+BinaryLoader::BinaryLoader(AbstractBuffer *buffer): LoaderPluginB(buffer) {  }
 std::string BinaryLoader::assembler() const { return m_assembler; }
 void BinaryLoader::load() { /* NOP */ }
 

@@ -16,7 +16,8 @@ class DisassemblerBase: public DisassemblerAPI
     public: // Primitive functions
         virtual LoaderPlugin* loader() const;
         virtual AssemblerPlugin* assembler() const;
-        virtual ListingDocument &document();
+        virtual const ListingDocument& document() const;
+        virtual ListingDocument& document();
         virtual ReferenceTable* references();
         virtual ReferenceVector getReferences(address_t address);
         virtual u64 getReferencesCount(address_t address);
@@ -42,7 +43,6 @@ class DisassemblerBase: public DisassemblerAPI
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
    protected:
-        ListingDocument& m_document;
         std::unique_ptr<AssemblerPlugin> m_assembler;
         std::unique_ptr<LoaderPlugin> m_loader;
         ReferenceTable m_referencetable;

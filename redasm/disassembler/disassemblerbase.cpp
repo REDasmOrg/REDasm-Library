@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-DisassemblerBase::DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin *loader): DisassemblerAPI(), m_document(loader->document())
+DisassemblerBase::DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin *loader): DisassemblerAPI()
 {
     m_loader = std::unique_ptr<LoaderPlugin>(loader);
     m_assembler = std::unique_ptr<AssemblerPlugin>(assembler);
@@ -12,19 +12,21 @@ DisassemblerBase::DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin *loa
 
 LoaderPlugin *DisassemblerBase::loader() const { return m_loader.get(); }
 AssemblerPlugin *DisassemblerBase::assembler() const { return m_assembler.get(); }
+const ListingDocument& DisassemblerBase::document() const { return m_loader->document(); }
+ListingDocument& DisassemblerBase::document() { return m_loader->document(); }
 ReferenceVector DisassemblerBase::getReferences(address_t address) { return m_referencetable.referencesToVector(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) { return m_referencetable.referencesCount(address); }
 void DisassemblerBase::pushReference(address_t address, address_t refbyaddress) { m_referencetable.push(address, refbyaddress); }
 
 void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
 {
-    Segment* segment = m_document->segment(address);
+    Segment* segment = this->document()->segment(address);
 
     if(!segment || this->checkString(fromaddress, address))
         return;
 
-    if(!m_document->symbol(address))
-        m_document->symbol(address, SymbolTypes::Data);
+    if(!this->document()->symbol(address))
+        this->document()->symbol(address, SymbolTypes::Data);
 
     this->pushReference(address, fromaddress);
 }
@@ -38,13 +40,13 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 
     if(wide)
     {
-        m_document->symbol(address, SymbolTypes::WideString);
-        m_document->autoComment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
+        this->document()->symbol(address, SymbolTypes::WideString);
+        this->document()->autoComment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
-        m_document->symbol(address, SymbolTypes::String);
-        m_document->autoComment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
+        this->document()->symbol(address, SymbolTypes::String);
+        this->document()->autoComment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
     }
 
     this->pushReference(address, fromaddress);
@@ -53,7 +55,7 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 
 s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
 {
-    Symbol* symbol = m_document->symbol(startaddress);
+    Symbol* symbol = this->document()->symbol(startaddress);
 
     if(symbol && symbol->is(SymbolTypes::TableItemMask))
         return -1;
@@ -68,7 +70,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     while(this->readAddress(address, m_assembler->addressWidth(), &target))
     {
-        const Segment* segment = m_document->segment(target);
+        const Segment* segment = this->document()->segment(target);
 
         if(!segment || !segment->is(SegmentTypes::Code))
             break;
@@ -85,7 +87,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 
     if(!items.empty())
     {
-        m_document->update(instruction);
+        this->document()->update(instruction);
 
         if(items.size() > 1)
         {
@@ -95,9 +97,9 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
             for(auto it = items.begin(); it != items.end(); it++, address += m_assembler->addressWidth(), i++)
             {
                 if(address == startaddress)
-                    m_document->table(address, items.size());
+                    this->document()->table(address, items.size());
                 else
-                    m_document->tableItem(address, startaddress, i);
+                    this->document()->tableItem(address, startaddress, i);
 
                 this->pushReference(address, instruction->address);
             }
@@ -105,19 +107,18 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         else
         {
             this->pushReference(startaddress, instruction->address);
-            m_document->pointer(startaddress, SymbolTypes::Data);
+            this->document()->pointer(startaddress, SymbolTypes::Data);
         }
     }
 
     return items.size();
 }
 
-ListingDocument& DisassemblerBase::document() { return m_document; }
 ReferenceTable *DisassemblerBase::references() { return &m_referencetable; }
 
 u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
-    Segment* segment = m_document->segment(address);
+    const Segment* segment = this->document()->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return 0;
@@ -163,12 +164,12 @@ std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
 
 std::string DisassemblerBase::getHexDump(address_t address, const Symbol **ressymbol)
 {
-    REDasm::ListingItem* item = m_document->functionStart(address);
+    REDasm::ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
         return std::string();
 
-    const REDasm::Symbol* symbol = m_document->symbol(item->address);
+    const REDasm::Symbol* symbol = this->document()->symbol(item->address);
 
     if(!symbol)
         return std::string();
@@ -190,7 +191,7 @@ Symbol* DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
     Symbol* ptrsymbol = nullptr;
 
     if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &address))
-        ptrsymbol = m_document->symbol(address);
+        ptrsymbol = this->document()->symbol(address);
 
     if(value)
         *value = address;
@@ -208,24 +209,24 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
 
 BufferView DisassemblerBase::getFunctionBytes(address_t address)
 {
-    ListingItem* item = m_document->functionStart(address);
+    ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
         return BufferView();
 
-    auto it = m_document->functionItem(item->address);
+    auto it = this->document()->functionItem(item->address);
 
-    if(it == m_document->end())
+    if(it == this->document()->end())
         return BufferView();
 
     it++;
     address_t endaddress = 0;
 
-    for( ; it != m_document->end(); it++)
+    for( ; it != this->document()->end(); it++)
     {
         if((*it)->type == ListingItem::SymbolItem)
         {
-            const Symbol* symbol = m_document->symbol((*it)->address);
+            const Symbol* symbol = this->document()->symbol((*it)->address);
 
             if(!symbol->is(SymbolTypes::Code))
                 break;
@@ -235,7 +236,7 @@ BufferView DisassemblerBase::getFunctionBytes(address_t address)
 
         if((*it)->type == ListingItem::InstructionItem)
         {
-            InstructionPtr instruction = m_document->instruction((*it)->address);
+            InstructionPtr instruction = this->document()->instruction((*it)->address);
             endaddress = instruction->endAddress();
             continue;
         }
@@ -245,7 +246,7 @@ BufferView DisassemblerBase::getFunctionBytes(address_t address)
 
     BufferView view = m_loader->view(address);
 
-    if(it != m_document->end())
+    if(it != this->document()->end())
         view.resize(endaddress - address);
 
     return view;
@@ -256,7 +257,7 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
     if(!value)
         return false;
 
-    Segment* segment = m_document->segment(address);
+    const Segment* segment = this->document()->segment(address);
 
     if(!segment || segment->is(SegmentTypes::Bss))
         return false;
@@ -336,7 +337,7 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
     REDasm::log("Loading Signature: " + REDasm::quoted(sigdb.name()));
     u64 c = 0;
 
-    m_document->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
+    this->document()->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
         if(symbol->isLocked())
             return true;
 
@@ -348,7 +349,7 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
 
         sigdb.search(view, [&](const json& signature) {
             std::string signame = signature["name"];
-            m_document->lock(symbol->address, signame, signature["symboltype"]);
+            this->document()->lock(symbol->address, signame, signature["symboltype"]);
             c++;
         });
 

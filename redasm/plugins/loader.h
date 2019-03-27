@@ -72,6 +72,7 @@ class LoaderPlugin: public Plugin
         BufferView view(address_t address) const;
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
+        const ListingDocument& document() const;
         ListingDocument& document();
         SignatureIdentifiers &signatures();
 

@@ -26,6 +26,7 @@ class DisassemblerAPI
         virtual ~DisassemblerAPI() = default;
         virtual LoaderPlugin* loader() const = 0;
         virtual AssemblerPlugin* assembler() const = 0;
+        virtual const safe_ptr<ListingDocumentType>& document() const = 0;
         virtual safe_ptr<ListingDocumentType>& document() = 0;
         virtual ReferenceTable* references() = 0;
         virtual Printer* createPrinter() = 0;

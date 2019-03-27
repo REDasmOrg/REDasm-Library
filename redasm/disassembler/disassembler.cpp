@@ -44,13 +44,13 @@ void Disassembler::disassemble()
 {
     m_starttime = std::chrono::steady_clock::now();
 
-    if(!m_document->segmentsCount())
+    if(!this->document()->segmentsCount())
     {
         REDasm::log("ERROR: Segment list is empty");
         return;
     }
 
-    const SymbolTable* symboltable = m_document->symbols();
+    const SymbolTable* symboltable = this->document()->symbols();
 
     // Preload loader functions for analysis
     symboltable->iterate(SymbolTypes::FunctionMask, [=](const Symbol* symbol) -> bool {
@@ -58,7 +58,7 @@ void Disassembler::disassemble()
         return true;
     });
 
-    const Symbol* entrypoint = m_document->documentEntry();
+    const Symbol* entrypoint = this->document()->documentEntry();
 
     if(entrypoint)
         m_algorithm->enqueue(entrypoint->address); // Push entry point
@@ -88,7 +88,7 @@ void Disassembler::disassembleJob() { m_jobs.work(std::bind(&Disassembler::disas
 
 InstructionPtr Disassembler::disassembleInstruction(address_t address)
 {
-    InstructionPtr instruction = m_document->instruction(address);
+    InstructionPtr instruction = this->document()->instruction(address);
 
     if(instruction)
         return instruction;

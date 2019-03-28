@@ -73,7 +73,7 @@ u64 ReferenceTable::referencesCount(address_t address) const
 
 u64 ReferenceTable::targetsCount(address_t address) const
 {
-    auto it = m_targets.find(address);
+    auto it = m_references.find(address);
 
     if(it != m_references.end())
         return it->second.size();

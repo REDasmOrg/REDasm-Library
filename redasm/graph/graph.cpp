@@ -4,53 +4,101 @@
 namespace REDasm {
 namespace Graphing {
 
-Graph::Graph(): m_currentid(0) { }
-
-void Graph::addNode(Node *n)
+bool Graph::containsEdge(const Node &source, const Node &target) const
 {
-    if(m_graph.find(n->id) != m_graph.end())
-        return;
-
-    n->id = this->getId();
-    this->emplace_back(n);
-    m_graph[n->id] = AdjacencyList();
-}
-
-void Graph::addEdge(Node *from, Node *to)
-{
-    auto it = m_graph.find(from->id);
-
-    if((it == m_graph.end()) || (m_graph.find(to->id) == m_graph.end()))
-        return;
-
-    auto& adjlist = it->second;
-
-    if(this->edgeExists(adjlist, to))
-        return;
-
-    auto iit = std::lower_bound(adjlist.begin(), adjlist.end(), to, [=](const Node* n1, const Node* n2) -> bool {
-        return this->compareEdge(n1, n2);
-    });
-
-    it->second.insert(iit, to);
-}
-
-const Graph::AdjacencyList &Graph::edges(const NodePtr &np) const { return this->edges(np.get()); }
-const Graph::AdjacencyList &Graph::edges(Node *n) const { return m_graph.at(n->id); }
-bool Graph::compareEdge(const Node *n1, const Node *n2) const { return n1->id < n2->id; }
-
-bool Graph::edgeExists(const AdjacencyList &adjlist, Node *search) const
-{
-    for(Node* n: adjlist)
+    for(const Edge& e : m_edges)
     {
-        if(n == search)
+        if((e.source == source) && (e.target == target))
             return true;
     }
 
     return false;
 }
 
-int Graph::getId() { return ++m_currentid; }
+void Graph::removeEdge(const Edge &edge) { m_edges.erase(std::find(m_edges.begin(), m_edges.end(), edge)); }
+
+void Graph::removeNode(const Node &n)
+{
+    for(auto it = m_nodes.begin(); it != m_nodes.end(); it++)
+    {
+        if(*it != n)
+            continue;
+
+        m_nodes.erase(it);
+        break;
+    }
+
+    this->removeEdges(n);
+}
+
+EdgeList Graph::outgoing(const Node &n) const
+{
+    EdgeList oe;
+
+    for(auto it = m_edges.begin(); it != m_edges.end(); it++)
+    {
+        if(it->source != n)
+            continue;
+
+        oe.push_back(*it);
+    }
+
+    return oe;
+}
+
+EdgeList Graph::incoming(const Node &n) const
+{
+    EdgeList ie;
+
+    for(auto it = m_edges.begin(); it != m_edges.end(); it++)
+    {
+        if(it->target != n)
+            continue;
+
+        ie.push_back(*it);
+    }
+
+    return ie;
+}
+
+Edge Graph::edge(const Node &source, const Node &target) const
+{
+    for(const Edge& e : m_edges)
+    {
+        if((e.source == source) && (e.target == target))
+            return e;
+    }
+
+    return Edge();
+}
+
+void Graph::newEdge(const Node &source, const Node &target)
+{
+    if(this->containsEdge(source, target))
+        return;
+
+    m_edges.emplace_back(source, target);
+}
+
+Node Graph::newNode()
+{
+    Node n = ++m_nodeid;
+    m_nodes.push_back(n);
+    return n;
+}
+
+void Graph::removeEdges(const Node &n)
+{
+    auto it = m_edges.begin();
+
+    while(it != m_edges.end())
+    {
+        if(it->source == n)
+            it = m_edges.erase(it);
+        else
+            it++;
+    }
+}
 
 } // namespace Graphing
 } // namespace REDasm

@@ -125,6 +125,7 @@ generate_export_header(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CAPSTONE_INCLUDE}
                            ${DEPENDS_SINGLE_HEADERS}
+                           ${OGDF_INCLUDE}
                            ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} capstone-static)

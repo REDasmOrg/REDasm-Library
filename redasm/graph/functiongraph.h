@@ -1,30 +1,32 @@
 ﻿#ifndef FUNCTIONGRAPH_H
 #define FUNCTIONGRAPH_H
 
-#include "../disassemblerapi.h"
-#include "../listing/listingdocument.h"
-#include "../../graph/graph.h"
 #include <queue>
+#include "../disassembler/disassemblerapi.h"
+#include "../disassembler/listing/listingdocument.h"
+#include "graph.h"
 
 namespace REDasm {
 namespace Graphing {
 
-struct FunctionBasicBlock: public Node
+struct FunctionBasicBlock
 {
+    Node node;
     s64 startidx, endidx; // [startidx, endidx]
-    std::unordered_map<const FunctionBasicBlock*, std::string> styles;
+    std::unordered_map<Node, std::string> styles;
 
+    FunctionBasicBlock(): startidx(-1), endidx(startidx) { }
     FunctionBasicBlock(s64 startidx): startidx(startidx), endidx(startidx) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     bool isEmpty() const { return startidx > endidx; }
     s64 count() const { return (endidx - startidx) + 1; }
-    void bTrue(const FunctionBasicBlock* v) { styles[v] = "graph_edge_true"; }
-    void bFalse(const FunctionBasicBlock* v) { styles[v] = "graph_edge_false"; }
-    void bLoop(const FunctionBasicBlock* v) { styles[v] = "graph_edge_loop"; }
-    void bLoopConditional(const FunctionBasicBlock* v) { styles[v] = "graph_edge_loop_c"; }
+    void bTrue(const Node& n) { styles[n] = "graph_edge_true"; }
+    void bFalse(const Node& n) { styles[n] = "graph_edge_false"; }
+    void bLoop(const Node& n) { styles[n] = "graph_edge_loop"; }
+    void bLoopConditional(const Node& n) { styles[n] = "graph_edge_loop_c"; }
 
-    std::string style(const FunctionBasicBlock* to) const {
-        auto it = styles.find(to);
+    std::string style(const Node& n) const {
+        auto it = styles.find(n);
 
         if(it == styles.end())
             return "graph_edge";
@@ -33,22 +35,18 @@ struct FunctionBasicBlock: public Node
     }
 };
 
-class FunctionGraph: public Graph
+class FunctionGraph: public GraphT<FunctionBasicBlock>
 {
     private:
         typedef std::queue<s64> IndexQueue;
 
     public:
         FunctionGraph(DisassemblerAPI* disassembler);
-        address_location startAddress() const;
         bool build(address_t address);
 
-    protected:
-        virtual bool compareEdge(const Node *n1, const Node *n2) const;
-
     private:
-        FunctionBasicBlock* basicBlockFromIndex(s64 index) const;
-        void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock* fromfbb, FunctionBasicBlock* tofbb, bool condition);
+        FunctionBasicBlock* basicBlockFromIndex(s64 index);
+        void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
         void incomplete() const;
         bool isStopItem(ListingItem* item);
         void buildBasicBlock(s64 index, IndexQueue &pending);

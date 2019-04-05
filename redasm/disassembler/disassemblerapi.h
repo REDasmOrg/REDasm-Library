@@ -65,6 +65,8 @@ class DisassemblerAPI
         virtual bool busy() const = 0;
 };
 
+typedef std::shared_ptr<DisassemblerAPI> DisassemblerPtr;
+
 } // namespace REDasm
 
 #endif // DISASSEMBLERAPI_H

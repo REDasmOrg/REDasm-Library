@@ -13,6 +13,7 @@ class Disassembler: public DisassemblerBase
 {
     public:
         Disassembler(AssemblerPlugin* assembler, LoaderPlugin* loader);
+        virtual ~Disassembler() = default;
         virtual void disassemble();
 
     public: // Primitive functions

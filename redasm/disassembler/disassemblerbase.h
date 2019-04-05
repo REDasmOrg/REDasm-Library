@@ -12,6 +12,7 @@ class DisassemblerBase: public DisassemblerAPI
 {
     public:
         DisassemblerBase(AssemblerPlugin* assembler, LoaderPlugin* loader);
+        virtual ~DisassemblerBase() = default;
 
     public: // Primitive functions
         virtual LoaderPlugin* loader() const;

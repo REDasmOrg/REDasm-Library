@@ -19,7 +19,7 @@ struct FunctionBasicBlock
     FunctionBasicBlock(s64 startidx): startidx(startidx), endidx(startidx) { }
     bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
     bool isEmpty() const { return startidx > endidx; }
-    s64 count() const { return (endidx - startidx) + 1; }
+    s64 count() const { return endidx - startidx; }
     void bTrue(const Node& n) { styles[n] = "graph_edge_true"; }
     void bFalse(const Node& n) { styles[n] = "graph_edge_false"; }
     void bLoop(const Node& n) { styles[n] = "graph_edge_loop"; }

@@ -10,11 +10,13 @@ namespace REDasm {
 
 struct RendererFormat
 {
-    RendererFormat(s64 start, s64 length, const std::string& style): start(start), length(length), style(style) { }
-    s64 start, length;
-    std::string style;
+    s64 start, end; // [start, end]
+    std::string fgstyle, bgstyle;
 
-    bool contains(s64 pos) const { return (pos >= start) && (pos < (start + length)); }
+    inline bool empty() const { return start > end; }
+    inline s64 length() const { return (end - start + 1); }
+    inline bool contains(s64 pos) const { return (pos >= start) && (pos <= end); }
+    inline bool equals(s64 start, s64 end) const { return (start == this->start) && (end == this->end); }
 };
 
 struct RendererLine
@@ -27,11 +29,45 @@ struct RendererLine
     std::list<RendererFormat> formats;
     std::string text;
 
-    std::string formatText(const RendererFormat& rf) const { return text.substr(rf.start, rf.start + rf.length - 1); }
+    std::string formatText(const RendererFormat& rf) const { return text.substr(rf.start, rf.length()); }
     size_t length() const { return text.length(); }
 
-    RendererLine& push(const std::string& text, const std::string& style = std::string()) {
-        formats.emplace_back(this->text.size(), text.length(), style);
+    std::list<RendererFormat>::iterator unformat(s64 start, s64 end) {
+        auto begit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(start); });
+        auto endit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(end); });
+
+        RendererFormat begrf = *begit, endrf = *endit;
+        auto it = formats.erase(begit, ++endit);
+
+        begrf.end = start - 1; // Shrink first part
+        endrf.start = end + 1; // Shrink last part
+
+        if(!begrf.empty())
+        {
+            it = formats.insert(it, begrf);
+            it++;
+        }
+
+        if(!endrf.empty())
+            it = formats.insert(it, endrf);
+
+        return it;
+    }
+
+    RendererLine& format(s64 start, s64 end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
+        if(text.empty() || (start >= text.size()))
+            return *this;
+
+        end = std::min(end, static_cast<s64>(text.size() - 1));
+
+        auto it = this->unformat(start, end);
+        formats.insert(it, { start, end, fgstyle, bgstyle });
+        return *this;
+    }
+
+    RendererLine& push(const std::string& text, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
+        s64 start = static_cast<s64>(this->text.size());
+        formats.push_back({ start, start + static_cast<s64>(text.length()) - 1, fgstyle, bgstyle});
         this->text += text;
         return *this;
     }
@@ -41,13 +77,13 @@ class ListingRenderer
 {
     protected:
         enum: u32 { Normal = 0, HideSegmentName = 1, HideAddress = 2,
-                    HideSegmentAndAddress = HideSegmentName | HideAddress
-                  };
+                    HideSegmentAndAddress = HideSegmentName | HideAddress };
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
         virtual void render(u64 start, u64 count, void* userdata = nullptr);
         std::string wordFromPosition(const ListingCursor::Position& pos);
+        std::string getCurrentWord();
         u64 getLastColumn(u64 line);
         std::string getLine(u64 line);
         std::string getSelectedText();
@@ -72,6 +108,9 @@ class ListingRenderer
     private:
         bool renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine& rl) const;
         bool getRendererLine(const document_s_lock& lock, u64 line, RendererLine& rl);
+        void highlightSelection(RendererLine& rl);
+        void blinkCursor(RendererLine& rl);
+        void highlightWord(RendererLine& rl, const std::string word);
         static std::string escapeString(const std::string& s);
 
     protected:

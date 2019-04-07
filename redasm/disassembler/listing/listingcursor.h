@@ -20,6 +20,10 @@ class ListingCursor
 
     public:
         ListingCursor();
+        bool active() const;
+        void toggle();
+        void enable();
+        void disable();
         bool hasWordUnderCursor() const;
         void clearWordUnderCursor();
         void setWordUnderCursor(const std::string& s);
@@ -50,6 +54,7 @@ class ListingCursor
         Position m_position, m_selection;
         PositionStack m_backstack, m_forwardstack;
         std::string m_wordundercursor;
+        bool m_active;
 };
 
 } // namespace REDasm

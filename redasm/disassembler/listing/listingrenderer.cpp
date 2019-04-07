@@ -21,6 +21,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     auto lock = s_lock_safe_ptr(m_document);
     const ListingCursor* cur = lock->cursor();
     u64 end = start + count, line = start;
+    std::string word = this->getCurrentWord();
 
     for(u64 i = 0; line < std::min<u64>(lock->length(), end); i++, line++)
     {
@@ -31,12 +32,58 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
         rl.highlighted = cur->currentLine() == line;
 
         this->getRendererLine(lock, line, rl);
+
+        if(m_cursor->isLineSelected(line))
+            this->highlightSelection(rl);
+        else
+            this->highlightWord(rl, word);
+
+        if(rl.highlighted)
+            this->blinkCursor(rl);
+
         this->renderLine(rl);
     }
 }
 
 std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos)
 {
+    RendererLine rl;
+    this->getRendererLine(pos.first, rl);
+
+    for(const RendererFormat& rf : rl.formats)
+    {
+        if(!rf.contains(pos.second))
+            continue;
+
+        std::string word = rl.formatText(rf);
+
+        if(m_document->symbol(word))
+            return word;
+    }
+
+    // Fallback to word matching
+    std::regex rgxword(REDASM_WORD_REGEX);
+    auto it = std::sregex_token_iterator(rl.text.begin(), rl.text.end(), rgxword);
+    auto end = std::sregex_token_iterator();
+
+    for(; it != end; it++)
+    {
+        u64 start = static_cast<u64>(it->first - rl.text.begin());
+        u64 end = static_cast<u64>(it->second - rl.text.begin() - 1);
+
+        if((pos.second < start) || (pos.second > end))
+            continue;
+
+        return *it;
+    }
+
+    return std::string();
+}
+
+std::string ListingRenderer::getCurrentWord()
+{
+    const ListingCursor::Position& pos = m_cursor->currentPosition();
+
     RendererLine rl;
     this->getRendererLine(pos.first, rl);
 
@@ -160,10 +207,56 @@ bool ListingRenderer::getRendererLine(const document_s_lock &lock, u64 line, Ren
         this->renderMeta(lock, item, rl);
     else if(item->is(ListingItem::TypeItem))
         this->renderType(lock, item, rl);
-    else if(!item->is(ListingItem::EmptyItem))
+    else if(item->is(ListingItem::EmptyItem))
+        rl.push(" ");
+    else
         rl.push("Unknown Type: " + std::to_string(item->type));
 
     return true;
+}
+
+void ListingRenderer::highlightSelection(RendererLine &rl)
+{
+    if(rl.text.empty())
+        return;
+
+    const REDasm::ListingCursor::Position& startsel = m_cursor->startSelection();
+    const REDasm::ListingCursor::Position& endsel = m_cursor->endSelection();
+
+    if(startsel.first != endsel.first)
+    {
+        u64 start = (rl.documentindex == startsel.first) ? startsel.second : 0;
+        u64 end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.length() - 1);
+        rl.format(start, end, "selection_fg", "selection_bg");
+    }
+    else
+        rl.format(startsel.second, endsel.second, "selection_fg", "selection_bg");
+}
+
+void ListingRenderer::blinkCursor(RendererLine &rl)
+{
+    if(!m_cursor->active())
+        return;
+
+    rl.format(m_cursor->currentColumn(), m_cursor->currentColumn(), "cursor_fg", "cursorbg");
+}
+
+void ListingRenderer::highlightWord(RendererLine &rl, const std::string word)
+{
+    if(word.empty())
+        return;
+
+    size_t pos = rl.text.find(word, 0);
+    std::list<size_t> locations;
+
+    while(pos != std::string::npos)
+    {
+        locations.push_back(pos);
+        pos = rl.text.find(word, pos + 1);
+    }
+
+    for(size_t loc : locations)
+        rl.format(loc, loc + word.size() - 1, "highlight_fg", "highlight_bg");
 }
 
 void ListingRenderer::renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)

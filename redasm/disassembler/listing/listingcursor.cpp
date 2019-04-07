@@ -2,7 +2,11 @@
 
 namespace REDasm {
 
-ListingCursor::ListingCursor() { m_position = std::make_pair(0, 0); }
+ListingCursor::ListingCursor(): m_active(false) { m_position = std::make_pair(0, 0); }
+bool ListingCursor::active() const { return m_active; }
+void ListingCursor::toggle() { m_active = !m_active; }
+void ListingCursor::enable() { m_active = true; }
+void ListingCursor::disable() { m_active = false; }
 bool ListingCursor::hasWordUnderCursor() const { return !m_wordundercursor.empty(); }
 void ListingCursor::clearWordUnderCursor() { m_wordundercursor.clear(); }
 void ListingCursor::setWordUnderCursor(const std::string &s) { m_wordundercursor = s; }

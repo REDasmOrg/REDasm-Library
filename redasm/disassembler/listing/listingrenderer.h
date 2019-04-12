@@ -75,15 +75,14 @@ struct RendererLine
 
 class ListingRenderer
 {
-    protected:
+    public:
+        typedef std::pair<s64, s64> Range;
         enum: u32 { Normal = 0, HideSegmentName = 1, HideAddress = 2,
                     HideSegmentAndAddress = HideSegmentName | HideAddress };
 
     public:
-        typedef std::pair<s64, s64> Range;
-
-    public:
         ListingRenderer(DisassemblerAPI* disassembler);
+        void setFlags(u32 flags);
         virtual void render(u64 start, u64 count, void* userdata = nullptr);
         std::string wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         std::string getCurrentWord();
@@ -95,7 +94,6 @@ class ListingRenderer
         virtual void renderLine(const RendererLine& rl) = 0;
 
     protected:
-        void setFlags(u32 flags);
         bool getRendererLine(u64 line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);
         void renderFunction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);

@@ -45,7 +45,7 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     }
 }
 
-std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos)
+std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, ListingRenderer::Range *wordpos)
 {
     RendererLine rl;
     this->getRendererLine(pos.first, rl);
@@ -58,7 +58,12 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
         std::string word = rl.formatText(rf);
 
         if(m_document->symbol(word))
+        {
+            if(wordpos)
+                *wordpos = std::make_pair(rf.start, rf.end);
+
             return word;
+        }
     }
 
     // Fallback to word matching
@@ -74,48 +79,19 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
         if((pos.second < start) || (pos.second > end))
             continue;
 
-        return *it;
-    }
-
-    return std::string();
-}
-
-std::string ListingRenderer::getCurrentWord()
-{
-    const ListingCursor::Position& pos = m_cursor->currentPosition();
-
-    RendererLine rl;
-    this->getRendererLine(pos.first, rl);
-
-    for(const RendererFormat& rf : rl.formats)
-    {
-        if(!rf.contains(pos.second))
-            continue;
-
-        std::string word = rl.formatText(rf);
-
-        if(m_document->symbol(word))
-            return word;
-    }
-
-    // Fallback to word matching
-    std::regex rgxword(REDASM_WORD_REGEX);
-    auto it = std::sregex_token_iterator(rl.text.begin(), rl.text.end(), rgxword);
-    auto end = std::sregex_token_iterator();
-
-    for(; it != end; it++)
-    {
-        u64 start = static_cast<u64>(it->first - rl.text.begin());
-        u64 end = static_cast<u64>(it->second - rl.text.begin() - 1);
-
-        if((pos.second < start) || (pos.second > end))
-            continue;
+        if(wordpos)
+            *wordpos = std::make_pair(start, end);
 
         return *it;
     }
 
+    if(wordpos)
+        *wordpos = std::make_pair(1, 0);
+
     return std::string();
 }
+
+std::string ListingRenderer::getCurrentWord() { return this->wordFromPosition(m_cursor->currentPosition()); }
 
 u64 ListingRenderer::getLastColumn(u64 line)
 {

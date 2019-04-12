@@ -80,9 +80,12 @@ class ListingRenderer
                     HideSegmentAndAddress = HideSegmentName | HideAddress };
 
     public:
+        typedef std::pair<s64, s64> Range;
+
+    public:
         ListingRenderer(DisassemblerAPI* disassembler);
         virtual void render(u64 start, u64 count, void* userdata = nullptr);
-        std::string wordFromPosition(const ListingCursor::Position& pos);
+        std::string wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         std::string getCurrentWord();
         u64 getLastColumn(u64 line);
         std::string getLine(u64 line);
@@ -90,6 +93,8 @@ class ListingRenderer
 
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
+
+    protected:
         void setFlags(u32 flags);
         bool getRendererLine(u64 line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);

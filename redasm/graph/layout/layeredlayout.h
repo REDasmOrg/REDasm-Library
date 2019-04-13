@@ -102,7 +102,7 @@ class LayeredLayout: public AbstractLayout
 
     private:
         std::unordered_map<Node, LLBlock> m_blocks;
-        std::deque<int> m_colx, m_rowy, m_coledgex, m_rowedgey, m_colwidth, m_colheight, m_coledgecount, m_rowedgecount;
+        std::deque<int> m_colx, m_rowy, m_coledgex, m_rowedgey, m_colwidth, m_rowheight, m_coledgecount, m_rowedgecount;
         std::deque<Node> m_blockorder;
         EdgesVector m_horizedges, m_vertedges;
         Matrix<bool> m_edgevalid;

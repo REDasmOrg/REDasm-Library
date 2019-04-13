@@ -3,9 +3,10 @@
 #include <queue>
 #include <iostream>
 
-#define LLEDGE_PADDING  12
-#define LLAYOUT_MARGIN  16
-#define LLAYOUT_PADDING 8
+#define LLAYOUT_PADDING      16
+#define LLAYOUT_PADDING_DIV2 (LLAYOUT_PADDING / 2)
+#define LLAYOUT_PADDING_DIV4 (LLAYOUT_PADDING / 4)
+#define LLAYOUT_NODE_PADDING (2 * LLAYOUT_PADDING)
 
 namespace REDasm {
 namespace Graphing {
@@ -23,7 +24,7 @@ bool LayeredLayout::execute()
     m_rowy.clear();
     m_rowedgey.clear();
     m_colwidth.clear();
-    m_colheight.clear();
+    m_rowheight.clear();
     m_coledgecount.clear();
     m_rowedgey.clear();
     m_blockorder.clear();
@@ -47,7 +48,10 @@ bool LayeredLayout::execute()
 void LayeredLayout::createBlocks()
 {
     for(const Node& n : m_graph->nodes())
+    {
+        m_graph->height(n, m_graph->height(n) + LLAYOUT_NODE_PADDING); // Pad Node
         m_blocks[n] = LLBlock(n, m_graph->width(n), m_graph->height(n));
+    }
 
     //Populate incoming lists
     for(const auto& item : m_blocks)
@@ -185,11 +189,11 @@ void LayeredLayout::computeEdgeCount()
     {
         for(int col = 0; col < m_blocks[m_graph->root()].colcount + 1; col++)
         {
-            if(int(m_horizedges[row][col].size()) > m_rowedgecount[row])
-                m_rowedgecount[row] = int(m_horizedges[row][col].size());
+            if(static_cast<int>(m_horizedges[row][col].size()) > m_rowedgecount[row])
+                m_rowedgecount[row] = static_cast<int>(m_horizedges[row][col].size());
 
-            if(int(m_vertedges[row][col].size()) > m_coledgecount[col])
-                m_coledgecount[col] = int(m_vertedges[row][col].size());
+            if(static_cast<int>(m_vertedges[row][col].size()) > m_coledgecount[col])
+                m_coledgecount[col] = static_cast<int>(m_vertedges[row][col].size());
         }
     }
 }
@@ -197,11 +201,11 @@ void LayeredLayout::computeEdgeCount()
 void LayeredLayout::computeRowColumnSizes()
 {
     LayeredLayout::initDeque(m_colwidth, m_blocks[m_graph->root()].colcount + 1, 0);
-    LayeredLayout::initDeque(m_colheight, m_blocks[m_graph->root()].rowcount + 1, 0);
+    LayeredLayout::initDeque(m_rowheight, m_blocks[m_graph->root()].rowcount + 1, 0);
 
-    for(auto & item : m_blocks)
+    for(const auto & item : m_blocks)
     {
-        LLBlock& block = item.second;
+        const LLBlock& block = item.second;
 
         if((block.width / 2) > m_colwidth[block.col])
             m_colwidth[block.col] = block.width / 2;
@@ -209,8 +213,8 @@ void LayeredLayout::computeRowColumnSizes()
         if((block.width / 2) > m_colwidth[block.col + 1])
             m_colwidth[block.col + 1] = block.width / 2;
 
-        if(block.height > m_colheight[block.row])
-            m_colheight[block.row] = block.height;
+        if(block.height > m_rowheight[block.row])
+            m_rowheight[block.row] = block.height;
     }
 }
 
@@ -221,30 +225,30 @@ void LayeredLayout::computeRowColumnPositions()
     LayeredLayout::initDeque(m_coledgex, m_blocks[m_graph->root()].colcount + 1, 0);
     LayeredLayout::initDeque(m_rowedgey, m_blocks[m_graph->root()].rowcount + 1, 0);
 
-    int x = LLAYOUT_MARGIN;
+    int x = LLAYOUT_PADDING;
 
     for(int i = 0; i < m_blocks[m_graph->root()].colcount; i++)
     {
         m_coledgex[i] = x;
-        x += (LLAYOUT_PADDING * 2) * m_coledgecount[i];
+        x += LLAYOUT_PADDING_DIV2 * m_coledgecount[i];
         m_colx[i] = x;
         x += m_colwidth[i];
     }
 
-    int y = LLAYOUT_MARGIN;
+    int y = LLAYOUT_PADDING;
 
     for(int i = 0; i < m_blocks[m_graph->root()].rowcount; i++)
     {
         m_rowedgey[i] = y;
-        y += (LLAYOUT_PADDING * 2) * m_rowedgecount[i];
+        y += LLAYOUT_PADDING_DIV2 * m_rowedgecount[i];
         m_rowy[i] = y;
-        y += m_colheight[i];
+        y += m_rowheight[i];
     }
 
     m_coledgex[m_blocks[m_graph->root()].colcount] = x;
     m_rowedgey[m_blocks[m_graph->root()].rowcount] = y;
-    m_graph->areaWidth(x + LLAYOUT_MARGIN + (LLAYOUT_PADDING * m_coledgecount[m_blocks[m_graph->root()].colcount]));
-    m_graph->areaHeight(y + LLAYOUT_MARGIN + (LLAYOUT_PADDING * m_rowedgecount[m_blocks[m_graph->root()].rowcount]));
+    m_graph->areaWidth(x + LLAYOUT_PADDING + (LLAYOUT_PADDING_DIV2 * m_coledgecount[m_blocks[m_graph->root()].colcount]));
+    m_graph->areaHeight(y + LLAYOUT_PADDING + (LLAYOUT_PADDING_DIV2 * m_rowedgecount[m_blocks[m_graph->root()].rowcount]));
 }
 
 void LayeredLayout::computeNodePositions()
@@ -252,12 +256,12 @@ void LayeredLayout::computeNodePositions()
     for(auto& item : m_blocks)
     {
         LLBlock& block = item.second;
-        block.x = (m_colx[block.col] + m_colwidth[block.col] + (LLAYOUT_PADDING / 2) * m_coledgecount[block.col + 1]) - (block.width / 2);
+        block.x = (m_colx[block.col] + m_colwidth[block.col] + (LLAYOUT_PADDING_DIV2 / 2) * m_coledgecount[block.col + 1]) - (block.width / 2);
 
-        if((block.x + block.width) > (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING * m_coledgecount[ block.col + 1]))
-            block.x = (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + 8 * m_coledgecount[ block.col + 1]) - block.width;
+        if((block.x + block.width) > (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING_DIV2 * m_coledgecount[block.col + 1]))
+            block.x = (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING_DIV2 * m_coledgecount[block.col + 1]) - block.width;
 
-        block.y = m_rowy[block.row];
+        block.y = m_rowy[block.row] + LLAYOUT_PADDING;
         m_graph->x(block.node, block.x);
         m_graph->y(block.node, block.y);
     }
@@ -274,7 +278,7 @@ void LayeredLayout::precomputeEdgeCoordinates()
             auto start = edge.points[0];
             auto startcol = start.col;
             auto lastindex = edge.startindex;
-            Point lastpt = { m_coledgex[startcol] + (8 * lastindex) + 4, m_graph->y(block.node) + m_graph->height(block.node) + 4 - (2 * LLAYOUT_PADDING) };
+            Point lastpt = { m_coledgex[startcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, m_graph->y(block.node) + m_graph->height(block.node) + 4 - LLAYOUT_NODE_PADDING };
 
             Polyline pts;
             pts.push_back(lastpt);
@@ -288,9 +292,9 @@ void LayeredLayout::precomputeEdgeCoordinates()
                 Point newpt;
 
                 if(startcol == endcol)
-                    newpt = { lastpt.x, m_rowedgey[endrow] + (8 * lastindex) + 4 };
+                    newpt = { lastpt.x, m_rowedgey[endrow] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4 };
                 else
-                    newpt = { m_coledgex[endcol] + (8 * lastindex) + 4, lastpt.y };
+                    newpt = { m_coledgex[endcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, lastpt.y };
 
                 pts.push_back(newpt);
                 lastpt = newpt;
@@ -358,7 +362,7 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     if(minrow != maxrow)
     {
         auto checkColumn = [minrow, maxrow, &edge_valid](int column) -> bool {
-            if(column < 0 || column >= int(edge_valid[minrow].size()))
+            if(column < 0 || column >= static_cast<int>(edge_valid[minrow].size()))
                 return false;
 
             for(int row = minrow; row < maxrow; row++) {
@@ -398,20 +402,20 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     if(col != (start.col + 1))
     {
         //Not in same column, need to generate a line for moving to the correct column
-        int min_col, max_col;
+        int mincol, maxcol;
 
         if(col < (start.col + 1))
         {
-            min_col = col;
-            max_col = start.col + 1;
+            mincol = col;
+            maxcol = start.col + 1;
         }
         else
         {
-            min_col = start.col + 1;
-            max_col = col;
+            mincol = start.col + 1;
+            maxcol = col;
         }
 
-        int index = this->findHorizEdgeIndex(horiz_edges, start.row + 1, min_col, max_col);
+        int index = this->findHorizEdgeIndex(horiz_edges, start.row + 1, mincol, maxcol);
         edge.addPoint(start.row + 1, col, index);
         horiz = true;
     }
@@ -431,18 +435,18 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     if(col != (end.col + 1))
     {
         //Not in ending column, need to generate a line for moving to the correct column
-        int min_col, max_col;
+        int mincol, maxcol;
         if(col < (end.col + 1))
         {
-            min_col = col;
-            max_col = end.col + 1;
+            mincol = col;
+            maxcol = end.col + 1;
         }
         else
         {
-            min_col = end.col + 1;
-            max_col = col;
+            mincol = end.col + 1;
+            maxcol = col;
         }
-        int index = this->findHorizEdgeIndex(horiz_edges, end.row, min_col, max_col);
+        int index = this->findHorizEdgeIndex(horiz_edges, end.row, mincol, maxcol);
         edge.addPoint(end.row, end.col + 1, index);
         horiz = true;
     }
@@ -457,7 +461,7 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     return edge;
 }
 
-int LayeredLayout::findHorizEdgeIndex(LayeredLayout::EdgesVector &edges, int row, int min_col, int max_col) const
+int LayeredLayout::findHorizEdgeIndex(LayeredLayout::EdgesVector &edges, int row, int mincol, int maxcol) const
 {
     //Find a valid index
     int i = 0;
@@ -466,7 +470,7 @@ int LayeredLayout::findHorizEdgeIndex(LayeredLayout::EdgesVector &edges, int row
     {
         bool valid = true;
 
-        for(int col = min_col; col < max_col + 1; col++)
+        for(int col = mincol; col < maxcol + 1; col++)
         {
             if(!isEdgeMarked(edges, row, col, i))
                 continue;
@@ -482,7 +486,7 @@ int LayeredLayout::findHorizEdgeIndex(LayeredLayout::EdgesVector &edges, int row
     }
 
     //Mark chosen index as used
-    for(int col = min_col; col < max_col + 1; col++)
+    for(int col = mincol; col < maxcol + 1; col++)
         this->markEdge(edges, row, col, i);
 
     return i;

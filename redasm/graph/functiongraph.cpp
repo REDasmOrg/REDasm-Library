@@ -42,7 +42,7 @@ void FunctionGraph::buildBasicBlocks()
 
     while(!pending.empty())
     {
-        s64 index = pending.front();
+        index = pending.front();
         pending.pop();
 
         if((index < 0) || (static_cast<u64>(index) >= m_document->length()))
@@ -179,6 +179,12 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
     {
         item = it->get();
 
+        if(item->address == 0x18f87)
+        {
+            int zzz = 0;
+            zzz++;
+        }
+
         if(this->isStopItem(item))
             break;
 
@@ -194,7 +200,14 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
                     pending.push(m_document->symbolIndex(target));
 
                 if(!targets.empty() && instruction->is(InstructionTypes::Conditional))
-                    pending.push(m_document->instructionIndex(instruction->endAddress()));
+                {
+                    s64 idx = m_document->symbolIndex(instruction->endAddress()); // Check for symbol first (chained jumps)
+
+                    if(idx == -1)
+                        idx = m_document->instructionIndex(instruction->endAddress());
+
+                    pending.push(idx);
+                }
 
                 break;
             }

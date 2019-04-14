@@ -353,10 +353,8 @@ u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &ins
     if(it != m_disassembled.end())
         return AssemblerAlgorithm::SKIP;
 
+    m_disassembled.insert(address);
     u32 result = this->disassembleInstruction(address, instruction);
-
-    if(result != AssemblerAlgorithm::SKIP)
-        m_disassembled.insert(address);
 
     if(result == AssemblerAlgorithm::FAIL)
     {

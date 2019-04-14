@@ -4,7 +4,6 @@
 #include <regex>
 
 #define INDENT_WIDTH         2
-#define INDENT_COMMENT       10
 #define STRING_THRESHOLD     48
 #define HEX_ADDRESS(address) REDasm::hex(address, m_disassembler->assembler()->bits())
 
@@ -418,8 +417,7 @@ void ListingRenderer::renderComments(const document_s_lock &lock, const Instruct
     if(s.empty())
         return;
 
-    this->renderIndent(rl, INDENT_COMMENT);
-    rl.push("# " + ListingRenderer::escapeString(s), "comment_fg");
+    rl.push("   # " + ListingRenderer::escapeString(s), "comment_fg");
 }
 
 void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const ListingItem* item, RendererLine &rl)

@@ -7,9 +7,6 @@ bool ListingCursor::active() const { return m_active; }
 void ListingCursor::toggle() { m_active = !m_active; }
 void ListingCursor::enable() { m_active = true; }
 void ListingCursor::disable() { m_active = false; }
-bool ListingCursor::hasWordUnderCursor() const { return !m_wordundercursor.empty(); }
-void ListingCursor::clearWordUnderCursor() { m_wordundercursor.clear(); }
-void ListingCursor::setWordUnderCursor(const std::string &s) { m_wordundercursor = s; }
 
 void ListingCursor::clearSelection()
 {
@@ -20,7 +17,6 @@ void ListingCursor::clearSelection()
     positionChanged();
 }
 
-const std::string &ListingCursor::wordUnderCursor() const { return m_wordundercursor;  }
 const ListingCursor::Position &ListingCursor::currentPosition() const { return m_position; }
 const ListingCursor::Position &ListingCursor::currentSelection() const { return m_selection; }
 

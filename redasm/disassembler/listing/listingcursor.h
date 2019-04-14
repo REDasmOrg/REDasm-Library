@@ -24,11 +24,7 @@ class ListingCursor
         void toggle();
         void enable();
         void disable();
-        bool hasWordUnderCursor() const;
-        void clearWordUnderCursor();
-        void setWordUnderCursor(const std::string& s);
         void clearSelection();
-        const std::string& wordUnderCursor() const;
         const ListingCursor::Position& currentPosition() const;
         const ListingCursor::Position& currentSelection() const;
         const ListingCursor::Position& startSelection() const;
@@ -53,7 +49,6 @@ class ListingCursor
     private:
         Position m_position, m_selection;
         PositionStack m_backstack, m_forwardstack;
-        std::string m_wordundercursor;
         bool m_active;
 };
 

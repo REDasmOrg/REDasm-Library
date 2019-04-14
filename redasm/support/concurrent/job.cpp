@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #define JOB_BASE_INTERVAL 1 // 1ms
+#define JOB_MAX_INTERVAL  5 // 5ms
 
 namespace REDasm {
 
@@ -118,7 +119,8 @@ void Job::doWork()
             }
 
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);
-            m_interval = std::max((m_interval + elapsed) / 2, std::chrono::milliseconds(JOB_BASE_INTERVAL));
+            m_interval = std::min(std::max((m_interval + elapsed) / 2, std::chrono::milliseconds(JOB_BASE_INTERVAL)),
+                                  std::chrono::milliseconds(JOB_MAX_INTERVAL));
         }
 
         std::this_thread::sleep_for(m_interval);

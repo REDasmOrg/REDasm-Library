@@ -35,8 +35,8 @@ bool LayeredLayout::execute()
     this->createBlocks();                           // Create render nodes
     this->makeAcyclic();                            // Construct acyclic graph where each node is used as an edge exactly once
     this->computeLayout(m_blocks[m_graph->root()]); // Compute graph layout from bottom up
-    this->prepareRouting();                         // Prepare edge routing
-    this->performRouting();                         // Perform edge routing
+    this->prepareEdgeRouting();                     // Prepare edge routing
+    this->performEdgeRouting();                     // Perform edge routing
     this->computeEdgeCount();                       // Compute edge counts for each row and column
     this->computeRowColumnSizes();                  // Compute row and column sizes
     this->computeRowColumnPositions();              // Compute row and column positions
@@ -139,7 +139,7 @@ void LayeredLayout::makeAcyclic()
     }
 }
 
-void LayeredLayout::prepareRouting()
+void LayeredLayout::prepareEdgeRouting()
 {
     m_horizedges.resize(m_blocks[m_graph->root()].rowcount + 1);
     m_vertedges.resize(m_blocks[m_graph->root()].rowcount + 1);
@@ -165,7 +165,7 @@ void LayeredLayout::prepareRouting()
     }
 }
 
-void LayeredLayout::performRouting()
+void LayeredLayout::performEdgeRouting()
 {
     for(const Node& n : m_blockorder)
     {
@@ -322,7 +322,7 @@ void LayeredLayout::precomputeEdgeCoordinates()
     }
 }
 
-LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, LayeredLayout::EdgesVector &vert_edges, Matrix<bool> &edge_valid, LLBlock &start, LLBlock &end)
+LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horizedges, LayeredLayout::EdgesVector &vertedges, Matrix<bool> &edge_valid, LLBlock &start, LLBlock &end)
 {
     LLEdge edge;
     edge.sourceblock = &start;
@@ -333,12 +333,12 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
 
     while(true)
     {
-        if(!this->isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i))
+        if(!this->isEdgeMarked(vertedges, start.row + 1, start.col + 1, i))
             break;
         i += 1;
     }
 
-    this->markEdge(vert_edges, start.row + 1, start.col + 1, i);
+    this->markEdge(vertedges, start.row + 1, start.col + 1, i);
     edge.addPoint(start.row + 1, start.col + 1);
     edge.startindex = i;
     bool horiz = false;
@@ -415,7 +415,7 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
             maxcol = col;
         }
 
-        int index = this->findHorizEdgeIndex(horiz_edges, start.row + 1, mincol, maxcol);
+        int index = this->findHorizEdgeIndex(horizedges, start.row + 1, mincol, maxcol);
         edge.addPoint(start.row + 1, col, index);
         horiz = true;
     }
@@ -424,8 +424,8 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     {
         //Not in same row, need to generate a line for moving to the correct row
         if(col == (start.col + 1))
-            this->markEdge(vert_edges, start.row + 1, start.col + 1, i, false);
-        int index = this->findVertEdgeIndex(vert_edges, col, minrow, maxrow);
+            this->markEdge(vertedges, start.row + 1, start.col + 1, i, false);
+        int index = this->findVertEdgeIndex(vertedges, col, minrow, maxrow);
         if(col == (start.col + 1))
             edge.startindex = index;
         edge.addPoint(end.row, col, index);
@@ -446,7 +446,7 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
             mincol = end.col + 1;
             maxcol = col;
         }
-        int index = this->findHorizEdgeIndex(horiz_edges, end.row, mincol, maxcol);
+        int index = this->findHorizEdgeIndex(horizedges, end.row, mincol, maxcol);
         edge.addPoint(end.row, end.col + 1, index);
         horiz = true;
     }
@@ -454,7 +454,7 @@ LLEdge LayeredLayout::routeEdge(LayeredLayout::EdgesVector &horiz_edges, Layered
     //If last line was horizontal, choose the ending edge index for the incoming edge
     if(horiz)
     {
-        int index = this->findVertEdgeIndex(vert_edges, end.col + 1, end.row, end.row);
+        int index = this->findVertEdgeIndex(vertedges, end.col + 1, end.row, end.row);
         edge.points[int(edge.points.size()) - 1].index = index;
     }
 
@@ -472,7 +472,7 @@ int LayeredLayout::findHorizEdgeIndex(LayeredLayout::EdgesVector &edges, int row
 
         for(int col = mincol; col < maxcol + 1; col++)
         {
-            if(!isEdgeMarked(edges, row, col, i))
+            if(!this->isEdgeMarked(edges, row, col, i))
                 continue;
 
             valid = false;
@@ -503,7 +503,7 @@ int LayeredLayout::findVertEdgeIndex(LayeredLayout::EdgesVector &edges, int col,
 
         for(int row = minrow; row < maxrow + 1; row++)
         {
-            if(!isEdgeMarked(edges, row, col, i))
+            if(!this->isEdgeMarked(edges, row, col, i))
                 continue;
 
             valid = false;
@@ -553,7 +553,7 @@ void LayeredLayout::computeLayout(LLBlock &block)
     //Compute child node layouts and arrange them horizontally
     int col = 0;
     int rowcount = 1;
-    int childColumn = 0;
+    int childcolumn = 0;
     bool singlechild = block.newoutgoing.size() == 1;
 
     for(size_t i = 0; i < block.newoutgoing.size(); i++)
@@ -564,7 +564,7 @@ void LayeredLayout::computeLayout(LLBlock &block)
         if((m_blocks[n].rowcount + 1) > rowcount)
             rowcount = m_blocks[n].rowcount + 1;
 
-        childColumn = m_blocks[n].col;
+        childcolumn = m_blocks[n].col;
     }
 
     if(m_layouttype != LayoutType::Wide && block.newoutgoing.size() == 2)
@@ -598,7 +598,7 @@ void LayeredLayout::computeLayout(LLBlock &block)
         if(m_layouttype == LayoutType::Medium)
             block.col = (left.col + right.col) / 2;
         else
-            block.col = singlechild ? childColumn : (col - 2) / 2;
+            block.col = singlechild ? childcolumn : (col - 2) / 2;
     }
     else
     {
@@ -611,7 +611,7 @@ void LayeredLayout::computeLayout(LLBlock &block)
         if(col >= 2)
         {
             //Place this node centered over the child nodes
-            block.col = singlechild ? childColumn : (col - 2) / 2;
+            block.col = singlechild ? childcolumn : (col - 2) / 2;
             block.colcount = col;
         }
         else

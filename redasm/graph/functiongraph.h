@@ -22,8 +22,6 @@ struct FunctionBasicBlock
     s64 count() const { return (endidx - startidx) + 1; }
     void bTrue(const Node& n) { styles[n] = "graph_edge_true"; }
     void bFalse(const Node& n) { styles[n] = "graph_edge_false"; }
-    void bLoop(const Node& n) { styles[n] = "graph_edge_loop"; }
-    void bLoopConditional(const Node& n) { styles[n] = "graph_edge_loop_c"; }
 
     std::string style(const Node& n) const {
         auto it = styles.find(n);

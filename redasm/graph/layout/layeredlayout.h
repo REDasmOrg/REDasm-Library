@@ -79,8 +79,8 @@ class LayeredLayout: public AbstractLayout
     private: // Refactored functions
         void createBlocks();
         void makeAcyclic();
-        void prepareRouting();
-        void performRouting();
+        void prepareEdgeRouting();
+        void performEdgeRouting();
         void computeEdgeCount();
         void computeRowColumnSizes();
         void computeRowColumnPositions();

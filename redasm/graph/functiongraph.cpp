@@ -65,16 +65,6 @@ FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(s64 index)
 
 void FunctionGraph::setConnectionType(const InstructionPtr &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
 {
-    if(tofbb->startidx < fromfbb->startidx)
-    {
-        if(instruction->is(InstructionTypes::Conditional))
-            fromfbb->bLoopConditional(tofbb->node);
-        else
-            fromfbb->bLoop(tofbb->node);
-
-        return;
-    }
-
     if(!instruction->is(InstructionTypes::Conditional))
         return;
 

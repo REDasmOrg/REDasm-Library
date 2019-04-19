@@ -94,6 +94,11 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
     if(!this->canBeDisassembled(address))
         return AssemblerAlgorithm::SKIP;
 
+    Symbol* symbol = m_document->symbol(address);
+
+    if(symbol && !symbol->isLocked() && !symbol->is(SymbolTypes::Code))
+        m_document->eraseSymbol(symbol->address);
+
     instruction->address = address;
 
     BufferView view = m_loader->view(address);
@@ -327,11 +332,6 @@ bool AssemblerAlgorithm::canBeDisassembled(address_t address)
         return false;
 
     if(!m_loader->offset(address).valid)
-        return false;
-
-    Symbol* symbol = m_document->symbol(address);
-
-    if(symbol && !symbol->is(SymbolTypes::Code))
         return false;
 
     return true;

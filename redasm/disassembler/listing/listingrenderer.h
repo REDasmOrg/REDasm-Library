@@ -21,11 +21,11 @@ struct RendererFormat
 
 struct RendererLine
 {
-    RendererLine(): userdata(nullptr), documentindex(0), index(0), highlighted(false) { }
+    RendererLine(bool ignoreflags = false): userdata(nullptr), documentindex(0), index(0), highlighted(false), ignoreflags(ignoreflags) { }
 
     void* userdata;
     u64 documentindex, index;
-    bool highlighted;
+    bool highlighted, ignoreflags;
     std::list<RendererFormat> formats;
     std::string text;
 
@@ -92,8 +92,7 @@ class ListingRenderer
 
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
-
-    protected:
+        bool hasFlag(u32 flag) const;
         bool getRendererLine(u64 line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);
         void renderFunction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);

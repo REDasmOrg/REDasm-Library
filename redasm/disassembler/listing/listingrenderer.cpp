@@ -155,6 +155,7 @@ std::string ListingRenderer::getSelectedText()
     return copied;
 }
 
+bool ListingRenderer::hasFlag(u32 flag) const { return flag & m_flags; }
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
 bool ListingRenderer::getRendererLine(u64 line, RendererLine &rl)
@@ -243,7 +244,7 @@ void ListingRenderer::renderSegment(const document_s_lock& lock, const ListingIt
 
 void ListingRenderer::renderFunction(const document_s_lock& lock, const ListingItem *item, RendererLine& rl)
 {
-    if(!(m_flags & ListingRenderer::HideSegmentAndAddress))
+    if(rl.ignoreflags || !this->hasFlag(ListingRenderer::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
 
     m_printer->function(lock->symbol(item->address), [&](const std::string& pre, const std::string& sym, const std::string& post) {
@@ -287,7 +288,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         }
         else
         {
-            if(m_flags & ListingRenderer::HideSegmentAndAddress)
+            if(!rl.ignoreflags && this->hasFlag(ListingRenderer::HideSegmentAndAddress))
                 this->renderIndent(rl, 2);
             else
                 this->renderAddressIndent(lock, item, rl);
@@ -346,9 +347,9 @@ void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem 
 
 void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
-    if(m_flags & ListingRenderer::HideSegmentName && !(m_flags & ListingRenderer::HideAddress))
+    if(!rl.ignoreflags && (this->hasFlag(ListingRenderer::HideSegmentName) && !this->hasFlag(ListingRenderer::HideAddress)))
         rl.push(HEX_ADDRESS(item->address), "address_fg");
-    else if(!(m_flags & ListingRenderer::HideAddress))
+    else if(rl.ignoreflags || !this->hasFlag(ListingRenderer::HideAddress))
     {
         const Segment* segment = lock->segment(item->address);
         rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item->address), "address_fg");

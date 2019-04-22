@@ -55,7 +55,7 @@ struct RendererLine
     }
 
     RendererLine& format(s64 start, s64 end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
-        if(text.empty() || (start >= text.size()))
+        if(text.empty() || (start >= static_cast<s64>(text.size())))
             return *this;
 
         end = std::min(end, static_cast<s64>(text.size() - 1));

@@ -121,7 +121,7 @@ void LayeredLayout::makeAcyclic()
                 if(!best || (m_blocks[edge.target].incoming.size() < bestedges) || ((m_blocks[edge.target].incoming.size() == bestedges) && (edge.target < best)))
                 {
                     best = edge.target;
-                    bestedges = m_blocks[edge.target].incoming.size();
+                    bestedges = static_cast<int>(m_blocks[edge.target].incoming.size());
                     bestparent = block.node;
                 }
             }
@@ -256,14 +256,14 @@ void LayeredLayout::computeNodePositions()
     for(auto& item : m_blocks)
     {
         LLBlock& block = item.second;
-        block.x = (m_colx[block.col] + m_colwidth[block.col] + (LLAYOUT_PADDING_DIV2 / 2) * m_coledgecount[block.col + 1]) - (block.width / 2);
+        block.x = static_cast<float>((m_colx[block.col] + m_colwidth[block.col] + (LLAYOUT_PADDING_DIV2 / 2) * m_coledgecount[block.col + 1]) - (block.width / 2));
 
         if((block.x + block.width) > (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING_DIV2 * m_coledgecount[block.col + 1]))
-            block.x = (m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING_DIV2 * m_coledgecount[block.col + 1]) - block.width;
+            block.x = static_cast<float>((m_colx[block.col] + m_colwidth[block.col] + m_colwidth[block.col + 1] + LLAYOUT_PADDING_DIV2 * m_coledgecount[block.col + 1]) - block.width);
 
-        block.y = m_rowy[block.row] + LLAYOUT_PADDING;
-        m_graph->x(block.node, block.x);
-        m_graph->y(block.node, block.y);
+        block.y = static_cast<float>(m_rowy[block.row] + LLAYOUT_PADDING);
+        m_graph->x(block.node, static_cast<int>(block.x));
+        m_graph->y(block.node, static_cast<int>(block.y));
     }
 }
 

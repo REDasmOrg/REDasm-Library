@@ -44,6 +44,17 @@ void ListingRenderer::render(u64 start, u64 count, void *userdata)
     }
 }
 
+DisassemblerAPI *ListingRenderer::disassembler() const { return m_disassembler; }
+const ListingDocument &ListingRenderer::document() const { return m_document; }
+
+const Symbol *ListingRenderer::symbolUnderCursor()
+{
+    auto lock = REDasm::s_lock_safe_ptr(m_document);
+    return lock->symbol(this->getCurrentWord());
+}
+
+ListingDocument &ListingRenderer::document() { return m_document; }
+
 std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, ListingRenderer::Range *wordpos)
 {
     RendererLine rl;

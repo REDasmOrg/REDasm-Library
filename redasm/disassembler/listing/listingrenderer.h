@@ -82,8 +82,12 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
-        void setFlags(u32 flags);
         virtual void render(u64 start, u64 count, void* userdata = nullptr);
+        DisassemblerAPI* disassembler() const;
+        const ListingDocument& document() const;
+        const REDasm::Symbol* symbolUnderCursor();
+        ListingDocument& document();
+        void setFlags(u32 flags);
         std::string wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         std::string getCurrentWord();
         u64 getLastColumn(u64 line);

@@ -178,6 +178,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         bool advance(InstructionPtr& instruction);
         const ListingCursor* cursor() const;
         ListingCursor* cursor();
+        bool goTo(const ListingItem* item);
+        bool goTo(address_t address);
         void moveToEP();
         u64 length() const;
         u64 lastLine() const;
@@ -238,7 +240,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         s64 symbolIndex(address_t address);
         ListingItem* itemAt(size_t i) const;
         s64 indexOf(address_t address);
-        s64 indexOf(ListingItem *item);
+        s64 indexOf(const ListingItem *item);
         Symbol *symbol(address_t address) const;
         Symbol *symbol(const std::string& name) const;
         const SymbolTable* symbols() const;

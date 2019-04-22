@@ -22,6 +22,31 @@ bool ListingDocumentType::advance(InstructionPtr &instruction)
 const ListingCursor *ListingDocumentType::cursor() const { return &m_cursor; }
 ListingCursor *ListingDocumentType::cursor() { return &m_cursor; }
 
+bool ListingDocumentType::goTo(const ListingItem *item)
+{
+    if(!item)
+        return false;
+
+    s64 idx = this->indexOf(item);
+
+    if(idx == -1)
+        return false;
+
+    m_cursor.moveTo(idx);
+    return true;
+}
+
+bool ListingDocumentType::goTo(address_t address)
+{
+    auto it = this->item(address);
+
+    if(it == this->end())
+        return false;
+
+    this->goTo(it->get());
+    return true;
+}
+
 void ListingDocumentType::moveToEP()
 {
     if(!m_documententry)
@@ -625,7 +650,7 @@ s64 ListingDocumentType::indexOf(address_t address)
     return idx;
 }
 
-s64 ListingDocumentType::indexOf(ListingItem *item) { return Listing::indexOf(this, item); }
+s64 ListingDocumentType::indexOf(const ListingItem *item) { return Listing::indexOf(this, item); }
 Symbol* ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
 Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }

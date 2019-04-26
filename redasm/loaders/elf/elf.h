@@ -1,5 +1,4 @@
-#ifndef ELFLOADER_H
-#define ELFLOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 #include "elf_header.h"
@@ -11,8 +10,18 @@
 
 namespace REDasm {
 
+namespace ElfImpl {
+    template<size_t b, endianness_t e> struct elf_address_t { };
+    template<> struct elf_address_t<32, Endianness::LittleEndian> { typedef u32le e_type; typedef u32 type; };
+    template<> struct elf_address_t<32, Endianness::BigEndian> { typedef u32be e_type;  typedef u32 type;};
+    template<> struct elf_address_t<64, Endianness::LittleEndian> { typedef u64le e_type; typedef u64 type; };
+    template<> struct elf_address_t<64, Endianness::BigEndian> { typedef u64be e_type;  typedef u64 type; };
+}
+
 template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Ehdr<b, e> >
 {
+    protected:
+
     public:
         typedef Elf_Ehdr<b, e> EHDR;
         typedef Elf_Shdr<b, e> SHDR;
@@ -20,6 +29,8 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
         typedef Elf_Rela<b, e> RELA;
         typedef typename std::conditional<b == 64, Elf64_Phdr<e>, Elf32_Phdr<e> >::type PHDR;
         typedef typename std::conditional<b == 64, Elf64_Sym<e>, Elf32_Sym<e> >::type SYM;
+        typedef typename ElfImpl::elf_address_t<b, e>::e_type E_ADDR;
+        typedef typename ElfImpl::elf_address_t<b, e>::type ADDR;
 
     DECLARE_LOADER_PLUGIN_TEST(ELF_ARG(Elf_Ehdr<b, e>))
 
@@ -37,6 +48,7 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
         void loadSymbols(const SHDR& shdr);
         void loadSegments();
         void checkProgramHeader();
+        void checkArray();
         void parseSegments();
 
     private:
@@ -57,6 +69,4 @@ DECLARE_LOADER_PLUGIN(ELF64BELoader, elf64be)
 
 }
 
-#include "elf_impl.h"
-
-#endif // ELFLOADER_H
+#include "elf.cpp"

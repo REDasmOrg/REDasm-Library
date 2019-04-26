@@ -409,26 +409,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         this->insertSorted(address, ListingItem::SymbolItem);
 }
 
-void ListingDocumentType::symbol(address_t address, u32 type, u32 tag)
-{
-    if(type & SymbolTypes::Pointer)
-        this->symbol(address, ListingDocumentType::symbolName("ptr", address), type, tag);
-    else if(type & SymbolTypes::WideStringMask)
-        this->symbol(address, ListingDocumentType::symbolName("wstr", address), type, tag);
-    else if(type & SymbolTypes::StringMask)
-        this->symbol(address, ListingDocumentType::symbolName("str", address), type, tag);
-    else if(type & SymbolTypes::FunctionMask)
-        this->symbol(address, ListingDocumentType::symbolName("sub", address), type, tag);
-    else
-    {
-        const Segment* segment = this->segment(address);
-
-        if(segment && segment->is(SegmentTypes::Code))
-            this->symbol(address, ListingDocumentType::symbolName("loc", address), type, tag);
-        else
-            this->symbol(address, ListingDocumentType::symbolName("data", address), type, tag);
-    }
-}
+void ListingDocumentType::symbol(address_t address, u32 type, u32 tag) { this->symbol(address, SymbolTable::name(address, type), type, tag); }
 
 void ListingDocumentType::rename(address_t address, const std::string &name)
 {

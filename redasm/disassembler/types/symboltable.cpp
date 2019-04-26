@@ -84,6 +84,23 @@ void SymbolTable::clear()
     m_byname.clear();
 }
 
+std::string SymbolTable::name(address_t address, u32 type)
+{
+    std::stringstream ss;
+    ss << SymbolTable::prefix(type) << "_" << std::hex << address;
+    return ss.str();
+}
+
+std::string SymbolTable::name(address_t address, const std::string &s, u32 type)
+{
+    if(s.empty())
+        return SymbolTable::name(address, type);
+
+    std::stringstream ss;
+    ss << SymbolTable::prefix(type) << "_" << s << "_" << std::hex << address;
+    return ss.str();
+}
+
 void SymbolTable::serializeTo(std::fstream &fs)
 {
     Serializer::serializeMap<address_t, SymbolPtr>(fs, m_byaddress, [&](address_t k, const SymbolPtr& v) {
@@ -103,6 +120,22 @@ void SymbolTable::deserializeFrom(std::fstream &fs)
     });
 
     this->deserialized.removeLast();
+}
+
+std::string SymbolTable::prefix(u32 type)
+{
+    if(type & SymbolTypes::Pointer)
+        return "ptr";
+    if(type & SymbolTypes::WideStringMask)
+        return "wstr";
+    if(type & SymbolTypes::StringMask)
+        return "str";
+    else if(type & SymbolTypes::FunctionMask)
+        return "sub";
+    else if(type & SymbolTypes::Code)
+        return "loc";
+
+    return "data";
 }
 
 void SymbolTable::serializeSymbol(std::fstream &fs, const SymbolPtr &value)

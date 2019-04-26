@@ -1,5 +1,4 @@
-#ifndef LISTINGDOCUMENT_H
-#define LISTINGDOCUMENT_H
+#pragma once
 
 #include <unordered_set>
 #include <algorithm>
@@ -273,5 +272,3 @@ using document_s_lock = s_locked_safe_ptr<ListingDocument>;
 using document_x_lock = x_locked_safe_ptr<ListingDocument>;
 
 } // namespace REDasm
-
-#endif // LISTINGDOCUMENT_H

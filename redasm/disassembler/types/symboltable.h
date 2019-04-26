@@ -1,5 +1,4 @@
-#ifndef SYMBOLTABLE_H
-#define SYMBOLTABLE_H
+#pragma once
 
 #include <unordered_map>
 #include "../../support/serializer.h"
@@ -74,10 +73,13 @@ class SymbolTable: public Serializer::Serializable
         void clear();
 
     public:
+        static std::string name(address_t address, u32 type);
+        static std::string name(address_t address, const std::string& s, u32 type);
         virtual void serializeTo(std::fstream& fs);
         virtual void deserializeFrom(std::fstream& fs);
 
     private:
+        static std::string prefix(u32 type);
         void serializeSymbol(std::fstream& fs, const SymbolPtr& value);
         void deserializeSymbol(std::fstream& fs, SymbolPtr& value);
         void bindName(const Symbol *symbol);
@@ -88,5 +90,3 @@ class SymbolTable: public Serializer::Serializable
 };
 
 }
-
-#endif // SYMBOLTABLE_H

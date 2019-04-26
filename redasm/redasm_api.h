@@ -1,5 +1,4 @@
-#ifndef REDASM_API_H
-#define REDASM_API_H
+#pragma once
 
 #include <memory>
 #include <functional>
@@ -317,5 +316,3 @@ typedef std::deque<Operand> OperandList;
 typedef std::deque<Segment> SegmentList;
 
 } // namespace REDasm
-
-#endif // REDASM_API_H

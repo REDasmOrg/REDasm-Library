@@ -1,5 +1,4 @@
-#ifndef PE_IMPORTS_H
-#define PE_IMPORTS_H
+#pragma once
 
 #include <unordered_map>
 #include <string>
@@ -62,5 +61,3 @@ template<int b> bool PEImports::importName(const std::string &dllname, u16 ordin
 }
 
 } // namespace REDasm
-
-#endif // PE_IMPORTS_H

@@ -1,5 +1,4 @@
-#ifndef PE_RESOURCES_H
-#define PE_RESOURCES_H
+#pragma once
 
 #include "pe_constants.h"
 #include "pe_header.h"
@@ -72,5 +71,3 @@ template<typename T1, typename T2> T1* PEResources::data(const PEResources::Reso
 }
 
 } // namespace REDasm
-
-#endif // PE_RESOURCES_H

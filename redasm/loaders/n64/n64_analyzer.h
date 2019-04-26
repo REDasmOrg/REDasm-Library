@@ -1,5 +1,4 @@
-#ifndef N64_ANALYZER_H
-#define N64_ANALYZER_H
+#pragma once
 
 #include "../../analyzer/analyzer.h"
 
@@ -13,5 +12,3 @@ class N64Analyzer : public Analyzer
 };
 
 } // namespace REDasm
-
-#endif // N64_ANALYZER_H

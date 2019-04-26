@@ -1,5 +1,4 @@
-#ifndef GBALOADER_H
-#define GBALOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -52,6 +51,4 @@ class GbaLoader: public LoaderPluginT<GbaRomHeader>
 
 DECLARE_LOADER_PLUGIN(GbaLoader, gbarom)
 
-}
-
-#endif // GBALOADER_H
+} // namespace REDasm

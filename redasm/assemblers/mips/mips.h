@@ -1,5 +1,4 @@
-#ifndef MIPS_H
-#define MIPS_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 #include "mips_printer.h"
@@ -59,6 +58,4 @@ DECLARE_ASSEMBLER_PLUGIN(MIPSMicroBEAssembler, mipsmicrobe, 32)
 
 } // namespace REDasm
 
-#include "mips_impl.h"
-
-#endif // MIPS_H
+#include "mips.cpp"

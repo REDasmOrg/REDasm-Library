@@ -1,5 +1,4 @@
-#ifndef AVR8_H
-#define AVR8_H
+#pragma once
 
 // http://roncella.iet.unipi.it/Didattica/Corsi/Elettronica/Risorse/Atmel-0856-AVR-Instruction-Set-Manual.pdf
 // Based on: https://github.com/vsergeev/vavrdisasm
@@ -34,5 +33,3 @@ class AVR8Assembler: public AssemblerPlugin
 DECLARE_ASSEMBLER_PLUGIN(AVR8Assembler, avr8, 16)
 
 } // namespace REDasm
-
-#endif // AVR8_H

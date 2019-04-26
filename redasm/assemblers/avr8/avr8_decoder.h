@@ -1,5 +1,4 @@
-#ifndef AVR8_DECODER_H
-#define AVR8_DECODER_H
+#pragma once
 
 #include <forward_list>
 #include "../../redasm.h"
@@ -31,5 +30,3 @@ class AVR8Decoder
 };
 
 } // namespace REDasm
-
-#endif // AVR8_DECODER_H

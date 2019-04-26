@@ -1,5 +1,4 @@
-#ifndef LISTINGRENDERER_H
-#define LISTINGRENDERER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 #include "listingdocument.h"
@@ -130,5 +129,3 @@ class ListingRenderer
 };
 
 } // namespace REDasm
-
-#endif // LISTINGRENDERER_H

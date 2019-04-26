@@ -1,5 +1,4 @@
-#ifndef STATEMACHINE_H
-#define STATEMACHINE_H
+#pragma once
 
 #include <unordered_map>
 #include <unordered_set>
@@ -71,5 +70,3 @@ class StateMachine
 };
 
 } // namespace REDasm
-
-#endif // STATEMACHINE_H

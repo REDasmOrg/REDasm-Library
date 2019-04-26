@@ -1,5 +1,4 @@
-#ifndef DOTNET_READER_H
-#define DOTNET_READER_H
+#pragma once
 
 #include "dotnet_header.h"
 #include "dotnet_tables.h"
@@ -32,5 +31,3 @@ class DotNetReader
 };
 
 } // namespace REDasm
-
-#endif // DOTNETREADER_H

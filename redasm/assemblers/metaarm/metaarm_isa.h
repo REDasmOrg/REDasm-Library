@@ -1,5 +1,4 @@
-#ifndef METAARM_ISA_H
-#define METAARM_ISA_H
+#pragma once
 
 #include <list>
 #include "../../types/buffer/bufferview.h"
@@ -24,5 +23,3 @@ class MetaARMAssemblerISA
 };
 
 } // namespace REDasm
-
-#endif // METAARM_ISA_H

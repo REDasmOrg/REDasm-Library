@@ -1,5 +1,4 @@
-#ifndef XBELOADER_H
-#define XBELOADER_H
+#pragma once
 
 // Documentation: www.caustik.com/cxbx/download/xbe.htm
 
@@ -34,5 +33,3 @@ template<typename T> T* XbeLoader::memoryoffset(u32 memaddress) const { return t
 DECLARE_LOADER_PLUGIN(XbeLoader, xbe)
 
 } // namespace REDasm
-
-#endif // XBELOADER_H

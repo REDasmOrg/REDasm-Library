@@ -1,5 +1,4 @@
-#ifndef NUMERIC_TYPE_H
-#define NUMERIC_TYPE_H
+#pragma once
 
 #include <type_traits>
 #include <cstddef>
@@ -57,5 +56,3 @@ template<typename T, endianness_t endianness> struct numeric_type
 static_assert(std::is_trivial< numeric_type<size_t, Endianness::LittleEndian> >::value, "numeric_type<T> must be trivial");
 
 } // namespace REDasm
-
-#endif // NUMERIC_TYPE_H

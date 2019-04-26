@@ -1,5 +1,4 @@
-#ifndef LINEARSWEEP_H
-#define LINEARSWEEP_H
+#pragma once
 
 #include "algorithm.h"
 
@@ -15,5 +14,3 @@ class LinearSweepAlgorithm: public AssemblerAlgorithm
 };
 
 } // namespace REDasm
-
-#endif // LINEARSWEEP_H

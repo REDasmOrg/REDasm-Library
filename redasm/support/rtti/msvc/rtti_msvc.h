@@ -1,5 +1,4 @@
-#ifndef RTTIMSVC_H
-#define RTTIMSVC_H
+#pragma once
 
 #include "../../../types/buffer/bufferview.h"
 #include "../../../plugins/loader.h"
@@ -60,5 +59,3 @@ template<typename T> class RTTIMsvc
 } // namespace REDasm
 
 #include "rtti_msvc_impl.h"
-
-#endif // RTTIMSVC_H

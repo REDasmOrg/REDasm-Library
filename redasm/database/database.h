@@ -1,5 +1,4 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#pragma once
 
 // struct RDBFile
 // {
@@ -47,5 +46,3 @@ class Database
 };
 
 } // namespace REDasm
-
-#endif // DATABASE_H

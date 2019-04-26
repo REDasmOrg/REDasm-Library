@@ -1,5 +1,4 @@
-#ifndef EMULATOR_BASE_H
-#define EMULATOR_BASE_H
+#pragma once
 
 #include <unordered_map>
 #include <unordered_set>
@@ -52,6 +51,4 @@ template<typename T> class EmulatorBase: public Emulator
 
 } // namespace REDasm
 
-#include "emulator_base_impl.h"
-
-#endif // EMULATOR_BASE_H
+#include "emulator_base.cpp"

@@ -1,5 +1,4 @@
-#ifndef PE_DEBUG_H
-#define PE_DEBUG_H
+#pragma once
 
 #include "../../redasm.h"
 #include "pe_common.h"
@@ -27,5 +26,3 @@ struct CvInfoPDB70
 };
 
 } // namespace REDasm
-
-#endif // PE_DEBUG_H

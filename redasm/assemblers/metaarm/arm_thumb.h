@@ -1,5 +1,4 @@
-#ifndef ARM_THUMB_H
-#define ARM_THUMB_H
+#pragma once
 
 #include "arm_common.h"
 
@@ -17,5 +16,3 @@ class ARMThumbAssembler : public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>
 DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb, 16)
 
 } // namespace REDasm
-
-#endif // ARM_THUMB_H

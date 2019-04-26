@@ -1,5 +1,4 @@
-#ifndef PLUGINS_H
-#define PLUGINS_H
+#pragma once
 
 #include <forward_list>
 #include <string>
@@ -49,5 +48,3 @@ void setProgressCallback(const Context_ProgressCallback &pcb);
 void init(const ContextSettings &settings);
 
 }
-
-#endif // PLUGINS_H

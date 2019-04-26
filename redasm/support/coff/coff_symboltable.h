@@ -1,5 +1,4 @@
-#ifndef COFF_SYMBOLTABLE_H
-#define COFF_SYMBOLTABLE_H
+#pragma once
 
 // http://wiki.osdev.org/COFF#Symbol_Table
 
@@ -36,5 +35,3 @@ const COFF_Entry* getSymbolAt(const u8* symdata, u64 count, u32 idx);
 
 } // namespace COFF
 } // namespace REDasm
-
-#endif // COFF_SYMBOLTABLE_H

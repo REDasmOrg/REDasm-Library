@@ -1,5 +1,4 @@
-#ifndef SERIALIZER_H
-#define SERIALIZER_H
+#pragma once
 
 #include <unordered_map>
 #include <functional>
@@ -85,5 +84,3 @@ bool checkSignature(std::fstream& fs, const std::string &signature);
 
 } // namespace Serializer
 } // namespace REDasm
-
-#endif // SERIALIZER_H

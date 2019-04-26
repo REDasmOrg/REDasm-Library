@@ -1,5 +1,4 @@
-#ifndef DEMANGLER_H
-#define DEMANGLER_H
+#pragma once
 
 #include <string>
 #include <typeinfo>
@@ -15,5 +14,3 @@ template<typename T> std::string typeName() { return demangled(typeid(T).name())
 
 } // namespace Demangler
 } // namespace REDasm
-
-#endif // DEMANGLER_H

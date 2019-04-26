@@ -1,5 +1,4 @@
-#ifndef JOBSPOOL_H
-#define JOBSPOOL_H
+#pragma once
 
 #include <list>
 #include "../../redasm_api.h"
@@ -35,5 +34,3 @@ class JobsPool
 };
 
 } // namespace REDasm
-
-#endif // JOBSPOOL_H

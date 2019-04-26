@@ -1,5 +1,4 @@
-#ifndef ENDIANNESS_BASE_H
-#define ENDIANNESS_BASE_H
+#pragma once
 
 #if _MSC_VER
     #pragma warning(disable: 4309)
@@ -35,5 +34,3 @@ template<typename T> T swap(T v) { u8* p = reinterpret_cast<u8*>(&v); std::rever
 
 } // namespace Endianness
 } // namespace REDasm
-
-#endif // ENDIANNESS_BASE_H

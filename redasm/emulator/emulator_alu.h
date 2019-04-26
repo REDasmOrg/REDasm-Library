@@ -1,5 +1,4 @@
-#ifndef EMULATOR_ALU_H
-#define EMULATOR_ALU_H
+#pragma once
 
 #include "emulator_base.h"
 
@@ -32,6 +31,4 @@ template<typename T> class EmulatorALU: public EmulatorBase<T>
 
 } // namespace REDasm
 
-#include "emulator_alu_impl.h"
-
-#endif // EMULATOR_ALU_H
+#include "emulator_alu.cpp"

@@ -1,5 +1,4 @@
-#ifndef BINARYLOADER_H
-#define BINARYLOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -23,5 +22,3 @@ class BinaryLoader : public LoaderPluginB
 DECLARE_LOADER_PLUGIN_FLAGS(BinaryLoader, binary, LoaderFlags::Binary)
 
 } // namespace REDasm
-
-#endif // BINARYLOADER_H

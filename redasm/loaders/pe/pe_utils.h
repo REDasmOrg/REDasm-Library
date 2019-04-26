@@ -1,5 +1,4 @@
-#ifndef PE_UTILS_H
-#define PE_UTILS_H
+#pragma once
 
 #include <string>
 #include "../../redasm.h"
@@ -19,5 +18,3 @@ class PEUtils
 };
 
 } // namespace REDasm
-
-#endif // PE_UTILS_H

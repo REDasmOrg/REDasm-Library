@@ -1,5 +1,4 @@
-#ifndef PE_CONSTANTS_H
-#define PE_CONSTANTS_H
+#pragma once
 
 // https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format
 
@@ -176,5 +175,3 @@
 #define UNW_FLAG_CHAININFO                                     4
 
 #define PE_SECURITY_COOKIE_SYMBOL                             "__security_cookie"
-
-#endif // PE_CONSTANTS_H

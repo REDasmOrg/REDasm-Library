@@ -1,5 +1,4 @@
-#ifndef PSXEXE_ANALYZER_H
-#define PSXEXE_ANALYZER_H
+#pragma once
 
 #include "../../analyzer/analyzer.h"
 
@@ -16,5 +15,3 @@ class PsxExeAnalyzer: public Analyzer
 };
 
 }
-
-#endif // PSXEXE_ANALYZER_H

@@ -1,5 +1,4 @@
-#ifndef MSCOFF_LOADER_H
-#define MSCOFF_LOADER_H
+#pragma once
 
 // https://docs.microsoft.com/en-us/windows/desktop/Debug/pe-format#archive-library-file-format
 
@@ -56,5 +55,3 @@ template<typename T> const T* MSCOFFLoader::getMemberData(const ImageArchiveMemb
 DECLARE_LOADER_PLUGIN(MSCOFFLoader, mscoff)
 
 } // namespace REDasm
-
-#endif // MSCOFF_LOADER_H

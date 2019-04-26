@@ -1,5 +1,4 @@
-#ifndef CHIP8_PRINTER_H
-#define CHIP8_PRINTER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 
@@ -13,5 +12,3 @@ class CHIP8Printer : public Printer
 };
 
 } // namespace REDasm
-
-#endif // CHIP8_PRINTER_H

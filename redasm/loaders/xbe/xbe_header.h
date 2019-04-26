@@ -1,5 +1,4 @@
-#ifndef XBE_HEADER_H
-#define XBE_HEADER_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -81,5 +80,3 @@ struct XbeSectionHeader
 };
 
 } // namespace REDasm
-
-#endif // XBE_HEADER_H

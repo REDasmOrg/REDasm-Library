@@ -1,5 +1,4 @@
-#ifndef PRINTER_H
-#define PRINTER_H
+#pragma once
 
 #include <memory>
 #include <capstone.h>
@@ -57,5 +56,3 @@ class CapstonePrinter: public Printer
 typedef std::unique_ptr<Printer> PrinterPtr;
 
 }
-
-#endif // PRINTER_H

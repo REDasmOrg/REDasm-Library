@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERAPI_H
-#define DISASSEMBLERAPI_H
+#pragma once
 
 #define MIN_STRING       4
 
@@ -68,5 +67,3 @@ class DisassemblerAPI
 typedef std::shared_ptr<DisassemblerAPI> DisassemblerPtr;
 
 } // namespace REDasm
-
-#endif // DISASSEMBLERAPI_H

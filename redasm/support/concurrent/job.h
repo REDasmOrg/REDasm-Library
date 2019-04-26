@@ -1,5 +1,4 @@
-#ifndef JOB_H
-#define JOB_H
+#pragma once
 
 #include <condition_variable>
 #include <functional>
@@ -54,5 +53,3 @@ class Job
 };
 
 } // namespace REDasm
-
-#endif // JOB_H

@@ -1,5 +1,4 @@
-#ifndef DEXLOADER_H
-#define DEXLOADER_H
+#pragma once
 
 // https://source.android.com/devices/tech/dalvik/dex-format
 
@@ -74,5 +73,3 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
 DECLARE_LOADER_PLUGIN(DEXLoader, dex)
 
 } // namespace REDasm
-
-#endif // DEXLOADER_H

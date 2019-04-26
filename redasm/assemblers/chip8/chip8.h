@@ -1,5 +1,4 @@
-#ifndef CHIP8_ASSEMBLER_H
-#define CHIP8_ASSEMBLER_H
+#pragma once
 
 /*
  * References:
@@ -53,5 +52,3 @@ class CHIP8Assembler : public AssemblerPlugin
 DECLARE_ASSEMBLER_PLUGIN(CHIP8Assembler, chip8, 16)
 
 } // namespace REDasm
-
-#endif // CHIP8_ASSEMBLER_H

@@ -1,5 +1,4 @@
-#ifndef SYMBOLIZE_H
-#define SYMBOLIZE_H
+#pragma once
 
 #include <type_traits>
 #include "../../redasm/disassembler/listing/listingdocument.h"
@@ -77,5 +76,3 @@ struct StructVisitor {
 template<typename T> static inline void symbolize(DisassemblerAPI* disassembler, address_t address, const std::string& name) { StructVisitor::symbolize<T>(disassembler, address, name); }
 
 } // namespace REDasm
-
-#endif // SYMBOLIZE_H

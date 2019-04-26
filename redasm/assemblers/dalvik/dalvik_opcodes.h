@@ -1,5 +1,4 @@
-#ifndef DALVIK_OPCODES_H
-#define DALVIK_OPCODES_H
+#pragma once
 
 // https://android.googlesource.com/platform/libcore-snapshot/+/ics-mr1/dalvik/src/main/java/dalvik/bytecode/Opcodes.java
 
@@ -270,5 +269,3 @@ enum: u16 {
 
 } // namespace DalvikOpcodes
 } // namespace REDasm
-
-#endif // DALVIK_OPCODES_H

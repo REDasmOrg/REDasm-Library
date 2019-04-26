@@ -1,5 +1,4 @@
-#ifndef ORDINALS_H
-#define ORDINALS_H
+#pragma once
 
 #include "../redasm.h"
 
@@ -11,5 +10,3 @@ bool loadordinals(const std::string& ordinalfile, OrdinalsMap& ordinals);
 std::string ordinal(const OrdinalsMap& ordinals, u64 ordinal, const std::string& fallbackprefix = std::string());
 
 } // namespace REDasm
-
-#endif // ORDINALS_H

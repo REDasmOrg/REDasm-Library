@@ -1,5 +1,4 @@
-#ifndef ASSEMBLER_H
-#define ASSEMBLER_H
+#pragma once
 
 #include <functional>
 #include <capstone.h>
@@ -129,5 +128,3 @@ struct AssemblerPlugin_Entry
 };
 
 }
-
-#endif // ASSEMBLER_H

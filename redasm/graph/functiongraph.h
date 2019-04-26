@@ -1,5 +1,4 @@
-﻿#ifndef FUNCTIONGRAPH_H
-#define FUNCTIONGRAPH_H
+﻿#pragma once
 
 #include <queue>
 #include "../disassembler/disassemblerapi.h"
@@ -63,5 +62,3 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
 
 } // namespace Graphing
 } // namespace REDasm
-
-#endif // FUNCTIONGRAPH_H

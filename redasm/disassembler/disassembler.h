@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLER_H
-#define DISASSEMBLER_H
+#pragma once
 
 #include "../plugins/plugins.h"
 #include "../support/concurrent/jobspool.h"
@@ -40,5 +39,3 @@ class Disassembler: public DisassemblerBase
 };
 
 }
-
-#endif // DISASSEMBLER_H

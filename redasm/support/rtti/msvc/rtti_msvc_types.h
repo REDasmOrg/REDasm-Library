@@ -1,5 +1,4 @@
-#ifndef RTTI_MSVC_TYPES_H
-#define RTTI_MSVC_TYPES_H
+#pragma once
 
 #include "../../../types/base_types.h"
 
@@ -39,5 +38,3 @@ VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u32>, pVFTable, spare, name);
 VISITABLE_STRUCT(REDasm::RTTI::RTTITypeDescriptorT<u64>, pVFTable, spare, name);
 
 VISITABLE_STRUCT(REDasm::RTTI::RTTICompleteObjectLocator, signature, offset, cdOffset, pTypeDescriptor, pClassHierarchyDescriptor);
-
-#endif // RTTI_MSVC_TYPES_H

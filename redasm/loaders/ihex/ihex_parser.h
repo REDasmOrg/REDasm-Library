@@ -1,5 +1,4 @@
-#ifndef IHEX_PARSER_H
-#define IHEX_PARSER_H
+#pragma once
 
 #include <vector>
 #include <deque>
@@ -55,5 +54,3 @@ template<typename T> bool IHexParser::readHex(const std::string& hexstring, T* r
 }
 
 } // namespace REDasm
-
-#endif // IHEX_PARSER_H

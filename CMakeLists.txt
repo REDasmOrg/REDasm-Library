@@ -11,6 +11,13 @@ set(DEPENDS_HEADERS_DIR ${DEPENDS_SRC_DIR}/include)
 
 ### Dependencies
 
+function(disable_warnings_for HEADERS SOURCES)
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        set_source_files_properties(${HEADERS} PROPERTIES COMPILE_OPTIONS -w)
+        set_source_files_properties(${SOURCES} PROPERTIES COMPILE_OPTIONS -w)
+    endif()
+endfunction()
+
 # Single Headers
 set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}
                            ${DEPENDS_HEADERS_DIR}/json
@@ -21,11 +28,13 @@ set(DEPENDS_SINGLE_HEADERS ${DEPENDS_HEADERS_DIR}
 # MiniZ
 set(MINIZ_HEADERS ${DEPENDS_SRC_DIR}/miniz/miniz.h)
 set(MINIZ_SOURCES ${DEPENDS_SRC_DIR}/miniz/miniz.c)
+disable_warnings_for("${MINIZ_HEADERS}" "${MINIZ_SOURCES}")
 
 # Binutils Demangler (libiberty)
-set(BINUTILS_DEMANGLER_DIR ${DEPENDS_HEADERS_DIR}/binutils_demangler)
+set(BINUTILS_DEMANGLER_DIR     ${DEPENDS_HEADERS_DIR}/binutils_demangler)
 set(BINUTILS_DEMANGLER_HEADERS ${BINUTILS_DEMANGLER_DIR}/demangle.h ${BINUTILS_DEMANGLER_DIR}/cp-demangle.h)
 set(BINUTILS_DEMANGLER_SOURCES ${BINUTILS_DEMANGLER_DIR}/cp-demangle.c)
+disable_warnings_for("${BINUTILS_DEMANGLER_HEADERS}" "${BINUTILS_DEMANGLER_SOURCES}")
 
 # Capstone (Override Settings)
 set(CAPSTONE_SRC ${DEPENDS_SRC_DIR}/capstone)
@@ -122,13 +131,16 @@ endif()
 include(GenerateExportHeader)
 generate_export_header(${PROJECT_NAME})
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
                            ${CAPSTONE_INCLUDE}
                            ${DEPENDS_SINGLE_HEADERS}
-                           ${OGDF_INCLUDE}
                            ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} capstone-static)
+
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wconversion -Wsign-conversion)
+endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread)

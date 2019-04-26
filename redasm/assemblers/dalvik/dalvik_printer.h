@@ -1,5 +1,4 @@
-#ifndef DALVIK_PRINTER_H
-#define DALVIK_PRINTER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 #include "../../loaders/dex/dex_header.h"
@@ -18,5 +17,3 @@ class DalvikPrinter : public Printer
 };
 
 } // namespace REDasm
-
-#endif // DALVIK_PRINTER_H

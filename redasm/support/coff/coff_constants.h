@@ -1,5 +1,4 @@
-#ifndef COFF_CONSTANTS_H
-#define COFF_CONSTANTS_H
+#pragma once
 
 #define E_SYMNMLEN  8   // Number of characters in a symbol name
 #define E_FILNMLEN 14   // Number of characters in a file name
@@ -42,5 +41,3 @@
 #define IMAGE_SYM_DTYPE_POINTER  1
 #define IMAGE_SYM_DTYPE_FUNCTION 2
 #define IMAGE_SYM_DTYPE_ARRAY    3
-
-#endif // COFF_CONSTANTS_H

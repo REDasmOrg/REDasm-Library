@@ -1,5 +1,4 @@
-#ifndef PE_COMMON_H
-#define PE_COMMON_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -17,5 +16,3 @@ typedef u32 LCID;
 } // namespace REDasm
 
 VISITABLE_STRUCT(REDasm::GUID, data1, data2, data3, data4);
-
-#endif // PE_COMMON_H

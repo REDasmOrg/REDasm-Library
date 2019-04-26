@@ -1,5 +1,4 @@
-#ifndef DALVIK_H
-#define DALVIK_H
+#pragma once
 
 // http://pallergabor.uw.hu/androidblog/dalvik_opcodes.html
 #include "../../plugins/plugins.h"
@@ -82,5 +81,3 @@ class DalvikAssembler : public AssemblerPlugin
 DECLARE_ASSEMBLER_PLUGIN(DalvikAssembler, dalvik, 32)
 
 } // namespace REDasm
-
-#endif // DALVIK_H

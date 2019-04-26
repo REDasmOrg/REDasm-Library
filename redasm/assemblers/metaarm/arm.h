@@ -1,5 +1,4 @@
-#ifndef ARM_H
-#define ARM_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 #include "arm_common.h"
@@ -23,5 +22,3 @@ class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
 DECLARE_ASSEMBLER_PLUGIN(ARMAssembler, arm, 32)
 
 } // namespace REDasm
-
-#endif // ARM_H

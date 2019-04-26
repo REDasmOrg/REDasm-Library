@@ -1,5 +1,4 @@
-#ifndef METAARM_EMULATOR_H
-#define METAARM_EMULATOR_H
+#pragma once
 
 #include "../../emulator/emulator_type.h"
 
@@ -22,5 +21,3 @@ class MetaARMEmulator: public EmulatorT<u32>
 };
 
 } // namespace REDasm
-
-#endif // METAARM_EMULATOR_H

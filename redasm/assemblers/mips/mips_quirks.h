@@ -1,5 +1,4 @@
-#ifndef MIPS_QUIRKS_H
-#define MIPS_QUIRKS_H
+#pragma once
 
 #include <unordered_map>
 #include <functional>
@@ -37,5 +36,3 @@ class MIPSQuirks
 };
 
 }
-
-#endif // MIPS_QUIRKS_H

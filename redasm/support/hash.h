@@ -1,5 +1,4 @@
-#ifndef HASH_H
-#define HASH_H
+#pragma once
 
 #include <vector>
 #include "../types/base_types.h"
@@ -32,5 +31,3 @@ template<typename T, typename A> u16 crc16(const std::vector<T, A>& v) { return 
 
 } // namespace Hash
 } // namespace REDasm
-
-#endif // HASH_H

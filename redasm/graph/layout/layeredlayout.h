@@ -1,5 +1,4 @@
-#ifndef LAYEREDLAYOUT_H
-#define LAYEREDLAYOUT_H
+#pragma once
 
 // Sugiyama Layout Theory
 // - https://drive.google.com/file/d/1uAAch1SxLLVBJ53ZX-zX4AnwzwhcXcEM/view
@@ -111,5 +110,3 @@ class LayeredLayout: public AbstractLayout
 
 } // namespace Graphing
 } // namespace REDasm
-
-#endif // LAYEREDLAYOUT_H

@@ -1,5 +1,4 @@
-#ifndef PEDOTNET_H
-#define PEDOTNET_H
+#pragma once
 
 #define DOTNET_INDEX(i) (i - 1)
 
@@ -79,5 +78,3 @@ class PeDotNet
 };
 
 } // namespace REDasm
-
-#endif // PEDOTNET_H

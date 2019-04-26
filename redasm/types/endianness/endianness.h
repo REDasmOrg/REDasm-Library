@@ -1,5 +1,4 @@
-#ifndef REDASM_ENDIANNESS_H
-#define REDASM_ENDIANNESS_H
+#pragma once
 
 #include <algorithm>
 #include <type_traits>
@@ -103,5 +102,3 @@ template<typename T, typename R = typename Endianness::of<T>::base > constexpr R
 }
 
 } // namespace REDasm
-
-#endif // ENDIANNESS_H

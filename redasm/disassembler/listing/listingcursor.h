@@ -1,5 +1,4 @@
-#ifndef LISTINGCURSOR_H
-#define LISTINGCURSOR_H
+#pragma once
 
 #include <stack>
 #include "../../redasm.h"
@@ -53,5 +52,3 @@ class ListingCursor
 };
 
 } // namespace REDasm
-
-#endif // LISTINGCURSOR_H

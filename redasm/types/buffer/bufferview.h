@@ -1,5 +1,4 @@
-#ifndef BUFFERVIEW_H
-#define BUFFERVIEW_H
+#pragma once
 
 #include <type_traits>
 #include <stdexcept>
@@ -214,5 +213,3 @@ template<typename T, typename > BufferView &BufferView::operator =(T rhs)
 using BufferView = Buffer::BufferView;
 
 } // namespace REDasm
-
-#endif // BUFFERVIEW_H

@@ -1,5 +1,4 @@
-#ifndef REFERENCETABLE_H
-#define REFERENCETABLE_H
+#pragma once
 
 #include "../../redasm.h"
 #include "../../support/serializer.h"
@@ -43,5 +42,3 @@ class ReferenceTable: public Serializer::Serializable
 };
 
 }
-
-#endif // REFERENCETABLE_H

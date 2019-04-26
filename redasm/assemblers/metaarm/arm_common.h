@@ -1,5 +1,4 @@
-#ifndef ARM_COMMON_H
-#define ARM_COMMON_H
+#pragma once
 
 #define ARM_REGISTER(reg) ((reg == ARM_REG_INVALID) ? REGISTER_INVALID : reg)
 
@@ -38,6 +37,4 @@ template<cs_arch arch, size_t mode> class ARMCommonAssembler: public CapstoneAss
 
 } // namespace REDasm
 
-#include "arm_common_impl.h"
-
-#endif // ARM_COMMON_H
+#include "arm_common.cpp"

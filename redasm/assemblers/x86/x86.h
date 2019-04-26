@@ -1,5 +1,4 @@
-#ifndef X86_H
-#define X86_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 #include "x86_printer.h"
@@ -38,6 +37,4 @@ DECLARE_ASSEMBLER_PLUGIN(X86_64Assembler, x86_64, 64)
 
 } // namespace REDasm
 
-#include "x86_impl.h"
-
-#endif // X86_H
+#include "x86.cpp"

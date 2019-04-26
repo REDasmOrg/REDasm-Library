@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <type_traits>
 #include <sstream>
@@ -143,5 +142,3 @@ template<typename T> u64 countbits_r(T val) {
 inline std::string uniquename(const std::string& s, address_t address) { return s + "_"  + REDasm::hex(address); }
 
 }
-
-#endif // UTILS_H

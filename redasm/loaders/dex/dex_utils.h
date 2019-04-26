@@ -1,5 +1,4 @@
-#ifndef DEX_UTILS_H
-#define DEX_UTILS_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -14,5 +13,3 @@ class DEXUtils
 };
 
 } // namespace REDasm
-
-#endif // DEX_UTILS_H

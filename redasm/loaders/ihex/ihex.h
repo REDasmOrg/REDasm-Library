@@ -1,5 +1,4 @@
-#ifndef IHEX_LOADER_H
-#define IHEX_LOADER_H
+#pragma once
 
 // https://en.wikipedia.org/wiki/Intel_HEX
 
@@ -20,5 +19,3 @@ class IHexLoader: public LoaderPluginB
 DECLARE_LOADER_PLUGIN_FLAGS(IHexLoader, ihex, LoaderFlags::CustomAssembler)
 
 } // namespace REDasm
-
-#endif // IHEX_LOADER_H

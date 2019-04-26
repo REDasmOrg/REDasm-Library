@@ -1,5 +1,4 @@
-#ifndef METAARM_ALGORITHM_H
-#define METAARM_ALGORITHM_H
+#pragma once
 
 #include "../../plugins/assembler/algorithm/controlflow.h"
 
@@ -24,5 +23,3 @@ class MetaARMAlgorithm : public ControlFlowAlgorithm
 };
 
 } // namespace REDasm
-
-#endif // METAARM_ALGORITHM_H

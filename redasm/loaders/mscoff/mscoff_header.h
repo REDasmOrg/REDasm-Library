@@ -1,5 +1,4 @@
-#ifndef MSCOFF_HEADER_H
-#define MSCOFF_HEADER_H
+#pragma once
 
 #define MSCOFF_SIGNATURE       "!<arch>\n"
 #define MSCOFF_SIGNATURE_SIZE  8
@@ -40,5 +39,3 @@ struct ImageRelocation {
 };
 
 } // namespace REDasm
-
-#endif // ARCHIVIER_HEADER_H

@@ -1,5 +1,4 @@
-#ifndef REDASM_CONTEXT_H
-#define REDASM_CONTEXT_H
+#pragma once
 
 #include <libredasm_export.h>
 #include <functional>
@@ -43,5 +42,3 @@ struct Context
 #define r_ui Context::settings.ui
 
 } // namespace REDasm
-
-#endif // REDASM_CONTEXT_H

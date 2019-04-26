@@ -1,5 +1,4 @@
-#ifndef VB_ANALYZER_H
-#define VB_ANALYZER_H
+#pragma once
 
 #include "../pe_analyzer.h"
 #include "vb_header.h"
@@ -27,5 +26,3 @@ class VBAnalyzer : public PEAnalyzer
 };
 
 } // namespace REDasm
-
-#endif // VB_ANALYZER_H

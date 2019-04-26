@@ -1,5 +1,4 @@
-#ifndef CACHEMAP_H
-#define CACHEMAP_H
+#pragma once
 
 #define CACHE_DEFAULT  "cachemap"
 #define CACHE_FILE_EXT ".db"
@@ -79,5 +78,3 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
 } // namespace REDasm
 
 #include "cachemap_impl.h"
-
-#endif // CACHEMAP_H

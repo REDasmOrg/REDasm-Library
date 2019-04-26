@@ -1,5 +1,4 @@
-#ifndef DOTNET_HEADER_H
-#define DOTNET_HEADER_H
+#pragma once
 
 /*
  * http://ntcore.com/files/dotnetloader.htm
@@ -86,5 +85,3 @@ struct ImageStreamHeader
 };
 
 } // namespace REDasm
-
-#endif // DOTNET_HEADER_H

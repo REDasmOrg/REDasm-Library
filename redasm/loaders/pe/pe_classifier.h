@@ -1,5 +1,4 @@
-#ifndef PE_CLASSIFIER_H
-#define PE_CLASSIFIER_H
+#pragma once
 
 // https://en.wikipedia.org/wiki/Microsoft_Foundation_Class_Library
 // https://github.com/horsicq/Detect-It-Easy/blob/master/db/PE/Microsoft%20Visual%20Studio.4.sg
@@ -59,5 +58,3 @@ class PEClassifier
 };
 
 } // namespace REDasm
-
-#endif // PE_CLASSIFIER_H

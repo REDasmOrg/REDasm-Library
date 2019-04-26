@@ -1,5 +1,4 @@
-#ifndef BORLAND_TYPES_H
-#define BORLAND_TYPES_H
+#pragma once
 
 #include "../../../redasm.h"
 
@@ -30,5 +29,3 @@ struct PackageInfoHeader
 };
 
 } // namespace REDasm
-
-#endif // BORLAND_TYPES_H

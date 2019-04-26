@@ -1,5 +1,4 @@
-#ifndef CHIP8_LOADER_H
-#define CHIP8_LOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -19,5 +18,3 @@ class CHIP8Loader: public LoaderPluginB
 DECLARE_LOADER_PLUGIN(CHIP8Loader, chip8)
 
 } // namespace REDasm
-
-#endif // CHIP8_LOADER_H

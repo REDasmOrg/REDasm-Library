@@ -1,5 +1,4 @@
-#ifndef VB_HEADER_H
-#define VB_HEADER_H
+#pragma once
 
 #include <visit_struct.hpp>
 #include "../../../redasm.h"
@@ -213,5 +212,3 @@ VISITABLE_STRUCT(REDasm::VBObjectTreeInfo, lpHeapLink, lpObjectTable, dwReserved
 VISITABLE_STRUCT(REDasm::VBPublicObjectDescriptor, lpObjectInfo, dwReserved,
                  lpPublicBytes, lpStaticBytes, lpModulePublic, lpszObjectName,
                  dwMethodCount, lpMethodNames, bStaticVars, fObjectType, dwNull);
-
-#endif // VB_HEADER_H

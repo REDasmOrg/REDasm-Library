@@ -1,5 +1,4 @@
-#ifndef DEX_HEADER_H
-#define DEX_HEADER_H
+#pragma once
 
 #include "../../redasm.h"
 #include "dex_constants.h"
@@ -107,5 +106,3 @@ struct DEXClassData
 };
 
 } // namespace REDasm
-
-#endif // DEX_HEADER_H

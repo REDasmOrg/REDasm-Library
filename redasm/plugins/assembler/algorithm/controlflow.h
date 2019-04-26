@@ -1,5 +1,4 @@
-#ifndef CONTROLFLOW_H
-#define CONTROLFLOW_H
+#pragma once
 
 #include "algorithm.h"
 
@@ -21,5 +20,3 @@ class ControlFlowAlgorithm: public AssemblerAlgorithm
 };
 
 } // namespace REDasm
-
-#endif // CONTROLFLOW_H

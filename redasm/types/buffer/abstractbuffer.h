@@ -1,5 +1,4 @@
-#ifndef ABSTRACTBUFFER_H
-#define ABSTRACTBUFFER_H
+#pragma once
 
 #include <algorithm>
 #include <memory>
@@ -57,5 +56,3 @@ template<typename T, typename BufferType> void swapEndianness(BufferType* buffer
 using AbstractBuffer = Buffer::AbstractBuffer;
 
 } // namespace REDasm
-
-#endif // ABSTRACTBUFFER_H

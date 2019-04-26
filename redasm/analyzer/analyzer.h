@@ -1,5 +1,4 @@
-#ifndef ANALYZER_H
-#define ANALYZER_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -35,5 +34,3 @@ class Analyzer
 };
 
 }
-
-#endif // ANALYZER_H

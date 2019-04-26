@@ -1,5 +1,4 @@
-#ifndef BORLAND_VERSION_H
-#define BORLAND_VERSION_H
+#pragma once
 
 #include "../pe_resources.h"
 #include "borland_types.h"
@@ -24,5 +23,3 @@ class BorlandVersion
 };
 
 } // namespace REDasm
-
-#endif // BORLANDVERSION_H

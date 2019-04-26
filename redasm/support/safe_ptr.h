@@ -1,5 +1,4 @@
-#ifndef SAFE_PTR_H
-#define SAFE_PTR_H
+#pragma once
 
 /*
  * 1 - https://www.codeproject.com/Articles/1183379/We-make-any-object-thread-safe
@@ -94,5 +93,3 @@ template<typename T> s_locked_safe_ptr<T> s_lock_safe_ptr(T& t) { return s_locke
 
 
 } // namespace REDasm
-
-#endif // SAFE_PTR_H

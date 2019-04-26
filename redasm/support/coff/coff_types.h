@@ -1,5 +1,4 @@
-#ifndef COFF_TYPES_H
-#define COFF_TYPES_H
+#pragma once
 
 #include "../../redasm.h"
 #include "coff_constants.h"
@@ -23,5 +22,3 @@ struct COFF_Entry
 
 } // namespace COFF
 } // namespace REDasm
-
-#endif // COFF_TYPES_H

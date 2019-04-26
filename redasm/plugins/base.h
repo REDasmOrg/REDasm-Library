@@ -1,5 +1,4 @@
-#ifndef BASE_H
-#define BASE_H
+#pragma once
 
 #include <functional>
 #include <json.hpp>
@@ -36,5 +35,3 @@ class Plugin
 };
 
 }
-
-#endif // BASE_H

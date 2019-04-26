@@ -1,5 +1,4 @@
-﻿#ifndef PE_ANALYZER_H
-#define PE_ANALYZER_H
+﻿#pragma once
 
 #include "../../analyzer/analyzer.h"
 #include "pe_classifier.h"
@@ -30,6 +29,4 @@ class PEAnalyzer: public Analyzer
         std::forward_list<APIInfo> m_wndprocapi;
 };
 
-}
-
-#endif // PE_ANALYZER_H
+} // namespace REDasm

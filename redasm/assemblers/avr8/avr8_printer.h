@@ -1,5 +1,4 @@
-#ifndef AVR8_PRINTER_H
-#define AVR8_PRINTER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 
@@ -13,5 +12,3 @@ class AVR8Printer: public Printer
 };
 
 } // namespace REDasm
-
-#endif // AVR8_PRINTER_H

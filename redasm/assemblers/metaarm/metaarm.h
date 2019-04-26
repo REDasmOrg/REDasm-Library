@@ -1,5 +1,4 @@
-#ifndef METAARM_H
-#define METAARM_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 #include "arm.h"
@@ -41,5 +40,3 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
 DECLARE_ASSEMBLER_PLUGIN(MetaARMAssembler, metaarm, 32)
 
 } // namespace REDasm
-
-#endif // METAARM_H

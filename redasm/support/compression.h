@@ -1,5 +1,4 @@
-#ifndef COMPRESSION_H
-#define COMPRESSION_H
+#pragma once
 
 #include "../types/buffer/abstractbuffer.h"
 #include <functional>
@@ -27,5 +26,3 @@ class Compression
 };
 
 } // namespace REDasm
-
-#endif // COMPRESSION_H

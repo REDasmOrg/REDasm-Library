@@ -1,5 +1,4 @@
-#ifndef DALVIK_ALGORITHM_H
-#define DALVIK_ALGORITHM_H
+#pragma once
 
 #include "../../plugins/assembler/algorithm/algorithm.h"
 
@@ -49,5 +48,3 @@ class DalvikAlgorithm: public AssemblerAlgorithm
 };
 
 } // namespace REDasm
-
-#endif // DALVIK_ALGORITHM_H

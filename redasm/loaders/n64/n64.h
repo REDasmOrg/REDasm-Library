@@ -1,5 +1,4 @@
-#ifndef N64LOADER_H
-#define N64LOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -77,5 +76,3 @@ class N64Loader: public LoaderPluginT<N64RomHeader>
 DECLARE_LOADER_PLUGIN(N64Loader, n64rom)
 
 }
-
-#endif // N64LOADER_H

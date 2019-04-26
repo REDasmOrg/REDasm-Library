@@ -1,5 +1,4 @@
-#ifndef SIGNATUREDB_H
-#define SIGNATUREDB_H
+#pragma once
 
 #define SDB_VERSION          1
 
@@ -67,5 +66,3 @@ class SignatureDB
 };
 
 } // namespace REDasm
-
-#endif // SIGNATUREDB_H

@@ -1,5 +1,4 @@
-#ifndef REDASM_BASE_TYPES_H
-#define REDASM_BASE_TYPES_H
+#pragma once
 
 #include <visit_struct.hpp>
 #include <cstdint>
@@ -76,6 +75,3 @@ REDASM_UNSIGNED_OF(u64, u64)
 
 typedef REDasm::location_of<offset_t> offset_location;
 typedef REDasm::location_of<address_t> address_location;
-
-
-#endif // REDASM_TYPES_H

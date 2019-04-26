@@ -1,5 +1,4 @@
-#ifndef DOTNET_TABLES_H
-#define DOTNET_TABLES_H
+#pragma once
 
 #include "../../../redasm.h"
 
@@ -60,5 +59,3 @@ struct CorTables
 };
 
 } // namespace REDasm
-
-#endif // DOTNET_TABLES_H

@@ -1,5 +1,4 @@
-#ifndef LOADERPLUGIN_H
-#define LOADERPLUGIN_H
+#pragma once
 
 #include "../disassembler/disassemblerapi.h"
 #include "../disassembler/types/symboltable.h"
@@ -130,5 +129,3 @@ struct LoaderPlugin_Entry
 };
 
 }
-
-#endif // LOADERPLUGIN_H

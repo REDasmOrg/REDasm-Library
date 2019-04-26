@@ -1,5 +1,4 @@
-#ifndef AVR8_OPCODES_H
-#define AVR8_OPCODES_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -167,5 +166,3 @@ enum: u16 {
 
 } // namespace AVR8Opcodes
 } // namespace REDasm
-
-#endif // AVR8_OPCODES_H

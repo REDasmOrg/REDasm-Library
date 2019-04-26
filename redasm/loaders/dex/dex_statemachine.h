@@ -1,5 +1,4 @@
-#ifndef DEX_STATEMACHINE_H
-#define DEX_STATEMACHINE_H
+#pragma once
 
 // https://source.android.com/devices/tech/dalvik/dex-format#debug-info-item
 
@@ -49,5 +48,3 @@ class DEXStateMachine
 };
 
 } // namespace REDasm
-
-#endif // DEX_STATEMACHINE_H

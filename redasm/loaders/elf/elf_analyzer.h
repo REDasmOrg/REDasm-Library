@@ -1,5 +1,4 @@
-#ifndef ELF_ANALYZER_H
-#define ELF_ANALYZER_H
+#pragma once
 
 #include "../../analyzer/analyzer.h"
 
@@ -25,5 +24,3 @@ class ElfAnalyzer: public Analyzer
 };
 
 } // namespace REDasm
-
-#endif // ELF_ANALYZER_H

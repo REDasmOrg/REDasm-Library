@@ -1,5 +1,4 @@
-#ifndef PSXEXELOADER_H
-#define PSXEXELOADER_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -34,5 +33,3 @@ class PsxExeLoader: public LoaderPluginT<PsxExeHeader>
 DECLARE_LOADER_PLUGIN(PsxExeLoader, psxexe)
 
 }
-
-#endif // PSXEXELOADER_H

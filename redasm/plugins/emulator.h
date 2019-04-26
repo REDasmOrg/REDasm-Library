@@ -1,5 +1,4 @@
-#ifndef EMULATOR_H
-#define EMULATOR_H
+#pragma once
 
 #include "../disassembler/disassemblerapi.h"
 #include "../types/buffer/memorybuffer.h"
@@ -42,5 +41,3 @@ class Emulator
 };
 
 } // namespace REDasm
-
-#endif // EMULATOR_H

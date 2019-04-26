@@ -1,5 +1,4 @@
-#ifndef PE_HEADERS_H
-#define PE_HEADERS_H
+#pragma once
 
 #include "../../redasm.h"
 #include "pe_constants.h"
@@ -228,5 +227,3 @@ struct UnwindInfo
 };
 
 } // namespace REDasm
-
-#endif // PE_HEADERS_H

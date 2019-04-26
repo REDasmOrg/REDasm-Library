@@ -1,5 +1,4 @@
-#ifndef ASSEMBLERALGORITHM_H
-#define ASSEMBLERALGORITHM_H
+#pragma once
 
 #include <stack>
 #include <set>
@@ -75,5 +74,3 @@ class AssemblerAlgorithm: public StateMachine
 };
 
 } // namespace REDasm
-
-#endif // ASSEMBLERALGORITHM_H

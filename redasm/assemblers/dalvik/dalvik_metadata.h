@@ -1,5 +1,4 @@
-#ifndef DALVIK_METADATA_H
-#define DALVIK_METADATA_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -12,5 +11,3 @@ enum: u32 { Normal = 0, MethodIndex, TypeIndex, StringIndex, FieldIndex,
 }
 
 } // namespace REDasm
-
-#endif // DALVIK_METADATA_H

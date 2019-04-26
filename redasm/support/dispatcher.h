@@ -1,5 +1,4 @@
-#ifndef DISPATCHER_H
-#define DISPATCHER_H
+#pragma once
 
 #include <unordered_map>
 #include <functional>
@@ -33,5 +32,3 @@ template<typename KEY, typename RET, typename ...ARGS> class ValuedDispatcher: p
 };
 
 template<typename KEY, typename ...ARGS> using Dispatcher = ValuedDispatcher<KEY, void, ARGS...>;
-
-#endif // DISPATCHER_H

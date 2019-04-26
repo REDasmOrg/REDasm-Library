@@ -1,5 +1,4 @@
-#ifndef PELOADER_H
-#define PELOADER_H
+#pragma once
 
 #include <type_traits>
 #include "../../plugins/plugins.h"
@@ -78,6 +77,4 @@ DECLARE_LOADER_PLUGIN(PE64Loader, pe64)
 
 }
 
-#include "pe_impl.h"
-
-#endif // PELOADER_H
+#include "pe.cpp"

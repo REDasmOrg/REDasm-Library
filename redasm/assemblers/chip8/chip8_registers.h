@@ -1,5 +1,4 @@
-#ifndef CHIP8_REGISTERS_H
-#define CHIP8_REGISTERS_H
+#pragma once
 
 #define CHIP8_REG_V0_ID 0x0
 #define CHIP8_REG_V1_ID 0x1
@@ -26,5 +25,3 @@
 #define CHIP8_REG_I   2
 #define CHIP8_REG_DT  3
 #define CHIP8_REG_ST  4
-
-#endif // CHIP8_REGISTERS_H

@@ -1,5 +1,4 @@
-#ifndef DALVIK_PAYLOAD_H
-#define DALVIK_PAYLOAD_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -32,5 +31,3 @@ struct DalvikFillArrayDataPayload {
 VISITABLE_STRUCT(REDasm::DalvikPackedSwitchPayload, ident, size, first_key);
 VISITABLE_STRUCT(REDasm::DalvikSparseSwitchPayload, ident, size);
 VISITABLE_STRUCT(REDasm::DalvikFillArrayDataPayload, ident, element_width, size);
-
-#endif // DALVIK_PAYLOAD_H

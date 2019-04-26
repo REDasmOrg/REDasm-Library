@@ -1,5 +1,4 @@
-#ifndef ABSTRACTLAYOUT_H
-#define ABSTRACTLAYOUT_H
+#pragma once
 
 #include <functional>
 #include "../graph.h"
@@ -31,5 +30,3 @@ class AbstractLayout
 
 } // namespace Graphing
 } // namespace REDasm
-
-#endif // ABSTRACTLAYOUT_H

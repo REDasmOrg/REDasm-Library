@@ -1,5 +1,4 @@
-#ifndef VB_COMPONENTS_H
-#define VB_COMPONENTS_H
+#pragma once
 
 #include "vb_header.h"
 #include <string>
@@ -28,5 +27,3 @@ class VBComponents
 };
 
 } // namespace REDasm
-
-#endif // VB_COMPONENTS_H

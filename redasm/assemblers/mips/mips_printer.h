@@ -1,5 +1,4 @@
-#ifndef MIPSPRINTER_H
-#define MIPSPRINTER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 
@@ -14,5 +13,3 @@ class MIPSPrinter : public CapstonePrinter
 };
 
 } // namespace REDasm
-
-#endif // MIPS_PRINTER_H

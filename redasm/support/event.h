@@ -1,5 +1,4 @@
-#ifndef EVENT_H
-#define EVENT_H
+#pragma once
 
 #include <functional>
 #include <list>
@@ -46,5 +45,3 @@ template<typename ...ARGS> struct Event
 typedef Event<> SimpleEvent;
 
 }
-
-#endif // EVENT_H

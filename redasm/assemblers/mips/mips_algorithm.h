@@ -1,5 +1,4 @@
-#ifndef MIPS_ALGORITHM_H
-#define MIPS_ALGORITHM_H
+#pragma once
 
 #include "../../plugins/assembler/algorithm/controlflow.h"
 
@@ -19,5 +18,3 @@ class MIPSAlgorithm : public ControlFlowAlgorithm
 };
 
 } // namespace REDasm
-
-#endif // MIPS_ALGORITHM_H

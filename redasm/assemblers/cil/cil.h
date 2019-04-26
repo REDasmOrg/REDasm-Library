@@ -1,5 +1,4 @@
-#ifndef CIL_H
-#define CIL_H
+#pragma once
 
 #include "../../plugins/plugins.h"
 
@@ -19,5 +18,3 @@ class CILAssembler : public AssemblerPlugin
 DECLARE_ASSEMBLER_PLUGIN(CILAssembler, cil, 32)
 
 } // namespace REDasm
-
-#endif // CIL_H

@@ -1,5 +1,4 @@
-#ifndef GRAPHING_GRAPH_H
-#define GRAPHING_GRAPH_H
+#pragma once
 
 #include <unordered_map>
 #include <cstddef>
@@ -126,5 +125,3 @@ template<typename T> const T* GraphT<T>::data(const Node &n) const
 
 } // namespace Graphing
 } // namespace REDasm
-
-#endif // GRAPHING_GRAPH_H

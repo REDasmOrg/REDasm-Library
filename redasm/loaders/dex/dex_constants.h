@@ -1,5 +1,4 @@
-#ifndef DEX_CONSTANTS_H
-#define DEX_CONSTANTS_H
+#pragma once
 
 #include "../../redasm.h"
 
@@ -43,5 +42,3 @@ enum { Header       = 0x0000, StringId             = 0x0001, TypeId             
 }
 
 } // namespace REDasm
-
-#endif // DEX_CONSTANTS_H

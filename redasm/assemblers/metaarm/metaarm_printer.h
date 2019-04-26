@@ -1,5 +1,4 @@
-#ifndef METAARM_PRINTER_H
-#define METAARM_PRINTER_H
+#pragma once
 
 #include "../../plugins/assembler/printer.h"
 
@@ -16,5 +15,3 @@ class MetaARMPrinter: public CapstonePrinter
 };
 
 } // namespace REDasm
-
-#endif // METAARM_PRINTER_H

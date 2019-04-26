@@ -1,5 +1,4 @@
-#ifndef DISASSEMBLERBASE_H
-#define DISASSEMBLERBASE_H
+#pragma once
 
 #include <functional>
 #include "../plugins/loader.h"
@@ -108,5 +107,3 @@ template<typename T> u64 DisassemblerBase::locationIsStringT(address_t address, 
 }
 
 } // namespace REDasm
-
-#endif // DISASSEMBLERBASE_H

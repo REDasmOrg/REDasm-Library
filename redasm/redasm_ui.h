@@ -1,5 +1,4 @@
-#ifndef REDASM_UI_H
-#define REDASM_UI_H
+#pragma once
 
 #include <string>
 #include <deque>
@@ -20,5 +19,3 @@ class AbstractUI
 };
 
 } // namespace REDasm
-
-#endif // REDASM_UI_H

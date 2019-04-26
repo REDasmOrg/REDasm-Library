@@ -1,5 +1,4 @@
-#ifndef MEMORYBUFFER_H
-#define MEMORYBUFFER_H
+#pragma once
 
 #include <string>
 #include "abstractbuffer.h"
@@ -34,5 +33,3 @@ class MemoryBuffer: public AbstractBuffer
 using MemoryBuffer = Buffer::MemoryBuffer;
 
 } // namespace REDasm
-
-#endif // MEMORYBUFFER_H

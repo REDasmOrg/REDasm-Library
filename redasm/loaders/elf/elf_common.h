@@ -1,5 +1,4 @@
-#ifndef ELF_CONSTANTS_H
-#define ELF_CONSTANTS_H
+#pragma once
 
 #define ELF_ST_BIND(i)       ((i) >> 4)
 #define ELF_ST_TYPE(i)       ((i) & 0xF)
@@ -247,23 +246,28 @@
 #define SHN_COMMON      0xfff2
 #define SHN_HIRESERVE   0xffff
 
-#define SHT_NULL        0
-#define SHT_PROGBITS    1
-#define SHT_SYMTAB      2
-#define SHT_STRTAB      3
-#define SHT_RELA        4
-#define SHT_HASH        5
-#define SHT_DYNAMIC     6
-#define SHT_NOTE        7
-#define SHT_NOBITS      8
-#define SHT_REL         9
-#define SHT_SHLIB       10
-#define SHT_DYNSYM      11
-#define SHT_NUM         12
-#define SHT_LOPROC      0x70000000
-#define SHT_HIPROC      0x7fffffff
-#define SHT_LOUSER      0x80000000
-#define SHT_HIUSER      0xffffffff
+#define SHT_NULL          0
+#define SHT_PROGBITS      1
+#define SHT_SYMTAB        2
+#define SHT_STRTAB        3
+#define SHT_RELA          4
+#define SHT_HASH          5
+#define SHT_DYNAMIC       6
+#define SHT_NOTE          7
+#define SHT_NOBITS        8
+#define SHT_REL           9
+#define SHT_SHLIB         10
+#define SHT_DYNSYM        11
+#define SHT_NUM           12
+#define SHT_INIT_ARRAY    14
+#define SHT_FINI_ARRAY    15
+#define SHT_PREINIT_ARRAY 16
+#define SHT_GROUP         17
+#define SHT_SYMTAB_SHNDX  0x60000000
+#define SHT_LOPROC        0x70000000
+#define SHT_HIPROC        0x7fffffff
+#define SHT_LOUSER        0x80000000
+#define SHT_HIUSER        0xffffffff
 
 #define SHF_WRITE       0x1
 #define SHF_ALLOC       0x2
@@ -301,5 +305,3 @@
 
 #define EF_MIPS_ABI_EABI32  0x00003000
 #define EF_MIPS_ABI_EABI64  0x00004000
-
-#endif // ELF_CONSTANTS_H

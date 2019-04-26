@@ -1,5 +1,4 @@
-#ifndef ELF_HEADER_H
-#define ELF_HEADER_H
+#pragma once
 
 #include "../../redasm.h"
 #include "elf_common.h"
@@ -105,5 +104,3 @@ template<endianness_t endianness> struct Elf64_Sym
 };
 
 } // namespace REDasm
-
-#endif // ELF_HEADER_H

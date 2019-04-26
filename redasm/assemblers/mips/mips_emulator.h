@@ -1,5 +1,4 @@
-#ifndef MIPS_EMULATOR_H
-#define MIPS_EMULATOR_H
+#pragma once
 
 #include "../../emulator/emulator_type.h"
 
@@ -19,5 +18,3 @@ class MIPSEmulator: public EmulatorT<u32>
 };
 
 } // namespace REDasm
-
-#endif // MIPS_EMULATOR_H

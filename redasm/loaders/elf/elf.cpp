@@ -182,11 +182,11 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::checkArray()
         std::string prefix;
 
         if(shdr.sh_type == SHT_INIT_ARRAY)
-            prefix = "_init_";
+            prefix = "init";
         else if(shdr.sh_type == SHT_FINI_ARRAY)
-            prefix = "_fini_";
+            prefix = "fini";
         else if(shdr.sh_type == SHT_FINI_ARRAY)
-            prefix = "_preinit_";
+            prefix = "preinit";
         else
             continue;
 
@@ -203,8 +203,8 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::checkArray()
                 continue;
 
             address_t address = this->addressof(arr);
-            //this->m_document->pointer(address, SymbolTable::name(address, prefix, SymbolTypes::Pointer), SymbolTypes::Data);
-            //this->m_document->function(val);
+            this->m_document->symbol(address, SymbolTable::name(address, prefix, SymbolTypes::Pointer), SymbolTypes::Pointer | SymbolTypes::Data);
+            this->m_document->function(val, SymbolTable::name(val, prefix, SymbolTypes::Function));
         }
     }
 }

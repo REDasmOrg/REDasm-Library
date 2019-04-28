@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../../support/cachemap.h"
+#include "../../support/containers/cache_map.h"
 #include "../../redasm.h"
 
 namespace REDasm {
-
-class LoaderPlugin;
 
 class InstructionCache: public cache_map<address_t, InstructionPtr>
 {

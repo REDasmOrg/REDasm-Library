@@ -17,7 +17,7 @@ struct ListingItem
 
     ListingItem(): address(0), type(ListingItem::Undefined), index(0) { }
     ListingItem(address_t address, size_t type, size_t index): address(address), type(type), index(index) { }
-    bool is(size_t t) const { return type == t; }
+    inline bool is(size_t t) const { return type == t; }
 
     address_t address;
     size_t type, index;

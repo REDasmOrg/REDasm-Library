@@ -1,7 +1,9 @@
-#include "cachemap.h"
-#include "../redasm_context.h"
-#include "../redasm_api.h"
-#include "utils.h"
+#pragma once
+
+#include "cache_map.h"
+#include "../../redasm_context.h"
+#include "../../redasm_api.h"
+#include "../utils.h"
 #include <ios>
 
 namespace REDasm {

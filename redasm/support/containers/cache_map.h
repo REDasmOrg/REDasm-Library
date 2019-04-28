@@ -9,9 +9,9 @@
 #include <fstream>
 #include <cstdio>
 #include <map>
-#include "../support/serializer.h"
-#include "../types/base_types.h"
-#include "event.h"
+#include "../../support/serializer.h"
+#include "../../types/base_types.h"
+#include "../event.h"
 
 namespace REDasm {
 
@@ -77,4 +77,4 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
 
 } // namespace REDasm
 
-#include "cachemap_impl.h"
+#include "cache_map.cpp"

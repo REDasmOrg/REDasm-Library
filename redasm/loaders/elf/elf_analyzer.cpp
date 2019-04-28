@@ -54,7 +54,7 @@ void ElfAnalyzer::findMain_x86(const Symbol *symlibcmain)
     this->disassembleLibStartMain();
 }
 
-void ElfAnalyzer::findMain_x86(ListingDocumentType::iterator it)
+void ElfAnalyzer::findMain_x86(ListingDocumentType::const_iterator it)
 {
     for(int i = 0; i < LIBC_START_MAIN_ARGC; it--)
     {
@@ -88,7 +88,7 @@ void ElfAnalyzer::findMain_x86(ListingDocumentType::iterator it)
     }
 }
 
-void ElfAnalyzer::findMain_x86_64(ListingDocumentType::iterator it)
+void ElfAnalyzer::findMain_x86_64(ListingDocumentType::const_iterator it)
 {
     do
     {

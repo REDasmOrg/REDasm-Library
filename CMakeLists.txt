@@ -138,9 +138,9 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
 
 target_link_libraries(${PROJECT_NAME} capstone-static)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wconversion -Wsign-conversion)
-endif()
+# if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+#     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wconversion -Wsign-conversion)
+# endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread)

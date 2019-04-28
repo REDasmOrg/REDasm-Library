@@ -35,7 +35,7 @@ struct FunctionBasicBlock
 class FunctionGraph: public GraphT<FunctionBasicBlock>
 {
     private:
-        typedef std::queue<s64> IndexQueue;
+        typedef std::queue<size_t> IndexQueue;
 
     public:
         FunctionGraph(DisassemblerAPI* disassembler);

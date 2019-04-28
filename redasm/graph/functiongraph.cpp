@@ -36,7 +36,7 @@ void FunctionGraph::buildBasicBlocks()
     if(it == m_document->end())
         return;
 
-    s64 index = std::distance(m_document->begin(), it);
+    size_t index = std::distance(m_document->cbegin(), it);
     IndexQueue pending;
     pending.push(index);
 
@@ -45,7 +45,7 @@ void FunctionGraph::buildBasicBlocks()
         index = pending.front();
         pending.pop();
 
-        if((index < 0) || (static_cast<u64>(index) >= m_document->length()))
+        if((index == ListingDocumentType::npos) || (index >= m_document->size()))
             continue;
 
         this->buildBasicBlock(index, pending);
@@ -229,7 +229,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
     if(!item)
         return;
 
-    fbb.endidx = m_document->indexOf(item);
+    fbb.endidx = m_document->itemIndex(item);
 
     if(this->isStopItem(item) || item->is(ListingItem::SymbolItem))
         fbb.endidx--;

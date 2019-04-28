@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingDocumentType::ListingDocumentType(): std::deque<ListingItemPtr>(), m_documententry(nullptr) { }
+ListingDocumentType::ListingDocumentType(): sorted_container<ListingItemPtr, ListingItemPtrComparator>(), m_documententry(nullptr) { }
 
 bool ListingDocumentType::advance(InstructionPtr &instruction)
 {
@@ -27,7 +27,7 @@ bool ListingDocumentType::goTo(const ListingItem *item)
     if(!item)
         return false;
 
-    s64 idx = this->indexOf(item);
+    s64 idx = this->findIndex(item->address, item->type);
 
     if(idx == -1)
         return false;
@@ -38,7 +38,10 @@ bool ListingDocumentType::goTo(const ListingItem *item)
 
 bool ListingDocumentType::goTo(address_t address)
 {
-    auto it = this->item(address);
+    auto it = this->symbolItem(address);
+
+    if(it == this->end())
+        it = this->instructionItem(address);
 
     if(it == this->end())
         return false;
@@ -333,7 +336,7 @@ void ListingDocumentType::comment(address_t address, const std::string &s)
     if(iit == this->end())
         return;
 
-    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit));
+    ListingDocumentChanged ldc(iit->get(), std::distance(this->cbegin(), iit));
     changed(&ldc);
 }
 
@@ -358,7 +361,7 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
     if(iit == this->end())
         return;
 
-    ListingDocumentChanged ldc(iit->get(), std::distance(this->begin(), iit));
+    ListingDocumentChanged ldc(iit->get(), std::distance(this->cbegin(), iit));
     changed(&ldc);
 }
 
@@ -563,9 +566,19 @@ InstructionPtr ListingDocumentType::instruction(address_t address)
     return InstructionPtr();
 }
 
-ListingDocumentType::iterator ListingDocumentType::functionItem(address_t address) { return this->item(address, ListingItem::FunctionItem); }
-ListingDocumentType::iterator ListingDocumentType::item(address_t address, u32 type) { return Listing::binarySearch(this, address, type); }
-s64 ListingDocumentType::index(address_t address, u32 type) { return Listing::indexOf(this, address, type); }
+ListingDocumentType::const_iterator ListingDocumentType::functionItem(address_t address) const { return this->findItem(address, ListingItem::FunctionItem); }
+
+ListingDocumentType::const_iterator ListingDocumentType::findItem(address_t address, size_t type, size_t index) const
+{
+    auto item = std::make_unique<ListingItem>(address, type, index);
+    return this->find(item, ListingItemPtrFinder());
+}
+
+size_t ListingDocumentType::findIndex(address_t address, size_t type, size_t index) const
+{
+    auto item = std::make_unique<ListingItem>(address, type, index);
+    return this->indexOf(item, ListingItemPtrFinder());
+}
 
 std::string ListingDocumentType::autoComment(address_t address) const
 {
@@ -596,22 +609,12 @@ std::string ListingDocumentType::normalized(std::string s)
     return s;
 }
 
-ListingDocumentType::iterator ListingDocumentType::instructionItem(address_t address) { return this->item(address, ListingItem::InstructionItem); }
-ListingDocumentType::iterator ListingDocumentType::symbolItem(address_t address) { return this->item(address, ListingItem::SymbolItem); }
-
-ListingDocumentType::iterator ListingDocumentType::item(address_t address)
-{
-    auto it = this->symbolItem(address);
-
-    if(it == this->end())
-        it = this->instructionItem(address);
-
-    return it;
-}
-
-s64 ListingDocumentType::functionIndex(address_t address) { return this->index(address, ListingItem::FunctionItem); }
-s64 ListingDocumentType::instructionIndex(address_t address) { return this->index(address, ListingItem::InstructionItem); }
-s64 ListingDocumentType::symbolIndex(address_t address) { return this->index(address, ListingItem::SymbolItem); }
+ListingDocumentType::const_iterator ListingDocumentType::instructionItem(address_t address) const { return this->findItem(address, ListingItem::InstructionItem); }
+ListingDocumentType::const_iterator ListingDocumentType::symbolItem(address_t address) const { return this->findItem(address, ListingItem::SymbolItem); }
+size_t ListingDocumentType::itemIndex(const ListingItem *item) const { return this->findIndex(item->address, item->type, item->index); }
+size_t ListingDocumentType::functionIndex(address_t address) const { return this->findIndex(address, ListingItem::FunctionItem); }
+size_t ListingDocumentType::instructionIndex(address_t address) const { return this->findIndex(address, ListingItem::InstructionItem); }
+size_t ListingDocumentType::symbolIndex(address_t address) const { return this->findIndex(address, ListingItem::SymbolItem); }
 
 ListingItem* ListingDocumentType::itemAt(size_t i) const
 {
@@ -621,7 +624,7 @@ ListingItem* ListingDocumentType::itemAt(size_t i) const
     return this->at(i).get();
 }
 
-s64 ListingDocumentType::indexOf(address_t address)
+s64 ListingDocumentType::indexOfz(address_t address)
 {
     s64 idx = this->symbolIndex(address);
 
@@ -631,34 +634,31 @@ s64 ListingDocumentType::indexOf(address_t address)
     return idx;
 }
 
-s64 ListingDocumentType::indexOf(const ListingItem *item) { return Listing::indexOf(this, item); }
 Symbol* ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
 Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }
 
 void ListingDocumentType::insertSorted(address_t address, u32 type, size_t index)
 {
-    ListingItemPtr itemptr = std::make_unique<ListingItem>(address, type, index);
+    auto item = std::make_unique<ListingItem>(address, type, index);
 
     if(type == ListingItem::FunctionItem)
-    {
-        auto it = Listing::insertionPoint(&m_functions, itemptr.get());
-        m_functions.insert(it, itemptr.get());
-    }
+        m_functions.insert(item.get());
 
-    auto it = Listing::insertionPoint(this, itemptr);
+    auto it = ContainerType::find(item);
 
     if((it != this->end()) && (((*it)->address == address) && ((*it)->type == type)))
         return;
 
-    it = this->insert(it, std::move(itemptr));
+    it = ContainerType::insert(std::move(item));
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Inserted);
     changed(&ldc);
 }
 
 void ListingDocumentType::removeSorted(address_t address, u32 type)
 {
-    auto it = Listing::binarySearch(this, address, type);
+    ListingItemPtr item = std::make_unique<ListingItem>(address, type, 0);
+    auto it = ContainerType::find(item, ListingItemPtrFinder());
 
     while(it != this->end())
     {
@@ -666,13 +666,10 @@ void ListingDocumentType::removeSorted(address_t address, u32 type)
         changed(&ldc);
 
         if(type == ListingItem::FunctionItem)
-        {
-            auto it = Listing::binarySearch(&m_functions, address, type);
-            m_functions.erase(it);
-        }
+            m_functions.erase(item.get());
 
         this->erase(it);
-        it = Listing::binarySearch(this, address, type);
+        it = ContainerType::find(item, ListingItemPtrFinder());
     }
 }
 

@@ -24,8 +24,8 @@ class Analyzer
         bool findNullSubs(const Symbol* symbol);
         void checkFunctions();
         void findTrampoline(const Symbol* symbol);
-        Symbol* findTrampoline_x86(REDasm::ListingDocumentType::iterator &it);
-        Symbol* findTrampoline_arm(REDasm::ListingDocumentType::iterator &it);
+        Symbol* findTrampoline_x86(ListingDocumentType::const_iterator &it);
+        Symbol* findTrampoline_arm(ListingDocumentType::const_iterator &it);
 
     protected:
         ListingDocument& m_document;

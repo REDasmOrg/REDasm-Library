@@ -1,136 +1,19 @@
 #pragma once
 
 #include <unordered_set>
-#include <algorithm>
-#include <vector>
-#include <list>
 #include "../../redasm.h"
 #include "../../support/event.h"
 #include "../../support/safe_ptr.h"
 #include "../../support/serializer.h"
 #include "../types/symboltable.h"
 #include "../types/referencetable.h"
-#include "listingcursor.h"
 #include "instructioncache.h"
+#include "listingcursor.h"
+#include "listingitem.h"
 
 namespace REDasm {
 
 class LoaderPlugin;
-
-struct ListingItem
-{
-    enum: size_t {
-        Undefined = 0,
-        SegmentItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem,
-        AllItems = static_cast<size_t>(-1)
-    };
-
-    ListingItem(): address(0), type(ListingItem::Undefined), index(0) { }
-    ListingItem(address_t address, size_t type, size_t index): address(address), type(type), index(index) { }
-    bool is(size_t t) const { return type == t; }
-
-    address_t address;
-    size_t type, index;
-};
-
-typedef std::unique_ptr<ListingItem> ListingItemPtr;
-typedef std::deque<ListingItem*> ListingItems;
-
-namespace Listing {
-    template<typename T> struct ListingComparator {
-        bool operator()(const T& t1, const T& t2) {
-            if(t1->address == t2->address) {
-                if(t1->type == t2->type)
-                    return t1->index < t2->index;
-
-                return t1->type < t2->type;
-            }
-
-            return t1->address < t2->address;
-        }
-    };
-
-    template<typename T> struct IteratorSelector {
-        typedef typename std::conditional<std::is_const<T>::value, typename T::const_iterator, typename T::iterator>::type Type;
-    };
-
-    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> typename T::iterator insertionPoint(T* container, const V& item) {
-        return std::lower_bound(container->begin(), container->end(), item, ListingComparator<V>());
-    }
-
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT _adjustSearch(T* container, IT it, size_t type) {
-        s64 offset = type - (*it)->type;
-        address_t searchaddress = (*it)->address;
-
-        while((it != container->end()) && (searchaddress == (*it)->address))
-        {
-            if((*it)->type == type)
-                return it;
-
-            if((offset < 0) && (it == container->begin()))
-                break;
-
-            offset > 0 ? it++ : it--;
-        }
-
-        return container->end();
-    }
-
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, address_t address, size_t type) {
-        if(!container->size())
-            return container->end();
-
-        auto thebegin = container->begin(), theend = container->end();
-
-        if((address < (*thebegin)->address) || (address > (*container->rbegin())->address))
-            return container->end();
-
-        while(thebegin <= theend)
-        {
-            auto range = std::distance(thebegin, theend);
-            auto themiddle = thebegin;
-            std::advance(themiddle, range / 2);
-
-            if((*themiddle)->address == address)
-                return Listing::_adjustSearch(container, themiddle, type);
-
-            if((*themiddle)->address > address)
-            {
-                theend = themiddle;
-                std::advance(theend, -1);
-            }
-            else if((*themiddle)->address < address)
-            {
-                thebegin = themiddle;
-                std::advance(thebegin, 1);
-            }
-        }
-
-        return container->end();
-    }
-
-    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> IT binarySearch(T* container, V* item) {
-        return Listing::binarySearch(container, item->address, item->type);
-    }
-
-    template<typename T, typename V, typename IT = typename IteratorSelector<T>::Type> s64 indexOf(T* container, V* item) {
-        auto it = Listing::binarySearch(container, item);
-
-        if(it == container->end())
-            return -1;
-
-        return std::distance(container->begin(), it);
-    }
-
-    template<typename T, typename IT = typename IteratorSelector<T>::Type> s64 indexOf(T* container, address_t address, u32 type) {
-        auto it = Listing::binarySearch(container, address, type);
-
-        if(it == container->end())
-            return -1;
-
-        return std::distance(container->begin(), it);
-    }
-}
 
 struct ListingDocumentChanged
 {
@@ -146,10 +29,13 @@ struct ListingDocumentChanged
     size_t action;
 };
 
-class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializer::Serializable
+class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPtrComparator>, public Serializer::Serializable
 {
     public:
         Event<const ListingDocumentChanged*> changed;
+
+    private:
+        typedef sorted_container<ListingItemPtr, ListingItemPtrComparator> ContainerType;
 
     private:
         typedef std::set<std::string> CommentSet;
@@ -159,17 +45,10 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         typedef std::unordered_map<address_t, CommentSet> AutoCommentMap;
         typedef std::unordered_map<address_t, std::string> AddressStringMap;
         typedef std::unordered_map<address_t, MetaList> MetaMap;
-        typedef std::deque<ListingItem*> FunctionList;
+        typedef ListingItemContainer FunctionList;
 
-    public:
-        using std::deque<ListingItemPtr>::const_iterator;
-        using std::deque<ListingItemPtr>::iterator;
-        using std::deque<ListingItemPtr>::begin;
-        using std::deque<ListingItemPtr>::end;
-        using std::deque<ListingItemPtr>::rbegin;
-        using std::deque<ListingItemPtr>::rend;
-        using std::deque<ListingItemPtr>::empty;
-        using std::deque<ListingItemPtr>::size;
+    private:
+        using ContainerType::insert;
 
     public:
         ListingDocumentType();
@@ -177,7 +56,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         bool advance(InstructionPtr& instruction);
         const ListingCursor* cursor() const;
         ListingCursor* cursor();
-        bool goTo(const ListingItem* item);
+        bool goTo(const ListingItem* findItem);
         bool goTo(address_t address);
         void moveToEP();
         u64 length() const;
@@ -188,7 +67,7 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         virtual void deserializeFrom(std::fstream& fs);
 
     public:
-        ListingItem* functionStart(ListingItem* item);
+        ListingItem* functionStart(ListingItem* findItem);
         ListingItem* functionStart(address_t address);
         ListingItem* currentFunction();
         ListingItem* currentItem();
@@ -230,16 +109,15 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
-        ListingDocumentType::iterator functionItem(address_t address);
-        ListingDocumentType::iterator instructionItem(address_t address);
-        ListingDocumentType::iterator symbolItem(address_t address);
-        ListingDocumentType::iterator item(address_t address);
-        s64 functionIndex(address_t address);
-        s64 instructionIndex(address_t address);
-        s64 symbolIndex(address_t address);
+        const_iterator functionItem(address_t address) const;
+        ListingDocumentType::const_iterator instructionItem(address_t address) const;
+        ListingDocumentType::const_iterator symbolItem(address_t address) const;
+        size_t itemIndex(const ListingItem* item) const;
+        size_t functionIndex(address_t address) const;
+        size_t instructionIndex(address_t address) const;
+        size_t symbolIndex(address_t address) const;
         ListingItem* itemAt(size_t i) const;
-        s64 indexOf(address_t address);
-        s64 indexOf(const ListingItem *item);
+        s64 indexOfz(address_t address);
         Symbol *symbol(address_t address) const;
         Symbol *symbol(const std::string& name) const;
         const SymbolTable* symbols() const;
@@ -247,8 +125,8 @@ class ListingDocumentType: protected std::deque<ListingItemPtr>, public Serializ
     private:
         void insertSorted(address_t address, u32 type, size_t index = 0);
         void removeSorted(address_t address, u32 type);
-        ListingDocumentType::iterator item(address_t address, u32 type);
-        s64 index(address_t address, u32 type);
+        ListingDocumentType::const_iterator findItem(address_t address, size_t type, size_t index = 0) const;
+        size_t findIndex(address_t address, size_t type, size_t index = 0) const;
         std::string autoComment(address_t address) const;
         static std::string normalized(std::string s);
         static std::string symbolName(const std::string& prefix, address_t address, const Segment* segment = nullptr);

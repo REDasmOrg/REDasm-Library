@@ -103,7 +103,7 @@ void Analyzer::findTrampoline(const Symbol* symbol)
     m_disassembler->pushReference(symtrampoline->address, instruction->address);
 }
 
-Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::iterator& it)
+Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::const_iterator& it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
@@ -118,7 +118,7 @@ Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::iterator& it)
     return m_disassembler->document()->symbol(target);
 }
 
-Symbol* Analyzer::findTrampoline_arm(ListingDocumentType::iterator& it)
+Symbol* Analyzer::findTrampoline_arm(ListingDocumentType::const_iterator &it)
 {
     auto& doc = m_disassembler->document();
     InstructionPtr instruction1 = doc->instruction((*it)->address);

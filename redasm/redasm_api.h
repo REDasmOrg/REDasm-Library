@@ -35,6 +35,8 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 
 namespace REDasm {
 
+constexpr size_t npos = -1;
+
 inline void log(const std::string& s) { Context::settings.logCallback(s); }
 
 inline void status(const std::string& s) {

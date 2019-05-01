@@ -19,11 +19,11 @@ struct ListingDocumentChanged
 {
     enum { Changed = 0, Inserted, Removed };
 
-    ListingDocumentChanged(ListingItem* item, size_t index, size_t action = ListingDocumentChanged::Changed): item(item), index(index), action(action) { }
+    ListingDocumentChanged(const ListingItem* item, size_t index, size_t action = ListingDocumentChanged::Changed): item(item), index(index), action(action) { }
     bool isInserted() const { return action == ListingDocumentChanged::Inserted; }
     bool isRemoved() const { return action == ListingDocumentChanged::Removed; }
 
-    ListingItem* item;
+    const ListingItem* item;
     size_t index, action;
 };
 
@@ -55,7 +55,7 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
 
     public: // ListingItemData functions
         std::string comment(const ListingItem *item, bool skipauto = false) const;
-        void comment(ListingItem* item, const std::string& s);
+        void comment(const ListingItem* item, const std::string& s);
         void autoComment(address_t address, const std::string& s);
 
     public: // ListingItem getter functions
@@ -94,10 +94,10 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         const SegmentList& segments() const;
         const SymbolTable* symbols() const;
         Symbol *functionStartSymbol(address_t address);
-        ListingItem* functionStart(ListingItem* findItem) const;
-        ListingItem* functionStart(address_t address) const;
-        ListingItem* currentFunction() const;
-        ListingItem* currentItem() const;
+        const ListingItem* functionStart(const ListingItem* item) const;
+        const ListingItem* functionStart(address_t address) const;
+        const ListingItem* currentFunction() const;
+        const ListingItem* currentItem() const;
         InstructionPtr entryInstruction();
         void rename(address_t address, const std::string& name);
         void lockFunction(address_t address, const std::string& name, u32 tag = 0);

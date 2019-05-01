@@ -7,7 +7,7 @@ FunctionGraph::FunctionGraph(DisassemblerAPI *disassembler): GraphT<FunctionBasi
 
 bool FunctionGraph::build(address_t address)
 {
-    ListingItem* item = m_document->functionStart(address);
+    const ListingItem* item = m_document->functionStart(address);
 
     if(item)
         return this->build(item);
@@ -15,7 +15,7 @@ bool FunctionGraph::build(address_t address)
     return false;
 }
 
-bool FunctionGraph::build(ListingItem *item)
+bool FunctionGraph::build(const ListingItem *item)
 {
     if(!item || !item->is(ListingItem::FunctionItem))
         return false;
@@ -53,7 +53,7 @@ void FunctionGraph::buildBasicBlocks()
         index = pending.front();
         pending.pop();
 
-        if((index == ListingDocumentType::npos) || (index >= m_document->size()))
+        if((index == REDasm::npos) || (index >= m_document->size()))
             continue;
 
         this->buildBasicBlock(index, pending);
@@ -159,7 +159,7 @@ bool FunctionGraph::connectBasicBlocks()
     return true;
 }
 
-s64 FunctionGraph::instructionIndexFromIndex(s64 idx) const
+size_t FunctionGraph::instructionIndexFromIndex(size_t idx) const
 {
     ListingItem* item = m_document->itemAt(idx);
 
@@ -169,7 +169,7 @@ s64 FunctionGraph::instructionIndexFromIndex(s64 idx) const
     return -1;
 }
 
-s64 FunctionGraph::symbolIndexFromIndex(s64 idx) const
+size_t FunctionGraph::symbolIndexFromIndex(size_t idx) const
 {
     ListingItem* item = m_document->itemAt(idx);
 

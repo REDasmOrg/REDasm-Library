@@ -46,7 +46,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual bool loadSignature(const std::string& signame);
 
    private:
-        void computeBounds(document_x_lock &lock, ListingItem* functionitem);
+        void computeBounds(document_x_lock &lock, const ListingItem *functionitem);
         template<typename T> std::string readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 

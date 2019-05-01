@@ -6,19 +6,26 @@
 
 namespace REDasm {
 
-class ListingFunctions: public ListingItemContainer
+class ListingFunctions: public ListingItemConstContainer
 {
     public:
-        typedef std::pair<size_t, size_t> BoundsItem;
+        struct BoundsItem {
+            size_t startidx, endidx; // [startidx, endidx]
+            bool contains(size_t idx) const { return (idx >= startidx) && (idx <= endidx); }
+            size_t size() const { return (endidx >= startidx) ? (endidx - startidx) + 1 : 0; }
+        };
+
         typedef std::forward_list<BoundsItem> BoundsList;
-        typedef std::unordered_map<ListingItem*, BoundsList> FunctionBounds;
+        typedef std::unordered_map<const ListingItem*, BoundsList> FunctionBounds;
 
     public:
         ListingFunctions();
-        ListingItem* functionFromIndex(size_t idx) const;
+        const ListingItem* functionFromIndex(size_t idx) const;
         void invalidateBounds();
-        void bounds(ListingItem* item, const std::pair<size_t, size_t>& b);
-        void erase(ListingItem* item);
+        bool containsBounds(const ListingItem* item) const;
+        const BoundsList& bounds(const ListingItem* item) const;
+        void bounds(const ListingItem* item, const BoundsItem &b);
+        void erase(const ListingItem* item);
 
     private:
         FunctionBounds m_bounds;

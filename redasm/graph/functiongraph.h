@@ -11,14 +11,14 @@ namespace Graphing {
 struct FunctionBasicBlock
 {
     Node node;
-    s64 startidx, endidx; // [startidx, endidx]
+    size_t startidx, endidx; // [startidx, endidx]
     std::unordered_map<Node, std::string> styles;
 
     FunctionBasicBlock(): startidx(-1), endidx(startidx) { }
-    FunctionBasicBlock(s64 startidx): startidx(startidx), endidx(startidx) { }
-    bool contains(s64 index) const { return (index >= startidx) && (index <= endidx); }
+    FunctionBasicBlock(size_t startidx): startidx(startidx), endidx(startidx) { }
+    bool contains(size_t index) const { return (index >= startidx) && (index <= endidx); }
     bool isEmpty() const { return startidx > endidx; }
-    s64 count() const { return (endidx - startidx) + 1; }
+    size_t count() const { return (endidx - startidx) + 1; }
     void bTrue(const Node& n) { styles[n] = "graph_edge_true"; }
     void bFalse(const Node& n) { styles[n] = "graph_edge_false"; }
 
@@ -39,7 +39,7 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
 
     public:
         FunctionGraph(DisassemblerAPI* disassembler);
-        bool build(ListingItem* item);
+        bool build(const ListingItem *item);
         bool build(address_t address);
 
     private:
@@ -52,8 +52,8 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
         bool connectBasicBlocks();
 
     private:
-        s64 instructionIndexFromIndex(s64 idx) const;
-        s64 symbolIndexFromIndex(s64 idx) const;
+        size_t instructionIndexFromIndex(size_t idx) const;
+        size_t symbolIndexFromIndex(size_t idx) const;
 
     private:
         DisassemblerAPI* m_disassembler;

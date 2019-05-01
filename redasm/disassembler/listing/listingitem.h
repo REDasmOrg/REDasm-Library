@@ -61,9 +61,12 @@ template<typename T> struct ListingItemFinderT {
 };
 
 typedef ListingItemComparatorT<ListingItemPtr> ListingItemPtrComparator;
+typedef ListingItemComparatorT<const ListingItem*> ListingItemConstComparator;
 typedef ListingItemComparatorT<ListingItem*> ListingItemComparator;
 typedef ListingItemFinderT<ListingItemPtr> ListingItemPtrFinder;
+typedef ListingItemFinderT<const ListingItem*> ListingItemConstFinder;
 typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
+typedef sorted_container<const ListingItem*, ListingItemConstComparator> ListingItemConstContainer;
 typedef sorted_container<ListingItem*, ListingItemComparator> ListingItemContainer;
 
 

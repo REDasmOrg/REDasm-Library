@@ -138,7 +138,7 @@ void PEAnalyzer::findCRTWinMain()
 
     for(address_t ref : refs)
     {
-        ListingItem* scfuncitem = m_document->functionStart(ref);
+        const ListingItem* scfuncitem = m_document->functionStart(ref);
 
         if(!scfuncitem || ((target != scfuncitem->address)))
             continue;

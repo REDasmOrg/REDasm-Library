@@ -193,7 +193,7 @@ std::string ListingDocumentType::comment(const ListingItem* item, bool skipauto)
     return REDasm::join(comments, COMMENT_SEPARATOR);
 }
 
-void ListingDocumentType::comment(ListingItem *item, const std::string &s)
+void ListingDocumentType::comment(const ListingItem *item, const std::string &s)
 {
     if(!s.empty())
         item->data->comments.insert(REDasm::simplified(s));
@@ -204,30 +204,30 @@ void ListingDocumentType::comment(ListingItem *item, const std::string &s)
     changed(&ldc);
 }
 
-ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
+const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) const
 {
     if(!item)
         return nullptr;
 
     size_t idx = this->itemIndex(item);
 
-    if(idx == ListingDocumentType::npos)
+    if(idx == REDasm::npos)
         return nullptr;
 
     return m_functions.functionFromIndex(idx);
 }
 
-ListingItem *ListingDocumentType::functionStart(address_t address) const
+const ListingItem *ListingDocumentType::functionStart(address_t address) const
 {
     size_t idx = this->instructionIndex(address);
 
-    if(idx == ListingDocumentType::npos)
+    if(idx == REDasm::npos)
         return nullptr;
 
     return m_functions.functionFromIndex(idx);
 }
 
-ListingItem *ListingDocumentType::currentFunction() const
+const ListingItem *ListingDocumentType::currentFunction() const
 {
     if(!this->currentItem())
         return nullptr;
@@ -235,7 +235,7 @@ ListingItem *ListingDocumentType::currentFunction() const
     return this->functionStart(this->currentItem());
 }
 
-ListingItem *ListingDocumentType::currentItem() const
+const ListingItem *ListingDocumentType::currentItem() const
 {
     if(m_cursor.currentLine() >= this->size())
         return nullptr;
@@ -245,7 +245,7 @@ ListingItem *ListingDocumentType::currentItem() const
 
 Symbol* ListingDocumentType::functionStartSymbol(address_t address)
 {
-    ListingItem* item = this->functionStart(address);
+    const ListingItem* item = this->functionStart(address);
 
     if(item)
         return this->symbol(item->address);

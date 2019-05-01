@@ -62,7 +62,7 @@ void DisassemblerBase::computeBounds()
     auto lock = x_lock_safe_ptr(m_loader->document());
     lock->functions().invalidateBounds();
 
-    for(ListingItem* item : lock->functions())
+    for(const ListingItem* item : lock->functions())
         this->computeBounds(lock, item);
 }
 
@@ -214,7 +214,7 @@ std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
 
 std::string DisassemblerBase::getHexDump(address_t address, const Symbol **ressymbol)
 {
-    REDasm::ListingItem* item = this->document()->functionStart(address);
+    const REDasm::ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
         return std::string();
@@ -259,7 +259,7 @@ bool DisassemblerBase::dereference(address_t address, u64 *value) const
 
 BufferView DisassemblerBase::getFunctionBytes(address_t address)
 {
-    ListingItem* item = this->document()->functionStart(address);
+    const ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
         return BufferView();
@@ -414,7 +414,7 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
     return true;
 }
 
-void DisassemblerBase::computeBounds(document_x_lock &lock, ListingItem *functionitem)
+void DisassemblerBase::computeBounds(document_x_lock &lock, const ListingItem *functionitem)
 {
     Graphing::FunctionGraph fg(this);
 

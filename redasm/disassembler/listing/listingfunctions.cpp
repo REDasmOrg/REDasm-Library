@@ -2,15 +2,14 @@
 
 namespace REDasm {
 
-ListingFunctions::ListingFunctions(): ListingItemContainer() { }
+ListingFunctions::ListingFunctions(): ListingItemConstContainer() { }
 
-ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
+const ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 {
-    auto it = std::find_if(m_bounds.begin(), m_bounds.end(), [idx](const std::pair<ListingItem*, BoundsList>& item) -> bool {
+    auto it = std::find_if(m_bounds.begin(), m_bounds.end(), [idx](const std::pair<const ListingItem*, BoundsList>& item) -> bool {
         for(const auto& bound : item.second) {
-            if((idx < bound.first) || (idx > bound.second))
-                continue;
-            return true;
+            if(bound.contains(idx))
+                return true;
         }
 
         return false;
@@ -23,8 +22,10 @@ ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 }
 
 void ListingFunctions::invalidateBounds() { m_bounds.clear(); }
+bool ListingFunctions::containsBounds(const ListingItem *item) const { return m_bounds.find(item) != m_bounds.end(); }
+const ListingFunctions::BoundsList &ListingFunctions::bounds(const ListingItem *item) const { return m_bounds.at(item); }
 
-void ListingFunctions::bounds(ListingItem *item, const std::pair<size_t, size_t> &b)
+void ListingFunctions::bounds(const ListingItem *item, const ListingFunctions::BoundsItem& b)
 {
     auto it = m_bounds.find(item);
 
@@ -34,10 +35,10 @@ void ListingFunctions::bounds(ListingItem *item, const std::pair<size_t, size_t>
         m_bounds[item].push_front(b);
 }
 
-void ListingFunctions::erase(ListingItem *item)
+void ListingFunctions::erase(const ListingItem *item)
 {
     m_bounds.erase(item);
-    ListingItemContainer::erase(item);
+    ListingItemConstContainer::erase(item);
 }
 
 } // namespace REDasm

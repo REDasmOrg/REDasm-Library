@@ -57,8 +57,9 @@ void ListingDocumentType::moveToEP()
     m_cursor.set(this->functionIndex(m_documententry->address));
 }
 
-size_t ListingDocumentType::lastLine() const { return static_cast<u64>(this->size()) - 1; }
-const ListingDocumentType::FunctionList &ListingDocumentType::functions() const { return m_functions; }
+size_t ListingDocumentType::lastLine() const { return this->size(); }
+ListingFunctions &ListingDocumentType::functions() { return m_functions; }
+const ListingFunctions &ListingDocumentType::functions() const { return m_functions; }
 const SegmentList &ListingDocumentType::segments() const { return m_segments; }
 
 void ListingDocumentType::serializeTo(std::fstream &fs)
@@ -208,17 +209,12 @@ ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
     if(!item)
         return nullptr;
 
-    auto it = m_bounds.find(item);
-
-    if(it != m_bounds.end())
-        return it->first;
-
     size_t idx = this->itemIndex(item);
 
     if(idx == ListingDocumentType::npos)
         return nullptr;
 
-    return this->functionStart(item->address);
+    return m_functions.functionFromIndex(idx);
 }
 
 ListingItem *ListingDocumentType::functionStart(address_t address) const
@@ -228,20 +224,7 @@ ListingItem *ListingDocumentType::functionStart(address_t address) const
     if(idx == ListingDocumentType::npos)
         return nullptr;
 
-    auto it = std::find_if(m_bounds.begin(), m_bounds.end(), [idx](const std::pair<ListingItem*, BoundsList>& item) -> bool {
-        for(const auto& bound : item.second) {
-            if((idx < bound.first) || (idx > bound.second))
-                continue;
-            return true;
-        }
-
-        return false;
-    });
-
-    if(it == m_bounds.end())
-        return nullptr;
-
-    return it->first;
+    return m_functions.functionFromIndex(idx);
 }
 
 ListingItem *ListingDocumentType::currentFunction() const
@@ -281,16 +264,6 @@ InstructionPtr ListingDocumentType::entryInstruction()
 const Detail::MetaItem& ListingDocumentType::meta(const ListingItem* item) const { return item->data->meta; }
 std::string ListingDocumentType::type(const ListingItem* item) const { return item->data->type; }
 void ListingDocumentType::empty(address_t address) { this->push(address, ListingItem::EmptyItem); }
-
-void ListingDocumentType::bounds(ListingItem *item, const std::pair<size_t, size_t> &b)
-{
-    auto it = m_bounds.find(item);
-
-    if(it == m_bounds.end())
-        m_bounds[item] = { b };
-    else
-        m_bounds[item].push_front(b);
-}
 
 void ListingDocumentType::meta(address_t address, const std::string &s, const std::string &name)
 {
@@ -488,7 +461,6 @@ void ListingDocumentType::setDocumentEntry(address_t address)
 
 const Symbol *ListingDocumentType::documentEntry() const { return m_documententry; }
 size_t ListingDocumentType::segmentsCount() const { return m_segments.size(); }
-size_t ListingDocumentType::functionsCount() const { return m_functions.size(); }
 
 Segment *ListingDocumentType::segment(address_t address)
 {
@@ -607,7 +579,7 @@ void ListingDocumentType::pop(address_t address, size_t type)
         changed(&ldc);
 
         if(type == ListingItem::FunctionItem)
-            m_functions.erase(item.get());
+            m_functions.erase(it->get());
 
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());

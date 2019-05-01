@@ -39,10 +39,6 @@ void Disassembler::analyzeStep()
     }
     else
         REDasm::log("Analysis completed");
-
-    REDasm::log("Calculating function bounds...");
-    this->computeBounds();
-    REDasm::log("DONE");
 }
 
 void Disassembler::disassemble()

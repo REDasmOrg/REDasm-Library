@@ -57,7 +57,10 @@ u64 DisassemblerBase::getReferencesCount(address_t address) const { return m_ref
 
 void DisassemblerBase::computeBounds()
 {
+    REDasm::log("Calculating function bounds...");
+
     auto lock = x_lock_safe_ptr(m_loader->document());
+    lock->functions().invalidateBounds();
 
     for(ListingItem* item : lock->functions())
         this->computeBounds(lock, item);
@@ -421,14 +424,12 @@ void DisassemblerBase::computeBounds(document_x_lock &lock, ListingItem *functio
         return;
     }
 
-    address_t lastaddress = functionitem->address;
-
     for(const Graphing::Node& n : fg.nodes())
     {
         const Graphing::FunctionBasicBlock* fbb = fg.data(n);
 
         if(fbb)
-            lock->bounds(functionitem, { fbb->startidx, fbb->endidx });
+            lock->functions().bounds(functionitem, { fbb->startidx, fbb->endidx });
         else
             REDasm::log("Incomplete blocks @ " + REDasm::hex(functionitem->address));
     }

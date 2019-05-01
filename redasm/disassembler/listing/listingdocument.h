@@ -1,14 +1,13 @@
 #pragma once
 
 #include <unordered_set>
-#include <forward_list>
 #include "../../redasm.h"
 #include "../../support/event.h"
 #include "../../support/safe_ptr.h"
 #include "../../support/serializer.h"
 #include "../types/symboltable.h"
-#include "../types/referencetable.h"
 #include "instructioncache.h"
+#include "listingfunctions.h"
 #include "listingcursor.h"
 #include "listingitem.h"
 
@@ -35,13 +34,8 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
 
     private:
         typedef sorted_container<ListingItemPtr, ListingItemPtrComparator> ContainerType;
-
-    private:
         typedef std::unordered_map<address_t, Detail::CommentSet> PendingAutoComments;
         typedef std::unordered_map<address_t, size_t> ActiveMeta;
-        typedef std::forward_list< std::pair<size_t, size_t> > BoundsList;
-        typedef std::unordered_map<ListingItem*, BoundsList> FunctionBounds;
-        typedef ListingItemContainer FunctionList;
 
     private:
         using ContainerType::insert;
@@ -88,7 +82,6 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type);
 
     public:
-        size_t functionsCount() const;
         size_t segmentsCount() const;
         size_t lastLine() const;
         const ListingCursor* cursor() const;
@@ -96,7 +89,8 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         const Segment *segmentByName(const std::string& name) const;
         const Segment *segment(address_t address) const;
         Segment* segment(address_t address);
-        const FunctionList& functions() const;
+        ListingFunctions& functions();
+        const ListingFunctions& functions() const;
         const SegmentList& segments() const;
         const SymbolTable* symbols() const;
         Symbol *functionStartSymbol(address_t address);
@@ -105,7 +99,6 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         ListingItem* currentFunction() const;
         ListingItem* currentItem() const;
         InstructionPtr entryInstruction();
-        void bounds(ListingItem* item, const std::pair<size_t, size_t>& b);
         void rename(address_t address, const std::string& name);
         void lockFunction(address_t address, const std::string& name, u32 tag = 0);
         void eraseSymbol(address_t address);
@@ -135,8 +128,7 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         ListingCursor m_cursor;
         PendingAutoComments m_pendingautocomments;
         SegmentList m_segments;
-        FunctionList m_functions;
-        FunctionBounds m_bounds;
+        ListingFunctions m_functions;
         InstructionCache m_instructions;
         SymbolTable m_symboltable;
         Symbol* m_documententry;

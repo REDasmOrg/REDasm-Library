@@ -118,6 +118,11 @@ bool FunctionGraph::connectBasicBlocks()
         {
             for(address_t target : m_disassembler->getTargets(instruction->address))
             {
+                Symbol* symbol = m_document->symbol(target);
+
+                if(!symbol || !symbol->is(SymbolTypes::Code))
+                    continue;
+
                 FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->symbolIndex(target));
 
                 if(tofbb)
@@ -199,7 +204,14 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
                 ReferenceSet targets = m_disassembler->getTargets(instruction->address);
 
                 for(address_t target : targets)
+                {
+                    Symbol* symbol = m_document->symbol(target);
+
+                    if(!symbol || !symbol->is(SymbolTypes::Code))
+                        continue;
+
                     pending.push(m_document->symbolIndex(target));
+                }
 
                 if(!targets.empty() && instruction->is(InstructionTypes::Conditional))
                 {

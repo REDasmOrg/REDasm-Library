@@ -1,4 +1,5 @@
 #include "symboltable.h"
+#include <redasm/support/demangler.h>
 #include <forward_list>
 
 namespace REDasm {
@@ -84,6 +85,15 @@ void SymbolTable::clear()
     m_byname.clear();
 }
 
+std::string SymbolTable::normalized(std::string s)
+{
+    if(Demangler::isMangled(s))
+        return Demangler::demangled(s);
+
+    std::replace(s.begin(), s.end(), ' ', '_');
+    return s;
+}
+
 std::string SymbolTable::name(address_t address, u32 type)
 {
     std::stringstream ss;
@@ -130,10 +140,12 @@ std::string SymbolTable::prefix(u32 type)
         return "wstr";
     if(type & SymbolTypes::StringMask)
         return "str";
-    else if(type & SymbolTypes::FunctionMask)
+    if(type & SymbolTypes::FunctionMask)
         return "sub";
-    else if(type & SymbolTypes::Code)
+    if(type & SymbolTypes::Code)
         return "loc";
+    if(type & SymbolTypes::TableItemMask)
+        return "tbl";
 
     return "data";
 }

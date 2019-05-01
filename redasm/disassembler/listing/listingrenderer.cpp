@@ -15,14 +15,14 @@ ListingRenderer::ListingRenderer(DisassemblerAPI *disassembler): m_document(disa
     m_printer = PrinterPtr(disassembler->assembler()->createPrinter(disassembler));
 }
 
-void ListingRenderer::render(u64 start, u64 count, void *userdata)
+void ListingRenderer::render(size_t start, size_t count, void *userdata)
 {
     auto lock = s_lock_safe_ptr(m_document);
     const ListingCursor* cur = lock->cursor();
-    u64 end = start + count, line = start;
+    size_t end = start + count, line = start;
     std::string word = this->getCurrentWord();
 
-    for(u64 i = 0; line < std::min<u64>(lock->length(), end); i++, line++)
+    for(size_t i = 0; line < std::min(lock->size(), end); i++, line++)
     {
         RendererLine rl;
         rl.userdata = userdata;
@@ -169,15 +169,15 @@ std::string ListingRenderer::getSelectedText()
 bool ListingRenderer::hasFlag(u32 flag) const { return flag & m_flags; }
 void ListingRenderer::setFlags(u32 flags) { m_flags = flags; }
 
-bool ListingRenderer::getRendererLine(u64 line, RendererLine &rl)
+bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
 {
     auto lock = document_s_lock(m_document);
     return this->getRendererLine(lock, line, rl);
 }
 
-bool ListingRenderer::getRendererLine(const document_s_lock &lock, u64 line, RendererLine& rl)
+bool ListingRenderer::getRendererLine(const document_s_lock &lock, size_t line, RendererLine& rl)
 {
-    const ListingItem* item = lock->itemAt(std::min<u64>(line, lock->lastLine()));
+    const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
 
     if(!item)
         return false;
@@ -277,7 +277,7 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, const Listi
     this->renderIndent(rl, 3);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
-    this->renderComments(lock, instruction, rl);
+    this->renderComments(lock, item, rl);
 }
 
 void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
@@ -346,14 +346,14 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    auto metaitem = lock->meta(item->address, item->index);
-    rl.push(metaitem.first + " ", "meta_fg").push(metaitem.second, "comment_fg");
+    auto metaitem = lock->meta(item);
+    rl.push(metaitem.type + " ", "meta_fg").push(metaitem.name, "comment_fg");
 }
 
 void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push(".type ", "meta_fg").push(lock->type(item->address), "comment_fg");
+    rl.push(".type ", "meta_fg").push(lock->type(item), "comment_fg");
 }
 
 void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl)
@@ -422,9 +422,9 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
     });
 }
 
-void ListingRenderer::renderComments(const document_s_lock &lock, const InstructionPtr &instruction, RendererLine &rl)
+void ListingRenderer::renderComments(const document_s_lock &lock, const ListingItem* item, RendererLine &rl)
 {
-    std::string s = lock->comment(instruction->address);
+    std::string s = lock->comment(item);
 
     if(s.empty())
         return;

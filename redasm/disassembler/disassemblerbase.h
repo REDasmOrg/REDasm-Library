@@ -25,6 +25,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual address_location getTarget(address_t address) const;
         virtual u64 getTargetsCount(address_t address) const;
         virtual u64 getReferencesCount(address_t address) const;
+        virtual void computeBounds();
         virtual void popTarget(address_t address, address_t pointedby);
         virtual void pushTarget(address_t address, address_t pointedby);
         virtual void pushReference(address_t address, address_t refby);
@@ -45,6 +46,7 @@ class DisassemblerBase: public DisassemblerAPI
         virtual bool loadSignature(const std::string& signame);
 
    private:
+        void computeBounds(document_x_lock &lock, ListingItem* functionitem);
         template<typename T> std::string readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 

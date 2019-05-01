@@ -39,6 +39,7 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
 
     public:
         FunctionGraph(DisassemblerAPI* disassembler);
+        bool build(ListingItem* item);
         bool build(address_t address);
 
     private:

@@ -1,5 +1,6 @@
 #include "disassemblerbase.h"
 #include "../database/signaturedb.h"
+#include "../graph/functiongraph.h"
 #include <cctype>
 
 namespace REDasm {
@@ -53,6 +54,15 @@ ListingItems DisassemblerBase::getCalls(address_t address)
 address_location DisassemblerBase::getTarget(address_t address) const { return m_referencetable.target(address); }
 u64 DisassemblerBase::getTargetsCount(address_t address) const { return m_referencetable.targetsCount(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) const { return m_referencetable.referencesCount(address); }
+
+void DisassemblerBase::computeBounds()
+{
+    auto lock = x_lock_safe_ptr(m_loader->document());
+
+    for(ListingItem* item : lock->functions())
+        this->computeBounds(lock, item);
+}
+
 void DisassemblerBase::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
 void DisassemblerBase::pushTarget(address_t address, address_t pointedby) { m_referencetable.pushTarget(address, pointedby); }
 void DisassemblerBase::pushReference(address_t address, address_t refby) { m_referencetable.push(address, refby); }
@@ -399,6 +409,29 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
         REDasm::log("No signatures found");
 
     return true;
+}
+
+void DisassemblerBase::computeBounds(document_x_lock &lock, ListingItem *functionitem)
+{
+    Graphing::FunctionGraph fg(this);
+
+    if(!fg.build(functionitem))
+    {
+        REDasm::log("Cannot compute bounds @ " + REDasm::hex(functionitem->address));
+        return;
+    }
+
+    address_t lastaddress = functionitem->address;
+
+    for(const Graphing::Node& n : fg.nodes())
+    {
+        const Graphing::FunctionBasicBlock* fbb = fg.data(n);
+
+        if(fbb)
+            lock->bounds(functionitem, { fbb->startidx, fbb->endidx });
+        else
+            REDasm::log("Incomplete blocks @ " + REDasm::hex(functionitem->address));
+    }
 }
 
 } // namespace REDasm

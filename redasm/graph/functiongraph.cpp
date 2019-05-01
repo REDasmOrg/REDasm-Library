@@ -9,7 +9,15 @@ bool FunctionGraph::build(address_t address)
 {
     ListingItem* item = m_document->functionStart(address);
 
-    if(!item)
+    if(item)
+        return this->build(item);
+
+    return false;
+}
+
+bool FunctionGraph::build(ListingItem *item)
+{
+    if(!item || !item->is(ListingItem::FunctionItem))
         return false;
 
     m_graphstart = REDasm::make_location(item->address);
@@ -178,12 +186,6 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
     for(auto it = m_document->begin() + index ; it != m_document->end(); it++, index++)
     {
         item = it->get();
-
-        if(item->address == 0x18f87)
-        {
-            int zzz = 0;
-            zzz++;
-        }
 
         if(this->isStopItem(item))
             break;

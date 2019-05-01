@@ -73,6 +73,7 @@ class SymbolTable: public Serializer::Serializable
         void clear();
 
     public:
+        static std::string normalized(std::string s);
         static std::string name(address_t address, u32 type);
         static std::string name(address_t address, const std::string& s, u32 type);
         virtual void serializeTo(std::fstream& fs);

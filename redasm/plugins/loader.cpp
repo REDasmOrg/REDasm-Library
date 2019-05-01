@@ -22,15 +22,13 @@ SignatureIdentifiers &LoaderPlugin::signatures() { return m_signatures; }
 
 offset_location LoaderPlugin::offset(address_t address) const
 {
-    for(size_t i = 0; i < m_document->segmentsCount(); i++)
+    for(const Segment& segment : m_document->segments())
     {
-        const Segment* segment = m_document->segmentAt(i);
+        if(!segment.contains(address))
+            continue;
 
-        if(segment->contains(address))
-        {
-            offset_t offset = (address - segment->address) + segment->offset;
-            return REDasm::make_location(offset, segment->containsOffset(offset));
-        }
+        offset_t offset = (address - segment.address) + segment.offset;
+        return REDasm::make_location(offset, segment.containsOffset(offset));
     }
 
     return REDasm::invalid_location<offset_t>();
@@ -38,15 +36,13 @@ offset_location LoaderPlugin::offset(address_t address) const
 
 address_location LoaderPlugin::address(offset_t offset) const
 {
-    for(size_t i = 0; i < m_document->segmentsCount(); i++)
+    for(const Segment& segment : m_document->segments())
     {
-        const Segment* segment = m_document->segmentAt(i);
+        if(!segment.containsOffset(offset))
+            continue;
 
-        if(segment->containsOffset(offset))
-        {
-            address_t address = (offset - segment->offset) + segment->address;
-            return REDasm::make_location(address, segment->contains(address));
-        }
+        address_t address = (offset - segment.offset) + segment.address;
+        return REDasm::make_location(address, segment.contains(address));
     }
 
     return REDasm::invalid_location<address_t>();

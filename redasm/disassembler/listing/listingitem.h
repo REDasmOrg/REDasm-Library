@@ -1,11 +1,25 @@
 #pragma once
 
 #include <memory>
+#include <unordered_set>
 #include <deque>
 #include "../../support/containers/sorted_container.h"
-#include "../../types/base_types.h"
+#include "../../redasm.h"
 
 namespace REDasm {
+
+namespace Detail {
+
+struct MetaItem { std::string name, type; };
+typedef std::unordered_set<std::string> CommentSet;
+
+struct ListingItemData {
+    CommentSet comments, autocomments;
+    MetaItem meta;
+    std::string type;
+};
+
+} // namespace Detail
 
 struct ListingItem
 {
@@ -16,9 +30,10 @@ struct ListingItem
     };
 
     ListingItem(): address(0), type(ListingItem::Undefined), index(0) { }
-    ListingItem(address_t address, size_t type, size_t index): address(address), type(type), index(index) { }
+    ListingItem(address_t address, size_t type, size_t index): address(address), type(type), index(index) { data = std::make_unique<Detail::ListingItemData>(); }
     inline bool is(size_t t) const { return type == t; }
 
+    std::unique_ptr<Detail::ListingItemData> data;
     address_t address;
     size_t type, index;
 };

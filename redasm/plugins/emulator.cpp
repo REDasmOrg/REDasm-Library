@@ -71,27 +71,25 @@ void Emulator::remap()
     m_stack = std::make_unique<MemoryBuffer>(STACK_SIZE, 0);
     m_memory.clear();
 
-    for(size_t i = 0; i < document->segmentsCount(); i++)
+    for(const Segment& segment : document->segments())
     {
-        const Segment* segment = document->segmentAt(i);
+        REDasm::log("MAPPING " + REDasm::quoted(segment.name) +
+                    " @ " + REDasm::hex(segment.address) + ", " +
+                    " size: " + REDasm::hex(segment.size()));
 
-        REDasm::log("MAPPING " + REDasm::quoted(segment->name) +
-                    " @ " + REDasm::hex(segment->address) + ", " +
-                    " size: " + REDasm::hex(segment->size()));
-
-        if(!segment->is(SegmentTypes::Bss))
+        if(!segment.is(SegmentTypes::Bss))
         {
-            BufferView view = loader->view(segment->address);
+            BufferView view = loader->view(segment.address);
 
-            if(segment->size() > static_cast<s64>(view.size()))
+            if(segment.size() > static_cast<s64>(view.size()))
                 return;
 
             auto buffer = std::make_unique<MemoryBuffer>();
             view.copyTo(buffer.get());
-            m_memory[segment] = std::move(buffer);
+            m_memory[&segment] = std::move(buffer);
         }
         else
-            m_memory[segment] = std::make_unique<MemoryBuffer>(segment->size(), 0);
+            m_memory[&segment] = std::make_unique<MemoryBuffer>(segment.size(), 0);
     }
 }
 

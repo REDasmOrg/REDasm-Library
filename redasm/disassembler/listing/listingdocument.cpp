@@ -1,6 +1,5 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
-#include <redasm/support/demangler.h>
 #include <algorithm>
 #include <sstream>
 
@@ -58,163 +57,194 @@ void ListingDocumentType::moveToEP()
     m_cursor.set(this->functionIndex(m_documententry->address));
 }
 
-u64 ListingDocumentType::length() const { return static_cast<u64>(this->size()); }
-u64 ListingDocumentType::lastLine() const { return static_cast<u64>(this->size()) - 1; }
+size_t ListingDocumentType::lastLine() const { return static_cast<u64>(this->size()) - 1; }
+const ListingDocumentType::FunctionList &ListingDocumentType::functions() const { return m_functions; }
+const SegmentList &ListingDocumentType::segments() const { return m_segments; }
 
 void ListingDocumentType::serializeTo(std::fstream &fs)
 {
-    Serializer::serializeScalar(fs, m_cursor.currentLine());
-    Serializer::serializeScalar(fs, m_cursor.currentColumn());
-    Serializer::serializeScalar(fs, m_documententry ? m_documententry->address : 0);
+    //Serializer::serializeScalar(fs, m_cursor.currentLine());
+    //Serializer::serializeScalar(fs, m_cursor.currentColumn());
+    //Serializer::serializeScalar(fs, m_documententry ? m_documententry->address : 0);
 
-    // Segments
-    Serializer::serializeArray<std::deque, Segment>(fs, m_segments, [&](const Segment& s) {
-        Serializer::serializeString(fs, s.name);
-        Serializer::serializeScalar(fs, s.offset);
-        Serializer::serializeScalar(fs, s.endoffset);
-        Serializer::serializeScalar(fs, s.address);
-        Serializer::serializeScalar(fs, s.endaddress);
-        Serializer::serializeScalar(fs, s.type);
-    });
+    //// Segments
+    //Serializer::serializeArray<std::deque, Segment>(fs, m_segments, [&](const Segment& s) {
+    //    Serializer::serializeString(fs, s.name);
+    //    Serializer::serializeScalar(fs, s.offset);
+    //    Serializer::serializeScalar(fs, s.endoffset);
+    //    Serializer::serializeScalar(fs, s.address);
+    //    Serializer::serializeScalar(fs, s.endaddress);
+    //    Serializer::serializeScalar(fs, s.type);
+    //});
 
-    // Auto Comments
-    Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t k, const CommentSet& v) {
-        Serializer::serializeScalar(fs, k);
+    //// Auto Comments
+    //Serializer::serializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t k, const CommentSet& v) {
+    //    Serializer::serializeScalar(fs, k);
 
-        Serializer::serializeArray<std::set, std::string>(fs, v, [&](const std::string& s) {
-            Serializer::serializeString(fs, s);
-        });
-    });
+    //    Serializer::serializeArray<std::set, std::string>(fs, v, [&](const std::string& s) {
+    //        Serializer::serializeString(fs, s);
+    //    });
+    //});
 
-    // User Comments
-    Serializer::serializeMap<address_t, std::string>(fs, m_comments, [&](address_t k, const std::string& v) {
-        Serializer::serializeScalar(fs, k);
-        Serializer::serializeString(fs, v);
-    });
+    //// User Comments
+    //Serializer::serializeMap<address_t, std::string>(fs, m_comments, [&](address_t k, const std::string& v) {
+    //    Serializer::serializeScalar(fs, k);
+    //    Serializer::serializeString(fs, v);
+    //});
 
-    // Metadata
-    Serializer::serializeMap<address_t, MetaList>(fs, m_meta, [&](address_t k, const MetaList& v) {
-        Serializer::serializeScalar(fs, k);
+    //// Metadata
+    //Serializer::serializeMap<address_t, MetaList>(fs, m_meta, [&](address_t k, const MetaList& v) {
+    //    Serializer::serializeScalar(fs, k);
 
-        Serializer::serializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](const std::pair<std::string, std::string>& m) {
-            Serializer::serializeString(fs, m.first);
-            Serializer::serializeString(fs, m.second);
-        });
-    });
+    //    Serializer::serializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](const std::pair<std::string, std::string>& m) {
+    //        Serializer::serializeString(fs, m.first);
+    //        Serializer::serializeString(fs, m.second);
+    //    });
+    //});
 
-    m_instructions.serializeTo(fs);
-    m_symboltable.serializeTo(fs);
+    //m_instructions.serializeTo(fs);
+    //m_symboltable.serializeTo(fs);
 }
 
 void ListingDocumentType::deserializeFrom(std::fstream &fs)
 {
-    address_t ep = 0;
-    u64 line = 0, column = 0;
-    Serializer::deserializeScalar(fs, &line);
-    Serializer::deserializeScalar(fs, &column);
-    Serializer::deserializeScalar(fs, &ep);
+    //address_t ep = 0;
+    //u64 line = 0, column = 0;
+    //Serializer::deserializeScalar(fs, &line);
+    //Serializer::deserializeScalar(fs, &column);
+    //Serializer::deserializeScalar(fs, &ep);
 
-    // Segments
-    Serializer::deserializeArray<std::deque, Segment>(fs, m_segments, [&](Segment& s) {
-        Serializer::deserializeString(fs, s.name);
-        Serializer::deserializeScalar(fs, &s.offset);
-        Serializer::deserializeScalar(fs, &s.endoffset);
-        Serializer::deserializeScalar(fs, &s.address);
-        Serializer::deserializeScalar(fs, &s.endaddress);
-        Serializer::deserializeScalar(fs, &s.type);
+    //// Segments
+    //Serializer::deserializeArray<std::deque, Segment>(fs, m_segments, [&](Segment& s) {
+    //    Serializer::deserializeString(fs, s.name);
+    //    Serializer::deserializeScalar(fs, &s.offset);
+    //    Serializer::deserializeScalar(fs, &s.endoffset);
+    //    Serializer::deserializeScalar(fs, &s.address);
+    //    Serializer::deserializeScalar(fs, &s.endaddress);
+    //    Serializer::deserializeScalar(fs, &s.type);
 
-        this->insertSorted(s.address, ListingItem::SegmentItem);
-    });
+    //    this->push(s.address, ListingItem::SegmentItem);
+    //});
 
-    // Auto Comments
-    Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t& k, CommentSet& v) {
-        Serializer::deserializeScalar(fs, &k);
+    //// Auto Comments
+    //Serializer::deserializeMap<address_t, CommentSet>(fs, m_autocomments, [&](address_t& k, CommentSet& v) {
+    //    Serializer::deserializeScalar(fs, &k);
 
-        Serializer::deserializeArray<std::set, std::string>(fs, v, [&](std::string& s) {
-            Serializer::deserializeString(fs, s);
-        });
-    });
+    //    Serializer::deserializeArray<std::set, std::string>(fs, v, [&](std::string& s) {
+    //        Serializer::deserializeString(fs, s);
+    //    });
+    //});
 
-    // User Comments
-    Serializer::deserializeMap<address_t, std::string>(fs, m_comments, [&](address_t& k, std::string& v) {
-        Serializer::deserializeScalar(fs, &k);
-        Serializer::deserializeString(fs, v);
-    });
+    //// User Comments
+    //Serializer::deserializeMap<address_t, std::string>(fs, m_comments, [&](address_t& k, std::string& v) {
+    //    Serializer::deserializeScalar(fs, &k);
+    //    Serializer::deserializeString(fs, v);
+    //});
 
-    // Metadata
-    Serializer::deserializeMap<address_t, MetaList>(fs, m_meta, [&](address_t& k, MetaList& v) {
-        Serializer::deserializeScalar(fs, &k);
-        size_t idx = 0;
+    //// Metadata
+    //Serializer::deserializeMap<address_t, MetaList>(fs, m_meta, [&](address_t& k, MetaList& v) {
+    //    Serializer::deserializeScalar(fs, &k);
+    //    size_t idx = 0;
 
-        Serializer::deserializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](std::pair<std::string, std::string>& m) {
-            Serializer::deserializeString(fs, m.first);
-            Serializer::deserializeString(fs, m.second);
+    //    Serializer::deserializeArray<std::deque, std::pair<std::string, std::string> >(fs, v, [&](std::pair<std::string, std::string>& m) {
+    //        Serializer::deserializeString(fs, m.first);
+    //        Serializer::deserializeString(fs, m.second);
 
-            if(!idx)
-                this->insertSorted(k, ListingItem::EmptyItem);
+    //        if(!idx)
+    //            this->push(k, ListingItem::EmptyItem);
 
-            this->insertSorted(k, ListingItem::MetaItem, idx);
-            idx++;
-        });
-    });
+    //        this->push(k, ListingItem::MetaItem, idx);
+    //        idx++;
+    //    });
+    //});
 
-    EVENT_CONNECT(&m_instructions, deserialized, this, [&](const InstructionPtr& instruction) {
-        this->insertSorted(instruction->address, ListingItem::InstructionItem);
-    });
+    //EVENT_CONNECT(&m_instructions, deserialized, this, [&](const InstructionPtr& instruction) {
+    //    this->push(instruction->address, ListingItem::InstructionItem);
+    //});
 
-    EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const Symbol* symbol) {
-        if(symbol->type & SymbolTypes::FunctionMask) {
-            this->insertSorted(symbol->address, ListingItem::EmptyItem);
-            this->insertSorted(symbol->address, ListingItem::FunctionItem);
-        }
-        else
-            this->insertSorted(symbol->address, ListingItem::SymbolItem);
-    });
+    //EVENT_CONNECT(&m_symboltable, deserialized, this, [&](const Symbol* symbol) {
+    //    if(symbol->type & SymbolTypes::FunctionMask) {
+    //        this->push(symbol->address, ListingItem::EmptyItem);
+    //        this->push(symbol->address, ListingItem::FunctionItem);
+    //    }
+    //    else
+    //        this->push(symbol->address, ListingItem::SymbolItem);
+    //});
 
-    m_instructions.deserializeFrom(fs);
-    m_symboltable.deserializeFrom(fs);
+    //m_instructions.deserializeFrom(fs);
+    //m_symboltable.deserializeFrom(fs);
 
-    m_instructions.deserialized.removeLast();
-    m_symboltable.deserialized.removeLast();
+    //m_instructions.deserialized.removeLast();
+    //m_symboltable.deserialized.removeLast();
 
-    m_documententry = m_symboltable.symbol(ep);
-    m_cursor.set(line, column);
+    //m_documententry = m_symboltable.symbol(ep);
+    //m_cursor.set(line, column);
 }
 
-ListingItem *ListingDocumentType::functionStart(ListingItem *item)
+std::string ListingDocumentType::comment(const ListingItem* item, bool skipauto) const
+{
+    std::string cmt;
+    Detail::CommentSet comments = item->data->comments;
+
+    if(!skipauto)
+        comments.insert(item->data->autocomments.begin(), item->data->autocomments.end());
+
+    return REDasm::join(comments, COMMENT_SEPARATOR);
+}
+
+void ListingDocumentType::comment(ListingItem *item, const std::string &s)
+{
+    if(!s.empty())
+        item->data->comments.insert(REDasm::simplified(s));
+    else
+        item->data->comments.clear();
+
+    ListingDocumentChanged ldc(item, this->itemIndex(item));
+    changed(&ldc);
+}
+
+ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
 {
     if(!item)
+        return nullptr;
+
+    auto it = m_bounds.find(item);
+
+    if(it != m_bounds.end())
+        return it->first;
+
+    size_t idx = this->itemIndex(item);
+
+    if(idx == ListingDocumentType::npos)
         return nullptr;
 
     return this->functionStart(item->address);
 }
 
-ListingItem *ListingDocumentType::functionStart(address_t address)
+ListingItem *ListingDocumentType::functionStart(address_t address) const
 {
-    auto iit = this->instructionItem(address);
+    size_t idx = this->instructionIndex(address);
 
-    if(iit == this->end())
+    if(idx == ListingDocumentType::npos)
         return nullptr;
 
-    auto fit = std::upper_bound(m_functions.begin(), m_functions.end(), iit->get(), [](const ListingItem* item1, const ListingItem* item2) {
-        return item1->address < item2->address;
+    auto it = std::find_if(m_bounds.begin(), m_bounds.end(), [idx](const std::pair<ListingItem*, BoundsList>& item) -> bool {
+        for(const auto& bound : item.second) {
+            if((idx < bound.first) || (idx > bound.second))
+                continue;
+            return true;
+        }
+
+        return false;
     });
 
-    if(fit == m_functions.end())
-        return m_functions.back();
+    if(it == m_bounds.end())
+        return nullptr;
 
-    if((*fit)->address > iit->get()->address)
-    {
-        if(fit == m_functions.begin()) // Function not found
-            return nullptr;
-
-        fit--;
-    }
-
-    return *fit;
+    return it->first;
 }
 
-ListingItem *ListingDocumentType::currentFunction()
+ListingItem *ListingDocumentType::currentFunction() const
 {
     if(!this->currentItem())
         return nullptr;
@@ -222,9 +252,9 @@ ListingItem *ListingDocumentType::currentFunction()
     return this->functionStart(this->currentItem());
 }
 
-ListingItem *ListingDocumentType::currentItem()
+ListingItem *ListingDocumentType::currentItem() const
 {
-    if(m_cursor.currentLine() >= static_cast<u64>(this->size()))
+    if(m_cursor.currentLine() >= this->size())
         return nullptr;
 
     return this->itemAt(m_cursor.currentLine());
@@ -248,96 +278,43 @@ InstructionPtr ListingDocumentType::entryInstruction()
     return this->instruction(m_documententry->address);
 }
 
-std::string ListingDocumentType::comment(address_t address, bool skipauto) const
+const Detail::MetaItem& ListingDocumentType::meta(const ListingItem* item) const { return item->data->meta; }
+std::string ListingDocumentType::type(const ListingItem* item) const { return item->data->type; }
+void ListingDocumentType::empty(address_t address) { this->push(address, ListingItem::EmptyItem); }
+
+void ListingDocumentType::bounds(ListingItem *item, const std::pair<size_t, size_t> &b)
 {
-    std::string cmt;
-    auto it = m_comments.find(address);
+    auto it = m_bounds.find(item);
 
-    if(it != m_comments.end())
-        cmt = it->second;
-
-    if(skipauto)
-        return cmt;
-
-    std::string acmt = this->autoComment(address);
-
-    if(!acmt.empty())
-        return cmt.empty() ? acmt : (cmt + COMMENT_SEPARATOR + acmt);
-
-    return cmt;
+    if(it == m_bounds.end())
+        m_bounds[item] = { b };
+    else
+        m_bounds[item].push_front(b);
 }
-
-std::pair<std::string, std::string> ListingDocumentType::meta(address_t address, size_t index) const
-{
-    auto it = m_meta.find(address);
-
-    if((it != m_meta.end()) && (index < it->second.size()))
-        return it->second[index];
-
-    return { };
-}
-
-std::string ListingDocumentType::type(address_t address) const
-{
-    auto it = m_types.find(address);
-
-    if(it != m_types.end())
-        return it->second;
-
-    return std::string();
-}
-
-void ListingDocumentType::empty(address_t address) { this->insertSorted(address, ListingItem::EmptyItem); }
 
 void ListingDocumentType::meta(address_t address, const std::string &s, const std::string &name)
 {
     size_t index = 0;
-    auto it = m_meta.find(address);
+    auto it = m_activemeta.find(address);
 
-    if(it != m_meta.end())
-    {
-        index = it->second.size();
-
-        if(name.empty())
-            m_meta[address].emplace_back(std::make_pair(".meta", s));
-        else
-            m_meta[address].emplace_back(std::make_pair("." + name, s));
-    }
+    if(it != m_activemeta.end())
+        index = ++it->second;
     else
-    {
-        if(name.empty())
-            m_meta[address] = { std::make_pair(".meta", s) };
-        else
-            m_meta[address] = { std::make_pair("." + name, s) };
+        m_activemeta[address] = 0;
 
-        this->empty(address);
-    }
+    ListingItem* item = this->push(address, ListingItem::MetaItem, index);
 
-    this->insertSorted(address, ListingItem::MetaItem, index);
+    if(name.empty())
+        item->data->meta = { ".meta", s };
+    else
+        item->data->meta = { "." + name, s };
 }
 
 void ListingDocumentType::type(address_t address, const std::string &s)
 {
-    m_types[address] = s;
-
     this->empty(address);
-    this->insertSorted(address, ListingItem::TypeItem);
-}
-
-void ListingDocumentType::comment(address_t address, const std::string &s)
-{
-    if(!s.empty())
-        m_comments[address] = REDasm::simplified(s);
-    else
-        m_comments.erase(address);
-
-    auto iit = this->instructionItem(address);
-
-    if(iit == this->end())
-        return;
-
-    ListingDocumentChanged ldc(iit->get(), std::distance(this->cbegin(), iit));
-    changed(&ldc);
+    ListingItem* item = this->push(address, ListingItem::TypeItem);
+    item->data->type = s;
 }
 
 void ListingDocumentType::autoComment(address_t address, const std::string &s)
@@ -345,23 +322,17 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
     if(s.empty())
         return;
 
-    auto it = m_autocomments.find(address);
+    auto it = this->instructionItem(address);
 
-    if(it == m_autocomments.end())
+    if(it == this->end())
     {
-        CommentSet cs;
-        cs.insert(s);
-        m_autocomments[address] = cs;
-    }
-    else
-        it->second.insert(s);
-
-    auto iit = this->instructionItem(address);
-
-    if(iit == this->end())
+        m_pendingautocomments[address].insert(s);
         return;
+    }
 
-    ListingDocumentChanged ldc(iit->get(), std::distance(this->cbegin(), iit));
+    it->get()->data->autocomments.insert(s);
+
+    ListingDocumentChanged ldc(it->get(), this->itemIndex(it->get()));
     changed(&ldc);
 }
 
@@ -386,30 +357,30 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         if(symbol->isLocked() && !(type & SymbolTypes::Locked))
             return;
 
-        this->removeSorted(address, ListingItem::EmptyItem);
-        this->removeSorted(address, ListingItem::MetaItem);
+        this->pop(address, ListingItem::EmptyItem);
+        this->pop(address, ListingItem::MetaItem);
 
         if(symbol->isFunction())
         {
-            this->insertSorted(address, ListingItem::EmptyItem);
-            this->removeSorted(address, ListingItem::FunctionItem);
+            this->push(address, ListingItem::EmptyItem);
+            this->pop(address, ListingItem::FunctionItem);
         }
         else
-            this->removeSorted(address, ListingItem::SymbolItem);
+            this->pop(address, ListingItem::SymbolItem);
 
         m_symboltable.erase(address);
     }
 
-    if(!this->segment(address) || !m_symboltable.create(address, ListingDocumentType::normalized(name), type, tag))
+    if(!this->segment(address) || !m_symboltable.create(address, SymbolTable::normalized(name), type, tag))
         return;
 
     if(type & SymbolTypes::FunctionMask)
     {
-        this->insertSorted(address, ListingItem::EmptyItem);
-        this->insertSorted(address, ListingItem::FunctionItem);
+        this->push(address, ListingItem::EmptyItem);
+        this->push(address, ListingItem::FunctionItem);
     }
     else
-        this->insertSorted(address, ListingItem::SymbolItem);
+        this->push(address, ListingItem::SymbolItem);
 }
 
 void ListingDocumentType::symbol(address_t address, u32 type, u32 tag) { this->symbol(address, SymbolTable::name(address, type), type, tag); }
@@ -450,10 +421,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
     }
 
     auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
-        if(segment.is(SegmentTypes::Bss))
-            return segment.contains(address);
-
-        return (segment.offset == offset) || segment.contains(address);
+        return segment.is(SegmentTypes::Bss) ? segment.contains(address) : ((segment.offset == offset) || segment.contains(address));
     });
 
     if(it != m_segments.end())
@@ -469,7 +437,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
     });
 
     m_segments.insert(it, segment);
-    this->insertSorted(address, ListingItem::SegmentItem);
+    this->push(address, ListingItem::SegmentItem);
 }
 
 void ListingDocumentType::lockFunction(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag);  }
@@ -479,7 +447,7 @@ void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->
 
 void ListingDocumentType::table(address_t address, u64 count, u32 tag)
 {
-    this->lock(address, ListingDocumentType::symbolName("tbl", address) + "_0", SymbolTypes::TableItem, tag);
+    this->lock(address, SymbolTable::name(address, SymbolTypes::TableItem) + "_0", SymbolTypes::TableItem, tag);
     this->type(address, "Table with " + std::to_string(count) + " case(s)");
 }
 
@@ -494,7 +462,8 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
         return;
     }
 
-    this->lock(address, ListingDocumentType::symbolName("tbl", startaddress) + "_" + std::to_string(idx),
+    this->lock(address,
+               SymbolTable::name(startaddress, SymbolTypes::TableItem) + "_" + std::to_string(idx),
                SymbolTypes::TableItem, tag);
 }
 
@@ -507,7 +476,7 @@ void ListingDocumentType::entry(address_t address, u32 tag)
 
 void ListingDocumentType::eraseSymbol(address_t address)
 {
-    this->removeSorted(address, ListingItem::SymbolItem);
+    this->pop(address, ListingItem::SymbolItem);
     m_symboltable.erase(address);
 }
 
@@ -533,7 +502,6 @@ Segment *ListingDocumentType::segment(address_t address)
 }
 
 const Segment *ListingDocumentType::segment(address_t address) const { return const_cast<ListingDocumentType*>(this)->segment(address); }
-const Segment *ListingDocumentType::segmentAt(size_t idx) const { return &m_segments[idx]; }
 
 const Segment *ListingDocumentType::segmentByName(const std::string &name) const
 {
@@ -551,7 +519,7 @@ const Segment *ListingDocumentType::segmentByName(const std::string &name) const
 void ListingDocumentType::instruction(const InstructionPtr &instruction)
 {
     m_instructions.commit(instruction->address, instruction);
-    this->insertSorted(instruction->address, ListingItem::InstructionItem);
+    this->push(instruction->address, ListingItem::InstructionItem);
 }
 
 void ListingDocumentType::update(const InstructionPtr &instruction) { m_instructions.update(instruction); }
@@ -580,35 +548,6 @@ size_t ListingDocumentType::findIndex(address_t address, size_t type, size_t ind
     return this->indexOf(item, ListingItemPtrFinder());
 }
 
-std::string ListingDocumentType::autoComment(address_t address) const
-{
-    auto it = m_autocomments.find(address);
-
-    if(it == m_autocomments.end())
-        return std::string();
-
-    std::string cmt;
-
-    for(const std::string& s : it->second)
-    {
-        if(!cmt.empty())
-            cmt += COMMENT_SEPARATOR;
-
-        cmt += s;
-    }
-
-    return cmt;
-}
-
-std::string ListingDocumentType::normalized(std::string s)
-{
-    if(Demangler::isMangled(s))
-        return Demangler::demangled(s);
-
-    std::replace(s.begin(), s.end(), ' ', '_');
-    return s;
-}
-
 ListingDocumentType::const_iterator ListingDocumentType::instructionItem(address_t address) const { return this->findItem(address, ListingItem::InstructionItem); }
 ListingDocumentType::const_iterator ListingDocumentType::symbolItem(address_t address) const { return this->findItem(address, ListingItem::SymbolItem); }
 size_t ListingDocumentType::itemIndex(const ListingItem *item) const { return this->findIndex(item->address, item->type, item->index); }
@@ -624,38 +563,40 @@ ListingItem* ListingDocumentType::itemAt(size_t i) const
     return this->at(i).get();
 }
 
-s64 ListingDocumentType::indexOfz(address_t address)
-{
-    s64 idx = this->symbolIndex(address);
-
-    if(idx == -1)
-        idx = this->instructionIndex(address);
-
-    return idx;
-}
-
 Symbol* ListingDocumentType::symbol(address_t address) const { return m_symboltable.symbol(address); }
-Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(ListingDocumentType::normalized(name)); }
+Symbol* ListingDocumentType::symbol(const std::string &name) const { return m_symboltable.symbol(SymbolTable::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { return &m_symboltable; }
 
-void ListingDocumentType::insertSorted(address_t address, u32 type, size_t index)
+ListingItem* ListingDocumentType::push(address_t address, size_t type, size_t index)
 {
     auto item = std::make_unique<ListingItem>(address, type, index);
 
-    if(type == ListingItem::FunctionItem)
+    if(type == ListingItem::InstructionItem)
+    {
+        auto it = m_pendingautocomments.find(address);
+
+        if(it != m_pendingautocomments.end())
+        {
+            item->data->autocomments = it->second;
+            m_pendingautocomments.erase(it);
+        }
+    }
+    else if(type == ListingItem::FunctionItem)
         m_functions.insert(item.get());
 
     auto it = ContainerType::find(item);
 
     if((it != this->end()) && (((*it)->address == address) && ((*it)->type == type)))
-        return;
+        return it->get();
 
     it = ContainerType::insert(std::move(item));
     ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentChanged::Inserted);
     changed(&ldc);
+
+    return it->get();
 }
 
-void ListingDocumentType::removeSorted(address_t address, u32 type)
+void ListingDocumentType::pop(address_t address, size_t type)
 {
     ListingItemPtr item = std::make_unique<ListingItem>(address, type, 0);
     auto it = ContainerType::find(item, ListingItemPtrFinder());
@@ -671,18 +612,6 @@ void ListingDocumentType::removeSorted(address_t address, u32 type)
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());
     }
-}
-
-std::string ListingDocumentType::symbolName(const std::string &prefix, address_t address, const Segment *segment)
-{
-    std::stringstream ss;
-    ss << prefix;
-
-    if(segment)
-        ss << "_" << ListingDocumentType::normalized(segment->name);
-
-    ss << "_" << std::hex << address;
-    return ss.str();
 }
 
 } // namespace REDasm

@@ -23,7 +23,7 @@ struct RendererLine
     RendererLine(bool ignoreflags = false): userdata(nullptr), documentindex(0), index(0), highlighted(false), ignoreflags(ignoreflags) { }
 
     void* userdata;
-    u64 documentindex, index;
+    size_t documentindex, index;
     bool highlighted, ignoreflags;
     std::list<RendererFormat> formats;
     std::string text;
@@ -81,7 +81,7 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
-        virtual void render(u64 start, u64 count, void* userdata = nullptr);
+        virtual void render(size_t start, size_t count, void* userdata = nullptr);
         DisassemblerAPI* disassembler() const;
         const ListingDocument& document() const;
         const REDasm::Symbol* symbolUnderCursor();
@@ -96,7 +96,7 @@ class ListingRenderer
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
         bool hasFlag(u32 flag) const;
-        bool getRendererLine(u64 line, RendererLine& rl);
+        bool getRendererLine(size_t line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine& rl);
         void renderFunction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderInstruction(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
@@ -106,13 +106,13 @@ class ListingRenderer
         void renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderMnemonic(const InstructionPtr& instruction, RendererLine &rl);
         void renderOperands(const InstructionPtr& instruction, RendererLine &rl);
-        void renderComments(const document_s_lock &lock, const InstructionPtr& instruction, RendererLine &rl);
+        void renderComments(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderAddressIndent(const document_s_lock &lock, const ListingItem *item, RendererLine& rl);
         void renderIndent(RendererLine &rl, int n = 1);
 
     private:
         bool renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine& rl) const;
-        bool getRendererLine(const document_s_lock& lock, u64 line, RendererLine& rl);
+        bool getRendererLine(const document_s_lock& lock, size_t line, RendererLine& rl);
         void highlightSelection(RendererLine& rl);
         void blinkCursor(RendererLine& rl);
         void highlightWord(RendererLine& rl, const std::string word);

@@ -39,6 +39,19 @@ template<typename T> struct bitwidth { static constexpr T value = sizeof(T) * CH
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
 template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 
+template<typename Container> std::string join(const Container& c, const std::string& sep) {
+    std::stringstream ss;
+
+    for(auto it = c.begin(); it != c.end(); it++) {
+        if(it != c.begin())
+            ss << sep;
+
+        ss << *it;
+    }
+
+    return ss.str();
+}
+
 template<typename T> T unmask(T val, T mask) {
     T result = 0;
 

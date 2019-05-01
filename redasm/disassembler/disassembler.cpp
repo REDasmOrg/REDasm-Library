@@ -29,15 +29,20 @@ void Disassembler::disassembleStep(Job* job)
 void Disassembler::analyzeStep()
 {
     m_algorithm->analyze();
-
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
 
-    if(!duration.count())
-        return;
+    if(duration.count())
+    {
+        std::stringstream ss;
+        ss << duration.count();
+        REDasm::log("Analysis completed in ~" + ss.str() + " second(s)");
+    }
+    else
+        REDasm::log("Analysis completed");
 
-    std::stringstream ss;
-    ss << duration.count();
-    REDasm::log("Analysis completed in ~" + ss.str() + " second(s)");
+    REDasm::log("Calculating function bounds...");
+    this->computeBounds();
+    REDasm::log("DONE");
 }
 
 void Disassembler::disassemble()

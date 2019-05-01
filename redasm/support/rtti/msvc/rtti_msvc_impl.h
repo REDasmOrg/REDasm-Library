@@ -134,15 +134,13 @@ template<typename T> void RTTIMsvc<T>::readHierarchy(document_x_lock& lock, cons
 
 template<typename T> void RTTIMsvc<T>::searchDataSegments()
 {
-    for(size_t i = 0; i < m_document->segmentsCount(); i++)
+    for(const Segment& segment : m_document->segments())
     {
-        const Segment* segment = m_document->segmentAt(i);
-
-        if(segment->empty() || segment->is(SegmentTypes::Bss) || segment->is(SegmentTypes::Code) || (segment->name.find("data") == std::string::npos))
+        if(segment.empty() || segment.is(SegmentTypes::Bss) || segment.is(SegmentTypes::Code) || (segment.name.find("data") == std::string::npos))
             continue;
 
-        REDasm::status("Checking segment '" + segment->name + "'");
-        m_segments.push_front(segment);
+        REDasm::status("Checking segment '" + segment.name + "'");
+        m_segments.push_front(&segment);
     }
 }
 

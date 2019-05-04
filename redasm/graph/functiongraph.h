@@ -39,14 +39,16 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
 
     public:
         FunctionGraph(DisassemblerAPI* disassembler);
+        bool containsItem(size_t index) const;
         bool build(const ListingItem *item);
         bool build(address_t address);
 
     private:
-        FunctionBasicBlock* basicBlockFromIndex(s64 index);
+        const FunctionBasicBlock* basicBlockFromIndex(size_t index) const;
+        FunctionBasicBlock* basicBlockFromIndex(size_t index);
         void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
         void incomplete() const;
-        bool isStopItem(ListingItem* item);
+        bool isStopItem(const ListingItem *item) const;
         void buildBasicBlock(s64 index, IndexQueue &pending);
         void buildBasicBlocks();
         bool connectBasicBlocks();

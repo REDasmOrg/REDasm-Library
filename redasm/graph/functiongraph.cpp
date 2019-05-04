@@ -4,6 +4,7 @@ namespace REDasm {
 namespace Graphing {
 
 FunctionGraph::FunctionGraph(DisassemblerAPI *disassembler): GraphT<FunctionBasicBlock>(), m_disassembler(disassembler), m_document(disassembler->document()) { }
+bool FunctionGraph::containsItem(size_t index) const { return this->basicBlockFromIndex(index) != nullptr; }
 
 bool FunctionGraph::build(address_t address)
 {
@@ -14,6 +15,19 @@ bool FunctionGraph::build(address_t address)
 
     return false;
 }
+
+const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(size_t index) const
+{
+    for(auto it = m_data.begin(); it != m_data.end(); it++)
+    {
+        if(it->second.contains(index))
+            return &it->second;
+    }
+
+    return nullptr;
+}
+
+FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(size_t index) { return const_cast<FunctionBasicBlock*>(static_cast<const FunctionGraph*>(this)->basicBlockFromIndex(index)); }
 
 bool FunctionGraph::build(const ListingItem *item)
 {
@@ -60,17 +74,6 @@ void FunctionGraph::buildBasicBlocks()
     }
 }
 
-FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(s64 index)
-{
-    for(auto it = m_data.begin(); it != m_data.end(); it++)
-    {
-        if(it->second.contains(index))
-            return &it->second;
-    }
-
-    return nullptr;
-}
-
 void FunctionGraph::setConnectionType(const InstructionPtr &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
 {
     if(!instruction->is(InstructionType::Conditional))
@@ -84,7 +87,7 @@ void FunctionGraph::setConnectionType(const InstructionPtr &instruction, Functio
 
 void FunctionGraph::incomplete() const { REDasm::log("WARNING: Incomplete graph @ " + REDasm::hex(m_graphstart)); }
 
-bool FunctionGraph::isStopItem(ListingItem *item)
+bool FunctionGraph::isStopItem(const ListingItem *item) const
 {
     switch(item->type)
     {

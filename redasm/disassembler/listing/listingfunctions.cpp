@@ -1,43 +1,45 @@
 #include "listingfunctions.h"
+#include "../../graph/functiongraph.h"
 
 namespace REDasm {
 
 ListingFunctions::ListingFunctions(): ListingItemConstContainer() { }
 
+ListingFunctions::~ListingFunctions()
+{
+    for(const auto& item : m_graphs)
+        delete item.second;
+}
+
 const ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 {
-    auto it = std::find_if(m_bounds.begin(), m_bounds.end(), [idx](const std::pair<const ListingItem*, BoundsList>& item) -> bool {
-        for(const auto& bound : item.second) {
-            if(bound.contains(idx))
-                return true;
-        }
-
-        return false;
+    auto it = std::find_if(m_graphs.begin(), m_graphs.end(), [idx](const FunctionGraphItem& item) -> bool {
+        return item.second->containsItem(idx);
     });
 
-    if(it == m_bounds.end())
+    if(it == m_graphs.end())
         return nullptr;
 
     return it->first;
 }
 
-void ListingFunctions::invalidateBounds() { m_bounds.clear(); }
-bool ListingFunctions::containsBounds(const ListingItem *item) const { return m_bounds.find(item) != m_bounds.end(); }
-const ListingFunctions::BoundsList &ListingFunctions::bounds(const ListingItem *item) const { return m_bounds.at(item); }
+void ListingFunctions::invalidateGraphs() { m_graphs.clear(); }
+const Graphing::FunctionGraph *ListingFunctions::graph(const ListingItem *item) const { auto it = m_graphs.find(item); return (it != m_graphs.end()) ? it->second : nullptr; }
+Graphing::FunctionGraph *ListingFunctions::graph(const ListingItem *item) { return const_cast<Graphing::FunctionGraph*>(static_cast<const ListingFunctions*>(this)->graph(item)); }
 
-void ListingFunctions::bounds(const ListingItem *item, const ListingFunctions::BoundsItem& b)
+void ListingFunctions::graph(const ListingItem *item, Graphing::FunctionGraph* fb)
 {
-    auto it = m_bounds.find(item);
+    auto it = m_graphs.find(item);
 
-    if(it == m_bounds.end())
-        m_bounds[item] = { b };
-    else
-        m_bounds[item].push_front(b);
+    if(it != m_graphs.end())
+        delete it->second;
+
+    m_graphs[item] = fb;
 }
 
 void ListingFunctions::erase(const ListingItem *item)
 {
-    m_bounds.erase(item);
+    m_graphs.erase(item);
     ListingItemConstContainer::erase(item);
 }
 

@@ -1,34 +1,32 @@
 #pragma once
 
 #include <unordered_map>
-#include <forward_list>
 #include "listingitem.h"
 
 namespace REDasm {
 
+namespace Graphing {
+class FunctionGraph;
+}
+
 class ListingFunctions: public ListingItemConstContainer
 {
-    public:
-        struct BoundsItem {
-            size_t startidx, endidx; // [startidx, endidx]
-            bool contains(size_t idx) const { return (idx >= startidx) && (idx <= endidx); }
-            size_t size() const { return (endidx >= startidx) ? (endidx - startidx) + 1 : 0; }
-        };
-
-        typedef std::forward_list<BoundsItem> BoundsList;
-        typedef std::unordered_map<const ListingItem*, BoundsList> FunctionBounds;
+    private:
+        typedef std::pair< const ListingItem*, Graphing::FunctionGraph* > FunctionGraphItem;
+        typedef std::unordered_map< const ListingItem*, Graphing::FunctionGraph* > FunctionGraphs;
 
     public:
         ListingFunctions();
+        ~ListingFunctions();
         const ListingItem* functionFromIndex(size_t idx) const;
-        void invalidateBounds();
-        bool containsBounds(const ListingItem* item) const;
-        const BoundsList& bounds(const ListingItem* item) const;
-        void bounds(const ListingItem* item, const BoundsItem &b);
+        const Graphing::FunctionGraph* graph(const ListingItem* item) const;
+        Graphing::FunctionGraph* graph(const ListingItem* item);
+        void graph(const ListingItem* item, Graphing::FunctionGraph* graph);
         void erase(const ListingItem* item);
+        void invalidateGraphs();
 
     private:
-        FunctionBounds m_bounds;
+        FunctionGraphs m_graphs;
 };
 
 } // namespace REDasm

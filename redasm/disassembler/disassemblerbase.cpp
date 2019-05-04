@@ -60,7 +60,7 @@ void DisassemblerBase::computeBounds()
     REDasm::log("Calculating function bounds...");
 
     auto lock = x_lock_safe_ptr(m_loader->document());
-    lock->functions().invalidateBounds();
+    lock->functions().invalidateGraphs();
 
     for(const ListingItem* item : lock->functions())
         this->computeBounds(lock, item);
@@ -416,23 +416,15 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
 
 void DisassemblerBase::computeBounds(document_x_lock &lock, const ListingItem *functionitem)
 {
-    Graphing::FunctionGraph fg(this);
+    auto g = std::make_unique<Graphing::FunctionGraph>(this);
 
-    if(!fg.build(functionitem))
+    if(!g->build(functionitem))
     {
-        REDasm::log("Cannot compute bounds @ " + REDasm::hex(functionitem->address));
+        REDasm::log("Cannot compute graph @ " + REDasm::hex(functionitem->address));
         return;
     }
 
-    for(const Graphing::Node& n : fg.nodes())
-    {
-        const Graphing::FunctionBasicBlock* fbb = fg.data(n);
-
-        if(fbb)
-            lock->functions().bounds(functionitem, { fbb->startidx, fbb->endidx });
-        else
-            REDasm::log("Incomplete blocks @ " + REDasm::hex(functionitem->address));
-    }
+    lock->functions().graph(functionitem, g.release());
 }
 
 } // namespace REDasm

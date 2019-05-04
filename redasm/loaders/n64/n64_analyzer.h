@@ -8,7 +8,7 @@ class N64Analyzer : public Analyzer
 {
     public:
         N64Analyzer(DisassemblerAPI* disassembler);
-        virtual void analyze();       
+        void analyze() override;
 };
 
 } // namespace REDasm

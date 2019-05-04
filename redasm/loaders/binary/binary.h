@@ -11,9 +11,9 @@ class BinaryLoader : public LoaderPluginB
 
     public:
         BinaryLoader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual void load();
-        virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
+        std::string assembler() const override;
+        void load() override;
+        void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint) override;
 
     private:
         std::string m_assembler;

@@ -26,8 +26,8 @@ class ReferenceTable: public Serializer::Serializable
         ReferenceVector referencesToVector(address_t address) const;
 
     public:
-        virtual void serializeTo(std::fstream& fs);
-        virtual void deserializeFrom(std::fstream& fs);
+        void serializeTo(std::fstream& fs) override;
+        void deserializeFrom(std::fstream& fs) override;
 
     private:
         void serializeMap(const ReferenceMap& rm, std::fstream& fs);

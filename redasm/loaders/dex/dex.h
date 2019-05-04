@@ -15,8 +15,8 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
 
     public:
         DEXLoader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual void load();
+        std::string assembler() const override;
+        void load() override;
 
     public:
         bool getMethodOffset(u64 idx, offset_t &offset) const;

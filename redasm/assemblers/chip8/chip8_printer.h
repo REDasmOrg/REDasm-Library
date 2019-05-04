@@ -8,7 +8,7 @@ class CHIP8Printer : public Printer
 {
     public:
         CHIP8Printer(DisassemblerAPI* disassembler);
-        virtual std::string reg(const RegisterOperand& regop) const;
+        std::string reg(const RegisterOperand& regop) const override;
 };
 
 } // namespace REDasm

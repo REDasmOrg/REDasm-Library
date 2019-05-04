@@ -13,10 +13,10 @@ class ARMAssembler: public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_ARM>
     public:
         ARMAssembler();
         virtual ~ARMAssembler() = default;
-        virtual u32 flags() const;
-        virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual u64 pc(const InstructionPtr& instruction) const;
+        u32 flags() const override;
+        Emulator* createEmulator(DisassemblerAPI *disassembler) const override;
+        Printer* createPrinter(DisassemblerAPI *disassembler) const override;
+        u64 pc(const InstructionPtr& instruction) const override;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(ARMAssembler, arm, 32)

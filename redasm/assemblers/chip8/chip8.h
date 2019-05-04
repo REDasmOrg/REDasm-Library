@@ -21,11 +21,11 @@ class CHIP8Assembler : public AssemblerPlugin
 
     public:
         CHIP8Assembler();
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
+        Printer* createPrinter(DisassemblerAPI *disassembler) const override;
 
     protected:
-        virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
-        virtual void onDecoded(const InstructionPtr& instruction);
+        bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction) override;
+        void onDecoded(const InstructionPtr& instruction) override;
 
     private:
         bool decode0xxx(u16 opcode, const InstructionPtr& instruction) const;

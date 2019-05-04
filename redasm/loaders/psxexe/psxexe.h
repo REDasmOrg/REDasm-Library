@@ -25,9 +25,9 @@ class PsxExeLoader: public LoaderPluginT<PsxExeHeader>
 
     public:
         PsxExeLoader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler) const;
-        virtual void load();
+        std::string assembler() const override;
+        Analyzer* createAnalyzer(DisassemblerAPI *disassembler) const override;
+        void load() override;
 };
 
 DECLARE_LOADER_PLUGIN(PsxExeLoader, psxexe)

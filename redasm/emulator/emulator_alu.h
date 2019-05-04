@@ -12,7 +12,7 @@ template<typename T> class EmulatorALU: public EmulatorBase<T>
 
     public:
         EmulatorALU(DisassemblerAPI* disassembler);
-        virtual bool displacement(const Operand* op, u64* value);
+        bool displacement(const Operand* op, u64* value) override;
         bool hasCarry() const;
 
     protected:

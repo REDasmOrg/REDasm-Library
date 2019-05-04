@@ -14,8 +14,8 @@ class XbeLoader : public LoaderPluginT<XbeImageHeader>
 
     public:
         XbeLoader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual void load();
+        std::string assembler() const override;
+        void load() override;
 
     private:
         void displayXbeInfo();

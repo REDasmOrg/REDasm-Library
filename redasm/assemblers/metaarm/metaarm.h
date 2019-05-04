@@ -13,13 +13,13 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
     public:
         MetaARMAssembler();
         virtual ~MetaARMAssembler();
-        virtual u32 flags() const;
-        virtual u32 bits() const;
-        virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const;
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler);
-        virtual bool decode(const BufferView& view, const InstructionPtr& instruction);
-        virtual u64 pc(const InstructionPtr& instruction) const;
+        u32 flags() const override;
+        u32 bits() const override;
+        Emulator* createEmulator(DisassemblerAPI *disassembler) const override;
+        Printer* createPrinter(DisassemblerAPI *disassembler) const override;
+        AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler) override;
+        bool decode(const BufferView& view, const InstructionPtr& instruction) override;
+        u64 pc(const InstructionPtr& instruction) const override;
 
     public:
         ARMAssembler* armAssembler();

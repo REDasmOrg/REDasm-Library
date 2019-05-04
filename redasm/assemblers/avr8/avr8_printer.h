@@ -8,7 +8,7 @@ class AVR8Printer: public Printer
 {
     public:
         AVR8Printer(DisassemblerAPI* disassembler);
-        virtual std::string reg(const RegisterOperand &regop) const;
+        std::string reg(const RegisterOperand &regop) const override;
 };
 
 } // namespace REDasm

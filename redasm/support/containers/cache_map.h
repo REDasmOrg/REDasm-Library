@@ -61,8 +61,8 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
         void erase(const iterator& it);
         T2 value(const T1& key);
         T2 operator[](const T1& key);
-        virtual void serializeTo(std::fstream& fs);
-        virtual void deserializeFrom(std::fstream& fs);
+        void serializeTo(std::fstream& fs) override;
+        void deserializeFrom(std::fstream& fs) override;
 
     protected:
         virtual void serialize(const T2& value, std::fstream& fs) = 0;

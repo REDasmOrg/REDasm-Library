@@ -12,7 +12,7 @@ class CILAssembler : public AssemblerPlugin
         CILAssembler() = default;
 
     protected:
-        virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
+        bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction) override;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(CILAssembler, cil, 32)

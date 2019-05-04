@@ -8,7 +8,7 @@ class ElfAnalyzer: public Analyzer
 {
     public:
         ElfAnalyzer(DisassemblerAPI* disassembler);
-        virtual void analyze();
+        void analyze() override;
 
     private:
         void findMain_x86(const Symbol* symlibcmain);

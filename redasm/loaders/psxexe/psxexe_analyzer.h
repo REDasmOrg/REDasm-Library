@@ -8,7 +8,7 @@ class PsxExeAnalyzer: public Analyzer
 {
     public:
         PsxExeAnalyzer(DisassemblerAPI* disassembler);
-        virtual void analyze();
+        void analyze() override;
 
     private:
         void detectMain();

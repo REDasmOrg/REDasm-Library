@@ -27,8 +27,8 @@ class MSCOFFLoader : public LoaderPluginT<ImageArchiveHeader>
         MSCOFFLoader(AbstractBuffer *buffer);
         const FunctionList& functions() const;
         const RelocationList *relocations(const ImageSectionHeader* section) const;
-        virtual std::string assembler() const;
-        virtual void load();
+        std::string assembler() const override;
+        void load() override;
 
     private:
         template<typename T> const T* getMemberData(const ImageArchiveMemberHeader* memberhdr) const;

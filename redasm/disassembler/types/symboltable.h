@@ -76,8 +76,8 @@ class SymbolTable: public Serializer::Serializable
         static std::string normalized(std::string s);
         static std::string name(address_t address, u32 type);
         static std::string name(address_t address, const std::string& s, u32 type);
-        virtual void serializeTo(std::fstream& fs);
-        virtual void deserializeFrom(std::fstream& fs);
+        void serializeTo(std::fstream& fs) override;
+        void deserializeFrom(std::fstream& fs) override;
 
     private:
         static std::string prefix(u32 type);

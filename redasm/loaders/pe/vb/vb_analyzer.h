@@ -9,7 +9,7 @@ class VBAnalyzer : public PEAnalyzer
 {
     public:
         VBAnalyzer(const PEClassifier* classifier, DisassemblerAPI* disassembler);
-        virtual void analyze();
+        void analyze() override;
 
     private:
         void disassembleTrampoline(address_t eventva, const std::string &name);

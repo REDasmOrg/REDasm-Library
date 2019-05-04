@@ -17,14 +17,14 @@ class AVR8Assembler: public AssemblerPlugin
 
     public:
         AVR8Assembler();
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
+        Printer* createPrinter(DisassemblerAPI *disassembler) const override;
 
     private:
         void compileInstruction(const InstructionPtr& instruction, const AVR8Operand &avrop, size_t opindex);
+        void decodeOperand(u32 opvalue, const InstructionPtr& instruction, const AVR8Operand& avrop, size_t opidx);
 
     protected:
-        virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
-        virtual void decodeOperand(u32 opvalue, const InstructionPtr& instruction, const AVR8Operand& avrop, size_t opidx);
+        bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction) override;
 
     private:
         std::unordered_map<u16, OpCodeCallback> m_opcodes;

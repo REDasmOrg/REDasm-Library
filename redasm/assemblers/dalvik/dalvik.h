@@ -19,14 +19,14 @@ class DalvikAssembler : public AssemblerPlugin
 
     public:
         DalvikAssembler();
-        virtual Printer* createPrinter(DisassemblerAPI *disassembler) const;
-        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler);
+        Printer* createPrinter(DisassemblerAPI *disassembler) const override;
+        AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) override;
 
     public:
         static std::string registerName(register_id_t regid);
 
     protected:
-        virtual bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction);
+        bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction) override;
 
     private:
         static bool decodeOp0(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);

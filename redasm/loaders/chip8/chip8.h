@@ -11,8 +11,8 @@ class CHIP8Loader: public LoaderPluginB
 
     public:
         CHIP8Loader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual void load();
+        std::string assembler() const override;
+        void load() override;
 };
 
 DECLARE_LOADER_PLUGIN(CHIP8Loader, chip8)

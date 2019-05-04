@@ -9,7 +9,7 @@ template<typename T> class EmulatorT: public EmulatorALU<T>
 {
     public:
         EmulatorT(DisassemblerAPI* disassembler);
-        virtual bool read(const Operand* op, u64* value);
+        bool read(const Operand* op, u64* value) override;
 
     protected:
         void moveOp(const InstructionPtr& instruction, int opdest, int opsrc);

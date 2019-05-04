@@ -13,17 +13,17 @@ class Disassembler: public DisassemblerBase
     public:
         Disassembler(AssemblerPlugin* assembler, LoaderPlugin* loader);
         virtual ~Disassembler() = default;
-        virtual void disassemble();
+        void disassemble() override;
 
     public: // Primitive functions
-        virtual Printer* createPrinter();
-        virtual InstructionPtr disassembleInstruction(address_t address);
-        virtual void disassemble(address_t address);
-        virtual void stop();
-        virtual void pause();
-        virtual void resume();
-        virtual size_t state() const;
-        virtual bool busy() const;
+        Printer* createPrinter() override;
+        InstructionPtr disassembleInstruction(address_t address) override;
+        void disassemble(address_t address) override;
+        void stop() override;
+        void pause() override;
+        void resume() override;
+        size_t state() const override;
+        bool busy() const override;
 
     private:
         void work();

@@ -12,8 +12,8 @@ class InstructionCache: public cache_map<address_t, InstructionPtr>
         void update(const InstructionPtr &instruction);
 
     protected:
-        virtual void serialize(const InstructionPtr &value, std::fstream &fs);
-        virtual void deserialize(InstructionPtr &value, std::fstream &fs);
+        void serialize(const InstructionPtr &value, std::fstream &fs) override;
+        void deserialize(InstructionPtr &value, std::fstream &fs) override;
 };
 
 } // namespace REDasm

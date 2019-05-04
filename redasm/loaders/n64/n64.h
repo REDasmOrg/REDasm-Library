@@ -57,9 +57,9 @@ class N64Loader: public LoaderPluginT<N64RomHeader>
 
     public:
         N64Loader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual Analyzer* createAnalyzer(DisassemblerAPI *disassembler) const;
-        virtual void load();
+        std::string assembler() const override;
+        Analyzer* createAnalyzer(DisassemblerAPI *disassembler) const override;
+        void load() override;
 
     public:
         static bool checkMediaType(const N64RomHeader* header);

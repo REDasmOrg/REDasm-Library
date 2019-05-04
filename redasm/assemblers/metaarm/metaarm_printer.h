@@ -10,8 +10,8 @@ class MetaARMPrinter: public CapstonePrinter
         MetaARMPrinter(csh cshandle, DisassemblerAPI* disassembler);
 
     public:
-        virtual std::string size(const Operand* operand) const;
-        virtual std::string mem(const Operand* operand) const;
+        std::string size(const Operand* operand) const override;
+        std::string mem(const Operand* operand) const override;
 };
 
 } // namespace REDasm

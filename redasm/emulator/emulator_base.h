@@ -20,7 +20,7 @@ template<typename T> class EmulatorBase: public Emulator
 
     public:
         EmulatorBase(DisassemblerAPI* disassembler);
-        virtual void emulate(const InstructionPtr& instruction);
+        void emulate(const InstructionPtr& instruction) override;
         bool readOp(const Operand *op, T* value);
 
     protected:
@@ -35,7 +35,7 @@ template<typename T> class EmulatorBase: public Emulator
         bool readMem(T address, T* value, T size = sizeof(T));
 
     public:
-        virtual bool hasError() const;
+        bool hasError() const override;
         void reset(bool resetmemory = false);
         void unhandled(const InstructionPtr& instruction) const;
         void fail();

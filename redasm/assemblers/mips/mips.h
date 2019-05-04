@@ -12,14 +12,14 @@ template<s64 mode> class MIPSAssembler: public CapstoneAssemblerPlugin<CS_ARCH_M
 {
     public:
         MIPSAssembler();
-        virtual u32 flags() const { return AssemblerFlags::CanEmulate; }
-        virtual Emulator* createEmulator(DisassemblerAPI *disassembler) const { return new MIPSEmulator(disassembler); }
-        virtual Printer* createPrinter(DisassemblerAPI* disassembler) const { return new MIPSPrinter(this->m_cshandle, disassembler); }
-        virtual AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) { return new MIPSAlgorithm(disassembler, this); }
+        u32 flags() const override { return AssemblerFlags::CanEmulate; }
+        Emulator* createEmulator(DisassemblerAPI *disassembler) const override { return new MIPSEmulator(disassembler); }
+        Printer* createPrinter(DisassemblerAPI* disassembler) const override { return new MIPSPrinter(this->m_cshandle, disassembler); }
+        AssemblerAlgorithm* createAlgorithm(DisassemblerAPI* disassembler) override { return new MIPSAlgorithm(disassembler, this); }
 
     protected:
-        virtual bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction);
-        virtual void onDecoded(const InstructionPtr& instruction);
+        bool decodeInstruction(const BufferView &view, const InstructionPtr& instruction) override;
+        void onDecoded(const InstructionPtr& instruction) override;
 
     private:
         void setTargetOp0(const InstructionPtr& instruction) const { instruction->targetIdx(0); }

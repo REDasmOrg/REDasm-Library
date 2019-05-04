@@ -13,7 +13,7 @@ class PEAnalyzer: public Analyzer
 
     public:
         PEAnalyzer(const PEClassifier* classifier, DisassemblerAPI* disassembler);
-        virtual void analyze();
+        void analyze() override;
 
     private:
         Symbol *getImport(const std::string& library, const std::string& api);

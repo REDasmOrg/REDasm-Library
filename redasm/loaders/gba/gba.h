@@ -38,8 +38,8 @@ class GbaLoader: public LoaderPluginT<GbaRomHeader>
 
     public:
         GbaLoader(AbstractBuffer* buffer);
-        virtual std::string assembler() const;
-        virtual void load();
+        std::string assembler() const override;
+        void load() override;
 
     public:
         static bool isUppercaseAscii(const char* s, size_t c);

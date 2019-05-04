@@ -8,10 +8,10 @@ class MetaARMEmulator: public EmulatorT<u32>
 {
     public:
         MetaARMEmulator(DisassemblerAPI* disassembler);
-        virtual void emulate(const InstructionPtr& instruction);
+        void emulate(const InstructionPtr& instruction) override;
 
     protected:
-        virtual bool setTarget(const InstructionPtr& instruction);
+        bool setTarget(const InstructionPtr& instruction) override;
 
     private:
         void emulateMath(const InstructionPtr& instruction);

@@ -13,7 +13,7 @@ class IHexLoader: public LoaderPluginB
 
     public:
         IHexLoader(AbstractBuffer* buffer);
-        virtual void load();
+        void load() override;
 };
 
 DECLARE_LOADER_PLUGIN_FLAGS(IHexLoader, ihex, LoaderFlags::CustomAssembler)

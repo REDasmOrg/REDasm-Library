@@ -22,18 +22,18 @@ class DalvikAlgorithm: public AssemblerAlgorithm
         DalvikAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
-        virtual void validateTarget(const InstructionPtr&) const;
-        virtual void onDecodedOperand(const Operand *op, const InstructionPtr& instruction);
-        virtual void onDecoded(const InstructionPtr& instruction);
-        virtual void decodeState(const State *state);
-        virtual void stringIndexState(const State* state);
-        virtual void methodIndexState(const State* state);
-        virtual void packedSwitchTableState(const State* state);
-        virtual void sparseSwitchTableState(const State* state);
-        virtual void fillArrayDataState(const State* state);
-        virtual void debugInfoState(const State* state);
+        void validateTarget(const InstructionPtr&) const override;
+        void onDecodedOperand(const Operand *op, const InstructionPtr& instruction) override;
+        void onDecoded(const InstructionPtr& instruction) override;
+        void decodeState(const State *state) override;
 
     private:
+        void stringIndexState(const State* state);
+        void methodIndexState(const State* state);
+        void packedSwitchTableState(const State* state);
+        void sparseSwitchTableState(const State* state);
+        void fillArrayDataState(const State* state);
+        void debugInfoState(const State* state);
         void emitCaseInfo(address_t address, const PackagedCaseMap& casemap);
         void emitCaseInfo(address_t address, const InstructionPtr &instruction, const SparseCaseMap& casemap);
         void emitArguments(const State* state, const DEXEncodedMethod &dexmethod, const DEXDebugInfo &dexdebuginfo);

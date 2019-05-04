@@ -50,8 +50,8 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         void moveToEP();
 
     public:
-        virtual void serializeTo(std::fstream& fs);
-        virtual void deserializeFrom(std::fstream& fs);
+        void serializeTo(std::fstream& fs) override;
+        void deserializeFrom(std::fstream& fs) override;
 
     public: // ListingItemData functions
         std::string comment(const ListingItem *item, bool skipauto = false) const;

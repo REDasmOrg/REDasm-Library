@@ -11,9 +11,9 @@ class DalvikPrinter : public Printer
 {
     public:
         DalvikPrinter(DisassemblerAPI* disassembler);
-        virtual void function(const Symbol* symbol, const FunctionCallback &plgfunc);
-        virtual std::string reg(const RegisterOperand &regop) const;
-        virtual std::string imm(const Operand *op) const;
+        void function(const Symbol* symbol, const FunctionCallback &plgfunc) override;
+        std::string reg(const RegisterOperand &regop) const override;
+        std::string imm(const Operand *op) const override;
 };
 
 } // namespace REDasm

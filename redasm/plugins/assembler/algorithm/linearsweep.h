@@ -10,7 +10,7 @@ class LinearSweepAlgorithm: public AssemblerAlgorithm
         LinearSweepAlgorithm(DisassemblerAPI* disassembler, AssemblerPlugin* assemblerplugin);
 
     protected:
-        virtual void onDecoded(const InstructionPtr& instruction);
+        void onDecoded(const InstructionPtr& instruction) override;
 };
 
 } // namespace REDasm

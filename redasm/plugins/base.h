@@ -6,7 +6,7 @@
 
 #define PLUGIN_NAME(pluginname) public: \
                                 static constexpr const char* Name = pluginname; \
-                                virtual std::string name() const { return pluginname; } \
+                                std::string name() const override { return pluginname; } \
                                 private:
 
 #define PLUGIN_INHERIT(classname, basename, name, ctor, args) class classname: public UNPAREN(basename) { \

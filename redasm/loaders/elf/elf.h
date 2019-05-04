@@ -69,4 +69,4 @@ DECLARE_LOADER_PLUGIN(ELF64BELoader, elf64be)
 
 }
 
-#include "elf.cpp"
+#include "elf.hpp"

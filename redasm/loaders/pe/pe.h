@@ -75,6 +75,6 @@ LOADER_INHERIT(PE64Loader, (PELoader<64>), "Portable Executable (64 bits)")
 DECLARE_LOADER_PLUGIN(PE32Loader, pe32)
 DECLARE_LOADER_PLUGIN(PE64Loader, pe64)
 
-}
+} // namespace REDasm
 
-#include "pe.cpp"
+#include "pe.hpp"

@@ -58,4 +58,4 @@ DECLARE_ASSEMBLER_PLUGIN(MIPSMicroBEAssembler, mipsmicrobe, 32)
 
 } // namespace REDasm
 
-#include "mips.cpp"
+#include "mips.hpp"

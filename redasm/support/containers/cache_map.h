@@ -19,7 +19,7 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
 {
     private:
         typedef cache_map<T1, T2> type;
-        typedef std::map<T1, offset_t> offset_map;
+        typedef std::map<T1, std::streamoff> offset_map;
         typedef typename offset_map::iterator offset_iterator;
 
     public:
@@ -77,4 +77,4 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
 
 } // namespace REDasm
 
-#include "cache_map.cpp"
+#include "cache_map.hpp"

@@ -37,4 +37,4 @@ DECLARE_ASSEMBLER_PLUGIN(X86_64Assembler, x86_64, 64)
 
 } // namespace REDasm
 
-#include "x86.cpp"
+#include "x86.hpp"

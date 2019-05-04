@@ -51,4 +51,4 @@ template<typename T> class EmulatorBase: public Emulator
 
 } // namespace REDasm
 
-#include "emulator_base.cpp"
+#include "emulator_base.hpp"

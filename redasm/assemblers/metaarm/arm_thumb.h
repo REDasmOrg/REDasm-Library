@@ -10,7 +10,7 @@ class ARMThumbAssembler : public ARMCommonAssembler<CS_ARCH_ARM, CS_MODE_THUMB>
 
     public:
         ARMThumbAssembler();
-        virtual u64 pc(const InstructionPtr& instruction) const;
+        u64 pc(const InstructionPtr& instruction) const override;
 };
 
 DECLARE_ASSEMBLER_PLUGIN(ARMThumbAssembler, armthumb, 16)

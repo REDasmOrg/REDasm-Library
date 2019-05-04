@@ -47,31 +47,31 @@ add_subdirectory(${CAPSTONE_SRC})
 ### LibREDasm
 
 # Support
-file(GLOB_RECURSE SUPPORT_HEADERS redasm/support/*.h)
+file(GLOB_RECURSE SUPPORT_HEADERS redasm/support/*.h*)
 file(GLOB_RECURSE SUPPORT_SOURCES redasm/support/*.cpp)
 
 # Types
-file(GLOB_RECURSE TYPES_HEADERS redasm/types/*.h)
+file(GLOB_RECURSE TYPES_HEADERS redasm/types/*.h*)
 file(GLOB_RECURSE TYPES_SOURCES redasm/types/*.cpp)
 
 # Plugins
-file(GLOB_RECURSE PLUGINS_HEADERS redasm/plugins/*.h)
+file(GLOB_RECURSE PLUGINS_HEADERS redasm/plugins/*.h*)
 file(GLOB_RECURSE PLUGINS_SOURCES redasm/plugins/*.cpp)
 
 # Loaders
-file(GLOB_RECURSE LOADER_HEADERS redasm/loaders/*.h)
+file(GLOB_RECURSE LOADER_HEADERS redasm/loaders/*.h*)
 file(GLOB_RECURSE LOADER_SOURCES redasm/loaders/*.cpp)
 
 # Assemblers
-file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h)
+file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h*)
 file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
 
 # Analyzers
-file(GLOB_RECURSE ANALYZER_HEADERS redasm/analyzer/*.h)
+file(GLOB_RECURSE ANALYZER_HEADERS redasm/analyzer/*.h*)
 file(GLOB_RECURSE ANALYZER_SOURCES redasm/analyzer/*.cpp)
 
 # Emulators
-file(GLOB_RECURSE EMULATOR_HEADERS redasm/emulator/*.h)
+file(GLOB_RECURSE EMULATOR_HEADERS redasm/emulator/*.h*)
 file(GLOB_RECURSE EMULATOR_SOURCES redasm/emulator/*.cpp)
 
 # Disassembler

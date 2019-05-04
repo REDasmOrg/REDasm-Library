@@ -6,15 +6,15 @@ namespace REDasm {
 
 template<cs_arch arch, size_t mode> ARMCommonAssembler<arch, mode>::ARMCommonAssembler(): CapstoneAssemblerPlugin<arch, mode>()
 {
-    SET_INSTRUCTION_TYPE(ARM_INS_ADD, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(ARM_INS_ADC, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(ARM_INS_SUB, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(ARM_INS_SBC, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(ARM_INS_RSB, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(ARM_INS_RSC, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(ARM_INS_LSL, InstructionTypes::Lsh);
-    SET_INSTRUCTION_TYPE(ARM_INS_LSR, InstructionTypes::Rsh);
-    SET_INSTRUCTION_TYPE(ARM_INS_ASR, InstructionTypes::Rsh);
+    SET_INSTRUCTION_TYPE(ARM_INS_ADD, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(ARM_INS_ADC, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(ARM_INS_SUB, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_SBC, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_RSB, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_RSC, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(ARM_INS_LSL, InstructionType::Lsh);
+    SET_INSTRUCTION_TYPE(ARM_INS_LSR, InstructionType::Rsh);
+    SET_INSTRUCTION_TYPE(ARM_INS_ASR, InstructionType::Rsh);
 
     REGISTER_INSTRUCTION(ARM_INS_B, &ARMCommonAssembler::checkB);
     REGISTER_INSTRUCTION(ARM_INS_BL, &ARMCommonAssembler::checkCallT0);
@@ -62,7 +62,7 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkB(
     const cs_arm& arm = reinterpret_cast<cs_insn*>(instruction->meta.userdata)->detail->arm;
 
     if(arm.cc != ARM_CC_AL)
-        instruction->type |= InstructionTypes::Conditional;
+        instruction->type |= InstructionType::Conditional;
 
     instruction->targetIdx(0);
 }
@@ -76,10 +76,10 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 
     for(const Operand& op : instruction->operands)
     {
-        if(!op.is(OperandTypes::Register) || !this->isPC(op.reg.r))
+        if(!op.is(OperandType::Register) || !this->isPC(op.reg.r))
             continue;
 
-        instruction->type = InstructionTypes::Stop;
+        instruction->type = InstructionType::Stop;
         break;
     }
 }
@@ -91,20 +91,20 @@ template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkSt
 
     if((arm.cc == ARM_CC_AL) && this->isPC(instruction->op()))
     {
-        instruction->type = InstructionTypes::Stop;
+        instruction->type = InstructionType::Stop;
         return;
     }
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkJumpT0(const InstructionPtr &instruction) const
 {
-    instruction->type = InstructionTypes::Jump;
+    instruction->type = InstructionType::Jump;
     instruction->targetIdx(0);
 }
 
 template<cs_arch arch, size_t mode> void ARMCommonAssembler<arch, mode>::checkCallT0(const InstructionPtr &instruction) const
 {
-    instruction->type = InstructionTypes::Call;
+    instruction->type = InstructionType::Call;
     instruction->targetIdx(0);
 }
 

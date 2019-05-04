@@ -55,7 +55,7 @@ class AssemblerPlugin: public Plugin
         void setInstructionType(const InstructionPtr& instruction) const;
 
     protected:
-        std::unordered_map<instruction_id_t, u32> m_instructiontypes;
+        std::unordered_map<instruction_id_t, InstructionType> m_instructiontypes;
         Dispatcher<instruction_id_t, const InstructionPtr&> m_dispatcher;
 };
 
@@ -89,13 +89,13 @@ template<cs_arch arch, s64 mode> void CapstoneAssemblerPlugin<arch, mode>::onDec
         return;
 
     if(cs_insn_group(m_cshandle, insn, CS_GRP_JUMP))
-        instruction->type |= InstructionTypes::Jump;
+        instruction->type |= InstructionType::Jump;
     else if(cs_insn_group(m_cshandle, insn, CS_GRP_CALL))
-        instruction->type |= InstructionTypes::Call;
+        instruction->type |= InstructionType::Call;
     else if(cs_insn_group(m_cshandle, insn, CS_GRP_RET))
-        instruction->type |= InstructionTypes::Stop;
+        instruction->type |= InstructionType::Stop;
     else if(cs_insn_group(m_cshandle, insn, CS_GRP_INT) || cs_insn_group(m_cshandle, insn, CS_GRP_IRET))
-        instruction->type |= InstructionTypes::Privileged;
+        instruction->type |= InstructionType::Privileged;
 }
 
 template<cs_arch arch, s64 mode> CapstoneAssemblerPlugin<arch, mode>::~CapstoneAssemblerPlugin() { cs_close(&this->m_cshandle); }

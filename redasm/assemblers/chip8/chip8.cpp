@@ -44,29 +44,29 @@ bool CHIP8Assembler::decodeInstruction(const BufferView& view, const Instruction
 void CHIP8Assembler::onDecoded(const InstructionPtr &instruction)
 {
     if(instruction->mnemonic == "rts")
-        instruction->type = InstructionTypes::Stop;
+        instruction->type = InstructionType::Stop;
     else if(instruction->mnemonic == "jmp")
-        instruction->type = InstructionTypes::Jump;
+        instruction->type = InstructionType::Jump;
     else if((instruction->mnemonic == "ske") || (instruction->mnemonic == "skne") || (instruction->mnemonic == "skp") || (instruction->mnemonic == "sknp"))
-        instruction->type = InstructionTypes::ConditionalJump;
+        instruction->type = InstructionType::ConditionalJump;
     else if(instruction->mnemonic == "call")
-        instruction->type = InstructionTypes::Call;
+        instruction->type = InstructionType::Call;
     else if(instruction->mnemonic == "add")
-        instruction->type = InstructionTypes::Add;
+        instruction->type = InstructionType::Add;
     else if(instruction->mnemonic == "sub")
-        instruction->type = InstructionTypes::Sub;
+        instruction->type = InstructionType::Sub;
     else if(instruction->mnemonic == "and")
-        instruction->type = InstructionTypes::And;
+        instruction->type = InstructionType::And;
     else if(instruction->mnemonic == "or")
-        instruction->type = InstructionTypes::Or;
+        instruction->type = InstructionType::Or;
     else if(instruction->mnemonic == "xor")
-        instruction->type = InstructionTypes::Xor;
+        instruction->type = InstructionType::Xor;
     else if((instruction->mnemonic == "mov") || (instruction->mnemonic == "ldra"))
-        instruction->type = InstructionTypes::Load;
+        instruction->type = InstructionType::Load;
     else if(instruction->mnemonic == "stra")
-        instruction->type = InstructionTypes::Store;
+        instruction->type = InstructionType::Store;
     else if(instruction->mnemonic == "sys")
-        instruction->type = InstructionTypes::Privileged;
+        instruction->type = InstructionType::Privileged;
 }
 
 bool CHIP8Assembler::decode0xxx(u16 opcode, const InstructionPtr &instruction) const

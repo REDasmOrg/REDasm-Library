@@ -260,18 +260,18 @@ template<size_t b> void PELoader<b>::loadSections()
     for(size_t i = 0; i < m_ntheaders->FileHeader.NumberOfSections; i++)
     {
         const ImageSectionHeader& section = m_sectiontable[i];
-        u64 flags = SegmentTypes::None;
+        SegmentType flags = SegmentType::None;
 
         if((section.Characteristics & IMAGE_SCN_CNT_CODE) || (section.Characteristics & IMAGE_SCN_MEM_EXECUTE))
-            flags |= SegmentTypes::Code;
+            flags |= SegmentType::Code;
 
         if((section.Characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) || (section.Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA))
-            flags |= SegmentTypes::Data;
+            flags |= SegmentType::Data;
 
         u64 vsize = section.Misc.VirtualSize;
 
         if(!section.SizeOfRawData)
-            flags |= SegmentTypes::Bss;
+            flags |= SegmentType::Bss;
 
         u64 diff = vsize % m_sectionalignment;
 
@@ -289,7 +289,7 @@ template<size_t b> void PELoader<b>::loadSections()
     Segment* segment = m_document->segment(m_entrypoint);
 
     if(segment) // Entry points always points to code segment
-        segment->type |= SegmentTypes::Code;
+        segment->type |= SegmentType::Code;
 }
 
 template<size_t b> void PELoader<b>::loadExports()
@@ -326,7 +326,7 @@ template<size_t b> void PELoader<b>::loadExports()
         if(!segment)
             continue;
 
-        u32 symboltype = segment->is(SegmentTypes::Code) ? SymbolTypes::ExportFunction :
+        u32 symboltype = segment->is(SegmentType::Code) ? SymbolTypes::ExportFunction :
                                                            SymbolTypes::ExportData;
 
         for(u64 j = 0; j < exporttable->NumberOfNames; j++)

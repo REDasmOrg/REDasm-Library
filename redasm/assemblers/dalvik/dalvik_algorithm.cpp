@@ -293,10 +293,10 @@ void DalvikAlgorithm::checkImport(const State* state)
 
 bool DalvikAlgorithm::canContinue(const InstructionPtr &instruction)
 {
-    if(instruction->is(InstructionTypes::Stop))
+    if(instruction->is(InstructionType::Stop))
         return false;
 
-    if(instruction->is(InstructionTypes::Jump) && !instruction->is(InstructionTypes::Conditional))
+    if(instruction->is(InstructionType::Jump) && !instruction->is(InstructionType::Conditional))
         return false;
 
     return true;

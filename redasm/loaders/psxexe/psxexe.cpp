@@ -20,12 +20,12 @@ void PsxExeLoader::load()
     m_signatures.insert("psyq");
 
     if(m_header->t_addr > PSX_USER_RAM_START)
-        m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_header->t_addr - PSX_USER_RAM_START), SegmentTypes::Bss);
+        m_document->segment("RAM0", 0, PSX_USER_RAM_START, (m_header->t_addr - PSX_USER_RAM_START), SegmentType::Bss);
 
-    m_document->segment("TEXT", PSXEXE_TEXT_OFFSET, m_header->t_addr, m_header->t_size, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("TEXT", PSXEXE_TEXT_OFFSET, m_header->t_addr, m_header->t_size, SegmentType::Code | SegmentType::Data);
 
     if((m_header->t_addr + m_header->t_size) < PSX_USER_RAM_END)
-        m_document->segment("RAM1", 0, m_header->t_addr + m_header->t_size, PSX_USER_RAM_END - (m_header->t_addr + m_header->t_size), SegmentTypes::Bss);
+        m_document->segment("RAM1", 0, m_header->t_addr + m_header->t_size, PSX_USER_RAM_END - (m_header->t_addr + m_header->t_size), SegmentType::Bss);
 
     m_document->entry(m_header->pc0);
 }

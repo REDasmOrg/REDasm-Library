@@ -109,7 +109,7 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
-    if(instruction->is(InstructionTypes::Branch))
+    if(instruction->is(InstructionType::Branch))
     {
         this->loadTargets(instruction);
         this->validateTarget(instruction);
@@ -122,20 +122,20 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
             if(m_emulator && !m_emulator->hasError())
                 this->emulateOperand(&op, instruction);
 
-            if(!op.is(OperandTypes::Displacement)) // Try static displacement analysis
+            if(!op.is(OperandType::Displacement)) // Try static displacement analysis
                 continue;
         }
 
-        if(op.is(OperandTypes::Displacement))
+        if(op.is(OperandType::Displacement))
         {
             if(op.displacementIsDynamic())
                 EXECUTE_STATE(AssemblerAlgorithm::AddressTableState, op.disp.displacement, op.index, instruction);
             else if(op.displacementCanBeAddress())
                 EXECUTE_STATE(AssemblerAlgorithm::MemoryState, op.disp.displacement, op.index, instruction);
         }
-        else if(op.is(OperandTypes::Memory))
+        else if(op.is(OperandType::Memory))
             EXECUTE_STATE(AssemblerAlgorithm::MemoryState, op.u_value, op.index, instruction);
-        else if(op.is(OperandTypes::Immediate))
+        else if(op.is(OperandType::Immediate))
             EXECUTE_STATE(AssemblerAlgorithm::ImmediateState, op.u_value, op.index, instruction);
 
         this->onDecodedOperand(&op, instruction);
@@ -199,9 +199,9 @@ void AssemblerAlgorithm::branchState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 
-    if(instruction->is(InstructionTypes::Call))
+    if(instruction->is(InstructionType::Call))
         FORWARD_STATE(AssemblerAlgorithm::CallState, state);
-    else if(instruction->is(InstructionTypes::Jump))
+    else if(instruction->is(InstructionType::Jump))
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
     {
@@ -228,7 +228,7 @@ void AssemblerAlgorithm::branchMemoryState(const State *state)
     m_disassembler->dereference(state->address, &value);
     m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
 
-    if(instruction->is(InstructionTypes::Call))
+    if(instruction->is(InstructionType::Call))
         m_document->symbol(value, SymbolTypes::Function);
     else
         m_document->symbol(value, SymbolTypes::Code);
@@ -249,9 +249,9 @@ void AssemblerAlgorithm::addressTableState(const State *state)
         m_disassembler->pushReference(state->address, instruction->address);
         state_t fwdstate = AssemblerAlgorithm::BranchState;
 
-        if(instruction->is(InstructionTypes::Call))
+        if(instruction->is(InstructionType::Call))
             m_document->autoComment(instruction->address, "Call Table with " + std::to_string(c) + " cases(s)");
-        else if(instruction->is(InstructionTypes::Jump))
+        else if(instruction->is(InstructionType::Jump))
             m_document->autoComment(instruction->address, "Jump Table with " + std::to_string(c) + " cases(s)");
         else
         {
@@ -269,9 +269,9 @@ void AssemblerAlgorithm::addressTableState(const State *state)
 
     const Operand* op = state->operand();
 
-    if(op->is(OperandTypes::Displacement))
+    if(op->is(OperandType::Displacement))
         FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
-    else if(op->is(OperandTypes::Memory))
+    else if(op->is(OperandType::Memory))
         FORWARD_STATE(AssemblerAlgorithm::MemoryState, state);
     else
         FORWARD_STATE(AssemblerAlgorithm::ImmediateState, state);
@@ -290,7 +290,7 @@ void AssemblerAlgorithm::memoryState(const State *state)
     InstructionPtr instruction = state->instruction;
     m_disassembler->pushReference(state->address, instruction->address);
 
-    if(instruction->is(InstructionTypes::Branch) && state->operand()->isTarget())
+    if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(AssemblerAlgorithm::BranchMemoryState, state);
     else
         FORWARD_STATE(AssemblerAlgorithm::PointerState, state);
@@ -314,7 +314,7 @@ void AssemblerAlgorithm::immediateState(const State *state)
 {
     InstructionPtr instruction = state->instruction;
 
-    if(instruction->is(InstructionTypes::Branch) && state->operand()->isTarget())
+    if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(AssemblerAlgorithm::BranchState, state);
     else
         m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
@@ -330,7 +330,7 @@ bool AssemblerAlgorithm::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->contains(address))
         m_currentsegment = m_document->segment(address);
 
-    if(!m_currentsegment || !m_currentsegment->is(SegmentTypes::Code))
+    if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
     if(!m_loader->offset(address).valid)
@@ -344,7 +344,7 @@ void AssemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruct
     if(!instruction->size)
         instruction->size = 1; // Invalid instruction uses at least 1 byte
 
-    instruction->type = InstructionTypes::Invalid;
+    instruction->type = InstructionType::Invalid;
     instruction->mnemonic = INVALID_MNEMONIC;
 }
 
@@ -376,12 +376,12 @@ void AssemblerAlgorithm::emulateOperand(const Operand *op, const InstructionPtr 
 {
     u64 value = 0;
 
-    if(op->is(OperandTypes::Register))
+    if(op->is(OperandType::Register))
     {
         if(!m_emulator->read(op, &value))
             return;
     }
-    else if(op->is(OperandTypes::Displacement))
+    else if(op->is(OperandType::Displacement))
     {
         if(!m_emulator->displacement(op, &value))
             return;

@@ -103,25 +103,25 @@ void XbeLoader::loadSections(XbeSectionHeader *sectionhdr)
     for(u32 i = 0; i < m_header->NumberOfSections; i++)
     {
         std::string sectname = this->memoryoffset<const char>(sectionhdr[i].SectionName);
-        u32 secttype = SegmentTypes::None;
+        SegmentType secttype = SegmentType::None;
 
         if(sectionhdr[i].Flags.Executable)
         {
             if((sectname[0] == '.') && (sectname.find("data") != std::string::npos))
-                secttype = SegmentTypes::Data;
+                secttype = SegmentType::Data;
             else
-                secttype = SegmentTypes::Code;
+                secttype = SegmentType::Code;
         }
         else
-            secttype = SegmentTypes::Data;
+            secttype = SegmentType::Data;
 
         if(!sectionhdr[i].RawSize)
-            secttype = SegmentTypes::Bss;
+            secttype = SegmentType::Bss;
 
         m_document->segment(sectname, sectionhdr[i].RawAddress, sectionhdr[i].VirtualAddress, sectionhdr[i].RawSize, secttype);
     }
 
-    m_document->segment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentTypes::Bss);
+    m_document->segment("XBOXKRNL", 0, XBE_XBOXKRNL_BASEADDRESS, 0x10000, SegmentType::Bss);
 }
 
 bool XbeLoader::loadXBoxKrnl()

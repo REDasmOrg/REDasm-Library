@@ -67,7 +67,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
     if(symbol->is(SymbolTypes::Data))
     {
-        if(segment->is(SegmentTypes::Bss))
+        if(segment->is(SegmentType::Bss))
         {
             symbolfunc(symbol, "??");
             return;
@@ -113,15 +113,15 @@ std::string Printer::out(const InstructionPtr &instruction, const OpCallback &op
         std::string opstr;
         const Operand& op = *it;
 
-        if(op.is(OperandTypes::Constant))
+        if(op.is(OperandType::Constant))
             opstr = REDasm::hex(op.u_value, 0, true);
-        else if(op.is(OperandTypes::Immediate))
+        else if(op.is(OperandType::Immediate))
             opstr = this->imm(&op);
-        else if(op.is(OperandTypes::Memory))
+        else if(op.is(OperandType::Memory))
             opstr = this->mem(&op);
-        else if(op.is(OperandTypes::Displacement))
+        else if(op.is(OperandType::Displacement))
             opstr = this->disp(&op);
-        else if(op.is(OperandTypes::Register))
+        else if(op.is(OperandType::Register))
             opstr = this->reg(op.reg);
         else
             continue;
@@ -149,7 +149,7 @@ std::string Printer::disp(const Operand *operand) const
     if(operand->disp.base.isValid())
         s += this->reg(operand->disp.base);
 
-    if(operand->is(OperandTypes::Local) || operand->is(OperandTypes::Argument))
+    if(operand->is(OperandType::Local) || operand->is(OperandType::Argument))
     {
         std::string loc = this->loc(operand);
 
@@ -204,13 +204,13 @@ std::string Printer::imm(const Operand *operand) const
 {
     Symbol* symbol = m_disassembler->document()->symbol(operand->u_value);
 
-    if(operand->is(OperandTypes::Memory))
+    if(operand->is(OperandType::Memory))
         return "[" + (symbol ? symbol->name : REDasm::hex(operand->u_value)) + "]";
 
     return symbol ? symbol->name : REDasm::hex(operand->s_value);
 }
 
-std::string Printer::size(const Operand *operand) const { return OperandSizes::size(operand->size); }
+std::string Printer::size(const Operand *operand) const { return std::string(); }
 
 CapstonePrinter::CapstonePrinter(csh cshandle, DisassemblerAPI *disassembler): Printer(disassembler), m_cshandle(cshandle) { }
 

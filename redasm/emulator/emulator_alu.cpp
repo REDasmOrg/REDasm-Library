@@ -40,13 +40,13 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
 
     T dst = 0;
 
-    if(instruction->is(InstructionTypes::Add))
+    if(instruction->is(InstructionType::Add))
         dst = this->aluAdd(src1, src2);
-    else if(instruction->is(InstructionTypes::Sub))
+    else if(instruction->is(InstructionType::Sub))
         dst = this->aluSub(src1, src2);
-    else if(instruction->is(InstructionTypes::Mul))
+    else if(instruction->is(InstructionType::Mul))
         dst = this->aluMul(src1, src2);
-    else if(instruction->is(InstructionTypes::Div))
+    else if(instruction->is(InstructionType::Div))
     {
         if(!src2)
         {
@@ -57,7 +57,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
 
         dst = this->aluDiv(src1, src2);
     }
-    else if(instruction->is(InstructionTypes::Mod))
+    else if(instruction->is(InstructionType::Mod))
     {
         if(!src2)
         {
@@ -68,13 +68,13 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
 
         dst = src1 % src2;
     }
-    else if(instruction->is(InstructionTypes::And))
+    else if(instruction->is(InstructionType::And))
         dst = src1 & src2;
-    else if(instruction->is(InstructionTypes::Or))
+    else if(instruction->is(InstructionType::Or))
         dst = src1 | src2;
-    else if(instruction->is(InstructionTypes::Xor))
+    else if(instruction->is(InstructionType::Xor))
         dst = src1 ^ src2;
-    else if(instruction->is(InstructionTypes::Lsh))
+    else if(instruction->is(InstructionType::Lsh))
     {
         if(src2 > bitwidth<T>::value)
         {
@@ -85,7 +85,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
 
         dst = src1 << src2;
     }
-    else if(instruction->is(InstructionTypes::Rsh))
+    else if(instruction->is(InstructionType::Rsh))
         dst = src1 >> src2;
     else
     {

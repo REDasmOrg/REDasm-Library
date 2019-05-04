@@ -42,7 +42,7 @@ bool Analyzer::findNullSubs(const Symbol* symbol)
     if(!instruction)
         return true; // Don't execute trampoline analysis
 
-    if(!instruction->is(InstructionTypes::Stop))
+    if(!instruction->is(InstructionType::Stop))
         return false;
 
     m_document->lock(symbol->address, "nullsub_" + REDasm::hex(symbol->address));
@@ -107,7 +107,7 @@ Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::const_iterator& it)
 {
     InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
 
-    if(!instruction->is(InstructionTypes::Jump))
+    if(!instruction->is(InstructionType::Jump))
         return nullptr;
 
     auto target = m_disassembler->getTarget((*it)->address);
@@ -135,7 +135,7 @@ Symbol* Analyzer::findTrampoline_arm(ListingDocumentType::const_iterator &it)
     if((instruction1->mnemonic != "ldr") || (instruction2->mnemonic != "ldr"))
         return nullptr;
 
-    if(!instruction1->op(1)->is(OperandTypes::Memory) || (instruction2->op(0)->reg.r != ARM_REG_PC))
+    if(!instruction1->op(1)->is(OperandType::Memory) || (instruction2->op(0)->reg.r != ARM_REG_PC))
         return nullptr;
 
     u64 target = instruction1->op(1)->u_value, importaddress = 0;

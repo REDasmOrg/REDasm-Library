@@ -73,7 +73,7 @@ FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(s64 index)
 
 void FunctionGraph::setConnectionType(const InstructionPtr &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
 {
-    if(!instruction->is(InstructionTypes::Conditional))
+    if(!instruction->is(InstructionType::Conditional))
         return;
 
     if(condition)
@@ -114,7 +114,7 @@ bool FunctionGraph::connectBasicBlocks()
 
         InstructionPtr instruction = m_document->instruction(lastitem->address);
 
-        if(instruction->is(InstructionTypes::Jump))
+        if(instruction->is(InstructionType::Jump))
         {
             for(address_t target : m_disassembler->getTargets(instruction->address))
             {
@@ -134,7 +134,7 @@ bool FunctionGraph::connectBasicBlocks()
                     this->incomplete();
             }
 
-            if(instruction->is(InstructionTypes::Conditional))
+            if(instruction->is(InstructionType::Conditional))
             {
                 FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->instructionIndexFromIndex(fromfbb.endidx + 1));
 
@@ -147,7 +147,7 @@ bool FunctionGraph::connectBasicBlocks()
                     this->incomplete();
             }
         }
-        else if(!instruction->is(InstructionTypes::Stop))
+        else if(!instruction->is(InstructionType::Stop))
         {
             FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->symbolIndexFromIndex(fromfbb.endidx + 1));
 
@@ -199,7 +199,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
         {
             InstructionPtr instruction = m_document->instruction(item->address);
 
-            if(instruction->is(InstructionTypes::Jump))
+            if(instruction->is(InstructionType::Jump))
             {
                 ReferenceSet targets = m_disassembler->getTargets(instruction->address);
 
@@ -213,7 +213,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
                     pending.push(m_document->symbolIndex(target));
                 }
 
-                if(!targets.empty() && instruction->is(InstructionTypes::Conditional))
+                if(!targets.empty() && instruction->is(InstructionType::Conditional))
                 {
                     s64 idx = m_document->symbolIndex(instruction->endAddress()); // Check for symbol first (chained jumps)
 
@@ -225,7 +225,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
 
                 break;
             }
-            else if(instruction->is(InstructionTypes::Stop))
+            else if(instruction->is(InstructionType::Stop))
                 break;
         }
         else if(item->is(ListingItem::SymbolItem))

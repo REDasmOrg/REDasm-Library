@@ -222,7 +222,7 @@ const ImageSectionHeader* MSCOFFLoader::loadSegments(const ImageFileHeader *file
         ok = true;
         u64 sectionoffset = fileoffset(fileheader) + section.PointerToRawData;
         std::string sectionname = membername + "_" + PEUtils::sectionName(reinterpret_cast<const char*>(&section.Name));
-        m_document->segment(sectionname, sectionoffset, sectionoffset, section.SizeOfRawData, SegmentTypes::Code);
+        m_document->segment(sectionname, sectionoffset, sectionoffset, section.SizeOfRawData, SegmentType::Code);
     }
 
     return ok ? sectionheader : nullptr;

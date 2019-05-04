@@ -22,18 +22,18 @@ void VBAnalyzer::analyze()
 {
     InstructionPtr instruction = m_document->entryInstruction();
 
-    if(!instruction->is(InstructionTypes::Push) || (instruction->operands.size() != 1))
+    if(!instruction->is(InstructionType::Push) || (instruction->operands.size() != 1))
         return;
 
-    if(!instruction->op(0)->is(OperandTypes::Immediate))
+    if(!instruction->op(0)->is(OperandType::Immediate))
         return;
 
     address_t thunrtdata = instruction->op(0)->u_value;
 
-    if(!m_document->segment(thunrtdata) || !m_document->advance(instruction) || !instruction->is(InstructionTypes::Call))
+    if(!m_document->segment(thunrtdata) || !m_document->advance(instruction) || !instruction->is(InstructionType::Call))
         return;
 
-    instruction->type |= InstructionTypes::Stop;
+    instruction->type |= InstructionType::Stop;
     m_document->update(instruction);
 
     if(!this->decompile(thunrtdata))
@@ -57,7 +57,7 @@ void VBAnalyzer::disassembleTrampoline(address_t eventva, const std::string& nam
 
     REDasm::statusAddress("Decoding " + name, eventva);
 
-    if(instruction->is(InstructionTypes::Branch))
+    if(instruction->is(InstructionType::Branch))
     {
         const Operand* op = instruction->target();
 

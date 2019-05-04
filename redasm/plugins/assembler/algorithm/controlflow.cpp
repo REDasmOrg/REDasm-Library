@@ -18,7 +18,7 @@ void ControlFlowAlgorithm::enqueueTarget(address_t target, const InstructionPtr 
 
 void ControlFlowAlgorithm::onEmulatedOperand(const Operand *op, const InstructionPtr &instruction, u64 value)
 {
-    if(instruction->is(InstructionTypes::Branch) && op->isTarget())
+    if(instruction->is(InstructionType::Branch) && op->isTarget())
     {
         this->enqueueTarget(value, instruction);
         EXECUTE_STATE(AssemblerAlgorithm::BranchState, value, op->index, instruction);
@@ -33,9 +33,9 @@ void ControlFlowAlgorithm::onDecoded(const InstructionPtr &instruction)
     AssemblerAlgorithm::onDecoded(instruction);
     this->enqueueTargets(instruction);
 
-    if(!instruction->is(InstructionTypes::Stop))
+    if(!instruction->is(InstructionType::Stop))
     {
-        if(instruction->is(InstructionTypes::Jump) && !instruction->is(InstructionTypes::Conditional))
+        if(instruction->is(InstructionType::Jump) && !instruction->is(InstructionType::Conditional))
             return;
 
         this->enqueue(instruction->endAddress());

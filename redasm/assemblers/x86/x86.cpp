@@ -6,44 +6,44 @@ namespace REDasm {
 
 template<cs_mode mode> X86Assembler<mode>::X86Assembler(): CapstoneAssemblerPlugin<CS_ARCH_X86, mode>()
 {
-    SET_INSTRUCTION_TYPE(X86_INS_JA, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JAE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JB, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JBE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JCXZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JECXZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JG, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JGE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JLE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JNE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JNO, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JNP, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JNS, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JO, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JP, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_JS, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_LOOP, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_LOOPE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_LOOPNE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSH, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSHAL, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSHAW, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSHF, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSHFD, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_PUSHFQ, InstructionTypes::Push);
-    SET_INSTRUCTION_TYPE(X86_INS_POP, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_POPAL, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_POPAW, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_POPF, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_POPFD, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_POPFQ, InstructionTypes::Pop);
-    SET_INSTRUCTION_TYPE(X86_INS_HLT, InstructionTypes::Stop);
-    SET_INSTRUCTION_TYPE(X86_INS_RET, InstructionTypes::Stop);
-    SET_INSTRUCTION_TYPE(X86_INS_NOP, InstructionTypes::Nop);
-    SET_INSTRUCTION_TYPE(X86_INS_MOV, InstructionTypes::Load);
-    SET_INSTRUCTION_TYPE(X86_INS_TEST, InstructionTypes::Compare);
+    SET_INSTRUCTION_TYPE(X86_INS_JA, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JAE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JB, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JBE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JCXZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JECXZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JG, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JGE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JLE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNO, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNP, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JNS, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JO, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JP, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_JS, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOP, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOPE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_LOOPNE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSH, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHAL, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHAW, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHF, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHFD, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_PUSHFQ, InstructionType::Push);
+    SET_INSTRUCTION_TYPE(X86_INS_POP, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPAL, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPAW, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPF, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPFD, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_POPFQ, InstructionType::Pop);
+    SET_INSTRUCTION_TYPE(X86_INS_HLT, InstructionType::Stop);
+    SET_INSTRUCTION_TYPE(X86_INS_RET, InstructionType::Stop);
+    SET_INSTRUCTION_TYPE(X86_INS_NOP, InstructionType::Nop);
+    SET_INSTRUCTION_TYPE(X86_INS_MOV, InstructionType::Load);
+    SET_INSTRUCTION_TYPE(X86_INS_TEST, InstructionType::Compare);
 
     REGISTER_INSTRUCTION(X86_INS_JA, &X86Assembler::setBranchTarget);
     REGISTER_INSTRUCTION(X86_INS_JAE, &X86Assembler::setBranchTarget);
@@ -86,7 +86,7 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
 
             if((mem.index == X86_REG_INVALID) && mem.disp && this->isBP(mem.base)) // Check locals/arguments
             {
-                u32 type = 0;
+                OperandType type = OperandType::None;
                 locindex = this->bpIndex(mem.disp, type);
                 instruction->local(locindex, X86_REGISTER(mem.base), X86_REGISTER(mem.index), mem.disp, type);
             }
@@ -113,11 +113,11 @@ template<cs_mode mode> void X86Assembler<mode>::onDecoded(const InstructionPtr &
     }
 }
 
-template<cs_mode mode> s64 X86Assembler<mode>::bpIndex(s64 disp, u32& type) const
+template<cs_mode mode> s64 X86Assembler<mode>::bpIndex(s64 disp, OperandType& type) const
 {
     if(disp < 0)
     {
-        type = OperandTypes::Local;
+        type = OperandType::Local;
         return -disp;
     }
 
@@ -134,7 +134,7 @@ template<cs_mode mode> s64 X86Assembler<mode>::bpIndex(s64 disp, u32& type) cons
         return -1;
 
     if(disp > 0)
-        type = OperandTypes::Argument;
+        type = OperandType::Argument;
 
     return disp;
 }
@@ -193,18 +193,18 @@ template<cs_mode mode> void X86Assembler<mode>::setBranchTarget(const Instructio
 
 template<cs_mode mode> void X86Assembler<mode>::checkLea(const InstructionPtr &instruction)
 {
-    instruction->type = InstructionTypes::Load;
+    instruction->type = InstructionType::Load;
     Operand* op1 = instruction->op(1);
 
-    if(!op1->is(OperandTypes::Memory))
+    if(!op1->is(OperandType::Memory))
         return;
 
-    op1->type = OperandTypes::Immediate;
+    op1->type = OperandType::Immediate;
 }
 
 template<cs_mode mode> void X86Assembler<mode>::compareOp1(const InstructionPtr &instruction)
 {
-    instruction->type = InstructionTypes::Compare;
+    instruction->type = InstructionType::Compare;
     Operand* op1 = instruction->op(1);
     op1->checkCharacter();
 }

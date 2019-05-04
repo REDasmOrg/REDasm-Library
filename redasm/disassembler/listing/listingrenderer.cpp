@@ -290,7 +290,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
     {
         const Segment* segment = lock->segment(symbol->address);
 
-        if(segment->is(SegmentTypes::Bss))
+        if(segment->is(SegmentType::Bss))
         {
             this->renderAddress(lock, item, rl);
             this->renderIndent(rl);
@@ -315,7 +315,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         rl.push(symbol->name, "label_fg");
         this->renderIndent(rl);
 
-        if(!segment->is(SegmentTypes::Bss) && loader->offset(symbol->address).valid)
+        if(!segment->is(SegmentType::Bss) && loader->offset(symbol->address).valid)
         {
             if(symbol->is(SymbolTypes::Pointer))
             {
@@ -373,17 +373,17 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
 
     if(instruction->isInvalid())
         rl.push(mnemonic, "instruction_invalid");
-    else if(instruction->is(REDasm::InstructionTypes::Stop))
+    else if(instruction->is(REDasm::InstructionType::Stop))
         rl.push(mnemonic, "instruction_stop");
-    else if(instruction->is(REDasm::InstructionTypes::Nop))
+    else if(instruction->is(REDasm::InstructionType::Nop))
         rl.push(mnemonic, "instruction_nop");
-    else if(instruction->is(REDasm::InstructionTypes::Call))
+    else if(instruction->is(REDasm::InstructionType::Call))
         rl.push(mnemonic, "instruction_call");
-    else if(instruction->is(REDasm::InstructionTypes::Compare))
+    else if(instruction->is(REDasm::InstructionType::Compare))
         rl.push(mnemonic, "instruction_compare");
-    else if(instruction->is(REDasm::InstructionTypes::Jump))
+    else if(instruction->is(REDasm::InstructionType::Jump))
     {
-        if(instruction->is(REDasm::InstructionTypes::Conditional))
+        if(instruction->is(REDasm::InstructionType::Conditional))
             rl.push(mnemonic, "instruction_jmp_c");
         else
             rl.push(mnemonic, "instruction_jmp");
@@ -408,14 +408,14 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
 
         if(op->isNumeric())
         {
-            if(op->is(REDasm::OperandTypes::Memory))
+            if(op->is(REDasm::OperandType::Memory))
                 rl.push(opstr, "memory_fg");
             else
                 rl.push(opstr, "immediate_fg");
         }
-        else if(op->is(REDasm::OperandTypes::Displacement))
+        else if(op->is(REDasm::OperandType::Displacement))
             rl.push(opstr, "displacement_fg");
-        else if(op->is(REDasm::OperandTypes::Register))
+        else if(op->is(REDasm::OperandType::Register))
             rl.push(opstr, "register_fg");
         else
             rl.push(opstr);

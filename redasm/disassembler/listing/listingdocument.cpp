@@ -383,9 +383,9 @@ void ListingDocumentType::lock(address_t address, const std::string &name)
 
 void ListingDocumentType::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
 void ListingDocumentType::lock(address_t address, const std::string &name, u32 type, u32 tag) { this->symbol(address, name, type | SymbolTypes::Locked, tag); }
-void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, u64 type) { this->segment(name, offset, address, size, size, type); }
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, SegmentType type) { this->segment(name, offset, address, size, size, type); }
 
-void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type)
+void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type)
 {
     if(!psize && !vsize)
     {
@@ -394,7 +394,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
     }
 
     auto it = std::find_if(m_segments.begin(), m_segments.end(), [=](const Segment& segment) -> bool {
-        return segment.is(SegmentTypes::Bss) ? segment.contains(address) : ((segment.offset == offset) || segment.contains(address));
+        return segment.is(SegmentType::Bss) ? segment.contains(address) : ((segment.offset == offset) || segment.contains(address));
     });
 
     if(it != m_segments.end())

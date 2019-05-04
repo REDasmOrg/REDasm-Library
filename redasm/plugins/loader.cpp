@@ -66,7 +66,7 @@ BufferView LoaderPlugin::view(address_t address) const
 
 BufferView LoaderPlugin::viewSegment(const Segment *segment) const
 {
-    if(!segment || segment->empty() || segment->is(SegmentTypes::Bss))
+    if(!segment || segment->empty() || segment->is(SegmentType::Bss))
         return BufferView();
 
     return m_buffer->view(segment->offset, segment->size());

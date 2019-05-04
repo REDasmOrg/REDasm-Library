@@ -21,7 +21,7 @@ std::string CHIP8Loader::assembler() const { return "chip8"; }
 
 void CHIP8Loader::load()
 {
-    m_document->segment("MEMORY", 0, 0x200, 0x1000, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("MEMORY", 0, 0x200, 0x1000, SegmentType::Code | SegmentType::Data);
     m_document->entry(0x200);
 }
 

@@ -22,7 +22,7 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
     if(!op)
         return false;
 
-    if(op->is(OperandTypes::Displacement))
+    if(op->is(OperandType::Displacement))
     {
         if(bool localValue = this->displacementT(op->disp, value))
             return true;
@@ -32,13 +32,13 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
         return false;
     }
 
-    if(op->is(OperandTypes::Register))
+    if(op->is(OperandType::Register))
     {
         *value = this->readReg(static_cast<T>(op->reg.r));
         return true;
     }
 
-    if(op->is(OperandTypes::Memory))
+    if(op->is(OperandType::Memory))
     {
         if(this->readMem(static_cast<T>(op->u_value), value, op->size))
             return true;
@@ -60,14 +60,14 @@ template<typename T> void EmulatorBase<T>::writeOp(const Operand *op, T value)
         return;
     }
 
-    if(op->is(OperandTypes::Displacement))
+    if(op->is(OperandType::Displacement))
     {
         if(!this->displacementT(op->disp, &value))
             this->fail();
     }
-    else if(op->is(OperandTypes::Memory))
+    else if(op->is(OperandType::Memory))
         this->writeMem(static_cast<T>(op->u_value), value);
-    else if(op->is(OperandTypes::Register))
+    else if(op->is(OperandType::Register))
         this->writeReg(static_cast<T>(op->reg.r), value);
     else
         this->fail();
@@ -96,7 +96,7 @@ template<typename T> T EmulatorBase<T>::readReg(T r) const
 
 template<typename T> void EmulatorBase<T>::changeReg(const Operand *op, ST amount)
 {
-    if(!op->is(OperandTypes::Register) || !amount)
+    if(!op->is(OperandType::Register) || !amount)
         return;
 
     this->writeReg(static_cast<T>(op->reg.r), this->readReg(static_cast<T>(op->reg.r)) + amount);

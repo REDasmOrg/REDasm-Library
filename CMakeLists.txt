@@ -117,6 +117,7 @@ set(HEADERS
     ${DATABASE_HEADERS}
     ${GRAPH_HEADERS}
     redasm/redasm.h
+    redasm/redasm_macros.h
     redasm/redasm_api.h
     redasm/redasm_ui.h
     redasm/redasm_context.h)
@@ -138,9 +139,9 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
 
 target_link_libraries(${PROJECT_NAME} capstone-static)
 
-# if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-#     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wconversion -Wsign-conversion)
-# endif()
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wconversion -Wsign-conversion)
+endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread)

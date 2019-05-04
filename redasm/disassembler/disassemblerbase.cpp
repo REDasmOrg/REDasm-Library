@@ -32,7 +32,7 @@ ListingItems DisassemblerBase::getCalls(address_t address)
         {
             InstructionPtr instruction = document->instruction(item->address);
 
-            if(!instruction->is(InstructionTypes::Call))
+            if(!instruction->is(InstructionType::Call))
                 continue;
 
             calls.push_back(item);
@@ -124,12 +124,12 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
     {
         const Segment* segment = this->document()->segment(target);
 
-        if(!segment || !segment->is(SegmentTypes::Code))
+        if(!segment || !segment->is(SegmentType::Code))
             break;
 
         targets.insert(target);
 
-        if(instruction->is(InstructionTypes::Branch))
+        if(instruction->is(InstructionType::Branch))
             this->pushTarget(target, instruction->address);
         else
             this->checkLocation(startaddress, target);
@@ -170,7 +170,7 @@ u64 DisassemblerBase::locationIsString(address_t address, bool *wide) const
 {
     const Segment* segment = this->document()->segment(address);
 
-    if(!segment || segment->is(SegmentTypes::Bss))
+    if(!segment || segment->is(SegmentType::Bss))
         return 0;
 
     if(wide) *wide = false;
@@ -309,7 +309,7 @@ bool DisassemblerBase::readAddress(address_t address, size_t size, u64 *value) c
 
     const Segment* segment = this->document()->segment(address);
 
-    if(!segment || segment->is(SegmentTypes::Bss))
+    if(!segment || segment->is(SegmentType::Bss))
         return false;
 
     offset_location offset = m_loader->offset(address);

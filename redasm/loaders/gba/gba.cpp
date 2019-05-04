@@ -52,13 +52,13 @@ std::string GbaLoader::assembler() const { return "metaarm"; }
 
 void GbaLoader::load()
 {
-    m_document->segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentTypes::Bss);
-    m_document->segment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentTypes::Bss);
-    m_document->segment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentTypes::Bss);
-    m_document->segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentTypes::Bss);
-    m_document->segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentTypes::Bss);
-    m_document->segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentTypes::Bss);
-    m_document->segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer->size(), SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("EWRAM", 0, GBA_SEGMENT_AREA(EWRAM), SegmentType::Bss);
+    m_document->segment("IWRAM", 0, GBA_SEGMENT_AREA(IWRAM), SegmentType::Bss);
+    m_document->segment("IOREG", 0, GBA_SEGMENT_AREA(IOREG), SegmentType::Bss);
+    m_document->segment("PALETTE", 0, GBA_SEGMENT_AREA(PALETTE), SegmentType::Bss);
+    m_document->segment("VRAM", 0, GBA_SEGMENT_AREA(VRAM), SegmentType::Bss);
+    m_document->segment("OAM", 0, GBA_SEGMENT_AREA(OAM), SegmentType::Bss);
+    m_document->segment("ROM", 0, GBA_ROM_START_ADDR, m_buffer->size(), SegmentType::Code | SegmentType::Data);
     m_document->entry(this->getEP());
 }
 

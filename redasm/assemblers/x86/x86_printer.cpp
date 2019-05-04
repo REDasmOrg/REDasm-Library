@@ -6,9 +6,9 @@ X86Printer::X86Printer(csh cshandle, DisassemblerAPI *disassembler): CapstonePri
 
 std::string X86Printer::loc(const Operand* op) const
 {
-    if(op->is(OperandTypes::Local))
+    if(op->is(OperandType::Local))
         return "local_" + REDasm::hex(op->loc_index);
-    if(op->is(OperandTypes::Argument))
+    if(op->is(OperandType::Argument))
         return "arg_" + REDasm::hex(op->loc_index);
 
     return std::string();

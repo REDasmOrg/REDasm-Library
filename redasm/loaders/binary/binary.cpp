@@ -21,7 +21,7 @@ void BinaryLoader::build(const std::string &assembler, offset_t offset, address_
     if(entrypoint >= vsize)
         vsize = entrypoint << 1;
 
-    m_document->segment("BINARY", offset, baseaddress, m_buffer->size(), vsize, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("BINARY", offset, baseaddress, m_buffer->size(), vsize, SegmentType::Code | SegmentType::Data);
     m_document->entry(baseaddress + entrypoint);
 }
 

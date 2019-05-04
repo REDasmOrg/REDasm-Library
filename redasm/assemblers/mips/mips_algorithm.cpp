@@ -17,7 +17,7 @@ void MIPSAlgorithm::onDecoded(const InstructionPtr &instruction)
         AssemblerAlgorithm::onDecoded(instruction);
         m_pendingdelayslots.erase(instruction->address);
 
-        if(instruction->is(InstructionTypes::Stop))
+        if(instruction->is(InstructionType::Stop))
             return;
     }
 

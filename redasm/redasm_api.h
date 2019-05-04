@@ -10,11 +10,13 @@
 #include <unordered_map>
 #include <map>
 #include <list>
+#include <type_traits>
 #include <set>
 #include "types/base_types.h"
 #include "types/buffer/abstractbuffer.h"
 #include "types/buffer/bufferview.h"
 #include "support/utils.h"
+#include "redasm_macros.h"
 #include "redasm_context.h"
 
 #if __cplusplus <= 201103L && __GNUC__
@@ -23,11 +25,6 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 }
 #endif
 
-#define DO_UNPAREN(...) __VA_ARGS__
-#define INVOKE(expr)    expr
-#define UNPAREN(args)   INVOKE(DO_UNPAREN args)
-
-#define RE_UNUSED(x)                               (void)x
 #define ENTRYPOINT_FUNCTION                        "__redasm_ep__"
 #define START_FUNCTION                             "__redasm_start__"
 #define REGISTER_INVALID                           static_cast<s64>(-1)
@@ -35,7 +32,7 @@ template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... 
 
 namespace REDasm {
 
-constexpr size_t npos = -1;
+constexpr size_t npos = static_cast<size_t>(-1);
 
 inline void log(const std::string& s) { Context::settings.logCallback(s); }
 
@@ -79,81 +76,69 @@ template<typename...T> std::string makeDbPath(const std::string& p, T... args) {
 template<typename...T> std::string makeLoaderPath(const std::string& p, T... args) { return REDasm::makeDbPath("loaders", p, args...); }
 template<typename...T> std::string makeSignaturePath(const std::string& p, T... args) { return REDasm::makeDbPath("signatures", p, args...); }
 
-namespace SegmentTypes {
-    enum: u32 {
-        None = 0x00000000,
-        Code = 0x00000001,
-        Data = 0x00000002,
-        Bss  = 0x00000004,
-    };
-}
+enum class SegmentType: u32 {
+    None = 0x00000000,
+    Code = 0x00000001,
+    Data = 0x00000002,
+    Bss  = 0x00000004,
+};
 
-namespace InstructionTypes {
-    enum: u32 {
-        None            = 0x00000000, Stop = 0x00000001, Nop = 0x00000002,
-        Jump            = 0x00000004, Call = 0x00000008,
-        Add             = 0x00000010, Sub  = 0x00000020, Mul = 0x00000040, Div = 0x0000080, Mod = 0x00000100, Lsh = 0x00000200, Rsh = 0x00000400,
-        And             = 0x00000800, Or   = 0x00001000, Xor = 0x00002000, Not = 0x0004000,
-        Push            = 0x00008000, Pop  = 0x00010000,
-        Compare         = 0x00020000, Load = 0x00040000, Store = 0x00080000,
+ENUM_FLAGS_OPERATORS(SegmentType)
 
-        Conditional     = 0x01000000, Privileged = 0x02000000,
-        Invalid         = 0x10000000,
-        Branch          = Jump | Call,
-        ConditionalJump = Conditional | Jump,
-        ConditionalCall = Conditional | Call,
-    };
-}
+enum class InstructionType: u32 {
+    None            = 0x00000000, Stop = 0x00000001, Nop = 0x00000002,
+    Jump            = 0x00000004, Call = 0x00000008,
+    Add             = 0x00000010, Sub  = 0x00000020, Mul = 0x00000040, Div = 0x0000080, Mod = 0x00000100, Lsh = 0x00000200, Rsh = 0x00000400,
+    And             = 0x00000800, Or   = 0x00001000, Xor = 0x00002000, Not = 0x0004000,
+    Push            = 0x00008000, Pop  = 0x00010000,
+    Compare         = 0x00020000, Load = 0x00040000, Store = 0x00080000,
 
-namespace OperandTypes {
-    enum: u32 {
-        None          = 0x00000000,
-        Constant      = 0x00000001,  // Simple constant
-        Register      = 0x00000002,  // Register
-        Immediate     = 0x00000004,  // Immediate Value
-        Memory        = 0x00000008,  // Direct Memory Pointer
-        Displacement  = 0x00000010,  // Indirect Memory Pointer
+    Conditional     = 0x01000000, Privileged = 0x02000000,
+    Invalid         = 0x10000000,
+    Branch          = Jump | Call,
+    ConditionalJump = Conditional | Jump,
+    ConditionalCall = Conditional | Call,
+};
 
-        Local         = 0x00010000,  // Local Variable
-        Argument      = 0x00020000,  // Function Argument
-        Target        = 0x00040000,  // Branch destination
-    };
-}
+ENUM_FLAGS_OPERATORS(InstructionType)
 
-namespace OperandSizes {
-    enum: u32 {
-        Undefined  = 0,
-        Byte       = 1,
-        Word       = 2,
-        Dword      = 4,
-        Qword      = 8,
-    };
+enum class OperandType : u32 {
+    None          = 0x00000000,
+    Constant      = 0x00000001,  // Simple constant
+    Register      = 0x00000002,  // Register
+    Immediate     = 0x00000004,  // Immediate Value
+    Memory        = 0x00000008,  // Direct Memory Pointer
+    Displacement  = 0x00000010,  // Indirect Memory Pointer
 
-    std::string size(u32 opsize);
-}
+    Local         = 0x00010000,  // Local Variable
+    Argument      = 0x00020000,  // Function Argument
+    Target        = 0x00040000,  // Branch destination
+};
+
+ENUM_FLAGS_OPERATORS(OperandType)
 
 struct Segment
 {
-    Segment(): offset(0), address(0), endaddress(0), type(0) { }
-    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
+    Segment(): offset(0), address(0), endaddress(0), type(SegmentType::None) { }
+    Segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
     constexpr s64 size() const { return static_cast<s64>(endaddress - address); }
     constexpr s64 rawSize() const { return static_cast<s64>(endoffset - offset); }
     constexpr bool empty() const { return this->size() <= 0; }
     constexpr bool contains(address_t address) const { return (address >= this->address) && (address < endaddress); }
-    constexpr bool containsOffset(offset_t offset) const { return !is(SegmentTypes::Bss) && ((offset >= this->offset) && (offset < this->endoffset)); }
-    constexpr bool is(u32 t) const { return type & t; }
-    constexpr bool isPureCode() const { return type == SegmentTypes::Code; }
+    constexpr bool containsOffset(offset_t offset) const { return !is(SegmentType::Bss) && ((offset >= this->offset) && (offset < this->endoffset)); }
+    constexpr bool is(SegmentType t) const { return type & t; }
+    constexpr bool isPureCode() const { return type == SegmentType::Code; }
 
     std::string name;
     offset_t offset, endoffset;
     address_t address, endaddress;
-    u64 type;
+    SegmentType type;
 };
 
 struct RegisterOperand
 {
     RegisterOperand(): tag(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u64 type, register_id_t r): tag(type), r(r) { }
+    RegisterOperand(u64 tag, register_id_t r): tag(tag), r(r) { }
     RegisterOperand(register_id_t r): tag(0), r(r) { }
 
     u64 tag;
@@ -174,39 +159,40 @@ struct DisplacementOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandTypes::None), tag(0), size(OperandSizes::Undefined), index(-1), u_value(0) { }
-    Operand(u32 type, u32 tag, s32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), s_value(value) { }
-    Operand(u32 type, u32 tag, u32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), u_value(value) { }
-    Operand(u32 type, u32 tag, s64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), s_value(value) { }
-    Operand(u32 type, u32 tag, u64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(OperandSizes::Undefined), index(idx), u_value(value) { }
+    Operand(): loc_index(-1), type(OperandType::None), tag(0), size(0), index(-1), u_value(0) { }
+    Operand(OperandType type, u32 tag, s32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), s_value(value) { }
+    Operand(OperandType type, u32 tag, u32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), u_value(value) { }
+    Operand(OperandType type, u32 tag, s64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), s_value(value) { }
+    Operand(OperandType type, u32 tag, u64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), u_value(value) { }
 
     s64 loc_index;
-    u32 type, tag, size;
+    OperandType type;
+    u32 tag, size;
     s64 index;
     RegisterOperand reg;
     DisplacementOperand disp;
     union { s64 s_value; u64 u_value; };
 
-    constexpr bool displacementIsDynamic() const { return is(OperandTypes::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
-    constexpr bool displacementCanBeAddress() const { return is(OperandTypes::Displacement) && (disp.displacement > 0); }
-    constexpr bool isCharacter() const { return is(OperandTypes::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
-    constexpr bool isNumeric() const { return is(OperandTypes::Constant) || is(OperandTypes::Immediate) || is(OperandTypes::Memory); }
-    constexpr bool isTarget() const { return type & OperandTypes::Target; }
-    constexpr bool is(u32 t) const { return type & t; }
-    void asTarget() { type |= OperandTypes::Target; }
+    constexpr bool displacementIsDynamic() const { return is(OperandType::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
+    constexpr bool displacementCanBeAddress() const { return is(OperandType::Displacement) && (disp.displacement > 0); }
+    constexpr bool isCharacter() const { return is(OperandType::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
+    constexpr bool isNumeric() const { return is(OperandType::Constant) || is(OperandType::Immediate) || is(OperandType::Memory); }
+    constexpr bool isTarget() const { return type & OperandType::Target; }
+    constexpr bool is(OperandType t) const { return type & t; }
+    void asTarget() { type |= OperandType::Target; }
 
     bool checkCharacter() {
-        if(!is(OperandTypes::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
+        if(!is(OperandType::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
             return false;
 
-        type = OperandTypes::Constant;
+        type = OperandType::Constant;
         return true;
     }
 };
 
 struct Instruction
 {
-    Instruction(): address(0), type(0), size(0), id(0) { meta.userdata = nullptr; }
+    Instruction(): address(0), type(InstructionType::None), size(0), id(0) { meta.userdata = nullptr; }
     ~Instruction() { reset(); }
 
     std::function<void(void*)> free;
@@ -214,7 +200,8 @@ struct Instruction
     std::string mnemonic;
     std::deque<Operand> operands;
     address_t address;
-    u32 type, size;
+    InstructionType type;
+    u32 size;
     instruction_id_t id;             // Backend Specific
 
     struct {
@@ -222,8 +209,8 @@ struct Instruction
         std::set<address_t> targets; // Precalulated targets
     } meta;                          // 'meta' is not serialized
 
-    constexpr bool is(u32 t) const { return type & t; }
-    constexpr bool isInvalid() const { return type == InstructionTypes::Invalid; }
+    constexpr bool is(InstructionType t) const { return type & t; }
+    constexpr bool isInvalid() const { return type == InstructionType::Invalid; }
     inline void opSize(s32 index, u32 size) { operands[index].size = size; }
     inline u32 opSize(s32 index) const { return operands[index].size; }
     constexpr address_t endAddress() const { return address + size; }
@@ -242,20 +229,20 @@ struct Instruction
     }
 
     inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
-    inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandTypes::Memory, tag, v, operands.size()); return *this; }
-    template<typename T> Instruction& cnst(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Constant, tag, v, operands.size()); return *this; }
-    template<typename T> Instruction& imm(T v, u32 tag = 0) { operands.emplace_back(OperandTypes::Immediate, tag, v, operands.size()); return *this; }
+    inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandType::Memory, tag, v, operands.size()); return *this; }
+    template<typename T> Instruction& cnst(T v, u32 tag = 0) { operands.emplace_back(OperandType::Constant, tag, v, operands.size()); return *this; }
+    template<typename T> Instruction& imm(T v, u32 tag = 0) { operands.emplace_back(OperandType::Immediate, tag, v, operands.size()); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);
-    template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandTypes::Argument); }
-    template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, u32 type = OperandTypes::Local);
+    template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandType::Argument); }
+    template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, OperandType type = OperandType::Local);
 
-    Instruction& reg(register_id_t r, u64 type = 0) {
+    Instruction& reg(register_id_t r, u64 tag = 0) {
         Operand op;
         op.index = operands.size();
-        op.type = OperandTypes::Register;
-        op.reg = RegisterOperand(type, r);
+        op.type = OperandType::Register;
+        op.reg = RegisterOperand(tag, r);
 
         operands.emplace_back(op);
         return *this;
@@ -271,7 +258,8 @@ struct Instruction
     }
 
     void reset() {
-        type = size = 0;
+        type = InstructionType::None;
+        size = 0;
         operands.clear();
 
         if(free && meta.userdata) {
@@ -288,12 +276,12 @@ template<typename T> Instruction& Instruction::disp(register_id_t base, register
 
     if((base == REGISTER_INVALID) && (index == REGISTER_INVALID))
     {
-        op.type = OperandTypes::Memory;
+        op.type = OperandType::Memory;
         op.u_value = scale * displacement;
     }
     else
     {
-        op.type = OperandTypes::Displacement;
+        op.type = OperandType::Displacement;
         op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
     }
 
@@ -301,12 +289,12 @@ template<typename T> Instruction& Instruction::disp(register_id_t base, register
     return *this;
 }
 
-template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t base, register_id_t index, T displacement, u32 type)
+template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t base, register_id_t index, T displacement, OperandType type)
 {
     Operand op;
     op.index = operands.size();
     op.loc_index = locindex;
-    op.type = OperandTypes::Displacement | type;
+    op.type = OperandType::Displacement | type;
     op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
 
     operands.emplace_back(op);

@@ -11,7 +11,7 @@ void Emulator::emulate(const InstructionPtr &instruction)
 {
     m_currentinstruction = instruction;
 
-    if(instruction->is(InstructionTypes::Branch))
+    if(instruction->is(InstructionType::Branch))
         this->setTarget(instruction);
 
     m_dispatcher(instruction->id, instruction);
@@ -21,7 +21,7 @@ bool Emulator::setTarget(const InstructionPtr &instruction)
 {
    const Operand* op = instruction->target();
 
-   if(!op || !op->is(OperandTypes::Register))
+   if(!op || !op->is(OperandType::Register))
        return false;
 
    u64 value = 0;
@@ -77,7 +77,7 @@ void Emulator::remap()
                     " @ " + REDasm::hex(segment.address) + ", " +
                     " size: " + REDasm::hex(segment.size()));
 
-        if(!segment.is(SegmentTypes::Bss))
+        if(!segment.is(SegmentType::Bss))
         {
             BufferView view = loader->view(segment.address);
 

@@ -78,8 +78,8 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         void lock(address_t address, const std::string& name);
         void lock(address_t address, u32 type, u32 tag = 0);
         void lock(address_t address, const std::string& name, u32 type, u32 tag = 0);
-        void segment(const std::string& name, offset_t offset, address_t address, u64 size, u64 type);
-        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, u64 type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 size, SegmentType type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type);
 
     public:
         size_t segmentsCount() const;

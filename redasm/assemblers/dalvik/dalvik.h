@@ -29,13 +29,13 @@ class DalvikAssembler : public AssemblerPlugin
         bool decodeInstruction(const BufferView& view, const InstructionPtr &instruction) override;
 
     private:
-        static bool decodeOp0(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp1(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp0(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
+        static bool decodeOp1(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
         static bool decodeOp2(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp3(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp3(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
         static bool decodeOp2_s(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp2_t(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp2_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp2_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
         static bool decodeOp2_16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp2_16_16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp2_imm4(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
@@ -46,8 +46,8 @@ class DalvikAssembler : public AssemblerPlugin
         static bool decodeOp2_cnst16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp2_cnst32(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp2_cnst64(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
-        static bool decodeOp3_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
-        static bool decodeOp3_t(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, u32 type = InstructionTypes::None);
+        static bool decodeOp3_f(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
+        static bool decodeOp3_t(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id, InstructionType type = InstructionType::None);
         static bool decodeOp3_imm8(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeOp3_imm16(BufferView& view, const InstructionPtr& instruction, const std::string& mnemonic, instruction_id_t id);
         static bool decodeIfOp2(BufferView& view, const InstructionPtr& instruction, const std::string& cond, instruction_id_t id);

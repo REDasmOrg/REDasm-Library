@@ -6,54 +6,54 @@ namespace REDasm {
 
 template<s64 mode> MIPSAssembler<mode>::MIPSAssembler(): CapstoneAssemblerPlugin<CS_ARCH_MIPS, mode>()
 {
-    SET_INSTRUCTION_TYPE(MIPS_INS_NOP, InstructionTypes::Nop);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BREAK, InstructionTypes::Stop);
-    SET_INSTRUCTION_TYPE(MIPS_INS_J, InstructionTypes::Jump);
-    SET_INSTRUCTION_TYPE(MIPS_INS_B, InstructionTypes::Jump);
-    SET_INSTRUCTION_TYPE(MIPS_INS_JAL, InstructionTypes::Call);
-    SET_INSTRUCTION_TYPE(MIPS_INS_JALR, InstructionTypes::Call);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BAL, InstructionTypes::Call);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BEQZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BNEZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BNEL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZC, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BLTZL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGTZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZC, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZAL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGTZL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZALL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BLTZ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BNE, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BNEL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BEQ, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BEQL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BC1F, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BC1FL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BC1TL, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_BBIT132, InstructionTypes::Conditional);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ADD, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ADDI, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ADDIU, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ADDU, InstructionTypes::Add);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SUB, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SUBU, InstructionTypes::Sub);
-    SET_INSTRUCTION_TYPE(MIPS_INS_MUL, InstructionTypes::Mul);
-    SET_INSTRUCTION_TYPE(MIPS_INS_AND, InstructionTypes::And);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ANDI, InstructionTypes::And);
-    SET_INSTRUCTION_TYPE(MIPS_INS_OR, InstructionTypes::Or);
-    SET_INSTRUCTION_TYPE(MIPS_INS_ORI, InstructionTypes::Or);
-    SET_INSTRUCTION_TYPE(MIPS_INS_XOR, InstructionTypes::Xor);
-    SET_INSTRUCTION_TYPE(MIPS_INS_XORI, InstructionTypes::Xor);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SLL, InstructionTypes::Lsh);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SLLV, InstructionTypes::Lsh);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SRL, InstructionTypes::Rsh);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SRLV, InstructionTypes::Rsh);
-    SET_INSTRUCTION_TYPE(MIPS_INS_SRAV, InstructionTypes::Rsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_NOP, InstructionType::Nop);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BREAK, InstructionType::Stop);
+    SET_INSTRUCTION_TYPE(MIPS_INS_J, InstructionType::Jump);
+    SET_INSTRUCTION_TYPE(MIPS_INS_B, InstructionType::Jump);
+    SET_INSTRUCTION_TYPE(MIPS_INS_JAL, InstructionType::Call);
+    SET_INSTRUCTION_TYPE(MIPS_INS_JALR, InstructionType::Call);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BAL, InstructionType::Call);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNEZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNEL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZC, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLEZL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLTZL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGTZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZC, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZAL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGTZL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BGEZALL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BLTZ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNE, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BNEL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQ, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BEQL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BC1F, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BC1FL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BC1TL, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_BBIT132, InstructionType::Conditional);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADD, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDI, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDIU, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ADDU, InstructionType::Add);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SUB, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SUBU, InstructionType::Sub);
+    SET_INSTRUCTION_TYPE(MIPS_INS_MUL, InstructionType::Mul);
+    SET_INSTRUCTION_TYPE(MIPS_INS_AND, InstructionType::And);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ANDI, InstructionType::And);
+    SET_INSTRUCTION_TYPE(MIPS_INS_OR, InstructionType::Or);
+    SET_INSTRUCTION_TYPE(MIPS_INS_ORI, InstructionType::Or);
+    SET_INSTRUCTION_TYPE(MIPS_INS_XOR, InstructionType::Xor);
+    SET_INSTRUCTION_TYPE(MIPS_INS_XORI, InstructionType::Xor);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SLL, InstructionType::Lsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SLLV, InstructionType::Lsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRL, InstructionType::Rsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRLV, InstructionType::Rsh);
+    SET_INSTRUCTION_TYPE(MIPS_INS_SRAV, InstructionType::Rsh);
 
     REGISTER_INSTRUCTION(MIPS_INS_JR, &MIPSAssembler::checkJr);
     REGISTER_INSTRUCTION(MIPS_INS_J, &MIPSAssembler::setTargetOp0);
@@ -122,11 +122,11 @@ template<s64 mode> void MIPSAssembler<mode>::checkJr(const InstructionPtr& instr
 {
     if(instruction->op(0)->reg.r != MIPS_REG_RA)
     {
-        instruction->type = InstructionTypes::Jump;
+        instruction->type = InstructionType::Jump;
         instruction->op(0)->asTarget();
     }
     else
-        instruction->type = InstructionTypes::Stop;
+        instruction->type = InstructionType::Stop;
 }
 
 } // namespace REDasm

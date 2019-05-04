@@ -3,27 +3,6 @@
 
 namespace REDasm {
 
-namespace OperandSizes {
-
-std::string size(u32 opsize)
-{
-    if(opsize == OperandSizes::Byte)
-        return "byte";
-
-    if(opsize == OperandSizes::Word)
-        return "word";
-
-    if(opsize == OperandSizes::Dword)
-        return "dword";
-
-    if(opsize == OperandSizes::Qword)
-        return "qword";
-
-    return std::string();
-}
-
-} // namespace OperandSizes
-
 static std::list<std::string> split(const std::string &s, char sep)
 {
     std::stringstream ss(s);

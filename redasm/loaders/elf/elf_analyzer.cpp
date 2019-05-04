@@ -62,7 +62,7 @@ void ElfAnalyzer::findMain_x86(ListingDocumentType::const_iterator it)
         {
             InstructionPtr instruction = m_document->instruction((*it)->address);
 
-            if(instruction->is(InstructionTypes::Push))
+            if(instruction->is(InstructionType::Push))
             {
                 const Operand* op = instruction->op(0);
 
@@ -98,12 +98,12 @@ void ElfAnalyzer::findMain_x86_64(ListingDocumentType::const_iterator it)
         {
             InstructionPtr instruction = m_document->instruction((*it)->address);
 
-            if(instruction->is(InstructionTypes::Load))
+            if(instruction->is(InstructionType::Load))
             {
                 const Operand* op1 = instruction->op(0);
                 const Operand* op2 = instruction->op(1);
 
-                if(!op1->is(OperandTypes::Register) || !op2->isNumeric())
+                if(!op1->is(OperandType::Register) || !op2->isNumeric())
                     continue;
 
                 if(op1->reg.r == X86_REG_RDI)

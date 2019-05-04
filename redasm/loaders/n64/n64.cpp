@@ -70,7 +70,7 @@ void N64Loader::load()
     if(m_header->magic_0 != N64_MAGIC_BE_B1)
         Buffer::swapEndianness<u16>(m_buffer.get());
 
-    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer->size() - N64_ROM_HEADER_SIZE, SegmentTypes::Code | SegmentTypes::Data);
+    m_document->segment("KSEG0", N64_ROM_HEADER_SIZE, this->getEP(), m_buffer->size() - N64_ROM_HEADER_SIZE, SegmentType::Code | SegmentType::Data);
     // TODO: map other segments
     m_document->entry(this->getEP());
 }

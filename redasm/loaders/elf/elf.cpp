@@ -133,13 +133,13 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSegments()
         if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
             continue;
 
-        u32 type = SegmentTypes::Data;
+        SegmentType type = SegmentType::Data;
 
         if((shdr.sh_type == SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
-            type = SegmentTypes::Code;
+            type = SegmentType::Code;
 
         if(shdr.sh_type == SHT_NOBITS)
-            type = SegmentTypes::Bss;
+            type = SegmentType::Bss;
 
         std::string name = ELF_STRING(&shstr, shdr.sh_name);
         bool skip = false;
@@ -170,7 +170,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::checkProgramHeader()
         if((phdr.p_type != PT_LOAD) || !phdr.p_memsz)
             continue;
 
-        this->m_document->segment("LOAD", phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, SegmentTypes::Code);
+        this->m_document->segment("LOAD", phdr.p_offset, phdr.p_vaddr, phdr.p_memsz, SegmentType::Code);
     }
 }
 
@@ -251,7 +251,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSymbols(const SHDR&
             {
                 const Segment* segment = this->m_document->segment(symvalue);
 
-                if(segment && !segment->is(SegmentTypes::Code))
+                if(segment && !segment->is(SegmentType::Code))
                     this->m_document->lock(symvalue, symname, SymbolTypes::Data);
             }
         }

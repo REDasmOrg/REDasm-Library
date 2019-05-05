@@ -2,8 +2,9 @@
 
 #include "../../redasm.h"
 #include "../../support/containers/cache_map.h"
-#include "../../support/event.h"
+#include "../../support/serializer.h"
 #include "../../support/safe_ptr.h"
+#include "../../support/event.h"
 #include "../types/symboltable.h"
 #include "listingfunctions.h"
 #include "listingcursor.h"
@@ -130,10 +131,39 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         ActiveMeta m_activemeta;
 
     friend class LoaderPlugin;
+    friend struct Serializer< safe_ptr<ListingDocumentType> >;
 };
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;
 using document_s_lock = s_locked_safe_ptr<ListingDocument>;
 using document_x_lock = x_locked_safe_ptr<ListingDocument>;
+
+template<> struct Serializer<ListingDocument> {
+    static void write(std::fstream& fs, const ListingDocument& d) {
+        auto lock = x_lock_safe_ptr(d);
+
+        Serializer<SegmentList>::write(fs, lock->segments());
+        Serializer<SymbolTable>::write(fs, lock->symbols());
+
+        // ???
+
+        Serializer<address_t>::write(fs, (lock->documentEntry() ? lock->documentEntry()->address : 0));
+        Serializer<ListingCursor>::write(fs, lock->cursor());
+    }
+
+    static void read(std::fstream& fs, ListingDocument& d) {
+        auto lock = x_lock_safe_ptr(d);
+
+        Serializer<SegmentList>::read(fs, [&lock](const Segment& s) {
+            lock->m_segments.push_back(s);
+            lock->push(s.address, ListingItem::SegmentItem);
+        });
+
+        Serializer<SymbolTable>::read(fs, &lock->m_symboltable);
+
+        Serializer<ListingCursor>::read(fs, lock->cursor());
+    }
+};
+
 
 } // namespace REDasm

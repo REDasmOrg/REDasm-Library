@@ -23,6 +23,7 @@ VISITABLE_STRUCT(REDasm::RegisterOperand, r, tag);
 VISITABLE_STRUCT(REDasm::DisplacementOperand, base, index, scale, displacement);
 VISITABLE_STRUCT(REDasm::Operand, type, tag, size, index, loc_index, reg, disp, u_value);
 VISITABLE_STRUCT(REDasm::Instruction, mnemonic, operands, address, type, size, id);
+VISITABLE_STRUCT(REDasm::Segment, name, offset, endoffset, address, endaddress, type);
 
 namespace REDasm {
 
@@ -46,6 +47,7 @@ template <typename... Args> struct is_set_container< std::set<Args...> > { stati
 template<typename T, typename = void> struct Serializer {
     //static void write(std::fstream& fs, const T& t);
     //static void read(std::fstream& fs, T& t);
+    //static void read(std::fstream& fs, const std::function<void(const Item&)>& cb);
 };
 
 template<typename T> struct Serializer<T, typename std::enable_if<std::is_scalar<T>::value>::type> {
@@ -79,6 +81,17 @@ template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_seq
             c.push_back(v);
         }
     }
+
+    static void read(std::fstream& fs, const std::function<void(const typename T::value_type&)>& cb) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
+
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::value_type v;
+            Serializer<typename T::value_type>::read(fs, v);
+            cb(v);
+        }
+    }
 };
 
 template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_assoc_container<T>::value>::type> {
@@ -104,6 +117,20 @@ template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_ass
             c.emplace(k, std::move(v));
         }
     }
+
+    static void read(std::fstream& fs, const std::function<void(typename T::key_type, typename T::mapped_type)>& cb) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
+
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::key_type k;
+            typename T::mapped_type v;
+
+            Serializer<typename T::key_type>::read(fs, k);
+            Serializer<typename T::mapped_type>::read(fs, v);
+            cb(k, std::move(v));
+        }
+    }
 };
 
 template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_set_container<T>::value>::type> {
@@ -120,6 +147,17 @@ template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_set
             typename T::value_type v;
             Serializer<typename T::value_type>::read(fs, v);
             s.insert(v);
+        }
+    }
+
+    static void read(std::fstream& fs, const std::function<void(const typename T::value_type&)>& cb) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
+
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::value_type v;
+            Serializer<typename T::value_type>::read(fs, v);
+            cb(v);
         }
     }
 };

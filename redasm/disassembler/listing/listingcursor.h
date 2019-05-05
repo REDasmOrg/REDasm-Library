@@ -3,6 +3,7 @@
 #include <stack>
 #include "../../redasm.h"
 #include "../../support/event.h"
+#include "../../support/serializer.h"
 
 namespace REDasm {
 
@@ -50,5 +51,20 @@ class ListingCursor
         PositionStack m_backstack, m_forwardstack;
         bool m_active;
 };
+
+template<> struct Serializer<ListingCursor> {
+    static void write(std::fstream& fs, const ListingCursor* c) {
+        Serializer<size_t>::write(fs, c->currentLine());
+        Serializer<size_t>::write(fs, c->currentColumn());
+    }
+
+    static void read(std::fstream& fs, ListingCursor* c) {
+        size_t line = 0, column = 0;
+        Serializer<size_t>::read(fs, line);
+        Serializer<size_t>::read(fs, column);
+        c->set(line, column);
+    }
+};
+
 
 } // namespace REDasm

@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-bool SymbolTable::create(address_t address, const std::string &name, u32 type, u32 tag)
+bool SymbolTable::create(address_t address, const std::string &name, SymbolType type, tag_t tag)
 {
     auto it = m_byaddress.find(address);
 
@@ -41,7 +41,7 @@ Symbol* SymbolTable::symbol(address_t address) const
     return it->second.get();
 }
 
-void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const Symbol*)>& cb) const
+void SymbolTable::iterate(SymbolType type, const std::function<bool(const Symbol*)>& cb) const
 {
     std::forward_list<const Symbol*> symbols;
 
@@ -49,17 +49,14 @@ void SymbolTable::iterate(u32 symbolflags, const std::function<bool(const Symbol
     {
         const SymbolPtr& symbol = it->second;
 
-        if(!((symbol->type & SymbolTypes::LockedMask) & symbolflags))
+        if(!(symbol->type & type))
             continue;
 
-        symbols.emplace_front(symbol.get());
+        symbols.push_front(symbol.get()); // m_byaddress can be modified
     }
 
-    for(auto it = symbols.begin(); it != symbols.end(); it++)
-    {
-        if(!cb(*it))
-            break;
-    }
+    for(const Symbol* symbol : symbols)
+        cb(symbol);
 }
 
 bool SymbolTable::erase(address_t address)
@@ -94,14 +91,14 @@ std::string SymbolTable::normalized(std::string s)
     return s;
 }
 
-std::string SymbolTable::name(address_t address, u32 type)
+std::string SymbolTable::name(address_t address, SymbolType type)
 {
     std::stringstream ss;
     ss << SymbolTable::prefix(type) << "_" << std::hex << address;
     return ss.str();
 }
 
-std::string SymbolTable::name(address_t address, const std::string &s, u32 type)
+std::string SymbolTable::name(address_t address, const std::string &s, SymbolType type)
 {
     if(s.empty())
         return SymbolTable::name(address, type);
@@ -111,64 +108,22 @@ std::string SymbolTable::name(address_t address, const std::string &s, u32 type)
     return ss.str();
 }
 
-void SymbolTable::serializeTo(std::fstream &fs)
+std::string SymbolTable::prefix(SymbolType type)
 {
-    Serializer::serializeMap<address_t, SymbolPtr>(fs, m_byaddress, [&](address_t k, const SymbolPtr& v) {
-        Serializer::serializeScalar(fs, k);
-        this->serializeSymbol(fs, v);
-    });
-}
-
-void SymbolTable::deserializeFrom(std::fstream &fs)
-{
-    EVENT_CONNECT(this, deserialized, this, std::bind(&SymbolTable::bindName, this, std::placeholders::_1));
-
-    Serializer::deserializeMap<address_t, SymbolPtr>(fs, m_byaddress, [&](address_t& k, SymbolPtr& v) {
-        Serializer::deserializeScalar(fs, &k);
-        this->deserializeSymbol(fs, v);
-        deserialized(v.get());
-    });
-
-    this->deserialized.removeLast();
-}
-
-std::string SymbolTable::prefix(u32 type)
-{
-    if(type & SymbolTypes::Pointer)
+    if(type & SymbolType::Pointer)
         return "ptr";
-    if(type & SymbolTypes::WideStringMask)
+    if(type & SymbolType::WideStringMask)
         return "wstr";
-    if(type & SymbolTypes::StringMask)
+    if(type & SymbolType::StringMask)
         return "str";
-    if(type & SymbolTypes::FunctionMask)
+    if(type & SymbolType::FunctionMask)
         return "sub";
-    if(type & SymbolTypes::Code)
+    if(type & SymbolType::Code)
         return "loc";
-    if(type & SymbolTypes::TableItemMask)
+    if(type & SymbolType::TableItemMask)
         return "tbl";
 
     return "data";
 }
-
-void SymbolTable::serializeSymbol(std::fstream &fs, const SymbolPtr &value)
-{
-    Serializer::serializeScalar(fs, value->type);
-    Serializer::serializeScalar(fs, value->tag);
-    Serializer::serializeScalar(fs, value->address);
-    Serializer::serializeScalar(fs, value->size);
-    Serializer::serializeString(fs, value->name);
-}
-
-void SymbolTable::deserializeSymbol(std::fstream &fs, SymbolPtr &value)
-{
-    value = std::make_unique<Symbol>();
-    Serializer::deserializeScalar(fs, &value->type);
-    Serializer::deserializeScalar(fs, &value->tag);
-    Serializer::deserializeScalar(fs, &value->address);
-    Serializer::deserializeScalar(fs, &value->size);
-    Serializer::deserializeString(fs, value->name);
-}
-
-void SymbolTable::bindName(const Symbol* symbol) { m_byname[symbol->name] = symbol->address; }
 
 }

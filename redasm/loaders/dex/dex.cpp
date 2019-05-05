@@ -285,9 +285,9 @@ void DEXLoader::loadMethod(const DEXEncodedMethod &dexmethod, u16& idx, bool fil
     const std::string& methodname = this->getMethodName(idx);
 
     if(filter)
-        m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolTypes::Import, idx);
+        m_document->lock(fileoffset(&dexcode->insns), methodname, SymbolType::Import, idx);
     else
-        m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolTypes::ExportFunction, idx);
+        m_document->symbol(fileoffset(&dexcode->insns), methodname, SymbolType::ExportFunction, idx);
 }
 
 void DEXLoader::loadClass(const DEXClassIdItem &dexclass, bool filter)

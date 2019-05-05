@@ -286,7 +286,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
     AssemblerPlugin* assembler = m_disassembler->assembler();
     const Symbol* symbol = lock->symbol(item->address);
 
-    if(symbol->is(SymbolTypes::Code)) // Label or Callback
+    if(symbol->is(SymbolType::Code)) // Label or Callback
     {
         const Segment* segment = lock->segment(symbol->address);
 
@@ -317,17 +317,17 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 
         if(!segment->is(SegmentType::Bss) && loader->offset(symbol->address).valid)
         {
-            if(symbol->is(SymbolTypes::Pointer))
+            if(symbol->is(SymbolType::Pointer))
             {
                 if(this->renderSymbolPointer(lock, symbol, rl))
                     return;
             }
 
-            if(symbol->is(SymbolTypes::WideStringMask))
+            if(symbol->is(SymbolType::WideStringMask))
                 rl.push(REDasm::quoted(m_disassembler->readWString(symbol, STRING_THRESHOLD)), "string_fg");
-            else if(symbol->is(SymbolTypes::StringMask))
+            else if(symbol->is(SymbolType::StringMask))
                 rl.push(REDasm::quoted(m_disassembler->readString(symbol, STRING_THRESHOLD)), "string_fg");
-            else if(symbol->is(SymbolTypes::ImportMask))
+            else if(symbol->is(SymbolType::ImportMask))
                 rl.push("<").push("import", "label_fg").push(">");
             else
             {
@@ -336,7 +336,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
                 rl.push(REDasm::hex(value, m_disassembler->assembler()->bits()), m_document->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
-        else if(symbol->is(SymbolTypes::ImportMask))
+        else if(symbol->is(SymbolType::ImportMask))
             rl.push("<").push("import", "label_fg").push(">");
         else
             rl.push("??", "data_fg");

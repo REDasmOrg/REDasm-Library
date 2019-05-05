@@ -125,7 +125,7 @@ void ElfAnalyzer::disassembleLibStartMain()
 {
     for(auto& it : m_libcmain)
     {
-        m_document->lock(it.second, it.first, SymbolTypes::Function);
+        m_document->lock(it.second, it.first, SymbolType::Function);
         m_disassembler->disassemble(it.second);
     }
 

@@ -1,86 +1,195 @@
 #pragma once
 
+// Sequence Containers
+#include <vector>
+#include <deque>
+#include <list>
+
+// Associative Containers
 #include <unordered_map>
-#include <functional>
+#include <map>
+
+// Set Containers
+#include <unordered_set>
+#include <set>
+
+#include <visit_struct.hpp>
 #include <algorithm>
 #include <fstream>
-#include "../types/buffer/memorybuffer.h"
+#include <memory>
+#include "../redasm_api.h"
+
+VISITABLE_STRUCT(REDasm::RegisterOperand, r, tag);
+VISITABLE_STRUCT(REDasm::DisplacementOperand, base, index, scale, displacement);
+VISITABLE_STRUCT(REDasm::Operand, type, tag, size, index, loc_index, reg, disp, u_value);
+VISITABLE_STRUCT(REDasm::Instruction, mnemonic, operands, address, type, size, id);
 
 namespace REDasm {
-namespace Serializer {
 
-class Serializable
-{
-    public:
-        virtual void serializeTo(std::fstream& fs) = 0;
-        virtual void deserializeFrom(std::fstream& fs) = 0;
+namespace Detail {
+
+template<typename T> struct is_seq_container { static const bool value = false; };
+template <typename... Args> struct is_seq_container< std::vector<Args...> > { static bool const value = true; };
+template <typename... Args> struct is_seq_container< std::deque<Args...> > { static bool const value = true; };
+template <typename... Args> struct is_seq_container< std::list<Args...> > { static bool const value = true; };
+
+template<typename T> struct is_assoc_container { static const bool value = false; };
+template<typename... Args> struct is_assoc_container< std::unordered_map<Args...> > { static const bool value = true; };
+template<typename... Args> struct is_assoc_container< std::map<Args...> > { static const bool value = true; };
+
+template<typename T> struct is_set_container { static const bool value = false; };
+template <typename... Args> struct is_set_container< std::unordered_set<Args...> > { static bool const value = true; };
+template <typename... Args> struct is_set_container< std::set<Args...> > { static bool const value = true; };
+
+} // namespace Detail
+
+template<typename T, typename = void> struct Serializer {
+    //static void write(std::fstream& fs, const T& t);
+    //static void read(std::fstream& fs, T& t);
 };
 
-template<typename T> void serializeScalar(std::fstream& fs, T scalar, u64 size = sizeof(T)) { fs.write(reinterpret_cast<const char*>(&scalar), size); }
-template<typename T> void deserializeScalar(std::fstream& fs, T* scalar, u64 size = sizeof(T)) { fs.read(reinterpret_cast<char*>(scalar), size); }
+template<typename T> struct Serializer<T, typename std::enable_if<std::is_scalar<T>::value>::type> {
+    static void write(std::fstream& fs, const T& t) { fs.write(reinterpret_cast<const char*>(&t), sizeof(T));  }
+    static void read(std::fstream& fs, T& t) {  fs.read(reinterpret_cast<char*>(&t), sizeof(T)); }
+};
 
-template<template<typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::allocator<T> >& v, const std::function<void(const T&)>& cb) {
-    Serializer::serializeScalar(fs, v.size(), sizeof(u32));
-    std::for_each(v.begin(), v.end(), cb);
-}
+template<> struct Serializer<std::string> {
+    static void write(std::fstream& fs, const std::string& s) { fs.write(s.c_str(), s.size() + 1); }
+    static void read(std::fstream& fs, std::string& s) { std::getline(fs, s, '\0'); }
+};
 
-template<template<typename, typename, typename> class V, typename T> void serializeArray(std::fstream& fs, const V< T, std::less<T>, std::allocator<T> >& v, const std::function<void(const T&)>& cb) {
-    Serializer::serializeScalar(fs, v.size(), sizeof(u32));
-    std::for_each(v.begin(), v.end(), cb);
-}
+//template<typename T> struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+    //static void write(std::fstream& fs, const T& t) { Serializer<typename std::underlying_type<T>::type>::write(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
+    //static void read(std::fstream& fs, T& t) { Serializer<typename std::underlying_type<T>::type>::read(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
+//};
 
-template<typename K, typename V> void serializeMap(std::fstream& fs, const std::unordered_map<K, V>& v, const std::function<void(K, const V&)>& cb) {
-    Serializer::serializeScalar(fs, v.size(), sizeof(u32));
-
-    for(const auto& item : v)
-        cb(item.first, item.second);
-}
-
-template<template<typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::allocator<T> >& v, const std::function<void(T&)>& cb) {
-    u32 size = 0;
-    Serializer::deserializeScalar(fs, &size, sizeof(u32));
-
-    for(u32 i = 0; i < size; i++) {
-        T t;
-        cb(t);
-        v.push_back(t);
+template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_seq_container<T>::value>::type> {
+    static void write(std::fstream& fs, const T& c) {
+        Serializer<typename T::size_type>::write(fs, c.size());
+        std::for_each(c.begin(), c.end(), [&](const typename T::value_type& v) { Serializer<typename T::value_type>::write(fs, v); });
     }
-}
 
-template<typename K, typename V> void deserializeMap(std::fstream& fs, std::unordered_map<K, V>& v, const std::function<void(K&, V&)>& cb) {
-    u32 size = 0;
-    Serializer::deserializeScalar(fs, &size, sizeof(u32));
+    static void read(std::fstream& fs, T& c) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
 
-    for(u32 i = 0; i < size; i++) {
-        K key; V value;
-        cb(key, value);
-        v.emplace(key, std::move(value));
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::value_type v;
+            Serializer<typename T::value_type>::read(fs, v);
+            c.push_back(v);
+        }
     }
-}
+};
 
-template<template<typename, typename, typename> class V, typename T> void deserializeArray(std::fstream& fs, V< T, std::less<T>, std::allocator<T> >& v, const std::function<void(T&)>& cb) {
+template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_assoc_container<T>::value>::type> {
+    static void write(std::fstream& fs, const T& c) {
+        Serializer<typename T::size_type>::write(fs, c.size());
 
-    u32 size = 0;
-    Serializer::deserializeScalar(fs, &size, sizeof(u32));
-
-    for(u32 i = 0; i < size; i++) {
-        T t;
-        cb(t);
-        v.insert(t);
+        for(const typename T::value_type& item : c) {
+            Serializer<typename T::key_type>::write(fs, item.first);
+            Serializer<typename T::mapped_type>::write(fs, item.second);
+        }
     }
-}
 
-void obfuscateString(std::fstream& fs, std::string s);
-void deobfuscateString(std::fstream& fs, std::string& s);
-bool compressBuffer(std::fstream& fs, const AbstractBuffer *buffer);
-bool decompressBuffer(std::fstream& fs, AbstractBuffer* buffer);
+    static void read(std::fstream& fs, T& c) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
 
-void serializeBuffer(std::fstream& fs, const AbstractBuffer* buffer);
-void deserializeBuffer(std::fstream& fs, AbstractBuffer *buffer);
-void serializeString(std::fstream& fs, const std::string& s);
-void deserializeString(std::fstream& fs, std::string& s);
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::key_type k;
+            typename T::mapped_type v;
 
-bool checkSignature(std::fstream& fs, const std::string &signature);
+            Serializer<typename T::key_type>::read(fs, k);
+            Serializer<typename T::mapped_type>::read(fs, v);
+            c.emplace(k, std::move(v));
+        }
+    }
+};
 
-} // namespace Serializer
+template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_set_container<T>::value>::type> {
+    static void write(std::fstream& fs, const T& s) {
+        Serializer<typename T::size_type>::write(fs, s.size());
+        std::for_each(s.begin(), s.end(), [&](const typename T::value_type& v) { Serializer<typename T::value_type>::write(fs, v); });
+    }
+
+    static void read(std::fstream& fs, T& s) {
+        typename T::size_type sz;
+        Serializer<typename T::size_type>::read(fs, sz);
+
+        for(typename T::size_type i = 0; i < sz; i++) {
+            typename T::value_type v;
+            Serializer<typename T::value_type>::read(fs, v);
+            s.insert(v);
+        }
+    }
+};
+
+template<> struct Serializer<AbstractBuffer*> {
+    static void write(std::fstream& fs, const AbstractBuffer* b) {
+        Serializer<decltype(b->size())>::write(fs, b->size());
+        fs.write(reinterpret_cast<const char*>(b->data()), b->size());
+    }
+
+    static void read(std::fstream& fs, AbstractBuffer* b) {
+        decltype(b->size()) sz = 0;
+        Serializer<decltype(b->size())>::read(fs, sz);
+
+        b->resize(sz);
+        fs.read(reinterpret_cast<char*>(b->data()), b->size());
+    }
+};
+
+namespace Detail {
+
+struct StructSerializer {
+    StructSerializer(std::fstream& fs): m_fs(fs) { }
+    template<typename T> void operator()(const char*, const T& value) { Serializer<T>::write(m_fs, value); }
+    template<typename T> void operator()(const char*, T& value) { Serializer<T>::read(m_fs, value); }
+
+    private:
+        std::fstream& m_fs;
+};
+
+} // namespace Detail
+
+template<typename T> struct Serializer< T, typename std::enable_if<::visit_struct::traits::is_visitable<T>::value>::type > {
+    static void write(std::fstream& fs, const T& t) {
+        Detail::StructSerializer s(fs);
+        ::visit_struct::for_each(t, s);
+    }
+
+    static void read(std::fstream& fs, T& t) {
+        Detail::StructSerializer s(fs);
+        ::visit_struct::for_each(t, s);
+    }
+};
+
+template<typename T> struct Serializer< typename std::shared_ptr<T> > {
+    static void write(std::fstream& fs, const std::shared_ptr<T>& t) { Serializer<typename std::shared_ptr<T>::element_type>::write(fs, *t); }
+
+    static void read(std::fstream& fs, std::shared_ptr<T>& t) {
+        t = std::make_shared<T>();
+        Serializer<typename std::shared_ptr<T>::element_type>::read(fs, *t);
+    }
+};
+
+template<typename T> struct Serializer< typename std::unique_ptr<T> > {
+    static void write(std::fstream& fs, const std::unique_ptr<T>& t) { Serializer<typename std::unique_ptr<T>::element_type>::write(fs, *t); }
+
+    static void read(std::fstream& fs, std::unique_ptr<T>& t) {
+        t = std::make_unique<T>();
+        Serializer<typename std::unique_ptr<T>::element_type>::read(fs, *t);
+    }
+};
+
+namespace SerializerHelper {
+
+bool signatureIs(std::fstream& fs, const std::string &signatureIs);
+void obfuscated(std::fstream& fs, std::string s);
+void deobfuscated(std::fstream& fs, std::string& s);
+bool compressed(std::fstream& fs, const AbstractBuffer *buffer);
+bool decompressed(std::fstream& fs, AbstractBuffer* buffer);
+
+} // namespace SerializerHelper
+
 } // namespace REDasm

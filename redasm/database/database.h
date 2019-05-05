@@ -3,6 +3,7 @@
 // struct RDBFile
 // {
 //     char signature[3];
+//     u32 rdbbits;                   // Check size_t bits
 //     u32 version;
 //     std::string filename;          // XORified
 //     std::string loaderid;
@@ -23,7 +24,7 @@
 #define RDB_SIGNATURE        "RDB"
 #define RDB_SIGNATURE_EXT    "rdb"
 #define RDB_SIGNATURE_LENGTH 3
-#define RDB_VERSION          1
+#define RDB_VERSION          u32(1)
 
 #include "../disassembler/disassembler.h"
 

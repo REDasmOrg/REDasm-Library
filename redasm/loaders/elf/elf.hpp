@@ -203,8 +203,8 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::checkArray()
                 continue;
 
             address_t address = this->addressof(arr);
-            this->m_document->symbol(address, SymbolTable::name(address, prefix, SymbolTypes::Pointer), SymbolTypes::Pointer | SymbolTypes::Data);
-            this->m_document->function(val, SymbolTable::name(val, prefix, SymbolTypes::Function));
+            this->m_document->symbol(address, SymbolTable::name(address, prefix, SymbolType::Pointer), SymbolType::Pointer | SymbolType::Data);
+            this->m_document->function(val, SymbolTable::name(val, prefix, SymbolType::Function));
         }
     }
 }
@@ -244,7 +244,7 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSymbols(const SHDR&
                 isexport = true;
 
             if(isexport)
-                this->m_document->lock(symvalue, symname, (info == STT_FUNC) ? SymbolTypes::ExportFunction : SymbolTypes::ExportData);
+                this->m_document->lock(symvalue, symname, (info == STT_FUNC) ? SymbolType::ExportFunction : SymbolType::ExportData);
             else if(info == STT_FUNC)
                 this->m_document->lock(symvalue, symname);
             else if(info == STT_OBJECT)
@@ -252,11 +252,11 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSymbols(const SHDR&
                 const Segment* segment = this->m_document->segment(symvalue);
 
                 if(segment && !segment->is(SegmentType::Code))
-                    this->m_document->lock(symvalue, symname, SymbolTypes::Data);
+                    this->m_document->lock(symvalue, symname, SymbolType::Data);
             }
         }
         else
-            this->m_document->lock(symvalue, symname, SymbolTypes::Import);
+            this->m_document->lock(symvalue, symname, SymbolType::Import);
 
         offset += sizeof(SYM);
     }

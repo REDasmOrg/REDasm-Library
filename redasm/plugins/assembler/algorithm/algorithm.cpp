@@ -98,7 +98,7 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
 
     Symbol* symbol = m_document->symbol(address);
 
-    if(symbol && !symbol->isLocked() && !symbol->is(SymbolTypes::Code))
+    if(symbol && !symbol->isLocked() && !symbol->is(SymbolType::Code))
         m_document->eraseSymbol(symbol->address);
 
     instruction->address = address;
@@ -193,7 +193,7 @@ void AssemblerAlgorithm::jumpState(const State *state)
     DECODE_STATE(state->address);
 }
 
-void AssemblerAlgorithm::callState(const State *state) { m_document->symbol(state->address, SymbolTypes::Function); }
+void AssemblerAlgorithm::callState(const State *state) { m_document->symbol(state->address, SymbolType::Function); }
 
 void AssemblerAlgorithm::branchState(const State *state)
 {
@@ -226,12 +226,12 @@ void AssemblerAlgorithm::branchMemoryState(const State *state)
 
     u64 value = 0;
     m_disassembler->dereference(state->address, &value);
-    m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
+    m_document->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
 
     if(instruction->is(InstructionType::Call))
-        m_document->symbol(value, SymbolTypes::Function);
+        m_document->symbol(value, SymbolType::Function);
     else
-        m_document->symbol(value, SymbolTypes::Code);
+        m_document->symbol(value, SymbolType::Code);
 
     m_disassembler->pushReference(value, state->address);
 }
@@ -306,7 +306,7 @@ void AssemblerAlgorithm::pointerState(const State *state)
         return;
     }
 
-    m_document->symbol(state->address, SymbolTypes::Data | SymbolTypes::Pointer);
+    m_document->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
     m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
 }
 

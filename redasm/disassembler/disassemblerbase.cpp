@@ -41,7 +41,7 @@ ListingItems DisassemblerBase::getCalls(address_t address)
         {
             const Symbol* symbol = document->symbol(item->address);
 
-            if(!symbol->is(SymbolTypes::Code))
+            if(!symbol->is(SymbolType::Code))
                 break;
         }
         else
@@ -78,7 +78,7 @@ void DisassemblerBase::checkLocation(address_t fromaddress, address_t address)
         return;
 
     if(!this->document()->symbol(address))
-        this->document()->symbol(address, SymbolTypes::Data);
+        this->document()->symbol(address, SymbolType::Data);
 
     this->pushReference(address, fromaddress);
 }
@@ -92,12 +92,12 @@ bool DisassemblerBase::checkString(address_t fromaddress, address_t address)
 
     if(wide)
     {
-        this->document()->symbol(address, SymbolTypes::WideString);
+        this->document()->symbol(address, SymbolType::WideString);
         this->document()->autoComment(fromaddress, "WIDE STRING: " + REDasm::quoted(this->readWString(address)));
     }
     else
     {
-        this->document()->symbol(address, SymbolTypes::String);
+        this->document()->symbol(address, SymbolType::String);
         this->document()->autoComment(fromaddress, "STRING: " + REDasm::quoted(this->readString(address)));
     }
 
@@ -109,7 +109,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
 {
     Symbol* symbol = this->document()->symbol(startaddress);
 
-    if(symbol && symbol->is(SymbolTypes::TableItemMask))
+    if(symbol && symbol->is(SymbolType::TableItemMask))
         return -1;
 
     address_t target = 0, address = startaddress;
@@ -157,7 +157,7 @@ s64 DisassemblerBase::checkAddressTable(const InstructionPtr &instruction, addre
         else
         {
             this->pushReference(startaddress, instruction->address);
-            this->document()->pointer(startaddress, SymbolTypes::Data);
+            this->document()->pointer(startaddress, SymbolType::Data);
         }
     }
 
@@ -196,7 +196,7 @@ std::string DisassemblerBase::readString(const Symbol* symbol, u64 len) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
+    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &memaddress))
         return this->readString(memaddress, len);
 
     return this->readString(symbol->address, len);
@@ -206,7 +206,7 @@ std::string DisassemblerBase::readWString(const Symbol* symbol, u64 len) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &memaddress))
+    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &memaddress))
         return this->readWString(memaddress, len);
 
     return this->readWString(symbol->address, len);
@@ -240,7 +240,7 @@ Symbol* DisassemblerBase::dereferenceSymbol(const Symbol *symbol, u64* value)
     address_t address = 0;
     Symbol* ptrsymbol = nullptr;
 
-    if(symbol->is(SymbolTypes::Pointer) && this->dereference(symbol->address, &address))
+    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &address))
         ptrsymbol = this->document()->symbol(address);
 
     if(value)
@@ -278,7 +278,7 @@ BufferView DisassemblerBase::getFunctionBytes(address_t address)
         {
             const Symbol* symbol = this->document()->symbol((*it)->address);
 
-            if(!symbol->is(SymbolTypes::Code))
+            if(!symbol->is(SymbolType::Code))
                 break;
 
             continue;
@@ -387,7 +387,7 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
     REDasm::log("Loading Signature: " + REDasm::quoted(sigdb.name()));
     u64 c = 0;
 
-    this->document()->symbols()->iterate(SymbolTypes::FunctionMask, [&](const Symbol* symbol) -> bool {
+    this->document()->symbols()->iterate(SymbolType::FunctionMask, [&](const Symbol* symbol) -> bool {
         if(symbol->isLocked())
             return true;
 

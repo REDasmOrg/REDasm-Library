@@ -25,6 +25,7 @@ typedef u64 address_t;
 typedef u64 offset_t;
 typedef u64 instruction_id_t;
 typedef s64 register_id_t;
+typedef u64 tag_t;
 
 namespace REDasm {
 

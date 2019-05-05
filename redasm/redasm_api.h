@@ -19,12 +19,6 @@
 #include "redasm_macros.h"
 #include "redasm_context.h"
 
-#if __cplusplus <= 201103L && __GNUC__
-namespace std {
-template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) { return std::unique_ptr<T>(new T(std::forward<Args>(args)...)); }
-}
-#endif
-
 #define ENTRYPOINT_FUNCTION                        "__redasm_ep__"
 #define START_FUNCTION                             "__redasm_start__"
 #define REGISTER_INVALID                           static_cast<s64>(-1)
@@ -138,11 +132,11 @@ struct Segment
 struct RegisterOperand
 {
     RegisterOperand(): tag(0), r(REGISTER_INVALID) { }
-    RegisterOperand(u64 tag, register_id_t r): tag(tag), r(r) { }
-    RegisterOperand(register_id_t r): tag(0), r(r) { }
+    RegisterOperand(register_id_t r, tag_t tag): r(r), tag(tag) { }
+    RegisterOperand(register_id_t r): r(r), tag(0) { }
 
-    u64 tag;
     register_id_t r;
+    tag_t tag;
 
     bool isValid() const { return r != REGISTER_INVALID; }
 };
@@ -159,16 +153,16 @@ struct DisplacementOperand
 
 struct Operand
 {
-    Operand(): loc_index(-1), type(OperandType::None), tag(0), size(0), index(-1), u_value(0) { }
-    Operand(OperandType type, u32 tag, s32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), s_value(value) { }
-    Operand(OperandType type, u32 tag, u32 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), u_value(value) { }
-    Operand(OperandType type, u32 tag, s64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), s_value(value) { }
-    Operand(OperandType type, u32 tag, u64 value, s64 idx): loc_index(-1), type(type), tag(tag), size(0), index(idx), u_value(value) { }
+    Operand(): type(OperandType::None), tag(0), size(0), index(-1), loc_index(-1), u_value(0) { }
+    Operand(OperandType type, s32 value, s64 idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(-1), s_value(value) { }
+    Operand(OperandType type, u32 value, s64 idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(-1), u_value(value) { }
+    Operand(OperandType type, s64 value, s64 idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(-1), s_value(value) { }
+    Operand(OperandType type, u64 value, s64 idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(-1), u_value(value) { }
 
-    s64 loc_index;
     OperandType type;
-    u32 tag, size;
-    s64 index;
+    tag_t tag;
+    u64 size;
+    s64 index, loc_index;
     RegisterOperand reg;
     DisplacementOperand disp;
     union { s64 s_value; u64 u_value; };
@@ -229,20 +223,20 @@ struct Instruction
     }
 
     inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
-    inline Instruction& mem(address_t v, u32 tag = 0) { operands.emplace_back(OperandType::Memory, tag, v, operands.size()); return *this; }
-    template<typename T> Instruction& cnst(T v, u32 tag = 0) { operands.emplace_back(OperandType::Constant, tag, v, operands.size()); return *this; }
-    template<typename T> Instruction& imm(T v, u32 tag = 0) { operands.emplace_back(OperandType::Immediate, tag, v, operands.size()); return *this; }
+    inline Instruction& mem(address_t v, tag_t tag = 0) { operands.emplace_back(OperandType::Memory, v, operands.size(), tag); return *this; }
+    template<typename T> Instruction& cnst(T v, tag_t tag = 0) { operands.emplace_back(OperandType::Constant, v, operands.size(), tag); return *this; }
+    template<typename T> Instruction& imm(T v, tag_t tag = 0) { operands.emplace_back(OperandType::Immediate, v, operands.size(), tag); return *this; }
     template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }
     template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);
     template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandType::Argument); }
     template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, OperandType type = OperandType::Local);
 
-    Instruction& reg(register_id_t r, u64 tag = 0) {
+    Instruction& reg(register_id_t r, tag_t tag = 0) {
         Operand op;
         op.index = operands.size();
         op.type = OperandType::Register;
-        op.reg = RegisterOperand(tag, r);
+        op.reg = RegisterOperand(r, tag);
 
         operands.emplace_back(op);
         return *this;

@@ -8,7 +8,7 @@ namespace REDasm {
 typedef std::deque<address_t> ReferenceVector;
 typedef std::set<address_t> ReferenceSet;
 
-class ReferenceTable: public Serializer::Serializable
+class ReferenceTable
 {
     private:
         typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
@@ -26,19 +26,25 @@ class ReferenceTable: public Serializer::Serializable
         ReferenceVector referencesToVector(address_t address) const;
 
     public:
-        void serializeTo(std::fstream& fs) override;
-        void deserializeFrom(std::fstream& fs) override;
-
-    private:
-        void serializeMap(const ReferenceMap& rm, std::fstream& fs);
-        void deserializeMap(ReferenceMap& rm, std::fstream& fs);
-
-    public:
         static ReferenceVector toVector(const ReferenceSet& refset);
 
     private:
         ReferenceMap m_references;
         ReferenceMap m_targets;
+
+    friend class Serializer<ReferenceTable>;
 };
 
-}
+template<> struct Serializer<ReferenceTable> {
+    static void write(std::fstream& fs, const ReferenceTable* t) {
+        Serializer<ReferenceTable::ReferenceMap>::write(fs, t->m_references);
+        Serializer<ReferenceTable::ReferenceMap>::write(fs, t->m_targets);
+    }
+
+    static void read(std::fstream& fs, ReferenceTable* t) {
+        Serializer<ReferenceTable::ReferenceMap>::read(fs, t->m_references);
+        Serializer<ReferenceTable::ReferenceMap>::read(fs, t->m_targets);
+    }
+};
+
+} // namespace REDasm

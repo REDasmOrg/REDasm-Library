@@ -65,7 +65,7 @@ void VBAnalyzer::disassembleTrampoline(address_t eventva, const std::string& nam
             return;
 
         m_disassembler->disassemble(op->u_value);
-        m_document->lock(op->u_value, name, SymbolTypes::Function);
+        m_document->lock(op->u_value, name, SymbolType::Function);
     }
 }
 

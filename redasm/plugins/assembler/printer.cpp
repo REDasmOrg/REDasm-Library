@@ -10,7 +10,7 @@ Printer::Printer(DisassemblerAPI *disassembler): m_document(disassembler->docume
 
 std::string Printer::symbol(const Symbol* symbol) const
 {
-    if(symbol->is(SymbolTypes::Pointer))
+    if(symbol->is(SymbolType::Pointer))
         return symbol->name;
 
     std::string s;
@@ -45,7 +45,7 @@ void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& fu
 
 void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) const
 {
-    if(symbol->isFunction() || symbol->is(SymbolTypes::Code))
+    if(symbol->isFunction() || symbol->is(SymbolType::Code))
         return;
 
     const Segment* segment = m_disassembler->document()->segment(symbol->address);
@@ -53,7 +53,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
     if(!segment)
         return;
 
-    if(symbol->is(SymbolTypes::Pointer))
+    if(symbol->is(SymbolType::Pointer))
     {
         const Symbol* ptrsymbol = m_disassembler->dereferenceSymbol(symbol);
 
@@ -65,7 +65,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
         }
     }
 
-    if(symbol->is(SymbolTypes::Data))
+    if(symbol->is(SymbolType::Data))
     {
         if(segment->is(SegmentType::Bss))
         {
@@ -81,9 +81,9 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
         symbolfunc(symbol, REDasm::hex(value, assembler->addressWidth()));
     }
-    else if(symbol->is(SymbolTypes::WideStringMask))
+    else if(symbol->is(SymbolType::WideStringMask))
         symbolfunc(symbol, " \"" + m_disassembler->readWString(symbol->address) + "\"");
-    else if(symbol->is(SymbolTypes::String))
+    else if(symbol->is(SymbolType::String))
         symbolfunc(symbol, " \"" + m_disassembler->readString(symbol->address) + "\"");
 }
 

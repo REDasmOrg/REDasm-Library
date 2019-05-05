@@ -62,8 +62,8 @@ ListingFunctions &ListingDocumentType::functions() { return m_functions; }
 const ListingFunctions &ListingDocumentType::functions() const { return m_functions; }
 const SegmentList &ListingDocumentType::segments() const { return m_segments; }
 
-void ListingDocumentType::serializeTo(std::fstream &fs)
-{
+//void ListingDocumentType::serializeTo(std::fstream &fs)
+//{
     //Serializer::serializeScalar(fs, m_cursor.currentLine());
     //Serializer::serializeScalar(fs, m_cursor.currentColumn());
     //Serializer::serializeScalar(fs, m_documententry ? m_documententry->address : 0);
@@ -105,10 +105,10 @@ void ListingDocumentType::serializeTo(std::fstream &fs)
 
     //m_instructions.serializeTo(fs);
     //m_symboltable.serializeTo(fs);
-}
+//}
 
-void ListingDocumentType::deserializeFrom(std::fstream &fs)
-{
+//void ListingDocumentType::deserializeFrom(std::fstream &fs)
+//{
     //address_t ep = 0;
     //u64 line = 0, column = 0;
     //Serializer::deserializeScalar(fs, &line);
@@ -180,7 +180,7 @@ void ListingDocumentType::deserializeFrom(std::fstream &fs)
 
     //m_documententry = m_symboltable.symbol(ep);
     //m_cursor.set(line, column);
-}
+//}
 
 std::string ListingDocumentType::comment(const ListingItem* item, bool skipauto) const
 {
@@ -309,7 +309,7 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
     changed(&ldc);
 }
 
-void ListingDocumentType::branch(address_t address, s64 direction, u32 tag)
+void ListingDocumentType::branch(address_t address, s64 direction, tag_t tag)
 {
     std::string name = REDasm::hex(address);
 
@@ -318,16 +318,16 @@ void ListingDocumentType::branch(address_t address, s64 direction, u32 tag)
     else
         name = "loc_" + name;
 
-    this->symbol(address, name, SymbolTypes::Code, tag);
+    this->symbol(address, name, SymbolType::Code, tag);
 }
 
-void ListingDocumentType::symbol(address_t address, const std::string &name, u32 type, u32 tag)
+void ListingDocumentType::symbol(address_t address, const std::string &name, SymbolType type, tag_t tag)
 {
     Symbol* symbol = m_symboltable.symbol(address);
 
     if(symbol)
     {
-        if(symbol->isLocked() && !(type & SymbolTypes::Locked))
+        if(symbol->isLocked() && !(type & SymbolType::Locked))
             return;
 
         this->pop(address, ListingItem::EmptyItem);
@@ -347,7 +347,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
     if(!this->segment(address) || !m_symboltable.create(address, SymbolTable::normalized(name), type, tag))
         return;
 
-    if(type & SymbolTypes::FunctionMask)
+    if(type & SymbolType::FunctionMask)
     {
         this->push(address, ListingItem::EmptyItem);
         this->push(address, ListingItem::FunctionItem);
@@ -356,7 +356,7 @@ void ListingDocumentType::symbol(address_t address, const std::string &name, u32
         this->push(address, ListingItem::SymbolItem);
 }
 
-void ListingDocumentType::symbol(address_t address, u32 type, u32 tag) { this->symbol(address, SymbolTable::name(address, type), type, tag); }
+void ListingDocumentType::symbol(address_t address, SymbolType type, tag_t tag) { this->symbol(address, SymbolTable::name(address, type), type, tag); }
 
 void ListingDocumentType::rename(address_t address, const std::string &name)
 {
@@ -376,13 +376,13 @@ void ListingDocumentType::lock(address_t address, const std::string &name)
     const Symbol* symbol = m_symboltable.symbol(address);
 
     if(!symbol)
-        this->lock(address, name.empty() ? symbol->name : name, SymbolTypes::Data);
+        this->lock(address, name.empty() ? symbol->name : name, SymbolType::Data);
     else
         this->lock(address, name.empty() ? symbol->name : name, symbol->type, symbol->tag);
 }
 
-void ListingDocumentType::lock(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Locked, tag); }
-void ListingDocumentType::lock(address_t address, const std::string &name, u32 type, u32 tag) { this->symbol(address, name, type | SymbolTypes::Locked, tag); }
+void ListingDocumentType::lock(address_t address, SymbolType type, tag_t tag) { this->symbol(address, type | SymbolType::Locked, tag); }
+void ListingDocumentType::lock(address_t address, const std::string &name, SymbolType type, tag_t tag) { this->symbol(address, name, type | SymbolType::Locked, tag); }
 void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 size, SegmentType type) { this->segment(name, offset, address, size, size, type); }
 
 void ListingDocumentType::segment(const std::string &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type)
@@ -413,37 +413,37 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
     this->push(address, ListingItem::SegmentItem);
 }
 
-void ListingDocumentType::lockFunction(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolTypes::Function, tag);  }
-void ListingDocumentType::function(address_t address, const std::string &name, u32 tag) { this->symbol(address, name, SymbolTypes::Function, tag); }
-void ListingDocumentType::function(address_t address, u32 tag) { this->symbol(address, SymbolTypes::Function, tag); }
-void ListingDocumentType::pointer(address_t address, u32 type, u32 tag) { this->symbol(address, type | SymbolTypes::Pointer, tag); }
+void ListingDocumentType::lockFunction(address_t address, const std::string &name, u32 tag) { this->lock(address, name, SymbolType::Function, tag);  }
+void ListingDocumentType::function(address_t address, const std::string &name, tag_t tag) { this->symbol(address, name, SymbolType::Function, tag); }
+void ListingDocumentType::function(address_t address, tag_t tag) { this->symbol(address, SymbolType::Function, tag); }
+void ListingDocumentType::pointer(address_t address, SymbolType type, tag_t tag) { this->symbol(address, type | SymbolType::Pointer, tag); }
 
-void ListingDocumentType::table(address_t address, u64 count, u32 tag)
+void ListingDocumentType::table(address_t address, u64 count, tag_t tag)
 {
-    this->lock(address, SymbolTable::name(address, SymbolTypes::TableItem) + "_0", SymbolTypes::TableItem, tag);
+    this->lock(address, SymbolTable::name(address, SymbolType::TableItem) + "_0", SymbolType::TableItem, tag);
     this->type(address, "Table with " + std::to_string(count) + " case(s)");
 }
 
-void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, u32 tag)
+void ListingDocumentType::tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag)
 {
     Symbol* symbol = this->symbol(address); // Don't override custom symbols, if any
 
     if(symbol)
     {
-        symbol->type |= SymbolTypes::TableItem;
+        symbol->type |= SymbolType::TableItem;
         this->lock(address, symbol->name, symbol->type, tag);
         return;
     }
 
     this->lock(address,
-               SymbolTable::name(startaddress, SymbolTypes::TableItem) + "_" + std::to_string(idx),
-               SymbolTypes::TableItem, tag);
+               SymbolTable::name(startaddress, SymbolType::TableItem) + "_" + std::to_string(idx),
+               SymbolType::TableItem, tag);
 }
 
-void ListingDocumentType::entry(address_t address, u32 tag)
+void ListingDocumentType::entry(address_t address, tag_t tag)
 {
     const Symbol* symep = this->symbol(address); // Don't override custom symbols, if any
-    this->lock(address, symep ? symep->name : ENTRYPOINT_FUNCTION, SymbolTypes::EntryPoint, tag);
+    this->lock(address, symep ? symep->name : ENTRYPOINT_FUNCTION, SymbolType::EntryPoint, tag);
     this->setDocumentEntry(address);
 }
 
@@ -494,7 +494,7 @@ void ListingDocumentType::instruction(const InstructionPtr &instruction)
     this->push(instruction->address, ListingItem::InstructionItem);
 }
 
-void ListingDocumentType::update(const InstructionPtr &instruction) { m_instructions.update(instruction); }
+void ListingDocumentType::update(const InstructionPtr &instruction) { /* m_instructions.update(instruction); */ }
 
 InstructionPtr ListingDocumentType::instruction(address_t address)
 {

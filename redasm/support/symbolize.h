@@ -14,9 +14,9 @@ struct StructVisitor {
             u64 value = 0;
 
             if(disassembler->dereference(address, &value) && disassembler->document()->segment(value))
-                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolTypes::Data | SymbolTypes::Pointer);
+                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data | SymbolType::Pointer);
             else
-                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolTypes::Data);
+                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data);
 
             return true;
         }
@@ -24,7 +24,7 @@ struct StructVisitor {
 
     template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, std::string>::value>::type> { // Arrays
         static bool visit(DisassemblerAPI* disassembler, address_t address, const std::string& basename, const char* name) {
-            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolTypes::String);
+            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::String);
             return true;
         }
     };
@@ -34,7 +34,7 @@ struct StructVisitor {
             if(!StructVisitor::symbolize<T>(disassembler, address, basename + "." + name))
                 return false;
 
-            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolTypes::Data);
+            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data);
             return true;
         }
     };

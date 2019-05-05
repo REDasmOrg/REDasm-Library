@@ -326,10 +326,10 @@ template<size_t b> void PELoader<b>::loadExports()
         if(!segment)
             continue;
 
-        u32 symboltype = segment->is(SegmentType::Code) ? SymbolTypes::ExportFunction :
-                                                           SymbolTypes::ExportData;
+        SymbolType symboltype = segment->is(SegmentType::Code) ? SymbolType::ExportFunction :
+                                                           SymbolType::ExportData;
 
-        for(u64 j = 0; j < exporttable->NumberOfNames; j++)
+        for(pe_integer_t j = 0; j < exporttable->NumberOfNames; j++)
         {
             if(nameords[j] != i)
                 continue;
@@ -413,7 +413,7 @@ template<size_t b> void PELoader<b>::loadConfig()
     if(!loadconfigdir || !loadconfigdir->SecurityCookie)
         return;
 
-    m_document->lock(loadconfigdir->SecurityCookie, PE_SECURITY_COOKIE_SYMBOL, SymbolTypes::Data);
+    m_document->lock(loadconfigdir->SecurityCookie, PE_SECURITY_COOKIE_SYMBOL, SymbolType::Data);
 }
 
 template<size_t b> void PELoader<b>::loadTLS()
@@ -438,7 +438,7 @@ template<size_t b> void PELoader<b>::loadSymbolTable()
 
     COFF::loadSymbols([&](const std::string& name, const COFF::COFF_Entry* entry) {
                       const Segment& segment = m_document->segments()[entry->e_scnum - 1];
-                      m_document->lock(segment.address + entry->e_value, name, SymbolTypes::Function);
+                      m_document->lock(segment.address + entry->e_value, name, SymbolType::Function);
     },
     pointer<u8>(m_ntheaders->FileHeader.PointerToSymbolTable),
     m_ntheaders->FileHeader.NumberOfSymbols);
@@ -452,7 +452,7 @@ template<size_t b> void PELoader<b>::readTLSCallbacks(const ImageTlsDirectory *t
     pe_integer_t* callbacks = addrpointer<pe_integer_t>(tlsdirectory->AddressOfCallBacks);
 
     for(pe_integer_t i = 0; *callbacks; i++, callbacks++)
-        m_document->lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolTypes::Function);
+        m_document->lock(*callbacks, "TlsCallback_" + std::to_string(i), SymbolType::Function);
 }
 
 template<size_t b> void PELoader<b>::readDescriptor(const ImageImportDescriptor& importdescriptor, pe_integer_t ordinalflag)
@@ -492,7 +492,7 @@ template<size_t b> void PELoader<b>::readDescriptor(const ImageImportDescriptor&
                 importname = PEUtils::importName(descriptorname, importname);
         }
 
-        m_document->lock(address, importname, SymbolTypes::Import);
+        m_document->lock(address, importname, SymbolType::Import);
     }
 }
 

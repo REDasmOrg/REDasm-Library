@@ -91,52 +91,6 @@ ReferenceVector ReferenceTable::referencesToVector(address_t address) const
     return ReferenceTable::toVector(it->second);
 }
 
-void ReferenceTable::serializeTo(std::fstream &fs)
-{
-    this->serializeMap(m_references, fs);
-    this->serializeMap(m_targets, fs);
-}
-
-void ReferenceTable::deserializeFrom(std::fstream &fs)
-{
-    this->deserializeMap(m_references, fs);
-    this->deserializeMap(m_targets, fs);
-}
-
-void ReferenceTable::serializeMap(const ReferenceTable::ReferenceMap &rm, std::fstream &fs)
-{
-    Serializer::serializeScalar(fs, rm.size(), sizeof(u64));
-
-    for(auto it = rm.begin(); it != rm.end(); it++)
-    {
-        Serializer::serializeScalar(fs, it->first);
-
-        Serializer::serializeArray<std::set, address_t>(fs, it->second, [&](address_t ref) {
-            Serializer::serializeScalar(fs, ref);
-        });
-    }
-}
-
-void ReferenceTable::deserializeMap(ReferenceTable::ReferenceMap &rm, std::fstream &fs)
-{
-    u64 count = 0;
-    Serializer::deserializeScalar(fs, &count);
-
-    for(u64 i = 0; i < count; i++)
-    {
-        address_t address = 0;
-        ReferenceSet references;
-
-        Serializer::deserializeScalar(fs, &address);
-
-        Serializer::deserializeArray<std::set, address_t>(fs, references, [&](address_t& ref) {
-            Serializer::deserializeScalar(fs, &ref);
-        });
-
-        rm[address] = references;
-    }
-}
-
 ReferenceVector ReferenceTable::toVector(const ReferenceSet &refset)
 {
     ReferenceVector rv;

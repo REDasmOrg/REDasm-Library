@@ -1,32 +1,22 @@
 #pragma once
 
-#define CACHE_DEFAULT  "cachemap"
-#define CACHE_FILE_EXT ".db"
-#define CACHE_FILE     (m_name + "_" + std::to_string(m_timestamp) + CACHE_FILE_EXT)
-
-#include <functional>
 #include <iostream>
 #include <fstream>
-#include <cstdio>
-#include <map>
-#include "../../support/serializer.h"
+#include <unordered_map>
+#include <unordered_set>
 #include "../../types/base_types.h"
-#include "../event.h"
 
 namespace REDasm {
 
-template<typename T1, typename T2> class cache_map: public Serializer::Serializable // Use STL's coding style for this type
+template<typename Key, typename Value> class cache_map // Use STL's coding style for this type
 {
     private:
-        typedef cache_map<T1, T2> type;
-        typedef std::map<T1, std::streamoff> offset_map;
+        typedef cache_map<Key, Value> type;
+        typedef std::unordered_map<Key, std::streamoff> offset_map;
         typedef typename offset_map::iterator offset_iterator;
 
     public:
-        Event<const T2&> deserialized;
-
-    public:
-        class iterator: public std::iterator<std::random_access_iterator_tag, T2> {
+        class iterator: public std::iterator<std::random_access_iterator_tag, Value> {
             public:
                 explicit iterator(type& container, const offset_iterator& offit): m_container(container), m_offit(offit) { update(); }
                 iterator& operator++() { m_offit++; update(); return *this; }
@@ -36,7 +26,7 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
                 bool operator==(const iterator& rhs) const { return m_offit == rhs.m_offit; }
                 bool operator!=(const iterator& rhs) const { return m_offit != rhs.m_offit; }
                 iterator& operator=(const iterator& rhs) { m_offit = rhs.m_offit; update(); return *this; }
-                T2 operator *() { return m_container[key]; }
+                Value operator *() { return m_container[key]; }
 
             private:
                 void update() { if(m_offit != m_container.m_offsets.end()) key = m_offit->first; }
@@ -46,33 +36,29 @@ template<typename T1, typename T2> class cache_map: public Serializer::Serializa
                 offset_iterator m_offit;
 
             public:
-                T1 key;
+                Key key;
         };
 
     public:
         cache_map();
-        cache_map(const std::string& name);
         virtual ~cache_map();
         iterator begin() { return iterator(*this, m_offsets.begin()); }
         iterator end() { return iterator(*this, m_offsets.end()); }
-        iterator find(const T1& key) { auto it = m_offsets.find(key); return (it != m_offsets.end() ? iterator(*this, it) : this->end()); }
+        iterator find(const Key& key) { auto it = m_offsets.find(key); return (it != m_offsets.end() ? iterator(*this, it) : this->end()); }
         u64 size() const;
-        void commit(const T1& key, const T2& value);
+        void commit(const Key& key, const Value& value);
         void erase(const iterator& it);
-        T2 value(const T1& key);
-        T2 operator[](const T1& key);
-        void serializeTo(std::fstream& fs) override;
-        void deserializeFrom(std::fstream& fs) override;
-
-    protected:
-        virtual void serialize(const T2& value, std::fstream& fs) = 0;
-        virtual void deserialize(T2& value, std::fstream& fs) = 0;
+        Value value(const Key& key);
+        Value operator[](const Key& key);
 
     private:
-        std::string m_name;
+        static std::string generateFilePath();
+
+    private:
+        static std::unordered_set<std::string> m_activenames;
+        std::string m_filepath;
         offset_map m_offsets;
         std::fstream m_file;
-        time_t m_timestamp;
 };
 
 } // namespace REDasm

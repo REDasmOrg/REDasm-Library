@@ -54,7 +54,7 @@ void Disassembler::disassemble()
     const SymbolTable* symboltable = this->document()->symbols();
 
     // Preload loader functions for analysis
-    symboltable->iterate(SymbolTypes::FunctionMask, [=](const Symbol* symbol) -> bool {
+    symboltable->iterate(SymbolType::FunctionMask, [=](const Symbol* symbol) -> bool {
         m_algorithm->enqueue(symbol->address);
         return true;
     });

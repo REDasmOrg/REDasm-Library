@@ -27,19 +27,20 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
     ReferenceTable* references = disassembler->references();
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
-    Serializer::serializeScalar(ofs, RDB_VERSION, sizeof(u32));
-    Serializer::obfuscateString(ofs, filename);
-    Serializer::serializeString(ofs, loader->id());
-    Serializer::serializeString(ofs, assembler->id());
+    Serializer<u32>::write(ofs, RDB_VERSION);
+    Serializer<u32>::write(ofs, bitwidth<size_t>::value);
+    SerializerHelper::obfuscated(ofs, filename);
+    Serializer<std::string>::write(ofs, loader->id());
+    Serializer<std::string>::write(ofs, assembler->id());
 
-    if(!Serializer::compressBuffer(ofs, loader->buffer()))
+    if(!SerializerHelper::compressed(ofs, loader->buffer()))
     {
         m_lasterror = "Cannot compress database " + REDasm::quoted(dbfilename);
         return false;
     }
 
-    document->serializeTo(ofs);
-    references->serializeTo(ofs);
+    //document->serializeTo(ofs);
+    Serializer<ReferenceTable>::write(ofs, references);
     return true;
 }
 
@@ -54,14 +55,14 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    if(!Serializer::checkSignature(ifs, RDB_SIGNATURE))
+    if(!SerializerHelper::signatureIs(ifs, RDB_SIGNATURE))
     {
         m_lasterror = "Signature check failed for " + REDasm::quoted(dbfilename);
         return nullptr;
     }
 
     u32 version = 0;
-    Serializer::deserializeScalar(ifs, &version, sizeof(u32));
+    Serializer<u32>::read(ifs, version);
 
     if(version != RDB_VERSION)
     {
@@ -69,15 +70,25 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
+    u32 rdbbits = 0;
+    Serializer<u32>::read(ifs, rdbbits);
+
+    if(bitwidth<size_t>::value != rdbbits)
+    {
+        m_lasterror = "Invalid bits: Expected " + std::to_string(bitwidth<size_t>::value) + ", got " + std::to_string(rdbbits);
+        return nullptr;
+    }
+
     auto* buffer = new MemoryBuffer();
     std::string loaderid, assemblerid;
-    Serializer::deobfuscateString(ifs, filename);
-    Serializer::deserializeString(ifs, loaderid);
-    Serializer::deserializeString(ifs, assemblerid);
+    Serializer<std::string>::read(ifs, filename);
+    Serializer<std::string>::read(ifs, loaderid);
+    Serializer<std::string>::read(ifs, assemblerid);
 
-    if(!Serializer::decompressBuffer(ifs, buffer))
+    if(!SerializerHelper::decompressed(ifs, buffer))
     {
         m_lasterror = "Cannot decompress database " + REDasm::quoted(dbfilename);
+        delete buffer;
         return nullptr;
     }
 
@@ -100,12 +111,12 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    auto& document = loader->createDocument(); // Discard old document
-    document->deserializeFrom(ifs);
+    //auto& document = loader->createDocument(); // Discard old document
+    //document->deserializeFrom(ifs);
 
     auto* disassembler = new Disassembler(assemblerentry->init(), loader.release()); // Take ownership
     ReferenceTable* references = disassembler->references();
-    references->deserializeFrom(ifs);
+    Serializer<ReferenceTable>::read(ifs, references);
     return disassembler;
 }
 

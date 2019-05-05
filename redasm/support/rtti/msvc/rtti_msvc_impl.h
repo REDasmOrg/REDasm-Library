@@ -44,7 +44,7 @@ template<typename T> void RTTIMsvc<T>::search()
         REDasm::status("Reading " + objectname + "'s VTable");
 
         lock->type(address, vtablename);
-        lock->lock(address, objectname + "::ptr_rtti_object", SymbolTypes::Data | SymbolTypes::Pointer);
+        lock->lock(address, objectname + "::ptr_rtti_object", SymbolType::Data | SymbolType::Pointer);
 
         REDasm::symbolize<RTTICompleteObjectLocator>(m_disassembler, rttiobjectaddress, objectname + "::rtti_complete_object_locator");
         REDasm::symbolize<RTTIClassHierarchyDescriptor>(m_disassembler, rttiAddress(rttiobject->pClassHierarchyDescriptor), objectname + "::rtti_class_hierarchy");
@@ -58,7 +58,7 @@ template<typename T> void RTTIMsvc<T>::search()
             address = m_loader->addressof(pobjectdata);
             m_disassembler->disassemble(*pobjectdata);
 
-            lock->lock(address, objectname + "::vftable_" + std::to_string(i), SymbolTypes::Data | SymbolTypes::Pointer);
+            lock->lock(address, objectname + "::vftable_" + std::to_string(i), SymbolType::Data | SymbolType::Pointer);
             lock->function(*pobjectdata, objectname + "::sub_" + REDasm::hex(*pobjectdata));
 
             m_disassembler->pushReference(*pobjectdata, address);
@@ -124,11 +124,11 @@ template<typename T> void RTTIMsvc<T>::readHierarchy(document_x_lock& lock, cons
         address_t bcaddress = m_loader->addressof(pbcdescriptor);
         RTTIBaseClassDescriptor* pbaseclass = m_loader->addrpointer<RTTIBaseClassDescriptor>(this->rttiAddress(*pbcdescriptor));
 
-        lock->pointer(this->rttiAddress(pclasshierarchy->pBaseClassArray), SymbolTypes::Data);
+        lock->pointer(this->rttiAddress(pclasshierarchy->pBaseClassArray), SymbolType::Data);
         REDasm::symbolize<RTTIBaseClassDescriptor>(m_disassembler, m_loader->addressof(pbaseclass), objectname + "::rtti_base_class");
 
         RTTITypeDescriptor* rttitype = m_loader->addrpointer<RTTITypeDescriptor>(this->rttiAddress(pbaseclass->pTypeDescriptor));
-        lock->lock(bcaddress, objectname + "::ptr_base_" + objectName(rttitype) + "_" + REDasm::hex(bcaddress), SymbolTypes::Data | SymbolTypes::Pointer);
+        lock->lock(bcaddress, objectname + "::ptr_base_" + objectName(rttitype) + "_" + REDasm::hex(bcaddress), SymbolType::Data | SymbolType::Pointer);
     }
 }
 

@@ -70,7 +70,7 @@ void DalvikAlgorithm::stringIndexState(const State *state)
     if(!m_dexloader->getStringOffset(op->u_value, offset))
         return;
 
-    m_document->symbol(offset, SymbolTypes::String);
+    m_document->symbol(offset, SymbolType::String);
     m_disassembler->pushReference(offset, state->instruction->address);
 }
 
@@ -111,8 +111,8 @@ void DalvikAlgorithm::packedSwitchTableState(const State *state)
         address_t target = instruction->address + (*targets * sizeof(u16));
         this->enqueue(target);
 
-        m_document->lock(m_loader->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolTypes::Pointer | SymbolTypes::Data);
-        m_document->symbol(target, SymbolTypes::Code);
+        m_document->lock(m_loader->addressof(targets), "packed_switch_" + REDasm::hex(op->u_value) + "_case_" + std::to_string(caseidx), SymbolType::Pointer | SymbolType::Data);
+        m_document->symbol(target, SymbolType::Code);
         m_disassembler->pushReference(target, instruction->address);
         m_disassembler->pushTarget(target, instruction->address);
         this->enqueue(target);
@@ -149,15 +149,15 @@ void DalvikAlgorithm::sparseSwitchTableState(const State *state)
     for(u32 i = 0; i < sparseswitchpayload->size; i++)
     {
         address_t address = m_loader->addressof(&keys[i]);
-        m_document->symbol(address, REDasm::uniquename("sparse_switch.key", address), SymbolTypes::Data);
+        m_document->symbol(address, REDasm::uniquename("sparse_switch.key", address), SymbolType::Data);
     }
 
     for(u32 i = 0; i < sparseswitchpayload->size; i++)
     {
         address_t address = m_loader->addressof(&targets[i]);
         address_t target = instruction->address + (targets[i] * sizeof(u16));
-        m_document->symbol(address, REDasm::uniquename("sparse_switch.target", address), SymbolTypes::Pointer | SymbolTypes::Data);
-        m_document->symbol(target, SymbolTypes::Code);
+        m_document->symbol(address, REDasm::uniquename("sparse_switch.target", address), SymbolType::Pointer | SymbolType::Data);
+        m_document->symbol(target, SymbolType::Code);
         m_disassembler->pushReference(target, instruction->address);
         m_disassembler->pushTarget(target, instruction->address);
         cases[keys[i]] = target;
@@ -284,7 +284,7 @@ void DalvikAlgorithm::checkImport(const State* state)
     address_t importaddress = 0;
 
     if(!methodname.find("java."))
-        m_document->symbol(m_dexloader->nextImport(&importaddress), methodname, SymbolTypes::Import);
+        m_document->symbol(m_dexloader->nextImport(&importaddress), methodname, SymbolType::Import);
     else
         return;
 

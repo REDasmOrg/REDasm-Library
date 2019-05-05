@@ -283,7 +283,7 @@ void MSCOFFLoader::readMember(const ImageArchiveMemberHeader *memberhdr, const s
                           return;
 
                       offset_t offset = fileoffset(fileheader) + sectionheader[idx].PointerToRawData + entry->e_value;
-                      m_document->lock(static_cast<address_t>(offset), name, SymbolTypes::Function);
+                      m_document->lock(static_cast<address_t>(offset), name, SymbolType::Function);
                       m_functions.push_front({ name, offset, sectionheader[idx].SizeOfRawData - entry->e_value, &sectionheader[idx] });
     },
     symboltable, fileheader->NumberOfSymbols);

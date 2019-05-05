@@ -151,7 +151,7 @@ void PEAnalyzer::findCRTWinMain()
     if(!found || !m_document->advance(instruction) || !instruction->is(InstructionType::Jump))
         return;
 
-    m_document->lock(target, "__mainCRTStartup", SymbolTypes::Function);
+    m_document->lock(target, "__mainCRTStartup", SymbolType::Function);
     m_document->setDocumentEntry(target);
 }
 

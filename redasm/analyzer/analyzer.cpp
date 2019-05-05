@@ -16,7 +16,7 @@ void Analyzer::analyze() { this->analyzeFast(); }
 
 void Analyzer::checkFunctions()
 {
-    m_disassembler->document()->symbols()->iterate(SymbolTypes::FunctionMask, [this](const Symbol* symbol) -> bool {
+    m_disassembler->document()->symbols()->iterate(SymbolType::FunctionMask, [this](const Symbol* symbol) -> bool {
         if(!this->findNullSubs(symbol))
             this->findTrampoline(symbol);
 
@@ -69,7 +69,7 @@ void Analyzer::findTrampoline(const Symbol* symbol)
 
     const Symbol* symentry = m_document->documentEntry();
 
-    if(!symtrampoline->is(SymbolTypes::Import))
+    if(!symtrampoline->is(SymbolType::Import))
     {
         m_document->function(symtrampoline->address);
 

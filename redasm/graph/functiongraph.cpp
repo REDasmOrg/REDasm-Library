@@ -123,7 +123,7 @@ bool FunctionGraph::connectBasicBlocks()
             {
                 Symbol* symbol = m_document->symbol(target);
 
-                if(!symbol || !symbol->is(SymbolTypes::Code))
+                if(!symbol || !symbol->is(SymbolType::Code))
                     continue;
 
                 FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->symbolIndex(target));
@@ -210,7 +210,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
                 {
                     Symbol* symbol = m_document->symbol(target);
 
-                    if(!symbol || !symbol->is(SymbolTypes::Code))
+                    if(!symbol || !symbol->is(SymbolType::Code))
                         continue;
 
                     pending.push(m_document->symbolIndex(target));
@@ -235,7 +235,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
         {
             const Symbol* symbol = m_document->symbol(item->address);
 
-            if(symbol && symbol->is(SymbolTypes::Code) && !symbol->isFunction())
+            if(symbol && symbol->is(SymbolType::Code) && !symbol->isFunction())
                 pending.push(index);
 
             if(index != startindex)

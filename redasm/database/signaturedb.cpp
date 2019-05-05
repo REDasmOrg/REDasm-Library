@@ -1,7 +1,6 @@
 #include "signaturedb.h"
 #include "../plugins/loader.h"
 #include "../plugins/assembler/assembler.h"
-#include "../support/serializer.h"
 #include "../support/utils.h"
 #include "../support/hash.h"
 #include "../redasm_api.h"

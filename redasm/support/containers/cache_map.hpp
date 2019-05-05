@@ -1,46 +1,48 @@
 #pragma once
 
+#define CACHE_FILE_NAME(x)     ("redasm_cache_" + std::to_string(x) + ".tmp")
+
 #include "cache_map.h"
 #include "../../redasm_context.h"
-#include "../../redasm_api.h"
+#include "../serializer.h"
 #include "../utils.h"
 #include <ios>
 
 namespace REDasm {
 
-template<typename T1, typename T2> cache_map<T1, T2>::cache_map(): m_name(CACHE_DEFAULT), m_timestamp(time(nullptr))
+template<typename Key, typename Value> std::unordered_set<std::string> cache_map<Key, Value>::m_activenames;
+
+template<typename Key, typename Value> cache_map<Key, Value>::cache_map(): m_filepath(generateFilePath())
 {
     m_file.exceptions(std::fstream::failbit);
-}
-
-template<typename T1, typename T2> cache_map<T1, T2>::cache_map(const std::string &name) : m_name(name), m_timestamp(time(nullptr))
-{
-    std::string cachepath = REDasm::makePath(Context::settings.tempPath, CACHE_FILE);
-    m_file.open(cachepath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+    m_file.open(m_filepath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
     if(!m_file.is_open())
-        REDasm::log("Cannot write cache @ " + REDasm::quoted(cachepath));
+        REDasm::log("Cannot write cache @ " + REDasm::quoted(m_filepath));
 }
 
-template<typename T1, typename T2> cache_map<T1, T2>::~cache_map()
+template<typename Key, typename Value> cache_map<Key, Value>::~cache_map()
 {
+    m_activenames.erase(m_filepath);
+
     if(!m_file.is_open())
         return;
 
     m_file.close();
-    std::remove(REDasm::makePath(Context::settings.tempPath, CACHE_FILE).c_str());
+    std::remove(m_filepath.c_str());
 }
 
-template<typename T1, typename T2> u64 cache_map<T1, T2>::size() const { return m_offsets.size(); }
+template<typename Key, typename Value> u64 cache_map<Key, Value>::size() const { return m_offsets.size(); }
 
-template<typename T1, typename T2> void cache_map<T1, T2>::commit(const T1& key, const T2 &value)
+template<typename Key, typename Value> void cache_map<Key, Value>::commit(const Key& key, const Value &value)
 {
     m_file.seekp(0, std::ios::end); // Ignore old key -> value reference, if any
     m_offsets[key] = m_file.tellp();
-    this->serialize(value, m_file);
+
+    Serializer<Value>::write(m_file, value);
 }
 
-template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map<T1, T2>::iterator &it)
+template<typename Key, typename Value> void cache_map<Key, Value>::erase(const cache_map<Key, Value>::iterator &it)
 {
     auto oit = m_offsets.find(it.key);
 
@@ -50,51 +52,38 @@ template<typename T1, typename T2> void cache_map<T1, T2>::erase(const cache_map
     m_offsets.erase(oit);
 }
 
-template<typename T1, typename T2> T2 cache_map<T1, T2>::value(const T1 &key)
+template<typename Key, typename Value> Value cache_map<Key, Value>::value(const Key &key)
 {
     auto it = m_offsets.find(key);
 
     if(it == m_offsets.end())
-        return T2();
+        return Value();
 
-    T2 value;
+    Value value;
 
     auto v = m_file.rdstate();
     m_file.seekg(it->second, std::ios::beg);
     v = m_file.rdstate();
-    this->deserialize(value, m_file);
+
+    Serializer<Value>::read(m_file, value);
     return value;
 }
 
-template<typename T1, typename T2> T2 cache_map<T1, T2>::operator[](const T1& key) { return this->value(key); }
+template<typename Key, typename Value> Value cache_map<Key, Value>::operator[](const Key& key) { return this->value(key); }
 
-template<typename T1, typename T2> void cache_map<T1, T2>::serializeTo(std::fstream &fs)
+template<typename Key, typename Value> std::string cache_map<Key, Value>::generateFilePath()
 {
-    Serializer::serializeScalar(fs, static_cast<u64>(this->size()));
+    std::string filepath = REDasm::makePath(Context::settings.tempPath, CACHE_FILE_NAME(0));
+    auto it = m_activenames.find(filepath);
 
-    for(auto it = this->begin(); it != this->end(); it++)
+    for(size_t i = 1; it != m_activenames.end(); i++)
     {
-        Serializer::serializeScalar(fs, it.key);
-        this->serialize(*it, fs);
+        filepath = REDasm::makePath(Context::settings.tempPath, CACHE_FILE_NAME(i));
+        it = m_activenames.find(filepath);
     }
-}
 
-template<typename T1, typename T2> void cache_map<T1, T2>::deserializeFrom(std::fstream &fs)
-{
-    u64 count = 0;
-    Serializer::deserializeScalar(fs, &count);
-
-    for(u64 i = 0; i < count; i++)
-    {
-        T1 t1;
-        T2 t2;
-
-        Serializer::deserializeScalar(fs, &t1);
-        this->deserialize(t2, fs);
-        this->commit(t1, t2); // Rebuild cache
-
-        deserialized(t2);
-    }
+    m_activenames.insert(filepath);
+    return filepath;
 }
 
 } // namespace REDasm

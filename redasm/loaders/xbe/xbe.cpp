@@ -143,7 +143,7 @@ bool XbeLoader::loadXBoxKrnl()
     while(*pthunk)
     {
         std::string ordinalname = REDasm::ordinal(ordinals, *pthunk ^ XBE_ORDINAL_FLAG, "XBoxKrnl!");
-        m_document->lock(*pthunk, ordinalname, SymbolTypes::Import);
+        m_document->lock(*pthunk, ordinalname, SymbolType::Import);
         pthunk++;
     }
 

@@ -81,18 +81,19 @@ class SymbolTable
         SymbolsByAddress m_byaddress;
         SymbolsByName m_byname;
 
-    friend class Serializer<SymbolTable>;
+    friend struct Serializer<SymbolTable>;
 };
 
 template<> struct Serializer<SymbolTable> {
     static void write(std::fstream& fs, const SymbolTable* st) {
         Serializer<SymbolTable::SymbolsByAddress>::write(fs, st->m_byaddress);
-        Serializer<SymbolTable::SymbolsByName>::write(fs, st->m_byname);
     }
 
     static void read(std::fstream& fs, SymbolTable* st) {
-        Serializer<SymbolTable::SymbolsByAddress>::read(fs, st->m_byaddress);
-        Serializer<SymbolTable::SymbolsByName>::read(fs, st->m_byname);
+        Serializer<SymbolTable::SymbolsByAddress>::read(fs, [st](address_t k, SymbolPtr v) {
+            st->m_byname[v->name] = k;
+            st->m_byaddress[k] = std::move(v);
+        });
     }
 };
 

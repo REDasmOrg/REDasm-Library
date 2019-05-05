@@ -131,7 +131,7 @@ struct Segment
 
 struct RegisterOperand
 {
-    RegisterOperand(): tag(0), r(REGISTER_INVALID) { }
+    RegisterOperand(): r(REGISTER_INVALID), tag(0) { }
     RegisterOperand(register_id_t r, tag_t tag): r(r), tag(tag) { }
     RegisterOperand(register_id_t r): r(r), tag(0) { }
 

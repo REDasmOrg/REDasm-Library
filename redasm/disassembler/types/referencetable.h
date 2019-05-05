@@ -32,7 +32,7 @@ class ReferenceTable
         ReferenceMap m_references;
         ReferenceMap m_targets;
 
-    friend class Serializer<ReferenceTable>;
+    friend struct Serializer<ReferenceTable>;
 };
 
 template<> struct Serializer<ReferenceTable> {

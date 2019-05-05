@@ -81,6 +81,7 @@ class ListingRenderer
 
     public:
         ListingRenderer(DisassemblerAPI* disassembler);
+        virtual ~ListingRenderer() = default;
         virtual void render(size_t start, size_t count, void* userdata = nullptr);
         DisassemblerAPI* disassembler() const;
         const ListingDocument& document() const;

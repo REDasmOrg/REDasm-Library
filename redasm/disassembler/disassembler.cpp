@@ -96,6 +96,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address)
 
     instruction = std::make_shared<Instruction>();
     m_algorithm->disassembleInstruction(address, instruction);
+    m_algorithm->done(address);
     return instruction;
 }
 

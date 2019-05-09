@@ -28,7 +28,7 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer<u32>::write(ofs, RDB_VERSION);
-    Serializer<u32>::write(ofs, bitwidth<size_t>::value);
+    Serializer<u32>::write(ofs, bitscount<size_t>::value);
     SerializerHelper::obfuscated(ofs, filename);
     Serializer<std::string>::write(ofs, loader->id());
     Serializer<std::string>::write(ofs, assembler->id());
@@ -39,7 +39,7 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
         return false;
     }
 
-    //document->serializeTo(ofs);
+    Serializer<ListingDocument>::write(ofs, document);
     Serializer<ReferenceTable>::write(ofs, references);
     return true;
 }
@@ -73,15 +73,15 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     u32 rdbbits = 0;
     Serializer<u32>::read(ifs, rdbbits);
 
-    if(bitwidth<size_t>::value != rdbbits)
+    if(bitscount<size_t>::value != rdbbits)
     {
-        m_lasterror = "Invalid bits: Expected " + std::to_string(bitwidth<size_t>::value) + ", got " + std::to_string(rdbbits);
+        m_lasterror = "Invalid bits: Expected " + std::to_string(bitscount<size_t>::value) + ", got " + std::to_string(rdbbits);
         return nullptr;
     }
 
     auto* buffer = new MemoryBuffer();
     std::string loaderid, assemblerid;
-    Serializer<std::string>::read(ifs, filename);
+    SerializerHelper::deobfuscated(ifs, filename);
     Serializer<std::string>::read(ifs, loaderid);
     Serializer<std::string>::read(ifs, assemblerid);
 
@@ -111,10 +111,10 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    //auto& document = loader->createDocument(); // Discard old document
-    //document->deserializeFrom(ifs);
-
     auto* disassembler = new Disassembler(assemblerentry->init(), loader.release()); // Take ownership
+    auto& document = disassembler->loader()->createDocument(); // Discard old document
+    Serializer<ListingDocument>::read(ifs, document, std::bind(&Disassembler::disassembleInstruction, disassembler, std::placeholders::_1));
+
     ReferenceTable* references = disassembler->references();
     Serializer<ReferenceTable>::read(ifs, references);
     return disassembler;

@@ -28,6 +28,7 @@ class AssemblerAlgorithm: public StateMachine
         AssemblerAlgorithm();
         virtual ~AssemblerAlgorithm() = default;
         u32 disassembleInstruction(address_t address, const InstructionPtr& instruction);
+        void done(address_t address);
         void enqueue(address_t address);
         void analyze();
 
@@ -67,7 +68,7 @@ class AssemblerAlgorithm: public StateMachine
         LoaderPlugin* m_loader;
 
     private:
-        DecodedAddresses m_disassembled;
+        DecodedAddresses m_done;
         std::unique_ptr<Analyzer> m_analyzer;
         const Segment* m_currentsegment;
         bool m_analyzed;

@@ -35,7 +35,7 @@ MemoryBuffer bytes(const std::string& s, u64 offset = 0, u64 hexlen = 0);
 bool byte(const std::string& s, u8* val, u64 offset = 0);
 inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
 
-template<typename T> struct bitwidth { static constexpr T value = sizeof(T) * CHAR_BIT; };
+template<typename T> struct bitscount { static constexpr T value = sizeof(T) * CHAR_BIT; };
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
 template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 
@@ -55,7 +55,7 @@ template<typename Container> std::string join(const Container& c, const std::str
 template<typename T> T unmask(T val, T mask) {
     T result = 0;
 
-    for(T i = 0, j = 0; i < bitwidth<T>::value; i++) {
+    for(T i = 0, j = 0; i < bitscount<T>::value; i++) {
         if(!(mask & (1 << i))) // Check if mask bit is set
             continue;
 
@@ -77,21 +77,21 @@ template<typename T, typename U> inline T readpointer(U** p) {
 template<typename T, typename ST = typename signed_of<T>::type> ST twoc(T val) { return static_cast<ST>((~val) + 1); }
 
 template<typename T, typename U> T rol(T n, U c) {
-    assert(c < bitwidth<T>::value);
+    assert(c < bitscount<T>::value);
 
     if(!c)
         return n;
 
-    return (n << c) | (n >> (bitwidth<T>::value - c));
+    return (n << c) | (n >> (bitscount<T>::value - c));
 }
 
 template<typename T, typename U> T ror(T n, U c) {
-    assert(c < bitwidth<T>::value);
+    assert(c < bitscount<T>::value);
 
     if(!c)
         return n;
 
-    return (n >> c) | (n << (bitwidth<T>::value - c));
+    return (n >> c) | (n << (bitscount<T>::value - c));
 }
 
 template<typename T, typename U> T aligned(T t, U a) {

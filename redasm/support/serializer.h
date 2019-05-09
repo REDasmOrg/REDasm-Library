@@ -13,6 +13,9 @@
 #include <unordered_set>
 #include <set>
 
+// REDasm Containers
+#include "containers/sorted_container.h"
+
 #include <visit_struct.hpp>
 #include <algorithm>
 #include <fstream>
@@ -41,16 +44,17 @@ template<typename... Args> struct is_assoc_container< std::map<Args...> > { stat
 template<typename T> struct is_set_container { static const bool value = false; };
 template <typename... Args> struct is_set_container< std::unordered_set<Args...> > { static bool const value = true; };
 template <typename... Args> struct is_set_container< std::set<Args...> > { static bool const value = true; };
+template <typename... Args> struct is_set_container< sorted_container<Args...> > { static bool const value = true; };
 
 } // namespace Detail
 
 template<typename T, typename = void> struct Serializer {
     //static void write(std::fstream& fs, const T& t);
     //static void read(std::fstream& fs, T& t);
-    //static void read(std::fstream& fs, const std::function<void(const Item&)>& cb);
+    //static void read(std::fstream& fs, const std::function<void(Item)>& cb);
 };
 
-template<typename T> struct Serializer<T, typename std::enable_if<std::is_scalar<T>::value>::type> {
+template<typename T> struct Serializer<T, typename std::enable_if<std::is_integral<T>::value || std::is_enum<T>::value>::type> {
     static void write(std::fstream& fs, const T& t) { fs.write(reinterpret_cast<const char*>(&t), sizeof(T));  }
     static void read(std::fstream& fs, T& t) {  fs.read(reinterpret_cast<char*>(&t), sizeof(T)); }
 };
@@ -60,10 +64,10 @@ template<> struct Serializer<std::string> {
     static void read(std::fstream& fs, std::string& s) { std::getline(fs, s, '\0'); }
 };
 
-//template<typename T> struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
-    //static void write(std::fstream& fs, const T& t) { Serializer<typename std::underlying_type<T>::type>::write(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
-    //static void read(std::fstream& fs, T& t) { Serializer<typename std::underlying_type<T>::type>::read(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
-//};
+// template<typename T> struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
+//     static void write(std::fstream& fs, const T& t) { Serializer<typename std::underlying_type<T>::type>::write(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
+//     static void read(std::fstream& fs, T& t) { Serializer<typename std::underlying_type<T>::type>::read(fs, static_cast<typename std::underlying_type<T>::type>(t)); }
+// };
 
 template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_seq_container<T>::value>::type> {
     static void write(std::fstream& fs, const T& c) {
@@ -82,7 +86,7 @@ template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_seq
         }
     }
 
-    static void read(std::fstream& fs, const std::function<void(const typename T::value_type&)>& cb) {
+    static void read(std::fstream& fs, const std::function<void(typename T::value_type)>& cb) {
         typename T::size_type sz;
         Serializer<typename T::size_type>::read(fs, sz);
 
@@ -150,14 +154,14 @@ template<typename T> struct Serializer<T, typename std::enable_if<Detail::is_set
         }
     }
 
-    static void read(std::fstream& fs, const std::function<void(const typename T::value_type&)>& cb) {
+    static void read(std::fstream& fs, const std::function<void(typename T::value_type)>& cb) {
         typename T::size_type sz;
         Serializer<typename T::size_type>::read(fs, sz);
 
         for(typename T::size_type i = 0; i < sz; i++) {
             typename T::value_type v;
             Serializer<typename T::value_type>::read(fs, v);
-            cb(v);
+            cb(std::move(v));
         }
     }
 };

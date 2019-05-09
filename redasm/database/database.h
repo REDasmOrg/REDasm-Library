@@ -12,10 +12,10 @@
 //     Buffer buffer;                 // ZLib compressed stream
 //
 //     struct {
-//         u64 line, column;
-//         CommentMap comments;
-//         InstructionCache instructions;
+//         SegmentList segments;
 //         SymbolTable symboltable;
+//         ListingItem items[];
+//         u64 line, column;
 //     } document;
 //
 //     ReferenceTable references;
@@ -24,7 +24,7 @@
 #define RDB_SIGNATURE        "RDB"
 #define RDB_SIGNATURE_EXT    "rdb"
 #define RDB_SIGNATURE_LENGTH 3
-#define RDB_VERSION          u32(1)
+#define RDB_VERSION          u32(2)
 
 #include "../disassembler/disassembler.h"
 

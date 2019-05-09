@@ -31,8 +31,10 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
     public:
         Event<const ListingDocumentChanged*> changed;
 
-    private:
+    public:
         typedef sorted_container<ListingItemPtr, ListingItemPtrComparator> ContainerType;
+
+    private:
         typedef cache_map<address_t, InstructionPtr> InstructionCache;
         typedef std::unordered_map<address_t, Detail::CommentSet> PendingAutoComments;
         typedef std::unordered_map<address_t, size_t> ActiveMeta;
@@ -142,26 +144,33 @@ template<> struct Serializer<ListingDocument> {
     static void write(std::fstream& fs, const ListingDocument& d) {
         auto lock = x_lock_safe_ptr(d);
 
-        Serializer<SegmentList>::write(fs, lock->segments());
-        Serializer<SymbolTable>::write(fs, lock->symbols());
+        Serializer<SegmentList>::write(fs, lock->m_segments);
+        Serializer<SymbolTable>::write(fs, &lock->m_symboltable);
 
-        // ???
+        Serializer<typename ListingDocumentType::ContainerType>::write(fs, *lock.t.get());
 
-        Serializer<address_t>::write(fs, (lock->documentEntry() ? lock->documentEntry()->address : 0));
-        Serializer<ListingCursor>::write(fs, lock->cursor());
+        Serializer<address_t>::write(fs, (lock->m_documententry ? lock->m_documententry->address : 0));
+        Serializer<ListingCursor>::write(fs, &lock->m_cursor);
     }
 
-    static void read(std::fstream& fs, ListingDocument& d) {
+    static void read(std::fstream& fs, ListingDocument& d, const std::function<InstructionPtr(address_t address)> cb) {
         auto lock = x_lock_safe_ptr(d);
 
-        Serializer<SegmentList>::read(fs, [&lock](const Segment& s) {
-            lock->m_segments.push_back(s);
-            lock->push(s.address, ListingItem::SegmentItem);
-        });
-
+        Serializer<SegmentList>::read(fs, lock->m_segments);
         Serializer<SymbolTable>::read(fs, &lock->m_symboltable);
 
-        Serializer<ListingCursor>::read(fs, lock->cursor());
+        Serializer<typename ListingDocumentType::ContainerType>::read(fs, [&](ListingItemPtr item) {
+            if(item->is(ListingItem::InstructionItem))
+                lock->m_instructions.commit(item->address, cb(item->address));
+
+            lock->insert(std::move(item));
+        });
+
+        address_t entry = 0;
+        Serializer<address_t>::read(fs, entry);
+        lock->m_documententry = lock->symbol(entry);
+
+        Serializer<ListingCursor>::read(fs, &lock->m_cursor);
     }
 };
 

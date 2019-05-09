@@ -76,7 +76,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
         dst = src1 ^ src2;
     else if(instruction->is(InstructionType::Lsh))
     {
-        if(src2 > bitwidth<T>::value)
+        if(src2 > bitscount<T>::value)
         {
             REDasm::log("Invalid left shift @ " + REDasm::hex(instruction->address));
             this->fail();

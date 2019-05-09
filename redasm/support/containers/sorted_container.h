@@ -14,6 +14,8 @@ template< typename T, typename Comparator = std::less<T>, typename Container = s
         typedef typename Container::const_iterator const_iterator;
         typedef typename Container::reverse_iterator reverse_iterator;
         typedef typename Container::const_reverse_iterator const_reverse_iterator;
+        typedef typename Container::value_type value_type;
+        typedef typename Container::size_type size_type;
 
     public:
         sorted_container() = default;

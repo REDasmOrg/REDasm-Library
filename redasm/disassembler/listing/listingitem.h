@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <deque>
 #include "../../support/containers/sorted_container.h"
+#include "../../support/serializer.h"
 #include "../../redasm.h"
 
 namespace REDasm {
@@ -69,5 +70,8 @@ typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
 typedef sorted_container<const ListingItem*, ListingItemConstComparator> ListingItemConstContainer;
 typedef sorted_container<ListingItem*, ListingItemComparator> ListingItemContainer;
 
-
 } // namespace REDasm
+
+VISITABLE_STRUCT(REDasm::Detail::MetaItem, name, type);
+VISITABLE_STRUCT(REDasm::Detail::ListingItemData, comments, autocomments, meta, type);
+VISITABLE_STRUCT(REDasm::ListingItem, data, address, type, index);

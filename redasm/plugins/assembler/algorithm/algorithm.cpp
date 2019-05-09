@@ -107,6 +107,8 @@ u32 AssemblerAlgorithm::disassembleInstruction(address_t address, const Instruct
     return m_assembler->decode(view, instruction) ? AssemblerAlgorithm::OK : AssemblerAlgorithm::FAIL;
 }
 
+void AssemblerAlgorithm::done(address_t address) { m_done.insert(address); }
+
 void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 {
     if(instruction->is(InstructionType::Branch))
@@ -350,12 +352,12 @@ void AssemblerAlgorithm::createInvalidInstruction(const InstructionPtr &instruct
 
 u32 AssemblerAlgorithm::disassemble(address_t address, const InstructionPtr &instruction)
 {
-    auto it = m_disassembled.find(address);
+    auto it = m_done.find(address);
 
-    if(it != m_disassembled.end())
+    if(it != m_done.end())
         return AssemblerAlgorithm::SKIP;
 
-    m_disassembled.insert(address);
+    this->done(address);
     u32 result = this->disassembleInstruction(address, instruction);
 
     if(result == AssemblerAlgorithm::FAIL)

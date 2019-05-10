@@ -105,9 +105,10 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         void instruction(const InstructionPtr& instruction);
         void update(const InstructionPtr& instruction);
         InstructionPtr instruction(address_t address);
+        const_iterator functionStartItem(address_t address) const;
         const_iterator functionItem(address_t address) const;
-        ListingDocumentType::const_iterator instructionItem(address_t address) const;
-        ListingDocumentType::const_iterator symbolItem(address_t address) const;
+        const_iterator instructionItem(address_t address) const;
+        const_iterator symbolItem(address_t address) const;
         size_t itemIndex(const ListingItem* item) const;
         size_t functionIndex(address_t address) const;
         size_t instructionIndex(address_t address) const;
@@ -118,6 +119,7 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
 
     private:
         ListingDocumentType::const_iterator findItem(address_t address, size_t type, size_t index = 0) const;
+        ListingDocumentType::const_iterator findItem(const ListingItem* item) const;
         size_t findIndex(address_t address, size_t type, size_t index = 0) const;
         ListingItem* push(address_t address, size_t type, size_t index = 0);
         void pop(address_t address, size_t type);

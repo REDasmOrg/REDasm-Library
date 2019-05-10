@@ -21,7 +21,7 @@ ReferenceSet DisassemblerBase::getTargets(address_t address) const { return m_re
 ListingItems DisassemblerBase::getCalls(address_t address)
 {
     auto& document = this->document();
-    auto it = document->instructionItem(address);
+    auto it = document->functionStartItem(address);
     ListingItems calls;
 
     for( ; it != document->end(); it++)
@@ -44,6 +44,8 @@ ListingItems DisassemblerBase::getCalls(address_t address)
             if(!symbol->is(SymbolType::Code))
                 break;
         }
+        else if(item->is(ListingItem::FunctionItem) && (item->address == address)) // Skip declaration
+            continue;
         else
             break;
     }

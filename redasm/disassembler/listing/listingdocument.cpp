@@ -323,7 +323,7 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
 void ListingDocumentType::entry(address_t address, tag_t tag)
 {
     const Symbol* symep = this->symbol(address); // Don't override custom symbols, if any
-    this->lock(address, symep ? symep->name : ENTRYPOINT_FUNCTION, SymbolType::EntryPoint, tag);
+    this->lock(address, symep ? symep->name : ENTRY_FUNCTION, SymbolType::EntryPoint, tag);
     this->setDocumentEntry(address);
 }
 

@@ -85,7 +85,7 @@ void FunctionGraph::setConnectionType(const InstructionPtr &instruction, Functio
         fromfbb->bFalse(tofbb->node);
 }
 
-void FunctionGraph::incomplete() const { REDasm::log("WARNING: Incomplete graph @ " + REDasm::hex(m_graphstart)); }
+void FunctionGraph::incomplete() const { REDasm::problem("Incomplete graph @ " + REDasm::hex(m_graphstart)); }
 
 bool FunctionGraph::isStopItem(const ListingItem *item) const
 {

@@ -113,7 +113,7 @@ template<typename T> class LoaderPluginT: public LoaderPlugin
 
 class LoaderPluginB: public LoaderPluginT<u8>
 {
-    DECLARE_LOADER_PLUGIN_TEST(u8);
+    DECLARE_LOADER_PLUGIN_TEST(u8)
 
     public:
         LoaderPluginB(AbstractBuffer* buffer): LoaderPluginT<u8>(buffer) { }

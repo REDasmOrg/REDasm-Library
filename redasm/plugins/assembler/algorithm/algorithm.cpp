@@ -146,7 +146,7 @@ void AssemblerAlgorithm::onDecoded(const InstructionPtr &instruction)
 
 void AssemblerAlgorithm::onDecodeFailed(const InstructionPtr &instruction)
 {
-    REDasm::log("Invalid instruction @ " + REDasm::hex(instruction->address));
+    REDasm::problem("Invalid instruction @ " + REDasm::hex(instruction->address));
 
     if(!instruction->size)
         return;

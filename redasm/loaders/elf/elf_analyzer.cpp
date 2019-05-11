@@ -22,7 +22,7 @@ void ElfAnalyzer::analyze()
             if(ASSEMBLER_IS(assembler, "x86"))
                 this->findMain_x86(symlibcmain);
             else
-                REDasm::log("WARNING: Unhandled architecture " + REDasm::quoted(assembler->name()));
+                REDasm::log("Unhandled architecture " + REDasm::quoted(assembler->name()));
 
             symbol = m_document->symbol("main");
         }
@@ -31,7 +31,7 @@ void ElfAnalyzer::analyze()
     if(symbol)
         m_document->setDocumentEntry(symbol->address);
     else
-        REDasm::log("WARNING: Cannot find 'main' symbol");
+        REDasm::log("Cannot find 'main' symbol");
 }
 
 void ElfAnalyzer::findMain_x86(const Symbol *symlibcmain)

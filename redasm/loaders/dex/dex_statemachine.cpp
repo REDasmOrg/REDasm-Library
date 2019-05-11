@@ -6,7 +6,7 @@
 #define DBG_LINE_RANGE    15   // The number of line increments represented
 
 #define BIND_STATE(opcode)   m_statesmap[opcode] = [this](u8** data) { this->execute##opcode(data); }
-#define VALIDATE_LINE()      if(m_line == 0) REDasm::log("WARNING: line register == 0")
+#define VALIDATE_LINE()      if(m_line == 0) REDasm::problem("line register == 0")
 
 namespace REDasm {
 

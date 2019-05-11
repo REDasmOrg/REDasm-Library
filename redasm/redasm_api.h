@@ -29,6 +29,8 @@ namespace REDasm {
 constexpr size_t npos = static_cast<size_t>(-1);
 
 inline void log(const std::string& s) { Context::settings.logCallback(s); }
+inline void problem(const std::string& s) { Context::problem(s); }
+inline void logproblem(const std::string& s) { REDasm::log(s); Context::problem(s); }
 
 inline void status(const std::string& s) {
     CONTEXT_DEBOUNCE_CHECK

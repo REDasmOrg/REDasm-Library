@@ -282,7 +282,7 @@ void ListingDocumentType::segment(const std::string &name, offset_t offset, addr
 
     if(it != m_segments.end())
     {
-        REDasm::log("WARNING: Segment " + REDasm::quoted(name) + " overlaps " + REDasm::quoted(it->name));
+        REDasm::problem("Segment " + REDasm::quoted(name) + " overlaps " + REDasm::quoted(it->name));
         return;
     }
 

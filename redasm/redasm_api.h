@@ -207,8 +207,8 @@ struct Instruction
 
     constexpr bool is(InstructionType t) const { return type & t; }
     constexpr bool isInvalid() const { return type == InstructionType::Invalid; }
-    inline void opSize(s32 index, u32 size) { operands[index].size = size; }
-    inline u32 opSize(s32 index) const { return operands[index].size; }
+    inline void opSize(size_t index, u64 size) { operands[index].size = size; }
+    inline u64 opSize(size_t index) const { return operands[index].size; }
     constexpr address_t endAddress() const { return address + size; }
 
     inline std::set<address_t> targets() const { return meta.targets; }

@@ -89,6 +89,9 @@ const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) c
     if(!item)
         return nullptr;
 
+    if(item->is(ListingItem::FunctionItem))
+        return item;
+
     size_t idx = this->itemIndex(item);
 
     if(idx == REDasm::npos)

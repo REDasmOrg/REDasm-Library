@@ -35,7 +35,7 @@ MemoryBuffer bytes(const std::string& s, u64 offset = 0, u64 hexlen = 0);
 bool byte(const std::string& s, u8* val, u64 offset = 0);
 inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
 
-template<typename T> struct bitscount { static constexpr T value = sizeof(T) * CHAR_BIT; };
+template<typename T> struct bitscount { static constexpr size_t value = sizeof(T) * CHAR_BIT; };
 template<typename T> inline std::string quoted(T t) { return REDasm::quoted(std::to_string(t)); }
 template<typename T, typename U> inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 

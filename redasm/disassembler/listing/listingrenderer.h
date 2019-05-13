@@ -90,8 +90,8 @@ class ListingRenderer
         void setFlags(u32 flags);
         std::string wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         std::string getCurrentWord();
-        u64 getLastColumn(u64 line);
-        std::string getLine(u64 line);
+        size_t getLastColumn(size_t line);
+        std::string getLine(size_t line);
         std::string getSelectedText();
 
     protected:

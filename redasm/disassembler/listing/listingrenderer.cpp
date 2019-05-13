@@ -103,11 +103,11 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
 
 std::string ListingRenderer::getCurrentWord() { return this->wordFromPosition(m_cursor->currentPosition()); }
 
-u64 ListingRenderer::getLastColumn(u64 line)
+size_t ListingRenderer::getLastColumn(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
-    u64 len = static_cast<u64>(rl.length());
+    size_t len = rl.length();
 
     if(!len)
         return 0;
@@ -115,7 +115,7 @@ u64 ListingRenderer::getLastColumn(u64 line)
     return len - 1;
 }
 
-std::string ListingRenderer::getLine(u64 line)
+std::string ListingRenderer::getLine(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);

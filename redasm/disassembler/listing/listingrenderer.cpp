@@ -107,7 +107,7 @@ size_t ListingRenderer::getLastColumn(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
-    size_t len = rl.length();
+    size_t len = static_cast<size_t>(rl.length());
 
     if(!len)
         return 0;

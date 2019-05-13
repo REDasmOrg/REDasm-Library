@@ -28,7 +28,7 @@ bool Database::save(DisassemblerAPI *disassembler, const std::string &dbfilename
 
     ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
     Serializer<u32>::write(ofs, RDB_VERSION);
-    Serializer<u32>::write(ofs, bitscount<size_t>::value);
+    Serializer<u32>::write(ofs, static_cast<u32>(bitscount<size_t>::value)); // CLang 8.x workaround
     SerializerHelper::obfuscated(ofs, filename);
     Serializer<std::string>::write(ofs, loader->id());
     Serializer<std::string>::write(ofs, assembler->id());

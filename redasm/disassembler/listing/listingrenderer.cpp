@@ -107,7 +107,7 @@ size_t ListingRenderer::getLastColumn(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
-    size_t len = static_cast<size_t>(rl.length());
+    size_t len = rl.length();
 
     if(!len)
         return 0;
@@ -212,8 +212,8 @@ void ListingRenderer::highlightSelection(RendererLine &rl)
 
     if(startsel.first != endsel.first)
     {
-        u64 start = (rl.documentindex == startsel.first) ? startsel.second : 0;
-        u64 end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.length() - 1);
+        size_t start = (rl.documentindex == startsel.first) ? startsel.second : 0;
+        size_t end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.length() - 1);
         rl.format(start, end, "selection_fg", "selection_bg");
     }
     else

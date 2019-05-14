@@ -111,8 +111,8 @@ void ListingCursor::goForward()
 
 void ListingCursor::moveTo(size_t line, size_t column, bool save)
 {
-    Position pos = std::make_pair(std::max(line, static_cast<size_t>(0)),
-                                  std::max(column, static_cast<size_t>(0)));
+    Position pos = std::make_pair(std::max(line, size_t(0)),
+                                  std::max(column, size_t(0)));
 
     if(save && !this->hasSelection())
     {

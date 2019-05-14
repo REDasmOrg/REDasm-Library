@@ -57,7 +57,7 @@ void ListingDocumentType::moveToEP()
     m_cursor.set(this->functionIndex(m_documententry->address));
 }
 
-size_t ListingDocumentType::lastLine() const { return this->size(); }
+size_t ListingDocumentType::lastLine() const { return this->size() - 1; }
 ListingFunctions &ListingDocumentType::functions() { return m_functions; }
 const ListingFunctions &ListingDocumentType::functions() const { return m_functions; }
 const SegmentList &ListingDocumentType::segments() const { return m_segments; }

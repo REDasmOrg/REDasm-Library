@@ -9,13 +9,19 @@ namespace REDasm {
 
 struct RendererFormat
 {
-    s64 start, end; // [start, end]
+    size_t start, end; // [start, end]
     std::string fgstyle, bgstyle;
 
-    inline bool empty() const { return start > end; }
-    inline s64 length() const { return (end - start + 1); }
-    inline bool contains(s64 pos) const { return (pos >= start) && (pos <= end); }
-    inline bool equals(s64 start, s64 end) const { return (start == this->start) && (end == this->end); }
+    inline size_t length() const {
+        if((start == REDasm::npos) || (end == REDasm::npos))
+            return 0;
+
+        return start <= end ? (end - start + 1) : 0;
+    }
+
+    inline bool empty() const { return this->length() == 0; }
+    inline bool contains(size_t pos) const { return (pos >= start) && (pos <= end); }
+    inline bool equals(size_t start, size_t end) const { return (start == this->start) && (end == this->end); }
 };
 
 struct RendererLine
@@ -31,7 +37,7 @@ struct RendererLine
     std::string formatText(const RendererFormat& rf) const { return text.substr(rf.start, rf.length()); }
     size_t length() const { return text.length(); }
 
-    std::list<RendererFormat>::iterator unformat(s64 start, s64 end) {
+    std::list<RendererFormat>::iterator unformat(size_t start, size_t end) {
         auto begit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(start); });
         auto endit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(end); });
 
@@ -53,11 +59,11 @@ struct RendererLine
         return it;
     }
 
-    RendererLine& format(s64 start, s64 end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
-        if(text.empty() || (start >= static_cast<s64>(text.size())))
+    RendererLine& format(size_t start, size_t end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
+        if(text.empty() || (start >= text.size()))
             return *this;
 
-        end = std::min(end, static_cast<s64>(text.size() - 1));
+        end = std::min(end, text.size() - 1);
 
         auto it = this->unformat(start, end);
         formats.insert(it, { start, end, fgstyle, bgstyle });
@@ -65,8 +71,8 @@ struct RendererLine
     }
 
     RendererLine& push(const std::string& text, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
-        s64 start = static_cast<s64>(this->text.size());
-        formats.push_back({ start, start + static_cast<s64>(text.length()) - 1, fgstyle, bgstyle});
+        size_t start = this->text.size();
+        formats.push_back({ start, start + text.length() - 1, fgstyle, bgstyle});
         this->text += text;
         return *this;
     }
@@ -75,7 +81,7 @@ struct RendererLine
 class ListingRenderer
 {
     public:
-        typedef std::pair<s64, s64> Range;
+        typedef std::pair<size_t, size_t> Range;
         enum: u32 { Normal = 0, HideSegmentName = 1, HideAddress = 2,
                     HideSegmentAndAddress = HideSegmentName | HideAddress };
 

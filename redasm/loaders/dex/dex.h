@@ -21,8 +21,8 @@ class DEXLoader : public LoaderPluginT<DEXHeader>
     public:
         bool getMethodOffset(u64 idx, offset_t &offset) const;
         bool getStringOffset(u64 idx, offset_t &offset) const;
+        const std::string& getType(u64 idx, bool full = false);
         const std::string& getString(u64 idx);
-        const std::string& getType(u64 idx);
         const std::string& getMethodName(u64 idx);
         const std::string& getMethodProto(u64 idx);
         const std::string& getField(u64 idx);

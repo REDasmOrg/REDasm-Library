@@ -86,7 +86,7 @@ const std::string &DEXLoader::getString(u64 idx)
     });
 }
 
-const std::string& DEXLoader::getType(u64 idx)
+const std::string& DEXLoader::getType(u64 idx, bool full)
 {
     return cacheEntry(idx, m_cachedtypes, [&](std::string& s) {
         if(idx >= m_header->type_ids_size) {
@@ -96,6 +96,9 @@ const std::string& DEXLoader::getType(u64 idx)
 
         const DEXTypeIdItem& dextype = m_types[idx];
         s = this->getNormalizedString(dextype.descriptor_idx);
+
+        if(full)
+            return;
 
         // Strip full qualified name
         size_t idx = s.find_last_of(".");
@@ -316,7 +319,7 @@ void DEXLoader::filterClasses(const DEXClassIdItem *dexclasses)
 
     for(u32 i = 0; i < m_header->class_defs_size; i++)
     {
-        const std::string& classtype = this->getType(dexclasses[i].class_idx);
+        const std::string& classtype = this->getType(dexclasses[i].class_idx, true);
         bool precheck = true;
 
         if(!classtype.find("android.") || !classtype.find("com.google.")) // Apply prefiltering

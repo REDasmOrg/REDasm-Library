@@ -14,7 +14,6 @@ class MetaARMAssembler: public AssemblerPlugin, public ARMAbstractAssembler
         MetaARMAssembler();
         virtual ~MetaARMAssembler();
         u32 flags() const override;
-        u32 bits() const override;
         Emulator* createEmulator(DisassemblerAPI *disassembler) const override;
         Printer* createPrinter(DisassemblerAPI *disassembler) const override;
         AssemblerAlgorithm* createAlgorithm(DisassemblerAPI *disassembler) override;

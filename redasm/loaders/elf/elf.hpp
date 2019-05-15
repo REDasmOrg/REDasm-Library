@@ -29,12 +29,7 @@ template<size_t b, endianness_t e> LOADER_PLUGIN_TEST(ELF_ARG(ELFLoader<b, e>), 
     return false;
 }
 
-template<size_t b, endianness_t e> ELFLoader<b, e>::ELFLoader(AbstractBuffer *buffer): LoaderPluginT<EHDR>(buffer), m_shdr(nullptr)
-{
-    m_skipsections.insert(".pdr");
-    m_skipsections.insert(".comment");
-    m_skipsections.insert(".attribute");
-}
+template<size_t b, endianness_t e> ELFLoader<b, e>::ELFLoader(AbstractBuffer *buffer): LoaderPluginT<EHDR>(buffer), m_shdr(nullptr) { }
 
 template<size_t b, endianness_t e> std::string ELFLoader<b, e>::assembler() const
 {
@@ -80,7 +75,9 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::load()
     this->parseSegments();
     this->checkProgramHeader();
     this->checkArray();
-    this->m_document->entry(this->m_header->e_entry);
+
+    if(this->m_document->segment(this->m_header->e_entry))
+        this->m_document->entry(this->m_header->e_entry);
 }
 
 template<size_t b, endianness_t e> Analyzer* ELFLoader<b, e>::createAnalyzer(DisassemblerAPI *disassembler) const { return new ElfAnalyzer(disassembler); }
@@ -130,31 +127,34 @@ template<size_t b, endianness_t e> void ELFLoader<b, e>::loadSegments()
     {
         const SHDR& shdr = this->m_shdr[i];
 
-        if((shdr.sh_type == SHT_NULL) || (shdr.sh_type == SHT_STRTAB) || (shdr.sh_type == SHT_SYMTAB))
-            continue;
+        switch(shdr.sh_type)
+        {
+            case SHT_PROGBITS:
+            case SHT_PREINIT_ARRAY:
+            case SHT_INIT_ARRAY:
+            case SHT_FINI_ARRAY:
+                break;
+
+            default:
+                continue;
+        }
 
         SegmentType type = SegmentType::Data;
 
-        if((shdr.sh_type == SHT_PROGBITS) && (shdr.sh_flags & SHF_EXECINSTR))
-            type = SegmentType::Code;
+        if(shdr.sh_type == SHT_PROGBITS)
+        {
+            if(!shdr.sh_addr)
+                continue;
+
+            if(shdr.sh_flags & SHF_EXECINSTR)
+                type = SegmentType::Code;
+        }
 
         if(shdr.sh_type == SHT_NOBITS)
             type = SegmentType::Bss;
 
         std::string name = ELF_STRING(&shstr, shdr.sh_name);
-        bool skip = false;
-
-        for(const std::string& s : m_skipsections)
-        {
-            if(name.find(s) == std::string::npos)
-                continue;
-
-            skip = true;
-            break;
-        }
-
-        if(!skip)
-            this->m_document->segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
+        this->m_document->segment(name, shdr.sh_offset, shdr.sh_addr, shdr.sh_size, type);
     }
 }
 

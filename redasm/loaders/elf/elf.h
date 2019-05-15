@@ -52,7 +52,6 @@ template<size_t b, endianness_t e> class ELFLoader: public LoaderPluginT< Elf_Eh
         void parseSegments();
 
     private:
-        std::set<std::string> m_skipsections;
         SHDR* m_shdr;
         PHDR* m_phdr;
 };
@@ -67,6 +66,6 @@ DECLARE_LOADER_PLUGIN(ELF32BELoader, elf32be)
 DECLARE_LOADER_PLUGIN(ELF64LELoader, elf64le)
 DECLARE_LOADER_PLUGIN(ELF64BELoader, elf64be)
 
-}
+} // namespace REDasm
 
 #include "elf.hpp"

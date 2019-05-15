@@ -22,7 +22,7 @@ const VBComponents::Component *VBComponents::get(GUID *guid)
     if(it != m_components.end())
         return &(it->second);
 
-    REDasm::log("Cannot find component " + guidstring);
+    REDasm::problem("Cannot find component " + guidstring);
     return nullptr;
 }
 

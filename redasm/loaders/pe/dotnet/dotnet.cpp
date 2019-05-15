@@ -46,7 +46,7 @@ ImageStreamHeader *PeDotNet::getStream(ImageCor20MetaData *cormetadata, const st
                                                              ((sizeof(u32) * 2) + REDasm::aligned(len, 4)));
     }
 
-    REDasm::log("Cannot find Stream Id " + REDasm::quoted(id));
+    REDasm::problem("Cannot find Stream Id " + REDasm::quoted(id));
     return nullptr;
 }
 
@@ -80,7 +80,7 @@ bool PeDotNet::getTables(ImageCor20TablesHeader *cortablesheader, CorTables &tab
 
         if(it == m_dispatcher.end())
         {
-            REDasm::log("Cannot find table " + REDasm::quoted(rit->first));
+            REDasm::problem("Cannot find table " + REDasm::quoted(rit->first));
             return false;
         }
 

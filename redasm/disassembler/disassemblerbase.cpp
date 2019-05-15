@@ -339,7 +339,7 @@ bool DisassemblerBase::readOffset(offset_t offset, size_t size, u64 *value) cons
         *value = static_cast<u64>(viewdest);
     else
     {
-        REDasm::log("Invalid size: " + std::to_string(size));
+        REDasm::problem("Invalid size: " + std::to_string(size));
         return false;
     }
 
@@ -422,7 +422,7 @@ void DisassemblerBase::computeBounds(document_x_lock &lock, const ListingItem *f
 
     if(!g->build(functionitem))
     {
-        REDasm::log("Cannot compute graph @ " + REDasm::hex(functionitem->address));
+        REDasm::problem("Cannot compute graph @ " + REDasm::hex(functionitem->address));
         return;
     }
 

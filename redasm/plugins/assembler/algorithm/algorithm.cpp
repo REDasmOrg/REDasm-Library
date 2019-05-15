@@ -74,7 +74,7 @@ void AssemblerAlgorithm::validateTarget(const InstructionPtr &instruction) const
     if(op && !op->isNumeric())
         return;
 
-    REDasm::log("No targets found for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
+    REDasm::problem("No targets found for " + REDasm::quoted(instruction->mnemonic) + " @ " + REDasm::hex(instruction->address));
 }
 
 bool AssemblerAlgorithm::validateState(const State &state) const
@@ -207,8 +207,8 @@ void AssemblerAlgorithm::branchState(const State *state)
         FORWARD_STATE(AssemblerAlgorithm::JumpState, state);
     else
     {
-        REDasm::log("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) +
-                    " @ " + REDasm::hex(instruction->address, m_assembler->bits()));
+        REDasm::problem("Invalid branch state for instruction " + REDasm::quoted(instruction->mnemonic) +
+                        " @ " + REDasm::hex(instruction->address, m_assembler->bits()));
         return;
     }
 

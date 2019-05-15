@@ -218,7 +218,7 @@ std::string CapstonePrinter::reg(const RegisterOperand& regop) const
 {
     if(regop.r <= 0)
     {
-        REDasm::log("Unknown register with id " + std::to_string(regop.r));
+        REDasm::problem("Unknown register with id " + std::to_string(regop.r));
         return "unkreg";
     }
 

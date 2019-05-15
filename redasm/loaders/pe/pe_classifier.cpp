@@ -118,7 +118,7 @@ void PEClassifier::classifyDelphi(ImageDosHeader* dosheader, const ImageNtHeader
 
     if(!packageinfo)
     {
-        REDasm::log("Cannot parse 'PACKAGEINFO' header");
+        REDasm::problem("Cannot parse 'PACKAGEINFO' header");
         return;
     }
 

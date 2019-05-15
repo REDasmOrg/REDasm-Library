@@ -50,7 +50,7 @@ void MSCOFFLoader::load()
     if(m_machines.size() == 1)
         return;
 
-    REDasm::log("Invalid number of assemblers, expected 1, got " + std::to_string(m_machines.size()));
+    REDasm::problem("Invalid number of assemblers, expected 1, got " + std::to_string(m_machines.size()));
     m_document = this->createDocument(); // Reset document
 }
 
@@ -76,7 +76,7 @@ void MSCOFFLoader::readMemberHeaders()
 
         if(!size)
         {
-            REDasm::log("Member " + REDasm::quoted(name) + " is empty");
+            REDasm::problem("Member " + REDasm::quoted(name) + " is empty");
             break;
         }
 
@@ -106,7 +106,7 @@ void MSCOFFLoader::readRelocations(const ImageSectionHeader *sectionheader, cons
     else if(fileheader->Machine == IMAGE_FILE_MACHINE_ARM)
         this->readRelocations_arm(sectionheader, relocations);
     else
-        REDasm::log("Unsupported relocations for machine type: " + REDasm::hex(fileheader->Machine));
+        REDasm::problem("Unsupported relocations for machine type: " + REDasm::hex(fileheader->Machine));
 }
 
 void MSCOFFLoader::readRelocations_x86_32(const ImageSectionHeader *sectionheader, const ImageRelocation *relocations)

@@ -109,14 +109,14 @@ template<typename T> void EmulatorBase<T>::changeSP(ST amount)
 
     if((amount < 0) && ((m_sp - amount) > STACK_SIZE))
     {
-        REDasm::log("Stack Overflow: trying to allocate " + std::to_string(std::abs(amount)) + " bytes");
+        REDasm::problem("Stack Overflow: trying to allocate " + std::to_string(std::abs(amount)) + " bytes");
         this->fail();
         return;
     }
 
     if((amount > m_sp))
     {
-        REDasm::log("Stack Underflow: trying to claim " + std::to_string(amount) + " bytes, SP is " + std::to_string(m_sp));
+        REDasm::problem("Stack Underflow: trying to claim " + std::to_string(amount) + " bytes, SP is " + std::to_string(m_sp));
         this->fail();
         return;
     }
@@ -141,7 +141,7 @@ template<typename T> bool EmulatorBase<T>::writeMem(T address, T value, T size)
         memoryview = static_cast<u64>(value);
     else
     {
-        REDasm::log("WriteMemory: Invalid size (" + std::to_string(size) + ")");
+        REDasm::problem("WriteMemory: Invalid size (" + std::to_string(size) + ")");
         this->fail();
     }
 
@@ -165,7 +165,7 @@ template<typename T> bool EmulatorBase<T>::readMem(T address, T* value, T size)
         *value = static_cast<T>(static_cast<u64>(memoryview));
     else
     {
-        REDasm::log("ReadMemory: Invalid size (" + std::to_string(size) + ")");
+        REDasm::problem("ReadMemory: Invalid size (" + std::to_string(size) + ")");
         this->fail();
     }
 
@@ -185,7 +185,7 @@ template<typename T> void EmulatorBase<T>::reset(bool resetmemory)
 
 template<typename T> void EmulatorBase<T>::unhandled(const InstructionPtr &instruction) const
 {
-    REDasm::log("Unhandled instruction '" + instruction->mnemonic + "' @ " + REDasm::hex(instruction->address));
+    REDasm::problem("Unhandled instruction '" + instruction->mnemonic + "' @ " + REDasm::hex(instruction->address));
 }
 
 template<typename T> void EmulatorBase<T>::fail()
@@ -194,11 +194,11 @@ template<typename T> void EmulatorBase<T>::fail()
 
     if(m_currentinstruction)
     {
-        REDasm::log("WARNING: Emulator in FAIL state, last instruction '" + m_currentinstruction->mnemonic +
+        REDasm::problem("WARNING: Emulator in FAIL state, last instruction '" + m_currentinstruction->mnemonic +
                     "' @ " + REDasm::hex(m_currentinstruction->address));
     }
     else
-        REDasm::log("WARNING: Emulator in FAIL state");
+        REDasm::problem("WARNING: Emulator in FAIL state");
 }
 
 template<typename T> bool EmulatorBase<T>::displacementT(const DisplacementOperand &dispop, T* value)

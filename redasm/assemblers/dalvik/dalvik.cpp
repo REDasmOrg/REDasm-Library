@@ -39,7 +39,7 @@ bool DalvikAssembler::decodeInstruction(const BufferView &view, const Instructio
 
     if(it == m_opcodedispatcher.end())
     {
-        REDasm::log("Cannot find opcode " + REDasm::hex(instruction->id));
+        REDasm::problem("Cannot find opcode " + REDasm::hex(instruction->id));
         return false;
     }
 

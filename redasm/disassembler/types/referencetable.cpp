@@ -33,10 +33,10 @@ void ReferenceTable::popTarget(address_t target, address_t pointedby)
 {
     auto it = m_targets.find(pointedby);
 
-    if(it != m_targets.end())
-        it->second.erase(target);
+    if(it == m_targets.end())
+        return;
 
-    it->second.insert(target);
+    it->second.erase(target);
 }
 
 ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const { return m_references.find(address); }

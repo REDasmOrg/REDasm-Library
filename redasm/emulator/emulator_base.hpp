@@ -27,7 +27,7 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
         if(bool localValue = this->displacementT(op->disp, value))
             return true;
 
-        REDasm::log("Error reading displacement operand " + std::to_string(op->index));
+        REDasm::problem("Error reading displacement operand " + std::to_string(op->index));
         this->fail();
         return false;
     }
@@ -43,7 +43,7 @@ template<typename T> bool EmulatorBase<T>::readOp(const Operand *op, T* value)
         if(this->readMem(static_cast<T>(op->u_value), value, op->size))
             return true;
 
-        REDasm::log("Error reading memory operand " + std::to_string(op->index));
+        REDasm::problem("Error reading memory operand " + std::to_string(op->index));
         this->fail();
         return false;
     }

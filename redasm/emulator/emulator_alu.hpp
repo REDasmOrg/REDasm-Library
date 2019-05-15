@@ -28,13 +28,13 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
 
     if(!this->readOp(instruction->op(opsrc1), &src1))
     {
-        REDasm::log("Cannot read operand 1 @ " + REDasm::hex(instruction->address));
+        REDasm::problem("Cannot read operand 1 @ " + REDasm::hex(instruction->address));
         return;
     }
 
     if(!this->readOp(instruction->op(opsrc2), &src2))
     {
-        REDasm::log("Cannot read operand 2 @ " + REDasm::hex(instruction->address));
+        REDasm::problem("Cannot read operand 2 @ " + REDasm::hex(instruction->address));
         return;
     }
 
@@ -50,7 +50,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
     {
         if(!src2)
         {
-            REDasm::log("Division by zero @ " + REDasm::hex(instruction->address));
+            REDasm::problem("Division by zero @ " + REDasm::hex(instruction->address));
             this->fail();
             return;
         }
@@ -61,7 +61,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
     {
         if(!src2)
         {
-            REDasm::log("Module by zero @ " + REDasm::hex(instruction->address));
+            REDasm::problem("Module by zero @ " + REDasm::hex(instruction->address));
             this->fail();
             return;
         }
@@ -78,7 +78,7 @@ template<typename T> void EmulatorALU<T>::aluOp(const InstructionPtr &instructio
     {
         if(src2 > bitscount<T>::value)
         {
-            REDasm::log("Invalid left shift @ " + REDasm::hex(instruction->address));
+            REDasm::problem("Invalid left shift @ " + REDasm::hex(instruction->address));
             this->fail();
             return;
         }

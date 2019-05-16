@@ -413,6 +413,7 @@ size_t ListingDocumentType::findIndex(address_t address, size_t type, size_t ind
 
 ListingDocumentType::const_iterator ListingDocumentType::instructionItem(address_t address) const { return this->findItem(address, ListingItem::InstructionItem); }
 ListingDocumentType::const_iterator ListingDocumentType::symbolItem(address_t address) const { return this->findItem(address, ListingItem::SymbolItem); }
+ListingDocumentType::const_iterator ListingDocumentType::segmentItem(address_t address) const { return this->findItem(address, ListingItem::SegmentItem); }
 size_t ListingDocumentType::itemIndex(const ListingItem *item) const { return this->findIndex(item->address, item->type, item->index); }
 size_t ListingDocumentType::functionIndex(address_t address) const { return this->findIndex(address, ListingItem::FunctionItem); }
 size_t ListingDocumentType::instructionIndex(address_t address) const { return this->findIndex(address, ListingItem::InstructionItem); }

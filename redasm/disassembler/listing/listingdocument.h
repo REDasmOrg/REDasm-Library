@@ -109,6 +109,7 @@ class ListingDocumentType: public sorted_container<ListingItemPtr, ListingItemPt
         const_iterator functionItem(address_t address) const;
         const_iterator instructionItem(address_t address) const;
         const_iterator symbolItem(address_t address) const;
+        const_iterator segmentItem(address_t address) const;
         size_t itemIndex(const ListingItem* item) const;
         size_t functionIndex(address_t address) const;
         size_t instructionIndex(address_t address) const;

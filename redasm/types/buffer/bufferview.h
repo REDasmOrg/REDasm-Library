@@ -162,7 +162,7 @@ template<typename T> BufferView::SearchResult<T> BufferView::find(const u8* sear
     SearchResult<T> r(this, searchdata, searchsize);
     const u8* pdata = this->data() + startoffset;
 
-    while(pdata < (this->endData() - searchsize))
+    while((pdata + searchsize) < this->endData())
     {
         if(!std::equal(pdata, pdata + searchsize, searchdata))
         {

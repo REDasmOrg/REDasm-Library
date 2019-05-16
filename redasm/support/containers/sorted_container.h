@@ -54,8 +54,8 @@ template< typename T, typename Comparator = std::less<T>, typename Container = s
         }
 
         template<typename Iterator> Iterator erase(const Iterator& it) { return m_container.erase(it); }
-        iterator erase(size_t idx) { return m_container.erase(std::next(this->begin(), idx)); }
         iterator erase(const T& t) { return this->erase(this->find(t)); }
+        iterator eraseAt(size_t idx) { return m_container.erase(std::next(this->begin(), idx)); }
         const T& operator[](size_t idx) const { return m_container[idx]; }
         T& operator[](size_t idx) { return m_container[idx]; }
 

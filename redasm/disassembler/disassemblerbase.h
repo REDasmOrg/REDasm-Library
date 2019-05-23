@@ -25,7 +25,7 @@ class DisassemblerBase: public DisassemblerAPI
         address_location getTarget(address_t address) const override;
         u64 getTargetsCount(address_t address) const override;
         u64 getReferencesCount(address_t address) const override;
-        void computeBounds() override;
+        void computeBasicBlocks() override;
         void popTarget(address_t address, address_t pointedby) override;
         void pushTarget(address_t address, address_t pointedby) override;
         void pushReference(address_t address, address_t refby) override;
@@ -46,7 +46,7 @@ class DisassemblerBase: public DisassemblerAPI
         bool loadSignature(const std::string& signame) override;
 
    private:
-        void computeBounds(document_x_lock &lock, const ListingItem *functionitem);
+        void computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem);
         template<typename T> std::string readStringT(address_t address, u64 len, std::function<bool(T, std::string&)> fill) const;
         template<typename T> u64 locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 

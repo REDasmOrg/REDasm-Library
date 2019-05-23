@@ -35,7 +35,7 @@ void AssemblerAlgorithm::analyze()
     {
         REDasm::status("Analyzing (Fast)...");
         m_analyzer->analyzeFast();
-        m_disassembler->computeBounds();
+        m_disassembler->computeBasicBlocks();
         m_document->moveToEP();
         return;
     }
@@ -46,7 +46,7 @@ void AssemblerAlgorithm::analyze()
 
     REDasm::status("Analyzing...");
     m_analyzer->analyze();
-    m_disassembler->computeBounds();
+    m_disassembler->computeBasicBlocks();
     m_document->moveToEP();
 
     // Trigger a Fast Analysis when post disassembling is completed

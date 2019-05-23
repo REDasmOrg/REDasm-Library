@@ -68,6 +68,9 @@ class Graph
         Node newNode();
         Node root() { return m_root; }
 
+    protected:
+        void setRoot(const Node& n) { m_root = n; }
+
     private:
         void removeEdges(const Node& n);
 
@@ -100,20 +103,31 @@ class Graph
         std::unordered_map<Edge, EdgeAttributes> m_edgeattributes;
         EdgeList m_edges;
         NodeList m_nodes;
+
+    private:
         Node m_root;
 };
 
 template<typename T> class GraphT: public Graph
 {
+    protected:
+        typedef std::unordered_map<Node, T> NodeData;
+
     public:
         GraphT(): Graph() { }
-        const T* data(const Node& n) const;
+        const T* data(const Node& n) const { return const_cast<GraphT<T>*>(this)->data(n); }
 
     protected:
-        std::unordered_map<Node, T> m_data;
+        T* data(const Node& n);
+        void setData(const Node& n, const T& data) { m_data[n] = data; }
+        const NodeData& data() const { return m_data; }
+        NodeData& data() { return m_data; }
+
+    private:
+        NodeData m_data;
 };
 
-template<typename T> const T* GraphT<T>::data(const Node &n) const
+template<typename T> T* GraphT<T>::data(const Node &n)
 {
     auto it = m_data.find(n);
 

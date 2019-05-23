@@ -57,15 +57,13 @@ address_location DisassemblerBase::getTarget(address_t address) const { return m
 u64 DisassemblerBase::getTargetsCount(address_t address) const { return m_referencetable.targetsCount(address); }
 u64 DisassemblerBase::getReferencesCount(address_t address) const { return m_referencetable.referencesCount(address); }
 
-void DisassemblerBase::computeBounds()
+void DisassemblerBase::computeBasicBlocks()
 {
-    REDasm::log("Calculating function bounds...");
-
     auto lock = x_lock_safe_ptr(m_loader->document());
     lock->functions().invalidateGraphs();
 
     for(const ListingItem* item : lock->functions())
-        this->computeBounds(lock, item);
+        this->computeBasicBlocks(lock, item);
 }
 
 void DisassemblerBase::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
@@ -416,15 +414,13 @@ bool DisassemblerBase::loadSignature(const std::string &signame)
     return true;
 }
 
-void DisassemblerBase::computeBounds(document_x_lock &lock, const ListingItem *functionitem)
+void DisassemblerBase::computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem)
 {
+    REDasm::status("Computing basic blocks @ " + REDasm::hex(functionitem->address));
     auto g = std::make_unique<Graphing::FunctionGraph>(this);
 
     if(!g->build(functionitem))
-    {
-        REDasm::problem("Cannot compute graph @ " + REDasm::hex(functionitem->address));
         return;
-    }
 
     lock->functions().graph(functionitem, g.release());
 }

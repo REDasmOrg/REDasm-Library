@@ -49,18 +49,20 @@ class FunctionGraph: public GraphT<FunctionBasicBlock>
         void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
         void incomplete() const;
         bool isStopItem(const ListingItem *item) const;
-        void buildBasicBlock(s64 index, IndexQueue &pending);
+        void buildBasicBlock(size_t index);
         void buildBasicBlocks();
         bool connectBasicBlocks();
 
     private:
         size_t instructionIndexFromIndex(size_t idx) const;
         size_t symbolIndexFromIndex(size_t idx) const;
+        void resetQueue();
 
     private:
         DisassemblerAPI* m_disassembler;
         ListingDocument& m_document;
         address_location m_graphstart;
+        IndexQueue m_pending;
 };
 
 } // namespace Graphing

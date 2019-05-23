@@ -54,7 +54,7 @@ class DisassemblerAPI
         virtual bool dereference(address_t address, u64* value) const = 0;
         virtual Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr) = 0;
         virtual InstructionPtr disassembleInstruction(address_t address) = 0;
-        virtual void computeBounds() = 0;
+        virtual void computeBasicBlocks() = 0;
         virtual void disassemble(address_t address) = 0;
         virtual bool loadSignature(const std::string& signame) = 0;
         virtual void disassemble() = 0;

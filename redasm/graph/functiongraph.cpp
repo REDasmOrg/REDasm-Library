@@ -18,10 +18,10 @@ bool FunctionGraph::build(address_t address)
 
 const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(size_t index) const
 {
-    for(auto it = m_data.begin(); it != m_data.end(); it++)
+    for(auto& item : this->data())
     {
-        if(it->second.contains(index))
-            return &it->second;
+        if(item.second.contains(index))
+            return &item.second;
     }
 
     return nullptr;
@@ -59,18 +59,18 @@ void FunctionGraph::buildBasicBlocks()
         return;
 
     size_t index = std::distance(m_document->cbegin(), it);
-    IndexQueue pending;
-    pending.push(index);
+    this->resetQueue();
+    m_pending.push(index);
 
-    while(!pending.empty())
+    while(!m_pending.empty())
     {
-        index = pending.front();
-        pending.pop();
+        index = m_pending.front();
+        m_pending.pop();
 
         if((index == REDasm::npos) || (index >= m_document->size()))
             continue;
 
-        this->buildBasicBlock(index, pending);
+        this->buildBasicBlock(index);
     }
 }
 
@@ -106,8 +106,8 @@ bool FunctionGraph::connectBasicBlocks()
 {
     for(const Node& n : this->nodes())
     {
-        FunctionBasicBlock& fromfbb = m_data[n];
-        ListingItem* lastitem = m_document->itemAt(this->instructionIndexFromIndex(fromfbb.endidx));
+        FunctionBasicBlock* fromfbb = this->data(n);
+        ListingItem* lastitem = m_document->itemAt(this->instructionIndexFromIndex(fromfbb->endidx));
 
         if(!lastitem || !lastitem->is(ListingItem::InstructionItem))
         {
@@ -130,8 +130,8 @@ bool FunctionGraph::connectBasicBlocks()
 
                 if(tofbb)
                 {
-                    this->setConnectionType(instruction, &fromfbb, tofbb, true);
-                    this->newEdge(fromfbb.node, tofbb->node);
+                    this->setConnectionType(instruction, fromfbb, tofbb, true);
+                    this->newEdge(fromfbb->node, tofbb->node);
                 }
                 else
                     this->incomplete();
@@ -139,12 +139,12 @@ bool FunctionGraph::connectBasicBlocks()
 
             if(instruction->is(InstructionType::Conditional))
             {
-                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->instructionIndexFromIndex(fromfbb.endidx + 1));
+                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->instructionIndexFromIndex(fromfbb->endidx + 1));
 
                 if(tofbb)
                 {
-                    this->setConnectionType(instruction, &fromfbb, tofbb, false);
-                    this->newEdge(fromfbb.node, tofbb->node);
+                    this->setConnectionType(instruction, fromfbb, tofbb, false);
+                    this->newEdge(fromfbb->node, tofbb->node);
                 }
                 else
                     this->incomplete();
@@ -152,10 +152,10 @@ bool FunctionGraph::connectBasicBlocks()
         }
         else if(!instruction->is(InstructionType::Stop))
         {
-            FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->symbolIndexFromIndex(fromfbb.endidx + 1));
+            FunctionBasicBlock* tofbb = this->basicBlockFromIndex(this->symbolIndexFromIndex(fromfbb->endidx + 1));
 
             if(tofbb)
-                this->newEdge(fromfbb.node, tofbb->node);
+                this->newEdge(fromfbb->node, tofbb->node);
         }
     }
 
@@ -169,7 +169,7 @@ size_t FunctionGraph::instructionIndexFromIndex(size_t idx) const
     if(item)
         return m_document->instructionIndex(item->address);
 
-    return -1;
+    return REDasm::npos;
 }
 
 size_t FunctionGraph::symbolIndexFromIndex(size_t idx) const
@@ -179,17 +179,23 @@ size_t FunctionGraph::symbolIndexFromIndex(size_t idx) const
     if(item)
         return m_document->symbolIndex(item->address);
 
-    return -1;
+    return REDasm::npos;
 }
 
-void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
+void FunctionGraph::resetQueue()
+{
+    IndexQueue clean;
+    m_pending.swap(clean);
+}
+
+void FunctionGraph::buildBasicBlock(size_t index)
 {
     if(this->basicBlockFromIndex(index))
         return;
 
     FunctionBasicBlock fbb(index);
     ListingItem* item = nullptr;
-    s64 startindex = index;
+    size_t startindex = index;
 
     for(auto it = m_document->begin() + index ; it != m_document->end(); it++, index++)
     {
@@ -213,17 +219,17 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
                     if(!symbol || !symbol->is(SymbolType::Code))
                         continue;
 
-                    pending.push(m_document->symbolIndex(target));
+                    m_pending.push(m_document->symbolIndex(target));
                 }
 
                 if(!targets.empty() && instruction->is(InstructionType::Conditional))
                 {
-                    s64 idx = m_document->symbolIndex(instruction->endAddress()); // Check for symbol first (chained jumps)
+                    size_t idx = m_document->symbolIndex(instruction->endAddress()); // Check for symbol first (chained jumps)
 
                     if(idx == -1)
                         idx = m_document->instructionIndex(instruction->endAddress());
 
-                    pending.push(idx);
+                    m_pending.push(idx);
                 }
 
                 break;
@@ -236,7 +242,7 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
             const Symbol* symbol = m_document->symbol(item->address);
 
             if(symbol && symbol->is(SymbolType::Code) && !symbol->isFunction())
-                pending.push(index);
+                m_pending.push(index);
 
             if(index != startindex)
                 break;
@@ -255,10 +261,10 @@ void FunctionGraph::buildBasicBlock(s64 index, IndexQueue& pending)
         return;
 
     fbb.node = this->newNode();
-    m_data[fbb.node] = fbb;
+    this->setData(fbb.node, fbb);
 
-    if(!m_root)
-        m_root = fbb.node;
+    if(!this->root())
+        this->setRoot(fbb.node);
 }
 
 } // namespace Graphing

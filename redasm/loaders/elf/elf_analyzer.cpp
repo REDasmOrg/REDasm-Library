@@ -31,7 +31,7 @@ void ElfAnalyzer::analyze()
     if(symbol)
         m_document->setDocumentEntry(symbol->address);
     else
-        REDasm::log("Cannot find 'main' symbol");
+        REDasm::problem("Cannot find 'main' symbol");
 }
 
 void ElfAnalyzer::findMain_x86(const Symbol *symlibcmain)

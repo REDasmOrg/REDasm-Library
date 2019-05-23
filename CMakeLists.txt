@@ -47,44 +47,44 @@ add_subdirectory(${CAPSTONE_SRC})
 ### LibREDasm
 
 # Support
-file(GLOB_RECURSE SUPPORT_HEADERS redasm/support/*.h*)
-file(GLOB_RECURSE SUPPORT_SOURCES redasm/support/*.cpp)
+file(GLOB_RECURSE SUPPORT_HEADERS core/support/*.h*)
+file(GLOB_RECURSE SUPPORT_SOURCES core/support/*.cpp)
 
 # Types
-file(GLOB_RECURSE TYPES_HEADERS redasm/types/*.h*)
-file(GLOB_RECURSE TYPES_SOURCES redasm/types/*.cpp)
+file(GLOB_RECURSE TYPES_HEADERS core/types/*.h*)
+file(GLOB_RECURSE TYPES_SOURCES core/types/*.cpp)
 
 # Plugins
-file(GLOB_RECURSE PLUGINS_HEADERS redasm/plugins/*.h*)
-file(GLOB_RECURSE PLUGINS_SOURCES redasm/plugins/*.cpp)
+file(GLOB_RECURSE PLUGINS_HEADERS core/plugins/*.h*)
+file(GLOB_RECURSE PLUGINS_SOURCES core/plugins/*.cpp)
 
 # Loaders
-file(GLOB_RECURSE LOADER_HEADERS redasm/loaders/*.h*)
-file(GLOB_RECURSE LOADER_SOURCES redasm/loaders/*.cpp)
+file(GLOB_RECURSE LOADER_HEADERS core/loaders/*.h*)
+file(GLOB_RECURSE LOADER_SOURCES core/loaders/*.cpp)
 
 # Assemblers
-file(GLOB_RECURSE ASSEMBLER_HEADERS redasm/assemblers/*.h*)
-file(GLOB_RECURSE ASSEMBLER_SOURCES redasm/assemblers/*.cpp)
+file(GLOB_RECURSE ASSEMBLER_HEADERS core/assemblers/*.h*)
+file(GLOB_RECURSE ASSEMBLER_SOURCES core/assemblers/*.cpp)
 
 # Analyzers
-file(GLOB_RECURSE ANALYZER_HEADERS redasm/analyzer/*.h*)
-file(GLOB_RECURSE ANALYZER_SOURCES redasm/analyzer/*.cpp)
+file(GLOB_RECURSE ANALYZER_HEADERS core/analyzer/*.h*)
+file(GLOB_RECURSE ANALYZER_SOURCES core/analyzer/*.cpp)
 
 # Emulators
-file(GLOB_RECURSE EMULATOR_HEADERS redasm/emulator/*.h*)
-file(GLOB_RECURSE EMULATOR_SOURCES redasm/emulator/*.cpp)
+file(GLOB_RECURSE EMULATOR_HEADERS core/emulator/*.h*)
+file(GLOB_RECURSE EMULATOR_SOURCES core/emulator/*.cpp)
 
 # Disassembler
-file(GLOB_RECURSE DISASSEMBLER_HEADERS redasm/disassembler/*.h)
-file(GLOB_RECURSE DISASSEMBLER_SOURCES redasm/disassembler/*.cpp)
+file(GLOB_RECURSE DISASSEMBLER_HEADERS core/disassembler/*.h)
+file(GLOB_RECURSE DISASSEMBLER_SOURCES core/disassembler/*.cpp)
 
 # Database
-file(GLOB_RECURSE DATABASE_HEADERS redasm/database/*.h)
-file(GLOB_RECURSE DATABASE_SOURCES redasm/database/*.cpp)
+file(GLOB_RECURSE DATABASE_HEADERS core/database/*.h)
+file(GLOB_RECURSE DATABASE_SOURCES core/database/*.cpp)
 
 # Graph
-file(GLOB_RECURSE GRAPH_HEADERS redasm/graph/*.h)
-file(GLOB_RECURSE GRAPH_SOURCES redasm/graph/*.cpp)
+file(GLOB_RECURSE GRAPH_HEADERS core/graph/*.h)
+file(GLOB_RECURSE GRAPH_SOURCES core/graph/*.cpp)
 
 SET(SOURCES
     ${MINIZ_SOURCES}
@@ -99,9 +99,9 @@ SET(SOURCES
     ${DISASSEMBLER_SOURCES}
     ${DATABASE_SOURCES}
     ${GRAPH_SOURCES}
-    redasm/redasm_api.cpp
-    redasm/redasm_ui.cpp
-    redasm/redasm_context.cpp)
+    core/redasm_api.cpp
+    core/redasm_ui.cpp
+    core/redasm_context.cpp)
 
 set(HEADERS
     ${MINIZ_HEADERS}
@@ -116,11 +116,11 @@ set(HEADERS
     ${DISASSEMBLER_HEADERS}
     ${DATABASE_HEADERS}
     ${GRAPH_HEADERS}
-    redasm/redasm.h
-    redasm/redasm_macros.h
-    redasm/redasm_api.h
-    redasm/redasm_ui.h
-    redasm/redasm_context.h)
+    core/redasm.h
+    core/redasm_macros.h
+    core/redasm_api.h
+    core/redasm_ui.h
+    core/redasm_context.h)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 add_dependencies(${PROJECT_NAME} capstone-static)

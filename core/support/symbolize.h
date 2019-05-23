@@ -1,8 +1,8 @@
 #pragma once
 
 #include <type_traits>
-#include "../../redasm/disassembler/listing/listingdocument.h"
-#include "../../redasm/disassembler/disassemblerapi.h"
+#include "../disassembler/listing/listingdocument.h"
+#include "../disassembler/disassemblerapi.h"
 
 #define REDASM_SYMBOLIZE(T, disassembler, address) REDasm::symbolize<T>(disassembler, address, #T)
 

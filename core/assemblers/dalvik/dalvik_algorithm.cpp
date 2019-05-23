@@ -1,7 +1,7 @@
 #include "dalvik_algorithm.h"
 #include "../../loaders/dex/dex.h"
 #include "../../assemblers/dalvik/dalvik.h"
-#include "../../redasm/support/symbolize.h"
+#include "../../support/symbolize.h"
 #include "dalvik_payload.h"
 
 namespace REDasm {

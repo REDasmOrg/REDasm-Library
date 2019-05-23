@@ -2,7 +2,7 @@
 
 // https://docs.microsoft.com/en-us/windows/desktop/debug/pe-format
 
-#include "../../redasm/types/base_types.h"
+#include "../../types/base_types.h"
 
 // Signatures
 #define IMAGE_DOS_SIGNATURE                               0x5A4D

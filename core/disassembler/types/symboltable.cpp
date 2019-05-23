@@ -1,5 +1,5 @@
 #include "symboltable.h"
-#include <redasm/support/demangler.h>
+#include <core/support/demangler.h>
 #include <forward_list>
 
 namespace REDasm {

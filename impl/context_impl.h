@@ -15,6 +15,7 @@ class ContextImpl
     public:
         ContextImpl();
         void checkSettings();
+        std::string capstoneVersion() const;
 
     private:
         ContextSettings m_settings;

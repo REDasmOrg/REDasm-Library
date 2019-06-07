@@ -30,7 +30,7 @@ BufferView LoaderImpl::viewSegment(const Segment *segment) const
 ListingDocument &LoaderImpl::createDocument() { m_document = ListingDocument(); return m_document; }
 const ListingDocument &LoaderImpl::document() const { return m_document;  }
 ListingDocument &LoaderImpl::document() { return m_document;  }
-const SignatureIdentifiers &LoaderImpl::signatures() const { return m_signatures; }
+SignatureIdentifiers &LoaderImpl::signatures() { return m_signatures; }
 void LoaderImpl::signature(const std::string &sig) { m_signatures.insert(sig); }
 
 offset_location LoaderImpl::offset(address_t address) const

@@ -22,7 +22,7 @@ class LoaderImpl: public PluginImpl
         ListingDocument& createDocument();
         const ListingDocument& document() const;
         ListingDocument& document();
-        const SignatureIdentifiers& signatures() const;
+        SignatureIdentifiers &signatures();
         void signature(const std::string& sig);
 
     public:

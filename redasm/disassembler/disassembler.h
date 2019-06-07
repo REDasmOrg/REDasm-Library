@@ -68,4 +68,6 @@ class LIBREDASM_API Disassembler
         void resume();
 };
 
+typedef std::shared_ptr<Disassembler> DisassemblerPtr;
+
 } // namespace REDasm

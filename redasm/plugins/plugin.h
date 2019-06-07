@@ -44,6 +44,7 @@ class Plugin
         Plugin();
         virtual ~Plugin() = default;
         std::string id() const;
+        std::string description() const;
         const PluginDescriptor* descriptor() const;
         void setDescriptor(const PluginDescriptor* pd);
 };

@@ -1,5 +1,6 @@
 #include "context_impl.h"
 #include <iostream>
+#include <capstone/capstone.h>
 
 namespace REDasm {
 
@@ -22,6 +23,13 @@ void ContextImpl::checkSettings()
 
     if(!m_settings.ui)
         m_settings.ui = std::make_shared<AbstractUI>();
+}
+
+std::string ContextImpl::capstoneVersion() const
+{
+    int major = 0, minor = 0;
+    cs_version(&major, &minor);
+    return std::to_string(major) + "." + std::to_string(minor);
 }
 
 } // namespace REDasm

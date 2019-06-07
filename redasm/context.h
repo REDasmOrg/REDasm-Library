@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "plugins/pluginmanager.h"
 #include "plugins/loader/loader.h"
 #include "support/path.h"
@@ -8,13 +9,13 @@
 
 namespace REDasm {
 
-typedef void(*Context_LogCallback)(const std::string&);
-typedef void(*Context_ProgressCallback)(size_t);
+typedef std::function<void(const std::string&)> Context_LogCallback;
+typedef std::function<void(size_t)> Context_ProgressCallback;
 typedef std::deque<std::string> ProblemList;
 
 struct LIBREDASM_API ContextSettings
 {
-    ContextSettings(): ignoreproblems(false), logCallback(nullptr), statusCallback(nullptr), progressCallback(nullptr) { }
+    ContextSettings(): ignoreproblems(false) { }
 
     std::string runtimePath, pluginPath, tempPath;
     Context_LogCallback logCallback;
@@ -55,6 +56,7 @@ class LIBREDASM_API Context
         void statusAddress(const std::string& s, address_t address);
         bool sync();
         PluginManager* pluginManager() const;
+        std::string capstoneVersion() const;
         std::string runtimePath() const;
         std::string pluginPath() const;
         std::string tempPath() const;

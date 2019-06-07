@@ -49,7 +49,7 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         ListingDocument& createDocument();
         const ListingDocument& document() const;
         ListingDocument& document();
-        const SignatureIdentifiers &signatures() const;
+        SignatureIdentifiers &signatures();
         Loader* signature(const std::string& sig);
         Analyzer* analyzer(Disassembler* disassembler);
 

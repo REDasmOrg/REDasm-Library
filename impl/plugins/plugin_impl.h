@@ -9,6 +9,7 @@ class PluginImpl
     public:
         PluginImpl() = default;
         std::string id() const;
+        std::string description() const;
         const PluginDescriptor* descriptor() const;
         void setDescriptor(const PluginDescriptor* pd);
 

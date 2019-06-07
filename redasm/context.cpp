@@ -58,6 +58,7 @@ bool Context::sync()
 }
 
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
+std::string Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }
 void Context::log(const std::string &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
 
 void Context::problem(const std::string &s)

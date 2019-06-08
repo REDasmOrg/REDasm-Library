@@ -23,6 +23,7 @@
 #define REDASM_ASSEMBLER(descriptionauthor, license, version) REDASM_PLUGIN_TEMPLATE(description, author, license, version, assembler)
 
 #include "../types/base_types.h"
+#include "../types/plugin_types.h"
 #include "../types/callback_types.h"
 #include "../version.h"
 #include "../macros.h"
@@ -33,7 +34,7 @@ namespace REDasm {
 struct PluginDescriptor;
 class PluginImpl;
 
-class Plugin
+class Plugin: public Object
 {
     PIMPL_DECLARE_PRIVATE(Plugin)
 

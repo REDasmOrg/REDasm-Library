@@ -3,14 +3,13 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(assembler, loader)) { }
+Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader)) { }
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
 const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }
 safe_ptr<ListingDocumentType> &Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
 std::deque<ListingItem *> Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
-Printer *Disassembler::createPrinter() { PIMPL_P(Disassembler); return p->createPrinter(); }
 ReferenceVector Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 ReferenceSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }
 Symbol *Disassembler::dereferenceSymbol(const Symbol *symbol, u64 *value) { PIMPL_P(Disassembler); return p->dereferenceSymbol(symbol, value); }
@@ -20,7 +19,7 @@ size_t Disassembler::getTargetsCount(address_t address) const { PIMPL_P(const Di
 size_t Disassembler::getReferencesCount(address_t address) const { PIMPL_P(const Disassembler); return p->getReferencesCount(address); }
 size_t Disassembler::checkAddressTable(const InstructionPtr &instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
 size_t Disassembler::locationIsString(address_t address, bool *wide) const { PIMPL_P(const Disassembler); return p->locationIsString(address, wide); }
-size_t Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
+JobState Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
 std::string Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }
 std::string Disassembler::readString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readString(address, len); }
 std::string Disassembler::readWString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(symbol, len); }

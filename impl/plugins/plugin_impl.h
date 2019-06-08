@@ -8,6 +8,7 @@ class PluginImpl
 {
     public:
         PluginImpl() = default;
+        virtual ~PluginImpl() = default;
         std::string id() const;
         std::string description() const;
         const PluginDescriptor* descriptor() const;

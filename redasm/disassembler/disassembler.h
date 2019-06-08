@@ -1,10 +1,11 @@
 #pragma once
 
-#include <redasm/buffer/bufferview.h>
-#include <redasm/support/safe_ptr.h>
-#include <redasm/types/api_types.h>
-#include <redasm/support/event.h>
-#include <redasm/pimpl.h>
+#include "../buffer/bufferview.h"
+#include "../support/safe_ptr.h"
+#include "../types/api_types.h"
+#include "../support/event.h"
+#include "../pimpl.h"
+#include "concurrent/jobstate.h"
 #include "types/referencetable.h"
 #include "types/symboltable.h"
 
@@ -33,7 +34,6 @@ class LIBREDASM_API Disassembler
         safe_ptr<ListingDocumentType>& document();
         std::deque<ListingItem*> getCalls(address_t address);
         ReferenceTable* references();
-        Printer* createPrinter();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
@@ -44,7 +44,7 @@ class LIBREDASM_API Disassembler
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(const InstructionPtr& instruction, address_t address);
         size_t locationIsString(address_t address, bool *wide = nullptr) const;
-        size_t state() const;
+        JobState state() const;
         std::string readString(const Symbol* symbol, size_t len = REDasm::npos) const;
         std::string readString(address_t address, size_t len = REDasm::npos) const;
         std::string readWString(const Symbol* symbol, size_t len = REDasm::npos) const;

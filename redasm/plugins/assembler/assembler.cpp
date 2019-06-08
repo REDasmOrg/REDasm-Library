@@ -8,17 +8,6 @@ namespace REDasm {
 Assembler::Assembler(AssemblerImpl *p): Plugin(p) { }
 Assembler::Assembler(): Plugin(new AssemblerImpl()) { }
 
-Algorithm *Assembler::algorithm(Disassembler *disassembler)
-{
-    PIMPL_P(Assembler);
-
-    if(p->m_algorithm)
-        delete p->m_algorithm;
-
-    p->m_algorithm = this->createAlgorithm(disassembler);
-    return p->m_algorithm;
-}
-
 bool Assembler::decode(const BufferView &view, const InstructionPtr &instruction)
 {
     bool decoded = this->decodeInstruction(view, instruction);
@@ -35,7 +24,8 @@ bool Assembler::decode(const BufferView &view, const InstructionPtr &instruction
 
 bool Assembler::decodeInstruction(const BufferView &view, const InstructionPtr &instruction) { return false; }
 Symbol *Assembler::findTrampoline(ListingDocumentIterator *it) const { return nullptr; }
-Algorithm *Assembler::createAlgorithm(Disassembler *disassembler) const { return new ControlFlowAlgorithm(disassembler); }
+Algorithm *Assembler::doCreateAlgorithm(Disassembler *disassembler) const { return new ControlFlowAlgorithm(disassembler); }
+Printer *Assembler::doCreatePrinter(Disassembler *disassembler) const { return new Printer(disassembler); }
 void Assembler::setInstructionType(instruction_id_t id, InstructionType type) { PIMPL_P(Assembler); p->m_instructiontypes[id] = type; }
 void Assembler::onDecoded(const InstructionPtr &instruction) { }
 size_t Assembler::addressWidth() const { return this->bits() * CHAR_BIT; }

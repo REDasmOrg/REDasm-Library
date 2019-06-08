@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../types/endianness/endianness.h"
+#include "../types/plugin_types.h"
 #include "../types/base_types.h"
 #include "../macros.h"
 
@@ -8,7 +9,7 @@ namespace REDasm {
 
 class BufferView;
 
-class LIBREDASM_API AbstractBuffer
+class LIBREDASM_API AbstractBuffer: public Object
 {
     public:
         virtual ~AbstractBuffer() = default;

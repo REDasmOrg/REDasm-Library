@@ -19,7 +19,7 @@ class StateMachine
         StateMachine();
         virtual ~StateMachine() = default;
         size_t pending() const;
-        bool hasNext();
+        bool hasNext() const;
         void next();
 
     protected:

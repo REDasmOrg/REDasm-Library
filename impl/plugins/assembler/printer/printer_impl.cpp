@@ -1,4 +1,5 @@
 #include "printer_impl.h"
+#include <redasm/disassembler/disassembler.h>
 
 namespace REDasm {
 

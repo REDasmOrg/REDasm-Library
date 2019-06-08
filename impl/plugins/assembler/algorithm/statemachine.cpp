@@ -6,7 +6,7 @@ namespace REDasm {
 
 StateMachine::StateMachine(): m_count(0) { }
 size_t StateMachine::pending() const { return m_count; }
-bool StateMachine::hasNext() { return !m_pending.empty(); }
+bool StateMachine::hasNext() const { return !m_pending.empty(); }
 
 void StateMachine::next()
 {

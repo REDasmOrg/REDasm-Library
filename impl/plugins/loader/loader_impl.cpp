@@ -5,6 +5,15 @@
 namespace REDasm {
 
 LoaderImpl::LoaderImpl(): PluginImpl(), m_buffer(nullptr) { }
+
+LoaderImpl::~LoaderImpl()
+{
+    if(m_buffer)
+        m_buffer->release();
+
+    m_buffer = nullptr;
+}
+
 AbstractBuffer *LoaderImpl::buffer() const { return m_buffer; }
 BufferView LoaderImpl::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 const BufferView &LoaderImpl::view() const { return m_view; }
@@ -66,15 +75,16 @@ void LoaderImpl::build(const std::string &assembler, offset_t offset, address_t 
 Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
 {
     PIMPL_Q(Loader);
-
     m_analyzer = std::unique_ptr<Analyzer>(q->createAnalyzer(disassembler));
     return m_analyzer.get();
 }
 
-void LoaderImpl::load(const LoadRequest *loader)
+void LoaderImpl::load(const LoadRequest *loader) { this->init(loader); }
+
+void LoaderImpl::init(const LoadRequest *loader)
 {
-    m_buffer = loader->buffer();
-    m_view = loader->view();
+    m_buffer = loader->buffer(); // Take Ownership
+    m_view = loader->view();     // Full View
     this->createDocument();
 }
 

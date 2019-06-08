@@ -2,13 +2,23 @@
 #include <redasm/disassembler/listing/listingfunctions.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/database/signaturedb.h>
+#include <redasm/graph/functiongraph.h>
 #include <redasm/support/path.h>
 #include <redasm/context.h>
 #include <cctype>
 
 namespace REDasm {
 
-DisassemblerImpl::DisassemblerImpl(Assembler *assembler, Loader *loader): m_assembler(assembler), m_loader(loader) { }
+DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader)
+{
+    m_algorithm = assembler->createAlgorithm(q);
+
+    m_analyzejob.setOneShot(true);
+    EVENT_CONNECT(&m_analyzejob, stateChanged, q, [&](Job*) { q->busyChanged(); });
+    m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, this), true); // Deferred
+    EVENT_CONNECT(&m_jobs, stateChanged, q, [&](Job*) { q->busyChanged(); });
+}
+
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }
@@ -20,12 +30,6 @@ std::deque<ListingItem*> DisassemblerImpl::getCalls(address_t address)
 }
 
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
-
-Printer *DisassemblerImpl::createPrinter()
-{
-
-}
-
 ReferenceVector DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.referencesToVector(address); }
 ReferenceSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }
 
@@ -50,7 +54,15 @@ Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *value)
 
 InstructionPtr DisassemblerImpl::disassembleInstruction(address_t address)
 {
+    InstructionPtr instruction = this->document()->instruction(address);
 
+    if(instruction)
+        return instruction;
+
+    instruction = std::make_shared<Instruction>();
+    m_algorithm->disassembleInstruction(address, instruction);
+    m_algorithm->done(address);
+    return instruction;
 }
 
 address_location DisassemblerImpl::getTarget(address_t address) const { return m_referencetable.target(address); }
@@ -142,10 +154,7 @@ size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
     return count;
 }
 
-size_t DisassemblerImpl::state() const
-{
-
-}
+JobState DisassemblerImpl::state() const { return m_jobs.state(); }
 
 std::string DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
 {
@@ -242,10 +251,7 @@ bool DisassemblerImpl::loadSignature(const std::string &signame)
     return true;
 }
 
-bool DisassemblerImpl::busy() const
-{
-
-}
+bool DisassemblerImpl::busy() const { return m_analyzejob.active() || m_jobs.active(); }
 
 bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
 {
@@ -321,7 +327,12 @@ bool DisassemblerImpl::dereference(address_t address, u64 *value) const
 
 void DisassemblerImpl::disassemble(address_t address)
 {
+    m_algorithm->enqueue(address);
 
+    if(m_jobs.active())
+        return;
+
+    this->disassembleJob();
 }
 
 void DisassemblerImpl::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
@@ -353,27 +364,68 @@ void DisassemblerImpl::computeBasicBlocks()
 
 void DisassemblerImpl::disassemble()
 {
+    m_starttime = std::chrono::steady_clock::now();
 
+    if(!this->document()->segmentsCount())
+    {
+        r_ctx->log("ERROR: Segment list is empty");
+        return;
+    }
+
+    const SymbolTable* symboltable = this->document()->symbols();
+
+    // Preload loader functions for analysis
+    symboltable->iterate(SymbolType::FunctionMask, [=](const Symbol* symbol) -> bool {
+        m_algorithm->enqueue(symbol->address);
+        return true;
+    });
+
+    const Symbol* entrypoint = this->document()->documentEntry();
+
+    if(entrypoint)
+        m_algorithm->enqueue(entrypoint->address); // Push entry point
+
+    r_ctx->log("Disassembling with " + std::to_string(m_jobs.concurrency()) + " threads");
+    this->disassembleJob();
 }
 
-void DisassemblerImpl::stop()
-{
+void DisassemblerImpl::stop() { m_jobs.stop(); }
+void DisassemblerImpl::pause() { m_jobs.pause(); }
+void DisassemblerImpl::resume() { m_jobs.resume(); }
+void DisassemblerImpl::disassembleJob() { m_jobs.work(std::bind(&DisassemblerImpl::disassembleStep, this, std::placeholders::_1)); }
 
+void DisassemblerImpl::disassembleStep(Job *job)
+{
+    if(m_algorithm->hasNext())
+        m_algorithm->next();
+    else
+        job->stop();
+
+    if(!m_jobs.active())
+        m_analyzejob.start();
 }
 
-void DisassemblerImpl::pause()
+void DisassemblerImpl::analyzeStep()
 {
+    m_algorithm->analyze();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
 
-}
-
-void DisassemblerImpl::resume()
-{
-
+    if(duration.count())
+        r_ctx->log("Analysis completed in ~" + std::to_string(duration.count()) + " second(s)");
+    else
+        r_ctx->log("Analysis completed");
 }
 
 void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem)
 {
+    PIMPL_Q(Disassembler);
+    r_ctx->status("Computing basic blocks @ " + Utils::hex(functionitem->address()));
+    auto g = std::make_unique<Graphing::FunctionGraph>(q);
 
+    if(!g->build(functionitem))
+        return;
+
+    lock->functions()->graph(functionitem, g.release());
 }
 
 } // namespace REDasm

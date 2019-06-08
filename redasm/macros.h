@@ -58,6 +58,18 @@
 #define REGISTER_INVALID                           REDasm::npos
 #define BRANCH_DIRECTION(instruction, destination) (static_cast<int>(destination) - static_cast<int>(instruction->address))
 
+#define DECLARE_DEFAULT_DELETER(type) \
+    namespace std { \
+        template<> class LIBREDASM_API default_delete<type> { \
+            public: void operator()(type* t); \
+        }; \
+    }
+
+#define DEFINE_DEFAULT_DELETER(type) \
+    namespace std { \
+        void std::default_delete<type>::operator()(type* t) { delete t; } \
+    }
+
 #if __cplusplus <= 201103L && __GNUC__
 namespace std {
 template<typename T, typename... Args> std::unique_ptr<T> make_unique(Args&&... args) { return std::unique_ptr<T>(new T(std::forward<Args>(args)...)); }

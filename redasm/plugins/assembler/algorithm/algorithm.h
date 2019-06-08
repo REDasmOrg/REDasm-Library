@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../../disassembler/disassembler.h"
+#include "../../../types/plugin_types.h"
+#include "../../../pimpl.h"
 #include "state.h"
 
 #define EXECUTE_STATE(id, value, index, instruction)  this->executeState({ #id, id, static_cast<u64>(value), index, instruction })
@@ -12,8 +13,9 @@
 namespace REDasm {
 
 class AlgorithmImpl;
+class Disassembler;
 
-class Algorithm
+class Algorithm: public Object
 {
     PIMPL_DECLARE_PRIVATE(Algorithm)
 
@@ -36,6 +38,8 @@ class Algorithm
         void done(address_t address);
         void enqueue(address_t address);
         void analyze();
+        bool hasNext() const;
+        void next();
 
     protected:
         void enqueueState(const State& state);

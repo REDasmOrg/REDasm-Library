@@ -6,6 +6,7 @@
 #include "../buffer/memorybuffer.h"
 #include "../support/serializer.h"
 #include "../support/utils.h"
+#include "../context.h"
 #include <fstream>
 
 namespace REDasm {
@@ -92,32 +93,35 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    // const LoaderPlugin_Entry* loaderentry = REDasm::getLoader(loaderid);
+    const PluginInstance* loaderpi = r_pm->findLoader(loaderid);
 
-    // if(!loaderentry)
-    // {
-    //     m_lasterror = "Unsupported loader: " + REDasm::quoted(loaderid);
-    //     delete buffer;
-    //     return nullptr;
-    // }
+    if(!loaderpi)
+    {
+        DatabaseImpl::m_lasterror = "Unsupported loader: " + Utils::quoted(loaderid);
+        delete buffer;
+        return nullptr;
+    }
 
-    // LoadRequest request(filename, buffer);
-    // std::unique_ptr<LoaderPlugin> loader(loaderentry->init(request)); // LoaderPlugin takes the ownership of the buffer
-    // const AssemblerPlugin_Entry* assemblerentry = REDasm::getAssembler(assemblerid);
+    const PluginInstance* assemblerpi = r_pm->findAssembler(assemblerid);
 
-    // if(!assemblerentry)
-    // {
-    //     m_lasterror = "Unsupported assembler: " + REDasm::quoted(assemblerid);
-    //     return nullptr;
-    // }
+    if(!assemblerpi)
+    {
+        DatabaseImpl::m_lasterror = "Unsupported assembler: " + Utils::quoted(assemblerid);
+        delete buffer;
+        r_pm->unload(loaderpi);
+        return nullptr;
+     }
 
-    // auto* disassembler = new Disassembler(assemblerentry->init(), loader.release()); // Take ownership
-    // auto& document = disassembler->loader()->createDocument(); // Discard old document
-    // Serializer<ListingDocument>::read(ifs, document, std::bind(&Disassembler::disassembleInstruction, disassembler, std::placeholders::_1));
+    LoadRequest request(filename, buffer);
+    Loader* loader = static_cast<Loader*>(loaderpi->descriptor->plugin);
+    loader->init(&request); // LoaderPlugin takes the ownership of the buffer
 
-    // ReferenceTable* references = disassembler->references();
-    // Serializer<ReferenceTable>::read(ifs, references);
-    // return disassembler;
+    auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader); // Take Ownership
+    auto& document = disassembler->loader()->document();
+    Serializer<ListingDocument>::read(ifs, document, std::bind(&Disassembler::disassembleInstruction, disassembler, std::placeholders::_1));
+    ReferenceTable* references = disassembler->references();
+    Serializer<ReferenceTable>::read(ifs, references);
+    return disassembler;
 }
 
 const std::string &Database::lastError() { return DatabaseImpl::m_lasterror; }

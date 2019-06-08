@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
+#include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/analyzer.h>
+#include <redasm/plugins/loader/loader.h>
 #include <redasm/disassembler/listing/listingdocument.h>
 #include "statemachine.h"
 

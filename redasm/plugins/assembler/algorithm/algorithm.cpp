@@ -1,6 +1,7 @@
 #include "algorithm.h"
 #include <impl/plugins/assembler/algorithm/algorithm_impl.h>
 #include <redasm/plugins/assembler/assembler.h>
+#include "../../../disassembler/disassembler.h"
 #include "../../../support/utils.h"
 #include "../../../context.h"
 
@@ -11,6 +12,8 @@ Algorithm::Algorithm(Disassembler *disassembler): m_pimpl_p(new AlgorithmImpl(th
 Disassembler *Algorithm::disassembler() const { PIMPL_P(const Algorithm); return p->m_disassembler; }
 void Algorithm::enqueue(address_t address) { PIMPL_P(Algorithm); p->enqueue(address); }
 void Algorithm::analyze() { PIMPL_P(Algorithm); p->analyze(); }
+bool Algorithm::hasNext() const { PIMPL_P(const Algorithm); return p->hasNext(); }
+void Algorithm::next() { PIMPL_P(Algorithm); p->next(); }
 void Algorithm::enqueueState(const State &state) { PIMPL_P(Algorithm); p->enqueueState(state); }
 void Algorithm::executeState(const State &state) { PIMPL_P(Algorithm); p->executeState(state); }
 void Algorithm::validateTarget(const InstructionPtr &instruction) const { PIMPL_P(const Algorithm); p->validateTarget(instruction);  }

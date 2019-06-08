@@ -14,6 +14,7 @@ class LoaderImpl: public PluginImpl
 
     public:
         LoaderImpl();
+        virtual ~LoaderImpl();
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
         const BufferView& view() const;
@@ -32,6 +33,7 @@ class LoaderImpl: public PluginImpl
         Analyzer *analyzer(Disassembler* disassembler);
         void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         void load(const LoadRequest* loader);
+        void init(const LoadRequest* loader);
 
     private:
         std::unique_ptr<Analyzer> m_analyzer;

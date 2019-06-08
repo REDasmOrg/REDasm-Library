@@ -1,14 +1,14 @@
 #pragma once
 
-#include <memory>
 #include "../../../disassembler/listing/listingdocument.h"
-#include "../../../disassembler/disassembler.h"
+#include "../../../types/plugin_types.h"
 
 namespace REDasm {
 
+class Disassembler;
 class PrinterImpl;
 
-class Printer
+class Printer: public Object
 {
     PIMPL_DECLARE_PRIVATE(Printer)
 
@@ -44,6 +44,4 @@ class Printer
         virtual std::string size(const Operand* operand) const;
 };
 
-typedef std::unique_ptr<Printer> PrinterPtr;
-
-}
+} // namespace REDasm

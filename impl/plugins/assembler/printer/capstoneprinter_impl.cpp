@@ -1,4 +1,5 @@
 #include "capstoneprinter_impl.h"
+#include <redasm/disassembler/disassembler.h>
 #include <redasm/plugins/assembler/capstoneassembler.h>
 
 namespace REDasm {

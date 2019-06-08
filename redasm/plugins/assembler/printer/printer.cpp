@@ -1,5 +1,6 @@
 #include "printer.h"
 #include <impl/plugins/assembler/printer/printer_impl.h>
+#include "../../../disassembler/disassembler.h"
 #include "../../../support/utils.h"
 #include "../../loader/loader.h"
 #include "../assembler.h"

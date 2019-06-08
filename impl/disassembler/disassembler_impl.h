@@ -2,8 +2,11 @@
 
 #define MIN_STRING 4
 
+#include <chrono>
 #include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/concurrent/jobspool.h>
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/plugins/assembler/algorithm/algorithm.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
 #include <redasm/pimpl.h>
@@ -15,14 +18,13 @@ class DisassemblerImpl
     PIMPL_DECLARE_PUBLIC(Disassembler)
 
     public:
-        DisassemblerImpl(Assembler *assembler, Loader *loader);
+        DisassemblerImpl(Disassembler *q, Assembler *assembler, Loader *loader);
         Loader* loader() const;
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
         std::deque<ListingItem*> getCalls(address_t address);
         ReferenceTable* references();
-        Printer* createPrinter();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
@@ -33,7 +35,7 @@ class DisassemblerImpl
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(const InstructionPtr& instruction, address_t startaddress);
         size_t locationIsString(address_t address, bool *wide = nullptr) const;
-        size_t state() const;
+        JobState state() const;
         std::string readString(const Symbol* symbol, size_t len = REDasm::npos) const;
         std::string readString(address_t address, size_t len = REDasm::npos) const;
         std::string readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
@@ -56,15 +58,22 @@ class DisassemblerImpl
         void pause();
         void resume();
 
-   private:
+    private:
+        void disassembleJob();
+        void disassembleStep(Job *job);
+        void analyzeStep();
         void computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem);
         template<typename T> std::string readStringT(address_t address, size_t len, std::function<bool(T, std::string&)> fill) const;
         template<typename T> size_t locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
     private:
+        std::chrono::steady_clock::time_point m_starttime;
+        object_ptr<Algorithm> m_algorithm;
         ReferenceTable m_referencetable;
         Assembler* m_assembler;
         Loader* m_loader;
+        Job m_analyzejob;
+        JobsPool m_jobs;
 };
 
 template<typename T> std::string DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, std::string&)> fill) const

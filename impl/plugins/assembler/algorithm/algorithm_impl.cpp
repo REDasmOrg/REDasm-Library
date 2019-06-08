@@ -1,4 +1,5 @@
 #include "algorithm_impl.h"
+#include <redasm/disassembler/disassembler.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>

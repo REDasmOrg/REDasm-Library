@@ -3,15 +3,7 @@
 
 namespace REDasm {
 
-AssemblerImpl::AssemblerImpl(): PluginImpl(), m_algorithm(nullptr) { }
-
-AssemblerImpl::~AssemblerImpl()
-{
-    if(m_algorithm)
-        delete m_algorithm;
-
-    m_algorithm = nullptr;
-}
+AssemblerImpl::AssemblerImpl(): PluginImpl() { }
 
 void AssemblerImpl::setInstructionType(const InstructionPtr &instruction) const
 {

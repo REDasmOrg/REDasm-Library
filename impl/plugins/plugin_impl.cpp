@@ -2,9 +2,10 @@
 
 namespace REDasm {
 
-std::string PluginImpl::id() const { return m_descriptor->id; }
-std::string PluginImpl::description() const { return m_descriptor->description; }
-const PluginDescriptor *PluginImpl::descriptor() const { return m_descriptor; }
-void PluginImpl::setDescriptor(const PluginDescriptor *pd) { m_descriptor = pd; }
+std::string PluginImpl::id() const { return m_plugininstance->descriptor->id; }
+std::string PluginImpl::description() const { return m_plugininstance->descriptor->description; }
+const PluginDescriptor *PluginImpl::descriptor() const { return m_plugininstance->descriptor; }
+const PluginInstance *PluginImpl::instance() const { return m_plugininstance; }
+void PluginImpl::setInstance(const PluginInstance *pi) { m_plugininstance = pi; }
 
 } // namespace REDasm

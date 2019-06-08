@@ -22,7 +22,7 @@ class PluginManagerImpl
         void unloadPlugins();
 
     private:
-        PluginManager::Plugins m_activeplugins;
+        PluginManager::PluginMap m_activeplugins;
 };
 
 } // namespace REDasm

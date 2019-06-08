@@ -79,8 +79,6 @@ Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
     return m_analyzer.get();
 }
 
-void LoaderImpl::load(const LoadRequest *loader) { this->init(loader); }
-
 void LoaderImpl::init(const LoadRequest *loader)
 {
     m_buffer = loader->buffer(); // Take Ownership

@@ -28,6 +28,7 @@
 #include "../version.h"
 #include "../macros.h"
 #include "../pimpl.h"
+#include "plugininstance.h"
 
 namespace REDasm {
 
@@ -47,7 +48,8 @@ class Plugin: public Object
         std::string id() const;
         std::string description() const;
         const PluginDescriptor* descriptor() const;
-        void setDescriptor(const PluginDescriptor* pd);
+        const PluginInstance* instance() const;
+        void setInstance(const PluginInstance* pi);
 };
 
 struct LIBREDASM_API PluginDescriptor
@@ -56,5 +58,7 @@ struct LIBREDASM_API PluginDescriptor
     const char *description, *author, *license, *id;
     Plugin* plugin;
 };
+
+template<typename T> T* plugin_cast(const PluginInstance* pi) { return static_cast<T*>(pi->descriptor->plugin); }
 
 } // namespace REDasm

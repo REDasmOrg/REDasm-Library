@@ -25,9 +25,8 @@ const PluginInstance *PluginManagerImpl::load(const std::string &pluginpath, con
     if(!PluginLoader::load(pluginpath, initname, &pi))
         return nullptr;
 
-    // Bind Descriptor <-> Plugin
-    pi.descriptor->plugin->setDescriptor(pi.descriptor);
     auto it = m_activeplugins.insert({pi.descriptor->id, pi});
+    pi.descriptor->plugin->setInstance(&it.first->second); // Bind Descriptor <-> Plugin
     return &it.first->second;
 }
 

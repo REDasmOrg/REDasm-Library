@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include <deque>
-#include "plugininstance.h"
 #include "../plugins/loader/loader.h"
 #include "../types/base_types.h"
 #include "../macros.h"
@@ -17,8 +16,8 @@ class LIBREDASM_API PluginManager
     PIMPL_DECLARE_PRIVATE(PluginManager)
 
     public:
-        typedef std::unordered_map<std::string, PluginInstance> Plugins;
-        typedef std::deque<const PluginInstance*> PluginsList;
+        typedef std::unordered_map<std::string, PluginInstance> PluginMap;
+        typedef std::deque<const PluginInstance*> PluginList;
 
     private:
         PluginManager();
@@ -28,11 +27,13 @@ class LIBREDASM_API PluginManager
     public:
         ~PluginManager();
         void unload(const PluginInstance* pi);
-        const Plugins& activePlugins() const;
+        void unload(const PluginList& pl);
+        const PluginMap& activePlugins() const;
         const PluginInstance* findLoader(const std::string& id);
         const PluginInstance* findAssembler(const std::string& id);
         const PluginInstance* findPlugin(const std::string& id);
-        PluginsList getLoaders(const REDasm::LoadRequest *request);
+        PluginList getLoaders(const REDasm::LoadRequest *request);
+        PluginList getAssemblers();
 
     private:
         static std::unique_ptr<PluginManager> m_instance;

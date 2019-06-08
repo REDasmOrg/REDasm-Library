@@ -25,7 +25,6 @@ Loader *Loader::signature(const std::string &sig) { PIMPL_P(Loader); p->signatur
 Analyzer *Loader::analyzer(Disassembler *disassembler) { PIMPL_P(Loader); return p->analyzer(disassembler);  }
 std::string REDasm::Loader::assembler() const { PIMPL_P(const Loader); return p->assembler(); }
 void Loader::init(const LoadRequest *request) { PIMPL_P(Loader); p->init(request); }
-void Loader::load(const LoadRequest *request) { PIMPL_P(Loader); p->load(request); }
 Analyzer *Loader::createAnalyzer(Disassembler *disassembler) const { return new Analyzer(disassembler); }
 void Loader::build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { PIMPL_P(Loader); return p->build(assembler, offset, baseaddress, entrypoint); }
 address_location Loader::address(offset_t offset) const { PIMPL_P(const Loader); return p->address(offset); }

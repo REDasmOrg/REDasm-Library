@@ -12,10 +12,11 @@ class PluginImpl
         std::string id() const;
         std::string description() const;
         const PluginDescriptor* descriptor() const;
-        void setDescriptor(const PluginDescriptor* pd);
+        const PluginInstance* instance() const;
+        void setInstance(const PluginInstance* pd);
 
     private:
-        const PluginDescriptor* m_descriptor;
+        const PluginInstance* m_plugininstance;
 };
 
 } // namespace REDasm

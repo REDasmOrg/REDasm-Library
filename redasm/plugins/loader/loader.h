@@ -19,6 +19,8 @@ enum class LoaderFlags: u32
     Binary           = 0xFFFFFFFF
 };
 
+ENUM_FLAGS_OPERATORS(LoaderFlags)
+
 class LIBREDASM_API LoadRequest
 {
     PIMPL_DECLARE_PRIVATE(LoadRequest)

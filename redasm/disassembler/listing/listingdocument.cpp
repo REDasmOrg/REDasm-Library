@@ -11,6 +11,7 @@ namespace REDasm {
 
 ListingDocumentChanged::ListingDocumentChanged(const ListingItem *item, size_t index, ListingDocumentAction action): m_pimpl_p(new ListingDocumentChangedImpl(item, index, action)) {  }
 const ListingItem *ListingDocumentChanged::item() const { PIMPL_P(const ListingDocumentChanged); return p->item(); }
+ListingDocumentAction ListingDocumentChanged::action() const { PIMPL_P(const ListingDocumentChanged); return p->action(); }
 bool ListingDocumentChanged::isInserted() const { PIMPL_P(const ListingDocumentChanged); return p->isInserted(); }
 bool ListingDocumentChanged::isRemoved() const { PIMPL_P(const ListingDocumentChanged); return p->isRemoved(); }
 size_t ListingDocumentChanged::index() const { PIMPL_P(const ListingDocumentChanged); return p->index(); }

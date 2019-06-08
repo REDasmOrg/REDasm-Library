@@ -4,6 +4,7 @@ namespace REDasm {
 
 ListingDocumentChangedImpl::ListingDocumentChangedImpl(const ListingItem *item, size_t index, ListingDocumentAction action): m_action(action), m_item(item), m_index(index) { }
 const ListingItem *ListingDocumentChangedImpl::item() const { return m_item; }
+ListingDocumentAction ListingDocumentChangedImpl::action() const { return m_action; }
 bool ListingDocumentChangedImpl::isInserted() const { return m_action == ListingDocumentAction::Inserted; }
 bool ListingDocumentChangedImpl::isRemoved() const { return m_action == ListingDocumentAction::Removed; }
 size_t ListingDocumentChangedImpl::index() const { return m_index; }

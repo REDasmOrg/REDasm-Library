@@ -21,6 +21,7 @@ class LIBREDASM_API ListingDocumentChanged
     public:
         ListingDocumentChanged(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         const ListingItem* item() const;
+        ListingDocumentAction action() const;
         bool isInserted() const;
         bool isRemoved() const;
         size_t index() const;

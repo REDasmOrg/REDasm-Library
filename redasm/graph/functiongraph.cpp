@@ -102,7 +102,7 @@ void FunctionGraph::buildBasicBlocks()
     if(!it.hasNext())
         return;
 
-    size_t index = it.currentIndex();
+    size_t index = it.index();
     this->resetQueue();
     m_pending.push(index);
 

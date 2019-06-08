@@ -45,13 +45,13 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
         ListingDocumentTypeImpl(ListingDocumentType* q);
 
     public:
-        const_iterator functionStartItem(address_t address) const;
-        const_iterator functionItem(address_t address) const;
-        const_iterator instructionItem(address_t address) const;
-        const_iterator symbolItem(address_t address) const;
-        const_iterator segmentItem(address_t address) const;
-        const_iterator findItem(address_t address, ListingItemType type, size_t index = 0) const;
-        const_iterator findItem(const ListingItem* item) const;
+        const_iterator functionStartIterator(address_t address) const;
+        const_iterator functionIterator(address_t address) const;
+        const_iterator instructionIterator(address_t address) const;
+        const_iterator symbolIterator(address_t address) const;
+        const_iterator segmentIterator(address_t address) const;
+        const_iterator findIterator(address_t address, ListingItemType type, size_t index = 0) const;
+        const_iterator findIterator(const ListingItem* item) const;
         size_t findIndex(address_t address, ListingItemType type, size_t index = 0) const;
         ListingItem* push(address_t address, ListingItemType type, size_t index = 0);
         void pop(address_t address, ListingItemType type);

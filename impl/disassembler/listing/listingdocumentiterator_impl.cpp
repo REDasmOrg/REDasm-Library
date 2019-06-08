@@ -2,39 +2,46 @@
 
 namespace REDasm {
 
+ListingDocumentIteratorImpl::ListingDocumentIteratorImpl(ListingDocument &document): m_document(document), m_s_lock(s_lock_safe_ptr(document))
+{
+    m_iterator = m_s_lock->pimpl_p()->begin();
+    m_index = m_s_lock->empty() ? REDasm::npos : 0;
+    this->updateCurrent();
+}
+
 ListingDocumentIteratorImpl::ListingDocumentIteratorImpl(ListingDocument &document, address_t address, ListingItemType type): m_document(document), m_s_lock(s_lock_safe_ptr(document))
 {
-    m_iterator = m_s_lock->pimpl_p()->findItem(address, type);
-}
-
-size_t ListingDocumentIteratorImpl::currentIndex() const
-{
-    if(m_iterator == m_s_lock->pimpl_p()->end())
-        return REDasm::npos;
+    m_iterator = m_s_lock->pimpl_p()->findIterator(address, type);
 
     size_t idx = std::distance(m_s_lock->pimpl_p()->cbegin(), m_iterator);
+    m_index = (idx >= m_s_lock->size()) ? REDasm::npos : idx;
 
-    if(idx >= m_s_lock->size())
-        return REDasm::npos;
-
-    return idx;
+    this->updateCurrent();
 }
 
-const ListingItem *ListingDocumentIteratorImpl::current() const { return m_current; }
+size_t ListingDocumentIteratorImpl::index() const { return m_index; }
 
 const ListingItem *ListingDocumentIteratorImpl::next()
 {
-    if(this->hasNext())
-    {
-        m_current = m_iterator->get();
-        m_iterator++;
-    }
-    else
-        m_current = nullptr;
-
-    return m_current;
+    const ListingItem* item = m_current;
+    m_iterator++;
+    m_index++;
+    this->updateCurrent();
+    return item;
 }
 
-bool ListingDocumentIteratorImpl::hasNext() const { return m_iterator != m_s_lock->pimpl_p()->end(); }
+bool ListingDocumentIteratorImpl::hasNext() const { return m_current; }
+
+void ListingDocumentIteratorImpl::updateCurrent()
+{
+    if(m_iterator != m_s_lock->pimpl_p()->end())
+    {
+        m_current = m_iterator->get();
+        return;
+    }
+
+    m_current = nullptr;
+    m_index = REDasm::npos;
+}
 
 } // namespace REDasm

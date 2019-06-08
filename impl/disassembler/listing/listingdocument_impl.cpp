@@ -11,26 +11,26 @@ size_t ListingDocumentChangedImpl::index() const { return m_index; }
 
 ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): sorted_container<ListingItemPtr, ListingItemPtrComparator>(), m_pimpl_q(q), m_documententry(nullptr) { }
 
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionStartItem(address_t address) const
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionStartIterator(address_t address) const
 {
     PIMPL_Q(const ListingDocumentType);
 
     const ListingItem* item = q->functionStart(address);
-    return item ? this->findItem(item) : this->end();
+    return item ? this->findIterator(item) : this->end();
 }
 
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionItem(address_t address) const { return this->findItem(address, ListingItemType::FunctionItem); }
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::instructionItem(address_t address) const { return this->findItem(address, ListingItemType::InstructionItem); }
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::symbolItem(address_t address) const { return this->findItem(address, ListingItemType::SymbolItem); }
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::segmentItem(address_t address) const { return this->findItem(address, ListingItemType::SegmentItem); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionIterator(address_t address) const { return this->findIterator(address, ListingItemType::FunctionItem); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::instructionIterator(address_t address) const { return this->findIterator(address, ListingItemType::InstructionItem); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::symbolIterator(address_t address) const { return this->findIterator(address, ListingItemType::SymbolItem); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::segmentIterator(address_t address) const { return this->findIterator(address, ListingItemType::SegmentItem); }
 
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findItem(address_t address, ListingItemType type, size_t index) const
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findIterator(address_t address, ListingItemType type, size_t index) const
 {
     auto item = std::make_unique<ListingItem>(address, type, index);
     return this->find(item, ListingItemPtrFinder());
 }
 
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findItem(const ListingItem *item) const { return this->findItem(item->address(), item->type(), item->index()); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findIterator(const ListingItem *item) const { return this->findIterator(item->address(), item->type(), item->index()); }
 
 size_t ListingDocumentTypeImpl::findIndex(address_t address, ListingItemType type, size_t index) const
 {

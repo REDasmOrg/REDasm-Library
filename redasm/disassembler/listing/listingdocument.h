@@ -38,6 +38,7 @@ class LIBREDASM_API ListingDocumentType
         ListingDocumentType();
         ~ListingDocumentType() = default;
         size_t size() const;
+        bool empty() const;
         bool advance(InstructionPtr& instruction);
         bool goTo(const ListingItem* item);
         bool goTo(address_t address);
@@ -89,6 +90,10 @@ class LIBREDASM_API ListingDocumentType
         const ListingItem* functionStart(address_t address) const;
         const ListingItem* currentFunction() const;
         const ListingItem* currentItem() const;
+        const ListingItem* segmentItem(address_t address) const;
+        const ListingItem* symbolItem(address_t address) const;
+        const ListingItem* instructionItem(address_t address) const;
+        const ListingItem* functionItem(address_t address) const;
         Segment* segment(address_t address);
         Symbol *functionStartSymbol(address_t address);
         Symbol *symbol(address_t address) const;

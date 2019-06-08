@@ -18,6 +18,7 @@ size_t ListingDocumentChanged::index() const { PIMPL_P(const ListingDocumentChan
 
 ListingDocumentType::ListingDocumentType(): m_pimpl_p(new ListingDocumentTypeImpl(this)) { }
 size_t ListingDocumentType::size() const { PIMPL_P(const ListingDocumentType); return p->size(); }
+bool ListingDocumentType::empty() const { PIMPL_P(const ListingDocumentType); return p->empty(); }
 
 bool ListingDocumentType::advance(InstructionPtr &instruction)
 {
@@ -50,10 +51,10 @@ bool ListingDocumentType::goTo(address_t address)
 {
     PIMPL_P(ListingDocumentType);
 
-    auto it = p->symbolItem(address);
+    auto it = p->symbolIterator(address);
 
     if(it == p->end())
-        it = p->instructionItem(address);
+        it = p->instructionIterator(address);
 
     if(it == p->end())
         return false;
@@ -145,6 +146,50 @@ const ListingItem *ListingDocumentType::currentItem() const
     return this->itemAt(p->m_cursor.currentLine());
 }
 
+const ListingItem *ListingDocumentType::segmentItem(address_t address) const
+{
+    PIMPL_P(const ListingDocumentType);
+    auto it = p->segmentIterator(address);
+
+    if(it == p->end())
+        return nullptr;
+
+    return it->get();
+}
+
+const ListingItem *ListingDocumentType::symbolItem(address_t address) const
+{
+    PIMPL_P(const ListingDocumentType);
+    auto it = p->symbolIterator(address);
+
+    if(it == p->end())
+        return nullptr;
+
+    return it->get();
+}
+
+const ListingItem *ListingDocumentType::instructionItem(address_t address) const
+{
+    PIMPL_P(const ListingDocumentType);
+    auto it = p->instructionIterator(address);
+
+    if(it == p->end())
+        return nullptr;
+
+    return it->get();
+}
+
+const ListingItem *ListingDocumentType::functionItem(address_t address) const
+{
+    PIMPL_P(const ListingDocumentType);
+    auto it = p->functionIterator(address);
+
+    if(it == p->end())
+        return nullptr;
+
+    return it->get();
+}
+
 Symbol* ListingDocumentType::functionStartSymbol(address_t address)
 {
     const ListingItem* item = this->functionStart(address);
@@ -204,7 +249,7 @@ void ListingDocumentType::autoComment(address_t address, const std::string &s)
         return;
 
     PIMPL_P(ListingDocumentType);
-    auto it = p->instructionItem(address);
+    auto it = p->instructionIterator(address);
 
     if(it == p->end())
     {

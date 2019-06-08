@@ -10,12 +10,12 @@ AnalyzerImpl::AnalyzerImpl(Disassembler *disassembler): m_document(disassembler-
 
 bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 {
-    ListingDocumentIterator it(m_document, symbol->address, ListingItemType::InstructionItem);
+    const ListingItem* item = m_document->instructionItem(symbol->address);
 
-    if(!it.hasNext())
+    if(!item)
         return true; // Don't execute trampoline analysis
 
-    InstructionPtr instruction = m_document->instruction(it.current()->address());
+    InstructionPtr instruction = m_document->instruction(item->address());
 
     if(!instruction)
         return true; // Don't execute trampoline analysis

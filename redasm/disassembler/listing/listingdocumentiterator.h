@@ -13,9 +13,9 @@ class LIBREDASM_API ListingDocumentIterator
     PIMPL_DECLARE_PRIVATE(ListingDocumentIterator)
 
     public:
+        ListingDocumentIterator(ListingDocument &document);
         ListingDocumentIterator(ListingDocument &document, address_t address, ListingItemType type);
-        size_t currentIndex() const;
-        const ListingItem *current() const;
+        size_t index() const;
         const ListingItem *next();
         bool hasNext() const;
 };

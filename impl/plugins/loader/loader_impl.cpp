@@ -79,13 +79,13 @@ Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
     return m_analyzer.get();
 }
 
-void LoaderImpl::init(const LoadRequest *loader)
+void LoaderImpl::init(const LoadRequest &loader)
 {
-    m_buffer = loader->buffer(); // Take Ownership
-    m_view = loader->view();     // Full View
+    m_buffer = loader.buffer(); // Take Ownership
+    m_view = loader.view();     // Full View
     this->createDocument();
 }
 
-std::string LoaderImpl::assembler() const { return std::string(); }
+AssemblerRequest LoaderImpl::assembler() const { return nullptr; }
 
 } // namespace REDasm

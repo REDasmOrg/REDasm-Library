@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-CapstoneAssembler::CapstoneAssembler(int arch, int mode): Assembler(new CapstoneAssemblerImpl(arch, mode)) { }
+CapstoneAssembler::CapstoneAssembler(): Assembler(new CapstoneAssemblerImpl()) { }
 
 bool CapstoneAssembler::decodeInstruction(const BufferView &view, const InstructionPtr &instruction)
 {
@@ -26,6 +26,9 @@ bool CapstoneAssembler::decodeInstruction(const BufferView &view, const Instruct
 }
 
 size_t CapstoneAssembler::handle() const { PIMPL_P(const CapstoneAssembler); return p->m_handle; }
+int CapstoneAssembler::arch() const { PIMPL_P(const CapstoneAssembler); return p->arch(); }
+int CapstoneAssembler::mode() const { PIMPL_P(const CapstoneAssembler); return p->mode(); }
+void CapstoneAssembler::open(int arch, int mode) { PIMPL_P(CapstoneAssembler); p->open(arch, mode); }
 
 void CapstoneAssembler::onDecoded(const InstructionPtr &instruction)
 {

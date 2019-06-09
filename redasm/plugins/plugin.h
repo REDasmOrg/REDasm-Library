@@ -12,15 +12,15 @@
 #define REDASM_UNLOAD extern "C" void redasm_unload()
 
 #define REDASM_PLUGIN_TEMPLATE(description, author, license, version, plugintype) \
-    static PluginDescriptor r_plugin = { REDASM_API_VERSION, version, description, author, license, r_plugin_id }; \
+    static REDasm::PluginDescriptor r_plugin = { REDASM_API_VERSION, version, description, author, license, r_plugin_id }; \
     extern "C" LIBREDASM_API REDasm::PluginDescriptor* redasm_init_##plugintype(REDasm::Context* ctx) { \
         REDasm::Context::init(ctx); \
         return &r_plugin; \
     }
 
-#define REDASM_PLUGIN(description, author, license, version)  REDASM_PLUGIN_TEMPLATE(description, author, license, version, plugin)
-#define REDASM_LOADER(description, author, license, version)  REDASM_PLUGIN_TEMPLATE(description, author, license, version, loader)
-#define REDASM_ASSEMBLER(descriptionauthor, license, version) REDASM_PLUGIN_TEMPLATE(description, author, license, version, assembler)
+#define REDASM_PLUGIN(description, author, license, version)    REDASM_PLUGIN_TEMPLATE(description, author, license, version, plugin)
+#define REDASM_LOADER(description, author, license, version)    REDASM_PLUGIN_TEMPLATE(description, author, license, version, loader)
+#define REDASM_ASSEMBLER(description, author, license, version) REDASM_PLUGIN_TEMPLATE(description, author, license, version, assembler)
 
 #include "../types/base_types.h"
 #include "../types/plugin_types.h"

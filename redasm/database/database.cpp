@@ -102,7 +102,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
         return nullptr;
     }
 
-    const PluginInstance* assemblerpi = r_pm->findAssembler(assemblerid);
+    const PluginInstance* assemblerpi = r_pm->findAssembler(assemblerid.c_str());
 
     if(!assemblerpi)
     {
@@ -114,7 +114,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
 
     LoadRequest request(filename, buffer);
     Loader* loader = static_cast<Loader*>(loaderpi->descriptor->plugin);
-    loader->init(&request); // LoaderPlugin takes the ownership of the buffer
+    loader->init(request); // LoaderPlugin takes the ownership of the buffer
 
     auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader); // Take Ownership
     auto& document = disassembler->loader()->document();

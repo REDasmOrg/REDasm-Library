@@ -2,6 +2,7 @@
 
 #include "../../disassembler/listing/listingdocument.h"
 #include "../../buffer/bufferview.h"
+#include "../assembler/assemblerrequest.h"
 #include "../plugin.h"
 
 namespace REDasm {
@@ -59,11 +60,11 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         virtual LoaderFlags flags() const;
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
-        virtual std::string assembler() const;
+        virtual AssemblerRequest assembler() const;
         virtual void build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
-        virtual bool test(const LoadRequest* request) const = 0;
+        virtual void init(const LoadRequest& request);
+        virtual bool test(const LoadRequest& request) const = 0;
         virtual void load() = 0;
-        void init(const LoadRequest* request);
 
     protected:
         virtual Analyzer* createAnalyzer(Disassembler* disassembler) const;

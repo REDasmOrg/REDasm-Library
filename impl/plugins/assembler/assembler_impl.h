@@ -15,10 +15,13 @@ class AssemblerImpl: public PluginImpl
     public:
         AssemblerImpl();
         void setInstructionType(const InstructionPtr& instruction) const;
+        virtual void init(const AssemblerRequest &request);
+        const AssemblerRequest &request() const;
 
     private:
         std::unordered_map<instruction_id_t, InstructionType> m_instructiontypes;
         Dispatcher<instruction_id_t, const InstructionPtr&> m_dispatcher;
+        AssemblerRequest m_request;
 };
 
 } // namespace REDasm

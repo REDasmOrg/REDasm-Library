@@ -13,4 +13,7 @@ void AssemblerImpl::setInstructionType(const InstructionPtr &instruction) const
         instruction->type |= it->second;
 }
 
+void AssemblerImpl::init(const AssemblerRequest& request) { m_request = request; }
+const AssemblerRequest& AssemblerImpl::request() const { return m_request; }
+
 } // namespace REDasm

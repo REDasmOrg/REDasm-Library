@@ -16,6 +16,7 @@ enum class ListingDocumentAction { Changed = 0, Inserted, Removed };
 
 class LIBREDASM_API ListingDocumentChanged
 {
+    PIMPL_DECLARE_P(ListingDocumentChanged)
     PIMPL_DECLARE_PRIVATE(ListingDocumentChanged)
 
     public:
@@ -29,6 +30,7 @@ class LIBREDASM_API ListingDocumentChanged
 
 class LIBREDASM_API ListingDocumentType
 {
+    PIMPL_DECLARE_P(ListingDocumentType)
     PIMPL_DECLARE_PRIVATE(ListingDocumentType)
 
     public:

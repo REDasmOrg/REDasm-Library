@@ -56,6 +56,7 @@ class SymbolTableImpl;
 
 class LIBREDASM_API SymbolTable
 {
+    PIMPL_DECLARE_P(SymbolTable)
     PIMPL_DECLARE_PRIVATE(SymbolTable)
 
     public:

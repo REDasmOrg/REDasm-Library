@@ -12,6 +12,7 @@ class FunctionBasicBlockImpl;
 
 class LIBREDASM_API FunctionBasicBlock
 {
+    PIMPL_DECLARE_P(FunctionBasicBlock)
     PIMPL_DECLARE_PRIVATE(FunctionBasicBlock)
 
     public:

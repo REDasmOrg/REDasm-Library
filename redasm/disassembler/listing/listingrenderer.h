@@ -92,6 +92,7 @@ class ListingRendererImpl;
 
 class ListingRenderer
 {
+    PIMPL_DECLARE_P(ListingRenderer)
     PIMPL_DECLARE_PRIVATE(ListingRenderer)
 
     public:

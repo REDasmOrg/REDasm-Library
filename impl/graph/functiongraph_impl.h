@@ -8,6 +8,7 @@ namespace Graphing {
 
 class FunctionBasicBlockImpl
 {
+    PIMPL_DECLARE_Q(FunctionBasicBlock)
     PIMPL_DECLARE_PUBLIC(FunctionBasicBlock)
 
     public:
@@ -22,6 +23,7 @@ class FunctionBasicBlockImpl
 
 class FunctionGraphImpl
 {
+    PIMPL_DECLARE_Q(FunctionGraph)
     PIMPL_DECLARE_PUBLIC(FunctionGraph)
 
     public:

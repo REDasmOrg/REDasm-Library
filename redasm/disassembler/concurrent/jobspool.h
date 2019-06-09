@@ -10,6 +10,7 @@ class JobsPoolImpl;
 
 class JobsPool
 {
+    PIMPL_DECLARE_P(JobsPool)
     PIMPL_DECLARE_PRIVATE(JobsPool)
 
     public:

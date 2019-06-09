@@ -39,6 +39,7 @@ class SignatureDBImpl;
 
 class SignatureDB
 {
+    PIMPL_DECLARE_P(SignatureDB)
     PIMPL_DECLARE_PRIVATE(SignatureDB)
 
     public:

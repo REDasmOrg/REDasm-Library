@@ -8,6 +8,7 @@ namespace REDasm {
 
 class BufferViewImpl
 {
+    PIMPL_DECLARE_Q(BufferView)
     PIMPL_DECLARE_PUBLIC(BufferView)
 
     public:

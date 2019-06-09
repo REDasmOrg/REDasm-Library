@@ -10,6 +10,7 @@ class PrinterImpl;
 
 class Printer: public Object
 {
+    PIMPL_DECLARE_P(Printer)
     PIMPL_DECLARE_PRIVATE(Printer)
 
     public:

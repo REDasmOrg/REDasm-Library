@@ -7,6 +7,7 @@ namespace REDasm {
 
 class LoadRequestImpl
 {
+    PIMPL_DECLARE_Q(LoadRequest)
     PIMPL_DECLARE_PUBLIC(LoadRequest)
 
     public:

@@ -7,6 +7,7 @@ namespace REDasm {
 
 class ReferenceTableImpl
 {
+    PIMPL_DECLARE_Q(ReferenceTable)
     PIMPL_DECLARE_PUBLIC(ReferenceTable)
 
     public:

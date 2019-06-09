@@ -13,6 +13,7 @@ class PluginManagerImpl;
 
 class LIBREDASM_API PluginManager
 {
+    PIMPL_DECLARE_P(PluginManager)
     PIMPL_DECLARE_PRIVATE(PluginManager)
 
     public:

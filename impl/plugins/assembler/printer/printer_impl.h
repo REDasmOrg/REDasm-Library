@@ -6,6 +6,7 @@ namespace REDasm {
 
 class PrinterImpl
 {
+    PIMPL_DECLARE_Q(Printer)
     PIMPL_DECLARE_PUBLIC(Printer)
 
     public:

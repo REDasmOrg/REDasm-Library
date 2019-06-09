@@ -7,6 +7,7 @@ namespace REDasm {
 
 class ListingRendererImpl
 {
+    PIMPL_DECLARE_Q(ListingRenderer)
     PIMPL_DECLARE_PUBLIC(ListingRenderer)
 
     public:

@@ -32,6 +32,7 @@ class ContextImpl;
 
 class LIBREDASM_API Context
 {
+    PIMPL_DECLARE_P(Context)
     PIMPL_DECLARE_PRIVATE(Context)
 
     private:

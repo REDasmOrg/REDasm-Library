@@ -10,6 +10,7 @@ namespace REDasm {
 
 class AnalyzerImpl
 {
+    PIMPL_DECLARE_Q(Analyzer)
     PIMPL_DECLARE_PUBLIC(Analyzer)
 
     public:
@@ -19,8 +20,6 @@ class AnalyzerImpl
         void checkFunctions();
         void loadSignatures();
         void analyzeFast();
-        //Symbol* findTrampoline_x86(ListingDocumentType::const_iterator &it);
-        //Symbol* findTrampoline_arm(ListingDocumentType::const_iterator &it);
 
     protected:
         Dispatcher<std::string, void*> m_archdispatcher;

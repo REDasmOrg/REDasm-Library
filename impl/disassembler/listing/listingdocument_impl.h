@@ -9,6 +9,7 @@ namespace REDasm {
 
 class ListingDocumentChangedImpl
 {
+    PIMPL_DECLARE_Q(ListingDocumentChanged)
     PIMPL_DECLARE_PUBLIC(ListingDocumentChanged)
 
     public:
@@ -27,6 +28,7 @@ class ListingDocumentChangedImpl
 
 class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingItemPtrComparator>
 {
+    PIMPL_DECLARE_Q(ListingDocumentType)
     PIMPL_DECLARE_PUBLIC(ListingDocumentType)
 
     public:

@@ -37,6 +37,7 @@ class PluginImpl;
 
 class Plugin: public Object
 {
+    PIMPL_DECLARE_P(Plugin)
     PIMPL_DECLARE_PRIVATE(Plugin)
 
     protected:

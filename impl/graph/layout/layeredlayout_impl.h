@@ -64,6 +64,7 @@ struct LLBlock
 
 class LayeredLayoutImpl
 {
+    PIMPL_DECLARE_Q(LayeredLayout)
     PIMPL_DECLARE_PUBLIC(LayeredLayout)
 
     private:

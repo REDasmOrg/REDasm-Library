@@ -10,6 +10,7 @@ namespace REDasm {
 
 class LoaderImpl: public PluginImpl
 {
+    PIMPL_DECLARE_Q(Loader)
     PIMPL_DECLARE_PUBLIC(Loader)
 
     public:

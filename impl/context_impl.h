@@ -10,6 +10,7 @@ namespace REDasm {
 
 class ContextImpl
 {
+    PIMPL_DECLARE_Q(Context)
     PIMPL_DECLARE_PUBLIC(Context)
 
     public:

@@ -14,6 +14,7 @@ class ListingFunctionsImpl;
 
 class LIBREDASM_API ListingFunctions
 {
+    PIMPL_DECLARE_P(ListingFunctions)
     PIMPL_DECLARE_PRIVATE(ListingFunctions)
 
     public:

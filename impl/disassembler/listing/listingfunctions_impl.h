@@ -9,6 +9,7 @@ namespace REDasm {
 
 class ListingFunctionsImpl: public ListingItemConstContainer
 {
+    PIMPL_DECLARE_Q(ListingFunctions)
     PIMPL_DECLARE_PUBLIC(ListingFunctions)
 
     public:

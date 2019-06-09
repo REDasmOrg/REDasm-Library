@@ -10,6 +10,7 @@ namespace REDasm {
 
 class AssemblerImpl: public PluginImpl
 {
+    PIMPL_DECLARE_Q(Assembler)
     PIMPL_DECLARE_PUBLIC(Assembler)
 
     public:

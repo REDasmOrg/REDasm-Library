@@ -9,6 +9,7 @@ class MemoryBufferImpl;
 
 class LIBREDASM_API MemoryBuffer: public AbstractBuffer
 {
+    PIMPL_DECLARE_P(MemoryBuffer)
     PIMPL_DECLARE_PRIVATE(MemoryBuffer)
 
     public:

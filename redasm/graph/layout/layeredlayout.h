@@ -22,6 +22,7 @@ enum class LayeredLayoutType { Wide, Medium, Narrow };
 
 class LIBREDASM_API LayeredLayout: public AbstractLayout
 {
+    PIMPL_DECLARE_P(LayeredLayout)
     PIMPL_DECLARE_PRIVATE(LayeredLayout)
 
     public:

@@ -12,6 +12,7 @@ namespace REDasm {
 
 class AlgorithmImpl: public StateMachine
 {
+    PIMPL_DECLARE_Q(Algorithm)
     PIMPL_DECLARE_PUBLIC(Algorithm)
 
     private:

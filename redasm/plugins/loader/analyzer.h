@@ -10,6 +10,7 @@ class Disassembler;
 
 class LIBREDASM_API Analyzer
 {
+    PIMPL_DECLARE_P(Analyzer)
     PIMPL_DECLARE_PRIVATE(Analyzer)
 
     public:

@@ -8,6 +8,7 @@ namespace REDasm {
 
 class MemoryBufferImpl
 {
+    PIMPL_DECLARE_Q(MemoryBuffer)
     PIMPL_DECLARE_PUBLIC(MemoryBuffer)
 
     public:

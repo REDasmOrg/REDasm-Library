@@ -7,6 +7,7 @@ namespace REDasm {
 
 class SignatureDBImpl
 {
+    PIMPL_DECLARE_Q(SignatureDB)
     PIMPL_DECLARE_PUBLIC(SignatureDB)
 
     public:

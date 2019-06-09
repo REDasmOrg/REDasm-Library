@@ -15,6 +15,7 @@ namespace REDasm {
 
 class DisassemblerImpl
 {
+    PIMPL_DECLARE_Q(Disassembler)
     PIMPL_DECLARE_PUBLIC(Disassembler)
 
     public:

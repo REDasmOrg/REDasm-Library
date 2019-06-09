@@ -12,6 +12,7 @@ typedef std::function<void(Job*)> JobCallback;
 
 class Job
 {
+    PIMPL_DECLARE_P(Job)
     PIMPL_DECLARE_PRIVATE(Job)
 
     public:

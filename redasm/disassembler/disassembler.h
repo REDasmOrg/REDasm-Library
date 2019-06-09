@@ -20,6 +20,7 @@ class Printer;
 
 class LIBREDASM_API Disassembler
 {
+    PIMPL_DECLARE_P(Disassembler)
     PIMPL_DECLARE_PRIVATE(Disassembler)
 
     public:

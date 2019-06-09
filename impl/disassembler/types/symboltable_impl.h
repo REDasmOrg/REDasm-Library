@@ -9,6 +9,7 @@ typedef std::unique_ptr<Symbol> SymbolPtr;
 
 class SymbolTableImpl
 {
+    PIMPL_DECLARE_Q(SymbolTable)
     PIMPL_DECLARE_PUBLIC(SymbolTable)
 
     public:

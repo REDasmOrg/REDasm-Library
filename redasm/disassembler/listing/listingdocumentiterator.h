@@ -10,6 +10,7 @@ class ListingDocumentType;
 
 class LIBREDASM_API ListingDocumentIterator
 {
+    PIMPL_DECLARE_P(ListingDocumentIterator)
     PIMPL_DECLARE_PRIVATE(ListingDocumentIterator)
 
     public:

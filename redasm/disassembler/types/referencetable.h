@@ -13,6 +13,7 @@ typedef std::set<address_t> ReferenceSet;
 
 class LIBREDASM_API ReferenceTable
 {
+    PIMPL_DECLARE_P(ReferenceTable)
     PIMPL_DECLARE_PRIVATE(ReferenceTable)
 
     public:

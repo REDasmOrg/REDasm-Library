@@ -24,6 +24,7 @@ ENUM_FLAGS_OPERATORS(LoaderFlags)
 
 class LIBREDASM_API LoadRequest
 {
+    PIMPL_DECLARE_P(LoadRequest)
     PIMPL_DECLARE_PRIVATE(LoadRequest)
 
     public:

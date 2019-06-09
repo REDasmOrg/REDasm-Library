@@ -9,6 +9,7 @@ namespace REDasm {
 
 class JobsPoolImpl
 {
+    PIMPL_DECLARE_Q(JobsPool)
     PIMPL_DECLARE_PUBLIC(JobsPool)
 
     public:

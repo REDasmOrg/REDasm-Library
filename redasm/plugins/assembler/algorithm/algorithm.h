@@ -17,6 +17,7 @@ class Disassembler;
 
 class Algorithm: public Object
 {
+    PIMPL_DECLARE_P(Algorithm)
     PIMPL_DECLARE_PRIVATE(Algorithm)
 
     DEFINE_STATES(DecodeState,

@@ -8,6 +8,7 @@ namespace REDasm {
 
 class ListingCursorImpl
 {
+    PIMPL_DECLARE_Q(ListingCursor)
     PIMPL_DECLARE_PUBLIC(ListingCursor)
 
     public:

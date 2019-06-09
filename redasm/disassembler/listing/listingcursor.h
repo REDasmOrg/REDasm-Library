@@ -11,6 +11,7 @@ class ListingCursorImpl;
 
 class LIBREDASM_API ListingCursor
 {
+    PIMPL_DECLARE_P(ListingCursor)
     PIMPL_DECLARE_PRIVATE(ListingCursor)
 
     public:

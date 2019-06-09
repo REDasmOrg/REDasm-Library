@@ -17,6 +17,7 @@ struct ListingItemData
 
 class ListingItemImpl
 {
+    PIMPL_DECLARE_Q(ListingItem)
     PIMPL_DECLARE_PUBLIC(ListingItem)
 
     public:

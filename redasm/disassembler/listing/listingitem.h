@@ -22,6 +22,7 @@ struct ListingItemData;
 
 class LIBREDASM_API ListingItem
 {
+    PIMPL_DECLARE_P(ListingItem)
     PIMPL_DECLARE_PRIVATE(ListingItem)
 
     public:

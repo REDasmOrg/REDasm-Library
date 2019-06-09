@@ -14,6 +14,7 @@ class BufferViewImpl;
 
 class LIBREDASM_API BufferView
 {
+    PIMPL_DECLARE_P(BufferView)
     PIMPL_DECLARE_PRIVATE(BufferView)
 
     public:

@@ -8,6 +8,7 @@ namespace REDasm {
 
 class PluginManagerImpl
 {
+    PIMPL_DECLARE_Q(PluginManager)
     PIMPL_DECLARE_PUBLIC(PluginManager)
 
     public:

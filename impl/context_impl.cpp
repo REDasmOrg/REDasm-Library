@@ -4,6 +4,9 @@
 
 namespace REDasm {
 
+std::unique_ptr<Context> ContextImpl::m_instance;
+Context* ContextImpl::m_parentinstance = nullptr;
+
 ContextImpl::ContextImpl()
 {
     m_laststatusreport = std::chrono::steady_clock::now();
@@ -23,6 +26,8 @@ void ContextImpl::checkSettings()
 
     if(!m_settings.ui)
         m_settings.ui = std::make_shared<AbstractUI>();
+
+    m_settings.pluginPaths.push_front(m_settings.runtimePath);
 }
 
 std::string ContextImpl::capstoneVersion() const

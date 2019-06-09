@@ -19,10 +19,11 @@ class PluginManagerImpl
         void unload(const PluginInstance* pi);
         const PluginInstance* load(const std::string& pluginpath, const char *initname);
         void iteratePlugins(const char* initname, const PluginManager_Callback& cb);
-        void unloadPlugins();
+        void unloadAll();
 
     private:
         PluginManager::PluginMap m_activeplugins;
+        static std::unique_ptr<PluginManager> m_instance;
 };
 
 } // namespace REDasm

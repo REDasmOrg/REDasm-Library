@@ -11,6 +11,8 @@
 
 namespace REDasm {
 
+std::unique_ptr<PluginManager> PluginManagerImpl::m_instance;
+
 void PluginManagerImpl::unload(const PluginInstance *pi)
 {
     std::string id = pi->descriptor->id;
@@ -32,39 +34,42 @@ const PluginInstance *PluginManagerImpl::load(const std::string &pluginpath, con
 
 void PluginManagerImpl::iteratePlugins(const char *initname, const PluginManager_Callback &cb)
 {
-    this->unloadPlugins();
-    DIR* dir = opendir(r_ctx->pluginPath().c_str());
-
-    if(!dir)
+    for(const std::string& pluginpath : r_ctx->pluginPaths())
     {
-        r_ctx->log("Cannot load plugins from " + Utils::quoted(r_ctx->pluginPath()));
-        return;
+        DIR* dir = opendir(pluginpath.c_str());
+
+        if(!dir)
+            return;
+
+        struct dirent* entry = nullptr;
+
+        while((entry = readdir(dir)))
+        {
+            if((entry->d_type != DT_REG) || !Utils::endsWith(entry->d_name, SHARED_OBJECT_EXT))
+                continue;
+
+            const PluginInstance* pi = nullptr;
+
+            if(!(pi = this->load(Path::create(pluginpath, entry->d_name), initname)))
+                continue;
+
+            IterateResult res = cb(pi);
+
+            if(res == IterateResult::Done)
+            {
+                closedir(dir);
+                return;
+            }
+
+            if(res == IterateResult::Unload)
+                this->unload(pi);
+        }
+
+        closedir(dir);
     }
-
-    struct dirent* entry = nullptr;
-
-    while((entry = readdir(dir)))
-    {
-        if((entry->d_type != DT_REG) || !Utils::endsWith(entry->d_name, SHARED_OBJECT_EXT))
-            continue;
-
-        const PluginInstance* pi = nullptr;
-
-        if(!(pi = this->load(Path::create(r_ctx->pluginPath(), entry->d_name), initname)))
-            continue;
-
-        IterateResult res = cb(pi);
-
-        if(res == IterateResult::Done)
-            break;
-        if(res == IterateResult::Unload)
-            this->unload(pi);
-    }
-
-    closedir(dir);
 }
 
-void PluginManagerImpl::unloadPlugins()
+void PluginManagerImpl::unloadAll()
 {
     while(!m_activeplugins.empty())
     {

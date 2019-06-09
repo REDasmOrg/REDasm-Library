@@ -23,6 +23,10 @@ class ContextImpl
         std::chrono::milliseconds m_debouncetimeout;
         std::set<std::string> m_uproblems;
         ProblemList m_problems;
+
+    private:
+        static std::unique_ptr<Context> m_instance;
+        static Context* m_parentinstance;
 };
 
 } // namespace REDasm

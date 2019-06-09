@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <list>
 #include "plugins/pluginmanager.h"
 #include "plugins/loader/loader.h"
 #include "support/path.h"
@@ -12,16 +13,18 @@ namespace REDasm {
 typedef std::function<void(const std::string&)> Context_LogCallback;
 typedef std::function<void(size_t)> Context_ProgressCallback;
 typedef std::deque<std::string> ProblemList;
+typedef std::list<std::string> PluginPaths;
 
 struct LIBREDASM_API ContextSettings
 {
     ContextSettings(): ignoreproblems(false) { }
 
-    std::string runtimePath, pluginPath, tempPath;
+    std::string runtimePath, tempPath;
     Context_LogCallback logCallback;
     Context_LogCallback statusCallback;
     Context_ProgressCallback progressCallback;
     std::shared_ptr<AbstractUI> ui;
+    PluginPaths pluginPaths;
     bool ignoreproblems;
 };
 
@@ -56,22 +59,15 @@ class LIBREDASM_API Context
         void statusAddress(const std::string& s, address_t address);
         bool sync();
         PluginManager* pluginManager() const;
+        const PluginPaths& pluginPaths() const;
         std::string capstoneVersion() const;
         std::string runtimePath() const;
-        std::string pluginPath() const;
         std::string tempPath() const;
 
     public:
-        template<typename... T> inline std::string plugin(const std::string& p, T... args) const { return Path::create(this->pluginPath(), p, args...); }
         template<typename... T> inline std::string rnt(const std::string& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }
         template<typename... T> inline std::string db(const std::string& p, T... args) const { return this->rnt("database", p, args...); }
         template<typename... T> inline std::string signature(const std::string& p, T... args) const { return this->db("signatures", p, args...); }
-        template<typename... T> inline std::string loader(const std::string& p, T... args) const { return this->plugin("loaders", p, args...); }
-        template<typename... T> inline std::string assembler(const std::string& p, T... args) const { return this->plugin("assemblers", p, args...); }
-
-    private:
-        static std::unique_ptr<Context> m_instance;
-        static Context* m_parentinstance;
 };
 
 } // namespace REDasm

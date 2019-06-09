@@ -13,8 +13,6 @@ bool PluginLoader::load(const std::string &pluginpath, const char* initname, Plu
     {
         if(lr == LoadResult::Failed)
             r_ctx->log(Path::fileName(pluginpath) + ": Loading failed");
-        else if(lr == LoadResult::InvalidInit)
-            r_ctx->log(Path::fileName(pluginpath) + ": Cannot find " + Utils::quoted(initname));
 
         return false;
     }

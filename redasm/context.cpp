@@ -15,24 +15,21 @@
 
 namespace REDasm {
 
-std::unique_ptr<Context> Context::m_instance;
-Context* Context::m_parentinstance = nullptr;
-
 Context::Context(): m_pimpl_p(new ContextImpl()) { }
-void Context::init(Context *ctx) { m_parentinstance = ctx; }
+void Context::init(Context *ctx) { ContextImpl::m_parentinstance = ctx; }
 
 Context *Context::init(const ContextSettings &settings)
 {
-    if(m_instance)
-        return m_instance.get();
+    if(ContextImpl::m_instance)
+        return ContextImpl::m_instance.get();
 
-    m_instance = std::unique_ptr<Context>(new Context());
-    m_instance->pimpl_p()->m_settings = settings;
-    m_instance->pimpl_p()->checkSettings();
-    return m_instance.get();
+    ContextImpl::m_instance = std::unique_ptr<Context>(new Context());
+    ContextImpl::m_instance->pimpl_p()->m_settings = settings;
+    ContextImpl::m_instance->pimpl_p()->checkSettings();
+    return ContextImpl::m_instance.get();
 }
 
-Context *Context::instance() { return m_parentinstance ? m_parentinstance : m_instance.get(); }
+Context *Context::instance() { return ContextImpl::m_parentinstance ? ContextImpl::m_parentinstance : ContextImpl::m_instance.get(); }
 bool Context::hasProblems() const { return !pimpl_p()->m_problems.empty(); }
 size_t Context::problemsCount() const { return pimpl_p()->m_problems.size(); }
 const ProblemList &Context::problems() const { return pimpl_p()->m_problems; }
@@ -58,6 +55,9 @@ bool Context::sync()
 }
 
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
+const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }
+std::string Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
+std::string Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
 std::string Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }
 void Context::log(const std::string &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
 
@@ -100,9 +100,5 @@ void Context::statusAddress(const std::string &s, address_t address)
     PIMPL_P(Context);
     p->m_settings.statusCallback(s + " @ " + Utils::hex(address));
 }
-
-std::string Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
-std::string Context::pluginPath() const { PIMPL_P(const Context); return p->m_settings.pluginPath; }
-std::string Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
 
 } // namespace REDasm

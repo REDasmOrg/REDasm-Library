@@ -7,10 +7,9 @@
 
 namespace REDasm {
 
-std::unique_ptr<PluginManager> PluginManager::m_instance;
-
 PluginManager::PluginManager(): m_pimpl_p(new PluginManagerImpl()) { }
-PluginManager::~PluginManager() { PIMPL_P(PluginManager); p->unloadPlugins(); }
+PluginManager::~PluginManager() { this->unloadAll(); }
+void PluginManager::unloadAll() { PIMPL_P(PluginManager); p->unloadAll(); }
 void PluginManager::unload(const PluginInstance *pi) { PIMPL_P(PluginManager); p->unload(pi); }
 
 void PluginManager::unload(const PluginList &pl)
@@ -21,19 +20,23 @@ void PluginManager::unload(const PluginList &pl)
 
 PluginManager *PluginManager::instance()
 {
-    if(!m_instance)
-        m_instance = std::unique_ptr<PluginManager>(new PluginManager());
+    if(!PluginManagerImpl::m_instance)
+        PluginManagerImpl::m_instance = std::unique_ptr<PluginManager>(new PluginManager());
 
-    return m_instance.get();
+    return PluginManagerImpl::m_instance.get();
 }
 
 const PluginInstance *PluginManager::find(const std::string &id, const char *initname)
 {
     PIMPL_P(PluginManager);
-    std::string pluginpath = Path::create(r_ctx->pluginPath(), id + SHARED_OBJECT_EXT);
 
-    if(Path::exists(pluginpath))
-        return p->load(pluginpath, initname);
+    for(const std::string& pluginpath : r_ctx->pluginPaths())
+    {
+        std::string pluginfilepath = Path::create(pluginpath, id + SHARED_OBJECT_EXT);
+
+        if(Path::exists(pluginfilepath))
+            return p->load(pluginfilepath, initname);
+    }
 
     return nullptr;
 }

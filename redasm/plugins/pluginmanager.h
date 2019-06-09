@@ -26,6 +26,7 @@ class LIBREDASM_API PluginManager
 
     public:
         ~PluginManager();
+        void unloadAll();
         void unload(const PluginInstance* pi);
         void unload(const PluginList& pl);
         const PluginMap& activePlugins() const;
@@ -34,9 +35,6 @@ class LIBREDASM_API PluginManager
         const PluginInstance* findPlugin(const std::string& id);
         PluginList getLoaders(const REDasm::LoadRequest *request);
         PluginList getAssemblers();
-
-    private:
-        static std::unique_ptr<PluginManager> m_instance;
 
     friend class Context;
 };

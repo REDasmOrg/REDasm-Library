@@ -1,5 +1,16 @@
 #include "path.h"
 #include <sstream>
+#include <list>
+
+#ifdef __unix__
+    #include <sys/stat.h>
+    #include <unistd.h>
+#elif _WIN32
+    #include <kernel32.h>
+    #include <user32.h>
+#else
+    #error "Unsupported Platform"
+#endif
 
 namespace REDasm {
 
@@ -76,6 +87,27 @@ std::string Path::ext(const std::string &s)
         return std::string();
 
     return s.substr(lastidx);
+}
+
+bool Path::mkdir(const std::string &path)
+{
+    StringParts folders = Path::splitPath(path);
+    std::string respath;
+    bool res = false;
+
+    for(const std::string& folder: folders)
+    {
+        respath += folder + Path::dirSeparator();
+
+#ifdef __unix__
+        res = ::mkdir(respath.c_str(), S_IRWXU) == 0;
+#elif _WIN32
+        res = CreateDirectory(path.c_str(), nullptr) != 0;
+#endif
+
+    }
+
+    return res;
 }
 
 

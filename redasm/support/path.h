@@ -24,8 +24,10 @@ class LIBREDASM_API Path
         static std::string ext(const std::string& s);
         static inline bool exists(const std::string& s) { std::ifstream ifs(s); return ifs.is_open(); }
         static inline bool extIs(const std::string& s, const std::string& ext) { return Path::ext(s) == ext; }
+        static bool mkdir(const std::string& path);
 
     public:
+        template<typename... T> static bool mkpath(T... args) { return Path::mkdir(Path::create(std::forward<T>(args)...)); }
         template<typename... T> static std::string create(const std::string& p, T... args) {
             std::string path = p;
             std::deque<std::string> v = { args... };

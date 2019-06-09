@@ -16,9 +16,9 @@ class PluginManagerImpl
 
     public:
         PluginManagerImpl() = default;
-        void unload(const PluginInstance* pi);
         const PluginInstance* load(const std::string& pluginpath, const char *initname);
         void iteratePlugins(const char* initname, const PluginManager_Callback& cb);
+        void unload(const PluginInstance* pi);
         void unloadAll();
 
     private:

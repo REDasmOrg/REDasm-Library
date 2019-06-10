@@ -56,6 +56,7 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         SignatureIdentifiers &signatures();
         Loader* signature(const std::string& sig);
         Analyzer* analyzer(Disassembler* disassembler);
+        template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 
     public:
         virtual LoaderFlags flags() const;

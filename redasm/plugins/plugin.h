@@ -18,13 +18,13 @@
         return &id; \
     }
 
-#define REDASM_PLUGIN_AS(id, description, author, license, level)    REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, plugin)
-#define REDASM_LOADER_AS(id, description, author, license, level)    REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, loader)
-#define REDASM_ASSEMBLER_AS(id, description, author, license, level) REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, assembler)
+#define REDASM_PLUGIN_ID(id, description, author, license, level)    REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, plugin)
+#define REDASM_LOADER_ID(id, description, author, license, level)    REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, loader)
+#define REDASM_ASSEMBLER_ID(id, description, author, license, level) REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, assembler)
 
-#define REDASM_PLUGIN(description, author, license, level)    REDASM_PLUGIN_AS(r_plugin, description, author, license, level)
-#define REDASM_LOADER(description, author, license, level)    REDASM_LOADER_AS(r_plugin, description, author, license, level)
-#define REDASM_ASSEMBLER(description, author, license, level) REDASM_ASSEMBLER_AS(r_plugin, description, author, license, level)
+#define REDASM_PLUGIN(description, author, license, level)    REDASM_PLUGIN_ID(r_plugin, description, author, license, level)
+#define REDASM_LOADER(description, author, license, level)    REDASM_LOADER_ID(r_plugin, description, author, license, level)
+#define REDASM_ASSEMBLER(description, author, license, level) REDASM_ASSEMBLER_ID(r_plugin, description, author, license, level)
 
 #include "../types/base_types.h"
 #include "../types/plugin_types.h"

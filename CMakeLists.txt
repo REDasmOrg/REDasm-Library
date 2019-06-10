@@ -69,6 +69,10 @@ if(PORTABLE_MODE)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${HEADER} "${CMAKE_BINARY_DIR}/${DST_HEADER}")
     endforeach()
 
+    # Copy FindREDasm.cmake
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+                       "${CMAKE_CURRENT_SOURCE_DIR}/redasm/FindREDasm.cmake" "${CMAKE_BINARY_DIR}/redasm")
+
     # Copy capstone headers
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
                        "${CMAKE_CURRENT_SOURCE_DIR}/impl/libs/capstone/include/capstone" "${CMAKE_BINARY_DIR}/redasm/libs/capstone")

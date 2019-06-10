@@ -11,21 +11,21 @@
 #define REDASM_LOAD   extern "C" bool redasm_load()
 #define REDASM_UNLOAD extern "C" void redasm_unload()
 
-#define REDASM_PLUGIN_TEMPLATE(description, author, license, version, plugintype) \
-    static REDasm::PluginDescriptor r_plugin = { REDASM_API_VERSION, version, description, author, license, r_plugin_id }; \
+#define REDASM_PLUGIN_TEMPLATE(description, author, license, level, plugintype) \
+    static REDasm::PluginDescriptor r_plugin = { REDASM_API_LEVEL, level, description, author, license, r_plugin_id }; \
     extern "C" LIBREDASM_API REDasm::PluginDescriptor* redasm_init_##plugintype(REDasm::Context* ctx) { \
         REDasm::Context::init(ctx); \
         return &r_plugin; \
     }
 
-#define REDASM_PLUGIN(description, author, license, version)    REDASM_PLUGIN_TEMPLATE(description, author, license, version, plugin)
-#define REDASM_LOADER(description, author, license, version)    REDASM_PLUGIN_TEMPLATE(description, author, license, version, loader)
-#define REDASM_ASSEMBLER(description, author, license, version) REDASM_PLUGIN_TEMPLATE(description, author, license, version, assembler)
+#define REDASM_PLUGIN(description, author, license, level)    REDASM_PLUGIN_TEMPLATE(description, author, license, level, plugin)
+#define REDASM_LOADER(description, author, license, level)    REDASM_PLUGIN_TEMPLATE(description, author, license, level, loader)
+#define REDASM_ASSEMBLER(description, author, license, level) REDASM_PLUGIN_TEMPLATE(description, author, license, level, assembler)
 
 #include "../types/base_types.h"
 #include "../types/plugin_types.h"
 #include "../types/callback_types.h"
-#include "../version.h"
+#include "../level.h"
 #include "../macros.h"
 #include "../pimpl.h"
 #include "plugininstance.h"
@@ -55,7 +55,7 @@ class Plugin: public Object
 
 struct LIBREDASM_API PluginDescriptor
 {
-    version_t apiVersion, version;
+    apilevel_t apiLevel, level;
     const char *description, *author, *license, *id;
     Plugin* plugin;
 };

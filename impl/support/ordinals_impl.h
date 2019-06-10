@@ -17,7 +17,7 @@ class OrdinalsImpl
     public:
         OrdinalsImpl() = default;
         bool load(const std::string& filepath);
-        std::string ordinal(ordinal_t ordinal, const std::string& fallbackprefix = std::string()) const;
+        std::string name(ordinal_t name, const std::string& fallbackprefix = std::string()) const;
         void clear();
 
     private:

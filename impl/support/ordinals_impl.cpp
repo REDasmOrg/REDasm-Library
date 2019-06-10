@@ -37,7 +37,7 @@ bool OrdinalsImpl::load(const std::string &filepath)
     return true;
 }
 
-std::string OrdinalsImpl::ordinal(ordinal_t ordinal, const std::string &fallbackprefix) const
+std::string OrdinalsImpl::name(ordinal_t ordinal, const std::string &fallbackprefix) const
 {
     auto it = m_ordinals.find(ordinal);
 

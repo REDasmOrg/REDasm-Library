@@ -46,6 +46,8 @@ class Utils
         template<typename T, typename U> static inline T aligned(T t, U a) { T r = t % a; return r ? (t + (a - r)) : t; }
         template<typename T> static inline size_t countbits(T val) { double bytes = std::log(static_cast<double>(val)) / std::log(256.0); return static_cast<size_t>(std::ceil(bytes)) * 8; }
         template<typename T> static inline std::string dec(T t) { std::stringstream ss; ss << t; return ss.str(); }
+        template<typename T> static inline T unmask(T val, T mask);
+        template<typename T> std::string wtoa(T* ws, size_t len);
 
     public:
         template<typename T> static inline std::string quoted(T t) { return Utils::quoted(std::to_string(t)); }
@@ -110,7 +112,7 @@ template<typename Container> std::string Utils::join(const Container& c, const s
     return ss.str();
 }
 
-template<typename T> T unmask(T val, T mask)
+template<typename T> T Utils::unmask(T val, T mask)
 {
     T result = 0;
 
@@ -127,7 +129,7 @@ template<typename T> T unmask(T val, T mask)
     return result;
 }
 
-template<typename T> std::string wtoa(T* ws, size_t len)
+template<typename T> std::string Utils::wtoa(T* ws, size_t len)
 {
     std::string s;
     char* p = reinterpret_cast<char*>(ws);

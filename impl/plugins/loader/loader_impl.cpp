@@ -70,7 +70,7 @@ address_location LoaderImpl::address(offset_t offset) const
     return REDasm::invalid_location<address_t>();
 }
 
-void LoaderImpl::build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to LoaderPlugin::build()"); }
+void LoaderImpl::build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to Loader::build()"); }
 
 Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
 {

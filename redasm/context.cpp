@@ -55,6 +55,7 @@ bool Context::sync()
 }
 
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
+AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.ui.get(); }
 const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }
 std::string Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
 std::string Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }

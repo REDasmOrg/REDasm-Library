@@ -73,6 +73,7 @@ class LIBREDASM_API SymbolTable
         static std::string normalized(std::string s);
         static std::string name(address_t address, SymbolType type);
         static std::string name(address_t address, const std::string& s, SymbolType type);
+        static std::string name(const std::string& name, address_t address);
 
     friend struct Serializer<SymbolTable>;
 };

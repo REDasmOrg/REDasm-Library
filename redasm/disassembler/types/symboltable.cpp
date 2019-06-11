@@ -1,5 +1,6 @@
 #include "symboltable.h"
 #include <redasm/support/demangler.h>
+#include <redasm/support/utils.h>
 #include <impl/disassembler/types/symboltable_impl.h>
 #include <forward_list>
 #include <sstream>
@@ -117,6 +118,8 @@ std::string SymbolTable::name(address_t address, const std::string &s, SymbolTyp
     ss << SymbolTableImpl::prefix(type) << "_" << s << "_" << std::hex << address;
     return ss.str();
 }
+
+std::string SymbolTable::name(const std::string &name, address_t address) { return name + "_"  + Utils::hex(address); }
 
 void Serializer<SymbolTable>::write(std::fstream& fs, const SymbolTable* st) {
     Serializer<SymbolTableImpl::SymbolsByAddress>::write(fs, st->pimpl_p()->m_byaddress);

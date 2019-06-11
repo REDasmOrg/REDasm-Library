@@ -3,6 +3,7 @@
 #define DEFINE_STATES(...) protected: enum: state_t { __VA_ARGS__ }; private:
 #define USER_STATE_START   0x10000000
 
+#include <functional>
 #include <redasm/types/api_types.h>
 
 namespace REDasm {
@@ -28,5 +29,7 @@ struct State
     bool operator ==(const State& rhs) const;
     const Operand* operand() const;
 };
+
+typedef std::function<void(const State*)> StateCallback;
 
 } // namespace REDasm

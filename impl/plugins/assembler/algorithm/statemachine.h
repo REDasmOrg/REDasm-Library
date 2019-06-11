@@ -6,15 +6,10 @@
 #include <functional>
 #include <redasm/plugins/assembler/algorithm/state.h>
 
-#define REGISTER_STATE(id, cb)                               m_states[id] = std::bind(cb, this, std::placeholders::_1)
-
 namespace REDasm {
 
 class StateMachine
 {
-    protected:
-        typedef std::function<void(const State*)> StateCallback;
-
     public:
         StateMachine();
         virtual ~StateMachine() = default;
@@ -23,6 +18,7 @@ class StateMachine
         void next();
 
     protected:
+        void registerState(state_t id, const StateCallback& cb);
         void enqueueState(const State& state);
         void executeState(const State& state);
         void executeState(const State* state);

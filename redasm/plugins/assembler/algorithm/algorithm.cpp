@@ -10,10 +10,12 @@ namespace REDasm {
 Algorithm::Algorithm(AlgorithmImpl *p): m_pimpl_p(p) { }
 Algorithm::Algorithm(Disassembler *disassembler): m_pimpl_p(new AlgorithmImpl(this, disassembler)) { }
 Disassembler *Algorithm::disassembler() const { PIMPL_P(const Algorithm); return p->m_disassembler; }
+safe_ptr<ListingDocumentType> &Algorithm::document() const { PIMPL_P(const Algorithm); p->m_disassembler->document(); }
 void Algorithm::enqueue(address_t address) { PIMPL_P(Algorithm); p->enqueue(address); }
 void Algorithm::analyze() { PIMPL_P(Algorithm); p->analyze(); }
 bool Algorithm::hasNext() const { PIMPL_P(const Algorithm); return p->hasNext(); }
 void Algorithm::next() { PIMPL_P(Algorithm); p->next(); }
+void Algorithm::registerState(state_t id, const StateCallback &cb) { PIMPL_P(Algorithm); p->registerState(id, cb); }
 void Algorithm::enqueueState(const State &state) { PIMPL_P(Algorithm); p->enqueueState(state); }
 void Algorithm::executeState(const State &state) { PIMPL_P(Algorithm); p->executeState(state); }
 void Algorithm::validateTarget(const InstructionPtr &instruction) const { PIMPL_P(const Algorithm); p->validateTarget(instruction);  }

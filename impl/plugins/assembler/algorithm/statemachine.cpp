@@ -18,6 +18,8 @@ void StateMachine::next()
     this->executeState(&currentstate);
 }
 
+void StateMachine::registerState(state_t id, const StateCallback &cb) { m_states[id] = cb; }
+
 void StateMachine::enqueueState(const State& state)
 {
     if(!state.isUser() && !this->validateState(state))

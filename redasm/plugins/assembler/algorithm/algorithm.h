@@ -1,9 +1,12 @@
 #pragma once
 
+#include <functional>
 #include "../../../types/plugin_types.h"
+#include "../../../support/safe_ptr.h"
 #include "../../../pimpl.h"
 #include "state.h"
 
+#define REGISTER_STATE(id, cb)                        this->registerState(id, std::bind(cb, this, std::placeholders::_1))
 #define EXECUTE_STATE(id, value, index, instruction)  this->executeState({ #id, id, static_cast<u64>(value), index, instruction })
 #define ENQUEUE_STATE(id, value, index, instruction)  this->enqueueState({ #id, id, static_cast<u64>(value), index, instruction })
 #define FORWARD_STATE_VALUE(newid, value, state)      EXECUTE_STATE(newid, value, state->index, state->instruction)
@@ -14,6 +17,7 @@ namespace REDasm {
 
 class AlgorithmImpl;
 class Disassembler;
+class ListingDocumentType;
 
 class Algorithm: public Object
 {
@@ -35,6 +39,7 @@ class Algorithm: public Object
         Algorithm(Disassembler* disassembler);
         virtual ~Algorithm() = default;
         Disassembler* disassembler() const;
+        safe_ptr<ListingDocumentType>& document() const;
         size_t disassembleInstruction(address_t address, const InstructionPtr& instruction);
         void done(address_t address);
         void enqueue(address_t address);
@@ -43,6 +48,7 @@ class Algorithm: public Object
         void next();
 
     protected:
+        void registerState(state_t id, const StateCallback& cb);
         void enqueueState(const State& state);
         void executeState(const State& state);
         virtual bool validateState(const State& state) const;

@@ -60,6 +60,7 @@ class LIBREDASM_API Context
         void statusAddress(const std::string& s, address_t address);
         bool sync();
         PluginManager* pluginManager() const;
+        AbstractUI* ui() const;
         const PluginPaths& pluginPaths() const;
         std::string capstoneVersion() const;
         std::string runtimePath() const;
@@ -75,4 +76,5 @@ class LIBREDASM_API Context
 
 #define r_ctx REDasm::Context::instance()
 #define r_pm  r_ctx->pluginManager()
+#define r_ui  r_ctx->ui()
 

@@ -29,6 +29,7 @@ Analyzer *Loader::createAnalyzer(Disassembler *disassembler) const { return new 
 void Loader::build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { PIMPL_P(Loader); return p->build(assembler, offset, baseaddress, entrypoint); }
 address_location Loader::address(offset_t offset) const { PIMPL_P(const Loader); return p->address(offset); }
 address_location Loader::reladdress(address_t absaddress) const { return REDasm::make_location(absaddress); }
+address_location Loader::absaddress(address_t reladdress) const { return REDasm::make_location(reladdress); }
 offset_location Loader::offset(address_t address) const { PIMPL_P(const Loader); return p->offset(address); }
 
 } // namespace REDasm

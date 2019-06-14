@@ -63,6 +63,7 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
         virtual address_location reladdress(address_t absaddress) const;
+        virtual address_location absaddress(address_t reladdress) const;
         virtual AssemblerRequest assembler() const;
         virtual void build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         virtual void init(const LoadRequest& request);

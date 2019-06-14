@@ -13,6 +13,7 @@ class SearchObjectImpl
         SearchObjectImpl(const BufferView* view, size_t searchsize);
         bool hasNext() const;
         size_t position() const;
+        const u8* result() const;
 
     protected:
         const BufferView* m_view;

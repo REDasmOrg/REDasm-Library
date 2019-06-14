@@ -24,6 +24,8 @@ class SearchResult
         SearchResult next() const;
         size_t position() const;
         bool hasNext() const;
+        const u8 *result() const;
+        template<typename T> T* pointer() { return reinterpret_cast<T*>(this->result()); }
 
     friend class BufferViewImpl;
     friend class BufferView;
@@ -44,6 +46,8 @@ class WildcardSearchResult
         WildcardSearchResult next() const;
         size_t position() const;
         bool hasNext() const;
+        const u8* result() const;
+        template<typename T> T* pointer() { return reinterpret_cast<T*>(this->result()); }
 
     friend class BufferViewImpl;
     friend class BufferView;

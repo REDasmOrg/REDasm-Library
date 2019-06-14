@@ -7,6 +7,7 @@ SearchObjectImpl::SearchObjectImpl(): m_view(nullptr), m_result(nullptr) { }
 SearchObjectImpl::SearchObjectImpl(const BufferView *view, size_t searchsize): m_view(view), m_result(nullptr), m_position(0), m_searchsize(searchsize) { }
 bool SearchObjectImpl::hasNext() const { return m_view && m_result; }
 size_t SearchObjectImpl::position() const { return m_position; }
+const u8 *SearchObjectImpl::result() const { return m_result; }
 SearchResultImpl::SearchResultImpl(): SearchObjectImpl(), m_searchdata(nullptr) { }
 SearchResultImpl::SearchResultImpl(const BufferView *view, const u8 *searchdata, size_t searchsize): SearchObjectImpl(view, searchsize), m_searchdata(searchdata) { }
 SearchResult SearchResultImpl::next() const { return m_view->find(m_searchdata, m_searchsize, m_position + m_searchsize); }

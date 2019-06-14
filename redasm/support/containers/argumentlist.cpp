@@ -3,8 +3,15 @@
 
 namespace REDasm {
 
+Argument::Argument(int8_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(uint8_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(int16_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(uint16_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(int32_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(uint32_t v): type(ArgumentType::Integer), i_value(v) { }
 Argument::Argument(int64_t v): type(ArgumentType::Integer), i_value(v) { }
 Argument::Argument(uint64_t v): type(ArgumentType::Integer), i_value(v) { }
+Argument::Argument(float v): type(ArgumentType::Float), d_value(v) { }
 Argument::Argument(double v): type(ArgumentType::Float), d_value(v) { }
 Argument::Argument(const char *v): type(ArgumentType::String), s_value(v) { }
 Argument::Argument(void *v): type(ArgumentType::Pointer), p_value(v) { }

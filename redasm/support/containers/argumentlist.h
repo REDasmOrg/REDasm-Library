@@ -9,8 +9,15 @@ enum class ArgumentType { Null = 0, Integer, Float, String, Pointer };
 
 struct Argument
 {
+    Argument(int8_t v);
+    Argument(uint8_t v);
+    Argument(int16_t v);
+    Argument(uint16_t v);
+    Argument(int32_t v);
+    Argument(uint32_t v);
     Argument(int64_t v);
     Argument(uint64_t v);
+    Argument(float v);
     Argument(double v);
     Argument(const char* v);
     Argument(void* v);

@@ -4,7 +4,7 @@ namespace REDasm {
 
 struct AssemblerRequest {
     AssemblerRequest();
-    AssemblerRequest(const char* id);
+    AssemblerRequest(const char* id, const char* mode = nullptr);
     bool modeIs(const char* mode) const;
     bool idIs(const char* mode) const;
     operator const char*() const;

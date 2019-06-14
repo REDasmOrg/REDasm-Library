@@ -12,12 +12,10 @@ namespace REDasm {
 
 DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader)
 {
-    m_algorithm = assembler->createAlgorithm(q);
-
-    m_analyzejob.setOneShot(true);
-    EVENT_CONNECT(&m_analyzejob, stateChanged, q, [&](Job*) { q->busyChanged(); });
-    m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, this), true); // Deferred
-    EVENT_CONNECT(&m_jobs, stateChanged, q, [&](Job*) { q->busyChanged(); });
+    // m_analyzejob.setOneShot(true);
+    // EVENT_CONNECT(&m_analyzejob, stateChanged, q, [&](Job*) { pimpl_q()->busyChanged(); });
+    // m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, this), true); // Deferred
+    // EVENT_CONNECT(&m_jobs, stateChanged, q, [&](Job*) { pimpl_q()->busyChanged(); });
 }
 
 Loader *DisassemblerImpl::loader() const { return m_loader; }

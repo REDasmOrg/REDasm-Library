@@ -1,9 +1,15 @@
 #include "disassembler.h"
 #include <impl/disassembler/disassembler_impl.h>
+#include <redasm/plugins/assembler/assembler.h>
 
 namespace REDasm {
 
-Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader)) { }
+Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader))
+{
+    PIMPL_P(Disassembler);
+    p->m_algorithm = assembler->createAlgorithm(this);
+}
+
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
 const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }

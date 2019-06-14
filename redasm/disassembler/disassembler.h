@@ -6,6 +6,7 @@
 #include "../support/event.h"
 #include "../pimpl.h"
 #include "concurrent/jobstate.h"
+#include "listing/listingitem.h"
 #include "types/referencetable.h"
 #include "types/symboltable.h"
 
@@ -13,10 +14,8 @@ namespace REDasm {
 
 class ListingDocumentType;
 class DisassemblerImpl;
-class ListingItem;
 class Assembler;
 class Loader;
-class Printer;
 
 class LIBREDASM_API Disassembler
 {
@@ -33,7 +32,7 @@ class LIBREDASM_API Disassembler
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
-        std::deque<ListingItem*> getCalls(address_t address);
+        ListingItemConstContainer getCalls(address_t address);
         ReferenceTable* references();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;

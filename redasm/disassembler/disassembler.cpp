@@ -8,7 +8,7 @@ Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->lo
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
 const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }
 safe_ptr<ListingDocumentType> &Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
-std::deque<ListingItem *> Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
+ListingItemConstContainer Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
 ReferenceVector Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 ReferenceSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }

@@ -24,7 +24,7 @@ class DisassemblerImpl
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
-        std::deque<ListingItem*> getCalls(address_t address);
+        ListingItemConstContainer getCalls(address_t address);
         ReferenceTable* references();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;

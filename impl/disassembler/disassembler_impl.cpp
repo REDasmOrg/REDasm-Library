@@ -3,6 +3,7 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/database/signaturedb.h>
 #include <redasm/graph/functiongraph.h>
+#include <redasm/support/utils.h>
 #include <redasm/support/path.h>
 #include <redasm/context.h>
 #include <cctype>
@@ -24,9 +25,42 @@ Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }
 safe_ptr<ListingDocumentType> &DisassemblerImpl::document() { return m_loader->document(); }
 
-std::deque<ListingItem*> DisassemblerImpl::getCalls(address_t address)
+ListingItemConstContainer DisassemblerImpl::getCalls(address_t address)
 {
+    const REDasm::ListingItem* item = this->document()->functionStart(address);
 
+    if(!item)
+        return { };
+
+    const auto* graph = this->document()->functions()->graph(item);
+
+    if(!graph)
+        return { };
+
+    ListingItemConstContainer calls;
+
+    for(const auto& n : graph->nodes())
+    {
+        const auto* fbb = graph->data(n);
+
+        if(!fbb)
+            continue;
+
+        for(size_t i = fbb->startIndex(); i <= fbb->endIndex(); i++)
+        {
+            const ListingItem* item = this->document()->itemAt(i);
+
+            if(!item->is(ListingItemType::InstructionItem))
+                continue;
+
+            InstructionPtr instruction = this->document()->instruction(item->address());
+
+            if(instruction->is(InstructionType::Call))
+                calls.insert(item);
+        }
+    }
+
+    return calls;
 }
 
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
@@ -35,7 +69,49 @@ ReferenceSet DisassemblerImpl::getTargets(address_t address) const { return m_re
 
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {
+    const REDasm::ListingItem* item = this->document()->functionStart(address);
 
+    if(!item)
+        return BufferView();
+
+    const auto* graph = this->document()->functions()->graph(item);
+
+    if(!graph)
+        return BufferView();
+
+    ListingItemConstContainer instructions;
+    size_t startidx = REDasm::npos, endidx = REDasm::npos;
+
+    for(const auto& n : graph->nodes())
+    {
+        const auto* fbb = graph->data(n);
+
+        if(!fbb)
+            continue;
+
+        if(startidx == REDasm::npos)
+            startidx = fbb->startIndex();
+        else if(startidx > fbb->startIndex())
+            startidx = fbb->startIndex();
+
+        if(endidx == REDasm::npos)
+            endidx = fbb->endIndex();
+        else if(endidx < fbb->endIndex())
+            endidx = fbb->endIndex();
+    }
+
+    if((startidx == REDasm::npos) | (endidx == REDasm::npos))
+        return BufferView();
+
+    const ListingItem* startitem = this->document()->itemAt(startidx);
+    const ListingItem* enditem = this->document()->itemAt(endidx);
+
+    if(!startitem || !enditem)
+        return BufferView();
+
+    BufferView v = this->loader()->view(startitem->address());
+    v.resize(enditem->address() - startitem->address());
+    return v;
 }
 
 Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *value)
@@ -197,7 +273,25 @@ std::string DisassemblerImpl::readWString(address_t address, size_t len) const
 
 std::string DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 {
+    const REDasm::ListingItem* item = this->document()->functionStart(address);
 
+    if(!item)
+        return std::string();
+
+    const REDasm::Symbol* symbol = this->document()->symbol(item->address());
+
+    if(!symbol)
+        return std::string();
+
+    REDasm::BufferView br = this->getFunctionBytes(symbol->address);
+
+    if(br.eob())
+        return std::string();
+
+    if(ressymbol)
+        *ressymbol = symbol;
+
+    return Utils::hexstring(&br, br.size());
 }
 
 bool DisassemblerImpl::loadSignature(const std::string &signame)

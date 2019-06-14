@@ -79,4 +79,6 @@ PluginManager::PluginList PluginManager::getAssemblers()
     return plugins;
 }
 
+bool PluginManager::execute(const PluginInstance *pi, const ArgumentList &args) const { PIMPL_P(const PluginManager); return p->execute(pi, args); }
+
 } // namespace REDasm

@@ -10,7 +10,7 @@ namespace REDasm {
 Algorithm::Algorithm(AlgorithmImpl *p): m_pimpl_p(p) { }
 Algorithm::Algorithm(Disassembler *disassembler): m_pimpl_p(new AlgorithmImpl(this, disassembler)) { }
 Disassembler *Algorithm::disassembler() const { PIMPL_P(const Algorithm); return p->m_disassembler; }
-safe_ptr<ListingDocumentType> &Algorithm::document() const { PIMPL_P(const Algorithm); p->m_disassembler->document(); }
+safe_ptr<ListingDocumentType> &Algorithm::document() const { PIMPL_P(const Algorithm); return p->m_disassembler->document(); }
 void Algorithm::enqueue(address_t address) { PIMPL_P(Algorithm); p->enqueue(address); }
 void Algorithm::analyze() { PIMPL_P(Algorithm); p->analyze(); }
 bool Algorithm::hasNext() const { PIMPL_P(const Algorithm); return p->hasNext(); }

@@ -78,4 +78,14 @@ void PluginManagerImpl::unloadAll()
     }
 }
 
+bool PluginManagerImpl::execute(const PluginInstance *pi, const ArgumentList& args) const
+{
+    auto exec = PluginLoader::funcT<Callback_PluginExec>(pi->handle, REDASM_EXEC_NAME);
+
+    if(!exec)
+        return false;
+
+    return exec(args);
+}
+
 } // namespace REDasm

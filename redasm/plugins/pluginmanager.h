@@ -37,6 +37,9 @@ class LIBREDASM_API PluginManager
         PluginList getLoaders(const REDasm::LoadRequest& request);
         PluginList getAssemblers();
 
+    public:
+        bool execute(const PluginInstance* pi, const ArgumentList& args) const;
+
     friend class Context;
 };
 

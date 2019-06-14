@@ -22,6 +22,9 @@ class PluginManagerImpl
         void unload(const PluginInstance* pi);
         void unloadAll();
 
+    public:
+        bool execute(const PluginInstance* pi, const ArgumentList& args) const;
+
     private:
         PluginManager::PluginMap m_activeplugins;
         static std::unique_ptr<PluginManager> m_instance;

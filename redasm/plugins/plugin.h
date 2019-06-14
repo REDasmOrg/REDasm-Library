@@ -4,12 +4,14 @@
 
 #define REDASM_LOAD_NAME            "redasm_load"
 #define REDASM_UNLOAD_NAME          "redasm_unload"
+#define REDASM_EXEC_NAME            "redasm_exec"
 #define REDASM_INIT_PLUGIN_NAME     REDASM_INIT_NAME(plugin)
 #define REDASM_INIT_LOADER_NAME     REDASM_INIT_NAME(loader)
 #define REDASM_INIT_ASSEMBLER_NAME  REDASM_INIT_NAME(assembler)
 
-#define REDASM_LOAD   extern "C" bool redasm_load()
-#define REDASM_UNLOAD extern "C" void redasm_unload()
+#define REDASM_EXEC   extern "C" LIBREDASM_API bool redasm_exec(const REDasm::ArgumentList& args)
+#define REDASM_LOAD   extern "C" LIBREDASM_API bool redasm_load()
+#define REDASM_UNLOAD extern "C" LIBREDASM_API void redasm_unload()
 
 #define REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, plugintype) \
     static REDasm::PluginDescriptor id = { REDASM_API_LEVEL, level, description, author, license, #id }; \
@@ -26,6 +28,7 @@
 #define REDASM_LOADER(description, author, license, level)    REDASM_LOADER_ID(r_plugin, description, author, license, level)
 #define REDASM_ASSEMBLER(description, author, license, level) REDASM_ASSEMBLER_ID(r_plugin, description, author, license, level)
 
+#include "../support/containers/argumentlist.h"
 #include "../types/base_types.h"
 #include "../types/plugin_types.h"
 #include "../types/callback_types.h"

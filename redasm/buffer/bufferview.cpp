@@ -6,8 +6,6 @@
 
 namespace REDasm {
 
-const std::string BufferView::WILDCARD_BYTE = "??";
-
 BufferView::BufferView(): m_pimpl_p(new BufferViewImpl(this)) { }
 
 BufferView::BufferView(const AbstractBuffer *buffer, size_t offset, size_t size): m_pimpl_p{new BufferViewImpl(this)}
@@ -89,8 +87,6 @@ void BufferView::copyTo(AbstractBuffer *buffer)
 
 std::string BufferView::toString() const { return std::string(reinterpret_cast<const char*>(this->data()), this->size()); }
 void BufferView::resize(size_t size) { PIMPL_P(BufferView); p->m_size = std::min(size, p->m_buffer->size()); }
-BufferView::byte_iterator BufferView::begin() const { return byte_iterator(this->data()); }
-BufferView::byte_iterator BufferView::end() const { PIMPL_P(const BufferView); return byte_iterator(p->endData()); }
 u8 *BufferView::data() const { PIMPL_P(const BufferView); return p->m_buffer->data() + p->m_offset; }
 u8 *BufferView::endData() const { PIMPL_P(const BufferView); return this->data() ? (this->data() + this->size()) : nullptr; }
 const AbstractBuffer *BufferView::buffer() const { PIMPL_P(const BufferView); return p->m_buffer; }
@@ -119,5 +115,19 @@ BufferView &BufferView::operator +=(size_t offset)
     return *this;
 }
 
+WildcardSearchResult BufferView::wildcard(const std::string& pattern, size_t startoffset) const { PIMPL_P(const BufferView); return p->wildcard(pattern, startoffset); }
+SearchResult BufferView::find(const u8 *searchdata, size_t searchsize, size_t startoffset) const { PIMPL_P(const BufferView); return p->find(searchdata, searchsize, startoffset); }
+
+SearchResult::SearchResult(): m_pimpl_p(new SearchResultImpl()) { }
+SearchResult::SearchResult(const BufferView *view, const u8 *searchdata, size_t searchsize): m_pimpl_p(new SearchResultImpl(view, searchdata, searchsize)) { }
+SearchResult SearchResult::next() const { PIMPL_P(const SearchResult); return p->next(); }
+bool SearchResult::hasNext() const { PIMPL_P(const SearchResult); return p->hasNext(); }
+size_t SearchResult::position() const { PIMPL_P(const SearchResult); return p->position(); }
+
+WildcardSearchResult::WildcardSearchResult(): m_pimpl_p(new WildcardSearchResultImpl()) { }
+WildcardSearchResult::WildcardSearchResult(const BufferView *view, const std::string &searchwildcard, size_t searchsize): m_pimpl_p(new WildcardSearchResultImpl(view, searchwildcard, searchsize)) { }
+WildcardSearchResult WildcardSearchResult::next() const { PIMPL_P(const WildcardSearchResult); return p->next(); }
+size_t WildcardSearchResult::position() const { PIMPL_P(const WildcardSearchResult); return p->position(); }
+bool WildcardSearchResult::hasNext() const { PIMPL_P(const WildcardSearchResult); return p->hasNext(); }
 
 } // namespace REDasm

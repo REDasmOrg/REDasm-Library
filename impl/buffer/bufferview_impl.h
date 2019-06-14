@@ -6,6 +6,48 @@
 
 namespace REDasm {
 
+class SearchObjectImpl
+{
+    public:
+        SearchObjectImpl();
+        SearchObjectImpl(const BufferView* view, size_t searchsize);
+        bool hasNext() const;
+        size_t position() const;
+
+    protected:
+        const BufferView* m_view;
+        const u8* m_result;
+        size_t m_position, m_searchsize;
+
+    friend class BufferViewImpl;
+};
+
+class SearchResultImpl: public SearchObjectImpl
+{
+    public:
+        SearchResultImpl();
+        SearchResultImpl(const BufferView* view, const u8* searchdata, size_t searchsize);
+        SearchResult next() const;
+
+    private:
+        const u8* m_searchdata;
+
+    friend class BufferViewImpl;
+};
+
+class WildcardSearchResultImpl: public SearchObjectImpl
+{
+    public:
+        WildcardSearchResultImpl();
+        WildcardSearchResultImpl(const BufferView* view, const std::string& searchwildcard, size_t searchsize);
+        WildcardSearchResult next() const;
+
+    private:
+        std::string m_searchwildcard;
+
+    friend class BufferViewImpl;
+};
+
 class BufferViewImpl
 {
     PIMPL_DECLARE_Q(BufferView)
@@ -20,73 +62,15 @@ class BufferViewImpl
         u8* endData() const;
 
     public:
-        template<typename T> BufferView::WildcardResult<T> wildcard(std::string pattern, size_t startoffset = 0) const;
-        template<typename T> BufferView::SearchResult<T> find(const u8* searchdata, size_t searchsize, size_t startoffset = 0) const;
+        WildcardSearchResult wildcard(std::string pattern, size_t startoffset = 0) const;
+        SearchResult find(const u8* searchdata, size_t searchsize, size_t startoffset = 0) const;
+
+    public:
+        static const std::string WILDCARD_BYTE;
 
     private:
         const AbstractBuffer* m_buffer;
         size_t m_offset, m_size;
 };
-
-template<typename T> BufferView::WildcardResult<T> BufferViewImpl::wildcard(std::string pattern, size_t startoffset) const
-{
-    PIMPL_Q(const BufferView);
-
-    if(!this->preparePattern(pattern))
-        return BufferView::WildcardResult<T>();
-
-    size_t beginoffset = 0, endoffset = startoffset, searchsize = this->patternLength(pattern);
-    auto bp = this->patternRange(pattern, startoffset, endoffset, beginoffset);
-
-    BufferView::WildcardResult<T> r(this, pattern, searchsize);
-    const u8* pdata = q->data() + startoffset;
-
-    while(pdata < (this->endData() - searchsize))
-    {
-        if((*pdata != bp.first) && ((*pdata + searchsize) != bp.second))
-        {
-            pdata++;
-            continue;
-        }
-
-        if(this->comparePattern(pattern, pdata))
-        {
-            r.result = reinterpret_cast<T*>(pdata);
-            r.position = (pdata - q->data()) - beginoffset;
-            break;
-        }
-
-        pdata++;
-    }
-
-    return r;
-}
-
-template<typename T> BufferView::SearchResult<T> BufferViewImpl::find(const u8 *searchdata, size_t searchsize, size_t startoffset) const
-{
-    PIMPL_Q(const BufferView);
-
-    if(q->eob() || !searchdata || !searchsize || (searchsize > q->size()))
-        return BufferView::SearchResult<T>();
-
-    BufferView::SearchResult<T> r(this, searchdata, searchsize);
-    const u8* pdata = q->data() + startoffset;
-
-    while((pdata + searchsize) < this->endData())
-    {
-        if(!std::equal(pdata, pdata + searchsize, searchdata))
-        {
-            pdata++;
-            continue;
-        }
-
-        r.result = reinterpret_cast<const T*>(pdata);
-        r.position = pdata - q->data();
-        break;
-    }
-
-    return r;
-}
-
 
 } // namespace REDasm

@@ -124,7 +124,7 @@ struct Operand
 
 struct Instruction
 {
-    Instruction(): address(0), type(InstructionType::None), size(0), id(0) { meta.userdata = nullptr; }
+    Instruction(): free(nullptr), address(0), type(InstructionType::None), size(0), id(0) { meta.userdata = nullptr; }
     ~Instruction() { reset(); }
 
     void(*free)(void*);

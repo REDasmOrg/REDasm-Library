@@ -33,7 +33,7 @@ class LoaderImpl: public PluginImpl
         AssemblerRequest assembler() const;
         Analyzer *analyzer(Disassembler* disassembler);
         void build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
-        void init(const LoadRequest& loader);
+        void init(const LoadRequest& request);
 
     private:
         std::unique_ptr<Analyzer> m_analyzer;

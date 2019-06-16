@@ -18,7 +18,8 @@ WildcardSearchResult WildcardSearchResultImpl::next() const { return m_view->wil
 
 const std::string BufferViewImpl::WILDCARD_BYTE = "??";
 
-BufferViewImpl::BufferViewImpl(BufferView *q): m_pimpl_q(q) { }
+BufferViewImpl::BufferViewImpl(BufferView *q): m_pimpl_q(q), m_buffer(nullptr), m_offset(0), m_size(0) { }
+BufferViewImpl::BufferViewImpl(BufferView *q, const AbstractBuffer *buffer, size_t offset, size_t size): m_pimpl_q(q), m_buffer(buffer), m_offset(offset), m_size(size) { }
 size_t BufferViewImpl::patternLength(const std::string &pattern) const { return pattern.size() / 2;  }
 
 std::pair<u8, u8> BufferViewImpl::patternRange(std::string &pattern, size_t &startoffset, size_t &endoffset, size_t &beginoffset) const

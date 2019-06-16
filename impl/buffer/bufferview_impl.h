@@ -56,6 +56,7 @@ class BufferViewImpl
 
     public:
         BufferViewImpl(BufferView* q);
+        BufferViewImpl(BufferView* q, const AbstractBuffer *buffer, size_t offset, size_t size);
         size_t patternLength(const std::string& pattern) const;
         std::pair<u8, u8> patternRange(std::string &pattern, size_t& startoffset, size_t& endoffset, size_t &beginoffset) const;
         bool comparePattern(const std::string& pattern, const u8* pdata) const;

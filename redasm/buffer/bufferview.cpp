@@ -7,15 +7,7 @@
 namespace REDasm {
 
 BufferView::BufferView(): m_pimpl_p(new BufferViewImpl(this)) { }
-
-BufferView::BufferView(const AbstractBuffer *buffer, size_t offset, size_t size): m_pimpl_p{new BufferViewImpl(this)}
-{
-    PIMPL_P(BufferView);
-
-    p->m_buffer = buffer;
-    p->m_offset = offset;
-    p->m_size = size;
-}
+BufferView::BufferView(const AbstractBuffer *buffer, size_t offset, size_t size): m_pimpl_p(new BufferViewImpl(this, buffer, offset, size)) { }
 
 BufferView BufferView::view(size_t offset, size_t size) const
 {

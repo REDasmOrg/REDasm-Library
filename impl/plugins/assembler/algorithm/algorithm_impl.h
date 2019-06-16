@@ -25,9 +25,12 @@ class AlgorithmImpl: public StateMachine
         void enqueue(address_t address);
         void analyze();
 
+    protected:
+        bool validateState(const State& state) const override;
+        void onNewState(const State *state) const override;
+
     private:
         void loadTargets(const InstructionPtr& instruction);
-        bool validateState(const State& state) const;
         void validateTarget(const InstructionPtr& instruction) const;
         bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const InstructionPtr& instruction);

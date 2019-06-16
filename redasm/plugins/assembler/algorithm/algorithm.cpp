@@ -20,15 +20,7 @@ void Algorithm::enqueueState(const State &state) { PIMPL_P(Algorithm); p->enqueu
 void Algorithm::executeState(const State &state) { PIMPL_P(Algorithm); p->executeState(state); }
 void Algorithm::validateTarget(const InstructionPtr &instruction) const { PIMPL_P(const Algorithm); p->validateTarget(instruction);  }
 bool Algorithm::validateState(const State &state) const { PIMPL_P(const Algorithm); return p->validateState(state); }
-
-void Algorithm::onNewState(const State* state) const
-{
-    PIMPL_P(const Algorithm);
-
-    r_ctx->statusProgress("Analyzing @ " + Utils::hex(state->address, p->m_assembler->bits()) +
-                           " >> " + state->name, p->pending());
-}
-
+void Algorithm::onNewState(const State* state) const { PIMPL_P(const Algorithm); return p->onNewState(state); }
 size_t Algorithm::disassembleInstruction(address_t address, const InstructionPtr& instruction) { PIMPL_P(Algorithm); return p->disassembleInstruction(address, instruction); }
 void Algorithm::done(address_t address) { PIMPL_P(Algorithm); p->done(address); }
 

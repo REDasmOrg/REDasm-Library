@@ -93,6 +93,12 @@ bool AlgorithmImpl::validateState(const State &state) const
     return m_document->segment(state.address);
 }
 
+void AlgorithmImpl::onNewState(const State *state) const
+{
+    r_ctx->statusProgress("Analyzing @ " + Utils::hex(state->address, m_assembler->bits()) +
+                           " >> " + state->name, this->pending());
+}
+
 void AlgorithmImpl::validateTarget(const InstructionPtr &instruction) const
 {
     if(m_disassembler->getTargetsCount(instruction->address))

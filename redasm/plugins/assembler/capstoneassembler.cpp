@@ -10,7 +10,7 @@ bool CapstoneAssembler::decodeInstruction(const BufferView &view, const Instruct
     PIMPL_P(CapstoneAssembler);
 
     address_t address = instruction->address;
-    const u8* pdata = static_cast<const u8*>(view);
+    const u8* pdata = view.data();
     size_t len = view.size();
     cs_insn* insn = cs_malloc(p->handle());
 

@@ -79,10 +79,10 @@ Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
     return m_analyzer.get();
 }
 
-void LoaderImpl::init(const LoadRequest &loader)
+void LoaderImpl::init(const LoadRequest &request)
 {
-    m_buffer = loader.buffer(); // Take Ownership
-    m_view = loader.view();     // Full View
+    m_buffer = request.buffer();
+    m_view = request.view();     // Full View
     this->createDocument();
 }
 

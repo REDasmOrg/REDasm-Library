@@ -10,7 +10,7 @@ std::string LoadRequest::filePath() const { PIMPL_P(const LoadRequest); return p
 AbstractBuffer *LoadRequest::buffer() const { PIMPL_P(const LoadRequest); return p->buffer(); }
 const BufferView &LoadRequest::view() const { PIMPL_P(const LoadRequest); return p->view(); }
 
-Loader::Loader(): Plugin(new LoaderImpl()) { }
+Loader::Loader(): Plugin(new LoaderImpl(this)) { }
 LoaderFlags Loader::flags() const { return LoaderFlags::None; }
 AbstractBuffer *Loader::buffer() const { PIMPL_P(const Loader); return p->buffer(); }
 BufferView REDasm::Loader::viewOffset(offset_t offset) const { PIMPL_P(const Loader); return p->viewOffset(offset); }

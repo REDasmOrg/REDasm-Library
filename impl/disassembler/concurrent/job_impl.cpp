@@ -145,7 +145,10 @@ void JobImpl::doWorkSync()
             m_jobcallback(q);
 
             if(m_oneshot)
+            {
+                this->sleep();
                 return;
+            }
         }
     }
 }

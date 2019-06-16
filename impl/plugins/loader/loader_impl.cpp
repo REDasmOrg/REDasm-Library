@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-LoaderImpl::LoaderImpl(): PluginImpl(), m_buffer(nullptr) { }
+LoaderImpl::LoaderImpl(Loader *loader): m_pimpl_q(loader), PluginImpl(), m_buffer(nullptr) { }
 
 LoaderImpl::~LoaderImpl()
 {

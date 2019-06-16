@@ -14,7 +14,7 @@ class LoaderImpl: public PluginImpl
     PIMPL_DECLARE_PUBLIC(Loader)
 
     public:
-        LoaderImpl();
+        LoaderImpl(Loader* loader);
         virtual ~LoaderImpl();
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;

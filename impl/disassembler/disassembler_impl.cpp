@@ -10,14 +10,7 @@
 
 namespace REDasm {
 
-DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader)
-{
-    // m_analyzejob.setOneShot(true);
-    // EVENT_CONNECT(&m_analyzejob, stateChanged, q, [&](Job*) { pimpl_q()->busyChanged(); });
-    // m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, this), true); // Deferred
-    // EVENT_CONNECT(&m_jobs, stateChanged, q, [&](Job*) { pimpl_q()->busyChanged(); });
-}
-
+DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader) { }
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }

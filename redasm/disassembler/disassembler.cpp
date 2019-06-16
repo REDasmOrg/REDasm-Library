@@ -8,6 +8,11 @@ Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new 
 {
     PIMPL_P(Disassembler);
     p->m_algorithm = assembler->createAlgorithm(this);
+
+    p->m_analyzejob.setOneShot(true);
+    EVENT_CONNECT(&p->m_analyzejob, stateChanged, this, [&](Job*) { this->busyChanged(); });
+    p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
+    EVENT_CONNECT(&p->m_jobs, stateChanged, this, [&](Job*) { this->busyChanged(); });
 }
 
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }

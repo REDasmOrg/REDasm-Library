@@ -7,9 +7,7 @@ namespace REDasm {
 Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader))
 {
     PIMPL_P(Disassembler);
-
-    auto palgorithm = assembler->createAlgorithm(this);
-    p->m_algorithm = safe_ptr<Algorithm>(palgorithm.release(), palgorithm.get_deleter()); // Let safe_ptr handle it
+    p->m_algorithm = assembler->createAlgorithm(this);
 
     p->m_analyzejob.setOneShot(true);
     EVENT_CONNECT(&p->m_analyzejob, stateChanged, this, [&](Job*) { this->busyChanged(); });

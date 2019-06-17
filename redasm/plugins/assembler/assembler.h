@@ -29,7 +29,7 @@ class LIBREDASM_API Assembler : public Plugin
 
     public:
         Assembler();
-        object_ptr<Algorithm> createAlgorithm(Disassembler* disassembler) { return REDasm::wrap_object<Algorithm>(this->doCreateAlgorithm(disassembler)); }
+        safe_ptr<Algorithm> createAlgorithm(Disassembler* disassembler) { return REDasm::wrap_safe_object<Algorithm>(this->doCreateAlgorithm(disassembler)); }
         object_ptr<Printer> createPrinter(Disassembler* disassembler) { return REDasm::wrap_object<Printer>(this->doCreatePrinter(disassembler)); }
         const AssemblerRequest &request() const;
         size_t addressWidth() const;

@@ -11,7 +11,7 @@ class ControlFlowAlgorithmImpl: public AlgorithmImpl
 
     public:
         ControlFlowAlgorithmImpl(ControlFlowAlgorithm* algorithm, Disassembler* disassembler);
-        void enqueueTargets(const InstructionPtr &instruction);
+        void enqueueTargets(Instruction *instruction);
 };
 
 } // namespace REDasm

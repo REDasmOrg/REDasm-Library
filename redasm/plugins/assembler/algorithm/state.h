@@ -22,7 +22,7 @@ struct State
     };
 
     size_t index;
-    InstructionPtr instruction;
+    Instruction* instruction;
 
     bool isFromOperand() const;
     bool isUser() const;

@@ -34,7 +34,7 @@ class DisassemblerImpl
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
-        size_t checkAddressTable(const InstructionPtr& instruction, address_t startaddress);
+        size_t checkAddressTable(Instruction *instruction, address_t startaddress);
         size_t locationIsString(address_t address, bool *wide = nullptr) const;
         JobState state() const;
         std::string readString(const Symbol* symbol, size_t len = REDasm::npos) const;

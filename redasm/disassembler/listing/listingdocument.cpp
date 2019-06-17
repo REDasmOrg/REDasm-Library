@@ -455,11 +455,11 @@ const Segment *ListingDocumentType::segmentByName(const std::string &name) const
 void ListingDocumentType::instruction(const InstructionPtr &instruction)
 {
     PIMPL_P(ListingDocumentType);
-    p->m_instructions.commit(instruction->address, instruction);
-    p->push(instruction->address, ListingItemType::InstructionItem);
+    p->m_instructions.commit(instruction->address(), instruction);
+    p->push(instruction->address(), ListingItemType::InstructionItem);
 }
 
-void ListingDocumentType::update(const InstructionPtr &instruction) { PIMPL_P(ListingDocumentType); p->m_instructions.commit(instruction->address, instruction); }
+void ListingDocumentType::update(const InstructionPtr &instruction) { PIMPL_P(ListingDocumentType); p->m_instructions.commit(instruction->address(), instruction); }
 
 InstructionPtr ListingDocumentType::instruction(address_t address)
 {

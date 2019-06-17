@@ -96,47 +96,46 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
 std::string Printer::out(const InstructionPtr &instruction, const OpCallback &opfunc) const
 {
-    const OperandList& operands = instruction->operands;
-    std::string s = instruction->mnemonic;
+    std::string s = instruction->mnemonic();
 
     if(instruction->isInvalid())
     {
-        BufferView view = this->disassembler()->loader()->view(instruction->address);
-        std::string hexstring = Utils::hexstring(&view, instruction->size);
+        BufferView view = this->disassembler()->loader()->view(instruction->address());
+        std::string hexstring = Utils::hexstring(&view, instruction->size());
 
         s += hexstring;
         opfunc(nullptr, std::string(), hexstring);
         return s;
     }
 
-    if(!operands.empty())
+    if(instruction->hasOperands())
         s += " ";
 
-    for(auto it = operands.begin(); it != operands.end(); it++)
+    for(size_t i = 0; i < instruction->operandsCount(); i++)
     {
-        if(it != operands.begin())
+        if(i)
             s += ", ";
 
         std::string opstr;
-        const Operand& op = *it;
+        const Operand* op = instruction->op(i);
 
-        if(op.is(OperandType::Constant))
-            opstr = Utils::hex(op.u_value, 0, true);
-        else if(op.is(OperandType::Immediate))
-            opstr = this->imm(&op);
-        else if(op.is(OperandType::Memory))
-            opstr = this->mem(&op);
-        else if(op.is(OperandType::Displacement))
-            opstr = this->disp(&op);
-        else if(op.is(OperandType::Register))
-            opstr = this->reg(op.reg);
+        if(op->is(OperandType::Constant))
+            opstr = Utils::hex(op->u_value, 0, true);
+        else if(op->is(OperandType::Immediate))
+            opstr = this->imm(op);
+        else if(op->is(OperandType::Memory))
+            opstr = this->mem(op);
+        else if(op->is(OperandType::Displacement))
+            opstr = this->disp(op);
+        else if(op->is(OperandType::Register))
+            opstr = this->reg(op->reg);
         else
             continue;
 
-        std::string opsize = this->size(&op);
+        std::string opsize = this->size(op);
 
         if(opfunc)
-            opfunc(&op, opsize, opstr);
+            opfunc(op, opsize, opstr);
 
         if(!opsize.empty())
             s += opsize + " ";

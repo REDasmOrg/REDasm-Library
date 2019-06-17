@@ -73,7 +73,7 @@ void AnalyzerImpl::findTrampoline(const Symbol *symbol)
     if(!instruction)
         return;
 
-    m_disassembler->pushReference(symtrampoline->address, instruction->address);
+    m_disassembler->pushReference(symtrampoline->address, instruction->address());
 }
 
 void AnalyzerImpl::checkFunctions()

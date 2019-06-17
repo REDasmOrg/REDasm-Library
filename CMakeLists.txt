@@ -32,6 +32,7 @@ file(GLOB_RECURSE IMPL_HEADERS
     impl/libs/dirent/*.h
     impl/libs/miniz/*.h
     impl/plugins/*.h
+    impl/types/*.h
     impl/support/*.h
     context_impl.h)
 
@@ -44,6 +45,7 @@ file(GLOB_RECURSE IMPL_SOURCES
      impl/libs/dirent/*.c
      impl/libs/miniz/*.c
      impl/plugins/*.c*
+     impl/types/*.c*
      impl/support/*.c*
      context_impl.cpp)
 
@@ -78,6 +80,12 @@ if(PORTABLE_MODE)
                        "${CMAKE_CURRENT_SOURCE_DIR}/impl/libs/capstone/include/capstone" "${CMAKE_BINARY_DIR}/redasm/libs/capstone")
 else()
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/redasm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*")
+endif()
+
+if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") AND DEBUG_STL_ITERATORS)
+    target_compile_options(${PROJECT_NAME} PRIVATE -D_GLIBCXX_DEBUG)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

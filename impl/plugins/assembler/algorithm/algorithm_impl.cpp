@@ -31,7 +31,7 @@ AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm, Disassembler *disassembler): 
     REGISTER_STATE_PRIVATE(Algorithm::ImmediateState, &Algorithm::immediateState);
 }
 
-size_t AlgorithmImpl::disassembleInstruction(address_t address, const InstructionPtr &instruction)
+size_t AlgorithmImpl::disassembleInstruction(address_t address, Instruction* instruction)
 {
     if(!this->canBeDisassembled(address))
         return Algorithm::SKIP;
@@ -41,7 +41,7 @@ size_t AlgorithmImpl::disassembleInstruction(address_t address, const Instructio
     if(symbol && !symbol->isLocked() && !symbol->is(SymbolType::Code))
         m_document->eraseSymbol(symbol->address);
 
-    instruction->address = address;
+    instruction->setAddress(address);
 
     BufferView view = m_loader->view(address);
     return m_assembler->decode(view, instruction) ? Algorithm::OK : Algorithm::FAIL;
@@ -79,10 +79,10 @@ void AlgorithmImpl::analyze()
     });
 }
 
-void AlgorithmImpl::loadTargets(const InstructionPtr &instruction)
+void AlgorithmImpl::loadTargets(Instruction *instruction)
 {
-    for(address_t target : instruction->meta.targets) // Get precalculated targets
-        m_disassembler->pushTarget(target, instruction->address);
+    for(size_t i = 0; i < instruction->targetsCount(); i++)
+        m_disassembler->pushTarget(instruction->targetAt(i), instruction->address());
 }
 
 bool AlgorithmImpl::validateState(const State &state) const
@@ -99,9 +99,9 @@ void AlgorithmImpl::onNewState(const State *state) const
                            " >> " + state->name, this->pending());
 }
 
-void AlgorithmImpl::validateTarget(const InstructionPtr &instruction) const
+void AlgorithmImpl::validateTarget(Instruction* instruction) const
 {
-    if(m_disassembler->getTargetsCount(instruction->address))
+    if(m_disassembler->getTargetsCount(instruction->address()))
         return;
 
     const Operand* op = instruction->target();
@@ -109,7 +109,7 @@ void AlgorithmImpl::validateTarget(const InstructionPtr &instruction) const
     if(op && !op->isNumeric())
         return;
 
-    r_ctx->problem("No targets found for " + Utils::quoted(instruction->mnemonic) + " @ " + Utils::hex(instruction->address));
+    r_ctx->problem("No targets found for " + Utils::quoted(instruction->mnemonic()) + " @ " + Utils::hex(instruction->address()));
 }
 
 bool AlgorithmImpl::canBeDisassembled(address_t address)
@@ -131,16 +131,16 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     return true;
 }
 
-void AlgorithmImpl::createInvalidInstruction(const InstructionPtr &instruction)
+void AlgorithmImpl::createInvalidInstruction(Instruction* instruction)
 {
-    if(!instruction->size)
-        instruction->size = 1; // Invalid instruction uses at least 1 byte
+    if(!instruction->size())
+        instruction->setSize(1); // Invalid instruction uses at least 1 byte
 
-    instruction->type = InstructionType::Invalid;
-    instruction->mnemonic = INVALID_MNEMONIC;
+    instruction->setType(InstructionType::Invalid);
+    instruction->setMnemonic(INVALID_MNEMONIC);
 }
 
-size_t AlgorithmImpl::disassemble(address_t address, const InstructionPtr &instruction)
+size_t AlgorithmImpl::disassemble(address_t address, Instruction* instruction)
 {
     auto it = m_done.find(address);
 
@@ -166,7 +166,7 @@ size_t AlgorithmImpl::disassemble(address_t address, const InstructionPtr &instr
     return result;
 }
 
-void AlgorithmImpl::emulateOperand(const Operand *op, const InstructionPtr &instruction)
+void AlgorithmImpl::emulateOperand(const Operand *op, Instruction *instruction)
 {
     // u64 value = 0;
 
@@ -186,7 +186,7 @@ void AlgorithmImpl::emulateOperand(const Operand *op, const InstructionPtr &inst
     // this->onEmulatedOperand(op, instruction, value);
 }
 
-void AlgorithmImpl::emulate(const InstructionPtr &instruction)
+void AlgorithmImpl::emulate(Instruction* instruction)
 {
     //if(!m_emulator)
         //return;

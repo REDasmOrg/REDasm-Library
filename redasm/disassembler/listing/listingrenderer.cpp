@@ -302,7 +302,7 @@ void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingIt
 
 void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererLine &rl)
 {
-    std::string mnemonic = instruction->mnemonic + " ";
+    std::string mnemonic = std::string(instruction->mnemonic()) + " ";
 
     if(instruction->isInvalid())
         rl.push(mnemonic, "instruction_invalid");

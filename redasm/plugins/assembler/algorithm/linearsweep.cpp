@@ -4,7 +4,7 @@ namespace REDasm {
 
 LinearSweepAlgorithm::LinearSweepAlgorithm(Disassembler *disassembler): Algorithm(disassembler) { }
 
-void LinearSweepAlgorithm::onDecoded(const InstructionPtr &instruction)
+void LinearSweepAlgorithm::onDecoded(Instruction *instruction)
 {
     Algorithm::onDecoded(instruction);
     this->enqueue(instruction->endAddress());

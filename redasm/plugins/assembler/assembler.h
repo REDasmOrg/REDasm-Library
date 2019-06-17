@@ -22,7 +22,7 @@ class LIBREDASM_API Assembler : public Plugin
     PIMPL_DECLARE_PRIVATE(Assembler)
 
     protected:
-        typedef std::function<void(const InstructionPtr&)> InstructionCallback;
+        typedef std::function<void(Instruction*)> InstructionCallback;
 
     protected:
         Assembler(AssemblerImpl* p);
@@ -35,8 +35,8 @@ class LIBREDASM_API Assembler : public Plugin
         size_t addressWidth() const;
         virtual size_t bits() const = 0;
         virtual void init(const AssemblerRequest &request);
-        virtual bool decode(const BufferView &view, const InstructionPtr& instruction);
-        virtual bool decodeInstruction(const BufferView& view, const InstructionPtr& instruction);
+        virtual bool decode(const BufferView &view, Instruction* instruction);
+        virtual bool decodeInstruction(const BufferView& view, Instruction* instruction);
         virtual Symbol* findTrampoline(ListingDocumentIterator* it) const;
 
     protected:
@@ -44,7 +44,7 @@ class LIBREDASM_API Assembler : public Plugin
         void registerInstruction(instruction_id_t id, const InstructionCallback &cb);
         virtual Algorithm* doCreateAlgorithm(Disassembler* disassembler) const;
         virtual Printer* doCreatePrinter(Disassembler* disassembler) const;
-        virtual void onDecoded(const InstructionPtr& instruction);
+        virtual void onDecoded(Instruction* instruction);
 };
 
 } // namespace REDasm

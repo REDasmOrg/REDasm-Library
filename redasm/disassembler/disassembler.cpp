@@ -28,7 +28,7 @@ InstructionPtr Disassembler::disassembleInstruction(address_t address) { PIMPL_P
 address_location Disassembler::getTarget(address_t address) const { PIMPL_P(const Disassembler); return p->getTarget(address); }
 size_t Disassembler::getTargetsCount(address_t address) const { PIMPL_P(const Disassembler); return p->getTargetsCount(address);  }
 size_t Disassembler::getReferencesCount(address_t address) const { PIMPL_P(const Disassembler); return p->getReferencesCount(address); }
-size_t Disassembler::checkAddressTable(const InstructionPtr &instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
+size_t Disassembler::checkAddressTable(Instruction* instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
 size_t Disassembler::locationIsString(address_t address, bool *wide) const { PIMPL_P(const Disassembler); return p->locationIsString(address, wide); }
 JobState Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
 std::string Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }

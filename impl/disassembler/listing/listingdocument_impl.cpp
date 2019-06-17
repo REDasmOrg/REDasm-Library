@@ -41,7 +41,7 @@ size_t ListingDocumentTypeImpl::findIndex(address_t address, ListingItemType typ
 ListingItem *ListingDocumentTypeImpl::push(address_t address, ListingItemType type, size_t index)
 {
     PIMPL_Q(ListingDocumentType);
-    auto item = std::make_unique<ListingItem>(address, type, index);
+    auto item = std::unique_ptr<ListingItem>(new ListingItem(address, type, index));
 
     if(type == ListingItemType::InstructionItem)
     {

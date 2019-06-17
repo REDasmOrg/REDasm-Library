@@ -127,7 +127,7 @@ InstructionPtr DisassemblerImpl::disassembleInstruction(address_t address)
         return instruction;
 
     instruction = std::make_shared<Instruction>();
-    m_algorithm->disassembleInstruction(address, instruction);
+    m_algorithm->disassembleInstruction(address, instruction.get());
     m_algorithm->done(address);
     return instruction;
 }
@@ -136,7 +136,7 @@ address_location DisassemblerImpl::getTarget(address_t address) const { return m
 size_t DisassemblerImpl::getTargetsCount(address_t address) const { return m_referencetable.targetsCount(address); }
 size_t DisassemblerImpl::getReferencesCount(address_t address) const { return m_referencetable.referencesCount(address); }
 
-size_t DisassemblerImpl::checkAddressTable(const InstructionPtr &instruction, address_t startaddress)
+size_t DisassemblerImpl::checkAddressTable(Instruction* instruction, address_t startaddress)
 {
     Symbol* symbol = this->document()->symbol(startaddress);
 
@@ -161,7 +161,7 @@ size_t DisassemblerImpl::checkAddressTable(const InstructionPtr &instruction, ad
         targets.insert(target);
 
         if(instruction->is(InstructionType::Branch))
-            this->pushTarget(target, instruction->address);
+            this->pushTarget(target, instruction->address());
         else
             this->checkLocation(startaddress, target);
 
@@ -182,12 +182,12 @@ size_t DisassemblerImpl::checkAddressTable(const InstructionPtr &instruction, ad
                 else
                     this->document()->tableItem(address, startaddress, i);
 
-                this->pushReference(address, instruction->address);
+                this->pushReference(address, instruction->address());
             }
         }
         else
         {
-            this->pushReference(startaddress, instruction->address);
+            this->pushReference(startaddress, instruction->address());
             this->document()->pointer(startaddress, SymbolType::Data);
         }
     }

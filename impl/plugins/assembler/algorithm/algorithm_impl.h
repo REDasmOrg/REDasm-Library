@@ -20,7 +20,7 @@ class AlgorithmImpl: public StateMachine
 
     public:
         AlgorithmImpl(Algorithm* algorithm, Disassembler* disassembler);
-        size_t disassembleInstruction(address_t address, const InstructionPtr& instruction);
+        size_t disassembleInstruction(address_t address, Instruction *instruction);
         void done(address_t address);
         void enqueue(address_t address);
         void analyze();
@@ -30,13 +30,13 @@ class AlgorithmImpl: public StateMachine
         void onNewState(const State *state) const override;
 
     private:
-        void loadTargets(const InstructionPtr& instruction);
-        void validateTarget(const InstructionPtr& instruction) const;
+        void loadTargets(Instruction* instruction);
+        void validateTarget(Instruction *instruction) const;
         bool canBeDisassembled(address_t address);
-        void createInvalidInstruction(const InstructionPtr& instruction);
-        size_t disassemble(address_t address, const InstructionPtr& instruction);
-        void emulateOperand(const Operand* op, const InstructionPtr& instruction);
-        void emulate(const InstructionPtr& instruction);
+        void createInvalidInstruction(Instruction *instruction);
+        size_t disassemble(address_t address, Instruction *instruction);
+        void emulateOperand(const Operand* op, Instruction* instruction);
+        void emulate(Instruction *instruction);
 
     private:
         //std::unique_ptr<Emulator> m_emulator;

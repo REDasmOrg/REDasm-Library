@@ -3,8 +3,11 @@
 #include <memory>
 #include <deque>
 #include <set>
+#include "../support/serializer.h"
 #include "../macros.h"
+#include "../pimpl.h"
 #include "base_types.h"
+#include "callback_types.h"
 
 namespace REDasm {
 
@@ -122,119 +125,79 @@ struct Operand
     }
 };
 
-struct Instruction
+
+class InstructionImpl;
+
+class Instruction
 {
-    Instruction(): free(nullptr), address(0), type(InstructionType::None), size(0), id(0) { meta.userdata = nullptr; }
-    ~Instruction() { reset(); }
+    PIMPL_DECLARE_P(Instruction)
+    PIMPL_DECLARE_PRIVATE(Instruction)
 
-    void(*free)(void*);
+    public:
+        Instruction();
+        const char* mnemonic() const;
+        address_t address() const;
+        address_t endAddress() const;
+        u32 size() const;
+        instruction_id_t id() const;
+        const InstructionType& type() const;
+        InstructionType& type();
 
-    std::string mnemonic;
-    std::deque<Operand> operands;
-    address_t address;
-    InstructionType type;
-    u32 size;
-    instruction_id_t id;             // Backend Specific
+    public:
+        bool hasOperands() const;
+        size_t operandsCount() const;
+        size_t opSize(size_t idx) const;
+        const Operand* op(size_t idx) const;
+        Operand* op(size_t idx);
+        const Operand *target() const;
+        void opSize(size_t idx, size_t size);
+        Instruction* mem(address_t v, tag_t tag = 0);
+        Instruction* cnst(u64 v, tag_t tag = 0);
+        Instruction* imm(u64 v, tag_t tag = 0);
+        Instruction* disp(register_id_t base, s64 displacement = 0);
+        Instruction* disp(register_id_t base, register_id_t index, s64 displacement);
+        Instruction* disp(register_id_t base, register_id_t index, s64 scale, s64 displacement);
+        Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
+        Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type = OperandType::Local);
+        Instruction* reg(register_id_t r, tag_t tag = 0);
 
-    struct {
-        void* userdata;              // It doesn't survive after AssemblerPlugin::decode() by design
-        std::set<address_t> targets; // Precalulated targets
-    } meta;                          // 'meta' is not serialized
+    public:
+        size_t targetsCount() const;
+        address_t targetAt(size_t idx) const;
+        void target(address_t address);
+        void targetIdx(size_t idx);
+        void clearTargets();
 
-    constexpr bool is(InstructionType t) const { return type & t; }
-    constexpr bool isInvalid() const { return type == InstructionType::Invalid; }
-    inline void opSize(size_t index, u64 size) { operands[index].size = size; }
-    inline u64 opSize(size_t index) const { return operands[index].size; }
-    constexpr address_t endAddress() const { return address + size; }
+    public:
+        bool is(InstructionType t) const;
+        bool isInvalid() const;
+        void* userData() const;
+        void reset();
 
-    inline std::set<address_t> targets() const { return meta.targets; }
-    inline void target(address_t address) { meta.targets.insert(address); }
+    public:
+        void setMnemonic(const char* s);
+        void setAddress(address_t address);
+        void setSize(u32 size);
+        void setId(instruction_id_t id);
+        void setType(InstructionType type);
+        void setFree(const Callback_VoidPointer& cb);
+        void setUserData(void* userdata);
 
-    inline void targetIdx(size_t idx) {
-        if(idx >= operands.size())
-            return;
-
-        operands[idx].asTarget();
-
-        if(operands[idx].isNumeric())
-            meta.targets.insert(operands[idx].u_value);
-    }
-
-    inline Operand* op(size_t idx = 0) { return (idx < operands.size()) ? &operands[idx] : nullptr; }
-    inline Instruction& mem(address_t v, tag_t tag = 0) { operands.emplace_back(OperandType::Memory, v, operands.size(), tag); return *this; }
-    template<typename T> Instruction& cnst(T v, tag_t tag = 0) { operands.emplace_back(OperandType::Constant, v, operands.size(), tag); return *this; }
-    template<typename T> Instruction& imm(T v, tag_t tag = 0) { operands.emplace_back(OperandType::Immediate, v, operands.size(), tag); return *this; }
-    template<typename T> Instruction& disp(register_id_t base, T displacement = 0) { return disp(base, REGISTER_INVALID, displacement); }
-    template<typename T> Instruction& disp(register_id_t base, register_id_t index, T displacement) { return disp(base, index, 1, displacement); }
-    template<typename T> Instruction& disp(register_id_t base, register_id_t index, s64 scale, T displacement);
-    template<typename T> Instruction& arg(s64 locindex, register_id_t base, register_id_t index, T displacement) { return local(locindex, base, index, displacement, OperandType::Argument); }
-    template<typename T> Instruction& local(s64 locindex, register_id_t base, register_id_t index, T displacement, OperandType type = OperandType::Local);
-
-    Instruction& reg(register_id_t r, tag_t tag = 0) {
-        Operand op;
-        op.index = operands.size();
-        op.type = OperandType::Register;
-        op.reg = RegisterOperand(r, tag);
-
-        operands.emplace_back(op);
-        return *this;
-    }
-
-    const Operand* target() const {
-        for(const Operand& op : operands) {
-            if(op.isTarget())
-                return &op;
-        }
-
-        return nullptr;
-    }
-
-    void reset() {
-        type = InstructionType::None;
-        size = 0;
-        operands.clear();
-
-        if(free && meta.userdata) {
-            free(meta.userdata);
-            meta.userdata = nullptr;
-        }
-    }
+    friend struct Serializer<Instruction>;
 };
 
-template<typename T> Instruction& Instruction::disp(register_id_t base, register_id_t index, s64 scale, T displacement)
-{
-    Operand op;
-    op.index = operands.size();
-
-    if((base == REGISTER_INVALID) && (index == REGISTER_INVALID))
-    {
-        op.type = OperandType::Memory;
-        op.u_value = scale * displacement;
-    }
-    else
-    {
-        op.type = OperandType::Displacement;
-        op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), scale, displacement);
-    }
-
-    operands.emplace_back(op);
-    return *this;
-}
-
-template<typename T> Instruction& Instruction::local(s64 locindex, register_id_t base, register_id_t index, T displacement, OperandType type)
-{
-    Operand op;
-    op.index = operands.size();
-    op.loc_index = locindex;
-    op.type = OperandType::Displacement | type;
-    op.disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
-
-    operands.emplace_back(op);
-    return *this;
-}
+template<> struct Serializer<Instruction> {
+    static void write(std::fstream& fs, const Instruction& st);
+    static void read(std::fstream& fs, Instruction& st);
+};
 
 typedef std::shared_ptr<Instruction> InstructionPtr;
 typedef std::deque<Operand> OperandList;
 typedef std::deque<Segment> SegmentList;
 
 } // namespace REDasm
+
+VISITABLE_STRUCT(REDasm::RegisterOperand, r, tag);
+VISITABLE_STRUCT(REDasm::DisplacementOperand, base, index, scale, displacement);
+VISITABLE_STRUCT(REDasm::Operand, type, tag, size, index, loc_index, reg, disp, u_value);
+VISITABLE_STRUCT(REDasm::Segment, name, offset, endoffset, address, endaddress, type);

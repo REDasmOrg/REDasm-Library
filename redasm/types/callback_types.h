@@ -14,5 +14,6 @@ typedef const char*(*Callback_ReturnString)();
 typedef size_t(*Callback_ReturnInteger)();
 typedef PluginDescriptor*(*Callback_PluginInit)(Context*);
 typedef bool(*Callback_PluginExec)(const ArgumentList&);
+typedef void(*Callback_VoidPointer)(void*);
 
 } // namespace REDasm

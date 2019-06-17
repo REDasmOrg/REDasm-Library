@@ -20,14 +20,7 @@
 #include <algorithm>
 #include <fstream>
 #include <memory>
-#include "../types/api_types.h"
 #include "../buffer/abstractbuffer.h"
-
-VISITABLE_STRUCT(REDasm::RegisterOperand, r, tag);
-VISITABLE_STRUCT(REDasm::DisplacementOperand, base, index, scale, displacement);
-VISITABLE_STRUCT(REDasm::Operand, type, tag, size, index, loc_index, reg, disp, u_value);
-VISITABLE_STRUCT(REDasm::Instruction, mnemonic, operands, address, type, size, id);
-VISITABLE_STRUCT(REDasm::Segment, name, offset, endoffset, address, endaddress, type);
 
 namespace REDasm {
 

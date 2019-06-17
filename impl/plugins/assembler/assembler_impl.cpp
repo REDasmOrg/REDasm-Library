@@ -5,12 +5,12 @@ namespace REDasm {
 
 AssemblerImpl::AssemblerImpl(): PluginImpl() { }
 
-void AssemblerImpl::setInstructionType(const InstructionPtr &instruction) const
+void AssemblerImpl::setInstructionType(Instruction* instruction) const
 {
-    auto it = m_instructiontypes.find(instruction->id);
+    auto it = m_instructiontypes.find(instruction->id());
 
     if(it != m_instructiontypes.end())
-        instruction->type |= it->second;
+        instruction->type() |= it->second;
 }
 
 void AssemblerImpl::init(const AssemblerRequest& request) { m_request = request; }

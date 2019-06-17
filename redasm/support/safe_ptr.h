@@ -53,8 +53,8 @@ class safe_ptr
         using auto_nolock_obj = auto_lock_obj<nolock_t>;
 
     public:
-        safe_ptr(): m_ptr() { m_ptr = std::shared_ptr<T>(new T()); m_mutex = std::make_shared<mutex_t>(); }
-        safe_ptr(T* ptr) { m_ptr = std::shared_ptr<T>(ptr); m_mutex = std::make_shared<mutex_t>(); }
+        safe_ptr() = default;
+        template< typename deleter_t = std::default_delete<T> > safe_ptr(T* ptr, const deleter_t& d = deleter_t()) { m_ptr = std::shared_ptr<T>(ptr, d); m_mutex = std::make_shared<mutex_t>(); }
         mutex_t* mget() const { return m_mutex.get(); }
         T* get() const { return m_ptr.get(); }
         const auto_lock_obj<s_lock_t> operator*() const { return auto_lock_obj<s_lock_t>(m_ptr.get(), *m_mutex.get()); }

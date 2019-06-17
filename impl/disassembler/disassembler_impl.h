@@ -69,7 +69,7 @@ class DisassemblerImpl
 
     private:
         std::chrono::steady_clock::time_point m_starttime;
-        object_ptr<Algorithm> m_algorithm;
+        safe_ptr<Algorithm> m_algorithm;
         ReferenceTable m_referencetable;
         Assembler* m_assembler;
         Loader* m_loader;

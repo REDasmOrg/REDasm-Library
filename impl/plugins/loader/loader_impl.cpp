@@ -36,7 +36,7 @@ BufferView LoaderImpl::viewSegment(const Segment *segment) const
     return m_buffer->view(segment->offset, segment->rawSize());
 }
 
-ListingDocument &LoaderImpl::createDocument() { m_document = ListingDocument(); return m_document; }
+ListingDocument &LoaderImpl::createDocument() { m_document = ListingDocument(new ListingDocumentType()); return m_document; }
 const ListingDocument &LoaderImpl::document() const { return m_document;  }
 ListingDocument &LoaderImpl::document() { return m_document;  }
 SignatureIdentifiers &LoaderImpl::signatures() { return m_signatures; }

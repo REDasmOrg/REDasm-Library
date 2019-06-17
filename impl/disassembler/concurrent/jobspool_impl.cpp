@@ -7,7 +7,7 @@ namespace REDasm {
 
 JobsPoolImpl::JobsPoolImpl(JobsPool *q): m_pimpl_q(q), m_running(true)
 {
-    m_concurrency = 1; //std::thread::hardware_concurrency();
+    m_concurrency = std::thread::hardware_concurrency();
 
     if(!m_concurrency || r_ctx->sync())
         m_concurrency = 1;

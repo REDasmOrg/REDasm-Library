@@ -26,8 +26,6 @@ void ContextImpl::checkSettings()
 
     if(!m_settings.ui)
         m_settings.ui = std::make_shared<AbstractUI>();
-
-    m_settings.pluginPaths.push_front(m_settings.runtimePath);
 }
 
 std::string ContextImpl::capstoneVersion() const

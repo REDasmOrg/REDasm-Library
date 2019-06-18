@@ -26,33 +26,19 @@ PluginManager *PluginManager::instance()
     return PluginManagerImpl::m_instance.get();
 }
 
-const PluginInstance *PluginManager::find(const std::string &id, const char *initname)
-{
-    PIMPL_P(PluginManager);
-
-    for(const std::string& pluginpath : r_ctx->pluginPaths())
-    {
-        std::string pluginfilepath = Path::create(pluginpath, id + SHARED_OBJECT_EXT);
-
-        if(Path::exists(pluginfilepath))
-            return p->load(pluginfilepath, initname);
-    }
-
-    return nullptr;
-}
-
 const PluginManager::PluginMap &PluginManager::activePlugins() const { PIMPL_P(const PluginManager); return p->m_activeplugins; }
-const PluginInstance *PluginManager::findLoader(const std::string &id) { return this->find(id, REDASM_INIT_LOADER_NAME); }
+const PluginInstance *PluginManager::findLoader(const std::string &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_LOADER_NAME); }
 
 const PluginInstance *PluginManager::findAssembler(const char* id)
 {
     if(!id)
         return nullptr;
 
-    return this->find(std::string(id), REDASM_INIT_ASSEMBLER_NAME);
+    PIMPL_P(PluginManager);
+    return p->find(id, REDASM_INIT_ASSEMBLER_NAME);
 }
 
-const PluginInstance *PluginManager::findPlugin(const std::string &id) { return this->find(id, REDASM_INIT_PLUGIN_NAME); }
+const PluginInstance *PluginManager::findPlugin(const std::string &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_PLUGIN_NAME); }
 
 PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
 {

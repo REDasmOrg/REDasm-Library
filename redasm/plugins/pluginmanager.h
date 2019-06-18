@@ -23,7 +23,6 @@ class LIBREDASM_API PluginManager
     private:
         PluginManager();
         static PluginManager* instance();
-        const PluginInstance* find(const std::string& id, const char* initname);
 
     public:
         ~PluginManager();

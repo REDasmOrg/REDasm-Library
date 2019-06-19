@@ -32,7 +32,7 @@ function(redasm_plugin P_NAME)
     add_library(${P_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
 
     if(DEFINED REDASM_INCLUDE_PATH)
-        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH})
+        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH} ${REDASM_INCLUDE_PATH}/libs)
     endif()
 
     if(DEFINED REDASM_LIBRARY_PATH)

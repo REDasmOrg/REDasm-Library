@@ -11,43 +11,39 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # Capstone (Override Settings)
-set(CAPSTONE_SRC impl/libs/capstone)
+set(CAPSTONE_SRC redasm/libs/capstone)
 set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include/capstone)
 set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_STATIC ON  CACHE BOOL "")
 add_subdirectory(${CAPSTONE_SRC})
 
-# API
-file(GLOB_RECURSE REDASM_HEADERS redasm/*.h*)
-file(GLOB_RECURSE REDASM_SOURCES redasm/*.cpp)
-
 # Impl
-file(GLOB_RECURSE IMPL_HEADERS
-    impl/buffer/*.h*
-    impl/database/*.h
-    impl/disassembler/*.h
-    impl/graph/*.h
-    impl/libs/binutils_demangler/*.h
-    impl/libs/dirent/*.h
-    impl/libs/miniz/*.h
-    impl/plugins/*.h
-    impl/types/*.h
-    impl/support/*.h
-    context_impl.h)
+file(GLOB_RECURSE IMPL_HEADERS impl/*.h*)
+file(GLOB_RECURSE IMPL_SOURCES impl/*.c*)
 
-file(GLOB_RECURSE IMPL_SOURCES
-     impl/buffer/*.c*
-     impl/database/*.c*
-     impl/disassembler/*.c*
-     impl/graph/*.c*
-     impl/libs/binutils_demangler/*.c
-     impl/libs/dirent/*.c
-     impl/libs/miniz/*.c
-     impl/plugins/*.c*
-     impl/types/*.c*
-     impl/support/*.c*
-     context_impl.cpp)
+# API
+file(GLOB_RECURSE REDASM_HEADERS
+    redasm/buffer/*.h*
+    redasm/database/*.h
+    redasm/disassembler/*.h
+    redasm/graph/*.h
+    redasm/libs/json/*.h*
+    redasm/libs/visit_struct/*.h*
+    redasm/plugins/*.h
+    redasm/support/*.h
+    redasm/types/*.h
+    context.h level.h macros.h pimpl.h redasm.h ui.h)
+
+file(GLOB_RECURSE REDASM_SOURCES
+     redasm/buffer/*.c*
+     redasm/database/*.c*
+     redasm/disassembler/*.c*
+     redasm/graph/*.c*
+     redasm/plugins/*.c*
+     redasm/support/*.c*
+     redasm/types/*.c*
+     context.cpp ui.cpp)
 
 set(HEADERS ${REDASM_HEADERS} ${IMPL_HEADERS})
 set(SOURCES ${REDASM_SOURCES} ${IMPL_SOURCES})
@@ -58,6 +54,7 @@ target_link_libraries(${PROJECT_NAME} capstone-static)
 target_include_directories(${PROJECT_NAME} PUBLIC
                            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                            $<INSTALL_INTERFACE:redasm>
+                           ${CAPSTONE_INCLUDE}
                            PRIVATE impl)
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
@@ -66,6 +63,10 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
 
 if(PORTABLE_MODE)
+    # Create "redasm" folder
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/redasm")
+
+    # Copy Headers
     foreach(HEADER ${REDASM_HEADERS})
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" DST_HEADER ${HEADER})
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${HEADER} "${CMAKE_BINARY_DIR}/${DST_HEADER}")
@@ -77,7 +78,7 @@ if(PORTABLE_MODE)
 
     # Copy capstone headers
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       "${CMAKE_CURRENT_SOURCE_DIR}/impl/libs/capstone/include/capstone" "${CMAKE_BINARY_DIR}/redasm/libs/capstone")
+                       "${CMAKE_CURRENT_SOURCE_DIR}/redasm/libs/capstone/include/capstone" "${CMAKE_BINARY_DIR}/redasm/libs/capstone")
 else()
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/redasm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*")
 endif()

@@ -53,6 +53,7 @@ class Plugin: public Object
     public:
         Plugin();
         virtual ~Plugin() = default;
+        virtual int weight() const;
         std::string id() const;
         std::string description() const;
         const PluginDescriptor* descriptor() const;

@@ -46,7 +46,7 @@ PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
     PluginList plugins;
 
     p->iteratePlugins(REDASM_INIT_LOADER_NAME, [&plugins, request](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
-        Loader* loader = static_cast<Loader*>(pi->descriptor->plugin);
+        Loader* loader = plugin_cast<Loader>(pi);
         bool res = loader->test(request);
 
         if(res) {
@@ -55,6 +55,11 @@ PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
         }
 
         return PluginManagerImpl::IterateResult::Unload;
+    });
+
+    // Sort by weight
+    std::sort(plugins.begin(), plugins.end(), [](const PluginInstance* pi1, const PluginInstance* pi2) -> bool {
+        return pi1->descriptor->plugin->weight() < pi2->descriptor->plugin->weight();
     });
 
     return plugins;
@@ -68,6 +73,11 @@ PluginManager::PluginList PluginManager::getAssemblers()
     p->iteratePlugins(REDASM_INIT_ASSEMBLER_NAME, [&plugins](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
         plugins.push_back(pi);
         return PluginManagerImpl::IterateResult::Continue;
+    });
+
+    // Sort alphabectically
+    std::sort(plugins.begin(), plugins.end(), [](const PluginInstance* pi1, const PluginInstance* pi2) -> bool {
+        return std::string(pi1->descriptor->description) < std::string(pi2->descriptor->description);
     });
 
     return plugins;

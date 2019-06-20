@@ -1,5 +1,6 @@
 #include "api_types.h"
 #include <impl/types/api_types_impl.h>
+#include <cstring>
 
 namespace REDasm {
 
@@ -8,6 +9,7 @@ const char *Instruction::mnemonic() const { PIMPL_P(const Instruction); return p
 address_t Instruction::address() const { PIMPL_P(const Instruction); return p->address(); }
 address_t Instruction::endAddress() const { PIMPL_P(const Instruction); return p->endAddress(); }
 u32 Instruction::size() const { PIMPL_P(const Instruction); return p->size(); }
+ u32 &Instruction::size() { PIMPL_P(Instruction); return p->size(); }
 instruction_id_t Instruction::id() const { PIMPL_P(const Instruction); return p->id(); }
 const InstructionType& Instruction::type() const { PIMPL_P(const Instruction); return p->type();  }
 InstructionType &Instruction::type() { PIMPL_P(Instruction); return p->type(); }
@@ -33,6 +35,7 @@ void Instruction::target(address_t address) { PIMPL_P(Instruction); p->target(ad
 void Instruction::targetIdx(size_t idx) { PIMPL_P(Instruction); p->targetIdx(idx); }
 void Instruction::clearTargets() { PIMPL_P(Instruction); p->clearTargets(); }
 bool Instruction::is(InstructionType t) const { PIMPL_P(const Instruction); return p->is(t); }
+bool Instruction::is(const char *s) const { PIMPL_P(const Instruction); return p->m_mnemonic == s; }
 bool Instruction::isInvalid() const { PIMPL_P(const Instruction); return p->isInvalid(); }
 void *Instruction::userData() const { PIMPL_P(const Instruction); return p->userData(); }
 void Instruction::reset() { PIMPL_P(Instruction); p->reset(); }

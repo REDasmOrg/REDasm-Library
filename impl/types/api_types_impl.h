@@ -20,6 +20,7 @@ class InstructionImpl
         address_t address() const;
         address_t endAddress() const;
         u32 size() const;
+        u32& size();
         instruction_id_t id() const;
         const InstructionType& type() const;
         InstructionType& type();

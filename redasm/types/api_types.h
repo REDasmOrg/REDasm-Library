@@ -139,6 +139,7 @@ class Instruction
         address_t address() const;
         address_t endAddress() const;
         u32 size() const;
+        u32& size();
         instruction_id_t id() const;
         const InstructionType& type() const;
         InstructionType& type();
@@ -170,6 +171,7 @@ class Instruction
 
     public:
         bool is(InstructionType t) const;
+        bool is(const char* s) const;
         bool isInvalid() const;
         void* userData() const;
         void reset();

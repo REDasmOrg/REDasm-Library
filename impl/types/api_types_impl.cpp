@@ -8,6 +8,7 @@ const char *InstructionImpl::mnemonic() const { return m_mnemonic.c_str(); }
 address_t InstructionImpl::address() const { return m_address; }
 address_t InstructionImpl::endAddress() const { return m_address + m_size; }
 u32 InstructionImpl::size() const { return m_size; }
+u32 &InstructionImpl::size() { return m_size; }
 instruction_id_t InstructionImpl::id() const { return m_id; }
 const InstructionType &InstructionImpl::type() const { return m_type; }
 InstructionType &InstructionImpl::type() { return m_type; }

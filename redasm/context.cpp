@@ -30,10 +30,12 @@ Context *Context::init(const ContextSettings &settings)
 }
 
 Context *Context::instance() { return ContextImpl::m_parentinstance ? ContextImpl::m_parentinstance : ContextImpl::m_instance.get(); }
-bool Context::hasProblems() const { return !pimpl_p()->m_problems.empty(); }
-size_t Context::problemsCount() const { return pimpl_p()->m_problems.size(); }
-const ProblemList &Context::problems() const { return pimpl_p()->m_problems; }
-void Context::clearProblems() { pimpl_p()->m_uproblems.clear(); pimpl_p()->m_problems.clear(); }
+bool Context::hasProblems() const { PIMPL_P(const Context); return !p->m_problems.empty(); }
+size_t Context::problemsCount() const { PIMPL_P(const Context); return p->m_problems.size(); }
+const ProblemList &Context::problems() const { PIMPL_P(const Context); return p->m_problems; }
+void Context::clearProblems() { PIMPL_P(Context); p->m_uproblems.clear(); p->m_problems.clear(); }
+Disassembler *Context::disassembler() const { PIMPL_P(const Context); return p->disassembler(); }
+void Context::setDisassembler(Disassembler *disassembler) { PIMPL_P(Context); p->setDisassembler(disassembler); }
 
 void Context::cwd(const std::string &s)
 {
@@ -57,9 +59,9 @@ bool Context::sync()
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
 AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.ui.get(); }
 const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }
-std::string Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
-std::string Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
-std::string Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }
+const char *Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath.c_str(); }
+const char *Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath.c_str();  }
+const char *Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion().c_str(); }
 void Context::log(const std::string &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
 
 void Context::problem(const std::string &s)

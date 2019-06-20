@@ -7,11 +7,14 @@ namespace REDasm {
 std::unique_ptr<Context> ContextImpl::m_instance;
 Context* ContextImpl::m_parentinstance = nullptr;
 
-ContextImpl::ContextImpl()
+ContextImpl::ContextImpl(): m_disassembler(nullptr)
 {
     m_laststatusreport = std::chrono::steady_clock::now();
     m_debouncetimeout = std::chrono::milliseconds(CONTEXT_DEBOUNCE_TIMEOUT_MS);
 }
+
+Disassembler *ContextImpl::disassembler() const { return m_disassembler; }
+void ContextImpl::setDisassembler(Disassembler *disassembler) { m_disassembler = disassembler; }
 
 void ContextImpl::checkSettings()
 {

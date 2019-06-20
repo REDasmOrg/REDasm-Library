@@ -6,3 +6,4 @@
 #include "buffer/bufferview.h"
 #include "plugins/plugin.h"
 #include "database/database.h"
+#include "disassembler/disassembler.h"

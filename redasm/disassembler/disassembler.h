@@ -27,7 +27,7 @@ class LIBREDASM_API Disassembler
 
     public:
         Disassembler(Assembler* assembler, Loader* loader);
-        ~Disassembler() = default;
+        ~Disassembler();
         Loader* loader() const;
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;

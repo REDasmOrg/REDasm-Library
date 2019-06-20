@@ -15,6 +15,8 @@ class ContextImpl
 
     public:
         ContextImpl();
+        Disassembler* disassembler() const;
+        void setDisassembler(Disassembler* disassembler);
         void checkSettings();
         std::string capstoneVersion() const;
 
@@ -24,6 +26,9 @@ class ContextImpl
         std::chrono::milliseconds m_debouncetimeout;
         std::set<std::string> m_uproblems;
         ProblemList m_problems;
+
+    private:
+        Disassembler* m_disassembler;
 
     private:
         static std::unique_ptr<Context> m_instance;

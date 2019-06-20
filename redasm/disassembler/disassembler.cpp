@@ -1,18 +1,27 @@
 #include "disassembler.h"
 #include <impl/disassembler/disassembler_impl.h>
 #include <redasm/plugins/assembler/assembler.h>
+#include <redasm/context.h>
 
 namespace REDasm {
 
 Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader))
 {
+    r_ctx->setDisassembler(this);
+
     PIMPL_P(Disassembler);
     p->m_algorithm = assembler->createAlgorithm(this);
-
     p->m_analyzejob.setOneShot(true);
+
     EVENT_CONNECT(&p->m_analyzejob, stateChanged, this, [&](Job*) { this->busyChanged(); });
     p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
     EVENT_CONNECT(&p->m_jobs, stateChanged, this, [&](Job*) { this->busyChanged(); });
+}
+
+Disassembler::~Disassembler()
+{
+    if(r_ctx->disassembler() == this)
+        r_ctx->setDisassembler(nullptr);
 }
 
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }

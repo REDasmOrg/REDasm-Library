@@ -50,6 +50,8 @@ class LIBREDASM_API Context
         void clearProblems();
 
     public:
+        Disassembler* disassembler() const;
+        void setDisassembler(Disassembler* disassembler);
         void cwd(const std::string& s);
         void sync(bool b);
         void log(const std::string& s);
@@ -62,9 +64,9 @@ class LIBREDASM_API Context
         PluginManager* pluginManager() const;
         AbstractUI* ui() const;
         const PluginPaths& pluginPaths() const;
-        std::string capstoneVersion() const;
-        std::string runtimePath() const;
-        std::string tempPath() const;
+        const char* capstoneVersion() const;
+        const char* runtimePath() const;
+        const char* tempPath() const;
 
     public:
         template<typename... T> inline std::string rnt(const std::string& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }

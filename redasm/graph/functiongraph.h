@@ -26,7 +26,7 @@ class LIBREDASM_API FunctionBasicBlock
         void bFalse(const Node& n);
         bool contains(size_t index) const;
         bool isEmpty() const;
-        std::string style(const Node& n) const;
+        String style(const Node& n) const;
         void setStartIndex(size_t idx);
         void setEndIndex(size_t idx);
         void setNode(size_t idx);
@@ -46,7 +46,7 @@ class LIBREDASM_API FunctionGraph: public GraphT<FunctionBasicBlock>
     private:
         const FunctionBasicBlock* basicBlockFromIndex(size_t index) const;
         FunctionBasicBlock* basicBlockFromIndex(size_t index);
-        void setConnectionType(const InstructionPtr& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
+        void setConnectionType(const CachedInstruction& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
         void incomplete() const;
         bool isStopItem(const ListingItem *item) const;
         void buildBasicBlock(size_t index);

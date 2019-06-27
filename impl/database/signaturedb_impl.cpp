@@ -14,30 +14,30 @@ SignatureDBImpl::SignatureDBImpl()
 {
     m_json["version"] = SDB_VERSION;
     m_json["name"] = "Unknown Signature";
-    m_json["assembler"] = std::string();
+    m_json["assembler"] = String();
     m_json["signatures"] = json::array();
 }
 
 bool SignatureDBImpl::isCompatible(const Disassembler *disassembler) const { return m_json["assembler"] == disassembler->loader()->assembler().id; }
 
-std::string SignatureDBImpl::assembler() const
+String SignatureDBImpl::assembler() const
 {
     auto it = m_json.find("assembler");
 
     if(it != m_json.end())
         return *it;
 
-    return std::string();
+    return String();
 }
 
-std::string SignatureDBImpl::name() const
+String SignatureDBImpl::name() const
 {
     auto it = m_json.find("name");
 
     if(it != m_json.end())
         return *it;
 
-    return std::string();
+    return String();
 }
 
 size_t SignatureDBImpl::size() const
@@ -51,12 +51,12 @@ size_t SignatureDBImpl::size() const
 }
 
 const json &SignatureDBImpl::at(size_t index) const { return m_json["signatures"][index]; }
-void SignatureDBImpl::setAssembler(const std::string &assembler) { m_json["assembler"] = assembler; }
-void SignatureDBImpl::setName(const std::string &name) { m_json["name"] = name; }
+void SignatureDBImpl::setAssembler(const String &assembler) { m_json["assembler"] = assembler; }
+void SignatureDBImpl::setName(const String &name) { m_json["name"] = name; }
 
-bool SignatureDBImpl::load(const std::string &sigfilename)
+bool SignatureDBImpl::load(const String &sigfilename)
 {
-    std::ifstream ifs(sigfilename, std::ios::in);
+    std::ifstream ifs(sigfilename.c_str(), std::ios::in);
 
     if(!ifs.is_open())
         return false;
@@ -71,16 +71,16 @@ bool SignatureDBImpl::load(const std::string &sigfilename)
 
     if(m_json["version"] != SDB_VERSION)
     {
-        r_ctx->log("Invalid version: Expected " + Utils::quoted(SDB_VERSION) + ", got " + Utils::quoted(static_cast<size_t>(m_json["version"])));
+        r_ctx->log("Invalid version: Expected " + String(SDB_VERSION).quoted() + ", got " + String(static_cast<size_t>(m_json["version"])).quoted());
         return false;
     }
 
     return true;
 }
 
-bool SignatureDBImpl::save(const std::string &sigfilename)
+bool SignatureDBImpl::save(const String &sigfilename)
 {
-    std::ofstream ofs(sigfilename, std::ios::out | std::ios::trunc);
+    std::ofstream ofs(sigfilename.c_str(), std::ios::out | std::ios::trunc);
 
     if(!ofs.is_open())
         return false;

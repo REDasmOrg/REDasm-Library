@@ -37,7 +37,7 @@ void Context::clearProblems() { PIMPL_P(Context); p->m_uproblems.clear(); p->m_p
 Disassembler *Context::disassembler() const { PIMPL_P(const Context); return p->disassembler(); }
 void Context::setDisassembler(Disassembler *disassembler) { PIMPL_P(Context); p->setDisassembler(disassembler); }
 
-void Context::cwd(const std::string &s)
+void Context::cwd(const String &s)
 {
 #ifdef _WIN32
     SetCurrentDirectory(s.c_str());
@@ -59,12 +59,12 @@ bool Context::sync()
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
 AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.ui.get(); }
 const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }
-const char *Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath.c_str(); }
-const char *Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath.c_str();  }
-const char *Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion().c_str(); }
-void Context::log(const std::string &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
+String Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
+String Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
+String Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }
+void Context::log(const String &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
 
-void Context::problem(const std::string &s)
+void Context::problem(const String &s)
 {
     PIMPL_P(Context);
 
@@ -80,16 +80,16 @@ void Context::problem(const std::string &s)
     p->m_problems.push_back(s);
 }
 
-void Context::logproblem(const std::string &s) { this->log(s); this->problem(s); }
+void Context::logproblem(const String &s) { this->log(s); this->problem(s); }
 
-void Context::status(const std::string &s)
+void Context::status(const String &s)
 {
     CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
     p->m_settings.statusCallback(s);
 }
 
-void Context::statusProgress(const std::string &s, size_t progress)
+void Context::statusProgress(const String &s, size_t progress)
 {
     CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
@@ -97,11 +97,11 @@ void Context::statusProgress(const std::string &s, size_t progress)
     p->m_settings.progressCallback(progress);
 }
 
-void Context::statusAddress(const std::string &s, address_t address)
+void Context::statusAddress(const String &s, address_t address)
 {
     CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
-    p->m_settings.statusCallback(s + " @ " + Utils::hex(address));
+    p->m_settings.statusCallback(s + " @ " + String::hex(address));
 }
 
 } // namespace REDasm

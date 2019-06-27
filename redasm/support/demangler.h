@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "../types/string.h"
 #include <typeinfo>
 #include "../macros.h"
 
@@ -10,11 +10,11 @@ class LIBREDASM_API Demangler
 {
     public:
         Demangler() = default;
-        static std::string demangled(const std::string& s, bool simplified = true);
-        static bool isMSVC(const std::string &s, std::string *result = nullptr);
-        static bool isItanium(const std::string &s, std::string *result = nullptr);
-        static bool isMangled(const std::string& s);
-        template<typename T> static std::string typeName() { return demangled(typeid(T).name()); }
+        static String demangled(const String& s, bool simplified = true);
+        static bool isMSVC(const String &s, String *result = nullptr);
+        static bool isItanium(const String &s, String *result = nullptr);
+        static bool isMangled(const String& s);
+        template<typename T> static String typeName() { return demangled(typeid(T).name()); }
 };
 
 } // namespace REDasm

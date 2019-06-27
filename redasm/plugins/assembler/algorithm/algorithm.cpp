@@ -65,9 +65,9 @@ void Algorithm::onDecoded(Instruction *instruction)
 
 void Algorithm::onDecodeFailed(Instruction* instruction)
 {
-    r_ctx->problem("Invalid instruction @ " + Utils::hex(instruction->address()));
+    r_ctx->problem("Invalid instruction @ " + String::hex(instruction->address));
 
-    if(!instruction->size())
+    if(!instruction->size)
         return;
 
     this->enqueue(instruction->endAddress());
@@ -79,8 +79,8 @@ void Algorithm::onDecodedOperand(const Operand *op, Instruction* instruction)
         return;
 
     PIMPL_P(Algorithm);
-    std::string charinfo = Utils::hex(op->u_value, 8, true) + "=" + Utils::quoted_s(std::string(1, static_cast<char>(op->u_value)));
-    p->m_document->autoComment(instruction->address(), charinfo);
+    String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
+    p->m_document->autoComment(instruction->address, charinfo);
 }
 
 void Algorithm::onEmulatedOperand(const Operand *op, Instruction* instruction, u64 value)
@@ -97,7 +97,7 @@ void Algorithm::onEmulatedOperand(const Operand *op, Instruction* instruction, u
 void Algorithm::decodeState(const State *state)
 {
     PIMPL_P(Algorithm);
-    InstructionPtr instruction = std::make_shared<Instruction>();
+    CachedInstruction instruction = this->document()->cacheInstruction(state->address);
     u32 status = p->disassemble(state->address, instruction.get());
 
     if(status == Algorithm::SKIP)
@@ -112,7 +112,7 @@ void Algorithm::jumpState(const State *state)
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(!dir)
-        p->m_document->autoComment(state->instruction->address(), "Infinite loop");
+        p->m_document->autoComment(state->instruction->address, "Infinite loop");
 
     p->m_document->branch(state->address, dir);
     DECODE_STATE(state->address);
@@ -131,20 +131,20 @@ void Algorithm::branchState(const State *state)
         FORWARD_STATE(Algorithm::JumpState, state);
     else
     {
-        r_ctx->problem("Invalid branch state for instruction " + Utils::quoted(instruction->mnemonic()) +
-                        " @ " + Utils::hex(instruction->address(), p->m_assembler->bits()));
+        r_ctx->problem("Invalid branch state for instruction " + instruction->mnemonic.quoted() +
+                       " @ " + String::hex(instruction->address, p->m_assembler->bits()));
         return;
     }
 
-    p->m_disassembler->pushReference(state->address, instruction->address());
-    p->m_disassembler->pushTarget(state->address, instruction->address());
+    p->m_disassembler->pushReference(state->address, instruction->address);
+    p->m_disassembler->pushTarget(state->address, instruction->address);
 }
 
 void Algorithm::branchMemoryState(const State *state)
 {
     PIMPL_P(Algorithm);
     Instruction* instruction = state->instruction;
-    p->m_disassembler->pushTarget(state->address, instruction->address());
+    p->m_disassembler->pushTarget(state->address, instruction->address);
 
     Symbol* symbol = p->m_document->symbol(state->address);
 
@@ -174,20 +174,20 @@ void Algorithm::addressTableState(const State *state)
 
     if(c > 1)
     {
-        p->m_disassembler->pushReference(state->address, instruction->address());
+        p->m_disassembler->pushReference(state->address, instruction->address);
         state_t fwdstate = Algorithm::BranchState;
 
         if(instruction->is(InstructionType::Call))
-            p->m_document->autoComment(instruction->address(), "Call Table with " + std::to_string(c) + " cases(s)");
+            p->m_document->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
         else if(instruction->is(InstructionType::Jump))
-            p->m_document->autoComment(instruction->address(), "Jump Table with " + std::to_string(c) + " cases(s)");
+            p->m_document->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
-            p->m_document->autoComment(instruction->address(), "Address Table with " + std::to_string(c) + " cases(s)");
+            p->m_document->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
             fwdstate = Algorithm::MemoryState;
         }
 
-        ReferenceSet targets = p->m_disassembler->getTargets(instruction->address());
+        ReferenceSet targets = p->m_disassembler->getTargets(instruction->address);
 
         for(address_t target : targets)
             FORWARD_STATE_VALUE(fwdstate, target, state);
@@ -217,7 +217,7 @@ void Algorithm::memoryState(const State *state)
     }
 
     Instruction* instruction = state->instruction;
-    p->m_disassembler->pushReference(state->address, instruction->address());
+    p->m_disassembler->pushReference(state->address, instruction->address);
 
     if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchMemoryState, state);
@@ -248,7 +248,7 @@ void Algorithm::immediateState(const State *state)
     if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchState, state);
     else
-        p->m_disassembler->checkLocation(instruction->address(), state->address); // Create Symbol + XRefs
+        p->m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
 }
 
 } // namespace REDasm

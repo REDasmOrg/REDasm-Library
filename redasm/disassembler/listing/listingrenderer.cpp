@@ -4,11 +4,11 @@
 #include "../../plugins/assembler/assembler.h"
 #include "../../plugins/loader/loader.h"
 #include "../../support/utils.h"
-#include <regex>
+#include "../../types/regex.h"
 
 #define INDENT_WIDTH         2
 #define STRING_THRESHOLD     48
-#define HEX_ADDRESS(address) Utils::hex(address, this->disassembler()->assembler()->bits())
+#define HEX_ADDRESS(address) String::hex(address, this->disassembler()->assembler()->bits())
 
 namespace REDasm {
 
@@ -19,7 +19,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
     auto lock = s_lock_safe_ptr(this->document());
     const ListingCursor* cur = lock->cursor();
     size_t end = start + count, line = start;
-    std::string word = this->getCurrentWord();
+    String word = this->getCurrentWord();
 
     PIMPL_P(ListingRenderer);
 
@@ -55,7 +55,7 @@ const Symbol *ListingRenderer::symbolUnderCursor()
     return lock->symbol(this->getCurrentWord());
 }
 
-std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, ListingRenderer::Range *wordpos)
+String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, ListingRenderer::Range *wordpos)
 {
     RendererLine rl;
     this->getRendererLine(pos.first, rl);
@@ -65,7 +65,7 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
         if(!rf.contains(pos.second))
             continue;
 
-        std::string word = rl.formatText(rf);
+        String word = rl.formatText(rf);
 
         if(this->document()->symbol(word))
         {
@@ -77,14 +77,14 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
     }
 
     // Fallback to word matching
-    std::regex rgxword(REDASM_WORD_REGEX);
-    auto it = std::sregex_token_iterator(rl.text.begin(), rl.text.end(), rgxword);
-    auto end = std::sregex_token_iterator();
+    Regex rgxword(REDASM_WORD_REGEX);
+    auto m = rgxword.matchAll(rl.text);
 
-    for(; it != end; it++)
+    while(m.hasNext())
     {
-        size_t start = static_cast<size_t>(it->first - rl.text.begin());
-        size_t end = static_cast<size_t>(it->second - rl.text.begin() - 1);
+        auto match = m.next();
+        size_t start = match.start;
+        size_t end = match.end;
 
         if((pos.second < start) || (pos.second > end))
             continue;
@@ -92,16 +92,16 @@ std::string ListingRenderer::wordFromPosition(const ListingCursor::Position &pos
         if(wordpos)
             *wordpos = std::make_pair(start, end);
 
-        return *it;
+        return end; //*it;
     }
 
     if(wordpos)
         *wordpos = std::make_pair(1, 0);
 
-    return std::string();
+    return String();
 }
 
-std::string ListingRenderer::getCurrentWord() { PIMPL_P(ListingRenderer); return this->wordFromPosition(p->m_cursor->currentPosition()); }
+String ListingRenderer::getCurrentWord() { PIMPL_P(ListingRenderer); return this->wordFromPosition(p->m_cursor->currentPosition()); }
 
 size_t ListingRenderer::getLastColumn(size_t line)
 {
@@ -115,24 +115,24 @@ size_t ListingRenderer::getLastColumn(size_t line)
     return len - 1;
 }
 
-std::string ListingRenderer::getLine(size_t line)
+String ListingRenderer::getLine(size_t line)
 {
     RendererLine rl;
     this->getRendererLine(line, rl);
     return rl.text;
 }
 
-std::string ListingRenderer::getSelectedText()
+String ListingRenderer::getSelectedText()
 {
     auto lock = s_lock_safe_ptr(this->document());
     const ListingCursor* cur = lock->cursor();
 
     if(!cur->hasSelection())
-        return std::string();
+        return String();
 
     const ListingCursor::Position& startpos = cur->startSelection();
     const ListingCursor::Position& endpos = cur->endSelection();
-    std::string copied;
+    String copied;
 
     PIMPL_P(ListingRenderer);
 
@@ -144,12 +144,12 @@ std::string ListingRenderer::getSelectedText()
         {
             RendererLine rl;
             p->getRendererLine(lock, line, rl);
-            std::string s = rl.text;
+            String s = rl.text;
 
             if(line == startpos.first)
-                copied += s.substr(startpos.second);
+                copied += s.substring(startpos.second);
             else if(line == endpos.first)
-                copied += s.substr(0, endpos.second + 1);
+                copied += s.substring(0, endpos.second + 1);
             else
                 copied += s;
 
@@ -161,7 +161,7 @@ std::string ListingRenderer::getSelectedText()
     {
         RendererLine rl;
         p->getRendererLine(lock, startpos.first, rl);
-        copied = rl.text.substr(startpos.second, endpos.second - startpos.second + 1);
+        copied = rl.text.substring(startpos.second, endpos.second - startpos.second + 1);
     }
 
     return copied;
@@ -179,7 +179,7 @@ bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
 
 void ListingRenderer::renderSegment(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    this->printer()->segment(lock->segment(item->address()), [&](const std::string& line) {
+    this->printer()->segment(lock->segment(item->address()), [&](const String& line) {
         rl.push(line, "segment_fg");
     });
 }
@@ -189,7 +189,7 @@ void ListingRenderer::renderFunction(const document_s_lock& lock, const ListingI
     if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
 
-    this->printer()->function(lock->symbol(item->address()), [&](const std::string& pre, const std::string& sym, const std::string& post) {
+    this->printer()->function(lock->symbol(item->address()), [&](const String& pre, const String& sym, const String& post) {
         if(!pre.empty())
             rl.push(pre, "function_fg");
 
@@ -202,7 +202,7 @@ void ListingRenderer::renderFunction(const document_s_lock& lock, const ListingI
 
 void ListingRenderer::renderInstruction(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    InstructionPtr instruction = lock->instruction(item->address());
+    CachedInstruction instruction = lock->instruction(item->address());
 
     this->renderAddress(lock, item, rl);
     this->renderIndent(rl, 3);
@@ -257,16 +257,16 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             }
 
             if(symbol->is(SymbolType::WideStringMask))
-                rl.push(Utils::quoted(this->disassembler()->readWString(symbol, STRING_THRESHOLD)), "string_fg");
+                rl.push(this->disassembler()->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else if(symbol->is(SymbolType::StringMask))
-                rl.push(Utils::quoted(this->disassembler()->readString(symbol, STRING_THRESHOLD)), "string_fg");
+                rl.push(this->disassembler()->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else if(symbol->is(SymbolType::ImportMask))
                 rl.push("<").push("import", "label_fg").push(">");
             else
             {
                 u64 value = 0;
                 this->disassembler()->readAddress(symbol->address, assembler->addressWidth(), &value);
-                rl.push(Utils::hex(value, this->disassembler()->assembler()->bits()), this->document()->segment(value) ? "pointer_fg" : "data_fg");
+                rl.push(String::hex(value, this->disassembler()->assembler()->bits()), this->document()->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
         else if(symbol->is(SymbolType::ImportMask))
@@ -300,9 +300,9 @@ void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingIt
     }
 }
 
-void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, RendererLine &rl)
+void ListingRenderer::renderMnemonic(const CachedInstruction &instruction, RendererLine &rl)
 {
-    std::string mnemonic = std::string(instruction->mnemonic()) + " ";
+    String mnemonic = instruction->mnemonic + " ";
 
     if(instruction->isInvalid())
         rl.push(mnemonic, "instruction_invalid");
@@ -325,9 +325,9 @@ void ListingRenderer::renderMnemonic(const InstructionPtr &instruction, Renderer
         rl.push(mnemonic);
 }
 
-void ListingRenderer::renderOperands(const InstructionPtr &instruction, RendererLine &rl)
+void ListingRenderer::renderOperands(const CachedInstruction &instruction, RendererLine &rl)
 {
-    this->printer()->out(instruction, [&](const REDasm::Operand* op, const std::string& opsize, const std::string& opstr) {
+    this->printer()->out(instruction, [&](const REDasm::Operand* op, const String& opsize, const String& opstr) {
         if(!op) {
             rl.push(opstr, "immediate_fg");
             return;
@@ -357,7 +357,7 @@ void ListingRenderer::renderOperands(const InstructionPtr &instruction, Renderer
 
 void ListingRenderer::renderComments(const document_s_lock &lock, const ListingItem* item, RendererLine &rl)
 {
-    std::string s = lock->comment(item);
+    String s = lock->comment(item);
 
     if(s.empty())
         return;
@@ -371,12 +371,12 @@ void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const Lis
     size_t count = this->disassembler()->assembler()->bits() / 4;
 
     if(segment)
-        count += segment->name.length();
+        count += segment->name.size();
 
-    rl.push(std::string(count + INDENT_WIDTH, ' '));
+    rl.push(String::repeated(' ', count + INDENT_WIDTH));
 }
 
-void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(std::string(n * INDENT_WIDTH, ' ')); }
+void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(String::repeated(' ', n * INDENT_WIDTH)); }
 Printer *ListingRenderer::printer() const { PIMPL_P(const ListingRenderer); return p->m_printer.get(); }
 ListingCursor *ListingRenderer::cursor() const { PIMPL_P(const ListingRenderer); return p->m_cursor; }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "../types/string.h"
 
 namespace REDasm {
 
@@ -18,7 +18,7 @@ struct PluginDescriptor;
 struct PluginInstance
 {
     library_t handle;
-    std::string path;
+    String path;
     PluginDescriptor* descriptor;
 };
 

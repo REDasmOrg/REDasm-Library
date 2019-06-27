@@ -10,8 +10,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
+# Some library needs this relative directory
+set(IMPL_LIBS_INCLUDE   impl/libs)
+set(REDASM_LIBS_INCLUDE redasm/libs)
+
 # Capstone (Override Settings)
-set(CAPSTONE_SRC redasm/libs/capstone)
+set(CAPSTONE_SRC ${REDASM_LIBS_INCLUDE}/capstone)
 set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include/capstone)
 set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
 set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
@@ -31,6 +35,7 @@ file(GLOB_RECURSE REDASM_HEADERS
     redasm/libs/json/*.h*
     redasm/libs/visit_struct/*.h*
     redasm/plugins/*.h
+    redasm/static/*.h
     redasm/support/*.h
     redasm/types/*.h
     context.h level.h macros.h pimpl.h redasm.h ui.h)
@@ -51,11 +56,12 @@ set(SOURCES ${REDASM_SOURCES} ${IMPL_SOURCES})
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME} capstone-static)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-                           $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                           $<INSTALL_INTERFACE:redasm>
-                           ${CAPSTONE_INCLUDE}
-                           PRIVATE impl)
+target_include_directories(${PROJECT_NAME}
+                           PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                                   $<INSTALL_INTERFACE:redasm>
+                                   ${CAPSTONE_INCLUDE}
+                           PRIVATE ${IMPL_LIBS_INCLUDE}
+                                   impl)
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

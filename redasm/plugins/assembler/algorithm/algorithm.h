@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "../../../types/plugin_types.h"
+#include "../../../types/object.h"
 #include "../../../support/safe_ptr.h"
 #include "../../../pimpl.h"
 #include "state.h"
@@ -21,6 +21,7 @@ class ListingDocumentType;
 
 class Algorithm: public Object
 {
+    REDASM_OBJECT(Algorithm)
     PIMPL_DECLARE_P(Algorithm)
     PIMPL_DECLARE_PRIVATE(Algorithm)
 

@@ -25,14 +25,14 @@ class LoaderImpl: public PluginImpl
         const ListingDocument& document() const;
         ListingDocument& document();
         SignatureIdentifiers &signatures();
-        void signature(const std::string& sig);
+        void signature(const String& sig);
 
     public:
         offset_location offset(address_t address) const;
         address_location address(offset_t offset) const;
         AssemblerRequest assembler() const;
         Analyzer *analyzer(Disassembler* disassembler);
-        void build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
+        void build(const String &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         void init(const LoadRequest& request);
 
     private:

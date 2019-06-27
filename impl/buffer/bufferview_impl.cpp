@@ -13,27 +13,27 @@ SearchResultImpl::SearchResultImpl(const BufferView *view, const u8 *searchdata,
 SearchResult SearchResultImpl::next() const { return m_view->find(m_searchdata, m_searchsize, m_position + m_searchsize); }
 
 WildcardSearchResultImpl::WildcardSearchResultImpl(): SearchObjectImpl() { }
-WildcardSearchResultImpl::WildcardSearchResultImpl(const BufferView *view, const std::string &searchwildcard, size_t searchsize): SearchObjectImpl(view, searchsize), m_searchwildcard(searchwildcard) { }
+WildcardSearchResultImpl::WildcardSearchResultImpl(const BufferView *view, const String &searchwildcard, size_t searchsize): SearchObjectImpl(view, searchsize), m_searchwildcard(searchwildcard) { }
 WildcardSearchResult WildcardSearchResultImpl::next() const { return m_view->wildcard(m_searchwildcard, m_position + m_searchsize); }
 
-const std::string BufferViewImpl::WILDCARD_BYTE = "??";
+const String BufferViewImpl::WILDCARD_BYTE = "??";
 
 BufferViewImpl::BufferViewImpl(BufferView *q): m_pimpl_q(q), m_buffer(nullptr), m_offset(0), m_size(0) { }
 BufferViewImpl::BufferViewImpl(BufferView *q, const AbstractBuffer *buffer, size_t offset, size_t size): m_pimpl_q(q), m_buffer(buffer), m_offset(offset), m_size(size) { }
-size_t BufferViewImpl::patternLength(const std::string &pattern) const { return pattern.size() / 2;  }
+size_t BufferViewImpl::patternLength(const String &pattern) const { return pattern.size() / 2;  }
 
-std::pair<u8, u8> BufferViewImpl::patternRange(std::string &pattern, size_t &startoffset, size_t &endoffset, size_t &beginoffset) const
+std::pair<u8, u8> BufferViewImpl::patternRange(String &pattern, size_t &startoffset, size_t &endoffset, size_t &beginoffset) const
 {
     std::pair<u8, u8> bp;
 
     for(size_t i = 0; i < pattern.size() - 2; i += 2)
     {
-        std::string hexb = pattern.substr(i, 2);
+        String hexb = pattern.substring(i, 2);
 
         if(hexb == BufferViewImpl::WILDCARD_BYTE)
             continue;
 
-        pattern = pattern.substr(i);     // Trim leading wildcards
+        pattern = pattern.substring(i);     // Trim leading wildcards
         Utils::byte(hexb, &bp.first);
         beginoffset = i / 2;
         startoffset += i / 2;
@@ -42,12 +42,12 @@ std::pair<u8, u8> BufferViewImpl::patternRange(std::string &pattern, size_t &sta
 
     for(s64 i = pattern.size() - 2; i >= 0; i -= 2)
     {
-        std::string hexb = pattern.substr(i, 2);
+        String hexb = pattern.substring(i, 2);
 
         if(hexb == BufferViewImpl::WILDCARD_BYTE)
             continue;
 
-        pattern = pattern.substr(0, i); // Trim trailing wildcards
+        pattern = pattern.substring(0, i); // Trim trailing wildcards
         Utils::byte(hexb, &bp.second);
         endoffset = startoffset + (i / 2);
         break;
@@ -56,13 +56,13 @@ std::pair<u8, u8> BufferViewImpl::patternRange(std::string &pattern, size_t &sta
     return bp;
 }
 
-bool BufferViewImpl::comparePattern(const std::string &pattern, const u8 *pdata) const
+bool BufferViewImpl::comparePattern(const String &pattern, const u8 *pdata) const
 {
     const u8* pcurr = pdata;
 
     for(size_t i = 0; i < pattern.size() - 2; i += 2, pcurr++)
     {
-        std::string hexb = pattern.substr(i, 2);
+        String hexb = pattern.substring(i, 2);
 
         if(hexb == BufferViewImpl::WILDCARD_BYTE)
             continue;
@@ -76,14 +76,14 @@ bool BufferViewImpl::comparePattern(const std::string &pattern, const u8 *pdata)
     return true;
 }
 
-bool BufferViewImpl::preparePattern(std::string &pattern) const
+bool BufferViewImpl::preparePattern(String &pattern) const
 {
     PIMPL_Q(const BufferView);
 
     if(q->eob() || pattern.empty())
         return false;
 
-    pattern.erase(std::remove_if(pattern.begin(), pattern.end(), ::isspace), pattern.end());
+    pattern.remove(' ');
 
     if((pattern.size() % 2) || (this->patternLength(pattern) > q->size()))
         return false;
@@ -92,7 +92,7 @@ bool BufferViewImpl::preparePattern(std::string &pattern) const
 
     for(size_t i = 0; i < pattern.size() - 2; i += 2)
     {
-        std::string hexb = pattern.substr(i, 2);
+        String hexb = pattern.substring(i, 2);
 
         if(hexb == BufferViewImpl::WILDCARD_BYTE)
         {
@@ -100,7 +100,7 @@ bool BufferViewImpl::preparePattern(std::string &pattern) const
             continue;
         }
 
-        if(!std::isxdigit(hexb.front()) || !std::isxdigit(hexb.back()))
+        if(!std::isxdigit(hexb.first()) || !std::isxdigit(hexb.last()))
             return false;
     }
 
@@ -113,7 +113,7 @@ u8 *BufferViewImpl::endData() const
     return q->data() ? (q->data() + q->size()) : nullptr;
 }
 
-WildcardSearchResult BufferViewImpl::wildcard(std::string pattern, size_t startoffset) const
+WildcardSearchResult BufferViewImpl::wildcard(String pattern, size_t startoffset) const
 {
     PIMPL_Q(const BufferView);
 

@@ -10,6 +10,7 @@ bool ListingDocumentChangedImpl::isRemoved() const { return m_action == ListingD
 size_t ListingDocumentChangedImpl::index() const { return m_index; }
 
 ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): sorted_container<ListingItemPtr, ListingItemPtrComparator>(), m_pimpl_q(q), m_documententry(nullptr) { }
+ListingDocumentTypeImpl::~ListingDocumentTypeImpl() { m_segments.releaseObjects(); }
 
 ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionStartIterator(address_t address) const
 {

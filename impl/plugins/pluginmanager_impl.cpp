@@ -15,12 +15,12 @@ std::unique_ptr<PluginManager> PluginManagerImpl::m_instance;
 
 void PluginManagerImpl::unload(const PluginInstance *pi)
 {
-    std::string id = pi->descriptor->id;
+    String id = pi->descriptor->id;
     PluginLoader::unload(pi);
     m_activeplugins.erase(id);
 }
 
-const PluginInstance *PluginManagerImpl::load(const std::string &pluginpath, const char* initname)
+const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const char* initname)
 {
     PluginInstance pi;
 
@@ -34,7 +34,7 @@ const PluginInstance *PluginManagerImpl::load(const std::string &pluginpath, con
 
 void PluginManagerImpl::iteratePlugins(const char *initname, const PluginManager_Callback &cb)
 {
-    for(const std::string& pluginpath : r_ctx->pluginPaths())
+    for(const String& pluginpath : r_ctx->pluginPaths())
     {
         if(this->iteratePlugins(pluginpath.c_str(), initname, cb))
             break;
@@ -76,7 +76,7 @@ bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, c
 
         if(entry->d_type == DT_DIR) // Recurse folders
         {
-            std::string rpath = Path::create(path, entry->d_name);
+            String rpath = Path::create(path, entry->d_name);
 
             if(this->iteratePlugins(rpath.c_str(), initname, cb))
                 return true;
@@ -84,7 +84,7 @@ bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, c
             continue;
         }
 
-        if(!Utils::endsWith(entry->d_name, SHARED_OBJECT_EXT))
+        if(!String(entry->d_name).endsWith(SHARED_OBJECT_EXT))
             continue;
 
         const PluginInstance* pi = nullptr;
@@ -108,7 +108,7 @@ bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, c
     return false;
 }
 
-const PluginInstance *PluginManagerImpl::find(const char *path, const std::string &id, const char *initname)
+const PluginInstance *PluginManagerImpl::find(const char *path, const String &id, const char *initname)
 {
     DIR* dir = opendir(path);
 
@@ -123,7 +123,7 @@ const PluginInstance *PluginManagerImpl::find(const char *path, const std::strin
         if(!std::strcmp(entry->d_name, ".") || !std::strcmp(entry->d_name, ".."))
             continue;
 
-        std::string rpath = Path::create(path, entry->d_name);
+        String rpath = Path::create(path, entry->d_name);
 
         if(entry->d_type == DT_DIR) // Recurse folders
         {
@@ -141,9 +141,9 @@ const PluginInstance *PluginManagerImpl::find(const char *path, const std::strin
     return pi;
 }
 
-const PluginInstance *PluginManagerImpl::find(const std::string &id, const char *initname)
+const PluginInstance *PluginManagerImpl::find(const String &id, const char *initname)
 {
-    for(const std::string& pluginpath : r_ctx->pluginPaths())
+    for(const String& pluginpath : r_ctx->pluginPaths())
     {
         const PluginInstance* pi = this->find(pluginpath.c_str(), id, initname);
 

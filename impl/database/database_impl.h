@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <redasm/types/string.h>
 
 namespace REDasm {
 
@@ -10,7 +10,7 @@ class DatabaseImpl
         DatabaseImpl() = delete;
 
     public:
-        static std::string m_lasterror;
+        static String m_lasterror;
 };
 
 } // namespace REDasm

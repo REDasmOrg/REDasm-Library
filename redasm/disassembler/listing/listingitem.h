@@ -1,14 +1,13 @@
 #pragma once
 
-#include <redasm/support/containers/sorted_container.h>
-#include <deque>
+#include <redasm/types/containers/sortedcontainer.h>
 #include "../../support/serializer.h"
-#include "../../types/base_types.h"
+#include "../../types/base.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
 
-struct ListingMetaItem { std::string name, type; };
+struct ListingMetaItem { String name, type; };
 
 enum class ListingItemType: size_t
 {

@@ -4,7 +4,7 @@
 #define USER_STATE_START   0x10000000
 
 #include <functional>
-#include <redasm/types/api_types.h>
+#include <redasm/types/api.h>
 
 namespace REDasm {
 
@@ -12,7 +12,7 @@ typedef u32 state_t;
 
 struct State
 {
-    std::string name;
+    String name;
     state_t id;
 
     union {

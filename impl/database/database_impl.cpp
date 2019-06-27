@@ -2,6 +2,6 @@
 
 namespace REDasm {
 
-std::string DatabaseImpl::m_lasterror;
+String DatabaseImpl::m_lasterror;
 
 } // namespace REDasm

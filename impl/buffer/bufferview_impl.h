@@ -40,11 +40,11 @@ class WildcardSearchResultImpl: public SearchObjectImpl
 {
     public:
         WildcardSearchResultImpl();
-        WildcardSearchResultImpl(const BufferView* view, const std::string& searchwildcard, size_t searchsize);
+        WildcardSearchResultImpl(const BufferView* view, const String& searchwildcard, size_t searchsize);
         WildcardSearchResult next() const;
 
     private:
-        std::string m_searchwildcard;
+        String m_searchwildcard;
 
     friend class BufferViewImpl;
 };
@@ -57,18 +57,18 @@ class BufferViewImpl
     public:
         BufferViewImpl(BufferView* q);
         BufferViewImpl(BufferView* q, const AbstractBuffer *buffer, size_t offset, size_t size);
-        size_t patternLength(const std::string& pattern) const;
-        std::pair<u8, u8> patternRange(std::string &pattern, size_t& startoffset, size_t& endoffset, size_t &beginoffset) const;
-        bool comparePattern(const std::string& pattern, const u8* pdata) const;
-        bool preparePattern(std::string& pattern) const;
+        size_t patternLength(const String& pattern) const;
+        std::pair<u8, u8> patternRange(String &pattern, size_t& startoffset, size_t& endoffset, size_t &beginoffset) const;
+        bool comparePattern(const String& pattern, const u8* pdata) const;
+        bool preparePattern(String& pattern) const;
         u8* endData() const;
 
     public:
-        WildcardSearchResult wildcard(std::string pattern, size_t startoffset = 0) const;
+        WildcardSearchResult wildcard(String pattern, size_t startoffset = 0) const;
         SearchResult find(const u8* searchdata, size_t searchsize, size_t startoffset = 0) const;
 
     public:
-        static const std::string WILDCARD_BYTE;
+        static const String WILDCARD_BYTE;
 
     private:
         const AbstractBuffer* m_buffer;

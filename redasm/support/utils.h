@@ -18,25 +18,8 @@ class Utils
 {
     public:
         Utils() = delete;
-        static inline std::string simplified(std::string s) { std::replace_if(s.begin(), s.end(), [](char ch) -> bool { return std::isspace(ch); }, ' ');  return s; }
-        static inline std::string ltrimmed(std::string s) { s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) { return !std::isspace(ch); })); return s; }
-        static inline std::string rtrimmed(std::string s) { s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch); }).base(), s.end()); return s; }
-        static inline std::string wtoa(const std::wstring& ws) { std::string s; std::transform(ws.begin(), ws.end(), std::back_inserter(s), [](wchar_t ch) -> char { return static_cast<char>(ch); }); return s; }
-
-    public:
-        static inline bool startsWith(const std::string& s, const std::string& b) { return s.find( b) == 0; }
-        static inline bool endsWith(const std::string& s, const std::string& e) { return s.size() >= e.size() && s.compare(s.size() - e.size(), e.size(), e) == 0; }
-        static inline std::string trampoline(const std::string& s, const std::string& prefix = std::string()) { return prefix + "_" + s; }
-        static inline std::string quoted_s(const std::string& s) {  return "'" + s + "'"; }
-        static inline std::string quoted(const std::string& s) {  return "\"" + s + "\""; }
-        static inline std::string quoted(const char* s) { return Utils::quoted(std::string(s)); }
-        static inline std::string quoted_s(const char* s) { return Utils::quoted_s(std::string(s)); }
-        static inline std::string hexstring(const BufferView* view, size_t size) { return Utils::hexstring(reinterpret_cast<const char*>(view->data()), size); }
-
-    public:
-        static inline std::string trimmed(std::string s);
-        static inline std::string hexstring(const char *data, size_t size);
-        static inline bool byte(const std::string& s, u8* val, size_t offset = 0);
+        static inline String trampoline(const String& s, const String& prefix = String()) { return prefix + "_" + s; }
+        static inline bool byte(const String& s, u8* val, size_t offset = 0);
 
     public:
         template<typename T, typename U> static inline T readpointer(U** p) { T v = *reinterpret_cast<T*>(*p); *p = Utils::relpointer<U>(*p, sizeof(T)); return v; }
@@ -45,48 +28,18 @@ class Utils
         template<typename T, typename U> static inline T ror(T n, U c) { assert(c < bits_count<T>::value); return !c ? n : ((n >> c) | (n << (bits_count<T>::value - c))); }
         template<typename T, typename U> static inline T aligned(T t, U a) { T r = t % a; return r ? (t + (a - r)) : t; }
         template<typename T> static inline size_t countbits(T val) { double bytes = std::log(static_cast<double>(val)) / std::log(256.0); return static_cast<size_t>(std::ceil(bytes)) * 8; }
-        template<typename T> static inline std::string dec(T t) { std::stringstream ss; ss << t; return ss.str(); }
+        template<typename T> static inline String dec(T t) { std::stringstream ss; ss << t; return ss.str().c_str(); }
         template<typename T> static inline T unmask(T val, T mask);
-        template<typename T> static inline std::string wtoa(T* ws, size_t len);
 
     public:
-        template<typename T> static inline std::string quoted(T t) { return Utils::quoted(std::to_string(t)); }
         template<typename T, typename U> static inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
 
     public:
-        template<typename Container> static inline std::string join(const Container& c, const std::string& sep);
-        template<typename T> static inline std::string hex(T t, size_t bits = 0, bool withprefix = false);
+        template<typename Container> static inline String join(const Container& c, const char* sep);
         template<typename T> static inline size_t countbits_r(T val);
 };
 
-std::string Utils::trimmed(std::string s)
-{
-    // Left
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
-        return !std::isspace(ch);
-    }));
-
-    // Right
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-
-    return s;
-}
-
-std::string Utils::hexstring(const char *data, size_t size)
-{
-    std::stringstream ss;
-
-    for(size_t i = 0; i < size; i++, data++) {
-        ss << std::uppercase << std::setfill('0') << std::setw(2) << std::hex <<
-              static_cast<size_t>(*reinterpret_cast<const u8*>(data));
-    }
-
-    return ss.str();
-}
-
-bool Utils::byte(const std::string &s, u8 *val, size_t offset)
+bool Utils::byte(const String &s, u8 *val, size_t offset)
 {
     if(offset > (s.size() - 2))
         return false;
@@ -94,22 +47,22 @@ bool Utils::byte(const std::string &s, u8 *val, size_t offset)
     if(!std::isxdigit(s[offset]) || !std::isxdigit(s[offset + 1]))
         return false;
 
-    *val = static_cast<u8>(std::stoi(s.substr(offset, 2), nullptr, 16));
+    *val = static_cast<u8>(s.substring(offset, 2).toInt(16));
     return true;
 }
 
-template<typename Container> std::string Utils::join(const Container& c, const std::string& sep)
+template<typename Container> String Utils::join(const Container& c, const char* sep)
 {
-    std::stringstream ss;
+    String res;
 
     for(auto it = c.begin(); it != c.end(); it++) {
         if(it != c.begin())
-            ss << sep;
+            res += sep;
 
-        ss << *it;
+        res += *it;
     }
 
-    return ss.str();
+    return res;
 }
 
 template<typename T> T Utils::unmask(T val, T mask)
@@ -127,37 +80,6 @@ template<typename T> T Utils::unmask(T val, T mask)
     }
 
     return result;
-}
-
-template<typename T> std::string Utils::wtoa(T* ws, size_t len)
-{
-    std::string s;
-    char* p = reinterpret_cast<char*>(ws);
-
-    for(size_t i = 0; i < len; i++, p += sizeof(char) * 2)
-        s += *p;
-
-    return s;
-}
-
-template<typename T> std::string Utils::hex(T t, size_t bits, bool withprefix)
-{
-    std::stringstream ss;
-
-    if(withprefix && (t > (std::is_signed<T>::value ? 9 : 9u)))
-        ss << "0x";
-
-    ss << std::uppercase << std::hex;
-
-    if(bits > 0)
-        ss << std::setfill('0') << std::setw(bits / 4);
-
-    if(std::is_signed<T>::value && t < 0)
-        ss << "-" << (~t) + 1;
-    else
-        ss << t;
-
-    return ss.str();
 }
 
 template<typename T> size_t Utils::countbits_r(T val)

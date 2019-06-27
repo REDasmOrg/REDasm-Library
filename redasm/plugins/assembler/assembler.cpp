@@ -19,7 +19,7 @@ bool Assembler::decode(const BufferView &view, Instruction* instruction)
     PIMPL_P(Assembler);
     p->setInstructionType(instruction);
     this->onDecoded(instruction);
-    p->m_dispatcher(instruction->id(), instruction);
+    p->m_dispatcher(instruction->id, instruction);
     return true;
 }
 

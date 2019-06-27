@@ -1,5 +1,6 @@
 #include "loader_impl.h"
 #include <redasm/plugins/loader/analyzer.h>
+#include <redasm/types/containers/list.h>
 #include <redasm/macros.h>
 
 namespace REDasm {
@@ -40,17 +41,21 @@ ListingDocument &LoaderImpl::createDocument() { m_document = ListingDocument(new
 const ListingDocument &LoaderImpl::document() const { return m_document;  }
 ListingDocument &LoaderImpl::document() { return m_document;  }
 SignatureIdentifiers &LoaderImpl::signatures() { return m_signatures; }
-void LoaderImpl::signature(const std::string &sig) { m_signatures.insert(sig); }
+void LoaderImpl::signature(const String &sig) { m_signatures.insert(sig); }
 
 offset_location LoaderImpl::offset(address_t address) const
 {
-    for(const Segment& segment : m_document->segments())
+    auto it = m_document->segments().iterator();
+
+    while(it.hasNext())
     {
-        if(!segment.contains(address))
+        Segment* segment = variant_object<Segment>(it.next());
+
+        if(!segment->contains(address))
             continue;
 
-        offset_t offset = (address - segment.address) + segment.offset;
-        return REDasm::make_location(offset, segment.containsOffset(offset));
+        offset_t offset = (address - segment->address) + segment->offset;
+        return REDasm::make_location(offset, segment->containsOffset(offset));
     }
 
     return REDasm::invalid_location<offset_t>();
@@ -58,19 +63,23 @@ offset_location LoaderImpl::offset(address_t address) const
 
 address_location LoaderImpl::address(offset_t offset) const
 {
-    for(const Segment& segment : m_document->segments())
+    auto it = m_document->segments().iterator();
+
+    while(it.hasNext())
     {
-        if(!segment.containsOffset(offset))
+        Segment* segment = variant_object<Segment>(it.next());
+
+        if(!segment->containsOffset(offset))
             continue;
 
-        address_t address = (offset - segment.offset) + segment.address;
-        return REDasm::make_location(address, segment.contains(address));
+        address_t address = (offset - segment->offset) + segment->address;
+        return REDasm::make_location(address, segment->contains(address));
     }
 
     return REDasm::invalid_location<address_t>();
 }
 
-void LoaderImpl::build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to Loader::build()"); }
+void LoaderImpl::build(const String &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to Loader::build()"); }
 
 Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
 {

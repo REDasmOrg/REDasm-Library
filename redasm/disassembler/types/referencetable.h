@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../types/base_types.h"
+#include "../../types/base.h"
 #include "../../support/serializer.h"
 #include "../../pimpl.h"
 

@@ -77,7 +77,7 @@ void BufferView::copyTo(AbstractBuffer *buffer)
     std::copy_n(this->data(), p->m_size, buffer->data());
 }
 
-std::string BufferView::toString() const { return std::string(reinterpret_cast<const char*>(this->data()), this->size()); }
+String BufferView::toString() const { return String(reinterpret_cast<const char*>(this->data()), this->size()); }
 void BufferView::resize(size_t size) { PIMPL_P(BufferView); p->m_size = std::min(size, p->m_buffer->size()); }
 u8 *BufferView::data() const { PIMPL_P(const BufferView); return p->m_buffer->data() + p->m_offset; }
 u8 *BufferView::endData() const { PIMPL_P(const BufferView); return this->data() ? (this->data() + this->size()) : nullptr; }
@@ -107,7 +107,7 @@ BufferView &BufferView::operator +=(size_t offset)
     return *this;
 }
 
-WildcardSearchResult BufferView::wildcard(const std::string& pattern, size_t startoffset) const { PIMPL_P(const BufferView); return p->wildcard(pattern, startoffset); }
+WildcardSearchResult BufferView::wildcard(const String& pattern, size_t startoffset) const { PIMPL_P(const BufferView); return p->wildcard(pattern, startoffset); }
 SearchResult BufferView::find(const u8 *searchdata, size_t searchsize, size_t startoffset) const { PIMPL_P(const BufferView); return p->find(searchdata, searchsize, startoffset); }
 
 SearchResult::SearchResult(): m_pimpl_p(new SearchResultImpl()) { }
@@ -118,7 +118,7 @@ const u8 *SearchResult::result() const { PIMPL_P(const SearchResult); return p->
 size_t SearchResult::position() const { PIMPL_P(const SearchResult); return p->position(); }
 
 WildcardSearchResult::WildcardSearchResult(): m_pimpl_p(new WildcardSearchResultImpl()) { }
-WildcardSearchResult::WildcardSearchResult(const BufferView *view, const std::string &searchwildcard, size_t searchsize): m_pimpl_p(new WildcardSearchResultImpl(view, searchwildcard, searchsize)) { }
+WildcardSearchResult::WildcardSearchResult(const BufferView *view, const String &searchwildcard, size_t searchsize): m_pimpl_p(new WildcardSearchResultImpl(view, searchwildcard, searchsize)) { }
 WildcardSearchResult WildcardSearchResult::next() const { PIMPL_P(const WildcardSearchResult); return p->next(); }
 size_t WildcardSearchResult::position() const { PIMPL_P(const WildcardSearchResult); return p->position(); }
 bool WildcardSearchResult::hasNext() const { PIMPL_P(const WildcardSearchResult); return p->hasNext(); }

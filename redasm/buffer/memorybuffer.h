@@ -9,6 +9,7 @@ class MemoryBufferImpl;
 
 class LIBREDASM_API MemoryBuffer: public AbstractBuffer
 {
+    REDASM_OBJECT(MemoryBuffer)
     PIMPL_DECLARE_P(MemoryBuffer)
     PIMPL_DECLARE_PRIVATE(MemoryBuffer)
 
@@ -25,7 +26,7 @@ class LIBREDASM_API MemoryBuffer: public AbstractBuffer
         void swap(MemoryBuffer& mb);
 
     public:
-        static MemoryBuffer* fromFile(const std::string& file);
+        static MemoryBuffer* fromFile(const String& file);
 };
 
 } // namespace REDasm

@@ -1,6 +1,6 @@
 #include "path.h"
 #include <sstream>
-#include <list>
+#include <fstream>
 
 #ifdef __unix__
     #include <sys/stat.h>
@@ -16,7 +16,7 @@ namespace REDasm {
 
 char Path::dirSeparatorChar() { return Path::dirSeparator()[0]; }
 
-std::string Path::dirSeparator()
+String Path::dirSeparator()
 {
 #ifdef _WIN32
     return "\\";
@@ -25,78 +25,75 @@ std::string Path::dirSeparator()
 #endif
 }
 
-std::string Path::fileName(const std::string &path)
+String Path::fileName(const String &path)
 {
-    StringParts parts = Path::splitPath(path);
+    List parts = Path::splitPath(path);
 
-    if(parts.empty() || (parts.back() == Path::dirSeparator()))
-        return std::string();
+    if(parts.empty() || (parts.last() == Path::dirSeparator()))
+        return String();
 
-    return parts.back();
+    return parts.last().toString();
 }
 
-std::string Path::fileNameOnly(const std::string &path)
+String Path::fileNameOnly(const String &path)
 {
-    std::string filename = Path::fileName(path);
-    size_t pos = filename.find_last_of('.');
+    String filename = Path::fileName(path);
+    size_t pos = filename.lastIndexOf('.');
 
-    if(pos != std::string::npos)
-        filename = filename.substr(0, pos);
+    if(pos != String::npos)
+        filename = filename.substring(0, pos);
 
     return filename;
 }
 
-std::string Path::filePath(const std::string &path)
+String Path::filePath(const String &path)
 {
-    StringParts parts = Path::splitPath(path);
+    List parts = Path::splitPath(path);
 
-    if(parts.empty() || (parts.back() == Path::dirSeparator()))
+    if(parts.empty() || (parts.last() == Path::dirSeparator()))
         return path;
 
-    parts.pop_back();
-    std::string newpath;
+    parts.removeLast();
+    String newpath;
 
-    for(const std::string& part : parts)
-        newpath = Path::create(newpath, part);
+    auto it = parts.iterator();
+
+    while(it.hasNext())
+        newpath = Path::create(newpath, it.next().toString());
 
     return newpath;
 }
 
-REDasm::Path::StringParts Path::splitPath(const std::string &path)
+List Path::splitPath(const String &path) { return path.split(Path::dirSeparatorChar()); }
+
+String Path::ext(const String &s)
 {
-    std::stringstream ss(path);
-    std::deque<std::string> seglist;
-    std::string seg;
+    size_t lastidx = s.lastIndexOf('.');
 
-    while(std::getline(ss, seg, Path::dirSeparatorChar()))
-        seglist.push_back(seg);
-
-    return seglist;
-}
-
-std::string Path::ext(const std::string &s)
-{
-    size_t lastidx = s.find_last_of('.');
-
-    if(lastidx == std::string::npos)
-        return std::string();
+    if(lastidx == String::npos)
+        return String();
 
     lastidx++; // Skip '.'
 
-    if(lastidx == std::string::npos)
-        return std::string();
+    if(lastidx == String::npos)
+        return String();
 
-    return s.substr(lastidx);
+    return s.substring(lastidx);
 }
 
-bool Path::mkdir(const std::string &path)
+bool Path::exists(const String &s) { std::ifstream ifs(s.c_str()); return ifs.is_open(); }
+
+bool Path::mkdir(const String &path)
 {
-    StringParts folders = Path::splitPath(path);
-    std::string respath;
+    List folders = Path::splitPath(path);
+    String respath;
     bool res = false;
 
-    for(const std::string& folder: folders)
+    auto it = folders.iterator();
+
+    while(it.hasNext())
     {
+        String folder = it.next().toString();
         respath += folder + Path::dirSeparator();
 
 #ifdef __unix__
@@ -104,7 +101,6 @@ bool Path::mkdir(const std::string &path)
 #elif _WIN32
         res = CreateDirectory(path.c_str(), nullptr) != 0;
 #endif
-
     }
 
     return res;

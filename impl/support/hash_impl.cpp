@@ -1,9 +1,7 @@
 #include "hash_impl.h"
-#include <libs/miniz/miniz.h>
+#include <redasm/static/crc32.h>
 #include <cstring>
 #include <cctype>
-
-#undef crc32
 
 //
 // Base64 Algorithm based on: https://github.com/ReneNyffenegger/cpp-base64/blob/master/base64.cpp
@@ -11,9 +9,9 @@
 
 namespace REDasm {
 
-const std::string HashImpl::BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                           "abcdefghijklmnopqrstuvwxyz"
-                                           "0123456789+/";
+const String HashImpl::BASE64_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                      "abcdefghijklmnopqrstuvwxyz"
+                                      "0123456789+/";
 
 u16 REDasm::HashImpl::crc16(const u8 *data, size_t length)
 {
@@ -29,11 +27,19 @@ u16 REDasm::HashImpl::crc16(const u8 *data, size_t length)
     return crc;
 }
 
-u32 HashImpl::crc32(const u8 *data, size_t length) { return mz_crc32(0, data, length); }
-
-std::string HashImpl::base64encode(const u8 *data, size_t length)
+u32 HashImpl::crc32(const u8 *data, size_t length)
 {
-    std::string ret;
+    u32 crc = ~0u;
+
+    while(length--)
+        crc = Detail::CRC32_TABLE[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
+
+    return crc ^ ~0U;
+}
+
+String HashImpl::base64encode(const u8 *data, size_t length)
+{
+    String ret;
     int i = 0, j = 0;
     u8 chararray3[3], chararray4[4];
 
@@ -74,12 +80,12 @@ std::string HashImpl::base64encode(const u8 *data, size_t length)
     return ret;
 }
 
-std::string HashImpl::base64decode(const char* b64string)
+String HashImpl::base64decode(const char* b64string)
 {
     int len = std::strlen(b64string);
     int i = 0, idx = 0;
     u8 chararray4[4], chararray3[3];
-    std::string ret;
+    String ret;
 
     while(len-- && (b64string[idx] != '=') && HashImpl::isBase64(b64string[idx]))
     {
@@ -89,7 +95,7 @@ std::string HashImpl::base64decode(const char* b64string)
         if(i == 4)
         {
             for (i = 0; i <4; i++)
-                chararray4[i] = HashImpl::BASE64_CHARS.find(chararray4[i]);
+                chararray4[i] = HashImpl::BASE64_CHARS.indexOf(chararray4[i]);
 
             chararray3[0] = ( chararray4[0] << 2       ) + ((chararray4[1] & 0x30) >> 4);
             chararray3[1] = ((chararray4[1] & 0xf) << 4) + ((chararray4[2] & 0x3c) >> 2);
@@ -105,7 +111,7 @@ std::string HashImpl::base64decode(const char* b64string)
     if (i)
     {
         for(int j = 0; j < i; j++)
-            chararray4[j] = HashImpl::BASE64_CHARS.find(chararray4[j]);
+            chararray4[j] = HashImpl::BASE64_CHARS.indexOf(chararray4[j]);
 
         chararray3[0] = (chararray4[0] << 2) + ((chararray4[1] & 0x30) >> 4);
         chararray3[1] = ((chararray4[1] & 0xf) << 4) + ((chararray4[2] & 0x3c) >> 2);

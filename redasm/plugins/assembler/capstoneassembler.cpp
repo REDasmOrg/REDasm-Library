@@ -9,7 +9,7 @@ bool CapstoneAssembler::decodeInstruction(const BufferView &view, Instruction *i
 {
     PIMPL_P(CapstoneAssembler);
 
-    address_t address = instruction->address();
+    address_t address = instruction->address;
     const u8* pdata = view.data();
     size_t len = view.size();
     cs_insn* insn = cs_malloc(p->handle());
@@ -17,9 +17,9 @@ bool CapstoneAssembler::decodeInstruction(const BufferView &view, Instruction *i
     if(!cs_disasm_iter(p->handle(), &pdata, &len, &address, insn))
         return false;
 
-    instruction->setMnemonic(insn->mnemonic);
-    instruction->setId(insn->id);
-    instruction->setSize(insn->size);
+    instruction->mnemonic = insn->mnemonic;
+    instruction->id = insn->id;
+    instruction->size = insn->size;
     instruction->setUserData(insn);
     instruction->setFree(&CapstoneAssemblerImpl::free);
     return true;
@@ -40,13 +40,13 @@ void CapstoneAssembler::onDecoded(Instruction *instruction)
     PIMPL_P(CapstoneAssembler);
 
     if(cs_insn_group(p->handle(), insn, CS_GRP_JUMP))
-        instruction->type() |= InstructionType::Jump;
+        instruction->type |= InstructionType::Jump;
     else if(cs_insn_group(p->handle(), insn, CS_GRP_CALL))
-        instruction->type() |= InstructionType::Call;
+        instruction->type |= InstructionType::Call;
     else if(cs_insn_group(p->handle(), insn, CS_GRP_RET))
-        instruction->type() |= InstructionType::Stop;
+        instruction->type |= InstructionType::Stop;
     else if(cs_insn_group(p->handle(), insn, CS_GRP_INT) || cs_insn_group(p->handle(), insn, CS_GRP_IRET))
-        instruction->type() |= InstructionType::Privileged;
+        instruction->type |= InstructionType::Privileged;
 }
 
 } // namespace REDasm

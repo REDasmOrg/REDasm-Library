@@ -1,8 +1,8 @@
 #pragma once
 
 #include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/support/containers/sorted_container.h>
-#include <redasm/support/containers/cache_map.h>
+#include <redasm/types/containers/sortedcontainer.h>
+#include "instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {
@@ -35,7 +35,6 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
         typedef sorted_container<ListingItemPtr, ListingItemPtrComparator> ContainerType;
 
     private:
-        typedef cache_map<address_t, InstructionPtr> InstructionCache;
         typedef std::unordered_map<address_t, ListingCommentSet> PendingAutoComments;
         typedef std::unordered_map<address_t, size_t> ActiveMeta;
 
@@ -45,6 +44,7 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
 
     public:
         ListingDocumentTypeImpl(ListingDocumentType* q);
+        ~ListingDocumentTypeImpl();
 
     public:
         const_iterator functionStartIterator(address_t address) const;
@@ -61,7 +61,7 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
     private:
         ListingCursor m_cursor;
         PendingAutoComments m_pendingautocomments;
-        SegmentList m_segments;
+        List m_segments;
         ListingFunctions m_functions;
         InstructionCache m_instructions;
         SymbolTable m_symboltable;

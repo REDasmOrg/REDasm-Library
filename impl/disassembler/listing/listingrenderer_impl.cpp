@@ -51,7 +51,7 @@ bool ListingRendererImpl::getRendererLine(const document_s_lock &lock, size_t li
     else if(item->is(ListingItemType::EmptyItem))
         rl.push(" ");
     else
-        rl.push("Unknown Type: " + std::to_string(static_cast<size_t>(item->type())));
+        rl.push("Unknown Type: " + String::number(static_cast<size_t>(item->type())));
 
     return true;
 }
@@ -67,7 +67,7 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
     if(startsel.first != endsel.first)
     {
         size_t start = (rl.documentindex == startsel.first) ? startsel.second : 0;
-        size_t end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.length() - 1);
+        size_t end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.size() - 1);
         rl.format(start, end, "selection_fg", "selection_bg");
     }
     else
@@ -82,18 +82,18 @@ void ListingRendererImpl::blinkCursor(RendererLine &rl)
     rl.format(m_cursor->currentColumn(), m_cursor->currentColumn(), "cursor_fg", "cursorbg");
 }
 
-void ListingRendererImpl::highlightWord(RendererLine &rl, const std::string word)
+void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
 {
     if(word.empty())
         return;
 
-    size_t pos = rl.text.find(word, 0);
+    size_t pos = rl.text.indexOf(word, 0);
     std::list<size_t> locations;
 
-    while(pos != std::string::npos)
+    while(pos != String::npos)
     {
         locations.push_back(pos);
-        pos = rl.text.find(word, pos + 1);
+        pos = rl.text.indexOf(word, pos + 1);
     }
 
     for(size_t loc : locations)
@@ -103,13 +103,13 @@ void ListingRendererImpl::highlightWord(RendererLine &rl, const std::string word
 bool ListingRendererImpl::hasFlag(ListingRendererFlags flag) const { return m_flags & flag; }
 void ListingRendererImpl::setFlags(ListingRendererFlags flags) { m_flags |= flags; }
 
-std::string ListingRendererImpl::escapeString(const std::string &s)
+String ListingRendererImpl::escapeString(const String &s)
 {
-    std::string res;
+    String res;
 
-    for(char ch : s)
+    for(size_t i = 0; i < s.size(); i++)
     {
-        switch(ch)
+        switch(s[i])
         {
             case '\n':
                 res += "\\\n";
@@ -124,7 +124,7 @@ std::string ListingRendererImpl::escapeString(const std::string &s)
                 break;
 
             default:
-                res += ch;
+                res += s[i];
                 break;
         }
     }

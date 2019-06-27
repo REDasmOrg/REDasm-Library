@@ -4,7 +4,6 @@
 
 #include <redasm/context.h>
 #include <chrono>
-#include <deque>
 
 namespace REDasm {
 
@@ -18,13 +17,13 @@ class ContextImpl
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
         void checkSettings();
-        std::string capstoneVersion() const;
+        String capstoneVersion() const;
 
     private:
         ContextSettings m_settings;
         std::chrono::steady_clock::time_point m_laststatusreport;
         std::chrono::milliseconds m_debouncetimeout;
-        std::set<std::string> m_uproblems;
+        std::set<String> m_uproblems;
         ProblemList m_problems;
 
     private:

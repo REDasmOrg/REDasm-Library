@@ -11,14 +11,14 @@
 
 namespace REDasm {
 
-bool Database::save(Disassembler *disassembler, const std::string &dbfilename, const std::string& filename)
+bool Database::save(Disassembler *disassembler, const String &dbfilename, const String& filename)
 {
     DatabaseImpl::m_lasterror.clear();
-    std::fstream ofs(dbfilename, std::ios::out | std::ios::binary | std::ios::trunc);
+    std::fstream ofs(dbfilename.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 
     if(!ofs.is_open())
     {
-        DatabaseImpl::m_lasterror = "Cannot save " + Utils::quoted(dbfilename);
+        DatabaseImpl::m_lasterror = "Cannot save " + dbfilename.quoted();
         return false;
     }
 
@@ -31,12 +31,12 @@ bool Database::save(Disassembler *disassembler, const std::string &dbfilename, c
     Serializer<u32>::write(ofs, RDB_VERSION);
     Serializer<u32>::write(ofs, static_cast<u32>(bits_count<size_t>::value)); // CLang 8.x workaround
     SerializerHelper::obfuscated(ofs, filename);
-    Serializer<std::string>::write(ofs, loader->id());
-    Serializer<std::string>::write(ofs, assembler->id());
+    Serializer<String>::write(ofs, loader->id());
+    Serializer<String>::write(ofs, assembler->id());
 
     if(!SerializerHelper::compressed(ofs, loader->buffer()))
     {
-        DatabaseImpl::m_lasterror = "Cannot compress database " + Utils::quoted(dbfilename);
+        DatabaseImpl::m_lasterror = "Cannot compress database " + dbfilename.quoted();
         return false;
     }
 
@@ -45,20 +45,20 @@ bool Database::save(Disassembler *disassembler, const std::string &dbfilename, c
     return true;
 }
 
-Disassembler *Database::load(const std::string &dbfilename, std::string &filename)
+Disassembler *Database::load(const String &dbfilename, String &filename)
 {
     DatabaseImpl::m_lasterror.clear();
-    std::fstream ifs(dbfilename, std::ios::in | std::ios::binary);
+    std::fstream ifs(dbfilename.c_str(), std::ios::in | std::ios::binary);
 
     if(!ifs.is_open())
     {
-        DatabaseImpl::m_lasterror = "Cannot open " + Utils::quoted(dbfilename);
+        DatabaseImpl::m_lasterror = "Cannot open " + dbfilename.quoted();
         return nullptr;
     }
 
     if(!SerializerHelper::signatureIs(ifs, RDB_SIGNATURE))
     {
-        DatabaseImpl::m_lasterror = "Signature check failed for " + Utils::quoted(dbfilename);
+        DatabaseImpl::m_lasterror = "Signature check failed for " + dbfilename.quoted();
         return nullptr;
     }
 
@@ -67,7 +67,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
 
     if(version != RDB_VERSION)
     {
-        DatabaseImpl::m_lasterror = "Invalid version, got " + std::to_string(version) + " " + std::to_string(RDB_VERSION) + " required";
+        DatabaseImpl::m_lasterror = "Invalid version, got " + String::number(version) + " " + String::number(RDB_VERSION) + " required";
         return nullptr;
     }
 
@@ -76,19 +76,19 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
 
     if(bits_count<size_t>::value != rdbbits)
     {
-        DatabaseImpl::m_lasterror = "Invalid bits: Expected " + std::to_string(bits_count<size_t>::value) + ", got " + std::to_string(rdbbits);
+        DatabaseImpl::m_lasterror = "Invalid bits: Expected " + String::number(bits_count<size_t>::value) + ", got " + String::number(rdbbits);
         return nullptr;
     }
 
     auto* buffer = new MemoryBuffer();
-    std::string loaderid, assemblerid;
+    String loaderid, assemblerid;
     SerializerHelper::deobfuscated(ifs, filename);
-    Serializer<std::string>::read(ifs, loaderid);
-    Serializer<std::string>::read(ifs, assemblerid);
+    Serializer<String>::read(ifs, loaderid);
+    Serializer<String>::read(ifs, assemblerid);
 
     if(!SerializerHelper::decompressed(ifs, buffer))
     {
-        DatabaseImpl::m_lasterror = "Cannot decompress database " + Utils::quoted(dbfilename);
+        DatabaseImpl::m_lasterror = "Cannot decompress database " + dbfilename.quoted();
         delete buffer;
         return nullptr;
     }
@@ -97,7 +97,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
 
     if(!loaderpi)
     {
-        DatabaseImpl::m_lasterror = "Unsupported loader: " + Utils::quoted(loaderid);
+        DatabaseImpl::m_lasterror = "Unsupported loader: " + loaderid.quoted();
         delete buffer;
         return nullptr;
     }
@@ -106,7 +106,7 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
 
     if(!assemblerpi)
     {
-        DatabaseImpl::m_lasterror = "Unsupported assembler: " + Utils::quoted(assemblerid);
+        DatabaseImpl::m_lasterror = "Unsupported assembler: " + assemblerid.quoted();
         delete buffer;
         r_pm->unload(loaderpi);
         return nullptr;
@@ -124,6 +124,6 @@ Disassembler *Database::load(const std::string &dbfilename, std::string &filenam
     return disassembler;
 }
 
-const std::string &Database::lastError() { return DatabaseImpl::m_lasterror; }
+const String &Database::lastError() { return DatabaseImpl::m_lasterror; }
 
 } // namespace REDasm

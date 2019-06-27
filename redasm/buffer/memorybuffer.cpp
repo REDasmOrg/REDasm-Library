@@ -64,9 +64,9 @@ void MemoryBuffer::swap(MemoryBuffer &mb)
     std::swap(p->m_size, mb.pimpl_p()->m_size);
 }
 
-MemoryBuffer *MemoryBuffer::fromFile(const std::string &file)
+MemoryBuffer *MemoryBuffer::fromFile(const String &file)
 {
-    std::ifstream ifs(file, std::ios::in | std::ios::binary | std::ios::ate);
+    std::ifstream ifs(file.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 
     if(!ifs.is_open())
         return nullptr;

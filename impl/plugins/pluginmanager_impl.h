@@ -17,8 +17,8 @@ class PluginManagerImpl
 
     public:
         PluginManagerImpl() = default;
-        const PluginInstance* load(const std::string& pluginpath, const char *initname);
-        const PluginInstance* find(const std::string& id, const char* initname);
+        const PluginInstance* load(const String& pluginpath, const char *initname);
+        const PluginInstance* find(const String& id, const char* initname);
         void iteratePlugins(const char* initname, const PluginManager_Callback& cb);
         void unload(const PluginInstance* pi);
         void unloadAll();
@@ -28,7 +28,7 @@ class PluginManagerImpl
 
     private:
         bool iteratePlugins(const char* path, const char* initname, const PluginManager_Callback& cb);
-        const PluginInstance* find(const char* path, const std::string& id, const char* initname);
+        const PluginInstance* find(const char* path, const String& id, const char* initname);
 
     private:
         PluginManager::PluginMap m_activeplugins;

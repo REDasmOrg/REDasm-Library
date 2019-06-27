@@ -6,13 +6,13 @@
 
 namespace REDasm {
 
-typedef std::unordered_set<std::string> ListingCommentSet;
+typedef std::unordered_set<String> ListingCommentSet;
 
 struct ListingItemData
 {
     ListingCommentSet comments, autocomments;
     ListingMetaItem meta;
-    std::string type;
+    String type;
 };
 
 class ListingItemImpl

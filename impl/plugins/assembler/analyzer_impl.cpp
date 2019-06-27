@@ -15,7 +15,7 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
     if(!item)
         return true; // Don't execute trampoline analysis
 
-    InstructionPtr instruction = m_document->instruction(item->address());
+    CachedInstruction instruction = m_document->instruction(item->address());
 
     if(!instruction)
         return true; // Don't execute trampoline analysis
@@ -23,7 +23,7 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
     if(!instruction->is(InstructionType::Stop))
         return false;
 
-    m_document->lock(symbol->address, "nullsub_" + Utils::hex(symbol->address));
+    m_document->lock(symbol->address, "nullsub_" + String::hex(symbol->address));
     return true;
 }
 
@@ -68,12 +68,12 @@ void AnalyzerImpl::findTrampoline(const Symbol *symbol)
     else
         return;
 
-    InstructionPtr instruction = m_document->instruction(symbol->address);
+    CachedInstruction instruction = m_document->instruction(symbol->address);
 
     if(!instruction)
         return;
 
-    m_disassembler->pushReference(symtrampoline->address, instruction->address());
+    m_disassembler->pushReference(symtrampoline->address, instruction->address);
 }
 
 void AnalyzerImpl::checkFunctions()
@@ -88,7 +88,7 @@ void AnalyzerImpl::checkFunctions()
 
 void AnalyzerImpl::loadSignatures()
 {
-    for(const std::string& signame : m_disassembler->loader()->signatures())
+    for(const String& signame : m_disassembler->loader()->signatures())
         m_disassembler->loadSignature(signame);
 }
 

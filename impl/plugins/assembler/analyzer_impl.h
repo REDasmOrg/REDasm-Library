@@ -22,7 +22,7 @@ class AnalyzerImpl
         void analyzeFast();
 
     protected:
-        Dispatcher<std::string, void*> m_archdispatcher;
+        Dispatcher<String, void*> m_archdispatcher;
         ListingDocument& m_document;
         Disassembler* m_disassembler;
 };

@@ -56,7 +56,7 @@
 #define ENTRY_FUNCTION                             "__redasm_entry__"
 #define START_FUNCTION                             "__redasm_start__"
 #define REGISTER_INVALID                           REDasm::npos
-#define BRANCH_DIRECTION(instruction, destination) (static_cast<int>(destination) - static_cast<int>(instruction->address()))
+#define BRANCH_DIRECTION(instruction, destination) (static_cast<int>(destination) - static_cast<int>(instruction->address))
 
 #define DECLARE_DEFAULT_DELETER(type) \
     namespace std { \

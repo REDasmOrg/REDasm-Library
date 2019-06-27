@@ -1,10 +1,8 @@
 #pragma once
 
 #include <unordered_map>
-#include <cstddef>
-#include <string>
 #include <deque>
-#include <list>
+#include "../types/string.h"
 #include "../macros.h"
 
 namespace REDasm {
@@ -34,7 +32,7 @@ struct NodeAttributes {
 };
 
 struct EdgeAttributes {
-    std::string label, color;
+    String label, color;
     Polyline routes, arrow;
 };
 
@@ -88,10 +86,10 @@ class LIBREDASM_API Graph
         int height(const Node& n) const { return m_nodeattributes.at(n).height; }
         void width(const Node& n, int w) { m_nodeattributes[n].width = w; }
         void height(const Node& n, int h) { m_nodeattributes[n].height = h; }
-        const std::string& color(const Edge& e) const { return m_edgeattributes.at(e).color; }
-        void color(const Edge& e, const std::string& c) { m_edgeattributes[e].color = c; }
-        const std::string& label(const Edge& e) const { return m_edgeattributes.at(e).label; }
-        void label(const Edge& e, const std::string& s) { m_edgeattributes[e].label = s; }
+        const String& color(const Edge& e) const { return m_edgeattributes.at(e).color; }
+        void color(const Edge& e, const String& c) { m_edgeattributes[e].color = c; }
+        const String& label(const Edge& e) const { return m_edgeattributes.at(e).label; }
+        void label(const Edge& e, const String& s) { m_edgeattributes[e].label = s; }
         const Polyline& routes(const Edge& e) const { return m_edgeattributes.at(e).routes; }
         void routes(const Edge& e, const Polyline& p) { m_edgeattributes.at(e).routes = p; }
         const Polyline& arrow(const Edge& e) const { return m_edgeattributes.at(e).arrow; }

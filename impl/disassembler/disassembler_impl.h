@@ -30,19 +30,19 @@ class DisassemblerImpl
         ReferenceSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
         Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
-        InstructionPtr disassembleInstruction(address_t address);
+        CachedInstruction disassembleInstruction(address_t address);
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(Instruction *instruction, address_t startaddress);
         size_t locationIsString(address_t address, bool *wide = nullptr) const;
         JobState state() const;
-        std::string readString(const Symbol* symbol, size_t len = REDasm::npos) const;
-        std::string readString(address_t address, size_t len = REDasm::npos) const;
-        std::string readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
-        std::string readWString(address_t address, size_t len = REDasm::npos) const;
-        std::string getHexDump(address_t address, const Symbol** ressymbol = nullptr);
-        bool loadSignature(const std::string& signame);
+        String readString(const Symbol* symbol, size_t len = REDasm::npos) const;
+        String readString(address_t address, size_t len = REDasm::npos) const;
+        String readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
+        String readWString(address_t address, size_t len = REDasm::npos) const;
+        String getHexDump(address_t address, const Symbol** ressymbol = nullptr);
+        bool loadSignature(const String& signame);
         bool busy() const;
         bool checkString(address_t fromaddress, address_t address);
         bool readAddress(address_t address, size_t size, u64 *value) const;
@@ -64,7 +64,7 @@ class DisassemblerImpl
         void disassembleStep(Job *job);
         void analyzeStep();
         void computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem);
-        template<typename T> std::string readStringT(address_t address, size_t len, std::function<bool(T, std::string&)> fill) const;
+        template<typename T> String readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const;
         template<typename T> size_t locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 
     private:
@@ -77,16 +77,16 @@ class DisassemblerImpl
         JobsPool m_jobs;
 };
 
-template<typename T> std::string DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, std::string&)> fill) const
+template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const
 {
     BufferView view = m_loader->view(address);
-    std::string s;
+    String s;
     size_t i;
 
     for(i = 0; (i < len) && !view.eob() && fill(static_cast<T>(view), s); i++)
         view += sizeof(T);
 
-    std::string res = Utils::simplified(s);
+    String res = s.simplified();
 
     if(i >= len)
         res += "...";

@@ -13,36 +13,36 @@ namespace REDasm {
 
 struct StructVisitor {
     template<typename T, typename = void> struct VisitorImpl {
-        static bool visit(Disassembler* disassembler, address_t address, const std::string& basename, const char* name) { // Basic Types
+        static bool visit(Disassembler* disassembler, address_t address, const String& basename, const char* name) { // Basic Types
             u64 value = 0;
 
             if(disassembler->dereference(address, &value) && disassembler->document()->segment(value))
-                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data | SymbolType::Pointer);
+                disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data | SymbolType::Pointer);
             else
-                disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data);
+                disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
 
             return true;
         }
     };
 
-    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, std::string>::value>::type> { // Arrays
-        static bool visit(Disassembler* disassembler, address_t address, const std::string& basename, const char* name) {
-            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::String);
+    template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, String>::value>::type> { // Arrays
+        static bool visit(Disassembler* disassembler, address_t address, const String& basename, const char* name) {
+            disassembler->document()->lock(address, basename + "." + String(name), SymbolType::String);
             return true;
         }
     };
 
     template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_class<T>::value>::type> { // Classes
-        static bool visit(Disassembler* disassembler, address_t address, const std::string& basename, const char* name) {
+        static bool visit(Disassembler* disassembler, address_t address, const String& basename, const char* name) {
             if(!StructVisitor::symbolize<T>(disassembler, address, basename + "." + name))
                 return false;
 
-            disassembler->document()->lock(address, basename + "." + std::string(name), SymbolType::Data);
+            disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
             return true;
         }
     };
 
-    StructVisitor(Disassembler* disassembler, address_t address, const std::string& basename): address(address), disassembler(disassembler), basename(basename) {
+    StructVisitor(Disassembler* disassembler, address_t address, const String& basename): address(address), disassembler(disassembler), basename(basename) {
         failed = false;
     }
 
@@ -56,14 +56,14 @@ struct StructVisitor {
         address += sizeof(T);
     }
 
-    template<typename T> static bool symbolize(Disassembler* disassembler, address_t address, const std::string& name) {
+    template<typename T> static bool symbolize(Disassembler* disassembler, address_t address, const String& name) {
         if(!std::is_trivial<T>::value) {
             r_ctx->log("Type " + Utils::quoted(Demangler::typeName<T>()) + "is not Trivial");
             return false;
         }
 
         auto document = disassembler->document();
-        std::string symbolname = name + "_" + Utils::hex(address); // Generate an unique name
+        String symbolname = name + "_" + Utils::hex(address); // Generate an unique name
         StructVisitor visitor(disassembler, address, symbolname);
         visit_struct::visit_types<T>(visitor);
         document->type(address, symbolname);
@@ -72,10 +72,10 @@ struct StructVisitor {
 
     address_t address;
     Disassembler* disassembler;
-    const std::string& basename;
+    const String& basename;
     bool failed;
 };
 
-template<typename T> static inline void symbolize(Disassembler* disassembler, address_t address, const std::string& name) { StructVisitor::symbolize<T>(disassembler, address, name); }
+template<typename T> static inline void symbolize(Disassembler* disassembler, address_t address, const String& name) { StructVisitor::symbolize<T>(disassembler, address, name); }
 
 } // namespace REDasm

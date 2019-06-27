@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../types/endianness/endianness.h"
-#include "../types/plugin_types.h"
-#include "../types/base_types.h"
+#include "../types/object.h"
+#include "../types/string.h"
+#include "../types/base.h"
 #include "../macros.h"
 
 namespace REDasm {

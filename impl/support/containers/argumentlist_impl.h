@@ -1,7 +1,7 @@
 #pragma once
 
-#include <deque>
-#include <redasm/support/containers/argumentlist.h>
+#include <redasm/types/containers/argumentlist.h>
+#include <redasm/types/containers/list.h>
 
 namespace REDasm {
 
@@ -12,12 +12,12 @@ class ArgumentListImpl
 
     public:
         ArgumentListImpl();
-        ArgumentListImpl(const std::initializer_list<Argument>& args);
+        ArgumentListImpl(const std::initializer_list<Variant> &args);
         size_t size() const;
-        bool expect(const std::initializer_list<ArgumentType>& args) const;
+        bool expect(const std::initializer_list<argument_t> &args) const;
 
     private:
-        std::deque<Argument> m_args;
+        List m_args;
 };
 
 } // namespace REDasm

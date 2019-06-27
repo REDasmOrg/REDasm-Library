@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../buffer/bufferview.h"
-#include "../../types/api_types.h"
+#include "../../types/api.h"
 #include "../plugin.h"
 #include "algorithm/algorithm.h"
 #include "printer/printer.h"

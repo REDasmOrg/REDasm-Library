@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <redasm/types/string.h>
 
 namespace REDasm {
 
@@ -8,8 +8,8 @@ class DemanglerImpl
 {
     public:
         DemanglerImpl() = delete;
-        static std::string demangleMSVC(const std::string& s, bool simplified);
-        static std::string demangleItanium(const std::string& s);
+        static String demangleMSVC(const String& s, bool simplified);
+        static String demangleItanium(const String& s);
 };
 
 } // namespace REDasm

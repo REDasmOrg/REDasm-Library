@@ -5,9 +5,9 @@
 
 namespace REDasm {
 
-bool OrdinalsImpl::load(const std::string &filepath)
+bool OrdinalsImpl::load(const String &filepath)
 {
-    std::ifstream ifs(filepath);
+    std::ifstream ifs(filepath.c_str());
 
     if(!ifs.is_open())
         return false;
@@ -17,14 +17,14 @@ bool OrdinalsImpl::load(const std::string &filepath)
 
     for(auto it = js.begin(); it != js.end(); it++)
     {
-        std::string ordinalstring = it.key(), name = it.value();
+        String ordinalstring = it.key().c_str(), name = it.value();
 
         if(ordinalstring.empty() || name.empty())
             continue;
 
         try
         {
-            ordinal_t ordinal = static_cast<ordinal_t>(std::stoi(ordinalstring));
+            ordinal_t ordinal = static_cast<ordinal_t>(ordinalstring.toInt());
             m_ordinals[ordinal] = name;
         }
         catch(...)
@@ -37,12 +37,12 @@ bool OrdinalsImpl::load(const std::string &filepath)
     return true;
 }
 
-std::string OrdinalsImpl::name(ordinal_t ordinal, const std::string &fallbackprefix) const
+String OrdinalsImpl::name(ordinal_t ordinal, const String &fallbackprefix) const
 {
     auto it = m_ordinals.find(ordinal);
 
     if(it == m_ordinals.end())
-        return fallbackprefix + "Ordinal__" + Utils::hex(ordinal, 16);
+        return fallbackprefix + "Ordinal__" + String::hex(ordinal, 16);
 
     return it->second;
 }

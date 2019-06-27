@@ -5,9 +5,9 @@
 //     char signature[3];
 //     u32 rdbbits;                   // Check size_t bits
 //     u32 version;
-//     std::string filename;          // XORified
-//     std::string loaderid;
-//     std::string assemblerid;
+//     String filename;          // XORified
+//     String loaderid;
+//     String assemblerid;
 //
 //     Buffer buffer;                 // ZLib compressed stream
 //
@@ -26,7 +26,7 @@
 #define RDB_SIGNATURE_LENGTH 3
 #define RDB_VERSION          u32(2)
 
-#include <string>
+#include "../types/string.h"
 
 namespace REDasm {
 
@@ -36,9 +36,9 @@ class Database
 {
     public:
         Database() = delete;
-        static const std::string& lastError();
-        static bool save(REDasm::Disassembler* disassembler, const std::string& dbfilename, const std::string& filename);
-        static REDasm::Disassembler* load(const std::string& dbfilename, std::string& filename);
+        static const String& lastError();
+        static bool save(REDasm::Disassembler* disassembler, const String& dbfilename, const String& filename);
+        static REDasm::Disassembler* load(const String& dbfilename, String& filename);
 };
 
 } // namespace REDasm

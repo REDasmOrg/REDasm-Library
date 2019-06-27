@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../disassembler/listing/listingdocument.h"
-#include "../../../types/plugin_types.h"
+#include "../../../types/object.h"
 
 namespace REDasm {
 
@@ -10,14 +10,15 @@ class PrinterImpl;
 
 class Printer: public Object
 {
+    REDASM_OBJECT(Printer)
     PIMPL_DECLARE_P(Printer)
     PIMPL_DECLARE_PRIVATE(Printer)
 
     public:
-        typedef std::function<void(const Operand*, const std::string&, const std::string&)> OpCallback;
-        typedef std::function<void(const Symbol*, const std::string&)> SymbolCallback;
-        typedef std::function<void(const std::string&, const std::string&, const std::string&)> FunctionCallback;
-        typedef std::function<void(const std::string&)> LineCallback;
+        typedef std::function<void(const Operand*, const String&, const String&)> OpCallback;
+        typedef std::function<void(const Symbol*, const String&)> SymbolCallback;
+        typedef std::function<void(const String&, const String&, const String&)> FunctionCallback;
+        typedef std::function<void(const String&)> LineCallback;
 
     protected:
         Printer(PrinterImpl* p);
@@ -27,22 +28,22 @@ class Printer: public Object
         virtual ~Printer() = default;
         Disassembler* disassembler() const;
         const ListingDocument& document() const;
-        std::string symbol(const Symbol *symbol) const;
-        std::string out(const InstructionPtr& instruction) const;
+        String symbol(const Symbol *symbol) const;
+        String out(const CachedInstruction& instruction) const;
 
     public:
         virtual void segment(const Segment* segment, const LineCallback &segmentfunc);
         virtual void function(const Symbol *symbol, const FunctionCallback &functionfunc);
         virtual void symbol(const Symbol *symbol, const SymbolCallback& symbolfunc) const;
-        virtual std::string out(const InstructionPtr& instruction, const OpCallback& opfunc) const;
+        virtual String out(const CachedInstruction& instruction, const OpCallback& opfunc) const;
 
     public: // Operand privitives
-        virtual std::string reg(const RegisterOperand &regop) const;
-        virtual std::string disp(const Operand *operand) const;
-        virtual std::string loc(const Operand* operand) const;
-        virtual std::string mem(const Operand* operand) const;
-        virtual std::string imm(const Operand* operand) const;
-        virtual std::string size(const Operand* operand) const;
+        virtual String reg(const RegisterOperand &regop) const;
+        virtual String disp(const Operand *operand) const;
+        virtual String loc(const Operand* operand) const;
+        virtual String mem(const Operand* operand) const;
+        virtual String imm(const Operand* operand) const;
+        virtual String size(const Operand* operand) const;
 };
 
 } // namespace REDasm

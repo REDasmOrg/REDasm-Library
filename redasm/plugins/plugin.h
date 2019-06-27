@@ -28,10 +28,10 @@
 #define REDASM_LOADER(description, author, license, level)    REDASM_LOADER_ID(r_plugin, description, author, license, level)
 #define REDASM_ASSEMBLER(description, author, license, level) REDASM_ASSEMBLER_ID(r_plugin, description, author, license, level)
 
-#include "../support/containers/argumentlist.h"
-#include "../types/base_types.h"
-#include "../types/plugin_types.h"
-#include "../types/callback_types.h"
+#include "../types/containers/argumentlist.h"
+#include "../types/base.h"
+#include "../types/callback.h"
+#include "../types/object.h"
 #include "../level.h"
 #include "../macros.h"
 #include "../pimpl.h"
@@ -44,6 +44,7 @@ class PluginImpl;
 
 class Plugin: public Object
 {
+    REDASM_OBJECT(Plugin)
     PIMPL_DECLARE_P(Plugin)
     PIMPL_DECLARE_PRIVATE(Plugin)
 
@@ -54,8 +55,8 @@ class Plugin: public Object
         Plugin();
         virtual ~Plugin() = default;
         virtual int weight() const;
-        std::string id() const;
-        std::string description() const;
+        String id() const;
+        String description() const;
         const PluginDescriptor* descriptor() const;
         const PluginInstance* instance() const;
         void setInstance(const PluginInstance* pi);

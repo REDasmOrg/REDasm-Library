@@ -10,7 +10,7 @@ namespace REDasm {
 struct RendererFormat
 {
     size_t start, end; // [start, end]
-    std::string fgstyle, bgstyle;
+    String fgstyle, bgstyle;
 
     inline size_t length() const {
         if((start == REDasm::npos) || (end == REDasm::npos))
@@ -32,10 +32,10 @@ struct RendererLine
     size_t documentindex, index;
     bool highlighted, ignoreflags;
     std::list<RendererFormat> formats;
-    std::string text;
+    String text;
 
-    std::string formatText(const RendererFormat& rf) const { return text.substr(rf.start, rf.length()); }
-    size_t length() const { return text.length(); }
+    String formatText(const RendererFormat& rf) const { return text.substring(rf.start, rf.length()); }
+    size_t length() const { return text.size(); }
 
     std::list<RendererFormat>::iterator unformat(size_t start, size_t end) {
         auto begit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(start); });
@@ -59,7 +59,7 @@ struct RendererLine
         return it;
     }
 
-    RendererLine& format(size_t start, size_t end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
+    RendererLine& format(size_t start, size_t end, const String& fgstyle = String(), const String& bgstyle = String()) {
         if(text.empty() || (start >= text.size()))
             return *this;
 
@@ -70,9 +70,9 @@ struct RendererLine
         return *this;
     }
 
-    RendererLine& push(const std::string& text, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string()) {
+    RendererLine& push(const String& text, const String& fgstyle = String(), const String& bgstyle = String()) {
         size_t start = this->text.size();
-        formats.push_back({ start, start + text.length() - 1, fgstyle, bgstyle});
+        formats.push_back({ start, start + text.size() - 1, fgstyle, bgstyle});
         this->text += text;
         return *this;
     }
@@ -107,11 +107,11 @@ class ListingRenderer
         const REDasm::Symbol* symbolUnderCursor();
         ListingDocument& document();
         void setFlags(ListingRendererFlags flags);
-        std::string wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
-        std::string getCurrentWord();
+        String wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
+        String getCurrentWord();
         size_t getLastColumn(size_t line);
-        std::string getLine(size_t line);
-        std::string getSelectedText();
+        String getLine(size_t line);
+        String getSelectedText();
 
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
@@ -124,8 +124,8 @@ class ListingRenderer
         void renderMeta(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderType(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderAddress(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
-        void renderMnemonic(const InstructionPtr& instruction, RendererLine &rl);
-        void renderOperands(const InstructionPtr& instruction, RendererLine &rl);
+        void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl);
+        void renderOperands(const CachedInstruction& instruction, RendererLine &rl);
         void renderComments(const document_s_lock &lock, const ListingItem *item, RendererLine &rl);
         void renderAddressIndent(const document_s_lock &lock, const ListingItem *item, RendererLine& rl);
         void renderIndent(RendererLine &rl, int n = 1);

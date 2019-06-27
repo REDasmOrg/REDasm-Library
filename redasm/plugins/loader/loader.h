@@ -28,8 +28,8 @@ class LIBREDASM_API LoadRequest
     PIMPL_DECLARE_PRIVATE(LoadRequest)
 
     public:
-        LoadRequest(const std::string& filepath, AbstractBuffer* buffer);
-        std::string filePath() const;
+        LoadRequest(const String& filepath, AbstractBuffer* buffer);
+        String filePath() const;
         AbstractBuffer* buffer() const;
         const BufferView& view() const;
 
@@ -37,10 +37,11 @@ class LIBREDASM_API LoadRequest
         template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 };
 
-typedef std::unordered_set<std::string> SignatureIdentifiers;
+typedef std::unordered_set<String> SignatureIdentifiers;
 
-class LIBREDASM_API Loader: public REDasm::Plugin
+class LIBREDASM_API Loader: public Plugin
 {
+    REDASM_OBJECT(Loader)
     PIMPL_DECLARE_PRIVATE(Loader)
 
     public:
@@ -54,7 +55,7 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         const ListingDocument& document() const;
         ListingDocument& document();
         SignatureIdentifiers &signatures();
-        Loader* signature(const std::string& sig);
+        Loader* signature(const String& sig);
         Analyzer* analyzer(Disassembler* disassembler);
         template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 
@@ -65,7 +66,7 @@ class LIBREDASM_API Loader: public REDasm::Plugin
         virtual address_location reladdress(address_t absaddress) const;
         virtual address_location absaddress(address_t reladdress) const;
         virtual AssemblerRequest assembler() const;
-        virtual void build(const std::string &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
+        virtual void build(const String &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         virtual void init(const LoadRequest& request);
         virtual bool test(const LoadRequest& request) const = 0;
         virtual void load() = 0;

@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-std::string SymbolTableImpl::prefix(SymbolType type)
+String SymbolTableImpl::prefix(SymbolType type)
 {
     if(type & SymbolType::Pointer)
         return "ptr";

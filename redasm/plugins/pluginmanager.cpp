@@ -27,7 +27,7 @@ PluginManager *PluginManager::instance()
 }
 
 const PluginManager::PluginMap &PluginManager::activePlugins() const { PIMPL_P(const PluginManager); return p->m_activeplugins; }
-const PluginInstance *PluginManager::findLoader(const std::string &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_LOADER_NAME); }
+const PluginInstance *PluginManager::findLoader(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_LOADER_NAME); }
 
 const PluginInstance *PluginManager::findAssembler(const char* id)
 {
@@ -38,7 +38,7 @@ const PluginInstance *PluginManager::findAssembler(const char* id)
     return p->find(id, REDASM_INIT_ASSEMBLER_NAME);
 }
 
-const PluginInstance *PluginManager::findPlugin(const std::string &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_PLUGIN_NAME); }
+const PluginInstance *PluginManager::findPlugin(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_PLUGIN_NAME); }
 
 PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
 {
@@ -77,7 +77,7 @@ PluginManager::PluginList PluginManager::getAssemblers()
 
     // Sort alphabectically
     std::sort(plugins.begin(), plugins.end(), [](const PluginInstance* pi1, const PluginInstance* pi2) -> bool {
-        return std::string(pi1->descriptor->description) < std::string(pi2->descriptor->description);
+        return String(pi1->descriptor->description) < String(pi2->descriptor->description);
     });
 
     return plugins;

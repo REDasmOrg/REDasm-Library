@@ -18,7 +18,7 @@ size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->
 void FunctionBasicBlock::bTrue(const Node &n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_true"; }
 void FunctionBasicBlock::bFalse(const Node &n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_false"; }
 
-std::string FunctionBasicBlock::style(const Node &n) const
+String FunctionBasicBlock::style(const Node &n) const
 {
     PIMPL_P(const FunctionBasicBlock);
     auto it = p->m_styles.find(n);
@@ -118,7 +118,7 @@ void FunctionGraph::buildBasicBlocks()
     }
 }
 
-void FunctionGraph::setConnectionType(const InstructionPtr &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
+void FunctionGraph::setConnectionType(const CachedInstruction &instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition)
 {
     if(!instruction->is(InstructionType::Conditional))
         return;
@@ -129,7 +129,7 @@ void FunctionGraph::setConnectionType(const InstructionPtr &instruction, Functio
         fromfbb->bFalse(tofbb->node());
 }
 
-void FunctionGraph::incomplete() const { r_ctx->problem("Incomplete graph @ " + Utils::hex(m_graphstart)); }
+void FunctionGraph::incomplete() const { r_ctx->problem("Incomplete graph @ " + String::hex(m_graphstart.value)); }
 
 bool FunctionGraph::isStopItem(const ListingItem *item) const
 {
@@ -159,11 +159,11 @@ bool FunctionGraph::connectBasicBlocks()
             continue;
         }
 
-        InstructionPtr instruction = m_document->instruction(lastitem->address());
+        CachedInstruction instruction = m_document->instruction(lastitem->address());
 
         if(instruction->is(InstructionType::Jump))
         {
-            for(address_t target : m_disassembler->getTargets(instruction->address()))
+            for(address_t target : m_disassembler->getTargets(instruction->address))
             {
                 Symbol* symbol = m_document->symbol(target);
 
@@ -250,11 +250,11 @@ void FunctionGraph::buildBasicBlock(size_t index)
 
         if(item->is(ListingItemType::InstructionItem))
         {
-            InstructionPtr instruction = m_document->instruction(item->address());
+            CachedInstruction instruction = m_document->instruction(item->address());
 
             if(instruction->is(InstructionType::Jump))
             {
-                ReferenceSet targets = m_disassembler->getTargets(instruction->address());
+                ReferenceSet targets = m_disassembler->getTargets(instruction->address);
 
                 for(address_t target : targets)
                 {

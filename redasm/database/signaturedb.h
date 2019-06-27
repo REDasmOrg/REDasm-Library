@@ -3,7 +3,7 @@
 #include <functional>
 #include "../libs/json/json.hpp"
 #include "../buffer/bufferview.h"
-#include "../types/base_types.h"
+#include "../types/base.h"
 #include "../pimpl.h"
 
 #define SDB_VERSION          1
@@ -32,7 +32,7 @@ struct Signature: public json
 
     SIGNATURE_FIELD(u32, symboltype)
     SIGNATURE_FIELD(u32, size)
-    SIGNATURE_FIELD(std::string, name)
+    SIGNATURE_FIELD(String, name)
 };
 
 class SignatureDBImpl;
@@ -48,14 +48,14 @@ class SignatureDB
     public:
         SignatureDB();
         bool isCompatible(const Disassembler *disassembler) const;
-        std::string assembler() const;
-        std::string name() const;
+        String assembler() const;
+        String name() const;
         size_t size() const;
         const json& at(size_t index) const;
-        void setAssembler(const std::string& assembler);
-        void setName(const std::string& name);
-        bool load(const std::string& sigfilename);
-        bool save(const std::string& sigfilename);
+        void setAssembler(const String& assembler);
+        void setName(const String& name);
+        bool load(const String& sigfilename);
+        bool save(const String& sigfilename);
         void search(const BufferView& view, const SignatureFound& cb) const;
         SignatureDB& operator <<(const Signature &signature);
 };

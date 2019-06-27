@@ -4,8 +4,8 @@
 namespace REDasm {
 
 Ordinals::Ordinals(): m_pimpl_p(new OrdinalsImpl()) { }
-bool Ordinals::load(const std::string &filepath) { PIMPL_P(Ordinals); return p->load(filepath); }
-std::string Ordinals::name(ordinal_t ordinal, const std::string &fallbackprefix) const { PIMPL_P(const Ordinals); return p->name(ordinal, fallbackprefix); }
+bool Ordinals::load(const String &filepath) { PIMPL_P(Ordinals); return p->load(filepath); }
+String Ordinals::name(ordinal_t ordinal, const String &fallbackprefix) const { PIMPL_P(const Ordinals); return p->name(ordinal, fallbackprefix); }
 void Ordinals::clear() { PIMPL_P(Ordinals); p->clear(); }
 
 } // namespace REDasm

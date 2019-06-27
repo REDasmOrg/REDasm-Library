@@ -2,9 +2,8 @@
 
 #include <algorithm>
 #include <type_traits>
-#include <string>
-#include "../base_types.h"
-#include "../numeric_type.h"
+#include "../base.h"
+#include "../numeric.h"
 #include "endianness_base.h"
 
 #define REDASM_ENDIANNESS_OF(T, b, T_LE, T_BE, e) template<> struct of<T> { \
@@ -80,7 +79,7 @@ template<typename T> size_t swap(u8* data, size_t size) {
     return pendingsize;
 }
 
-inline std::string name(endianness_t endianness) { return endianness == Endianness::BigEndian ? "Big Endian" : "Little Endian"; }
+inline const char* name(endianness_t endianness) { return endianness == Endianness::BigEndian ? "Big Endian" : "Little Endian"; }
 
 } // namespace Endianness
 

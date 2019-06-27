@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-std::string& xorify(std::string& s)
+String& xorify(String& s)
 {
     size_t len = s.size();
 
@@ -18,23 +18,23 @@ std::string& xorify(std::string& s)
 
 namespace SerializerHelper {
 
-bool signatureIs(std::fstream &fs, const std::string& signature)
+bool signatureIs(std::fstream &fs, const String& signature)
 {
     std::vector<char> s(signature.size());
     fs.read(s.data(), signature.size());
 
-    return !std::memcmp(s.data(), signature.data(), s.size());
+    return !std::memcmp(s.data(), signature.c_str(), s.size());
 }
 
-void obfuscated(std::fstream &fs, std::string s)
+void obfuscated(std::fstream &fs, String s)
 {
     xorify(s);
-    Serializer<std::string>::write(fs, s);
+    Serializer<String>::write(fs, s);
 }
 
-void deobfuscated(std::fstream &fs, std::string &s)
+void deobfuscated(std::fstream &fs, String &s)
 {
-    Serializer<std::string>::read(fs, s);
+    Serializer<String>::read(fs, s);
     xorify(s);
 }
 

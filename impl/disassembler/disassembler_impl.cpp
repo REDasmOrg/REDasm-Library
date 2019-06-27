@@ -44,7 +44,7 @@ ListingItemConstContainer DisassemblerImpl::getCalls(address_t address)
             if(!item->is(ListingItemType::InstructionItem))
                 continue;
 
-            InstructionPtr instruction = this->document()->instruction(item->address());
+            CachedInstruction instruction = this->document()->instruction(item->address());
 
             if(instruction->is(InstructionType::Call))
                 calls.insert(item);
@@ -119,14 +119,14 @@ Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *value)
     return ptrsymbol;
 }
 
-InstructionPtr DisassemblerImpl::disassembleInstruction(address_t address)
+CachedInstruction DisassemblerImpl::disassembleInstruction(address_t address)
 {
-    InstructionPtr instruction = this->document()->instruction(address);
+    CachedInstruction instruction = this->document()->instruction(address);
 
     if(instruction)
         return instruction;
 
-    instruction = std::make_shared<Instruction>();
+    instruction = this->document()->cacheInstruction(address);
     m_algorithm->disassembleInstruction(address, instruction.get());
     m_algorithm->done(address);
     return instruction;
@@ -161,7 +161,7 @@ size_t DisassemblerImpl::checkAddressTable(Instruction* instruction, address_t s
         targets.insert(target);
 
         if(instruction->is(InstructionType::Branch))
-            this->pushTarget(target, instruction->address());
+            this->pushTarget(target, instruction->address);
         else
             this->checkLocation(startaddress, target);
 
@@ -182,12 +182,12 @@ size_t DisassemblerImpl::checkAddressTable(Instruction* instruction, address_t s
                 else
                     this->document()->tableItem(address, startaddress, i);
 
-                this->pushReference(address, instruction->address());
+                this->pushReference(address, instruction->address);
             }
         }
         else
         {
-            this->pushReference(startaddress, instruction->address());
+            this->pushReference(startaddress, instruction->address);
             this->document()->pointer(startaddress, SymbolType::Data);
         }
     }
@@ -223,7 +223,7 @@ size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
 
 JobState DisassemblerImpl::state() const { return m_jobs.state(); }
 
-std::string DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
+String DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
 {
     address_t memaddress = 0;
 
@@ -233,16 +233,16 @@ std::string DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
     return this->readString(symbol->address, len);
 }
 
-std::string DisassemblerImpl::readString(address_t address, size_t len) const
+String DisassemblerImpl::readString(address_t address, size_t len) const
 {
-    return this->readStringT<char>(address, len, [](char b, std::string& s) {
+    return this->readStringT<char>(address, len, [](char b, String& s) {
         bool r = ::isprint(b) || ::isspace(b);
         if(r) s += b;
         return r;
     });
 }
 
-std::string DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
+String DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
 {
     address_t memaddress = 0;
 
@@ -252,9 +252,9 @@ std::string DisassemblerImpl::readWString(const Symbol *symbol, size_t len) cons
     return this->readWString(symbol->address, len);
 }
 
-std::string DisassemblerImpl::readWString(address_t address, size_t len) const
+String DisassemblerImpl::readWString(address_t address, size_t len) const
 {
-    return this->readStringT<u16>(address, len, [](u16 wb, std::string& s) {
+    return this->readStringT<u16>(address, len, [](u16 wb, String& s) {
         u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8;
         bool r = !b2 && (::isprint(b1) || ::isspace(b1));
         if(r) s += static_cast<char>(b1);
@@ -262,51 +262,51 @@ std::string DisassemblerImpl::readWString(address_t address, size_t len) const
     });
 }
 
-std::string DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
+String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 {
     const REDasm::ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
-        return std::string();
+        return String();
 
     const REDasm::Symbol* symbol = this->document()->symbol(item->address());
 
     if(!symbol)
-        return std::string();
+        return String();
 
     REDasm::BufferView br = this->getFunctionBytes(symbol->address);
 
     if(br.eob())
-        return std::string();
+        return String();
 
     if(ressymbol)
         *ressymbol = symbol;
 
-    return Utils::hexstring(&br, br.size());
+    return String::hexstring(br.data(), br.size());
 }
 
-bool DisassemblerImpl::loadSignature(const std::string &signame)
+bool DisassemblerImpl::loadSignature(const String &signame)
 {
-    std::string signaturefile = Path::exists(signame) ? signame : r_ctx->signature(signame);
+    String signaturefile = Path::exists(signame) ? signame : r_ctx->signature(signame);
 
-    if(!Utils::endsWith(signaturefile, ".json"))
+    if(!signaturefile.endsWith(".json"))
         signaturefile += ".json";
 
     SignatureDB sigdb;
 
     if(!sigdb.load(signaturefile))
     {
-        r_ctx->log("Failed to load " + Utils::quoted(signaturefile));
+        r_ctx->log("Failed to load " + signaturefile.quoted());
         return false;
     }
 
     if(!sigdb.isCompatible(m_pimpl_q))
     {
-        r_ctx->log("Signature " + Utils::quoted(sigdb.name()) + " is not compatible");
+        r_ctx->log("Signature " + sigdb.name().quoted() + " is not compatible");
         return false;
     }
 
-    r_ctx->log("Loading Signature: " + Utils::quoted(sigdb.name()));
+    r_ctx->log("Loading Signature: " + sigdb.name().quoted());
     size_t c = 0;
 
     this->document()->symbols()->iterate(SymbolType::FunctionMask, [&](const Symbol* symbol) -> bool {
@@ -320,7 +320,7 @@ bool DisassemblerImpl::loadSignature(const std::string &signame)
             return true;
 
         sigdb.search(view, [&](const json& signature) {
-            std::string signame = signature["name"];
+            String signame = signature["name"];
             this->document()->lock(symbol->address, signame, signature["symboltype"]);
             c++;
         });
@@ -329,7 +329,7 @@ bool DisassemblerImpl::loadSignature(const std::string &signame)
     });
 
     if(c)
-        r_ctx->log("Found " + std::to_string(c) + " signature(s)");
+        r_ctx->log("Found " + String::number(c) + " signature(s)");
     else
         r_ctx->log("No signatures found");
 
@@ -348,12 +348,12 @@ bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
     if(wide)
     {
         this->document()->symbol(address, SymbolType::WideString);
-        this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+        this->document()->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
     }
     else
     {
         this->document()->symbol(address, SymbolType::String);
-        this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+        this->document()->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
     }
 
     this->pushReference(address, fromaddress);
@@ -395,7 +395,7 @@ bool DisassemblerImpl::readOffset(offset_t offset, size_t size, u64 *value) cons
         *value = static_cast<u64>(viewdest);
     else
     {
-        r_ctx->problem("Invalid size: " + std::to_string(size));
+        r_ctx->problem("Invalid size: " + String::number(size));
         return false;
     }
 
@@ -470,7 +470,7 @@ void DisassemblerImpl::disassemble()
     if(entrypoint)
         m_algorithm->enqueue(entrypoint->address); // Push entry point
 
-    r_ctx->log("Disassembling with " + std::to_string(m_jobs.concurrency()) + " threads");
+    r_ctx->log("Disassembling with " + String::number(m_jobs.concurrency()) + " threads");
     this->disassembleJob();
 }
 
@@ -496,7 +496,7 @@ void DisassemblerImpl::analyzeStep()
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
 
     if(duration.count())
-        r_ctx->log("Analysis completed in ~" + std::to_string(duration.count()) + " second(s)");
+        r_ctx->log("Analysis completed in ~" + String::number(duration.count()) + " second(s)");
     else
         r_ctx->log("Analysis completed");
 }
@@ -504,7 +504,7 @@ void DisassemblerImpl::analyzeStep()
 void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem)
 {
     PIMPL_Q(Disassembler);
-    r_ctx->status("Computing basic blocks @ " + Utils::hex(functionitem->address()));
+    r_ctx->status("Computing basic blocks @ " + String::hex(functionitem->address()));
     auto g = std::make_unique<Graphing::FunctionGraph>(q);
 
     if(!g->build(functionitem))

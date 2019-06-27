@@ -14,11 +14,11 @@ class SymbolTableImpl
 
     public:
         typedef std::unordered_map<address_t, SymbolPtr> SymbolsByAddress;
-        typedef std::unordered_map<std::string, address_t> SymbolsByName;
+        typedef std::unordered_map<String, address_t> SymbolsByName;
 
     public:
         SymbolTableImpl() = default;
-        static std::string prefix(SymbolType type);
+        static String prefix(SymbolType type);
 
     private:
         SymbolsByAddress m_byaddress;

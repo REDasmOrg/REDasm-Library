@@ -2,7 +2,7 @@
 
 #include <type_traits>
 #include <cstring>
-#include "../types/base_types.h"
+#include "../types/base.h"
 #include "../types/endianness/endianness.h"
 #include "../pimpl.h"
 #include "abstractbuffer.h"
@@ -40,7 +40,7 @@ class WildcardSearchResult
 
     private:
         WildcardSearchResult();
-        WildcardSearchResult(const BufferView* view, const std::string& searchwildcard, size_t searchsize);
+        WildcardSearchResult(const BufferView* view, const String& searchwildcard, size_t searchsize);
 
     public:
         WildcardSearchResult next() const;
@@ -69,7 +69,7 @@ class LIBREDASM_API BufferView
         BufferView operator ++(int);
         BufferView view(size_t offset, size_t size = 0) const;
         void copyTo(AbstractBuffer* buffer);
-        std::string toString() const;
+        String toString() const;
         void resize(size_t size);
         u8* data() const;
         u8* endData() const;
@@ -81,11 +81,11 @@ class LIBREDASM_API BufferView
         u8 operator *() const;
         BufferView operator +(size_t rhs) const;
         BufferView& operator +=(size_t rhs);
-        WildcardSearchResult wildcard(const std::string &pattern, size_t startoffset = 0) const;
+        WildcardSearchResult wildcard(const String &pattern, size_t startoffset = 0) const;
         SearchResult find(const u8* searchdata, size_t searchsize, size_t startoffset = 0) const;
 
     public:
-        template<typename T> SearchResult find(const std::string& s, size_t startoffset = 0) const;
+        template<typename T> SearchResult find(const String& s, size_t startoffset = 0) const;
         template<typename T> SearchResult find(const T* pack, size_t startoffset = 0) const;
         template<typename T> SearchResult find(const std::initializer_list<u8> initlist, size_t startoffset = 0) const;
         template<typename T> bool inRange(const T* ptr) const { return (reinterpret_cast<const u8*>(ptr) >= this->data()) && (reinterpret_cast<const u8*>(ptr) < this->endData()); }
@@ -102,7 +102,7 @@ template<typename T> SearchResult BufferView::find(const T *pack, size_t startof
     return this->find(reinterpret_cast<const u8*>(pack), sizeof(T), startoffset);
 }
 
-template<typename T> SearchResult BufferView::find(const std::string &s, size_t startoffset) const
+template<typename T> SearchResult BufferView::find(const String &s, size_t startoffset) const
 {
     return this->find(reinterpret_cast<const u8*>(s.c_str()), s.size(), startoffset);
 }

@@ -6,11 +6,11 @@ namespace REDasm {
 
 CapstonePrinter::CapstonePrinter(Disassembler *disassembler): Printer(new CapstonePrinterImpl(disassembler)) { }
 
-std::string CapstonePrinter::reg(const RegisterOperand &regop) const
+String CapstonePrinter::reg(const RegisterOperand &regop) const
 {
     if(regop.r <= 0)
     {
-        r_ctx->problem("Unknown register with id " + std::to_string(regop.r));
+        r_ctx->problem("Unknown register with id " + String::number(regop.r));
         return "unkreg";
     }
 

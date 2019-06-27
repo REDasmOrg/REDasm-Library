@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <string>
+#include <redasm/types/string.h>
 #include <redasm/support/ordinals.h>
 
 namespace REDasm {
@@ -12,12 +12,12 @@ class OrdinalsImpl
     PIMPL_DECLARE_PUBLIC(Ordinals)
 
     private:
-        typedef std::unordered_map<ordinal_t, std::string> OrdinalsMap;
+        typedef std::unordered_map<ordinal_t, String> OrdinalsMap;
 
     public:
         OrdinalsImpl() = default;
-        bool load(const std::string& filepath);
-        std::string name(ordinal_t name, const std::string& fallbackprefix = std::string()) const;
+        bool load(const String& filepath);
+        String name(ordinal_t name, const String& fallbackprefix = String()) const;
         void clear();
 
     private:

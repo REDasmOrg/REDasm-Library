@@ -5,8 +5,8 @@
 
 namespace REDasm {
 
-LoadRequest::LoadRequest(const std::string &filepath, AbstractBuffer *buffer): m_pimpl_p(new LoadRequestImpl(filepath, buffer)) { }
-std::string LoadRequest::filePath() const { PIMPL_P(const LoadRequest); return p->filePath(); }
+LoadRequest::LoadRequest(const String &filepath, AbstractBuffer *buffer): m_pimpl_p(new LoadRequestImpl(filepath, buffer)) { }
+String LoadRequest::filePath() const { PIMPL_P(const LoadRequest); return p->filePath(); }
 AbstractBuffer *LoadRequest::buffer() const { PIMPL_P(const LoadRequest); return p->buffer(); }
 const BufferView &LoadRequest::view() const { PIMPL_P(const LoadRequest); return p->view(); }
 
@@ -21,12 +21,12 @@ ListingDocument &REDasm::Loader::createDocument() { PIMPL_P(Loader); return p->c
 const ListingDocument &REDasm::Loader::document() const { PIMPL_P(const Loader); return p->document(); }
 ListingDocument &REDasm::Loader::document() { PIMPL_P(Loader); return p->document(); }
 SignatureIdentifiers &Loader::signatures() { PIMPL_P(Loader); return p->signatures(); }
-Loader *Loader::signature(const std::string &sig) { PIMPL_P(Loader); p->signature(sig); return this; }
+Loader *Loader::signature(const String &sig) { PIMPL_P(Loader); p->signature(sig); return this; }
 Analyzer *Loader::analyzer(Disassembler *disassembler) { PIMPL_P(Loader); return p->analyzer(disassembler);  }
 AssemblerRequest REDasm::Loader::assembler() const { PIMPL_P(const Loader); return p->assembler(); }
 void Loader::init(const LoadRequest& request) { PIMPL_P(Loader); p->init(request); }
 Analyzer *Loader::createAnalyzer(Disassembler *disassembler) const { return new Analyzer(disassembler); }
-void Loader::build(const std::string& assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { PIMPL_P(Loader); return p->build(assembler, offset, baseaddress, entrypoint); }
+void Loader::build(const String& assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { PIMPL_P(Loader); return p->build(assembler, offset, baseaddress, entrypoint); }
 address_location Loader::address(offset_t offset) const { PIMPL_P(const Loader); return p->address(offset); }
 address_location Loader::reladdress(address_t absaddress) const { return REDasm::make_location(absaddress); }
 address_location Loader::absaddress(address_t reladdress) const { return REDasm::make_location(reladdress); }

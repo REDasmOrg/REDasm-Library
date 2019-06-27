@@ -18,7 +18,7 @@ class FunctionBasicBlockImpl
     private:
         Node m_node;
         size_t m_startidx, m_endidx; // [startidx, endidx]
-        std::unordered_map<Node, std::string> m_styles;
+        std::unordered_map<Node, String> m_styles;
 };
 
 class FunctionGraphImpl

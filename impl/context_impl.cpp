@@ -19,10 +19,10 @@ void ContextImpl::setDisassembler(Disassembler *disassembler) { m_disassembler =
 void ContextImpl::checkSettings()
 {
     if(!m_settings.logCallback)
-        m_settings.logCallback = [](const std::string& s) { std::cout << s << std::endl; };
+        m_settings.logCallback = [](const String& s) { std::cout << s.c_str() << std::endl; };
 
     if(!m_settings.statusCallback)
-        m_settings.statusCallback = [](const std::string& s) { };
+        m_settings.statusCallback = [](const String& s) { };
 
     if(!m_settings.progressCallback)
         m_settings.progressCallback = [](size_t) { };
@@ -31,11 +31,11 @@ void ContextImpl::checkSettings()
         m_settings.ui = std::make_shared<AbstractUI>();
 }
 
-std::string ContextImpl::capstoneVersion() const
+String ContextImpl::capstoneVersion() const
 {
     int major = 0, minor = 0;
     cs_version(&major, &minor);
-    return std::to_string(major) + "." + std::to_string(minor);
+    return String::number(major) + "." + String::number(minor);
 }
 
 } // namespace REDasm

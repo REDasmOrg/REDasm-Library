@@ -9,7 +9,7 @@ void ControlFlowAlgorithmImpl::enqueueTargets(Instruction* instruction)
 {
     PIMPL_Q(ControlFlowAlgorithm);
 
-    ReferenceSet targets = q->disassembler()->getTargets(instruction->address());
+    ReferenceSet targets = q->disassembler()->getTargets(instruction->address);
 
     for(address_t target : targets)
         q->enqueueTarget(target, instruction);

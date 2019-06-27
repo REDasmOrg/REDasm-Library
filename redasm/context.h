@@ -10,16 +10,16 @@
 
 namespace REDasm {
 
-typedef std::function<void(const std::string&)> Context_LogCallback;
+typedef std::function<void(const String&)> Context_LogCallback;
 typedef std::function<void(size_t)> Context_ProgressCallback;
-typedef std::deque<std::string> ProblemList;
-typedef std::list<std::string> PluginPaths;
+typedef std::deque<String> ProblemList;
+typedef std::list<String> PluginPaths;
 
 struct LIBREDASM_API ContextSettings
 {
     ContextSettings(): ignoreproblems(false) { }
 
-    std::string runtimePath, tempPath;
+    String runtimePath, tempPath;
     Context_LogCallback logCallback;
     Context_LogCallback statusCallback;
     Context_ProgressCallback progressCallback;
@@ -52,26 +52,26 @@ class LIBREDASM_API Context
     public:
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
-        void cwd(const std::string& s);
+        void cwd(const String& s);
         void sync(bool b);
-        void log(const std::string& s);
-        void problem(const std::string& s);
-        void logproblem(const std::string& s);
-        void status(const std::string& s);
-        void statusProgress(const std::string& s, size_t progress);
-        void statusAddress(const std::string& s, address_t address);
+        void log(const String& s);
+        void problem(const String& s);
+        void logproblem(const String& s);
+        void status(const String& s);
+        void statusProgress(const String& s, size_t progress);
+        void statusAddress(const String& s, address_t address);
         bool sync();
         PluginManager* pluginManager() const;
         AbstractUI* ui() const;
         const PluginPaths& pluginPaths() const;
-        const char* capstoneVersion() const;
-        const char* runtimePath() const;
-        const char* tempPath() const;
+        String capstoneVersion() const;
+        String runtimePath() const;
+        String tempPath() const;
 
     public:
-        template<typename... T> inline std::string rnt(const std::string& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }
-        template<typename... T> inline std::string db(const std::string& p, T... args) const { return this->rnt("database", p, args...); }
-        template<typename... T> inline std::string signature(const std::string& p, T... args) const { return this->db("signatures", p, args...); }
+        template<typename... T> inline String rnt(const String& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }
+        template<typename... T> inline String db(const String& p, T... args) const { return this->rnt("database", p, args...); }
+        template<typename... T> inline String signature(const String& p, T... args) const { return this->db("signatures", p, args...); }
 };
 
 } // namespace REDasm

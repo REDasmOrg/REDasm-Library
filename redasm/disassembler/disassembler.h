@@ -2,10 +2,11 @@
 
 #include "../buffer/bufferview.h"
 #include "../support/safe_ptr.h"
-#include "../types/api_types.h"
+#include "../types/api.h"
 #include "../support/event.h"
 #include "../pimpl.h"
 #include "concurrent/jobstate.h"
+#include "listing/cachedinstruction.h"
 #include "listing/listingitem.h"
 #include "types/referencetable.h"
 #include "types/symboltable.h"
@@ -38,19 +39,19 @@ class LIBREDASM_API Disassembler
         ReferenceSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
         Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
-        InstructionPtr disassembleInstruction(address_t address);
+        CachedInstruction disassembleInstruction(address_t address);
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(Instruction* instruction, address_t address);
         size_t locationIsString(address_t address, bool *wide = nullptr) const;
         JobState state() const;
-        std::string readString(const Symbol* symbol, size_t len = REDasm::npos) const;
-        std::string readString(address_t address, size_t len = REDasm::npos) const;
-        std::string readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
-        std::string readWString(address_t address, size_t len = REDasm::npos) const;
-        std::string getHexDump(address_t address, const Symbol** ressymbol = nullptr);
-        bool loadSignature(const std::string& signame);
+        String readString(const Symbol* symbol, size_t len = REDasm::npos) const;
+        String readString(address_t address, size_t len = REDasm::npos) const;
+        String readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
+        String readWString(address_t address, size_t len = REDasm::npos) const;
+        String getHexDump(address_t address, const Symbol** ressymbol = nullptr);
+        bool loadSignature(const String& signame);
         bool busy() const;
         bool checkString(address_t fromaddress, address_t address);
         bool readAddress(address_t address, size_t size, u64 *value) const;

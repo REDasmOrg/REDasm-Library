@@ -14,7 +14,7 @@ class CapstonePrinter: public Printer
         CapstonePrinter(Disassembler* disassembler);
 
     protected:
-        std::string reg(const RegisterOperand &regop) const override;
+        String reg(const RegisterOperand &regop) const override;
 };
 
 } // namespace REDasm

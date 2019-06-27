@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <redasm/types/string.h>
 #include "../pimpl.h"
 
 namespace REDasm {
@@ -15,8 +15,8 @@ class Ordinals
 
     public:
         Ordinals();
-        bool load(const std::string& filepath);
-        std::string name(ordinal_t name, const std::string& fallbackprefix = std::string()) const;
+        bool load(const String& filepath);
+        String name(ordinal_t name, const String& fallbackprefix = String()) const;
         void clear();
 };
 

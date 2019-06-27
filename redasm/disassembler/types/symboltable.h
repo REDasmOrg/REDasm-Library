@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <redasm/types/api_types.h>
+#include <redasm/types/api.h>
 #include "../../support/serializer.h"
 #include "../../pimpl.h"
 
@@ -37,14 +37,14 @@ ENUM_FLAGS_OPERATORS(SymbolType)
 struct Symbol
 {
     Symbol(): type(SymbolType::None), tag(0), address(0), size(0) { }
-    Symbol(SymbolType type, tag_t tag, address_t address, const std::string& name): type(type), tag(tag), address(address), size(0), name(name) { }
+    Symbol(SymbolType type, tag_t tag, address_t address, const String& name): type(type), tag(tag), address(address), size(0), name(name) { }
     void lock() { type |= SymbolType::Locked; }
 
     SymbolType type;
     tag_t tag;
     address_t address;
     size_t size;
-    std::string name;
+    String name;
 
     constexpr bool is(SymbolType t) const { return type & t; }
     constexpr bool isFunction() const { return type & SymbolType::FunctionMask; }
@@ -62,18 +62,18 @@ class LIBREDASM_API SymbolTable
     public:
         SymbolTable();
         tag_t size() const;
-        bool create(address_t address, const std::string& name, SymbolType type, tag_t tag = 0);
+        bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
         Symbol *symbol(address_t address) const;
-        Symbol *symbol(const std::string& name) const;
+        Symbol *symbol(const String& name) const;
         void iterate(SymbolType type, const std::function<bool(const Symbol*)> &cb) const;
         bool erase(address_t address);
         void clear();
 
     public:
-        static std::string normalized(std::string s);
-        static std::string name(address_t address, SymbolType type);
-        static std::string name(address_t address, const std::string& s, SymbolType type);
-        static std::string name(const std::string& name, address_t address);
+        static String normalized(const String &s);
+        static String name(address_t address, SymbolType type);
+        static String name(address_t address, const String& s, SymbolType type);
+        static String name(const String& name, address_t address);
 
     friend struct Serializer<SymbolTable>;
 };

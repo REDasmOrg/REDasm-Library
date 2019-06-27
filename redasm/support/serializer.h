@@ -14,7 +14,7 @@
 #include <set>
 
 // REDasm Containers
-#include "containers/sorted_container.h"
+#include "../types/containers/sortedcontainer.h"
 
 #include <redasm/libs/visit_struct/visit_struct.hpp>
 #include <algorithm>
@@ -53,9 +53,9 @@ template<typename T> struct Serializer<T, typename std::enable_if<std::is_integr
     static void read(std::fstream& fs, T& t) {  fs.read(reinterpret_cast<char*>(&t), sizeof(T)); }
 };
 
-template<> struct Serializer<std::string> {
-    static void write(std::fstream& fs, const std::string& s) { fs.write(s.c_str(), s.size() + 1); }
-    static void read(std::fstream& fs, std::string& s) { std::getline(fs, s, '\0'); }
+template<> struct Serializer<String> {
+    static void write(std::fstream& fs, const String& s) { /* fs.write(s.c_str(), s.size() + 1); */ }
+    static void read(std::fstream& fs, String& s) { /* std::getline(fs, s, '\0'); */ }
 };
 
 // template<typename T> struct Serializer<T, typename std::enable_if<std::is_enum<T>::value>::type> {
@@ -220,9 +220,9 @@ template<typename T> struct Serializer< typename std::unique_ptr<T> > {
 
 namespace SerializerHelper {
 
-bool signatureIs(std::fstream& fs, const std::string &signatureIs);
-void obfuscated(std::fstream& fs, std::string s);
-void deobfuscated(std::fstream& fs, std::string& s);
+bool signatureIs(std::fstream& fs, const String &signatureIs);
+void obfuscated(std::fstream& fs, String s);
+void deobfuscated(std::fstream& fs, String& s);
 bool compressed(std::fstream& fs, const AbstractBuffer *buffer);
 bool decompressed(std::fstream& fs, AbstractBuffer* buffer);
 

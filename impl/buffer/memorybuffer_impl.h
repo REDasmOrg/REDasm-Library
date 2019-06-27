@@ -1,7 +1,7 @@
 #pragma once
 
 #include <redasm/buffer/memorybuffer.h>
-#include <redasm/types/base_types.h>
+#include <redasm/types/base.h>
 #include <redasm/pimpl.h>
 
 namespace REDasm {

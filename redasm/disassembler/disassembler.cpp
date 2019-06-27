@@ -33,24 +33,24 @@ ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->re
 ReferenceVector Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 ReferenceSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }
 Symbol *Disassembler::dereferenceSymbol(const Symbol *symbol, u64 *value) { PIMPL_P(Disassembler); return p->dereferenceSymbol(symbol, value); }
-InstructionPtr Disassembler::disassembleInstruction(address_t address) { PIMPL_P(Disassembler); return p->disassembleInstruction(address); }
+CachedInstruction Disassembler::disassembleInstruction(address_t address) { PIMPL_P(Disassembler); return p->disassembleInstruction(address); }
 address_location Disassembler::getTarget(address_t address) const { PIMPL_P(const Disassembler); return p->getTarget(address); }
 size_t Disassembler::getTargetsCount(address_t address) const { PIMPL_P(const Disassembler); return p->getTargetsCount(address);  }
 size_t Disassembler::getReferencesCount(address_t address) const { PIMPL_P(const Disassembler); return p->getReferencesCount(address); }
 size_t Disassembler::checkAddressTable(Instruction* instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
 size_t Disassembler::locationIsString(address_t address, bool *wide) const { PIMPL_P(const Disassembler); return p->locationIsString(address, wide); }
 JobState Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
-std::string Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }
-std::string Disassembler::readString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readString(address, len); }
-std::string Disassembler::readWString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(symbol, len); }
-std::string Disassembler::readWString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(address, len); }
-std::string Disassembler::getHexDump(address_t address, const Symbol **ressymbol) { PIMPL_P(Disassembler); return p->getHexDump(address, ressymbol); }
+String Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }
+String Disassembler::readString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readString(address, len); }
+String Disassembler::readWString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(symbol, len); }
+String Disassembler::readWString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(address, len); }
+String Disassembler::getHexDump(address_t address, const Symbol **ressymbol) { PIMPL_P(Disassembler); return p->getHexDump(address, ressymbol); }
 BufferView Disassembler::getFunctionBytes(address_t address) { PIMPL_P(Disassembler); return p->getFunctionBytes(address); }
 bool Disassembler::checkString(address_t fromaddress, address_t address) { PIMPL_P(Disassembler); return p->checkString(fromaddress, address); }
 bool Disassembler::readAddress(address_t address, size_t size, u64 *value) const { PIMPL_P(const Disassembler); return p->readAddress(address, size, value); }
 bool Disassembler::readOffset(offset_t offset, size_t size, u64 *value) const { PIMPL_P(const Disassembler); return p->readOffset(offset, size, value); }
 bool Disassembler::dereference(address_t address, u64 *value) const { PIMPL_P(const Disassembler); return p->dereference(address, value); }
-bool Disassembler::loadSignature(const std::string &signame) { PIMPL_P(Disassembler); return p->loadSignature(signame); }
+bool Disassembler::loadSignature(const String &signame) { PIMPL_P(Disassembler); return p->loadSignature(signame); }
 bool Disassembler::busy() const { PIMPL_P(const Disassembler); return p->busy(); }
 void Disassembler::popTarget(address_t address, address_t pointedby) { PIMPL_P(Disassembler); p->popTarget(address, pointedby); }
 void Disassembler::pushTarget(address_t address, address_t pointedby) { PIMPL_P(Disassembler); p->pushTarget(address, pointedby); }

@@ -9,7 +9,7 @@ namespace REDasm {
 
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
 
-bool SymbolTable::create(address_t address, const std::string &name, SymbolType type, tag_t tag)
+bool SymbolTable::create(address_t address, const String &name, SymbolType type, tag_t tag)
 {
     PIMPL_P(SymbolTable);
     auto it = p->m_byaddress.find(address);
@@ -27,7 +27,7 @@ bool SymbolTable::create(address_t address, const std::string &name, SymbolType 
     return it == p->m_byaddress.end();
 }
 
-Symbol* SymbolTable::symbol(const std::string &name) const
+Symbol* SymbolTable::symbol(const String &name) const
 {
     PIMPL_P(const SymbolTable);
     auto it = p->m_byname.find(name);
@@ -93,33 +93,32 @@ void SymbolTable::clear()
     p->m_byname.clear();
 }
 
-std::string SymbolTable::normalized(std::string s)
+String SymbolTable::normalized(const String& s)
 {
     if(Demangler::isMangled(s))
         return Demangler::demangled(s);
 
-    std::replace(s.begin(), s.end(), ' ', '_');
-    return s;
+    return String(s).replace(' ', '_');
 }
 
-std::string SymbolTable::name(address_t address, SymbolType type)
+String SymbolTable::name(address_t address, SymbolType type)
 {
     std::stringstream ss;
-    ss << SymbolTableImpl::prefix(type) << "_" << std::hex << address;
-    return ss.str();
+    ss << SymbolTableImpl::prefix(type).c_str() << "_" << std::hex << address;
+    return ss.str().c_str();
 }
 
-std::string SymbolTable::name(address_t address, const std::string &s, SymbolType type)
+String SymbolTable::name(address_t address, const String &s, SymbolType type)
 {
     if(s.empty())
         return SymbolTable::name(address, type);
 
     std::stringstream ss;
-    ss << SymbolTableImpl::prefix(type) << "_" << s << "_" << std::hex << address;
-    return ss.str();
+    ss << SymbolTableImpl::prefix(type).c_str() << "_" << s.c_str() << "_" << std::hex << address;
+    return ss.str().c_str();
 }
 
-std::string SymbolTable::name(const std::string &name, address_t address) { return name + "_"  + Utils::hex(address); }
+String SymbolTable::name(const String &name, address_t address) { return name + "_"  + String::hex(address); }
 
 void Serializer<SymbolTable>::write(std::fstream& fs, const SymbolTable* st) {
     Serializer<SymbolTableImpl::SymbolsByAddress>::write(fs, st->pimpl_p()->m_byaddress);

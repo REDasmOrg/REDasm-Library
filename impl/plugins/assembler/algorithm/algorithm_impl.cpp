@@ -41,7 +41,7 @@ size_t AlgorithmImpl::disassembleInstruction(address_t address, Instruction* ins
     if(symbol && !symbol->isLocked() && !symbol->is(SymbolType::Code))
         m_document->eraseSymbol(symbol->address);
 
-    instruction->setAddress(address);
+    instruction->address = address;
 
     BufferView view = m_loader->view(address);
     return m_assembler->decode(view, instruction) ? Algorithm::OK : Algorithm::FAIL;
@@ -81,8 +81,10 @@ void AlgorithmImpl::analyze()
 
 void AlgorithmImpl::loadTargets(Instruction *instruction)
 {
-    for(size_t i = 0; i < instruction->targetsCount(); i++)
-        m_disassembler->pushTarget(instruction->targetAt(i), instruction->address());
+    auto it = instruction->targets().iterator();
+
+    while(it.hasNext())
+        m_disassembler->pushTarget(it.next().toU64(), instruction->address);
 }
 
 bool AlgorithmImpl::validateState(const State &state) const
@@ -95,13 +97,13 @@ bool AlgorithmImpl::validateState(const State &state) const
 
 void AlgorithmImpl::onNewState(const State *state) const
 {
-    r_ctx->statusProgress("Analyzing @ " + Utils::hex(state->address, m_assembler->bits()) +
+    r_ctx->statusProgress("Analyzing @ " + String::hex(state->address, m_assembler->bits()) +
                            " >> " + state->name, this->pending());
 }
 
 void AlgorithmImpl::validateTarget(Instruction* instruction) const
 {
-    if(m_disassembler->getTargetsCount(instruction->address()))
+    if(m_disassembler->getTargetsCount(instruction->address))
         return;
 
     const Operand* op = instruction->target();
@@ -109,7 +111,7 @@ void AlgorithmImpl::validateTarget(Instruction* instruction) const
     if(op && !op->isNumeric())
         return;
 
-    r_ctx->problem("No targets found for " + Utils::quoted(instruction->mnemonic()) + " @ " + Utils::hex(instruction->address()));
+    r_ctx->problem("No targets found for " + instruction->mnemonic.quoted() + " @ " + String::hex(instruction->address));
 }
 
 bool AlgorithmImpl::canBeDisassembled(address_t address)
@@ -133,11 +135,11 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
 
 void AlgorithmImpl::createInvalidInstruction(Instruction* instruction)
 {
-    if(!instruction->size())
-        instruction->setSize(1); // Invalid instruction uses at least 1 byte
+    if(!instruction->size)
+        instruction->size =1; // Invalid instruction uses at least 1 byte
 
-    instruction->setType(InstructionType::Invalid);
-    instruction->setMnemonic(INVALID_MNEMONIC);
+    instruction->type = InstructionType::Invalid;
+    instruction->mnemonic = INVALID_MNEMONIC;
 }
 
 size_t AlgorithmImpl::disassemble(address_t address, Instruction* instruction)

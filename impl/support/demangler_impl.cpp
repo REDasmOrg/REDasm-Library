@@ -7,7 +7,7 @@
 
 namespace REDasm {
 
-std::string DemanglerImpl::demangleMSVC(const std::string &s, bool simplified)
+String DemanglerImpl::demangleMSVC(const String &s, bool simplified)
 {
     std::vector<char> v(DEMAGLER_BUFFER_SIZE);
     unsigned short flags = 0;
@@ -27,14 +27,14 @@ std::string DemanglerImpl::demangleMSVC(const std::string &s, bool simplified)
     return v.data();
 }
 
-std::string DemanglerImpl::demangleItanium(const std::string &s)
+String DemanglerImpl::demangleItanium(const String &s)
 {
     char* pres = cplus_demangle_v3(s.c_str(), DMGL_NO_OPTS);
 
     if(!pres)
         return s;
 
-    std::string res = pres;
+    String res = pres;
     free(pres);
     return res;
 }

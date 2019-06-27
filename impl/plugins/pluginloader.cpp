@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-bool PluginLoader::load(const std::string &pluginpath, const char* initname, PluginInstance* pi)
+bool PluginLoader::load(const String &pluginpath, const char* initname, PluginInstance* pi)
 {
     LoadResult lr;
 
@@ -27,7 +27,7 @@ bool PluginLoader::load(const std::string &pluginpath, const char* initname, Plu
         if(!pi->descriptor->plugin)
             r_ctx->log(Path::fileName(pluginpath) + ": Plugin field is NULL");
         else
-            r_ctx->log(Path::fileName(pluginpath) + ": Call to " + Utils::quoted(REDASM_LOAD_NAME) + " failed");
+            r_ctx->log(Path::fileName(pluginpath) + ": Call to " + String(REDASM_LOAD_NAME).quoted() + " failed");
 
         PluginLoader::unloadLibrary(pi->handle);
         return false;
@@ -64,7 +64,7 @@ void PluginLoader::unloadLibrary(library_t lib)
 #endif
 }
 
-PluginLoader::LoadResult PluginLoader::loadLibrary(const std::string &pluginpath, const char* initname, PluginInstance* pi)
+PluginLoader::LoadResult PluginLoader::loadLibrary(const String &pluginpath, const char* initname, PluginInstance* pi)
 {
 #ifdef _WIN32
     pi->handle = LoadLibraryA(pluginpath.c_str());

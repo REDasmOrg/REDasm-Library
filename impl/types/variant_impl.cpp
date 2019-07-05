@@ -4,7 +4,7 @@ namespace REDasm {
 
 VariantImpl::VariantImpl()
 {
-    m_keeper.type = Variant::Type::Null;
+    m_keeper.type = Variant::Type::INVALID;
     m_keeper.value.object = nullptr;
 }
 
@@ -16,20 +16,21 @@ VariantImpl::VariantImpl(u8 v)  { this->set(v); }
 VariantImpl::VariantImpl(u16 v) { this->set(v); }
 VariantImpl::VariantImpl(u32 v) { this->set(v); }
 VariantImpl::VariantImpl(u64 v) { this->set(v); }
+VariantImpl::VariantImpl(void *v)   { this->set(v); }
 VariantImpl::VariantImpl(const char *v)   { this->set(v); }
 VariantImpl::VariantImpl(const String &v) { this->set(v); }
 VariantImpl::VariantImpl(Object *v)       { this->set(v); }
 VariantImpl::~VariantImpl() { this->deallocateString(); }
 Variant::Type VariantImpl::type() const { return m_keeper.type; }
-
-bool VariantImpl::isNull() const { return m_keeper.type == Variant::Type::Null; }
+bool VariantImpl::isInvalid() const { return m_keeper.type == Variant::Type::INVALID; }
 bool VariantImpl::isInteger() const { return m_keeper.type >= Variant::Type::S8 && m_keeper.type <= Variant::Type::U64; }
-bool VariantImpl::isString() const { return m_keeper.type == Variant::Type::String; }
-bool VariantImpl::isObject() const { return m_keeper.type == Variant::Type::Object; }
+bool VariantImpl::isString() const { return m_keeper.type == Variant::Type::STRING; }
+bool VariantImpl::isObject() const { return m_keeper.type == Variant::Type::OBJECT; }
+bool VariantImpl::isPointer() const { return m_keeper.type == Variant::Type::POINTER; }
 
 bool VariantImpl::objectIs(object_id_t id) const
 {
-    if(m_keeper.type != Variant::Type::Object)
+    if(m_keeper.type != Variant::Type::OBJECT)
         return false;
 
     return m_keeper.value.object->objectId() == id;
@@ -43,8 +44,9 @@ u16 VariantImpl::toU8()  const { return (m_keeper.type == Variant::Type::U8)  ? 
 u16 VariantImpl::toU16() const { return (m_keeper.type == Variant::Type::U16) ? m_keeper.value.u16_ : u16(); }
 u32 VariantImpl::toU32() const { return (m_keeper.type == Variant::Type::U32) ? m_keeper.value.u32_ : u32(); }
 u64 VariantImpl::toU64() const { return (m_keeper.type == Variant::Type::U64) ? m_keeper.value.u64_ : u64(); }
-Object *VariantImpl::toObject() const { return (m_keeper.type == Variant::Type::Object) ? m_keeper.value.object  : nullptr;  }
-String VariantImpl::toString() const  { return (m_keeper.type == Variant::Type::String) ? *m_keeper.value.string : String(); }
+void *VariantImpl::toPointer() const  { return (m_keeper.type == Variant::Type::POINTER) ? m_keeper.value.pointer : nullptr;  }
+Object *VariantImpl::toObject() const { return (m_keeper.type == Variant::Type::OBJECT) ?  m_keeper.value.object  : nullptr;  }
+String VariantImpl::toString() const  { return (m_keeper.type == Variant::Type::STRING) ?  *m_keeper.value.string : String(); }
 
 void VariantImpl::set(s8 v)
 {
@@ -110,11 +112,19 @@ void VariantImpl::set(u64 v)
     m_keeper.value.u64_ = v;
 }
 
+void VariantImpl::set(void *v)
+{
+    this->deallocateString();
+
+    m_keeper.type = Variant::Type::POINTER;
+    m_keeper.value.pointer = v;
+}
+
 void VariantImpl::set(const String &v)
 {
     this->deallocateString();
 
-    m_keeper.type = Variant::Type::String;
+    m_keeper.type = Variant::Type::STRING;
     m_keeper.value.string = new String(v); // Copy
 }
 
@@ -122,7 +132,7 @@ void VariantImpl::set(Object *v)
 {
     this->deallocateString();
 
-    m_keeper.type = Variant::Type::Object;
+    m_keeper.type = Variant::Type::OBJECT;
     m_keeper.value.object = v;
 }
 
@@ -141,8 +151,9 @@ bool VariantImpl::equals(const Variant &rhs) const
         case Variant::Type::U16:    return m_keeper.value.u16_ == rhs.pimpl_p()->m_keeper.value.u16_;
         case Variant::Type::U32:    return m_keeper.value.u32_ == rhs.pimpl_p()->m_keeper.value.u32_;
         case Variant::Type::U64:    return m_keeper.value.u64_ == rhs.pimpl_p()->m_keeper.value.u64_;
-        case Variant::Type::String: return *m_keeper.value.string == *rhs.pimpl_p()->m_keeper.value.string;
-        case Variant::Type::Object: return m_keeper.value.object->objectId() == rhs.pimpl_p()->m_keeper.value.object->objectId();
+        case Variant::Type::POINTER: return m_keeper.value.pointer == rhs.pimpl_p()->m_keeper.value.pointer;
+        case Variant::Type::STRING: return *m_keeper.value.string == *rhs.pimpl_p()->m_keeper.value.string;
+        case Variant::Type::OBJECT: return m_keeper.value.object->objectId() == rhs.pimpl_p()->m_keeper.value.object->objectId();
         default: break;
     }
 
@@ -151,7 +162,7 @@ bool VariantImpl::equals(const Variant &rhs) const
 
 void VariantImpl::deallocateString()
 {
-    if(m_keeper.type == Variant::Type::String)
+    if(m_keeper.type == Variant::Type::STRING)
         delete m_keeper.value.string;
 }
 

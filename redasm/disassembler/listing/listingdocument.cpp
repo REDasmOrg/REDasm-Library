@@ -211,6 +211,7 @@ CachedInstruction ListingDocumentType::entryInstruction()
     return this->instruction(p->m_documententry->address);
 }
 
+bool ListingDocumentType::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_instructions.contains(address); }
 const ListingMetaItem &ListingDocumentType::meta(const ListingItem* item) const { return item->data()->meta; }
 String ListingDocumentType::type(const ListingItem* item) const { return item->data()->type; }
 void ListingDocumentType::empty(address_t address) { PIMPL_P(ListingDocumentType); p->push(address, ListingItemType::EmptyItem); }

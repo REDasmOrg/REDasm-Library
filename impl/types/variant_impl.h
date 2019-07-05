@@ -11,11 +11,12 @@ class VariantImpl
 
     private:
         struct TypeKeeper {
-            TypeKeeper(): type(Variant::Type::Null) { value.object = nullptr; }
+            TypeKeeper(): type(Variant::INVALID) { value.object = nullptr; }
 
             union {
                 s8 s8_; s16 s16_; s32 s32_; s64 s64_;
                 u8 u8_; u16 u16_; u32 u32_; u64 u64_;
+                void* pointer;
                 String* string;
                 Object* object;
             } value;
@@ -33,6 +34,7 @@ class VariantImpl
         VariantImpl(u16 v);
         VariantImpl(u32 v);
         VariantImpl(u64 v);
+        VariantImpl(void* v);
         VariantImpl(const char* v);
         VariantImpl(const String& v);
         VariantImpl(Object* v);
@@ -40,10 +42,11 @@ class VariantImpl
 
     public:
         Variant::Type type() const;
-        bool isNull() const;
+        bool isInvalid() const;
         bool isInteger() const;
         bool isString() const;
         bool isObject() const;
+        bool isPointer() const;
         bool objectIs(object_id_t id) const;
         s8 toS8() const;
         s16 toS16() const;
@@ -53,6 +56,7 @@ class VariantImpl
         u16 toU16() const;
         u32 toU32() const;
         u64 toU64() const;
+        void* toPointer() const;
         Object* toObject() const;
         String toString() const;
 
@@ -65,6 +69,7 @@ class VariantImpl
         void set(u16 v);
         void set(u32 v);
         void set(u64 v);
+        void set(void *v);
         void set(const String& v);
         void set(Object* v);
         bool equals(const Variant& rhs) const;

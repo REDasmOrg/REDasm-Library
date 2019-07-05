@@ -58,12 +58,12 @@ struct StructVisitor {
 
     template<typename T> static bool symbolize(Disassembler* disassembler, address_t address, const String& name) {
         if(!std::is_trivial<T>::value) {
-            r_ctx->log("Type " + Utils::quoted(Demangler::typeName<T>()) + "is not Trivial");
+            r_ctx->log("Type " + String(Demangler::typeName<T>()).quoted() + "is not Trivial");
             return false;
         }
 
         auto document = disassembler->document();
-        String symbolname = name + "_" + Utils::hex(address); // Generate an unique name
+        String symbolname = name + "_" + String::hex(address); // Generate an unique name
         StructVisitor visitor(disassembler, address, symbolname);
         visit_struct::visit_types<T>(visitor);
         document->type(address, symbolname);

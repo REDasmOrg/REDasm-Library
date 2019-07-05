@@ -15,6 +15,7 @@ class RegexMatchIteratorImpl
     private:
         String m_string, m_pattern;
         std::sregex_token_iterator m_it;
+        std::regex m_regex;
 };
 
 class RegexImpl

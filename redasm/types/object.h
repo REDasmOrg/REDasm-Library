@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "base.h"
+#include "factory.h"
 #include "../static/crc32.h"
 #include "../support/safe_ptr.h"
 
@@ -12,6 +13,13 @@
                                 object_id_t objectId() const override { return static_crc32(#name); } \
                             private:
 
+#define REDASM_FACTORY_OBJECT(name) REDASM_OBJECT(name) \
+                                    public: \
+                                    static bool REGISTERED; \
+                                    private: \
+
+#define REGISTER_FACTORY_OBJECT(name) bool name::REGISTERED = Factory::registerAs(ID, []()-> Object* { return new name(); });
+
 namespace cereal {
 
 class BinaryOutputArchive;
@@ -20,8 +28,6 @@ class BinaryInputArchive;
 }
 
 namespace REDasm {
-
-typedef u32 object_id_t;
 
 class Object
 {

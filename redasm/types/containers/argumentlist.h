@@ -15,6 +15,9 @@ class ArgumentList
     PIMPL_DECLARE_PRIVATE(ArgumentList)
 
     public:
+        enum ArgumentType: argument_t { INTEGER = 0xFFFFFFFF };
+
+    public:
         ArgumentList();
         ArgumentList(const std::initializer_list<Variant>& args);
         size_t size() const;

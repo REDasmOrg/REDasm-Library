@@ -92,7 +92,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
         if(wordpos)
             *wordpos = std::make_pair(start, end);
 
-        return end; //*it;
+        return match.value;
     }
 
     if(wordpos)

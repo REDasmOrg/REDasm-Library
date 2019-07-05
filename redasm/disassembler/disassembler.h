@@ -2,6 +2,7 @@
 
 #include "../buffer/bufferview.h"
 #include "../support/safe_ptr.h"
+#include "../types/containers/list.h"
 #include "../types/api.h"
 #include "../support/event.h"
 #include "../pimpl.h"

@@ -14,7 +14,7 @@ void Analyzer::findTrampoline(const Symbol* symbol)
 
 Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::const_iterator& it)
 {
-    InstructionPtr instruction = m_disassembler->document()->instruction((*it)->address);
+    CachedInstruction instruction = m_disassembler->document()->instruction((*it)->address);
 
     if(!instruction->is(InstructionType::Jump))
         return nullptr;
@@ -30,13 +30,13 @@ Symbol* Analyzer::findTrampoline_x86(ListingDocumentType::const_iterator& it)
 Symbol* Analyzer::findTrampoline_arm(ListingDocumentType::const_iterator &it)
 {
     auto& doc = m_disassembler->document();
-    InstructionPtr instruction1 = doc->instruction((*it)->address);
+    CachedInstruction instruction1 = doc->instruction((*it)->address);
     it++;
 
     if(it == doc->end() || !(*it)->is(ListingItem::InstructionItem))
         return nullptr;
 
-    const InstructionPtr& instruction2 = doc->instruction((*it)->address);
+    const CachedInstruction& instruction2 = doc->instruction((*it)->address);
 
     if(!instruction1 || !instruction2 || instruction1->isInvalid() || instruction2->isInvalid())
         return nullptr;

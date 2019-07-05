@@ -13,6 +13,7 @@ class CachedInstructionImpl
     PIMPL_DECLARE_PUBLIC(CachedInstruction)
 
     public:
+        CachedInstructionImpl(CachedInstruction* q);
         CachedInstructionImpl(CachedInstruction* q, InstructionCache* cache, Instruction* instruction);
         ~CachedInstructionImpl();
         Instruction* get() const;

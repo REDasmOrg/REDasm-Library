@@ -10,7 +10,7 @@ namespace REDasm {
 
 std::unordered_set<String> InstructionCache::m_activenames;
 
-InstructionCache::InstructionCache(): m_filepath(generateFilePath())
+InstructionCache::InstructionCache(): m_filepath(generateFilePath()), m_lockserialization(false)
 {
     m_file.exceptions(std::fstream::failbit);
     m_file.open(m_filepath.c_str(), std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
@@ -21,31 +21,45 @@ InstructionCache::InstructionCache(): m_filepath(generateFilePath())
 
 InstructionCache::~InstructionCache()
 {
-    m_activenames.erase(m_filepath);
+    m_lockserialization = true;
     m_cache.clear();
     m_offsets.clear();
 
-    if(!m_file.is_open())
-        return;
+    if(m_file.is_open())
+    {
+        m_file.close();
+        std::remove(m_filepath.c_str());
+    }
 
-    m_file.close();
-    std::remove(m_filepath.c_str());
+    m_activenames.erase(m_filepath);
 }
 
 size_t InstructionCache::size() const { return m_offsets.size(); }
-CachedInstruction InstructionCache::find(address_t address) { auto it = m_cache.find(address); return (it != m_cache.end()) ? this->deserialize(address) : it->second; }
+bool InstructionCache::contains(address_t address) const { return m_offsets.find(address) != m_offsets.end(); }
+
+CachedInstruction InstructionCache::find(address_t address)
+{
+    auto it = m_cache.find(address);
+
+    if(it != m_cache.end())
+        return it->second;
+
+    return this->deserialize(address);
+}
 
 CachedInstruction InstructionCache::allocate(address_t address)
 {
     CachedInstruction cachedinstruction(this, new Instruction());
     cachedinstruction->address = address;
-    this->serialize(cachedinstruction);
     return cachedinstruction;
 }
 
 void InstructionCache::deallocate(const CachedInstruction& instruction)
 {
-    if(m_file.is_open())
+    if(m_lockserialization)
+        return;
+
+    if(m_file.is_open() && instruction)
         this->serialize(instruction);
 
     m_cache.erase(instruction->address);
@@ -53,6 +67,9 @@ void InstructionCache::deallocate(const CachedInstruction& instruction)
 
 void InstructionCache::serialize(const CachedInstruction& instruction)
 {
+    if(m_lockserialization)
+        return;
+
     if(!m_file.is_open())
     {
         m_cache[instruction->address] = instruction;

@@ -6,6 +6,10 @@
 
 namespace REDasm {
 
+REGISTER_FACTORY_OBJECT(Segment)
+REGISTER_FACTORY_OBJECT(Operand)
+REGISTER_FACTORY_OBJECT(Instruction)
+
 Segment::Segment(): offset(0), address(0), endaddress(0), type(SegmentType::None) { }
 Segment::Segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
 u64 Segment::size() const { return (address > endaddress) ? 0 : (endaddress - address); }
@@ -20,9 +24,13 @@ RegisterOperand::RegisterOperand(): r(REDasm::npos), tag(0) { }
 RegisterOperand::RegisterOperand(register_id_t r): r(r), tag(0) { }
 RegisterOperand::RegisterOperand(register_id_t r, tag_t tag): r(r), tag(tag) { }
 bool RegisterOperand::isValid() const { return r != REDasm::npos; }
+void RegisterOperand::save(cereal::BinaryOutputArchive &a) const { a(r, tag); }
+void RegisterOperand::load(cereal::BinaryInputArchive &a) { a(r, tag); }
 
 DisplacementOperand::DisplacementOperand(): scale(1), displacement(0) { }
 DisplacementOperand::DisplacementOperand(const RegisterOperand &base, const RegisterOperand &index, s64 scale, s64 displacement): base(base), index(index), scale(scale), displacement(displacement) { }
+void DisplacementOperand::save(cereal::BinaryOutputArchive &a) const { a(base, index, scale, displacement); }
+void DisplacementOperand::load(cereal::BinaryInputArchive &a) { a(base, index, scale, displacement); }
 
 Operand::Operand(): type(OperandType::None), tag(0), size(0), index(REDasm::npos), loc_index(REDasm::npos), u_value(0) { }
 Operand::Operand(OperandType type, s64 value, size_t idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(REDasm::npos), s_value(value) { }
@@ -43,6 +51,9 @@ bool Operand::checkCharacter()
     type = OperandType::Constant;
     return true;
 }
+
+void Operand::save(cereal::BinaryOutputArchive &a) const { a(type, tag, size, index, loc_index, reg, disp, u_value); }
+void Operand::load(cereal::BinaryInputArchive &a) { a(type, tag, size, index, loc_index, reg, disp, u_value); }
 
 Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)) { }
 address_t Instruction::endAddress() const { return address + size; }
@@ -74,13 +85,13 @@ void Instruction::setUserData(void *userdata) { PIMPL_P(Instruction); p->setUser
 void Instruction::save(cereal::BinaryOutputArchive &a) const
 {
     PIMPL_P(const Instruction);
-    a(mnemonic, address, type, size, id);
+    a(mnemonic, address, type, size, id, p->m_operands);
 }
 
 void Instruction::load(cereal::BinaryInputArchive &a)
 {
     PIMPL_P(Instruction);
-    a(mnemonic, address, type, size, id);
+    a(mnemonic, address, type, size, id, p->m_operands);
 }
 
 void REDasm::Serializer<Instruction>::write(std::fstream &fs, const Instruction &st)

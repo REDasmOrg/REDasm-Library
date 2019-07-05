@@ -21,6 +21,9 @@ bool ArgumentListImpl::expect(const std::initializer_list<argument_t> &args) con
 
     for(auto it = args.begin(); it != args.end(); it++, i++)
     {
+        if((*it == ArgumentList::INTEGER) && m_args[i].isInteger())
+            continue;
+
         if(m_args[i].isObject())
         {
             if(m_args.objectId() != *it)

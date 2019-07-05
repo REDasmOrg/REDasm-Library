@@ -22,12 +22,14 @@ void String::clear() { PIMPL_P(String); p->m_data.clear(); }
 const char *String::c_str() const { PIMPL_P(const String); return p->m_data.data(); }
 size_t String::size() const { PIMPL_P(const String); return p->m_data.size(); }
 size_t String::indexOf(const String &s, size_t idx) const { PIMPL_P(const String); return p->m_data.find(s.pimpl_p()->m_data, idx); }
+size_t String::indexOf(char ch, size_t idx) const { PIMPL_P(const String); return p->m_data.find(ch, idx); }
 size_t String::lastIndexOf(const String &s, size_t idx) const { PIMPL_P(const String); return p->m_data.find_last_of(s.pimpl_p()->m_data, idx); }
+size_t String::lastIndexOf(char ch, size_t idx) const { PIMPL_P(const String); return p->m_data.find_last_of(ch, idx); }
 char String::first() const { PIMPL_P(const String); return p->m_data.front(); }
 char String::last() const { PIMPL_P(const String); return p->m_data.back(); }
 char& String::first() { PIMPL_P(String); return p->m_data.front(); }
 char& String::last() { PIMPL_P(String); return p->m_data.back(); }
-bool String::empty() const { PIMPL_P(const String); return !p->m_data.empty(); }
+bool String::empty() const { PIMPL_P(const String); return p->m_data.empty(); }
 bool String::startsWith(const String &rhs) const { PIMPL_P(const String); return !p->m_data.find(rhs.pimpl_p()->m_data); }
 
 bool String::endsWith(const String &rhs) const
@@ -72,6 +74,7 @@ String& String::replace(const String &from, const String &to)
     return *this;
 }
 
+String &String::replace(char from, char to) { return this->replace(String(from), String(to)); }
 String String::substring(size_t pos, size_t len) const { PIMPL_P(const String); return p->m_data.substr(pos, len).c_str(); }
 
 String String::ltrimmed() const
@@ -183,6 +186,19 @@ char &String::operator[](size_t idx) { PIMPL_P(String); return p->m_data[idx]; }
 void String::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const String); a(p->m_data);  }
 void String::load(cereal::BinaryInputArchive &a) { PIMPL_P(String); a(p->m_data); }
 
+String String::wide(const char *ws, size_t len)
+{
+    String s;
+    const char* p = ws;
+
+    for(size_t i = 0; i < len; i++, p += sizeof(char) * 2)
+        s += *p;
+
+    return s;
+}
+
+String String::wide(const u8 *ws, size_t len) { return String::wide(reinterpret_cast<const char*>(ws), len); }
+String String::wide(const u16 *ws, size_t len) { return String::wide(reinterpret_cast<const char*>(ws), len); }
 String String::hexstring(const unsigned char *data, size_t size) { return String::hexstring(reinterpret_cast<const unsigned char*>(data), size); }
 
 String String::hexstring(const char *data, size_t size)

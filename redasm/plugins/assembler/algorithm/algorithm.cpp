@@ -96,9 +96,12 @@ void Algorithm::onEmulatedOperand(const Operand *op, Instruction* instruction, u
 
 void Algorithm::decodeState(const State *state)
 {
+    if(this->document()->isInstructionCached(state->address))
+        return;
+
     PIMPL_P(Algorithm);
     CachedInstruction instruction = this->document()->cacheInstruction(state->address);
-    u32 status = p->disassemble(state->address, instruction.get());
+    size_t status = p->disassemble(state->address, instruction.get());
 
     if(status == Algorithm::SKIP)
         return;

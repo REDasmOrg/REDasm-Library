@@ -20,16 +20,18 @@ class String: public Object
 
     public:
         String();
+        explicit String(char rhs);
         String(String&& rhs);
         String(const String& rhs);
         String(const char* rhs, size_t size);
         String(const char* rhs);
-        String(char rhs);
         void clear();
         const char* c_str() const;
         size_t size() const;
         size_t indexOf(const String& s, size_t idx = 0) const;
-        size_t lastIndexOf(const String& s, size_t idx = 0) const;
+        size_t indexOf(char ch, size_t idx = 0) const;
+        size_t lastIndexOf(const String& s, size_t idx = REDasm::npos) const;
+        size_t lastIndexOf(char ch, size_t idx = REDasm::npos) const;
         char first() const;
         char last() const;
         char& first();
@@ -42,6 +44,7 @@ class String: public Object
         String& remove(size_t start, size_t len = npos);
         String& remove(char ch);
         String& replace(const String& from, const String& to);
+        String& replace(char from, char to);
         String substring(size_t pos = 0, size_t len = npos) const;
         String ltrimmed() const;
         String rtrimmed() const;
@@ -75,6 +78,9 @@ class String: public Object
         void load(cereal::BinaryInputArchive& a) override;
         template<typename T> static String number(T value);
         template<typename T> static String hex(T t, size_t bits = 0, bool withprefix = false);
+        static String wide(const char* ws, size_t len);
+        static String wide(const u8* ws, size_t len);
+        static String wide(const u16* ws, size_t len);
         static String hexstring(const unsigned char* data, size_t size);
         static String hexstring(const char* data, size_t size);
         static String repeated(char ch, size_t c);

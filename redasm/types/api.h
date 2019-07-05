@@ -52,7 +52,7 @@ ENUM_FLAGS_OPERATORS(OperandType)
 
 class Segment: public Object
 {
-    REDASM_OBJECT(Segment)
+    REDASM_FACTORY_OBJECT(Segment)
 
     public:
         Segment();
@@ -78,6 +78,8 @@ struct RegisterOperand
     RegisterOperand(register_id_t r, tag_t tag);
     RegisterOperand(register_id_t r);
     bool isValid() const;
+    void save(cereal::BinaryOutputArchive& a) const;
+    void load(cereal::BinaryInputArchive& a);
 
     register_id_t r;
     tag_t tag;
@@ -87,6 +89,8 @@ struct DisplacementOperand
 {
     DisplacementOperand();
     DisplacementOperand(const RegisterOperand& base, const RegisterOperand& index, s64 scale, s64 displacement);
+    void save(cereal::BinaryOutputArchive& a) const;
+    void load(cereal::BinaryInputArchive& a);
 
     RegisterOperand base, index;
     s64 scale;
@@ -95,7 +99,7 @@ struct DisplacementOperand
 
 class Operand: public Object
 {
-    REDASM_OBJECT(Operand)
+    REDASM_FACTORY_OBJECT(Operand)
 
     public:
         Operand();
@@ -109,6 +113,8 @@ class Operand: public Object
         bool is(OperandType t) const;
         void asTarget();
         bool checkCharacter();
+        void save(cereal::BinaryOutputArchive& a) const override;
+        void load(cereal::BinaryInputArchive& a) override;
 
     public:
         OperandType type;
@@ -124,7 +130,7 @@ class InstructionImpl;
 
 class Instruction: public Object
 {
-    REDASM_OBJECT(Instruction)
+    REDASM_FACTORY_OBJECT(Instruction)
     PIMPL_DECLARE_P(Instruction)
     PIMPL_DECLARE_PRIVATE(Instruction)
 
@@ -178,8 +184,3 @@ template<> struct Serializer<Instruction> {
 };
 
 } // namespace REDasm
-
-VISITABLE_STRUCT(REDasm::RegisterOperand, r, tag);
-VISITABLE_STRUCT(REDasm::DisplacementOperand, base, index, scale, displacement);
-VISITABLE_STRUCT(REDasm::Operand, type, tag, size, index, loc_index, reg, disp, u_value);
-VISITABLE_STRUCT(REDasm::Segment, name, offset, endoffset, address, endaddress, type);

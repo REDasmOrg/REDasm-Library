@@ -4,12 +4,11 @@
 
 namespace REDasm {
 
-RegexMatchIteratorImpl::RegexMatchIteratorImpl(const String &s, const String &pattern): m_string(s), m_pattern(pattern)
+RegexMatchIteratorImpl::RegexMatchIteratorImpl(const String &s, const String &pattern): m_string(s), m_pattern(pattern), m_regex(pattern.pimpl_p()->m_data)
 {
-    std::regex rgx(pattern.pimpl_p()->m_data);
-    m_it = std::sregex_token_iterator(s.pimpl_p()->m_data.begin(),
-                                      s.pimpl_p()->m_data.end(),
-                                      rgx);
+    m_it = std::sregex_token_iterator(m_string.pimpl_p()->m_data.begin(),
+                                      m_string.pimpl_p()->m_data.end(),
+                                      m_regex);
 }
 
 bool RegexMatchIteratorImpl::hasNext() const { return m_it != std::sregex_token_iterator(); }

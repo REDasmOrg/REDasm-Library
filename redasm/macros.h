@@ -44,8 +44,8 @@
                                         return lhs; \
                                     }
 
-#define ENUM_FLAGS_OPERATORS(Enum) EF_OP_IMPL(Enum, |, Enum) \
-                                   EF_OP_IMPL(Enum, &, bool) \
+#define ENUM_FLAGS_OPERATORS(Enum) EF_OP_IMPL(Enum, |, Enum)  \
+                                   EF_OP_IMPL(Enum, &, bool)  \
                                    EF_OP_ASSIGN_IMPL(Enum, |)
 
 #define STRINGIFY(x)        #x

@@ -107,6 +107,7 @@ class LIBREDASM_API ListingDocumentType
         CachedInstruction cacheInstruction(address_t address);
         CachedInstruction instruction(address_t address);
         CachedInstruction entryInstruction();
+        bool isInstructionCached(address_t address) const;
         void rename(address_t address, const String& name);
         void lockFunction(address_t address, const String& name, u32 tag = 0);
         void eraseSymbol(address_t address);

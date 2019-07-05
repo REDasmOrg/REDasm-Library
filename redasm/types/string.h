@@ -41,11 +41,15 @@ class String: public Object
         bool endsWith(const String& rhs) const;
         bool contains(const String& s) const;
         int toInt(int base = 10) const;
+        void removeFirst();
+        void removeLast();
         String& remove(size_t start, size_t len = npos);
         String& remove(char ch);
         String& replace(const String& from, const String& to);
         String& replace(char from, char to);
         String substring(size_t pos = 0, size_t len = npos) const;
+        String left(size_t n = 0) const;
+        String right(size_t n = 0) const;
         String ltrimmed() const;
         String rtrimmed() const;
         String trimmed() const;

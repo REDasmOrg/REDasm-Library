@@ -46,6 +46,26 @@ bool String::endsWith(const String &rhs) const
 bool String::contains(const String &s) const { PIMPL_P(const String); return p->m_data.find(s.pimpl_p()->m_data) != std::string::npos; }
 int String::toInt(int base) const { PIMPL_P(const String); return std::stoi(p->m_data, nullptr, base); }
 
+void String::removeFirst()
+{
+    PIMPL_P(String);
+
+    if(p->m_data.empty())
+        return;
+
+    p->m_data.erase(p->m_data.begin());
+}
+
+void String::removeLast()
+{
+    PIMPL_P(String);
+
+    if(p->m_data.empty())
+        return;
+
+    p->m_data.pop_back();
+}
+
 String &String::remove(size_t start, size_t len)
 {
     PIMPL_P(String);
@@ -76,6 +96,18 @@ String& String::replace(const String &from, const String &to)
 
 String &String::replace(char from, char to) { return this->replace(String(from), String(to)); }
 String String::substring(size_t pos, size_t len) const { PIMPL_P(const String); return p->m_data.substr(pos, len).c_str(); }
+
+String String::left(size_t n) const
+{
+    PIMPL_P(const String);
+    return p->m_data.substr(0, n).c_str();
+}
+
+String String::right(size_t n) const
+{
+    PIMPL_P(const String);
+    return p->m_data.substr(p->m_data.size() - 1 - n).c_str();
+}
 
 String String::ltrimmed() const
 {

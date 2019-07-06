@@ -59,8 +59,13 @@ Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)) { }
 address_t Instruction::endAddress() const { return address + size; }
 bool Instruction::hasOperands() const { PIMPL_P(const Instruction); return p->hasOperands(); }
 size_t Instruction::operandsCount() const { PIMPL_P(const Instruction); return p->operandsCount(); }
+ListConstIterator Instruction::iterator() const { PIMPL_P(const Instruction); return p->m_operands.iterator(); }
 const Operand *Instruction::op(size_t idx) const { PIMPL_P(const Instruction); return p->op(idx); }
+const Operand *Instruction::firstOperand() const { return this->hasOperands() ? this->op(0) : nullptr; }
+const Operand *Instruction::lastOperand() const { return this->hasOperands() ? this->op(this->operandsCount() - 1) : nullptr; }
 Operand *Instruction::op(size_t idx) { PIMPL_P(Instruction); return p->op(idx); }
+Operand *Instruction::firstOperand() { return this->hasOperands() ? this->op(0) : nullptr; }
+Operand *Instruction::lastOperand() { return this->hasOperands() ? this->op(this->operandsCount() - 1) : nullptr; }
 const Operand *Instruction::target() const { PIMPL_P(const Instruction); return p->target(); }
 Instruction *Instruction::mem(address_t v, tag_t tag) { PIMPL_P(Instruction); return p->mem(v, tag); }
 Instruction *Instruction::cnst(u64 v, tag_t tag) { PIMPL_P(Instruction); return p->cnst(v, tag); }

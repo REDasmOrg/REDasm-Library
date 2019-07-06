@@ -3,6 +3,7 @@
 #include "../support/serializer.h"
 #include "../macros.h"
 #include "../pimpl.h"
+#include "containers/list.h"
 #include "base.h"
 #include "string.h"
 #include "callback.h"
@@ -139,8 +140,13 @@ class Instruction: public Object
         address_t endAddress() const;
         bool hasOperands() const;
         size_t operandsCount() const;
+        ListConstIterator iterator() const;
         const Operand* op(size_t idx) const;
+        const Operand* firstOperand() const;
+        const Operand* lastOperand() const;
         Operand* op(size_t idx);
+        Operand* firstOperand();
+        Operand* lastOperand();
         const Operand *target() const;
         Instruction* mem(address_t v, tag_t tag = 0);
         Instruction* cnst(u64 v, tag_t tag = 0);

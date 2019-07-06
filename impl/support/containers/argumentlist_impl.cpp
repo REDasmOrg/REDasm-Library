@@ -21,7 +21,7 @@ bool ArgumentListImpl::expect(const std::initializer_list<argument_t> &args) con
 
     for(auto it = args.begin(); it != args.end(); it++, i++)
     {
-        if((*it == ArgumentList::INTEGER) && m_args[i].isInteger())
+        if((*it == Variant::Type::INTEGER) && m_args[i].isInteger())
             continue;
 
         if(m_args[i].isObject())
@@ -32,7 +32,7 @@ bool ArgumentListImpl::expect(const std::initializer_list<argument_t> &args) con
             continue;
         }
 
-        if(static_cast<argument_t>(m_args[i].type()) != *it)
+        if(m_args[i].type() != *it)
             return false;
     }
 

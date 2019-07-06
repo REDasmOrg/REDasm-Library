@@ -15,11 +15,12 @@ class Variant
     PIMPL_DECLARE_PRIVATE(Variant)
 
     public:
-        enum Type: u32 {
+        enum Type: argument_t {
             INVALID = 0,
             S8, S16, S32, S64,
             U8, U16, U32, U64,
-            POINTER, STRING, OBJECT
+            POINTER, STRING, OBJECT,
+            INTEGER = argument_t(-1) // Internal use
         };
 
     public:

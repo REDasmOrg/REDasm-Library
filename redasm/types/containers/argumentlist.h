@@ -7,15 +7,10 @@ namespace REDasm {
 
 class ArgumentListImpl;
 
-typedef u32 argument_t;
-
 class ArgumentList
 {
     PIMPL_DECLARE_P(ArgumentList)
     PIMPL_DECLARE_PRIVATE(ArgumentList)
-
-    public:
-        enum ArgumentType: argument_t { INTEGER = 0xFFFFFFFF };
 
     public:
         ArgumentList();

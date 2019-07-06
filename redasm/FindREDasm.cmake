@@ -25,11 +25,10 @@ function(redasm_plugin P_NAME)
     set(CMAKE_CXX_STANDARD 11)
     set(CMAKE_SKIP_BUILD_RPATH TRUE)
     string(TOLOWER "${P_NAME}" P_ID)
-    add_definitions(-Dr_plugin=${P_ID})
-    add_definitions(-Dr_plugin_id="${P_ID}")
 
     cmake_parse_arguments(ARG "${OPTIONS}" "" "" ${ARGN})
     add_library(${P_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
+    target_compile_definitions(${P_NAME} PRIVATE -Dr_plugin=${P_ID} -Dr_plugin_id="${P_ID}")
 
     if(DEFINED REDASM_INCLUDE_PATH)
         target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH} ${REDASM_INCLUDE_PATH}/libs)

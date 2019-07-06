@@ -15,9 +15,9 @@ class ControlFlowAlgorithm: public Algorithm
 
     protected:
         void addressTableState(const State* state) override;
-        void onEmulatedOperand(const Operand *op, Instruction* instruction, u64 value) override;
-        void onDecoded(Instruction* instruction) override;
-        virtual void enqueueTarget(address_t target, Instruction* frominstruction);
+        void onEmulatedOperand(const Operand *op, const CachedInstruction& instruction, u64 value) override;
+        void onDecoded(const CachedInstruction& instruction) override;
+        virtual void enqueueTarget(address_t target, const CachedInstruction& frominstruction);
 };
 
 } // namespace REDasm

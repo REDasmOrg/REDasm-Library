@@ -5,10 +5,9 @@ namespace REDasm {
 
 ControlFlowAlgorithmImpl::ControlFlowAlgorithmImpl(ControlFlowAlgorithm *algorithm, Disassembler *disassembler): AlgorithmImpl(algorithm, disassembler) { }
 
-void ControlFlowAlgorithmImpl::enqueueTargets(Instruction* instruction)
+void ControlFlowAlgorithmImpl::enqueueTargets(const CachedInstruction& instruction)
 {
     PIMPL_Q(ControlFlowAlgorithm);
-
     ReferenceSet targets = q->disassembler()->getTargets(instruction->address);
 
     for(address_t target : targets)

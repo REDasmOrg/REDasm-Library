@@ -31,7 +31,7 @@ AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm, Disassembler *disassembler): 
     REGISTER_STATE_PRIVATE(Algorithm::ImmediateState, &Algorithm::immediateState);
 }
 
-size_t AlgorithmImpl::disassembleInstruction(address_t address, Instruction* instruction)
+size_t AlgorithmImpl::disassembleInstruction(address_t address, const CachedInstruction& instruction)
 {
     if(!this->canBeDisassembled(address))
         return Algorithm::SKIP;
@@ -44,7 +44,7 @@ size_t AlgorithmImpl::disassembleInstruction(address_t address, Instruction* ins
     instruction->address = address;
 
     BufferView view = m_loader->view(address);
-    return m_assembler->decode(view, instruction) ? Algorithm::OK : Algorithm::FAIL;
+    return m_assembler->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
 }
 
 void AlgorithmImpl::done(address_t address) { m_done.insert(address); }
@@ -79,7 +79,7 @@ void AlgorithmImpl::analyze()
     });
 }
 
-void AlgorithmImpl::loadTargets(Instruction *instruction)
+void AlgorithmImpl::loadTargets(const CachedInstruction& instruction)
 {
     auto it = instruction->targets().iterator();
 
@@ -101,7 +101,7 @@ void AlgorithmImpl::onNewState(const State *state) const
                            " >> " + state->name, this->pending());
 }
 
-void AlgorithmImpl::validateTarget(Instruction* instruction) const
+void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
 {
     if(m_disassembler->getTargetsCount(instruction->address))
         return;
@@ -133,7 +133,7 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     return true;
 }
 
-void AlgorithmImpl::createInvalidInstruction(Instruction* instruction)
+void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instruction)
 {
     if(!instruction->size)
         instruction->size =1; // Invalid instruction uses at least 1 byte
@@ -142,7 +142,7 @@ void AlgorithmImpl::createInvalidInstruction(Instruction* instruction)
     instruction->mnemonic = INVALID_MNEMONIC;
 }
 
-size_t AlgorithmImpl::disassemble(address_t address, Instruction* instruction)
+size_t AlgorithmImpl::disassemble(address_t address, const CachedInstruction& instruction)
 {
     auto it = m_done.find(address);
 
@@ -168,7 +168,7 @@ size_t AlgorithmImpl::disassemble(address_t address, Instruction* instruction)
     return result;
 }
 
-void AlgorithmImpl::emulateOperand(const Operand *op, Instruction *instruction)
+void AlgorithmImpl::emulateOperand(const Operand *op, const CachedInstruction& instruction)
 {
     // u64 value = 0;
 
@@ -188,7 +188,7 @@ void AlgorithmImpl::emulateOperand(const Operand *op, Instruction *instruction)
     // this->onEmulatedOperand(op, instruction, value);
 }
 
-void AlgorithmImpl::emulate(Instruction* instruction)
+void AlgorithmImpl::emulate(const CachedInstruction &instruction)
 {
     //if(!m_emulator)
         //return;

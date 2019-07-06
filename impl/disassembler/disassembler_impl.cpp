@@ -127,7 +127,7 @@ CachedInstruction DisassemblerImpl::disassembleInstruction(address_t address)
         return instruction;
 
     instruction = this->document()->cacheInstruction(address);
-    m_algorithm->disassembleInstruction(address, instruction.get());
+    m_algorithm->disassembleInstruction(address, instruction);
     m_algorithm->done(address);
     return instruction;
 }
@@ -136,7 +136,7 @@ address_location DisassemblerImpl::getTarget(address_t address) const { return m
 size_t DisassemblerImpl::getTargetsCount(address_t address) const { return m_referencetable.targetsCount(address); }
 size_t DisassemblerImpl::getReferencesCount(address_t address) const { return m_referencetable.referencesCount(address); }
 
-size_t DisassemblerImpl::checkAddressTable(Instruction* instruction, address_t startaddress)
+size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction, address_t startaddress)
 {
     Symbol* symbol = this->document()->symbol(startaddress);
 

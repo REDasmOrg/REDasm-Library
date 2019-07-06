@@ -4,7 +4,8 @@
 #define USER_STATE_START   0x10000000
 
 #include <functional>
-#include <redasm/types/api.h>
+#include "../../../disassembler/listing/cachedinstruction.h"
+#include "../../../types/api.h"
 
 namespace REDasm {
 
@@ -22,7 +23,7 @@ struct State
     };
 
     size_t index;
-    Instruction* instruction;
+    CachedInstruction instruction;
 
     bool isFromOperand() const;
     bool isUser() const;

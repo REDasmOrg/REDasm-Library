@@ -10,7 +10,7 @@ class LinearSweepAlgorithm: public Algorithm
         LinearSweepAlgorithm(Disassembler* disassembler);
 
     protected:
-        void onDecoded(Instruction* instruction) override;
+        void onDecoded(const CachedInstruction& instruction) override;
 };
 
 } // namespace REDasm

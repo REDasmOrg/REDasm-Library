@@ -5,9 +5,9 @@ namespace REDasm {
 
 ControlFlowAlgorithm::ControlFlowAlgorithm(Disassembler* disassembler): Algorithm(new ControlFlowAlgorithmImpl(this, disassembler)) { }
 void ControlFlowAlgorithm::addressTableState(const State *state) { Algorithm::addressTableState(state); PIMPL_P(ControlFlowAlgorithm); p->enqueueTargets(state->instruction); }
-void ControlFlowAlgorithm::enqueueTarget(address_t target, Instruction *frominstruction) { this->enqueue(target); }
+void ControlFlowAlgorithm::enqueueTarget(address_t target, const CachedInstruction &frominstruction) { this->enqueue(target); }
 
-void ControlFlowAlgorithm::onEmulatedOperand(const Operand *op, Instruction *instruction, u64 value)
+void ControlFlowAlgorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &instruction, u64 value)
 {
     // if(instruction->is(InstructionType::Branch) && op->isTarget())
     // {
@@ -19,7 +19,7 @@ void ControlFlowAlgorithm::onEmulatedOperand(const Operand *op, Instruction *ins
     // Algorithm::onEmulatedOperand(op, instruction, value);
 }
 
-void ControlFlowAlgorithm::onDecoded(Instruction *instruction)
+void ControlFlowAlgorithm::onDecoded(const CachedInstruction &instruction)
 {
     Algorithm::onDecoded(instruction);
 

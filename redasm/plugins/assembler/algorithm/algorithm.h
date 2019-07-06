@@ -2,7 +2,6 @@
 
 #include <functional>
 #include "../../../types/object.h"
-#include "../../../support/safe_ptr.h"
 #include "../../../pimpl.h"
 #include "state.h"
 
@@ -11,7 +10,7 @@
 #define ENQUEUE_STATE(id, value, index, instruction)  this->enqueueState({ #id, id, static_cast<u64>(value), index, instruction })
 #define FORWARD_STATE_VALUE(newid, value, state)      EXECUTE_STATE(newid, value, state->index, state->instruction)
 #define FORWARD_STATE(newid, state)                   FORWARD_STATE_VALUE(newid, state->u_value, state)
-#define DECODE_STATE(address)                         ENQUEUE_STATE(Algorithm::DecodeState, address, REDasm::npos, nullptr)
+#define DECODE_STATE(address)                         ENQUEUE_STATE(Algorithm::DecodeState, address, REDasm::npos, )
 
 namespace REDasm {
 
@@ -41,7 +40,7 @@ class Algorithm: public Object
         virtual ~Algorithm() = default;
         Disassembler* disassembler() const;
         safe_ptr<ListingDocumentType>& document() const;
-        size_t disassembleInstruction(address_t address, Instruction *instruction);
+        size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void done(address_t address);
         void enqueue(address_t address);
         void analyze();
@@ -54,11 +53,11 @@ class Algorithm: public Object
         void executeState(const State& state);
         virtual bool validateState(const State& state) const;
         virtual void onNewState(const State *state) const;
-        virtual void validateTarget(Instruction* instruction) const;
-        virtual void onDecoded(Instruction* instruction);
-        virtual void onDecodeFailed(Instruction *instruction);
-        virtual void onDecodedOperand(const Operand* op, Instruction *instruction);
-        virtual void onEmulatedOperand(const Operand* op, Instruction *instruction, u64 value);
+        virtual void validateTarget(const CachedInstruction &instruction) const;
+        virtual void onDecoded(const CachedInstruction &instruction);
+        virtual void onDecodeFailed(const CachedInstruction& instruction);
+        virtual void onDecodedOperand(const Operand* op, const CachedInstruction& instruction);
+        virtual void onEmulatedOperand(const Operand* op, const CachedInstruction& instruction, u64 value);
 
     protected:
         virtual void decodeState(const State *state);

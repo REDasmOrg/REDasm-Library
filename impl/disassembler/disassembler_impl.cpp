@@ -11,6 +11,13 @@
 namespace REDasm {
 
 DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader) { }
+
+DisassemblerImpl::~DisassemblerImpl()
+{
+    if(m_loader)
+        m_loader->buffer()->release();
+}
+
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }

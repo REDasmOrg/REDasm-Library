@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../disassembler/listing/listingdocument.h"
 #include "../../pimpl.h"
 #include "../../macros.h"
 
@@ -18,6 +19,8 @@ class LIBREDASM_API Analyzer
         virtual ~Analyzer() = default;
         virtual void analyzeFast();
         virtual void analyze();
+        ListingDocument& document() const;
+        Disassembler* disassembler() const;
 };
 
 }

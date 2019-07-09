@@ -57,6 +57,7 @@ class LIBREDASM_API Loader: public Plugin
         SignatureIdentifiers &signatures();
         Loader* signature(const String& sig);
         Analyzer* analyzer(Disassembler* disassembler);
+        u8* data() const;
         template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 
     public:

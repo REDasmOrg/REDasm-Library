@@ -5,6 +5,7 @@
 #include <impl/libs/cereal/types/string.hpp>
 #include "containers/list.h"
 #include "base.h"
+#include "numeric.h"
 #include <algorithm>
 #include <cctype>
 #include <sstream>
@@ -297,6 +298,24 @@ template String String::hex<u8>(u8, size_t, bool);
 template String String::hex<u16>(u16, size_t, bool);
 template String String::hex<u32>(u32, size_t, bool);
 template String String::hex<u64>(u64, size_t, bool);
+
+template String String::hex< numeric_type<s8, Endianness::LittleEndian> >(numeric_type<s8, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<s16, Endianness::LittleEndian> >(numeric_type<s16, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<s32, Endianness::LittleEndian> >(numeric_type<s32, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<s64, Endianness::LittleEndian> >(numeric_type<s64, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<s8, Endianness::BigEndian> >(numeric_type<s8, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<s16, Endianness::BigEndian> >(numeric_type<s16, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<s32, Endianness::BigEndian> >(numeric_type<s32, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<s64, Endianness::BigEndian> >(numeric_type<s64, Endianness::BigEndian>, size_t, bool);
+
+template String String::hex< numeric_type<u8, Endianness::LittleEndian> >(numeric_type<u8, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<u16, Endianness::LittleEndian> >(numeric_type<u16, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<u32, Endianness::LittleEndian> >(numeric_type<u32, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<u64, Endianness::LittleEndian> >(numeric_type<u64, Endianness::LittleEndian>, size_t, bool);
+template String String::hex< numeric_type<u8, Endianness::BigEndian> >(numeric_type<u8, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<u16, Endianness::BigEndian> >(numeric_type<u16, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<u32, Endianness::BigEndian> >(numeric_type<u32, Endianness::BigEndian>, size_t, bool);
+template String String::hex< numeric_type<u64, Endianness::BigEndian> >(numeric_type<u64, Endianness::BigEndian>, size_t, bool);
 
 void to_json(nlohmann::json &j, const String &s) { j = std::string(s.c_str()); }
 void from_json(const nlohmann::json &j, String &s) { s = static_cast<std::string>(j).c_str(); }

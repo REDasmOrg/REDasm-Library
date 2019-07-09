@@ -23,6 +23,7 @@ ListingDocument &REDasm::Loader::document() { PIMPL_P(Loader); return p->documen
 SignatureIdentifiers &Loader::signatures() { PIMPL_P(Loader); return p->signatures(); }
 Loader *Loader::signature(const String &sig) { PIMPL_P(Loader); p->signature(sig); return this; }
 Analyzer *Loader::analyzer(Disassembler *disassembler) { PIMPL_P(Loader); return p->analyzer(disassembler);  }
+u8 *Loader::data() const { return this->view().data(); }
 AssemblerRequest REDasm::Loader::assembler() const { PIMPL_P(const Loader); return p->assembler(); }
 void Loader::init(const LoadRequest& request) { PIMPL_P(Loader); p->init(request); }
 Analyzer *Loader::createAnalyzer(Disassembler *disassembler) const { return new Analyzer(disassembler); }

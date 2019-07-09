@@ -20,6 +20,7 @@ class DisassemblerImpl
 
     public:
         DisassemblerImpl(Disassembler *q, Assembler *assembler, Loader *loader);
+        ~DisassemblerImpl();
         Loader* loader() const;
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;

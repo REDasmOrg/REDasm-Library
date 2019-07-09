@@ -69,6 +69,6 @@ struct LIBREDASM_API PluginDescriptor
     Plugin* plugin;
 };
 
-template<typename T> T* plugin_cast(const PluginInstance* pi) { return static_cast<T*>(pi->descriptor->plugin); }
-
 } // namespace REDasm
+
+template<typename T> T* plugin_cast(const REDasm::PluginInstance* pi) { return static_cast<T*>(pi->descriptor->plugin); }

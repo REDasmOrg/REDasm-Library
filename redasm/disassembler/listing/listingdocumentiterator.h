@@ -17,8 +17,11 @@ class LIBREDASM_API ListingDocumentIterator
         ListingDocumentIterator(ListingDocument &document);
         ListingDocumentIterator(ListingDocument &document, address_t address, ListingItemType type);
         size_t index() const;
+        const ListingItem *current() const;
         const ListingItem *next();
+        const ListingItem *prev();
         bool hasNext() const;
+        bool hasPrevious() const;
 };
 
 } // namespace REDasm

@@ -10,7 +10,7 @@
 
 namespace REDasm {
 
-AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm, Disassembler *disassembler): StateMachine(), m_pimpl_q(algorithm), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(disassembler->assembler()), m_currentsegment(nullptr), m_analyzed(0)
+AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm, Disassembler *disassembler): StateMachine(), m_pimpl_q(algorithm), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(disassembler->assembler()), m_currentsegment(nullptr), m_analyzed(false)
 {
     m_analyzer = nullptr;
     m_loader = m_disassembler->loader();

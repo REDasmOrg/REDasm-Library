@@ -15,7 +15,6 @@ class LoaderImpl: public PluginImpl
 
     public:
         LoaderImpl(Loader* loader);
-        virtual ~LoaderImpl();
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
         const BufferView& view() const;

@@ -50,6 +50,7 @@ class LIBREDASM_API Context
         void clearProblems();
 
     public:
+        ListingDocument& document() const;
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
         void cwd(const String& s);
@@ -76,7 +77,9 @@ class LIBREDASM_API Context
 
 } // namespace REDasm
 
-#define r_ctx REDasm::Context::instance()
-#define r_pm  r_ctx->pluginManager()
-#define r_ui  r_ctx->ui()
+#define r_ctx          REDasm::Context::instance()
+#define r_pm           r_ctx->pluginManager()
+#define r_ui           r_ctx->ui()
+#define r_disassembler r_ctx->disassembler()
+#define r_document     r_ctx->document()
 

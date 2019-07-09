@@ -1,6 +1,5 @@
 #pragma once
 
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/types/symboltable.h>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/plugins/loader/analyzer.h>
@@ -15,6 +14,8 @@ class AnalyzerImpl
 
     public:
         AnalyzerImpl(Disassembler* disassembler);
+        ListingDocument& document() const;
+        Disassembler* disassembler() const;
         bool findNullSubs(const Symbol* symbol);
         void findTrampoline(const Symbol* symbol);
         void checkFunctions();

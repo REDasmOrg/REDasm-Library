@@ -11,10 +11,14 @@ class ListingDocumentIteratorImpl
         ListingDocumentIteratorImpl(ListingDocument &document);
         ListingDocumentIteratorImpl(ListingDocument &document, address_t address, ListingItemType type);
         size_t index() const;
+        const ListingItem* current() const;
         const ListingItem* next();
+        const ListingItem* prev();
         bool hasNext() const;
+        bool hasPrevious() const;
 
     private:
+        size_t calculateLength() const;
         void updateCurrent();
 
     private:

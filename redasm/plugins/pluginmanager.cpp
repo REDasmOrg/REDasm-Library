@@ -1,6 +1,8 @@
 #include "pluginmanager.h"
 #include <impl/plugins/pluginmanager_impl.h>
 #include <impl/plugins/pluginloader.h>
+#include <redasm/plugins/assembler/assembler.h>
+#include <redasm/plugins/loader/loader.h>
 #include <redasm/plugins/plugin.h>
 #include <redasm/support/path.h>
 #include <redasm/context.h>
@@ -50,6 +52,7 @@ PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
         bool res = loader->test(request);
 
         if(res) {
+            loader->init(request);
             plugins.push_back(pi);
             return PluginManagerImpl::IterateResult::Continue;
         }

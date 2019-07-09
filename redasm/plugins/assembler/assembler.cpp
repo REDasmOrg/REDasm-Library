@@ -30,7 +30,7 @@ Printer *Assembler::doCreatePrinter(Disassembler *disassembler) const { return n
 void Assembler::setInstructionType(instruction_id_t id, InstructionType type) { PIMPL_P(Assembler); p->m_instructiontypes[id] = type; }
 void Assembler::registerInstruction(instruction_id_t id, const InstructionCallback& cb) { PIMPL_P(Assembler); p->m_dispatcher[id] = cb; }
 void Assembler::onDecoded(Instruction *instruction) { }
-size_t Assembler::addressWidth() const { return this->bits() * CHAR_BIT; }
+size_t Assembler::addressWidth() const { return this->bits() / CHAR_BIT; }
 void Assembler::init(const AssemblerRequest& request) { PIMPL_P(Assembler); p->init(request); }
 
 } // namespace REDasm

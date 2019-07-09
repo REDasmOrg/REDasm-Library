@@ -10,7 +10,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
-# Some library needs this relative directory
+# Some libraries needs this relative directory
 set(IMPL_LIBS_INCLUDE   impl/libs)
 set(REDASM_LIBS_INCLUDE redasm/libs)
 

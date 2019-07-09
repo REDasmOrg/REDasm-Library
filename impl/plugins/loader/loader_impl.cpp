@@ -6,15 +6,6 @@
 namespace REDasm {
 
 LoaderImpl::LoaderImpl(Loader *loader): m_pimpl_q(loader), PluginImpl(), m_buffer(nullptr) { }
-
-LoaderImpl::~LoaderImpl()
-{
-    if(m_buffer)
-        m_buffer->release();
-
-    m_buffer = nullptr;
-}
-
 AbstractBuffer *LoaderImpl::buffer() const { return m_buffer; }
 BufferView LoaderImpl::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 const BufferView &LoaderImpl::view() const { return m_view; }

@@ -7,6 +7,8 @@
 namespace REDasm {
 
 AnalyzerImpl::AnalyzerImpl(Disassembler *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
+ListingDocument &AnalyzerImpl::document() const { return m_document; }
+Disassembler *AnalyzerImpl::disassembler() const { return m_disassembler; }
 
 bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 {

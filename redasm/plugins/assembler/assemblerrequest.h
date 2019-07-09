@@ -1,5 +1,7 @@
 #pragma once
 
+#define ASSEMBLER_REQUEST(id, mode) { (id), (mode) }
+
 namespace REDasm {
 
 struct AssemblerRequest {

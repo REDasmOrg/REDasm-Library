@@ -37,16 +37,21 @@ bool OrdinalsImpl::load(const String &filepath)
     return true;
 }
 
-String OrdinalsImpl::name(ordinal_t ordinal, const String &fallbackprefix) const
+String OrdinalsImpl::name(ordinal_t ord, const String &fallbackprefix) const
 {
-    auto it = m_ordinals.find(ordinal);
+    auto it = m_ordinals.find(ord);
 
     if(it == m_ordinals.end())
-        return fallbackprefix + "Ordinal__" + String::hex(ordinal, 16);
+        return ordinal(ord, fallbackprefix);
 
     return it->second;
 }
 
 void OrdinalsImpl::clear() { m_ordinals.clear(); }
+
+String OrdinalsImpl::ordinal(ordinal_t ord, const String &fallbackprefix)
+{
+    return fallbackprefix + "Ordinal__" + String::number(ord, 16, 4, '0');
+}
 
 } // namespace REDasm

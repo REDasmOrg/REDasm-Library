@@ -16,8 +16,11 @@ class Ordinals
     public:
         Ordinals();
         bool load(const String& filepath);
-        String name(ordinal_t name, const String& fallbackprefix = String()) const;
+        String name(ordinal_t ordinal, const String& fallbackprefix = String()) const;
         void clear();
+
+    public:
+        static String ordinal(ordinal_t ord, const String& fallbackprefix = String());
 };
 
 } // namespace REDasm

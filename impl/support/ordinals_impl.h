@@ -17,8 +17,11 @@ class OrdinalsImpl
     public:
         OrdinalsImpl() = default;
         bool load(const String& filepath);
-        String name(ordinal_t name, const String& fallbackprefix = String()) const;
+        String name(ordinal_t ord, const String& fallbackprefix) const;
         void clear();
+
+    public:
+        static String ordinal(ordinal_t ord, const String& fallbackprefix);
 
     private:
         OrdinalsMap m_ordinals;

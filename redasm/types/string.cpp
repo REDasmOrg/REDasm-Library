@@ -181,6 +181,29 @@ String String::hex() const
     return ss.str().c_str();
 }
 
+String String::capitalized() const
+{
+    String s = *this;
+    s[0] = std::toupper(s[0]);
+    return s;
+}
+
+String String::toLower() const
+{
+    String s = *this;
+    std::string& ss = s.pimpl_p()->m_data;
+    std::transform(ss.begin(), ss.end(), ss.begin(), ::tolower);
+    return s;
+}
+
+String String::toUpper() const
+{
+    String s = *this;
+    std::string& ss = s.pimpl_p()->m_data;
+    std::transform(ss.begin(), ss.end(), ss.begin(), ::toupper);
+    return s;
+}
+
 List String::split(char sep) const
 {
     PIMPL_P(const String);
@@ -257,7 +280,33 @@ String String::repeated(char ch, size_t c)
     return s;
 }
 
-template<typename T> String String::number(T value) { return std::to_string(value).c_str(); }
+template<typename T> String String::number(T value, size_t base, size_t width, char fill)
+{
+    String s;
+
+    if((base == 10) && !width && !fill)
+    {
+        s.pimpl_p()->m_data = std::to_string(value).c_str();
+        return s;
+    }
+
+    std::stringstream ss;
+
+    if(base == 8)
+        ss << std::oct;
+    else if(base == 16)
+        ss << std::hex;
+
+    if(width)
+        ss << std::setw(width);
+
+    if(fill)
+        ss << std::setfill(fill);
+
+    ss << value;
+    s.pimpl_p()->m_data = ss.str();
+    return s;
+}
 
 template<typename T> String String::hex(T t, size_t bits, bool withprefix)
 {
@@ -279,16 +328,16 @@ template<typename T> String String::hex(T t, size_t bits, bool withprefix)
     return ss.str().c_str();
 }
 
-template String String::number<s8>(s8);
-template String String::number<s16>(s16);
-template String String::number<s32>(s32);
-template String String::number<s64>(s64);
-template String String::number<u8>(u8);
-template String String::number<u16>(u16);
-template String String::number<u32>(u32);
-template String String::number<u64>(u64);
-template String String::number<float>(float);
-template String String::number<double>(double);
+template String String::number<s8>(s8, size_t, size_t, char);
+template String String::number<s16>(s16, size_t, size_t, char);
+template String String::number<s32>(s32, size_t, size_t, char);
+template String String::number<s64>(s64, size_t, size_t, char);
+template String String::number<u8>(u8, size_t, size_t, char);
+template String String::number<u16>(u16, size_t, size_t, char);
+template String String::number<u32>(u32, size_t, size_t, char);
+template String String::number<u64>(u64, size_t, size_t, char);
+template String String::number<float>(float, size_t, size_t, char);
+template String String::number<double>(double, size_t, size_t, char);
 
 template String String::hex<s8>(s8, size_t, bool);
 template String String::hex<s16>(s16, size_t, bool);

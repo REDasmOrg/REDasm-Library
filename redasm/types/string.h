@@ -57,6 +57,9 @@ class String: public Object
         String quotedSingle() const;
         String quoted() const;
         String hex() const;
+        String capitalized() const;
+        String toLower() const;
+        String toUpper() const;
         List split(char sep) const;
 
      public:
@@ -80,7 +83,7 @@ class String: public Object
      public:
         void save(cereal::BinaryOutputArchive& a) const override;
         void load(cereal::BinaryInputArchive& a) override;
-        template<typename T> static String number(T value);
+        template<typename T> static String number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static String hex(T t, size_t bits = 0, bool withprefix = false);
         static String wide(const char* ws, size_t len);
         static String wide(const u8* ws, size_t len);

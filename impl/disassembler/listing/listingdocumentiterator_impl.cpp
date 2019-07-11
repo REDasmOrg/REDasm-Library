@@ -42,7 +42,7 @@ const ListingItem *ListingDocumentIteratorImpl::prev()
 }
 
 bool ListingDocumentIteratorImpl::hasNext() const { return m_index < this->calculateLength(); }
-bool ListingDocumentIteratorImpl::hasPrevious() const { return m_index > 0; }
+bool ListingDocumentIteratorImpl::hasPrevious() const { return m_index != REDasm::npos; }
 size_t ListingDocumentIteratorImpl::calculateLength() const { return std::distance(m_s_lock->pimpl_p()->begin(), m_s_lock->pimpl_p()->end()); }
 
 void ListingDocumentIteratorImpl::updateCurrent()

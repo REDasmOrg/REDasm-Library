@@ -294,7 +294,7 @@ String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 
 bool DisassemblerImpl::loadSignature(const String &signame)
 {
-    String signaturefile = Path::exists(signame) ? signame : r_ctx->signature(signame);
+    String signaturefile = Path::exists(signame) ? signame : r_ctx->signaturedb(signame);
 
     if(!signaturefile.endsWith(".json"))
         signaturefile += ".json";

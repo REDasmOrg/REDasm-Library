@@ -72,7 +72,10 @@ class LIBREDASM_API Context
     public:
         template<typename... T> inline String rnt(const String& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }
         template<typename... T> inline String db(const String& p, T... args) const { return this->rnt("database", p, args...); }
-        template<typename... T> inline String signature(const String& p, T... args) const { return this->db("signatures", p, args...); }
+        template<typename... T> inline String signaturedb(const String& p, T... args) const { return this->db("signatures", p, args...); }
+        template<typename... T> inline String loaderdb(const String& p, T... args) const { return this->db("loaders", p, args...); }
+        template<typename... T> inline String assemblerdb(const String& p, T... args) const { return this->db("assemblers", p, args...); }
+        template<typename... T> inline String plugindb(const String& p, T... args) const { return this->db("plugins", p, args...); }
 };
 
 } // namespace REDasm

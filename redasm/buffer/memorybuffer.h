@@ -27,6 +27,7 @@ class LIBREDASM_API MemoryBuffer: public AbstractBuffer
 
     public:
         static MemoryBuffer* fromFile(const String& file);
+        static MemoryBuffer* from(const u8* data, size_t size);
 };
 
 } // namespace REDasm

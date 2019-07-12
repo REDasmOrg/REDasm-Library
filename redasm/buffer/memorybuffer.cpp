@@ -84,4 +84,11 @@ MemoryBuffer *MemoryBuffer::fromFile(const String &file)
     return b;
 }
 
+MemoryBuffer *MemoryBuffer::from(const u8 *data, size_t size)
+{
+    MemoryBuffer* b = new MemoryBuffer(size);
+    std::copy(data, data + size, b->data());
+    return b;
+}
+
 } // namespace REDasm

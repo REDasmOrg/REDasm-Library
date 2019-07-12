@@ -36,14 +36,14 @@ bool VariantImpl::objectIs(object_id_t id) const
     return m_keeper.value.object->objectId() == id;
 }
 
-s8 VariantImpl::toS8()   const { return (m_keeper.type == Variant::Type::S8)  ? m_keeper.value.s8_  :  s8(); }
-s16 VariantImpl::toS16() const { return (m_keeper.type == Variant::Type::S16) ? m_keeper.value.s16_ : s16(); }
-s32 VariantImpl::toS32() const { return (m_keeper.type == Variant::Type::S32) ? m_keeper.value.s32_ : s32(); }
-s64 VariantImpl::toS64() const { return (m_keeper.type == Variant::Type::S64) ? m_keeper.value.s64_ : s64(); }
-u16 VariantImpl::toU8()  const { return (m_keeper.type == Variant::Type::U8)  ? m_keeper.value.u8_  :  u8(); }
-u16 VariantImpl::toU16() const { return (m_keeper.type == Variant::Type::U16) ? m_keeper.value.u16_ : u16(); }
-u32 VariantImpl::toU32() const { return (m_keeper.type == Variant::Type::U32) ? m_keeper.value.u32_ : u32(); }
-u64 VariantImpl::toU64() const { return (m_keeper.type == Variant::Type::U64) ? m_keeper.value.u64_ : u64(); }
+s8 VariantImpl::toS8()   const { return this->isInteger() ? m_keeper.value.s8_  :  s8(); }
+s16 VariantImpl::toS16() const { return this->isInteger() ? m_keeper.value.s16_ : s16(); }
+s32 VariantImpl::toS32() const { return this->isInteger() ? m_keeper.value.s32_ : s32(); }
+s64 VariantImpl::toS64() const { return this->isInteger() ? m_keeper.value.s64_ : s64(); }
+u16 VariantImpl::toU8()  const { return this->isInteger() ? m_keeper.value.u8_  :  u8(); }
+u16 VariantImpl::toU16() const { return this->isInteger() ? m_keeper.value.u16_ : u16(); }
+u32 VariantImpl::toU32() const { return this->isInteger() ? m_keeper.value.u32_ : u32(); }
+u64 VariantImpl::toU64() const { return this->isInteger() ? m_keeper.value.u64_ : u64(); }
 void *VariantImpl::toPointer() const  { return (m_keeper.type == Variant::Type::POINTER) ? m_keeper.value.pointer : nullptr;  }
 Object *VariantImpl::toObject() const { return (m_keeper.type == Variant::Type::OBJECT) ?  m_keeper.value.object  : nullptr;  }
 String VariantImpl::toString() const  { return (m_keeper.type == Variant::Type::STRING) ?  *m_keeper.value.string : String(); }

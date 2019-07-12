@@ -30,10 +30,10 @@ s8 Variant::toS8()   const { PIMPL_P(const Variant); return p->toS8();  }
 s16 Variant::toS16() const { PIMPL_P(const Variant); return p->toS16(); }
 s32 Variant::toS32() const { PIMPL_P(const Variant); return p->toS32(); }
 s64 Variant::toS64() const { PIMPL_P(const Variant); return p->toS32(); }
-u16 Variant::toU8()  const { PIMPL_P(const Variant); return p->toS8();  }
-u16 Variant::toU16() const { PIMPL_P(const Variant); return p->toS16(); }
-u32 Variant::toU32() const { PIMPL_P(const Variant); return p->toS32(); }
-u64 Variant::toU64() const { PIMPL_P(const Variant); return p->toS64(); }
+u16 Variant::toU8()  const { PIMPL_P(const Variant); return p->toU8();  }
+u16 Variant::toU16() const { PIMPL_P(const Variant); return p->toU16(); }
+u32 Variant::toU32() const { PIMPL_P(const Variant); return p->toU32(); }
+u64 Variant::toU64() const { PIMPL_P(const Variant); return p->toU64(); }
 void *Variant::toPointer() const  { PIMPL_P(const Variant); return p->toPointer(); }
 Object *Variant::toObject() const { PIMPL_P(const Variant); return p->toObject();  }
 String Variant::toString()  const { PIMPL_P(const Variant); return p->toString();  }

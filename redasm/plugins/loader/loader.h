@@ -78,8 +78,8 @@ class LIBREDASM_API Loader: public Plugin
     public:
         template<typename U> inline offset_location fileoffset(const U* ptr) const { return REDasm::make_location<offset_t>(reinterpret_cast<const u8*>(ptr) - reinterpret_cast<const u8*>(this->buffer()->data()), this->view().inRange(ptr)); }
         template<typename U> inline address_location addressof(const U* ptr) const { return this->view().inRange(ptr) ? this->address(this->fileoffset(ptr)) : REDasm::invalid_location<address_t>();  }
-        template<typename U, typename O> inline U* pointer(O offset) const { return this->view().inRange(offset) ? reinterpret_cast<U*>(reinterpret_cast<u8*>(this->buffer()->data()) + offset) : nullptr; }
-        template<typename U, typename A> inline U* addrpointer(A address) const { auto o = offset(address); return o ? reinterpret_cast<U*>(reinterpret_cast<u8*>(this->buffer()->data()) + o) : nullptr; }
+        template<typename U> inline U* pointer(offset_t offset) const { return this->view().inRange(offset) ? reinterpret_cast<U*>(reinterpret_cast<u8*>(this->buffer()->data()) + offset) : nullptr; }
+        template<typename U> inline U* addrpointer(address_t address) const { auto o = offset(address); return o ? reinterpret_cast<U*>(reinterpret_cast<u8*>(this->buffer()->data()) + o) : nullptr; }
         template<typename U, typename V, typename O> inline static const U* relpointer(const V* base, O offset) { return reinterpret_cast<const U*>(reinterpret_cast<const u8*>(base) + offset); }
         template<typename U, typename V, typename O> inline static U* relpointer(V* base, O offset) { return reinterpret_cast<U*>(reinterpret_cast<u8*>(base) + offset); }
 };

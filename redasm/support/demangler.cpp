@@ -6,7 +6,18 @@
 
 namespace REDasm {
 
-bool Demangler::isMSVC(const String &s, String* result) { return Regex(MSVC_MANGLED_REGEX).search(s); }
+bool Demangler::isMSVC(const String &s, String* result)
+{
+    RegexMatchList m = Regex(MSVC_MANGLED_REGEX).match(s);
+
+    if(!m.hasMatch())
+        return false;
+
+    if(result)
+        *result = m.at(1).value;
+
+    return true;
+}
 
 bool Demangler::isMangled(const String &s)
 {

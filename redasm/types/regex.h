@@ -6,22 +6,38 @@
 namespace REDasm {
 
 class RegexImpl;
+class RegexMatchListImpl;
 class RegexMatchIteratorImpl;
+
+struct RegexMatch { size_t start, end; String value; };
+
+class RegexMatchList
+{
+    PIMPL_DECLARE_P(RegexMatchList)
+    PIMPL_DECLARE_PRIVATE(RegexMatchList)
+
+    private:
+        RegexMatchList();
+
+    public:
+        bool hasMatch() const;
+        size_t size() const;
+        RegexMatch at(size_t idx) const;
+
+    friend class RegexImpl;
+};
 
 class RegexMatchIterator
 {
     PIMPL_DECLARE_P(RegexMatchIterator)
     PIMPL_DECLARE_PRIVATE(RegexMatchIterator)
 
-    public:
-        struct Match { size_t start, end; String value; };
-
     private:
         RegexMatchIterator(const String& s, const String& pattern);
 
     public:
         bool hasNext() const;
-        Match next();
+        RegexMatch next();
 
     friend class RegexImpl;
 };
@@ -34,7 +50,7 @@ class Regex
     public:
         Regex(const String& pattern);
         bool search(const String& s) const;
-        size_t match(const String& s) const;
+        RegexMatchList match(const String& s) const;
         RegexMatchIterator matchAll(const String& s) const;
 };
 

@@ -10,7 +10,7 @@ class RegexMatchIteratorImpl
     public:
         RegexMatchIteratorImpl(const String& s, const String& pattern);
         bool hasNext() const;
-        RegexMatchIterator::Match next();
+        RegexMatch next();
 
     private:
         String m_string, m_pattern;
@@ -18,12 +18,26 @@ class RegexMatchIteratorImpl
         std::regex m_regex;
 };
 
+class RegexMatchListImpl
+{
+    public:
+        RegexMatchListImpl();
+        bool hasMatch() const;
+        size_t size() const;
+        RegexMatch at(size_t idx) const;
+
+    private:
+        std::smatch m_match;
+
+    friend class RegexImpl;
+};
+
 class RegexImpl
 {
     public:
         RegexImpl(const String& s);
         bool search(const String& pattern) const;
-        size_t match(const String& s) const;
+        RegexMatchList match(const String& s) const;
         RegexMatchIterator matchAll(const String& pattern) const;
 
     private:

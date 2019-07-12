@@ -11,7 +11,7 @@ class SearchObjectImpl
     public:
         SearchObjectImpl();
         SearchObjectImpl(const BufferView* view, size_t searchsize);
-        bool hasNext() const;
+        bool isValid() const;
         size_t position() const;
         const u8* result() const;
 

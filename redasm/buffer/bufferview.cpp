@@ -113,7 +113,7 @@ SearchResult BufferView::find(const u8 *searchdata, size_t searchsize, size_t st
 SearchResult::SearchResult(): m_pimpl_p(new SearchResultImpl()) { }
 SearchResult::SearchResult(const BufferView *view, const u8 *searchdata, size_t searchsize): m_pimpl_p(new SearchResultImpl(view, searchdata, searchsize)) { }
 SearchResult SearchResult::next() const { PIMPL_P(const SearchResult); return p->next(); }
-bool SearchResult::hasNext() const { PIMPL_P(const SearchResult); return p->hasNext(); }
+bool SearchResult::isValid() const { PIMPL_P(const SearchResult); return p->hasNext(); }
 const u8 *SearchResult::result() const { PIMPL_P(const SearchResult); return p->result();  }
 size_t SearchResult::position() const { PIMPL_P(const SearchResult); return p->position(); }
 

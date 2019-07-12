@@ -5,7 +5,7 @@ namespace REDasm {
 
 SearchObjectImpl::SearchObjectImpl(): m_view(nullptr), m_result(nullptr) { }
 SearchObjectImpl::SearchObjectImpl(const BufferView *view, size_t searchsize): m_view(view), m_result(nullptr), m_position(0), m_searchsize(searchsize) { }
-bool SearchObjectImpl::hasNext() const { return m_view && m_result; }
+bool SearchObjectImpl::isValid() const { return m_view && m_result; }
 size_t SearchObjectImpl::position() const { return m_position; }
 const u8 *SearchObjectImpl::result() const { return m_result; }
 SearchResultImpl::SearchResultImpl(): SearchObjectImpl(), m_searchdata(nullptr) { }

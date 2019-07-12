@@ -30,16 +30,7 @@ PluginManager *PluginManager::instance()
 
 const PluginManager::PluginMap &PluginManager::activePlugins() const { PIMPL_P(const PluginManager); return p->m_activeplugins; }
 const PluginInstance *PluginManager::findLoader(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_LOADER_NAME); }
-
-const PluginInstance *PluginManager::findAssembler(const char* id)
-{
-    if(!id)
-        return nullptr;
-
-    PIMPL_P(PluginManager);
-    return p->find(id, REDASM_INIT_ASSEMBLER_NAME);
-}
-
+const PluginInstance *PluginManager::findAssembler(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_ASSEMBLER_NAME); }
 const PluginInstance *PluginManager::findPlugin(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_PLUGIN_NAME); }
 
 PluginManager::PluginList PluginManager::getLoaders(const LoadRequest& request)
@@ -86,6 +77,7 @@ PluginManager::PluginList PluginManager::getAssemblers()
     return plugins;
 }
 
-bool PluginManager::execute(const PluginInstance *pi, const ArgumentList &args) const { PIMPL_P(const PluginManager); return p->execute(pi, args); }
+bool PluginManager::execute(const String &id, const ArgumentList &args) { PIMPL_P(PluginManager); return p->execute(id, args); }
+bool PluginManager::execute(const String &id) { return this->execute(id, { }); }
 
 } // namespace REDasm

@@ -28,7 +28,10 @@ const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const ch
         return nullptr;
 
     auto it = m_activeplugins.insert({pi.descriptor->id, pi});
-    pi.descriptor->plugin->setInstance(&it.first->second); // Bind Descriptor <-> Plugin
+
+    if(pi.descriptor->plugin)
+        pi.descriptor->plugin->setInstance(&it.first->second); // Bind Descriptor <-> Plugin
+
     return &it.first->second;
 }
 
@@ -50,14 +53,21 @@ void PluginManagerImpl::unloadAll()
     }
 }
 
-bool PluginManagerImpl::execute(const PluginInstance *pi, const ArgumentList& args) const
+bool PluginManagerImpl::execute(const String &id, const ArgumentList& args)
 {
+    const PluginInstance* pi = this->find(id, REDASM_INIT_PLUGIN_NAME);
+
+    if(!pi)
+        return false;
+
     auto exec = PluginLoader::funcT<Callback_PluginExec>(pi->handle, REDASM_EXEC_NAME);
 
     if(!exec)
         return false;
 
-    return exec(args);
+    bool res = exec(args);
+    this->unload(pi);
+    return res;
 }
 
 bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, const PluginManagerImpl::PluginManager_Callback &cb)

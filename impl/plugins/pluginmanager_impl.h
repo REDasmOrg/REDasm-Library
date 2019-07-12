@@ -24,7 +24,7 @@ class PluginManagerImpl
         void unloadAll();
 
     public:
-        bool execute(const PluginInstance* pi, const ArgumentList& args) const;
+        bool execute(const String& id, const ArgumentList& args);
 
     private:
         bool iteratePlugins(const char* path, const char* initname, const PluginManager_Callback& cb);

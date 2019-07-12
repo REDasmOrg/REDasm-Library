@@ -3,10 +3,10 @@
 
 namespace REDasm {
 
-AssemblerRequest::AssemblerRequest(): id(nullptr), mode(nullptr) { }
+AssemblerRequest::AssemblerRequest() { }
 AssemblerRequest::AssemblerRequest(const char *id, const char *mode): id(id) { this->mode = mode ? mode : id; }
-bool AssemblerRequest::modeIs(const char *mode) const { return !std::strcmp(this->mode, mode); }
-bool AssemblerRequest::idIs(const char *mode) const { return !std::strcmp(this->id, id); }
-REDasm::AssemblerRequest::operator const char *() const { return id; }
+bool AssemblerRequest::modeIs(const String &mode) const { return this->mode == mode; }
+bool AssemblerRequest::idIs(const String& id) const { return this->id == id; }
+REDasm::AssemblerRequest::operator String() const { return id; }
 
 } // namespace REDasm

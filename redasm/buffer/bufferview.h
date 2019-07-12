@@ -45,7 +45,7 @@ class WildcardSearchResult
     public:
         WildcardSearchResult next() const;
         size_t position() const;
-        bool hasNext() const;
+        bool isValid() const;
         const u8* result() const;
         template<typename T> T* pointer() { return reinterpret_cast<T*>(this->result()); }
 

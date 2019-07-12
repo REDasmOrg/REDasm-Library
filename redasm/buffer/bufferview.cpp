@@ -113,7 +113,7 @@ SearchResult BufferView::find(const u8 *searchdata, size_t searchsize, size_t st
 SearchResult::SearchResult(): m_pimpl_p(new SearchResultImpl()) { }
 SearchResult::SearchResult(const BufferView *view, const u8 *searchdata, size_t searchsize): m_pimpl_p(new SearchResultImpl(view, searchdata, searchsize)) { }
 SearchResult SearchResult::next() const { PIMPL_P(const SearchResult); return p->next(); }
-bool SearchResult::isValid() const { PIMPL_P(const SearchResult); return p->hasNext(); }
+bool SearchResult::isValid() const { PIMPL_P(const SearchResult); return p->isValid(); }
 const u8 *SearchResult::result() const { PIMPL_P(const SearchResult); return p->result();  }
 size_t SearchResult::position() const { PIMPL_P(const SearchResult); return p->position(); }
 
@@ -121,7 +121,7 @@ WildcardSearchResult::WildcardSearchResult(): m_pimpl_p(new WildcardSearchResult
 WildcardSearchResult::WildcardSearchResult(const BufferView *view, const String &searchwildcard, size_t searchsize): m_pimpl_p(new WildcardSearchResultImpl(view, searchwildcard, searchsize)) { }
 WildcardSearchResult WildcardSearchResult::next() const { PIMPL_P(const WildcardSearchResult); return p->next(); }
 size_t WildcardSearchResult::position() const { PIMPL_P(const WildcardSearchResult); return p->position(); }
-bool WildcardSearchResult::hasNext() const { PIMPL_P(const WildcardSearchResult); return p->hasNext(); }
+bool WildcardSearchResult::isValid() const { PIMPL_P(const WildcardSearchResult); return p->isValid(); }
 const u8 *WildcardSearchResult::result() const { PIMPL_P(const WildcardSearchResult); return p->result(); }
 
 } // namespace REDasm

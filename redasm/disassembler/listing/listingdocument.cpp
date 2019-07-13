@@ -1,6 +1,7 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
 #include "../../support/serializer.h"
+#include <impl/support/utils_impl.h>
 #include <impl/disassembler/listing/listingdocument_impl.h>
 #include <algorithm>
 #include <sstream>
@@ -87,7 +88,7 @@ String ListingDocumentType::comment(const ListingItem* item, bool skipauto) cons
     if(!skipauto)
         comments.insert(item->data()->autocomments.begin(), item->data()->autocomments.end());
 
-    return Utils::join(comments, COMMENT_SEPARATOR);
+    return UtilsImpl::join(comments, COMMENT_SEPARATOR);
 }
 
 void ListingDocumentType::comment(const ListingItem *item, const String &s)

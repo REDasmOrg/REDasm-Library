@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-bool PluginLoader::load(const String &pluginpath, const char* initname, PluginInstance* pi)
+bool PluginLoader::load(const String &pluginpath, const String& initname, PluginInstance* pi)
 {
     LoadResult lr;
 
@@ -46,12 +46,12 @@ void PluginLoader::unload(const PluginInstance* pi)
     PluginLoader::unloadLibrary(pi->handle);
 }
 
-void* PluginLoader::func(library_t lib, const char *fn)
+void* PluginLoader::func(library_t lib, const String &fn)
 {
 #ifdef _WIN32
-    return reinterpret_cast<void*>(GetProcAddressA(lib, fn));
+    return reinterpret_cast<void*>(GetProcAddressA(lib, fn.c_str()));
 #else
-    return reinterpret_cast<void*>(dlsym(lib, fn));
+    return reinterpret_cast<void*>(dlsym(lib, fn.c_str()));
 #endif
 }
 
@@ -64,7 +64,7 @@ void PluginLoader::unloadLibrary(library_t lib)
 #endif
 }
 
-PluginLoader::LoadResult PluginLoader::loadLibrary(const String &pluginpath, const char* initname, PluginInstance* pi)
+PluginLoader::LoadResult PluginLoader::loadLibrary(const String &pluginpath, const String& initname, PluginInstance* pi)
 {
 #ifdef _WIN32
     pi->handle = LoadLibraryA(pluginpath.c_str());

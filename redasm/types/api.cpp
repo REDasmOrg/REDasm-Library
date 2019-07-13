@@ -55,7 +55,7 @@ bool Operand::checkCharacter()
 void Operand::save(cereal::BinaryOutputArchive &a) const { a(type, tag, size, index, loc_index, reg, disp, u_value); }
 void Operand::load(cereal::BinaryInputArchive &a) { a(type, tag, size, index, loc_index, reg, disp, u_value); }
 
-Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)) { }
+Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(InstructionType::None), address(0), size(0) { }
 address_t Instruction::endAddress() const { return address + size; }
 bool Instruction::hasOperands() const { PIMPL_P(const Instruction); return p->hasOperands(); }
 size_t Instruction::operandsCount() const { PIMPL_P(const Instruction); return p->operandsCount(); }

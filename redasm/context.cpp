@@ -17,7 +17,7 @@
 namespace REDasm {
 
 Context::Context(): m_pimpl_p(new ContextImpl()) { }
-void Context::init(Context *ctx) { ContextImpl::m_parentinstance = ctx; }
+void Context::inherit(Context *ctx) { ContextImpl::m_parentinstance = ctx; }
 
 Context *Context::init(const ContextSettings &settings)
 {
@@ -35,7 +35,6 @@ bool Context::hasProblems() const { PIMPL_P(const Context); return !p->m_problem
 size_t Context::problemsCount() const { PIMPL_P(const Context); return p->m_problems.size(); }
 const ProblemList &Context::problems() const { PIMPL_P(const Context); return p->m_problems; }
 void Context::clearProblems() { PIMPL_P(Context); p->m_uproblems.clear(); p->m_problems.clear(); }
-ListingDocument &Context::document() const { return this->disassembler()->document(); }
 Disassembler *Context::disassembler() const { PIMPL_P(const Context); return p->disassembler(); }
 void Context::setDisassembler(Disassembler *disassembler) { PIMPL_P(Context); p->setDisassembler(disassembler); }
 

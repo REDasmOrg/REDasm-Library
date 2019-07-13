@@ -8,9 +8,7 @@
 namespace REDasm {
 
 Algorithm::Algorithm(AlgorithmImpl *p): m_pimpl_p(p) { }
-Algorithm::Algorithm(Disassembler *disassembler): m_pimpl_p(new AlgorithmImpl(this, disassembler)) { }
-Disassembler *Algorithm::disassembler() const { PIMPL_P(const Algorithm); return p->m_disassembler; }
-safe_ptr<ListingDocumentType> &Algorithm::document() const { PIMPL_P(const Algorithm); return p->m_disassembler->document(); }
+Algorithm::Algorithm(): m_pimpl_p(new AlgorithmImpl(this)) { }
 void Algorithm::enqueue(address_t address) { PIMPL_P(Algorithm); p->enqueue(address); }
 void Algorithm::analyze() { PIMPL_P(Algorithm); p->analyze(); }
 bool Algorithm::hasNext() const { PIMPL_P(const Algorithm); return p->hasNext(); }
@@ -80,13 +78,13 @@ void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &ins
 
     PIMPL_P(Algorithm);
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
-    p->m_document->autoComment(instruction->address, charinfo);
+    r_doc->autoComment(instruction->address, charinfo);
 }
 
 void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &instruction, u64 value)
 {
     PIMPL_P(Algorithm);
-    Segment* segment = p->m_document->segment(value);
+    Segment* segment = r_doc->segment(value);
 
     if(!segment || segment->isPureCode()) // Don't flood "Pure-Code" segments with symbols
         return;
@@ -96,17 +94,17 @@ void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &in
 
 void Algorithm::decodeState(const State *state)
 {
-    if(this->document()->isInstructionCached(state->address))
+    if(r_doc->isInstructionCached(state->address))
         return;
 
     PIMPL_P(Algorithm);
-    CachedInstruction instruction = this->document()->cacheInstruction(state->address);
+    CachedInstruction instruction = r_doc->cacheInstruction(state->address);
     size_t status = p->disassemble(state->address, instruction);
 
     if(status == Algorithm::SKIP)
         return;
 
-    p->m_document->instruction(instruction);
+    r_doc->instruction(instruction);
 }
 
 void Algorithm::jumpState(const State *state)
@@ -115,13 +113,13 @@ void Algorithm::jumpState(const State *state)
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(!dir)
-        p->m_document->autoComment(state->instruction->address, "Infinite loop");
+        r_doc->autoComment(state->instruction->address, "Infinite loop");
 
-    p->m_document->branch(state->address, dir);
+    r_doc->branch(state->address, dir);
     DECODE_STATE(state->address);
 }
 
-void Algorithm::callState(const State *state) { PIMPL_P(Algorithm); p->m_document->symbol(state->address, SymbolType::Function); }
+void Algorithm::callState(const State *state) { PIMPL_P(Algorithm); r_doc->symbol(state->address, SymbolType::Function); }
 
 void Algorithm::branchState(const State *state)
 {
@@ -135,62 +133,62 @@ void Algorithm::branchState(const State *state)
     else
     {
         r_ctx->problem("Invalid branch state for instruction " + instruction->mnemonic.quoted() +
-                       " @ " + String::hex(instruction->address, p->m_assembler->bits()));
+                       " @ " + String::hex(instruction->address, r_asm->bits()));
         return;
     }
 
-    p->m_disassembler->pushReference(state->address, instruction->address);
-    p->m_disassembler->pushTarget(state->address, instruction->address);
+    r_disasm->pushReference(state->address, instruction->address);
+    r_disasm->pushTarget(state->address, instruction->address);
 }
 
 void Algorithm::branchMemoryState(const State *state)
 {
     PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
-    p->m_disassembler->pushTarget(state->address, instruction->address);
+    r_disasm->pushTarget(state->address, instruction->address);
 
-    Symbol* symbol = p->m_document->symbol(state->address);
+    Symbol* symbol = r_doc->symbol(state->address);
 
     if(symbol && symbol->isImport()) // Don't dereference imports
         return;
 
     u64 value = 0;
-    p->m_disassembler->dereference(state->address, &value);
-    p->m_document->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
+    r_disasm->dereference(state->address, &value);
+    r_doc->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
 
     if(instruction->is(InstructionType::Call))
-        p->m_document->symbol(value, SymbolType::Function);
+        r_doc->symbol(value, SymbolType::Function);
     else
-        p->m_document->symbol(value, SymbolType::Code);
+        r_doc->symbol(value, SymbolType::Code);
 
-    p->m_disassembler->pushReference(value, state->address);
+    r_disasm->pushReference(value, state->address);
 }
 
 void Algorithm::addressTableState(const State *state)
 {
     PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
-    size_t c = p->m_disassembler->checkAddressTable(instruction, state->address);
+    size_t c = r_disasm->checkAddressTable(instruction, state->address);
 
     if(c == REDasm::npos)
         return;
 
     if(c > 1)
     {
-        p->m_disassembler->pushReference(state->address, instruction->address);
+        r_disasm->pushReference(state->address, instruction->address);
         state_t fwdstate = Algorithm::BranchState;
 
         if(instruction->is(InstructionType::Call))
-            p->m_document->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
         else if(instruction->is(InstructionType::Jump))
-            p->m_document->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
-            p->m_document->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
             fwdstate = Algorithm::MemoryState;
         }
 
-        ReferenceSet targets = p->m_disassembler->getTargets(instruction->address);
+        ReferenceSet targets = r_disasm->getTargets(instruction->address);
 
         for(address_t target : targets)
             FORWARD_STATE_VALUE(fwdstate, target, state);
@@ -213,14 +211,14 @@ void Algorithm::memoryState(const State *state)
     PIMPL_P(Algorithm);
     u64 value = 0;
 
-    if(!p->m_disassembler->dereference(state->address, &value))
+    if(!r_disasm->dereference(state->address, &value))
     {
         FORWARD_STATE(Algorithm::ImmediateState, state);
         return;
     }
 
     CachedInstruction instruction = state->instruction;
-    p->m_disassembler->pushReference(state->address, instruction->address);
+    r_disasm->pushReference(state->address, instruction->address);
 
     if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchMemoryState, state);
@@ -233,14 +231,14 @@ void Algorithm::pointerState(const State *state)
     PIMPL_P(Algorithm);
     u64 value = 0;
 
-    if(!p->m_disassembler->dereference(state->address, &value))
+    if(!r_disasm->dereference(state->address, &value))
     {
         FORWARD_STATE(Algorithm::ImmediateState, state);
         return;
     }
 
-    p->m_document->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
-    p->m_disassembler->checkLocation(state->address, value); // Create Symbol + XRefs
+    r_doc->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
+    r_disasm->checkLocation(state->address, value); // Create Symbol + XRefs
 }
 
 void Algorithm::immediateState(const State *state)
@@ -251,7 +249,7 @@ void Algorithm::immediateState(const State *state)
     if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchState, state);
     else
-        p->m_disassembler->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
+        r_disasm->checkLocation(instruction->address, state->address); // Create Symbol + XRefs
 }
 
 } // namespace REDasm

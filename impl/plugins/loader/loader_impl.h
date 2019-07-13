@@ -30,7 +30,7 @@ class LoaderImpl: public PluginImpl
         offset_location offset(address_t address) const;
         address_location address(offset_t offset) const;
         AssemblerRequest assembler() const;
-        Analyzer *analyzer(Disassembler* disassembler);
+        Analyzer *analyzer();
         void build(const String &assembler, offset_t offset, address_t baseaddress, address_t entrypoint);
         void init(const LoadRequest& request);
 

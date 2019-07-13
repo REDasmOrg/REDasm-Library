@@ -20,14 +20,8 @@ class Printer: public Object
         typedef std::function<void(const String&, const String&, const String&)> FunctionCallback;
         typedef std::function<void(const String&)> LineCallback;
 
-    protected:
-        Printer(PrinterImpl* p);
-
     public:
-        Printer(Disassembler* disassembler);
-        virtual ~Printer() = default;
-        Disassembler* disassembler() const;
-        const ListingDocument& document() const;
+        Printer() = default;
         String symbol(const Symbol *symbol) const;
         String out(const CachedInstruction& instruction) const;
 

@@ -307,7 +307,7 @@ bool DisassemblerImpl::loadSignature(const String &signame)
         return false;
     }
 
-    if(!sigdb.isCompatible(m_pimpl_q))
+    if(!sigdb.isCompatible())
     {
         r_ctx->log("Signature " + sigdb.name().quoted() + " is not compatible");
         return false;

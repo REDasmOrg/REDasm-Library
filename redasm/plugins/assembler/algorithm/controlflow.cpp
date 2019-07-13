@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-ControlFlowAlgorithm::ControlFlowAlgorithm(Disassembler* disassembler): Algorithm(new ControlFlowAlgorithmImpl(this, disassembler)) { }
+ControlFlowAlgorithm::ControlFlowAlgorithm(): Algorithm(new ControlFlowAlgorithmImpl(this)) { }
 void ControlFlowAlgorithm::addressTableState(const State *state) { Algorithm::addressTableState(state); PIMPL_P(ControlFlowAlgorithm); p->enqueueTargets(state->instruction); }
 void ControlFlowAlgorithm::enqueueTarget(address_t target, const CachedInstruction &frominstruction) { this->enqueue(target); }
 

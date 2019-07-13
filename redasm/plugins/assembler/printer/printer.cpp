@@ -1,7 +1,7 @@
 #include "printer.h"
-#include <impl/plugins/assembler/printer/printer_impl.h>
 #include "../../../disassembler/disassembler.h"
 #include "../../../support/utils.h"
+#include "../../../context.h"
 #include "../../loader/loader.h"
 #include "../assembler.h"
 #include <cmath>
@@ -9,11 +9,6 @@
 #define HEADER_SYMBOL_COUNT 10
 
 namespace REDasm {
-
-Printer::Printer(PrinterImpl *p): m_pimpl_p(p) { }
-Printer::Printer(Disassembler *disassembler): m_pimpl_p(new PrinterImpl(disassembler)) { }
-Disassembler *Printer::disassembler() const { PIMPL_P(const Printer); return p->m_disassembler; }
-const ListingDocument &Printer::document() const { PIMPL_P(const Printer); return p->m_document; }
 
 String Printer::symbol(const Symbol* symbol) const
 {
@@ -37,7 +32,7 @@ String Printer::out(const CachedInstruction &instruction) const
 void Printer::segment(const Segment *segment, const Printer::LineCallback& segmentfunc)
 {
     String s = String::repeated('=', HEADER_SYMBOL_COUNT * 2);
-    u32 bits = this->disassembler()->assembler()->bits();
+    u32 bits = r_asm->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? segment->name.quoted() : "???") +
                     " START: " + String::hex(segment->address, bits) +
@@ -55,14 +50,14 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
     if(symbol->isFunction() || symbol->is(SymbolType::Code))
         return;
 
-    const Segment* segment = this->disassembler()->document()->segment(symbol->address);
+    const Segment* segment = r_doc->segment(symbol->address);
 
     if(!segment)
         return;
 
     if(symbol->is(SymbolType::Pointer))
     {
-        const Symbol* ptrsymbol = this->disassembler()->dereferenceSymbol(symbol);
+        const Symbol* ptrsymbol = r_disasm->dereferenceSymbol(symbol);
 
         if(ptrsymbol)
         {
@@ -80,18 +75,17 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
             return;
         }
 
-        Assembler* assembler = this->disassembler()->assembler();
         u64 value = 0;
 
-        if(!this->disassembler()->readAddress(symbol->address, assembler->addressWidth(), &value))
+        if(!r_disasm->readAddress(symbol->address, r_asm->addressWidth(), &value))
             return;
 
-        symbolfunc(symbol, String::hex(value, assembler->addressWidth()));
+        symbolfunc(symbol, String::hex(value, r_asm->addressWidth()));
     }
     else if(symbol->is(SymbolType::WideStringMask))
-        symbolfunc(symbol, " \"" + this->disassembler()->readWString(symbol->address) + "\"");
+        symbolfunc(symbol, " \"" + r_disasm->readWString(symbol->address) + "\"");
     else if(symbol->is(SymbolType::String))
-        symbolfunc(symbol, " \"" + this->disassembler()->readString(symbol->address) + "\"");
+        symbolfunc(symbol, " \"" + r_disasm->readString(symbol->address) + "\"");
 }
 
 String Printer::out(const CachedInstruction &instruction, const OpCallback &opfunc) const
@@ -100,7 +94,7 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
 
     if(instruction->isInvalid())
     {
-        BufferView view = this->disassembler()->loader()->view(instruction->address);
+        BufferView view = r_ldr->view(instruction->address);
         String hexstring = String::hexstring(view.data(), instruction->size);
 
         s += hexstring;
@@ -184,7 +178,7 @@ String Printer::disp(const Operand *operand) const
     {
         if(operand->disp.displacement > 0)
         {
-            Symbol* symbol = this->document()->symbol(operand->disp.displacement);
+            Symbol* symbol = r_doc->symbol(operand->disp.displacement);
 
             if(symbol)
                 s += "+" + symbol->name;
@@ -203,7 +197,7 @@ String Printer::mem(const Operand *operand) const { return this->imm(operand); }
 
 String Printer::imm(const Operand *operand) const
 {
-    Symbol* symbol = this->disassembler()->document()->symbol(operand->u_value);
+    Symbol* symbol = r_doc->symbol(operand->u_value);
 
     if(operand->is(OperandType::Memory))
         return "[" + (symbol ? symbol->name : String::hex(operand->u_value)) + "]";

@@ -29,8 +29,8 @@ class LIBREDASM_API Assembler : public Plugin
 
     public:
         Assembler();
-        safe_ptr<Algorithm> createAlgorithm(Disassembler* disassembler) { return REDasm::wrap_safe_object<Algorithm>(this->doCreateAlgorithm(disassembler)); }
-        object_ptr<Printer> createPrinter(Disassembler* disassembler) { return REDasm::wrap_object<Printer>(this->doCreatePrinter(disassembler)); }
+        safe_ptr<Algorithm> createAlgorithm() { return REDasm::wrap_safe_object<Algorithm>(this->doCreateAlgorithm()); }
+        object_ptr<Printer> createPrinter() { return REDasm::wrap_object<Printer>(this->doCreatePrinter()); }
         const AssemblerRequest &request() const;
         size_t addressWidth() const;
         virtual size_t bits() const = 0;
@@ -42,8 +42,8 @@ class LIBREDASM_API Assembler : public Plugin
     protected:
         void setInstructionType(instruction_id_t id, InstructionType type);
         void registerInstruction(instruction_id_t id, const InstructionCallback &cb);
-        virtual Algorithm* doCreateAlgorithm(Disassembler* disassembler) const;
-        virtual Printer* doCreatePrinter(Disassembler* disassembler) const;
+        virtual Algorithm* doCreateAlgorithm() const;
+        virtual Printer* doCreatePrinter() const;
         virtual void onDecoded(Instruction* instruction);
 };
 

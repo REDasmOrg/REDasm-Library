@@ -18,7 +18,7 @@ SignatureDBImpl::SignatureDBImpl()
     m_json["signatures"] = json::array();
 }
 
-bool SignatureDBImpl::isCompatible(const Disassembler *disassembler) const { return m_json["assembler"] == disassembler->loader()->assembler().id; }
+bool SignatureDBImpl::isCompatible() const { return m_json["assembler"] == r_asm->id(); }
 
 String SignatureDBImpl::assembler() const
 {

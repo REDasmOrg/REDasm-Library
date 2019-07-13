@@ -15,12 +15,10 @@ class LIBREDASM_API Analyzer
     PIMPL_DECLARE_PRIVATE(Analyzer)
 
     public:
-        Analyzer(Disassembler* disassembler);
+        Analyzer();
         virtual ~Analyzer() = default;
         virtual void analyzeFast();
         virtual void analyze();
-        ListingDocument& document() const;
-        Disassembler* disassembler() const;
 };
 
 }

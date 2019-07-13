@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include "../plugins/loader/loader.h"
 #include "../types/base.h"
 #include "../macros.h"

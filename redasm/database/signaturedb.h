@@ -47,7 +47,7 @@ class SignatureDB
 
     public:
         SignatureDB();
-        bool isCompatible(const Disassembler *disassembler) const;
+        bool isCompatible() const;
         String assembler() const;
         String name() const;
         size_t size() const;

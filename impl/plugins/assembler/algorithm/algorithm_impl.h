@@ -19,7 +19,7 @@ class AlgorithmImpl: public StateMachine
         typedef std::unordered_set<address_t> DecodedAddresses;
 
     public:
-        AlgorithmImpl(Algorithm* algorithm, Disassembler* disassembler);
+        AlgorithmImpl(Algorithm* algorithm);
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void done(address_t address);
         void enqueue(address_t address);
@@ -40,10 +40,6 @@ class AlgorithmImpl: public StateMachine
 
     private:
         //std::unique_ptr<Emulator> m_emulator;
-        ListingDocument& m_document;
-        Disassembler* m_disassembler;
-        Assembler* m_assembler;
-        Loader* m_loader;
         DecodedAddresses m_done;
         Analyzer* m_analyzer;
         const Segment* m_currentsegment;

@@ -10,10 +10,9 @@
 
 namespace REDasm {
 
-AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm, Disassembler *disassembler): StateMachine(), m_pimpl_q(algorithm), m_document(disassembler->document()), m_disassembler(disassembler), m_assembler(disassembler->assembler()), m_currentsegment(nullptr), m_analyzed(false)
+AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm): StateMachine(), m_pimpl_q(algorithm), m_currentsegment(nullptr), m_analyzed(false)
 {
     m_analyzer = nullptr;
-    m_loader = m_disassembler->loader();
 
     //if(assembler->hasFlag(AssemblerFlags::CanEmulate))
         //m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
@@ -36,15 +35,15 @@ size_t AlgorithmImpl::disassembleInstruction(address_t address, const CachedInst
     if(!this->canBeDisassembled(address))
         return Algorithm::SKIP;
 
-    Symbol* symbol = m_document->symbol(address);
+    Symbol* symbol = r_doc->symbol(address);
 
     if(symbol && !symbol->isLocked() && !symbol->is(SymbolType::Code))
-        m_document->eraseSymbol(symbol->address);
+        r_doc->eraseSymbol(symbol->address);
 
     instruction->address = address;
 
-    BufferView view = m_loader->view(address);
-    return m_assembler->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
+    BufferView view = r_ldr->view(address);
+    return r_asm->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
 }
 
 void AlgorithmImpl::done(address_t address) { m_done.insert(address); }
@@ -56,23 +55,22 @@ void AlgorithmImpl::analyze()
     {
         r_ctx->status("Analyzing (Fast)...");
         m_analyzer->analyzeFast();
-        m_disassembler->computeBasicBlocks();
-        m_document->moveToEP();
+        r_disasm->computeBasicBlocks();
+        r_doc->moveToEP();
         return;
     }
 
     m_analyzed = true;
-    Loader* loader = m_disassembler->loader();
-    m_analyzer = loader->analyzer(m_disassembler);
+    m_analyzer = r_ldr->analyzer();
 
     r_ctx->status("Analyzing...");
     m_analyzer->analyze();
-    m_disassembler->computeBasicBlocks();
-    m_document->moveToEP();
+    r_disasm->computeBasicBlocks();
+    r_doc->moveToEP();
 
     // Trigger a Fast Analysis when post disassembling is completed
-    EVENT_CONNECT(m_disassembler, busyChanged, this, [&]() {
-        if(m_disassembler->busy())
+    EVENT_CONNECT(r_disasm, busyChanged, this, [&]() {
+        if(r_disasm->busy())
             return;
 
         this->analyze();
@@ -84,7 +82,7 @@ void AlgorithmImpl::loadTargets(const CachedInstruction& instruction)
     auto it = instruction->targets().iterator();
 
     while(it.hasNext())
-        m_disassembler->pushTarget(it.next().toU64(), instruction->address);
+        r_disasm->pushTarget(it.next().toU64(), instruction->address);
 }
 
 bool AlgorithmImpl::validateState(const State &state) const
@@ -92,18 +90,18 @@ bool AlgorithmImpl::validateState(const State &state) const
     if(!StateMachine::validateState(state))
         return false;
 
-    return m_document->segment(state.address);
+    return r_doc->segment(state.address);
 }
 
 void AlgorithmImpl::onNewState(const State *state) const
 {
-    r_ctx->statusProgress("Analyzing @ " + String::hex(state->address, m_assembler->bits()) +
+    r_ctx->statusProgress("Analyzing @ " + String::hex(state->address, r_asm->bits()) +
                            " >> " + state->name, this->pending());
 }
 
 void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
 {
-    if(m_disassembler->getTargetsCount(instruction->address))
+    if(r_disasm->getTargetsCount(instruction->address))
         return;
 
     const Operand* op = instruction->target();
@@ -116,18 +114,18 @@ void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
 
 bool AlgorithmImpl::canBeDisassembled(address_t address)
 {
-    BufferView view = m_loader->view(address);
+    BufferView view = r_ldr->view(address);
 
     if(view.eob())
         return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))
-        m_currentsegment = m_document->segment(address);
+        m_currentsegment = r_doc->segment(address);
 
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    if(!m_loader->offset(address).valid)
+    if(!r_ldr->offset(address).valid)
         return false;
 
     return true;

@@ -10,7 +10,7 @@ Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new 
     r_ctx->setDisassembler(this);
 
     PIMPL_P(Disassembler);
-    p->m_algorithm = assembler->createAlgorithm(this);
+    p->m_algorithm = assembler->createAlgorithm();
     p->m_analyzejob.setOneShot(true);
 
     EVENT_CONNECT(&p->m_analyzejob, stateChanged, this, [&](Job*) { this->busyChanged(); });

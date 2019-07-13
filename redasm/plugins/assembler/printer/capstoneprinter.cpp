@@ -4,7 +4,7 @@
 
 namespace REDasm {
 
-CapstonePrinter::CapstonePrinter(Disassembler *disassembler): Printer(new CapstonePrinterImpl(disassembler)) { }
+CapstonePrinter::CapstonePrinter(): Printer(), m_pimpl_p(new CapstonePrinterImpl()) { }
 
 String CapstonePrinter::reg(const RegisterOperand &regop) const
 {

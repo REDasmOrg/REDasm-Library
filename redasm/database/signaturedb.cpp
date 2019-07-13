@@ -9,7 +9,7 @@ json &Signature::patterns() { return (*this)["patterns"]; }
 const json &Signature::patterns() const { return (*this)["patterns"]; }
 void Signature::patterns(const json &p) { (*this)["patterns"] = p; }
 SignatureDB::SignatureDB(): m_pimpl_p(new SignatureDBImpl()) { }
-bool SignatureDB::isCompatible(const Disassembler* disassembler) const { PIMPL_P(const SignatureDB); return p->isCompatible(disassembler); }
+bool SignatureDB::isCompatible() const { PIMPL_P(const SignatureDB); return p->isCompatible(); }
 String SignatureDB::assembler() const { PIMPL_P(const SignatureDB); return p->assembler(); }
 String SignatureDB::name() const { PIMPL_P(const SignatureDB); return p->name();  }
 size_t SignatureDB::size() const { PIMPL_P(const SignatureDB); return p->size(); }

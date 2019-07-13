@@ -7,7 +7,7 @@ namespace REDasm {
 class LinearSweepAlgorithm: public Algorithm
 {
     public:
-        LinearSweepAlgorithm(Disassembler* disassembler);
+        LinearSweepAlgorithm();
 
     protected:
         void onDecoded(const CachedInstruction& instruction) override;

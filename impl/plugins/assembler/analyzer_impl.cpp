@@ -2,22 +2,20 @@
 #include <redasm/disassembler/listing/listingdocumentiterator.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
+#include <redasm/disassembler/disassembler.h>
 #include <redasm/support/utils.h>
+#include <redasm/context.h>
 
 namespace REDasm {
 
-AnalyzerImpl::AnalyzerImpl(Disassembler *disassembler): m_document(disassembler->document()), m_disassembler(disassembler) { }
-ListingDocument &AnalyzerImpl::document() const { return m_document; }
-Disassembler *AnalyzerImpl::disassembler() const { return m_disassembler; }
-
 bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 {
-    const ListingItem* item = m_document->instructionItem(symbol->address);
+    const ListingItem* item = r_doc->instructionItem(symbol->address);
 
     if(!item)
         return true; // Don't execute trampoline analysis
 
-    CachedInstruction instruction = m_document->instruction(item->address());
+    CachedInstruction instruction = r_doc->instruction(item->address());
 
     if(!instruction)
         return true; // Don't execute trampoline analysis
@@ -25,62 +23,62 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
     if(!instruction->is(InstructionType::Stop))
         return false;
 
-    m_document->lock(symbol->address, "nullsub_" + String::hex(symbol->address));
+    r_doc->lock(symbol->address, "nullsub_" + String::hex(symbol->address));
     return true;
 }
 
 void AnalyzerImpl::findTrampoline(const Symbol *symbol)
 {
-    ListingDocumentIterator it(m_document, symbol->address, ListingItemType::InstructionItem);
+    ListingDocumentIterator it(r_doc, symbol->address, ListingItemType::InstructionItem);
 
     if(!it.hasNext())
         return;
 
-    const Assembler* assembler = m_disassembler->assembler();
+    const Assembler* assembler = r_disasm->assembler();
     Symbol* symtrampoline = assembler->findTrampoline(&it);
 
     if(!symtrampoline)
         return;
 
-    const Symbol* symentry = m_document->documentEntry();
+    const Symbol* symentry = r_doc->documentEntry();
 
     if(!symtrampoline->is(SymbolType::Import))
     {
-        m_document->function(symtrampoline->address);
+        r_doc->function(symtrampoline->address);
 
         if(!symbol->isLocked())
         {
-            symtrampoline = m_document->symbol(symtrampoline->address); // Get updated symbol name from cache
+            symtrampoline = r_doc->symbol(symtrampoline->address); // Get updated symbol name from cache
 
             if(!symtrampoline)
                 return;
 
-            m_document->rename(symbol->address, Utils::trampoline(symtrampoline->name, "jmp_to"));
+            r_doc->rename(symbol->address, Utils::trampoline(symtrampoline->name, "jmp_to"));
         }
         else if(symentry && (symbol->address == symentry->address))
         {
-            m_document->lockFunction(symtrampoline->address, START_FUNCTION);
-            m_document->setDocumentEntry(symtrampoline->address);
+            r_doc->lockFunction(symtrampoline->address, START_FUNCTION);
+            r_doc->setDocumentEntry(symtrampoline->address);
         }
         else
             return;
     }
     else if(symentry && (symbol->address != symentry->address))
-        m_document->lock(symbol->address, Utils::trampoline(symtrampoline->name));
+        r_doc->lock(symbol->address, Utils::trampoline(symtrampoline->name));
     else
         return;
 
-    CachedInstruction instruction = m_document->instruction(symbol->address);
+    CachedInstruction instruction = r_doc->instruction(symbol->address);
 
     if(!instruction)
         return;
 
-    m_disassembler->pushReference(symtrampoline->address, instruction->address);
+    r_disasm->pushReference(symtrampoline->address, instruction->address);
 }
 
 void AnalyzerImpl::checkFunctions()
 {
-    m_disassembler->document()->symbols()->iterate(SymbolType::FunctionMask, [this](const Symbol* symbol) -> bool {
+    r_disasm->document()->symbols()->iterate(SymbolType::FunctionMask, [this](const Symbol* symbol) -> bool {
         if(!this->findNullSubs(symbol))
             this->findTrampoline(symbol);
 
@@ -90,8 +88,8 @@ void AnalyzerImpl::checkFunctions()
 
 void AnalyzerImpl::loadSignatures()
 {
-    for(const String& signame : m_disassembler->loader()->signatures())
-        m_disassembler->loadSignature(signame);
+    for(const String& signame : r_disasm->loader()->signatures())
+        r_disasm->loadSignature(signame);
 }
 
 void AnalyzerImpl::analyzeFast()

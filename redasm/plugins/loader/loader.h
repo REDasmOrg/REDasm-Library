@@ -56,7 +56,7 @@ class LIBREDASM_API Loader: public Plugin
         ListingDocument& document();
         SignatureIdentifiers &signatures();
         Loader* signature(const String& sig);
-        Analyzer* analyzer(Disassembler* disassembler);
+        Analyzer* analyzer();
         u8* data() const;
         template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 
@@ -73,7 +73,7 @@ class LIBREDASM_API Loader: public Plugin
         virtual void load() = 0;
 
     protected:
-        virtual Analyzer* createAnalyzer(Disassembler* disassembler) const;
+        virtual Analyzer* createAnalyzer() const;
 
     public:
         template<typename U> inline offset_location fileoffset(const U* ptr) const { return REDasm::make_location<offset_t>(reinterpret_cast<const u8*>(ptr) - reinterpret_cast<const u8*>(this->buffer()->data()), this->view().inRange(ptr)); }

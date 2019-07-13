@@ -5,18 +5,19 @@
 #include "../../plugins/loader/loader.h"
 #include "../../support/utils.h"
 #include "../../types/regex.h"
+#include "../../context.h"
 
 #define INDENT_WIDTH         2
 #define STRING_THRESHOLD     48
-#define HEX_ADDRESS(address) String::hex(address, this->disassembler()->assembler()->bits())
+#define HEX_ADDRESS(address) String::hex(address, r_asm->bits())
 
 namespace REDasm {
 
-ListingRenderer::ListingRenderer(Disassembler *disassembler): m_pimpl_p(new ListingRendererImpl(this, disassembler)) { }
+ListingRenderer::ListingRenderer(): m_pimpl_p(new ListingRendererImpl(this)) { }
 
 void ListingRenderer::render(size_t start, size_t count, void *userdata)
 {
-    auto lock = s_lock_safe_ptr(this->document());
+    auto lock = s_lock_safe_ptr(r_doc);
     const ListingCursor* cur = lock->cursor();
     size_t end = start + count, line = start;
     String word = this->getCurrentWord();
@@ -45,13 +46,9 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
     }
 }
 
-Disassembler *ListingRenderer::disassembler() const { PIMPL_P(const ListingRenderer); return p->m_disassembler; }
-const ListingDocument &ListingRenderer::document() const { PIMPL_P(const ListingRenderer); return p->m_document; }
-ListingDocument &ListingRenderer::document() { PIMPL_P(ListingRenderer); return p->m_document; }
-
 const Symbol *ListingRenderer::symbolUnderCursor()
 {
-    auto lock = REDasm::s_lock_safe_ptr(this->document());
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     return lock->symbol(this->getCurrentWord());
 }
 
@@ -67,7 +64,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
 
         String word = rl.formatText(rf);
 
-        if(this->document()->symbol(word))
+        if(r_doc->symbol(word))
         {
             if(wordpos)
                 *wordpos = std::make_pair(rf.start, rf.end);
@@ -124,7 +121,7 @@ String ListingRenderer::getLine(size_t line)
 
 String ListingRenderer::getSelectedText()
 {
-    auto lock = s_lock_safe_ptr(this->document());
+    auto lock = s_lock_safe_ptr(r_doc);
     const ListingCursor* cur = lock->cursor();
 
     if(!cur->hasSelection())
@@ -173,7 +170,7 @@ void ListingRenderer::setFlags(ListingRendererFlags flags) { PIMPL_P(ListingRend
 bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl)
 {
     PIMPL_P(ListingRenderer);
-    auto lock = document_s_lock(this->document());
+    auto lock = document_s_lock(r_doc);
     return p->getRendererLine(lock, line, rl);
 }
 
@@ -213,11 +210,8 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, const Listi
 
 void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem *item, RendererLine &rl)
 {
-    Loader* loader = this->disassembler()->loader();
-    Assembler* assembler = this->disassembler()->assembler();
-    const Symbol* symbol = lock->symbol(item->address());
-
     PIMPL_P(ListingRenderer);
+    const Symbol* symbol = lock->symbol(item->address());
 
     if(symbol->is(SymbolType::Code)) // Label or Callback
     {
@@ -248,7 +242,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         rl.push(symbol->name, "label_fg");
         this->renderIndent(rl);
 
-        if(!segment->is(SegmentType::Bss) && loader->offset(symbol->address).valid)
+        if(!segment->is(SegmentType::Bss) && r_ldr->offset(symbol->address).valid)
         {
             if(symbol->is(SymbolType::Pointer))
             {
@@ -257,16 +251,16 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             }
 
             if(symbol->is(SymbolType::WideStringMask))
-                rl.push(this->disassembler()->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+                rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else if(symbol->is(SymbolType::StringMask))
-                rl.push(this->disassembler()->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+                rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else if(symbol->is(SymbolType::ImportMask))
                 rl.push("<").push("import", "label_fg").push(">");
             else
             {
                 u64 value = 0;
-                this->disassembler()->readAddress(symbol->address, assembler->addressWidth(), &value);
-                rl.push(String::hex(value, this->disassembler()->assembler()->bits()), this->document()->segment(value) ? "pointer_fg" : "data_fg");
+                r_disasm->readAddress(symbol->address, r_asm->addressWidth(), &value);
+                rl.push(String::hex(value, r_asm->bits()), r_doc->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
         else if(symbol->is(SymbolType::ImportMask))
@@ -368,7 +362,7 @@ void ListingRenderer::renderComments(const document_s_lock &lock, const ListingI
 void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const ListingItem* item, RendererLine &rl)
 {
     const Segment* segment = lock->segment(item->address());
-    size_t count = this->disassembler()->assembler()->bits() / 4;
+    size_t count = r_asm->bits() / 4;
 
     if(segment)
         count += segment->name.size();

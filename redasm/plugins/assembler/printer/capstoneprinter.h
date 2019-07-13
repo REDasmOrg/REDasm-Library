@@ -8,10 +8,11 @@ class CapstonePrinterImpl;
 
 class CapstonePrinter: public Printer
 {
+    PIMPL_DECLARE_P(CapstonePrinter)
     PIMPL_DECLARE_PRIVATE(CapstonePrinter)
 
     public:
-        CapstonePrinter(Disassembler* disassembler);
+        CapstonePrinter();
 
     protected:
         String reg(const RegisterOperand &regop) const override;

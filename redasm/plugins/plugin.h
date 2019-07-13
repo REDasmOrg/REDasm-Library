@@ -16,7 +16,7 @@
 #define REDASM_PLUGIN_TEMPLATE(id, description, author, license, level, plugintype) \
     static REDasm::PluginDescriptor id = { REDASM_API_LEVEL, level, description, author, license, #id, nullptr }; \
     extern "C" LIBREDASM_API REDasm::PluginDescriptor* redasm_init_##plugintype(REDasm::Context* ctx) { \
-        REDasm::Context::init(ctx); \
+        REDasm::Context::inherit(ctx); \
         return &id; \
     }
 

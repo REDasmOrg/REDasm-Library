@@ -11,7 +11,7 @@ class ListingRendererImpl
     PIMPL_DECLARE_PUBLIC(ListingRenderer)
 
     public:
-        ListingRendererImpl(ListingRenderer* q, Disassembler* disassembler);
+        ListingRendererImpl(ListingRenderer* q);
         bool renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine& rl) const;
         bool getRendererLine(const document_s_lock& lock, size_t line, RendererLine& rl);
         void highlightSelection(RendererLine& rl);
@@ -23,8 +23,6 @@ class ListingRendererImpl
 
     private:
         object_ptr<Printer> m_printer;
-        ListingDocument& m_document;
-        Disassembler* m_disassembler;
         ListingCursor* m_cursor;
         ListingRendererFlags m_flags;
 };

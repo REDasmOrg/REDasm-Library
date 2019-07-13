@@ -255,7 +255,7 @@ String String::wide(const char *ws, size_t len)
 
 String String::wide(const u8 *ws, size_t len) { return String::wide(reinterpret_cast<const char*>(ws), len); }
 String String::wide(const u16 *ws, size_t len) { return String::wide(reinterpret_cast<const char*>(ws), len); }
-String String::hexstring(const unsigned char *data, size_t size) { return String::hexstring(reinterpret_cast<const unsigned char*>(data), size); }
+String String::hexstring(const unsigned char *data, size_t size) { return String::hexstring(reinterpret_cast<const char*>(data), size); }
 
 String String::hexstring(const char *data, size_t size)
 {

@@ -22,10 +22,8 @@ void PluginManager::unload(const PluginList &pl)
 
 PluginManager *PluginManager::instance()
 {
-    if(!PluginManagerImpl::m_instance)
-        PluginManagerImpl::m_instance = std::unique_ptr<PluginManager>(new PluginManager());
-
-    return PluginManagerImpl::m_instance.get();
+    static PluginManager instance;
+    return &instance;
 }
 
 const PluginManager::PluginMap &PluginManager::activePlugins() const { PIMPL_P(const PluginManager); return p->m_activeplugins; }

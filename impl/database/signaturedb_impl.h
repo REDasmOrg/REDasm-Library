@@ -12,7 +12,7 @@ class SignatureDBImpl
 
     public:
         SignatureDBImpl();
-        bool isCompatible(const Disassembler *disassembler) const;
+        bool isCompatible() const;
         String assembler() const;
         String name() const;
         size_t size() const;

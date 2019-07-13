@@ -99,13 +99,10 @@ class ListingRenderer
         typedef std::pair<size_t, size_t> Range;
 
     public:
-        ListingRenderer(Disassembler* disassembler);
+        ListingRenderer();
         virtual ~ListingRenderer() = default;
         virtual void render(size_t start, size_t count, void* userdata = nullptr);
-        Disassembler* disassembler() const;
-        const ListingDocument& document() const;
         const REDasm::Symbol* symbolUnderCursor();
-        ListingDocument& document();
         void setFlags(ListingRendererFlags flags);
         String wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         String getCurrentWord();

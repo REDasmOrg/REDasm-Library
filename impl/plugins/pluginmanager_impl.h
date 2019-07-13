@@ -17,9 +17,9 @@ class PluginManagerImpl
 
     public:
         PluginManagerImpl() = default;
-        const PluginInstance* load(const String& pluginpath, const char *initname);
-        const PluginInstance* find(const String& id, const char* initname);
-        void iteratePlugins(const char* initname, const PluginManager_Callback& cb);
+        const PluginInstance* load(const String& pluginpath, const String& initname);
+        const PluginInstance* find(const String& id, const String& initname);
+        void iteratePlugins(const String& initname, const PluginManager_Callback& cb);
         void unload(const PluginInstance* pi);
         void unloadAll();
 
@@ -27,12 +27,11 @@ class PluginManagerImpl
         bool execute(const String& id, const ArgumentList& args);
 
     private:
-        bool iteratePlugins(const char* path, const char* initname, const PluginManager_Callback& cb);
-        const PluginInstance* find(const char* path, const String& id, const char* initname);
+        bool iteratePlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
+        const PluginInstance* find(const String& path, const String& id, const String& initname);
 
     private:
         PluginManager::PluginMap m_activeplugins;
-        static std::unique_ptr<PluginManager> m_instance;
 };
 
 } // namespace REDasm

@@ -36,10 +36,7 @@ class Algorithm: public Object
         Algorithm(AlgorithmImpl* p);
 
     public:
-        Algorithm(Disassembler* disassembler);
-        virtual ~Algorithm() = default;
-        Disassembler* disassembler() const;
-        safe_ptr<ListingDocumentType>& document() const;
+        Algorithm();
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void done(address_t address);
         void enqueue(address_t address);

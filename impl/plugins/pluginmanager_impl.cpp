@@ -11,8 +11,6 @@
 
 namespace REDasm {
 
-std::unique_ptr<PluginManager> PluginManagerImpl::m_instance;
-
 void PluginManagerImpl::unload(const PluginInstance *pi)
 {
     String id = pi->descriptor->id;
@@ -20,7 +18,7 @@ void PluginManagerImpl::unload(const PluginInstance *pi)
     m_activeplugins.erase(id);
 }
 
-const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const char* initname)
+const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const String &initname)
 {
     PluginInstance pi;
 
@@ -35,7 +33,7 @@ const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const ch
     return &it.first->second;
 }
 
-void PluginManagerImpl::iteratePlugins(const char *initname, const PluginManager_Callback &cb)
+void PluginManagerImpl::iteratePlugins(const String &initname, const PluginManager_Callback &cb)
 {
     for(const String& pluginpath : r_ctx->pluginPaths())
     {
@@ -70,9 +68,9 @@ bool PluginManagerImpl::execute(const String &id, const ArgumentList& args)
     return res;
 }
 
-bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, const PluginManagerImpl::PluginManager_Callback &cb)
+bool PluginManagerImpl::iteratePlugins(const String &path, const String &initname, const PluginManagerImpl::PluginManager_Callback &cb)
 {
-    DIR* dir = opendir(path);
+    DIR* dir = opendir(path.c_str());
 
     if(!dir)
         return false;
@@ -118,9 +116,9 @@ bool PluginManagerImpl::iteratePlugins(const char *path, const char *initname, c
     return false;
 }
 
-const PluginInstance *PluginManagerImpl::find(const char *path, const String &id, const char *initname)
+const PluginInstance *PluginManagerImpl::find(const String &path, const String &id, const String &initname)
 {
-    DIR* dir = opendir(path);
+    DIR* dir = opendir(path.c_str());
 
     if(!dir)
         return nullptr;
@@ -151,7 +149,7 @@ const PluginInstance *PluginManagerImpl::find(const char *path, const String &id
     return pi;
 }
 
-const PluginInstance *PluginManagerImpl::find(const String &id, const char *initname)
+const PluginInstance *PluginManagerImpl::find(const String &id, const String &initname)
 {
     for(const String& pluginpath : r_ctx->pluginPaths())
     {

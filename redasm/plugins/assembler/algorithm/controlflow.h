@@ -11,7 +11,7 @@ class ControlFlowAlgorithm: public Algorithm
     PIMPL_DECLARE_PRIVATE(ControlFlowAlgorithm)
 
     public:
-        ControlFlowAlgorithm(Disassembler* disassembler);
+        ControlFlowAlgorithm();
 
     protected:
         void addressTableState(const State* state) override;

@@ -72,10 +72,10 @@ address_location LoaderImpl::address(offset_t offset) const
 
 void LoaderImpl::build(const String &assembler, offset_t offset, address_t baseaddress, address_t entrypoint) { throw std::runtime_error("Invalid call to Loader::build()"); }
 
-Analyzer *LoaderImpl::analyzer(Disassembler *disassembler)
+Analyzer *LoaderImpl::analyzer()
 {
     PIMPL_Q(Loader);
-    m_analyzer = std::unique_ptr<Analyzer>(q->createAnalyzer(disassembler));
+    m_analyzer = std::unique_ptr<Analyzer>(q->createAnalyzer());
     return m_analyzer.get();
 }
 

@@ -1,21 +1,21 @@
 #include "listingrenderer_impl.h"
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/context.h>
 
 namespace REDasm {
 
-ListingRendererImpl::ListingRendererImpl(ListingRenderer *q, Disassembler *disassembler): m_pimpl_q(q), m_disassembler(disassembler), m_document(disassembler->document()), m_flags(ListingRendererFlags::Normal)
+ListingRendererImpl::ListingRendererImpl(ListingRenderer *q): m_pimpl_q(q), m_flags(ListingRendererFlags::Normal)
 {
-    m_cursor = m_document->cursor();
-    m_printer = disassembler->assembler()->createPrinter(disassembler);
+    m_cursor = r_doc->cursor();
+    m_printer = r_asm->createPrinter();
 }
 
 bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine &rl) const
 {
     u64 value = 0;
-    Assembler* assembler = m_disassembler->assembler();
 
-    if(!m_disassembler->readAddress(symbol->address, assembler->addressWidth(), &value))
+    if(!r_disasm->readAddress(symbol->address, r_asm->addressWidth(), &value))
         return false;
 
     const Symbol* ptrsymbol = lock->symbol(value);

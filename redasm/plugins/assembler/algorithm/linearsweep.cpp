@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-LinearSweepAlgorithm::LinearSweepAlgorithm(Disassembler *disassembler): Algorithm(disassembler) { }
+LinearSweepAlgorithm::LinearSweepAlgorithm(): Algorithm() { }
 
 void LinearSweepAlgorithm::onDecoded(const CachedInstruction &instruction)
 {

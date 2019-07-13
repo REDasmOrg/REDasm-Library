@@ -39,7 +39,7 @@ class LIBREDASM_API Context
         Context();
 
     public:
-        static void init(Context *ctx);
+        static void inherit(Context *ctx);
         static Context* init(const ContextSettings& settings);
         static Context* instance();
 
@@ -50,7 +50,6 @@ class LIBREDASM_API Context
         void clearProblems();
 
     public:
-        ListingDocument& document() const;
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
         void cwd(const String& s);
@@ -80,9 +79,10 @@ class LIBREDASM_API Context
 
 } // namespace REDasm
 
-#define r_ctx          REDasm::Context::instance()
-#define r_pm           r_ctx->pluginManager()
-#define r_ui           r_ctx->ui()
-#define r_disassembler r_ctx->disassembler()
-#define r_document     r_ctx->document()
-
+#define r_ctx    REDasm::Context::instance()
+#define r_pm     r_ctx->pluginManager()
+#define r_ui     r_ctx->ui()
+#define r_disasm r_ctx->disassembler()
+#define r_doc    r_disasm->document()
+#define r_ldr    r_disasm->loader()
+#define r_asm    r_disasm->assembler()

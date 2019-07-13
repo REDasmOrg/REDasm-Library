@@ -12,13 +12,13 @@ class PluginLoader
 
     public:
         PluginLoader() = delete;
-        template<typename Function> static Function funcT(library_t lib, const char* fn) { return reinterpret_cast<Function>(func(lib, fn)); }
-        static bool load(const String& pluginpath, const char *initname, PluginInstance *pi);
+        template<typename Function> static Function funcT(library_t lib, const String& fn) { return reinterpret_cast<Function>(func(lib, fn)); }
+        static bool load(const String& pluginpath, const String &initname, PluginInstance *pi);
         static void unload(const PluginInstance *pi);
 
     private:
-        static void* func(library_t lib, const char* fn);
-        static LoadResult loadLibrary(const String& pluginpath, const char *initname, PluginInstance *pi);
+        static void* func(library_t lib, const String& fn);
+        static LoadResult loadLibrary(const String& pluginpath, const String& initname, PluginInstance *pi);
         static void unloadLibrary(library_t lib);
 };
 

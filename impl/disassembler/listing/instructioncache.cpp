@@ -34,11 +34,12 @@ InstructionCache::~InstructionCache()
     m_activenames.erase(m_filepath);
 }
 
-size_t InstructionCache::size() const { return m_offsets.size(); }
-bool InstructionCache::contains(address_t address) const { return m_offsets.find(address) != m_offsets.end(); }
+size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.size(); }
+bool InstructionCache::contains(address_t address) const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.find(address) != m_offsets.end(); }
 
 CachedInstruction InstructionCache::find(address_t address)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_cache.find(address);
 
     if(it != m_cache.end())
@@ -56,6 +57,8 @@ CachedInstruction InstructionCache::allocate(address_t address)
 
 void InstructionCache::deallocate(const CachedInstruction& instruction)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     if(m_lockserialization)
         return;
 
@@ -67,6 +70,8 @@ void InstructionCache::deallocate(const CachedInstruction& instruction)
 
 void InstructionCache::serialize(const CachedInstruction& instruction)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     if(m_lockserialization)
         return;
 
@@ -92,6 +97,8 @@ void InstructionCache::serialize(const CachedInstruction& instruction)
 
 CachedInstruction InstructionCache::deserialize(address_t address)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
     if(!m_file.is_open())
     {
         auto it = m_cache.find(address);

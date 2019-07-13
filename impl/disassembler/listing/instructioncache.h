@@ -32,6 +32,7 @@ class InstructionCache
 
     private:
         static std::unordered_set<String> m_activenames;
+        mutable std::recursive_mutex m_mutex;
 
     friend class CachedInstructionImpl;
 };

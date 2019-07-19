@@ -1,10 +1,11 @@
 #include "database.h"
 #include <impl/database/database_impl.h>
+#include <impl/libs/cereal/archives/binary.hpp>
 #include "../disassembler/disassembler.h"
 #include "../plugins/assembler/assembler.h"
 #include "../plugins/loader/loader.h"
 #include "../buffer/memorybuffer.h"
-#include "../support/serializer.h"
+#include "../support/compression.h"
 #include "../support/utils.h"
 #include "../context.h"
 #include <fstream>
@@ -22,26 +23,35 @@ bool Database::save(Disassembler *disassembler, const String &dbfilename, const 
         return false;
     }
 
-    auto& document = disassembler->document();
-    Loader* loader = disassembler->loader();
-    Assembler* assembler = disassembler->assembler();
-    ReferenceTable* references = disassembler->references();
+    // Write Header
+    ofs.write(reinterpret_cast<const char*>(&DatabaseImpl::m_header), sizeof(RDBHeader));
 
-    ofs.write(RDB_SIGNATURE, RDB_SIGNATURE_LENGTH);
-    Serializer<u32>::write(ofs, RDB_VERSION);
-    Serializer<u32>::write(ofs, static_cast<u32>(bits_count<size_t>::value)); // CLang 8.x workaround
-    SerializerHelper::obfuscated(ofs, filename);
-    Serializer<String>::write(ofs, loader->id());
-    Serializer<String>::write(ofs, assembler->id());
+    // Write Content
+    const auto* loader = disassembler->loader();
+    const auto* assembler = disassembler->assembler();
 
-    if(!SerializerHelper::compressed(ofs, loader->buffer()))
+    cereal::BinaryOutputArchive out(ofs);
+
+    // ... FileName, LoaderID, AssemblerID
+    out(filename.xorified(), loader->id(), assembler->id());
+
+    // ... Buffer
+    MemoryBuffer mb;
+
+    if(!Compression::deflate(loader->buffer(), &mb))
     {
-        DatabaseImpl::m_lasterror = "Cannot compress database " + dbfilename.quoted();
+        DatabaseImpl::m_lasterror = "Cannot decompress database " + dbfilename.quoted();
         return false;
     }
 
-    Serializer<ListingDocument>::write(ofs, document);
-    Serializer<ReferenceTable>::write(ofs, references);
+    mb.save(out);
+
+    // ... Document
+    auto lock = s_lock_safe_ptr(loader->document());
+    lock->save(out);
+
+    // ... References
+    disassembler->references()->save(out);
     return true;
 }
 
@@ -56,37 +66,41 @@ Disassembler *Database::load(const String &dbfilename, String &filename)
         return nullptr;
     }
 
-    if(!SerializerHelper::signatureIs(ifs, RDB_SIGNATURE))
+    // Read Header
+    RDBHeader rdbheader;
+    ifs.read(reinterpret_cast<char*>(&rdbheader), sizeof(RDBHeader));
+
+    if(std::strncmp(rdbheader.signature, DatabaseImpl::m_header.signature, RDB_SIGNATURE_LENGTH))
     {
         DatabaseImpl::m_lasterror = "Signature check failed for " + dbfilename.quoted();
         return nullptr;
     }
 
-    u32 version = 0;
-    Serializer<u32>::read(ifs, version);
-
-    if(version != RDB_VERSION)
+    if(rdbheader.version != RDB_VERSION)
     {
-        DatabaseImpl::m_lasterror = "Invalid version, got " + String::number(version) + " " + String::number(RDB_VERSION) + " required";
+        DatabaseImpl::m_lasterror = "Invalid version, got " + String::number(rdbheader.version) + " " + String::number(RDB_VERSION) + " required";
         return nullptr;
     }
 
-    u32 rdbbits = 0;
-    Serializer<u32>::read(ifs, rdbbits);
-
-    if(bits_count<size_t>::value != rdbbits)
+    if(rdbheader.bits != bits_count<size_t>::value)
     {
-        DatabaseImpl::m_lasterror = "Invalid bits: Expected " + String::number(bits_count<size_t>::value) + ", got " + String::number(rdbbits);
+        DatabaseImpl::m_lasterror = "Invalid bits: Expected " + String::number(bits_count<size_t>::value) + ", got " + String::number(rdbheader.bits);
         return nullptr;
     }
 
-    auto* buffer = new MemoryBuffer();
+    // Read Content
+    cereal::BinaryInputArchive in(ifs);
+
+    // ... FileName, LoaderID, AssemblerID
     String loaderid, assemblerid;
-    SerializerHelper::deobfuscated(ifs, filename);
-    Serializer<String>::read(ifs, loaderid);
-    Serializer<String>::read(ifs, assemblerid);
+    in(filename, loaderid, assemblerid);
+    filename = filename.xorified();
 
-    if(!SerializerHelper::decompressed(ifs, buffer))
+    // ... Buffer
+    MemoryBuffer mb, *buffer = new MemoryBuffer();
+    mb.load(in);
+
+    if(!Compression::inflate(&mb, buffer))
     {
         DatabaseImpl::m_lasterror = "Cannot decompress database " + dbfilename.quoted();
         delete buffer;
@@ -114,13 +128,14 @@ Disassembler *Database::load(const String &dbfilename, String &filename)
 
     LoadRequest request(filename, buffer);
     Loader* loader = static_cast<Loader*>(loaderpi->descriptor->plugin);
-    loader->init(request); // LoaderPlugin takes the ownership of the buffer
+    loader->init(request);
 
-    auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader); // Take Ownership
-    auto& document = disassembler->loader()->document();
-    Serializer<ListingDocument>::read(ifs, document, std::bind(&Disassembler::disassembleInstruction, disassembler, std::placeholders::_1));
-    ReferenceTable* references = disassembler->references();
-    Serializer<ReferenceTable>::read(ifs, references);
+    // Take Assembler/Loader/Buffer Ownership, bind to Context
+    auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader);
+    disassembler->document()->load(in);
+
+    // References
+    disassembler->references()->load(in);
     return disassembler;
 }
 

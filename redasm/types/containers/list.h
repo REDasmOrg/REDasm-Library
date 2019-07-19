@@ -8,6 +8,7 @@ namespace REDasm {
 
 class ListImpl;
 class ListIteratorImpl;
+class List;
 
 class ListIterator
 {
@@ -65,8 +66,8 @@ class List: public Object
         const Variant& operator[](size_t idx) const;
 
     public: // Special methods
-        template<typename Archive> void save(Archive& a) const;
-        template<typename Archive> void load(Archive& a);
+        void save(cereal::BinaryOutputArchive& a) const override;
+        void load(cereal::BinaryInputArchive& a) override;
         void releaseObjects();
 
 };

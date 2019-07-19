@@ -1,6 +1,5 @@
 #include "listingdocument.h"
 #include "../../support/utils.h"
-#include "../../support/serializer.h"
 #include <impl/support/utils_impl.h>
 #include <impl/disassembler/listing/listingdocument_impl.h>
 #include <algorithm>
@@ -17,6 +16,8 @@ bool ListingDocumentChanged::isInserted() const { PIMPL_P(const ListingDocumentC
 bool ListingDocumentChanged::isRemoved() const { PIMPL_P(const ListingDocumentChanged); return p->isRemoved(); }
 size_t ListingDocumentChanged::index() const { PIMPL_P(const ListingDocumentChanged); return p->index(); }
 
+void ListingDocumentType::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const ListingDocumentType); return p->save(a); }
+void ListingDocumentType::load(cereal::BinaryInputArchive &a) { PIMPL_P(ListingDocumentType); return p->load(a); }
 ListingDocumentType::ListingDocumentType(): m_pimpl_p(new ListingDocumentTypeImpl(this)) { }
 size_t ListingDocumentType::size() const { PIMPL_P(const ListingDocumentType); return p->size(); }
 bool ListingDocumentType::empty() const { PIMPL_P(const ListingDocumentType); return p->empty(); }
@@ -483,37 +484,5 @@ ListingItem* ListingDocumentType::itemAt(size_t i) const
 Symbol* ListingDocumentType::symbol(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.symbol(address); }
 Symbol* ListingDocumentType::symbol(const String &name) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.symbol(SymbolTable::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { PIMPL_P(const ListingDocumentType); return &p->m_symboltable; }
-
-void Serializer<ListingDocument>::write(std::fstream& fs, const ListingDocument& d) {
-    auto lock = x_lock_safe_ptr(d);
-
-    //Serializer<SegmentList>::write(fs, lock->pimpl_p()->m_segments);
-    Serializer<SymbolTable>::write(fs, &lock->pimpl_p()->m_symboltable);
-
-    Serializer<typename ListingDocumentTypeImpl::ContainerType>::write(fs, *lock.t->pimpl_p());
-
-    Serializer<address_t>::write(fs, (lock->pimpl_p()->m_documententry ? lock->pimpl_p()->m_documententry->address : 0));
-    Serializer<ListingCursor>::write(fs, &lock->pimpl_p()->m_cursor);
-}
-
-void Serializer<ListingDocument>::read(std::fstream& fs, ListingDocument& d, const std::function<CachedInstruction(address_t address)> cb) {
-    auto lock = x_lock_safe_ptr(d);
-
-    //Serializer<SegmentList>::read(fs, lock->pimpl_p()->m_segments);
-    Serializer<SymbolTable>::read(fs, &lock->pimpl_p()->m_symboltable);
-
-    Serializer<typename ListingDocumentTypeImpl::ContainerType>::read(fs, [&](ListingItemPtr item) {
-        //if(item->is(ListingItemType::InstructionItem))
-            //lock->pimpl_p()->m_instructions.commit(item->address(), cb(item->address()));
-
-        //lock->pimpl_p()->insert(std::move(item));
-    });
-
-    address_t entry = 0;
-    Serializer<address_t>::read(fs, entry);
-    lock->pimpl_p()->m_documententry = lock->symbol(entry);
-
-    Serializer<ListingCursor>::read(fs, &lock->pimpl_p()->m_cursor);
-}
 
 } // namespace REDasm

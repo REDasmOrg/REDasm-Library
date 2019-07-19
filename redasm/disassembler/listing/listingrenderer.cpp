@@ -55,11 +55,11 @@ const Symbol *ListingRenderer::symbolUnderCursor()
 String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, ListingRenderer::Range *wordpos)
 {
     RendererLine rl;
-    this->getRendererLine(pos.first, rl);
+    this->getRendererLine(pos.line, rl);
 
     for(const RendererFormat& rf : rl.formats)
     {
-        if(!rf.contains(pos.second))
+        if(!rf.contains(pos.column))
             continue;
 
         String word = rl.formatText(rf);
@@ -83,7 +83,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
         size_t start = match.start;
         size_t end = match.end;
 
-        if((pos.second < start) || (pos.second > end))
+        if((pos.column < start) || (pos.column > end))
             continue;
 
         if(wordpos)
@@ -133,20 +133,20 @@ String ListingRenderer::getSelectedText()
 
     PIMPL_P(ListingRenderer);
 
-    if(startpos.first != endpos.first)
+    if(startpos.line != endpos.line)
     {
-        u64 line = startpos.first;
+        size_t line = startpos.line;
 
-        while(line <= endpos.first)
+        while(line <= endpos.line)
         {
             RendererLine rl;
             p->getRendererLine(lock, line, rl);
             String s = rl.text;
 
-            if(line == startpos.first)
-                copied += s.substring(startpos.second);
-            else if(line == endpos.first)
-                copied += s.substring(0, endpos.second + 1);
+            if(line == startpos.line)
+                copied += s.substring(startpos.column);
+            else if(line == endpos.line)
+                copied += s.substring(0, endpos.column + 1);
             else
                 copied += s;
 
@@ -157,8 +157,8 @@ String ListingRenderer::getSelectedText()
     else
     {
         RendererLine rl;
-        p->getRendererLine(lock, startpos.first, rl);
-        copied = rl.text.substring(startpos.second, endpos.second - startpos.second + 1);
+        p->getRendererLine(lock, startpos.line, rl);
+        copied = rl.text.substring(startpos.column, endpos.column - startpos.column + 1);
     }
 
     return copied;

@@ -11,7 +11,8 @@ class StringImpl
     PIMPL_DECLARE_PUBLIC(String)
 
     public:
-        StringImpl();
+        StringImpl() = default;
+        String xorified() const;
 
     private:
         std::string m_data;

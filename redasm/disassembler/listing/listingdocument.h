@@ -29,13 +29,18 @@ class LIBREDASM_API ListingDocumentChanged
         size_t index() const;
 };
 
-class LIBREDASM_API ListingDocumentType
+class LIBREDASM_API ListingDocumentType: public Object
 {
+    REDASM_OBJECT(ListingDocument)
     PIMPL_DECLARE_P(ListingDocumentType)
     PIMPL_DECLARE_PRIVATE(ListingDocumentType)
 
     public:
         Event<const ListingDocumentChanged*> changed;
+
+    public:
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
 
     public:
         ListingDocumentType();
@@ -114,17 +119,11 @@ class LIBREDASM_API ListingDocumentType
         void setDocumentEntry(address_t address);
         void instruction(const CachedInstruction& instruction);
 
-    friend class Serializer< safe_ptr<ListingDocumentType> >;
     friend class ListingDocumentIteratorImpl;
 };
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;
 using document_s_lock = s_locked_safe_ptr<ListingDocument>;
 using document_x_lock = x_locked_safe_ptr<ListingDocument>;
-
-template<> struct Serializer<ListingDocument> {
-    static void write(std::fstream& fs, const ListingDocument& d);
-    static void read(std::fstream& fs, ListingDocument& d, const std::function<CachedInstruction(address_t address)> cb);
-};
 
 } // namespace REDasm

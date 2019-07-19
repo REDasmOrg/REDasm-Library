@@ -1,5 +1,6 @@
 #include "memorybuffer.h"
 #include <impl/buffer/memorybuffer_impl.h>
+#include <redasm/support/compression.h>
 #include <algorithm>
 #include <fstream>
 
@@ -63,6 +64,9 @@ void MemoryBuffer::swap(MemoryBuffer &mb)
     std::swap(p->m_data, mb.pimpl_p()->m_data);
     std::swap(p->m_size, mb.pimpl_p()->m_size);
 }
+
+void MemoryBuffer::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const MemoryBuffer); p->save(a); }
+void MemoryBuffer::load(cereal::BinaryInputArchive &a) { PIMPL_P(MemoryBuffer); p->load(a); }
 
 MemoryBuffer *MemoryBuffer::fromFile(const String &file)
 {

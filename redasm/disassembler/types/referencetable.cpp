@@ -4,6 +4,8 @@
 
 namespace REDasm {
 
+void ReferenceTable::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const ReferenceTable); p->save(a); }
+void ReferenceTable::load(cereal::BinaryInputArchive &a) { PIMPL_P(ReferenceTable); p->load(a); }
 ReferenceTable::ReferenceTable(): m_pimpl_p(new ReferenceTableImpl()) { }
 
 void ReferenceTable::push(address_t address, address_t refby)
@@ -107,16 +109,6 @@ ReferenceVector ReferenceTable::toVector(const ReferenceSet &refset)
     ReferenceVector rv;
     std::for_each(refset.begin(), refset.end(), [&rv](address_t address) { rv.push_back(address); });
     return rv;
-}
-
-void Serializer<ReferenceTable>::write(std::fstream& fs, const ReferenceTable* t) {
-    Serializer<ReferenceTable::ReferenceMap>::write(fs, t->pimpl_p()->m_references);
-    Serializer<ReferenceTable::ReferenceMap>::write(fs, t->pimpl_p()->m_targets);
-}
-
-void Serializer<ReferenceTable>::read(std::fstream& fs, ReferenceTable* t) {
-    Serializer<ReferenceTable::ReferenceMap>::read(fs, t->pimpl_p()->m_references);
-    Serializer<ReferenceTable::ReferenceMap>::read(fs, t->pimpl_p()->m_targets);
 }
 
 }

@@ -10,19 +10,7 @@ address_t ListingItem::address() const { PIMPL_P(const ListingItem); return p->m
 ListingItemType ListingItem::type() const { PIMPL_P(const ListingItem); return p->m_type; }
 size_t ListingItem::index() const { PIMPL_P(const ListingItem); return p->m_index; }
 ListingItemData *ListingItem::data() const { PIMPL_P(const ListingItem); return p->m_data.get();  }
-
-void Serializer<ListingItem>::write(std::fstream& fs, const ListingItem& d) {
-    Serializer<ListingItemData>::write(fs, *d.data());
-    Serializer<address_t>::write(fs, d.pimpl_p()->m_address);
-    Serializer<ListingItemType>::write(fs, d.pimpl_p()->m_type);
-    Serializer<size_t>::write(fs, d.pimpl_p()->m_index);
-}
-
-void Serializer<ListingItem>::read(std::fstream& fs, ListingItem& d) {
-    Serializer<ListingItemData>::read(fs, *d.data());
-    Serializer<address_t>::read(fs, d.pimpl_p()->m_address);
-    Serializer<ListingItemType>::read(fs, d.pimpl_p()->m_type);
-    Serializer<size_t>::read(fs, d.pimpl_p()->m_index);
-}
+void ListingItem::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const ListingItem); p->save(a); }
+void ListingItem::load(cereal::BinaryInputArchive &a) { PIMPL_P(ListingItem); p->load(a); }
 
 } // namespace REDasm

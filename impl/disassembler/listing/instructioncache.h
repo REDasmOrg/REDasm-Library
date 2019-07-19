@@ -1,6 +1,8 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
+#include <fstream>
 #include <list>
 #include <redasm/disassembler/listing/cachedinstruction.h>
 #include <redasm/redasm.h>

@@ -64,14 +64,14 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
     const REDasm::ListingCursor::Position& startsel = m_cursor->startSelection();
     const REDasm::ListingCursor::Position& endsel = m_cursor->endSelection();
 
-    if(startsel.first != endsel.first)
+    if(startsel.line != endsel.line)
     {
-        size_t start = (rl.documentindex == startsel.first) ? startsel.second : 0;
-        size_t end = (rl.documentindex == endsel.first) ? endsel.second : (rl.text.size() - 1);
+        size_t start = (rl.documentindex == startsel.line) ? startsel.column : 0;
+        size_t end = (rl.documentindex == endsel.line) ? endsel.column : (rl.text.size() - 1);
         rl.format(start, end, "selection_fg", "selection_bg");
     }
     else
-        rl.format(startsel.second, endsel.second, "selection_fg", "selection_bg");
+        rl.format(startsel.column, endsel.column, "selection_fg", "selection_bg");
 }
 
 void ListingRendererImpl::blinkCursor(RendererLine &rl)

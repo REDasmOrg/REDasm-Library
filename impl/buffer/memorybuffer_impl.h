@@ -13,6 +13,8 @@ class MemoryBufferImpl
 
     public:
         MemoryBufferImpl();
+        void save(cereal::BinaryOutputArchive& a) const;
+        void load(cereal::BinaryInputArchive& a);
 
     private:
         u8* m_data;

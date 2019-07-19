@@ -60,6 +60,7 @@ class String: public Object
         String capitalized() const;
         String toLower() const;
         String toUpper() const;
+        String xorified() const;
         List split(char sep) const;
 
      public:

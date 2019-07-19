@@ -1,26 +1,35 @@
 #pragma once
 
-#include <stack>
 #include "../../support/event.h"
-#include "../../support/serializer.h"
+#include "../../types/object.h"
+#include "../../macros.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
 
 class ListingCursorImpl;
 
-class LIBREDASM_API ListingCursor
+class LIBREDASM_API ListingCursor: public Object
 {
+    REDASM_OBJECT(ListingCursor)
     PIMPL_DECLARE_P(ListingCursor)
     PIMPL_DECLARE_PRIVATE(ListingCursor)
 
     public:
-        typedef std::pair<size_t, size_t> Position;       // [Line, Column]
+        struct Position {
+           size_t line, column;
+           bool operator ==(const Position& rhs) const;
+           bool operator !=(const Position& rhs) const;
+        };
 
     public:
         SimpleEvent positionChanged;
         SimpleEvent backChanged;
         SimpleEvent forwardChanged;
+
+    public:
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
 
     public:
         ListingCursor();
@@ -46,22 +55,6 @@ class LIBREDASM_API ListingCursor
         void select(size_t line, size_t column = 0);
         void goBack();
         void goForward();
-
-    friend class Serializer<ListingCursor>;
-};
-
-template<> struct Serializer<ListingCursor> {
-    static void write(std::fstream& fs, const ListingCursor* c) {
-        Serializer<size_t>::write(fs, c->currentLine());
-        Serializer<size_t>::write(fs, c->currentColumn());
-    }
-
-    static void read(std::fstream& fs, ListingCursor* c) {
-        size_t line = 0, column = 0;
-        Serializer<size_t>::read(fs, line);
-        Serializer<size_t>::read(fs, column);
-        c->set(line, column);
-    }
 };
 
 } // namespace REDasm

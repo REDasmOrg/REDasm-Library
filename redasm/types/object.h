@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "base.h"
+#include "variant.h"
 #include "factory.h"
 #include "../static/crc32.h"
 #include "../support/safe_ptr.h"
@@ -37,8 +38,8 @@ class Object
         bool objectIs(object_id_t id) const;
         virtual const char* objectName() const = 0;
         virtual object_id_t objectId() const = 0;
-        virtual void save(class cereal::BinaryOutputArchive& a) const;
-        virtual void load(class cereal::BinaryInputArchive& a);
+        virtual void save(cereal::BinaryOutputArchive& a) const;
+        virtual void load(cereal::BinaryInputArchive& a);
         virtual void release();
 };
 

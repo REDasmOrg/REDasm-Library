@@ -12,12 +12,12 @@ class ReferenceTableImpl
 
     public:
         ReferenceTableImpl() = default;
+        void save(cereal::BinaryOutputArchive &a) const;
+        void load(cereal::BinaryInputArchive &a);
 
     private:
         ReferenceTable::ReferenceMap m_references;
         ReferenceTable::ReferenceMap m_targets;
-
-    friend struct Serializer<ReferenceTable>;
 };
 
 } // namespace REDasm

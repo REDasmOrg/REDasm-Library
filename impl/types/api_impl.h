@@ -5,6 +5,7 @@
 #include <redasm/types/callback.h>
 #include <redasm/pimpl.h>
 #include <deque>
+#include <set>
 
 namespace REDasm {
 
@@ -71,8 +72,6 @@ class InstructionImpl
         std::set<address_t> m_utargets;
         List m_targets, m_operands;
         void* m_userdata;
-
-     friend class Serializer<Instruction>;
 };
 
 } // namespace REDasm

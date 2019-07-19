@@ -2,10 +2,21 @@
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
 #include <impl/disassembler/types/symboltable_impl.h>
+#include <impl/libs/cereal/archives/binary.hpp>
 #include <forward_list>
 #include <sstream>
 
 namespace REDasm {
+
+Symbol::Symbol(): type(SymbolType::None), tag(0), address(0), size(0) { }
+Symbol::Symbol(SymbolType type, tag_t tag, address_t address, const String& name): type(type), tag(tag), address(address), size(0), name(name) { }
+void Symbol::lock() { type |= SymbolType::Locked; }
+bool Symbol::is(SymbolType t) const { return type & t; }
+bool Symbol::isFunction() const { return type & SymbolType::FunctionMask; }
+bool Symbol::isImport() const { return type & SymbolType::ImportMask; }
+bool Symbol::isLocked() const { return type & SymbolType::Locked; }
+void Symbol::save(cereal::BinaryOutputArchive &a) const { a(type, tag, address, size, name); }
+void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, size, name); }
 
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
 
@@ -93,6 +104,9 @@ void SymbolTable::clear()
     p->m_byname.clear();
 }
 
+void SymbolTable::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const SymbolTable); p->save(a); }
+void SymbolTable::load(cereal::BinaryInputArchive &a) { PIMPL_P(SymbolTable); p->load(a); }
+
 String SymbolTable::normalized(const String& s)
 {
     if(Demangler::isMangled(s))
@@ -119,16 +133,5 @@ String SymbolTable::name(address_t address, const String &s, SymbolType type)
 }
 
 String SymbolTable::name(const String &name, address_t address) { return name + "_"  + String::hex(address); }
-
-void Serializer<SymbolTable>::write(std::fstream& fs, const SymbolTable* st) {
-    Serializer<SymbolTableImpl::SymbolsByAddress>::write(fs, st->pimpl_p()->m_byaddress);
-}
-
-void Serializer<SymbolTable>::read(std::fstream& fs, SymbolTable* st) {
-    Serializer<SymbolTableImpl::SymbolsByAddress>::read(fs, [st](address_t k, SymbolPtr v) {
-        st->pimpl_p()->m_byname[v->name] = k;
-        st->pimpl_p()->m_byaddress[k] = std::move(v);
-    });
-}
 
 }

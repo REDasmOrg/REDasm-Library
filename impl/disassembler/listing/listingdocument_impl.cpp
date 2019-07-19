@@ -1,4 +1,6 @@
 #include "listingdocument_impl.h"
+#include "../../impl/libs/cereal/archives/binary.hpp"
+#include <redasm/context.h>
 
 namespace REDasm {
 
@@ -85,6 +87,57 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
 
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());
+    }
+}
+
+void ListingDocumentTypeImpl::save(cereal::BinaryOutputArchive &a) const
+{
+    address_t entry = m_documententry ? m_documententry->address : 0;
+
+    a(entry, m_segments);
+    m_symboltable.save(a);
+    this->saveItems(a);
+    m_cursor.save(a);
+}
+
+void ListingDocumentTypeImpl::load(cereal::BinaryInputArchive &a)
+{
+    address_t entry = 0;
+
+    a(entry, m_segments);
+    m_symboltable.load(a);
+    this->loadItems(a);
+    m_cursor.load(a);
+
+    m_documententry = m_symboltable.symbol(entry);
+}
+
+void ListingDocumentTypeImpl::saveItems(cereal::BinaryOutputArchive &a) const
+{
+    size_t size = this->size();
+    a(size);
+
+    for(auto it = this->begin(); it != this->end(); it++)
+        it->get()->save(a);
+}
+
+void ListingDocumentTypeImpl::loadItems(cereal::BinaryInputArchive &a)
+{
+    size_t size = 0;
+    a(size);
+
+    for(size_t i = 0; i < size; i++)
+    {
+        auto item = std::make_unique<ListingItem>();
+        item->load(a);
+
+        if(item->is(ListingItemType::InstructionItem))
+        {
+            PIMPL_Q(ListingDocumentType);
+            q->instruction(r_disasm->disassembleInstruction(item->address()));
+        }
+
+        this->insert(std::move(item));
     }
 }
 

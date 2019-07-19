@@ -99,24 +99,4 @@ void Instruction::load(cereal::BinaryInputArchive &a)
     a(mnemonic, address, type, size, id, p->m_operands);
 }
 
-void REDasm::Serializer<Instruction>::write(std::fstream &fs, const Instruction &st)
-{
-    //Serializer<String>::write(fs, st.mnemonic);
-    //Serializer<decltype(st.m_operands)>::write(fs, st.pimpl_p()->m_operands);
-    //Serializer<address_t>::write(fs, st.pimpl_p()->m_address);
-    //Serializer<InstructionType>::write(fs, st.pimpl_p()->m_type);
-    //Serializer<u32>::write(fs, st.pimpl_p()->m_size);
-    //Serializer<instruction_id_t>::write(fs, st.pimpl_p()->m_id);
-}
-
-void REDasm::Serializer<Instruction>::read(std::fstream &fs, Instruction &st)
-{
-    //Serializer<String>::read(fs, st.pimpl_p()->m_mnemonic);
-    //Serializer<decltype(st.pimpl_p()->m_operands)>::read(fs, st.pimpl_p()->m_operands);
-    //Serializer<address_t>::read(fs, st.pimpl_p()->m_address);
-    //Serializer<InstructionType>::read(fs, st.pimpl_p()->m_type);
-    //Serializer<u32>::read(fs, st.pimpl_p()->m_size);
-    //Serializer<instruction_id_t>::read(fs, st.pimpl_p()->m_id);
-}
-
 } // namespace REDasm

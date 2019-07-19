@@ -204,6 +204,8 @@ String String::toUpper() const
     return s;
 }
 
+String String::xorified() const { PIMPL_P(const String); return p->xorified(); }
+
 List String::split(char sep) const
 {
     PIMPL_P(const String);

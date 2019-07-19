@@ -4,6 +4,7 @@
 
 #include <redasm/context.h>
 #include <chrono>
+#include <set>
 
 namespace REDasm {
 

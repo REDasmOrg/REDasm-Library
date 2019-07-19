@@ -1,8 +1,8 @@
 #include "list.h"
 #include <impl/types/list_impl.h>
 #include <impl/libs/cereal/cereal.hpp>
-#include <impl/libs/cereal/archives/binary.hpp>
 #include <impl/libs/cereal/types/deque.hpp>
+#include <impl/libs/cereal/archives/binary.hpp>
 
 namespace REDasm {
 
@@ -27,13 +27,9 @@ void List::sort(bool (*cb)(const Variant &, const Variant &)) { PIMPL_P(List); r
 bool List::empty() const { PIMPL_P(const List); return p->empty(); }
 Variant &List::operator[](size_t idx) { return this->at(idx);  }
 const Variant &List::operator[](size_t idx) const { return this->at(idx); }
+void List::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const List); a(p->m_list); }
+void List::load(cereal::BinaryInputArchive &a) { PIMPL_P(List); a(p->m_list); }
 void List::releaseObjects() { PIMPL_P(List); return p->releaseObjects();  }
-
-template<typename Archive> void List::save(Archive &a) const { PIMPL_P(const List); a(p->m_list); }
-template<typename Archive> void List::load(Archive &a) { PIMPL_P(List); a(p->m_list); }
-
-template void List::save<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&) const;
-template void List::load<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
 
 ListIterator::ListIterator(List *list, size_t startidx): m_pimpl_p(new ListIteratorImpl(list, startidx)) { }
 bool ListIterator::hasNext() const { PIMPL_P(const ListIterator); return p->hasNext(); }

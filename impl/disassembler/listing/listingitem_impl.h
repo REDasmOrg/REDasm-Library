@@ -23,18 +23,17 @@ class ListingItemImpl
     public:
         ListingItemImpl();
         ListingItemImpl(address_t address, ListingItemType type, size_t index);
+        void save(cereal::BinaryOutputArchive &a) const;
+        void load(cereal::BinaryInputArchive &a);
 
     private:
         std::unique_ptr<ListingItemData> m_data;
         address_t m_address;
         ListingItemType m_type;
         size_t m_index;
-
-    friend class Serializer<ListingItem>;
 };
 
 } // namespace REDasm
 
 VISITABLE_STRUCT(REDasm::ListingMetaItem, name, type);
 VISITABLE_STRUCT(REDasm::ListingItemData, comments, autocomments, meta, type);
-

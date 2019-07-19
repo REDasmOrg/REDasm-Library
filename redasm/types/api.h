@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../support/serializer.h"
 #include "../macros.h"
 #include "../pimpl.h"
 #include "containers/list.h"
@@ -182,11 +181,6 @@ class Instruction: public Object
         String mnemonic;
         address_t address;
         u32 size;
-};
-
-template<> struct Serializer<Instruction> {
-    static void write(std::fstream& fs, const Instruction& st);
-    static void read(std::fstream& fs, Instruction& st);
 };
 
 } // namespace REDasm

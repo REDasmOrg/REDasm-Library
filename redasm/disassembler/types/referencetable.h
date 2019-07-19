@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../../types/base.h"
-#include "../../support/serializer.h"
+#include <unordered_map>
+#include <deque>
+#include <set>
+#include "../../types/object.h"
+#include "../../macros.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
@@ -11,13 +14,18 @@ class ReferenceTableImpl;
 typedef std::deque<address_t> ReferenceVector;
 typedef std::set<address_t> ReferenceSet;
 
-class LIBREDASM_API ReferenceTable
+class LIBREDASM_API ReferenceTable: public Object
 {
+    REDASM_OBJECT(ReferenceTable)
     PIMPL_DECLARE_P(ReferenceTable)
     PIMPL_DECLARE_PRIVATE(ReferenceTable)
 
     public:
         typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
+
+    public:
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
 
     public:
         ReferenceTable();
@@ -33,13 +41,6 @@ class LIBREDASM_API ReferenceTable
 
     public:
         static ReferenceVector toVector(const ReferenceSet& refset);
-
-    friend struct Serializer<ReferenceTable>;
-};
-
-template<> struct Serializer<ReferenceTable> {
-    static void write(std::fstream& fs, const ReferenceTable* t);
-    static void read(std::fstream& fs, ReferenceTable* t);
 };
 
 } // namespace REDasm

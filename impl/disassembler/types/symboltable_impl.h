@@ -18,13 +18,13 @@ class SymbolTableImpl
 
     public:
         SymbolTableImpl() = default;
+        void save(cereal::BinaryOutputArchive &a) const;
+        void load(cereal::BinaryInputArchive &a);
         static String prefix(SymbolType type);
 
     private:
         SymbolsByAddress m_byaddress;
         SymbolsByName m_byname;
-
-    friend struct Serializer<SymbolTable>;
 };
 
 } // namespace REDasm

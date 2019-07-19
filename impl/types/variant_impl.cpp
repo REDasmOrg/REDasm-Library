@@ -1,4 +1,6 @@
 #include "variant_impl.h"
+#include <redasm/types/object.h>
+#include <redasm/types/string.h>
 
 namespace REDasm {
 

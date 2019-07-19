@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include "../../disassembler/listing/listingdocument.h"
 #include "../../buffer/bufferview.h"
 #include "../assembler/assemblerrequest.h"

@@ -1,15 +1,30 @@
 #include "listingcursor_impl.h"
+#include "../../libs/cereal/cereal.hpp"
+#include "../../libs/cereal/types/stack.hpp"
+#include "../../libs/cereal/archives/binary.hpp"
 
 namespace REDasm {
 
-ListingCursorImpl::ListingCursorImpl(ListingCursor* q): m_pimpl_q(q), m_active(false) { m_position = std::make_pair(0, 0); }
+ListingCursorImpl::ListingCursorImpl(ListingCursor* q): m_pimpl_q(q), m_active(false) { m_position = {0, 0}; }
+
+void ListingCursorImpl::save(cereal::BinaryOutputArchive &a) const
+{
+    a(m_position.line, m_position.column,
+      m_selection.line, m_selection.column);
+}
+
+void ListingCursorImpl::load(cereal::BinaryInputArchive &a)
+{
+    a(m_position.line, m_position.column,
+      m_selection.line, m_selection.column);
+}
 
 void ListingCursorImpl::moveTo(size_t line, size_t column, bool save)
 {
     PIMPL_Q(ListingCursor);
 
-    ListingCursor::Position pos = std::make_pair(std::max(line, size_t(0)),
-                                  std::max(column, size_t(0)));
+    ListingCursor::Position pos = { std::max(line, size_t(0)),
+                                    std::max(column, size_t(0)) };
 
     if(save && !q->hasSelection())
     {

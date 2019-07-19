@@ -1,8 +1,8 @@
 #pragma once
 
 #include <unordered_map>
+#include <redasm/libs/visit_struct/visit_struct.hpp>
 #include <redasm/types/api.h>
-#include "../../support/serializer.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
@@ -34,28 +34,36 @@ enum class SymbolType: size_t {
 
 ENUM_FLAGS_OPERATORS(SymbolType)
 
-struct Symbol
+class Symbol: public Object
 {
-    Symbol(): type(SymbolType::None), tag(0), address(0), size(0) { }
-    Symbol(SymbolType type, tag_t tag, address_t address, const String& name): type(type), tag(tag), address(address), size(0), name(name) { }
-    void lock() { type |= SymbolType::Locked; }
+    REDASM_OBJECT(Symbol)
 
-    SymbolType type;
-    tag_t tag;
-    address_t address;
-    size_t size;
-    String name;
+    public:
+        Symbol();
+        Symbol(SymbolType type, tag_t tag, address_t address, const String& name);
+        void lock();
+        bool is(SymbolType t) const;
+        bool isFunction() const;
+        bool isImport() const;
+        bool isLocked() const;
 
-    constexpr bool is(SymbolType t) const { return type & t; }
-    constexpr bool isFunction() const { return type & SymbolType::FunctionMask; }
-    constexpr bool isImport() const { return type & SymbolType::ImportMask; }
-    constexpr bool isLocked() const { return type & SymbolType::Locked; }
+    public:
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
+
+    public:
+        SymbolType type;
+        tag_t tag;
+        address_t address;
+        size_t size;
+        String name;
 };
 
 class SymbolTableImpl;
 
-class LIBREDASM_API SymbolTable
+class LIBREDASM_API SymbolTable: public Object
 {
+    REDASM_OBJECT(SymbolTable)
     PIMPL_DECLARE_P(SymbolTable)
     PIMPL_DECLARE_PRIVATE(SymbolTable)
 
@@ -70,17 +78,14 @@ class LIBREDASM_API SymbolTable
         void clear();
 
     public:
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
+
+    public:
         static String normalized(const String &s);
         static String name(address_t address, SymbolType type);
         static String name(address_t address, const String& s, SymbolType type);
         static String name(const String& name, address_t address);
-
-    friend struct Serializer<SymbolTable>;
-};
-
-template<> struct Serializer<SymbolTable> {
-    static void write(std::fstream& fs, const SymbolTable* st);
-    static void read(std::fstream& fs, SymbolTable* st);
 };
 
 } // namespace REDasm

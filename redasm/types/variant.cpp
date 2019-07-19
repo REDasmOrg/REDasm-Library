@@ -2,6 +2,8 @@
 #include <impl/types/variant_impl.h>
 #include <impl/libs/cereal/cereal.hpp>
 #include <impl/libs/cereal/archives/binary.hpp>
+#include "object.h"
+#include "string.h"
 #include "factory.h"
 
 namespace REDasm {

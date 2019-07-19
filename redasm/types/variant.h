@@ -1,13 +1,13 @@
 #pragma once
 
-#include "object.h"
-#include "string.h"
 #include "base.h"
 #include "../pimpl.h"
 
 namespace REDasm {
 
 class VariantImpl;
+class Object;
+class String;
 
 class Variant
 {

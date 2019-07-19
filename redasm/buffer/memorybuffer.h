@@ -24,6 +24,8 @@ class LIBREDASM_API MemoryBuffer: public AbstractBuffer
         size_t size() const override;
         void resize(size_t size) override;
         void swap(MemoryBuffer& mb);
+        void save(cereal::BinaryOutputArchive& a) const override;
+        void load(cereal::BinaryInputArchive& a) override;
 
     public:
         static MemoryBuffer* fromFile(const String& file);

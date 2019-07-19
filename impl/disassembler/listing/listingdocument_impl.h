@@ -57,6 +57,12 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
         size_t findIndex(address_t address, ListingItemType type, size_t index = 0) const;
         ListingItem* push(address_t address, ListingItemType type, size_t index = 0);
         void pop(address_t address, ListingItemType type);
+        void save(cereal::BinaryOutputArchive &a) const;
+        void load(cereal::BinaryInputArchive &a);
+
+    private:
+        void saveItems(cereal::BinaryOutputArchive &a) const;
+        void loadItems(cereal::BinaryInputArchive &a);
 
     private:
         ListingCursor m_cursor;
@@ -68,7 +74,6 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
         Symbol* m_documententry;
         ActiveMeta m_activemeta;
 
-    friend struct Serializer< safe_ptr<ListingDocumentType> >;
     friend class ListingDocumentIteratorImpl;
     friend class Loader;
 };

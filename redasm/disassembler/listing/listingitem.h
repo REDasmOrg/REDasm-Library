@@ -1,8 +1,9 @@
 #pragma once
 
 #include <redasm/types/containers/sortedcontainer.h>
-#include "../../support/serializer.h"
-#include "../../types/base.h"
+#include "../../types/object.h"
+#include "../../types/string.h"
+#include "../../macros.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
@@ -19,8 +20,9 @@ enum class ListingItemType: size_t
 class ListingItemImpl;
 struct ListingItemData;
 
-class LIBREDASM_API ListingItem
+class LIBREDASM_API ListingItem: public Object
 {
+    REDASM_OBJECT(ListingItem)
     PIMPL_DECLARE_P(ListingItem)
     PIMPL_DECLARE_PRIVATE(ListingItem)
 
@@ -32,8 +34,8 @@ class LIBREDASM_API ListingItem
         ListingItemType type() const;
         size_t index() const;
         ListingItemData* data() const;
-
-    friend class Serializer<ListingItem>;
+        void save(cereal::BinaryOutputArchive &a) const override;
+        void load(cereal::BinaryInputArchive &a) override;
 };
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
@@ -66,10 +68,5 @@ typedef ListingItemFinderT<const ListingItem*> ListingItemConstFinder;
 typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
 typedef sorted_container<const ListingItem*, ListingItemConstComparator> ListingItemConstContainer;
 typedef sorted_container<ListingItem*, ListingItemComparator> ListingItemContainer;
-
-template<> struct Serializer<ListingItem> {
-    static void write(std::fstream& fs, const ListingItem& d);
-    static void read(std::fstream& fs, ListingItem& d);
-};
 
 } // namespace REDasm

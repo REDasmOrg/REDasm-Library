@@ -16,6 +16,8 @@ class ListingCursorImpl
 
     public:
         ListingCursorImpl(ListingCursor* q);
+        void save(cereal::BinaryOutputArchive &a) const;
+        void load(cereal::BinaryInputArchive &a);
 
     private:
         void moveTo(size_t line, size_t column, bool save);
@@ -24,8 +26,6 @@ class ListingCursorImpl
         ListingCursor::Position m_position, m_selection;
         PositionStack m_backstack, m_forwardstack;
         bool m_active;
-
-    friend class Serializer<ListingCursorImpl>;
 };
 
 } // namespace REDasm

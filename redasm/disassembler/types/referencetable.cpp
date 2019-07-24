@@ -47,8 +47,6 @@ void ReferenceTable::popTarget(address_t target, address_t pointedby)
     it->second.erase(target);
 }
 
-ReferenceTable::ReferenceMap::const_iterator ReferenceTable::references(address_t address) const { PIMPL_P(const ReferenceTable); return p->m_references.find(address); }
-
 ReferenceSet ReferenceTable::targets(address_t address) const
 {
     PIMPL_P(const ReferenceTable);
@@ -74,7 +72,7 @@ address_location ReferenceTable::target(address_t address) const
 size_t ReferenceTable::referencesCount(address_t address) const
 {
     PIMPL_P(const ReferenceTable);
-    auto it = this->references(address);
+    auto it = p->m_references.find(address);
 
     if(it != p->m_references.end())
         return it->second.size();

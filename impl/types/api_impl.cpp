@@ -11,17 +11,12 @@ Operand *InstructionImpl::op(size_t idx) { return variant_object<Operand>(m_oper
 
 const Operand *InstructionImpl::target() const
 {
-    auto it = m_operands.iterator();
+    size_t index = m_operands.find([](const Variant& v) -> bool {
+        const Operand* op = variant_object<Operand>(v);
+        return op->isTarget();
+    });
 
-    while(it.hasNext())
-    {
-        const Operand* op = variant_object<Operand>(it.next());
-
-        if(op->isTarget())
-            return op;
-    }
-
-    return nullptr;
+    return index != REDasm::npos ? variant_object<Operand>(m_operands[index]) : nullptr;
 }
 
 Instruction *InstructionImpl::mem(address_t v, tag_t tag)

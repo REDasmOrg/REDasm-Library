@@ -1,6 +1,5 @@
 #include "functiongraph.h"
 #include <impl/graph/functiongraph_impl.h>
-#include "../disassembler/listing/listingdocumentiterator.h"
 #include "../support/utils.h"
 #include "../context.h"
 
@@ -89,20 +88,21 @@ bool FunctionGraph::build(const ListingItem *item)
 
 void FunctionGraph::buildBasicBlocks()
 {
-    ListingDocumentIterator it(m_document, m_graphstart, ListingItemType::FunctionItem);
+    size_t index = m_document->findFunction(m_graphstart);
 
-    while(it.hasNext())
+    while(index < m_document->size())
     {
-        const ListingItem* item = it.next();
+        const ListingItem* item = m_document->itemAt(index);
 
-         if(!this->isStopItem(item))
-             break;
+        if(!this->isStopItem(item))
+            break;
+
+        index++;
     }
 
-    if(!it.hasNext())
+    if(index == REDasm::npos)
         return;
 
-    size_t index = it.index();
     this->resetQueue();
     m_pending.push(index);
 
@@ -170,7 +170,7 @@ bool FunctionGraph::connectBasicBlocks()
                 if(!symbol || !symbol->is(SymbolType::Code))
                     continue;
 
-                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->symbolIndex(target));
+                FunctionBasicBlock* tofbb = this->basicBlockFromIndex(m_document->findSymbol(target));
 
                 if(tofbb)
                 {
@@ -211,7 +211,7 @@ size_t FunctionGraph::instructionIndexFromIndex(size_t idx) const
     ListingItem* item = m_document->itemAt(idx);
 
     if(item)
-        return m_document->instructionIndex(item->address());
+        return m_document->findInstruction(item->address());
 
     return REDasm::npos;
 }
@@ -221,7 +221,7 @@ size_t FunctionGraph::symbolIndexFromIndex(size_t idx) const
     ListingItem* item = m_document->itemAt(idx);
 
     if(item)
-        return m_document->symbolIndex(item->address());
+        return m_document->findSymbol(item->address());
 
     return REDasm::npos;
 }
@@ -263,15 +263,15 @@ void FunctionGraph::buildBasicBlock(size_t index)
                     if(!symbol || !symbol->is(SymbolType::Code))
                         continue;
 
-                    m_pending.push(m_document->symbolIndex(target));
+                    m_pending.push(m_document->findSymbol(target));
                 }
 
                 if(!targets.empty() && instruction->is(InstructionType::Conditional))
                 {
-                    size_t idx = m_document->symbolIndex(instruction->endAddress()); // Check for symbol first (chained jumps)
+                    size_t idx = m_document->findSymbol(instruction->endAddress()); // Check for symbol first (chained jumps)
 
                     if(idx == -1)
-                        idx = m_document->instructionIndex(instruction->endAddress());
+                        idx = m_document->findInstruction(instruction->endAddress());
 
                     m_pending.push(idx);
                 }
@@ -296,7 +296,7 @@ void FunctionGraph::buildBasicBlock(size_t index)
     if(!item)
         return;
 
-    fbb.setEndIndex(m_document->itemIndex(item));
+    fbb.setEndIndex(m_document->findItem(item));
 
     if(this->isStopItem(item) || item->is(ListingItemType::SymbolItem))
         fbb.setEndIndex(fbb.endIndex() - 1);

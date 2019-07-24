@@ -114,11 +114,12 @@ namespace std {
 
 template<> struct hash<REDasm::String>
 {
-    typedef REDasm::String argument_type;
-    typedef std::size_t result_type;
-
     size_t operator()(const REDasm::String& s) const noexcept;
 };
 
+template<> struct equal_to<REDasm::String>
+{
+    size_t operator()(const REDasm::String& s1, const REDasm::String& s2) const noexcept;
+};
 
 } // namespace std

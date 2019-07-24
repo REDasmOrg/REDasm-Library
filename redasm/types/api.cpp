@@ -59,7 +59,6 @@ Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(In
 address_t Instruction::endAddress() const { return address + size; }
 bool Instruction::hasOperands() const { PIMPL_P(const Instruction); return p->hasOperands(); }
 size_t Instruction::operandsCount() const { PIMPL_P(const Instruction); return p->operandsCount(); }
-ListConstIterator Instruction::iterator() const { PIMPL_P(const Instruction); return p->m_operands.iterator(); }
 const Operand *Instruction::op(size_t idx) const { PIMPL_P(const Instruction); return p->op(idx); }
 const Operand *Instruction::firstOperand() const { return this->hasOperands() ? this->op(0) : nullptr; }
 const Operand *Instruction::lastOperand() const { return this->hasOperands() ? this->op(this->operandsCount() - 1) : nullptr; }

@@ -1,4 +1,5 @@
 #include "variant.h"
+#include <functional>
 #include <impl/types/variant_impl.h>
 #include <impl/libs/cereal/cereal.hpp>
 #include <impl/libs/cereal/archives/binary.hpp>
@@ -51,8 +52,12 @@ Variant &Variant::operator=(void *v)         { PIMPL_P(Variant); p->set(v); retu
 Variant &Variant::operator=(const char *v)   { PIMPL_P(Variant); p->set(v); return *this; }
 Variant &Variant::operator=(const String &v) { PIMPL_P(Variant); p->set(v); return *this; }
 Variant &Variant::operator=(Object *v)       { PIMPL_P(Variant); p->set(v); return *this; }
-bool Variant::operator==(const Variant &rhs) const { PIMPL_P(const Variant); return p->equals(rhs);  }
+bool Variant::operator==(const Variant &rhs) const { PIMPL_P(const Variant); return p->equals(rhs); }
 bool Variant::operator!=(const Variant &rhs) const { PIMPL_P(const Variant); return !p->equals(rhs); }
+bool Variant::operator<=(const Variant &rhs) const { PIMPL_P(const Variant); return p->lte(rhs); }
+bool Variant::operator>=(const Variant &rhs) const {  PIMPL_P(const Variant); return p->gte(rhs); }
+bool Variant::operator<(const Variant &rhs) const { PIMPL_P(const Variant); return p->lt(rhs); }
+bool Variant::operator>(const Variant &rhs) const { PIMPL_P(const Variant); return p->gt(rhs); }
 
 template<typename Archive> void Variant::save(Archive &a) const
 {
@@ -76,7 +81,7 @@ template<typename Archive> void Variant::save(Archive &a) const
             p->m_keeper.value.object->save(a);
             break;
 
-        default: break;
+        default: assert(false);
     }
 }
 
@@ -110,7 +115,7 @@ template<typename Archive> void Variant::load(Archive &a)
             p->m_keeper.value.object->load(a);
             break;
 
-        default: break;
+        default: assert(false);
     }
 }
 
@@ -118,3 +123,29 @@ template void Variant::save<cereal::BinaryOutputArchive>(cereal::BinaryOutputArc
 template void Variant::load<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
 
 } // namespace REDasm
+
+namespace std {
+
+size_t hash<REDasm::Variant>::operator()(const REDasm::Variant &v) const noexcept
+{
+    switch(v.type())
+    {
+        case REDasm::Variant::Type::S8:  return std::hash<s8>()(v.toS8());
+        case REDasm::Variant::Type::S16: return std::hash<s16>()(v.toS16());
+        case REDasm::Variant::Type::S32: return std::hash<s32>()(v.toS32()); break;
+        case REDasm::Variant::Type::S64: return std::hash<s64>()(v.toS64()); break;
+        case REDasm::Variant::Type::U8:  return std::hash<u8>()(v.toU8()); break;
+        case REDasm::Variant::Type::U16: return std::hash<u16>()(v.toU16()); break;
+        case REDasm::Variant::Type::U32: return std::hash<u32>()(v.toU32()); break;
+        case REDasm::Variant::Type::U64: return std::hash<u64>()(v.toU64()); break;
+        case REDasm::Variant::Type::STRING: return std::hash<REDasm::String>()(v.toString());
+        case REDasm::Variant::Type::OBJECT: return std::hash<REDasm::Object*>()(v.toObject());
+        default: break;
+    }
+
+    assert(false);
+}
+
+size_t std::equal_to<REDasm::Variant>::operator()(const REDasm::Variant &v1, const REDasm::Variant &v2) const noexcept { return v1 == v2; }
+
+} // namespace std

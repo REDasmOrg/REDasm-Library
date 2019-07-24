@@ -12,7 +12,6 @@
 
 namespace REDasm {
 
-class ListingDocumentIterator;
 class AssemblerImpl;
 class Disassembler;
 struct Symbol;
@@ -37,7 +36,7 @@ class LIBREDASM_API Assembler : public Plugin
         virtual void init(const AssemblerRequest &request);
         virtual bool decode(const BufferView &view, Instruction* instruction);
         virtual bool decodeInstruction(const BufferView& view, Instruction* instruction);
-        virtual Symbol* findTrampoline(ListingDocumentIterator* it) const;
+        virtual Symbol* findTrampoline(size_t index) const;
 
     protected:
         void setInstructionType(instruction_id_t id, InstructionType type);

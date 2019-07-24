@@ -56,10 +56,9 @@ String Path::filePath(const String &path)
     parts.removeLast();
     String newpath;
 
-    auto it = parts.iterator();
-
-    while(it.hasNext())
-        newpath = Path::create(newpath, it.next().toString());
+    parts.each([&](const Variant& v) {
+        newpath = Path::create(newpath, v.toString());
+    });
 
     return newpath;
 }
@@ -89,11 +88,8 @@ bool Path::mkdir(const String &path)
     String respath;
     bool res = false;
 
-    auto it = folders.iterator();
-
-    while(it.hasNext())
-    {
-        String folder = it.next().toString();
+    folders.each([&](const Variant& v) {
+        String folder = v.toString();
         respath += folder + Path::dirSeparator();
 
 #ifdef __unix__
@@ -101,7 +97,7 @@ bool Path::mkdir(const String &path)
 #elif _WIN32
         res = CreateDirectory(path.c_str(), nullptr) != 0;
 #endif
-    }
+    });
 
     return res;
 }

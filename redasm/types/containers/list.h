@@ -1,42 +1,13 @@
 #pragma once
 
-#include "../object.h"
-#include "../variant.h"
-#include "../../pimpl.h"
+#include <functional>
+#include "container.h"
 
 namespace REDasm {
 
 class ListImpl;
-class ListIteratorImpl;
-class List;
 
-class ListIterator
-{
-    PIMPL_DECLARE_P(ListIterator)
-    PIMPL_DECLARE_PRIVATE(ListIterator)
-
-    protected:
-        ListIterator(List* list, size_t startidx);
-
-    public:
-        bool hasNext() const;
-        size_t index() const;
-        Variant next();
-        void remove();
-
-    friend class List;
-};
-
-class ListConstIterator: public ListIterator
-{
-    private:
-        ListConstIterator(List* list, size_t startidx);
-        void remove() = delete;
-
-    friend class List;
-};
-
-class List: public Object
+class LIBREDASM_API List: public ListContainer
 {
     REDASM_OBJECT(List)
     PIMPL_DECLARE_P(List)
@@ -44,32 +15,29 @@ class List: public Object
 
     public:
         List();
-        ListConstIterator iterator(size_t idx = 0) const;
-        ListIterator iterator(size_t idx = 0);
-        Variant& first();
-        const Variant& first() const;
-        Variant& last();
-        const Variant& last() const;
-        Variant& at(size_t idx);
-        const Variant& at(size_t idx) const;
-        size_t size() const;
-        size_t indexOf(const Variant &v) const;
-        bool empty() const;
-        void append(const Variant& v);
-        void insert(size_t idx, const Variant& v);
-        void removeAt(size_t idx);
-        void remove(const Variant& v);
-        void removeFirst();
-        void removeLast();
-        void sort(bool(*cb)(const Variant&, const Variant&));
-        Variant& operator[](size_t idx);
-        const Variant& operator[](size_t idx) const;
+        const Variant& first() const override;
+        const Variant& last() const override;
+        const Variant& at(size_t idx) const override;
+        Variant& first() override;
+        Variant& last() override;
+        Variant& at(size_t idx) override;
+        size_t size() const override;
+        size_t indexOf(const Variant &v) const override;
+        void append(const Variant& v) override;
+        void insert(size_t idx, const Variant& v) override;
+        void removeAt(size_t idx) override;
+        void remove(const Variant& v) override;
+        void sort(const SortCallback& cb) override;
+        void clear() override;
 
     public: // Special methods
         void save(cereal::BinaryOutputArchive& a) const override;
         void load(cereal::BinaryInputArchive& a) override;
         void releaseObjects();
 
+    public:
+        inline size_t find(const std::function<bool(const Variant&)>& cb) const { for(size_t i = 0; i < this->size(); i++) { if(cb(this->at(i))) return i; } return REDasm::npos; }
+        inline void each(const std::function<void(const Variant&)>& cb) const { for(size_t i = 0; i < this->size(); i++) cb(this->at(i)); }
 };
 
 } // namespace REDasm

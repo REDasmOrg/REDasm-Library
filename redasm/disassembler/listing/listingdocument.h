@@ -83,10 +83,10 @@ class LIBREDASM_API ListingDocumentType: public Object
     public:
         size_t segmentsCount() const;
         size_t lastLine() const;
-        size_t itemIndex(const ListingItem* item) const;
-        size_t functionIndex(address_t address) const;
-        size_t instructionIndex(address_t address) const;
-        size_t symbolIndex(address_t address) const;
+        size_t findItem(const ListingItem* item) const;
+        size_t findFunction(address_t address) const;
+        size_t findInstruction(address_t address) const;
+        size_t findSymbol(address_t address) const;
         const ListingFunctions *functions() const;
         const ListingCursor* cursor() const;
         const Segment *segmentByName(const String& name) const;
@@ -118,8 +118,6 @@ class LIBREDASM_API ListingDocumentType: public Object
         void eraseSymbol(address_t address);
         void setDocumentEntry(address_t address);
         void instruction(const CachedInstruction& instruction);
-
-    friend class ListingDocumentIteratorImpl;
 };
 
 typedef safe_ptr<ListingDocumentType> ListingDocument;

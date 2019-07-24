@@ -73,6 +73,10 @@ class VariantImpl
         void set(const String& v);
         void set(Object* v);
         bool equals(const Variant& rhs) const;
+        bool lt(const Variant& rhs) const;
+        bool lte(const Variant& rhs) const;
+        bool gt(const Variant& rhs) const;
+        bool gte(const Variant& rhs) const;
 
     private:
         void deallocateString();

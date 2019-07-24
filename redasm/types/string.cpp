@@ -398,4 +398,9 @@ size_t hash<REDasm::String>::operator()(const REDasm::String& s) const noexcept
     return std::hash<std::string>()(s.c_str());
 }
 
+size_t std::equal_to<REDasm::String>::operator()(const REDasm::String &s1, const REDasm::String &s2) const noexcept
+{
+    return s1 == s2;
+}
+
 } // namespace std;

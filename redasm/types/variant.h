@@ -73,6 +73,10 @@ class Variant
         Variant& operator=(Object* v);
         bool operator==(const Variant& rhs) const;
         bool operator!=(const Variant& rhs) const;
+        bool operator<=(const Variant& rhs) const;
+        bool operator>=(const Variant& rhs) const;
+        bool operator<(const Variant& rhs) const;
+        bool operator>(const Variant& rhs) const;
 
     public:
         template<typename Archive> void save(Archive& a) const;
@@ -83,3 +87,18 @@ class Variant
 
 template<typename T> T* variant_object(const REDasm::Variant& v) { return reinterpret_cast<T*>(v.toObject()); }
 template<typename T> T* variant_pointer(const REDasm::Variant& v) { return reinterpret_cast<T*>(v.toPointer()); }
+
+// Hashing support
+namespace std {
+
+template<> struct hash<REDasm::Variant>
+{
+    size_t operator()(const REDasm::Variant& v) const noexcept;
+};
+
+template<> struct equal_to<REDasm::Variant>
+{
+    size_t operator()(const REDasm::Variant& v1, const REDasm::Variant& v2) const noexcept;
+};
+
+} // namespace std

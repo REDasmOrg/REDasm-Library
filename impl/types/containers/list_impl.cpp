@@ -28,22 +28,6 @@ void ListImpl::remove(const Variant &v)
         m_list.erase(it);
 }
 
-void ListImpl::removeFirst()
-{
-    if(m_list.empty())
-        return;
-
-    m_list.pop_front();
-}
-
-void ListImpl::removeLast()
-{
-    if(m_list.empty())
-        return;
-
-    m_list.pop_back();
-}
-
 void ListImpl::releaseObjects()
 {
     for(auto it = m_list.begin(); it != m_list.end(); )
@@ -59,20 +43,8 @@ void ListImpl::releaseObjects()
     }
 }
 
-void ListImpl::sort(bool (*cb)(const Variant &, const Variant &)) { std::sort(m_list.begin(), m_list.end(), cb); }
-bool ListImpl::empty() const { return m_list.empty(); }
+void ListImpl::clear() { m_list.clear(); }
 
-ListIteratorImpl::ListIteratorImpl(List *list, size_t startidx): m_list(list), m_index(startidx) { }
-bool ListIteratorImpl::hasNext() const { return m_index < m_list->size(); }
-size_t ListIteratorImpl::index() const { return m_index - 1; }
-
-Variant ListIteratorImpl::next()
-{
-    Variant v = m_list->at(m_index);
-    m_index++;
-    return v;
-}
-
-void ListIteratorImpl::remove() { m_list->removeAt(m_index); }
+void ListImpl::sort(const List::SortCallback &cb) { std::sort(m_list.begin(), m_list.end(), cb); }
 
 } // namespace REDasm

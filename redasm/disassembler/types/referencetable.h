@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include <deque>
 #include <set>
 #include "../../types/object.h"
@@ -21,9 +20,6 @@ class LIBREDASM_API ReferenceTable: public Object
     PIMPL_DECLARE_PRIVATE(ReferenceTable)
 
     public:
-        typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
-
-    public:
         void save(cereal::BinaryOutputArchive &a) const override;
         void load(cereal::BinaryInputArchive &a) override;
 
@@ -32,7 +28,6 @@ class LIBREDASM_API ReferenceTable: public Object
         void push(address_t address, address_t refby);
         void pushTarget(address_t target, address_t pointedby);
         void popTarget(address_t target, address_t pointedby);
-        ReferenceMap::const_iterator references(address_t address) const;
         ReferenceSet targets(address_t address) const;
         address_location target(address_t address) const;
         size_t referencesCount(address_t address) const;

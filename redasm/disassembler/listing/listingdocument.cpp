@@ -72,7 +72,7 @@ void ListingDocumentType::moveToEP()
     if(!p->m_documententry)
         return;
 
-    p->m_cursor.set(this->functionIndex(p->m_documententry->address));
+    p->m_cursor.set(this->findFunction(p->m_documententry->address));
 }
 
 size_t ListingDocumentType::lastLine() const { return this->size() - 1; }
@@ -99,7 +99,7 @@ void ListingDocumentType::comment(const ListingItem *item, const String &s)
     else
         item->data()->comments.clear();
 
-    ListingDocumentChanged ldc(item, this->itemIndex(item));
+    ListingDocumentChanged ldc(item, this->findItem(item));
     changed(&ldc);
 }
 
@@ -111,7 +111,7 @@ const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) c
     if(item->is(ListingItemType::FunctionItem))
         return item;
 
-    size_t idx = this->itemIndex(item);
+    size_t idx = this->findItem(item);
 
     if(idx == REDasm::npos)
         return nullptr;
@@ -122,7 +122,7 @@ const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) c
 
 const ListingItem *ListingDocumentType::functionStart(address_t address) const
 {
-    size_t idx = this->instructionIndex(address);
+    size_t idx = this->findInstruction(address);
 
     if(idx == REDasm::npos)
         return nullptr;
@@ -263,7 +263,7 @@ void ListingDocumentType::autoComment(address_t address, const String &s)
 
     it->get()->data()->autocomments.insert(s);
 
-    ListingDocumentChanged ldc(it->get(), this->itemIndex(it->get()));
+    ListingDocumentChanged ldc(it->get(), this->findItem(it->get()));
     changed(&ldc);
 }
 
@@ -354,11 +354,10 @@ void ListingDocumentType::segment(const String &name, offset_t offset, address_t
     }
 
     PIMPL_P(ListingDocumentType);
-    auto it = p->m_segments.iterator();
 
-    while(it.hasNext())
+    for(size_t i = 0; i < p->m_segments.size(); i++)
     {
-        Segment* segment = variant_object<Segment>(it.next());
+        Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
         if(segment->is(SegmentType::Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
         {
@@ -423,7 +422,7 @@ void ListingDocumentType::setDocumentEntry(address_t address)
 {
     PIMPL_P(ListingDocumentType);
     p->m_documententry = p->m_symboltable.symbol(address);
-    p->m_cursor.set(this->functionIndex(address));
+    p->m_cursor.set(this->findFunction(address));
 }
 
 const Symbol *ListingDocumentType::documentEntry() const { PIMPL_P(const ListingDocumentType); return p->m_documententry; }
@@ -433,11 +432,9 @@ Segment *ListingDocumentType::segment(address_t address)
 {
     PIMPL_P(ListingDocumentType);
 
-    auto it = p->m_segments.iterator();
-
-    while(it.hasNext())
+    for(size_t i = 0; i < p->m_segments.size(); i++)
     {
-        Segment* segment = variant_object<Segment>(it.next());
+        Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
         if(segment->contains(address))
             return segment;
@@ -452,11 +449,9 @@ const Segment *ListingDocumentType::segmentByName(const String &name) const
 {
     PIMPL_P(const ListingDocumentType);
 
-    auto it = p->m_segments.iterator();
-
-    while(it.hasNext())
+    for(size_t i = 0; i < p->m_segments.size(); i++)
     {
-        Segment* segment = variant_object<Segment>(it.next());
+        Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
         if(segment->name == name)
             return segment;
@@ -467,10 +462,10 @@ const Segment *ListingDocumentType::segmentByName(const String &name) const
 
 void ListingDocumentType::instruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); p->push(instruction->address, ListingItemType::InstructionItem); }
 CachedInstruction ListingDocumentType::instruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.find(address); }
-size_t ListingDocumentType::itemIndex(const ListingItem *item) const { PIMPL_P(const ListingDocumentType); return p->findIndex(item->address(), item->type(), item->index()); }
-size_t ListingDocumentType::functionIndex(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::FunctionItem); }
-size_t ListingDocumentType::instructionIndex(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::InstructionItem); }
-size_t ListingDocumentType::symbolIndex(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::SymbolItem); }
+size_t ListingDocumentType::findItem(const ListingItem *item) const { PIMPL_P(const ListingDocumentType); return p->findIndex(item->address(), item->type(), item->index()); }
+size_t ListingDocumentType::findFunction(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::FunctionItem); }
+size_t ListingDocumentType::findInstruction(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::InstructionItem); }
+size_t ListingDocumentType::findSymbol(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::SymbolItem); }
 
 ListingItem* ListingDocumentType::itemAt(size_t i) const
 {

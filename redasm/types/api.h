@@ -139,7 +139,6 @@ class Instruction: public Object
         address_t endAddress() const;
         bool hasOperands() const;
         size_t operandsCount() const;
-        ListConstIterator iterator() const;
         const Operand* op(size_t idx) const;
         const Operand* firstOperand() const;
         const Operand* lastOperand() const;

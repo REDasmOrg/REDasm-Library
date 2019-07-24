@@ -1,5 +1,4 @@
 #include "analyzer_impl.h"
-#include <redasm/disassembler/listing/listingdocumentiterator.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/disassembler/disassembler.h>
@@ -29,13 +28,13 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 
 void AnalyzerImpl::findTrampoline(const Symbol *symbol)
 {
-    ListingDocumentIterator it(r_doc, symbol->address, ListingItemType::InstructionItem);
+    size_t index = r_doc->findInstruction(symbol->address);
 
-    if(!it.hasNext())
+    if(index == REDasm::npos)
         return;
 
     const Assembler* assembler = r_disasm->assembler();
-    Symbol* symtrampoline = assembler->findTrampoline(&it);
+    Symbol* symtrampoline = assembler->findTrampoline(index);
 
     if(!symtrampoline)
         return;

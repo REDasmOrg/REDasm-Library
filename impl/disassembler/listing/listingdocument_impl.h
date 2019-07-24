@@ -74,7 +74,6 @@ class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingIt
         Symbol* m_documententry;
         ActiveMeta m_activemeta;
 
-    friend class ListingDocumentIteratorImpl;
     friend class Loader;
 };
 

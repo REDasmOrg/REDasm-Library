@@ -24,7 +24,7 @@ bool Assembler::decode(const BufferView &view, Instruction* instruction)
 }
 
 bool Assembler::decodeInstruction(const BufferView &view, Instruction* instruction) { return false; }
-Symbol *Assembler::findTrampoline(ListingDocumentIterator *it) const { return nullptr; }
+Symbol *Assembler::findTrampoline(size_t index) const { return nullptr; }
 Algorithm *Assembler::doCreateAlgorithm() const { return new ControlFlowAlgorithm(); }
 Printer *Assembler::doCreatePrinter() const { return new Printer(); }
 void Assembler::setInstructionType(instruction_id_t id, InstructionType type) { PIMPL_P(Assembler); p->m_instructiontypes[id] = type; }

@@ -79,10 +79,9 @@ void AlgorithmImpl::analyze()
 
 void AlgorithmImpl::loadTargets(const CachedInstruction& instruction)
 {
-    auto it = instruction->targets().iterator();
-
-    while(it.hasNext())
-        r_disasm->pushTarget(it.next().toU64(), instruction->address);
+    instruction->targets().each([&](const Variant& v) {
+        r_disasm->pushTarget(v.toU64(), instruction->address);
+    });
 }
 
 bool AlgorithmImpl::validateState(const State &state) const

@@ -36,11 +36,9 @@ void LoaderImpl::signature(const String &sig) { m_signatures.insert(sig); }
 
 offset_location LoaderImpl::offset(address_t address) const
 {
-    auto it = m_document->segments().iterator();
-
-    while(it.hasNext())
+    for(size_t i = 0; i < m_document->segments().size(); i++)
     {
-        Segment* segment = variant_object<Segment>(it.next());
+        const Segment* segment = variant_object<Segment>(m_document->segments()[i]);
 
         if(!segment->contains(address))
             continue;
@@ -54,11 +52,9 @@ offset_location LoaderImpl::offset(address_t address) const
 
 address_location LoaderImpl::address(offset_t offset) const
 {
-    auto it = m_document->segments().iterator();
-
-    while(it.hasNext())
+    for(size_t i = 0; i < m_document->segments().size(); i++)
     {
-        Segment* segment = variant_object<Segment>(it.next());
+        const Segment* segment = variant_object<Segment>(m_document->segments()[i]);
 
         if(!segment->containsOffset(offset))
             continue;

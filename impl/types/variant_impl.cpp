@@ -162,6 +162,102 @@ bool VariantImpl::equals(const Variant &rhs) const
     return false;
 }
 
+bool VariantImpl::lt(const Variant &rhs) const
+{
+    if(m_keeper.type != rhs.pimpl_p()->m_keeper.type)
+        return false;
+
+    switch(m_keeper.type)
+    {
+        case Variant::Type::S8:     return m_keeper.value.s8_  < rhs.pimpl_p()->m_keeper.value.s8_;
+        case Variant::Type::S16:    return m_keeper.value.s16_ < rhs.pimpl_p()->m_keeper.value.s16_;
+        case Variant::Type::S32:    return m_keeper.value.s32_ < rhs.pimpl_p()->m_keeper.value.s32_;
+        case Variant::Type::S64:    return m_keeper.value.s64_ < rhs.pimpl_p()->m_keeper.value.s64_;
+        case Variant::Type::U8:     return m_keeper.value.u8_  < rhs.pimpl_p()->m_keeper.value.u8_;
+        case Variant::Type::U16:    return m_keeper.value.u16_ < rhs.pimpl_p()->m_keeper.value.u16_;
+        case Variant::Type::U32:    return m_keeper.value.u32_ < rhs.pimpl_p()->m_keeper.value.u32_;
+        case Variant::Type::U64:    return m_keeper.value.u64_ < rhs.pimpl_p()->m_keeper.value.u64_;
+        case Variant::Type::POINTER: return m_keeper.value.pointer < rhs.pimpl_p()->m_keeper.value.pointer;
+        case Variant::Type::STRING: return *m_keeper.value.string < *rhs.pimpl_p()->m_keeper.value.string;
+        case Variant::Type::OBJECT: return m_keeper.value.object->objectId() < rhs.pimpl_p()->m_keeper.value.object->objectId();
+        default: break;
+    }
+
+    return false;
+}
+
+bool VariantImpl::lte(const Variant &rhs) const
+{
+    if(m_keeper.type != rhs.pimpl_p()->m_keeper.type)
+        return false;
+
+    switch(m_keeper.type)
+    {
+        case Variant::Type::S8:     return m_keeper.value.s8_  <= rhs.pimpl_p()->m_keeper.value.s8_;
+        case Variant::Type::S16:    return m_keeper.value.s16_ <= rhs.pimpl_p()->m_keeper.value.s16_;
+        case Variant::Type::S32:    return m_keeper.value.s32_ <= rhs.pimpl_p()->m_keeper.value.s32_;
+        case Variant::Type::S64:    return m_keeper.value.s64_ <= rhs.pimpl_p()->m_keeper.value.s64_;
+        case Variant::Type::U8:     return m_keeper.value.u8_  <= rhs.pimpl_p()->m_keeper.value.u8_;
+        case Variant::Type::U16:    return m_keeper.value.u16_ <= rhs.pimpl_p()->m_keeper.value.u16_;
+        case Variant::Type::U32:    return m_keeper.value.u32_ <= rhs.pimpl_p()->m_keeper.value.u32_;
+        case Variant::Type::U64:    return m_keeper.value.u64_ <= rhs.pimpl_p()->m_keeper.value.u64_;
+        case Variant::Type::POINTER: return m_keeper.value.pointer <= rhs.pimpl_p()->m_keeper.value.pointer;
+        case Variant::Type::STRING: return *m_keeper.value.string <= *rhs.pimpl_p()->m_keeper.value.string;
+        case Variant::Type::OBJECT: return m_keeper.value.object->objectId() <= rhs.pimpl_p()->m_keeper.value.object->objectId();
+        default: break;
+    }
+
+    return false;
+}
+
+bool VariantImpl::gt(const Variant &rhs) const
+{
+    if(m_keeper.type != rhs.pimpl_p()->m_keeper.type)
+        return false;
+
+    switch(m_keeper.type)
+    {
+        case Variant::Type::S8:     return m_keeper.value.s8_  > rhs.pimpl_p()->m_keeper.value.s8_;
+        case Variant::Type::S16:    return m_keeper.value.s16_ > rhs.pimpl_p()->m_keeper.value.s16_;
+        case Variant::Type::S32:    return m_keeper.value.s32_ > rhs.pimpl_p()->m_keeper.value.s32_;
+        case Variant::Type::S64:    return m_keeper.value.s64_ > rhs.pimpl_p()->m_keeper.value.s64_;
+        case Variant::Type::U8:     return m_keeper.value.u8_  > rhs.pimpl_p()->m_keeper.value.u8_;
+        case Variant::Type::U16:    return m_keeper.value.u16_ > rhs.pimpl_p()->m_keeper.value.u16_;
+        case Variant::Type::U32:    return m_keeper.value.u32_ > rhs.pimpl_p()->m_keeper.value.u32_;
+        case Variant::Type::U64:    return m_keeper.value.u64_ > rhs.pimpl_p()->m_keeper.value.u64_;
+        case Variant::Type::POINTER: return m_keeper.value.pointer > rhs.pimpl_p()->m_keeper.value.pointer;
+        case Variant::Type::STRING: return *m_keeper.value.string > *rhs.pimpl_p()->m_keeper.value.string;
+        case Variant::Type::OBJECT: return m_keeper.value.object->objectId() > rhs.pimpl_p()->m_keeper.value.object->objectId();
+        default: break;
+    }
+
+    return false;
+}
+
+bool VariantImpl::gte(const Variant &rhs) const
+{
+    if(m_keeper.type != rhs.pimpl_p()->m_keeper.type)
+        return false;
+
+    switch(m_keeper.type)
+    {
+        case Variant::Type::S8:     return m_keeper.value.s8_  >= rhs.pimpl_p()->m_keeper.value.s8_;
+        case Variant::Type::S16:    return m_keeper.value.s16_ >= rhs.pimpl_p()->m_keeper.value.s16_;
+        case Variant::Type::S32:    return m_keeper.value.s32_ >= rhs.pimpl_p()->m_keeper.value.s32_;
+        case Variant::Type::S64:    return m_keeper.value.s64_ >= rhs.pimpl_p()->m_keeper.value.s64_;
+        case Variant::Type::U8:     return m_keeper.value.u8_  >= rhs.pimpl_p()->m_keeper.value.u8_;
+        case Variant::Type::U16:    return m_keeper.value.u16_ >= rhs.pimpl_p()->m_keeper.value.u16_;
+        case Variant::Type::U32:    return m_keeper.value.u32_ >= rhs.pimpl_p()->m_keeper.value.u32_;
+        case Variant::Type::U64:    return m_keeper.value.u64_ >= rhs.pimpl_p()->m_keeper.value.u64_;
+        case Variant::Type::POINTER: return m_keeper.value.pointer >= rhs.pimpl_p()->m_keeper.value.pointer;
+        case Variant::Type::STRING: return *m_keeper.value.string >= *rhs.pimpl_p()->m_keeper.value.string;
+        case Variant::Type::OBJECT: return m_keeper.value.object->objectId() >= rhs.pimpl_p()->m_keeper.value.object->objectId();
+        default: break;
+    }
+
+    return false;
+}
+
 void VariantImpl::deallocateString()
 {
     if(m_keeper.type == Variant::Type::STRING)

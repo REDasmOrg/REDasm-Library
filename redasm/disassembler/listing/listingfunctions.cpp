@@ -5,11 +5,11 @@
 namespace REDasm {
 
 ListingFunctions::ListingFunctions(): m_pimpl_p(new ListingFunctionsImpl()) { }
-const ListingItem *ListingFunctions::at(size_t idx) const { PIMPL_P(const ListingFunctions); return p->at(idx); }
-void ListingFunctions::insert(const ListingItem *item) { PIMPL_P(ListingFunctions); p->insert(item); }
+ListingItem *ListingFunctions::at(size_t idx) const { PIMPL_P(const ListingFunctions); return p->at(idx); }
+void ListingFunctions::insert(ListingItem *item) { PIMPL_P(ListingFunctions); p->insert(item); }
 size_t ListingFunctions::size() const { PIMPL_P(const ListingFunctions); return p->size(); }
 
-const ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
+ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 {
     PIMPL_P(const ListingFunctions);
 
@@ -25,16 +25,16 @@ const ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 
 void ListingFunctions::invalidateGraphs() { PIMPL_P(ListingFunctions); p->m_graphs.clear(); }
 
-const Graphing::FunctionGraph *ListingFunctions::graph(const ListingItem *item) const
+const Graphing::FunctionGraph *ListingFunctions::graph(ListingItem *item) const
 {
     PIMPL_P(const ListingFunctions);
     auto it = p->m_graphs.find(item);
     return (it != p->m_graphs.end()) ? it->second : nullptr;
 }
 
-Graphing::FunctionGraph *ListingFunctions::graph(const ListingItem *item) { return const_cast<Graphing::FunctionGraph*>(static_cast<const ListingFunctions*>(this)->graph(item)); }
+Graphing::FunctionGraph *ListingFunctions::graph(ListingItem *item) { return const_cast<Graphing::FunctionGraph*>(static_cast<const ListingFunctions*>(this)->graph(item)); }
 
-void ListingFunctions::graph(const ListingItem *item, Graphing::FunctionGraph* fb)
+void ListingFunctions::graph(ListingItem *item, Graphing::FunctionGraph* fb)
 {
     PIMPL_P(ListingFunctions);
     auto it = p->m_graphs.find(item);
@@ -45,6 +45,6 @@ void ListingFunctions::graph(const ListingItem *item, Graphing::FunctionGraph* f
     p->m_graphs[item] = fb;
 }
 
-void ListingFunctions::erase(const ListingItem *item) { PIMPL_P(ListingFunctions); p->erase(item); }
+void ListingFunctions::remove(ListingItem *item) { PIMPL_P(ListingFunctions); p->remove(item); }
 
 } // namespace REDasm

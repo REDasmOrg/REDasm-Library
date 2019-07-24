@@ -1,41 +1,13 @@
 #pragma once
 
-#include <redasm/types/containers/dictionary.h>
+#include <redasm/types/variant.h>
 #include <unordered_map>
 #include <map>
+#include "templates/dictionary_template.h"
 
 namespace REDasm {
 
-class DictionaryImpl
-{
-    public:
-        DictionaryImpl() = default;
-        size_t size() const;
-        const Variant& value(const Variant& key) const;
-        Variant& value(const Variant& key);
-        bool contains(const Variant& key) const;
-        void insert(const Variant& key, const Variant& value);
-        void remove(const Variant& key);
-        void clear();
-
-    private:
-        std::unordered_map<Variant, Variant> m_dict;
-};
-
-class SortedDictionaryImpl
-{
-    public:
-        SortedDictionaryImpl() = default;
-        size_t size() const;
-        const Variant& value(const Variant& key) const;
-        Variant& value(const Variant& key);
-        bool contains(const Variant& key) const;
-        void insert(const Variant& key, const Variant& value);
-        void remove(const Variant& key);
-        void clear();
-
-    private:
-        std::map<Variant, Variant> m_dict;
-};
+class DictionaryImpl: public DictionaryTemplate< std::unordered_map<Variant, Variant> > { };
+class SortedDictionaryImpl: public DictionaryTemplate< std::map<Variant, Variant> > { };
 
 } // namespace REDasm

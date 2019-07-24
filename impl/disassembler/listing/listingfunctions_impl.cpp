@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-ListingFunctionsImpl::ListingFunctionsImpl(): ListingItemConstContainer() { }
+ListingFunctionsImpl::ListingFunctionsImpl(): SortedItemList() { }
 
 REDasm::ListingFunctionsImpl::~ListingFunctionsImpl()
 {
@@ -11,10 +11,10 @@ REDasm::ListingFunctionsImpl::~ListingFunctionsImpl()
         delete item.second;
 }
 
-void ListingFunctionsImpl::erase(const ListingItem *item)
+void ListingFunctionsImpl::remove(ListingItem *item)
 {
     m_graphs.erase(item);
-    ListingItemConstContainer::erase(item);
+    SortedItemList::erase(item);
 }
 
 } // namespace REDasm

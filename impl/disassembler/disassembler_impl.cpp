@@ -26,19 +26,19 @@ Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }
 safe_ptr<ListingDocumentType> &DisassemblerImpl::document() { return m_loader->document(); }
 
-ListingItemConstContainer DisassemblerImpl::getCalls(address_t address)
+SortedList DisassemblerImpl::getCalls(address_t address)
 {
-    const REDasm::ListingItem* item = this->document()->functionStart(address);
+    REDasm::ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
-        return { };
+        return SortedList();
 
     const auto* graph = this->document()->functions()->graph(item);
 
     if(!graph)
-        return { };
+        return SortedList();
 
-    ListingItemConstContainer calls;
+    SortedList calls;
 
     for(const auto& n : graph->nodes())
     {
@@ -49,7 +49,7 @@ ListingItemConstContainer DisassemblerImpl::getCalls(address_t address)
 
         for(size_t i = fbb->startIndex(); i <= fbb->endIndex(); i++)
         {
-            const ListingItem* item = this->document()->itemAt(i);
+            ListingItem* item = this->document()->itemAt(i);
 
             if(!item->is(ListingItemType::InstructionItem))
                 continue;
@@ -70,7 +70,7 @@ ReferenceSet DisassemblerImpl::getTargets(address_t address) const { return m_re
 
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {
-    const REDasm::ListingItem* item = this->document()->functionStart(address);
+    REDasm::ListingItem* item = this->document()->functionStart(address);
 
     if(!item)
         return BufferView();
@@ -80,7 +80,6 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     if(!graph)
         return BufferView();
 
-    ListingItemConstContainer instructions;
     size_t startidx = REDasm::npos, endidx = REDasm::npos;
 
     for(const auto& n : graph->nodes())
@@ -511,7 +510,7 @@ void DisassemblerImpl::analyzeStep()
         r_ctx->log("Analysis completed");
 }
 
-void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem)
+void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *functionitem)
 {
     PIMPL_Q(Disassembler);
     r_ctx->status("Computing basic blocks @ " + String::hex(functionitem->address()));

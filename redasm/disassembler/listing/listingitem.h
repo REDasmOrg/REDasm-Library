@@ -1,6 +1,6 @@
 #pragma once
 
-#include <redasm/types/containers/sortedcontainer.h>
+#include "../../types/containers/list.h"
 #include "../../types/object.h"
 #include "../../types/string.h"
 #include "../../macros.h"
@@ -38,9 +38,6 @@ class LIBREDASM_API ListingItem: public Object
         void load(cereal::BinaryInputArchive &a) override;
 };
 
-typedef std::unique_ptr<ListingItem> ListingItemPtr;
-typedef std::deque<ListingItem*> ListingItems;
-
 template<typename T> struct ListingItemComparatorT {
     bool operator()(const T& t1, const T& t2) const {
         if(t1->address() == t2->address()) {
@@ -59,14 +56,5 @@ template<typename T> struct ListingItemFinderT {
         return t1->address() < t2->address();
     }
 };
-
-typedef ListingItemComparatorT<ListingItemPtr> ListingItemPtrComparator;
-typedef ListingItemComparatorT<const ListingItem*> ListingItemConstComparator;
-typedef ListingItemComparatorT<ListingItem*> ListingItemComparator;
-typedef ListingItemFinderT<ListingItemPtr> ListingItemPtrFinder;
-typedef ListingItemFinderT<const ListingItem*> ListingItemConstFinder;
-typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
-typedef sorted_container<const ListingItem*, ListingItemConstComparator> ListingItemConstContainer;
-typedef sorted_container<ListingItem*, ListingItemComparator> ListingItemContainer;
 
 } // namespace REDasm

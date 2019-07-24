@@ -1,7 +1,7 @@
 #pragma once
 
 #include <redasm/disassembler/listing/listingdocument.h>
-#include <redasm/types/containers/sortedcontainer.h>
+#include "../../types/containers/templates/sortedlist_template.h"
 #include "instructioncache.h"
 #include "listingitem_impl.h"
 
@@ -26,13 +26,13 @@ class ListingDocumentChangedImpl
         size_t m_index;
 };
 
-class ListingDocumentTypeImpl: public sorted_container<ListingItemPtr, ListingItemPtrComparator>
+class ListingDocumentTypeImpl: public SortedListTemplate<ListingItemPtr, ListingItemPtrComparator>
 {
     PIMPL_DECLARE_Q(ListingDocumentType)
     PIMPL_DECLARE_PUBLIC(ListingDocumentType)
 
     public:
-        typedef sorted_container<ListingItemPtr, ListingItemPtrComparator> ContainerType;
+        typedef SortedListTemplate<ListingItemPtr, ListingItemPtrComparator> ContainerType;
 
     private:
         typedef std::unordered_map<address_t, ListingCommentSet> PendingAutoComments;

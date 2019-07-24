@@ -1,8 +1,9 @@
 #pragma once
 
 #include <redasm/libs/visit_struct/visit_struct.hpp>
-#include <unordered_set>
 #include <redasm/disassembler/listing/listingitem.h>
+#include "../types/containers/templates/sortedlist_template.h"
+#include <unordered_set>
 
 namespace REDasm {
 
@@ -32,6 +33,17 @@ class ListingItemImpl
         ListingItemType m_type;
         size_t m_index;
 };
+
+typedef std::unique_ptr<ListingItem> ListingItemPtr;
+
+typedef ListingItemComparatorT<ListingItemPtr> ListingItemPtrComparator;
+typedef ListingItemComparatorT<const ListingItem*> ListingItemConstComparator;
+typedef ListingItemComparatorT<ListingItem*> ListingItemComparator;
+typedef ListingItemFinderT<ListingItemPtr> ListingItemPtrFinder;
+typedef ListingItemFinderT<const ListingItem*> ListingItemConstFinder;
+typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
+
+class SortedItemList: public SortedListTemplate<ListingItem*, ListingItemConstComparator> { };
 
 } // namespace REDasm
 

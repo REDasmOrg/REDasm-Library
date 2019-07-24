@@ -25,7 +25,7 @@ class DisassemblerImpl
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
-        ListingItemConstContainer getCalls(address_t address);
+        SortedList getCalls(address_t address);
         ReferenceTable* references();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;
@@ -64,7 +64,7 @@ class DisassemblerImpl
         void disassembleJob();
         void disassembleStep(Job *job);
         void analyzeStep();
-        void computeBasicBlocks(document_x_lock &lock, const ListingItem *functionitem);
+        void computeBasicBlocks(document_x_lock &lock, ListingItem *functionitem);
         template<typename T> String readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const;
         template<typename T> size_t locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;
 

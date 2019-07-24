@@ -35,7 +35,7 @@ class LIBREDASM_API Disassembler: public Object
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
-        ListingItemConstContainer getCalls(address_t address);
+        SortedList getCalls(address_t address);
         ReferenceTable* references();
         ReferenceVector getReferences(address_t address) const;
         ReferenceSet getTargets(address_t address) const;

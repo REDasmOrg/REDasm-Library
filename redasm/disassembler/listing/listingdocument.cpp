@@ -103,7 +103,7 @@ void ListingDocumentType::comment(const ListingItem *item, const String &s)
     changed(&ldc);
 }
 
-const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) const
+ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
 {
     if(!item)
         return nullptr;
@@ -120,7 +120,7 @@ const ListingItem *ListingDocumentType::functionStart(const ListingItem *item) c
     return p->m_functions.functionFromIndex(idx);
 }
 
-const ListingItem *ListingDocumentType::functionStart(address_t address) const
+ListingItem *ListingDocumentType::functionStart(address_t address) const
 {
     size_t idx = this->findInstruction(address);
 
@@ -131,7 +131,7 @@ const ListingItem *ListingDocumentType::functionStart(address_t address) const
     return p->m_functions.functionFromIndex(idx);
 }
 
-const ListingItem *ListingDocumentType::currentFunction() const
+ListingItem *ListingDocumentType::currentFunction() const
 {
     if(!this->currentItem())
         return nullptr;
@@ -139,7 +139,7 @@ const ListingItem *ListingDocumentType::currentFunction() const
     return this->functionStart(this->currentItem());
 }
 
-const ListingItem *ListingDocumentType::currentItem() const
+ListingItem *ListingDocumentType::currentItem() const
 {
     PIMPL_P(const ListingDocumentType);
 
@@ -149,7 +149,7 @@ const ListingItem *ListingDocumentType::currentItem() const
     return this->itemAt(p->m_cursor.currentLine());
 }
 
-const ListingItem *ListingDocumentType::segmentItem(address_t address) const
+ListingItem *ListingDocumentType::segmentItem(address_t address) const
 {
     PIMPL_P(const ListingDocumentType);
     auto it = p->segmentIterator(address);
@@ -160,7 +160,7 @@ const ListingItem *ListingDocumentType::segmentItem(address_t address) const
     return it->get();
 }
 
-const ListingItem *ListingDocumentType::symbolItem(address_t address) const
+ListingItem *ListingDocumentType::symbolItem(address_t address) const
 {
     PIMPL_P(const ListingDocumentType);
     auto it = p->symbolIterator(address);
@@ -171,7 +171,7 @@ const ListingItem *ListingDocumentType::symbolItem(address_t address) const
     return it->get();
 }
 
-const ListingItem *ListingDocumentType::instructionItem(address_t address) const
+ListingItem *ListingDocumentType::instructionItem(address_t address) const
 {
     PIMPL_P(const ListingDocumentType);
     auto it = p->instructionIterator(address);
@@ -182,7 +182,7 @@ const ListingItem *ListingDocumentType::instructionItem(address_t address) const
     return it->get();
 }
 
-const ListingItem *ListingDocumentType::functionItem(address_t address) const
+ListingItem *ListingDocumentType::functionItem(address_t address) const
 {
     PIMPL_P(const ListingDocumentType);
     auto it = p->functionIterator(address);

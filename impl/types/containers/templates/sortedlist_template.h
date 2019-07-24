@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-template< typename T, typename Comparator = std::less<T>, typename Container = std::deque<T> > class sorted_container
+template< typename T, typename Comparator = std::less<T>, typename Container = std::deque<T> > class SortedListTemplate
 {
     public:
         static const size_t npos = -1;
@@ -18,10 +18,11 @@ template< typename T, typename Comparator = std::less<T>, typename Container = s
         typedef typename Container::size_type size_type;
 
     public:
-        sorted_container() = default;
-        virtual ~sorted_container() = default;
+        SortedListTemplate() = default;
+        virtual ~SortedListTemplate() = default;
         size_t size() const { return m_container.size(); }
         bool empty() const { return m_container.empty(); }
+        void clear() { m_container.clear(); }
         iterator begin() { return m_container.begin(); }
         iterator end() { return m_container.end(); }
         reverse_iterator rbegin() { return m_container.rbegin(); }
@@ -89,6 +90,10 @@ template< typename T, typename Comparator = std::less<T>, typename Container = s
             auto it = std::lower_bound(m_container.begin(), m_container.end(), t, Comparator());
             return m_container.insert(it, std::move(t));
         }
+
+    public:
+        template<typename Archive> void save(Archive& a) const { a(m_container); }
+        template<typename Archive> void load(Archive& a) { a(m_container); }
 
     private:
         Container m_container;

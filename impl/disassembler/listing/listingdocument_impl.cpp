@@ -11,7 +11,7 @@ bool ListingDocumentChangedImpl::isInserted() const { return m_action == Listing
 bool ListingDocumentChangedImpl::isRemoved() const { return m_action == ListingDocumentAction::Removed; }
 size_t ListingDocumentChangedImpl::index() const { return m_index; }
 
-ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): sorted_container<ListingItemPtr, ListingItemPtrComparator>(), m_pimpl_q(q), m_documententry(nullptr) { }
+ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): SortedListTemplate<ListingItemPtr, ListingItemPtrComparator>(), m_pimpl_q(q), m_documententry(nullptr) { }
 ListingDocumentTypeImpl::~ListingDocumentTypeImpl() { m_segments.releaseObjects(); }
 
 ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::functionStartIterator(address_t address) const
@@ -83,7 +83,7 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
         q->changed(&ldc);
 
         if(type == ListingItemType::FunctionItem)
-            m_functions.erase(it->get());
+            m_functions.remove(it->get());
 
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "../object.h"
 #include "../../macros.h"
 #include "../../pimpl.h"
@@ -15,7 +16,7 @@ class LIBREDASM_API Container: public Object
         virtual void clear() = 0;
 };
 
-class LIBREDASM_API ListContainer: public Container
+class LIBREDASM_API ListContainerBase: public Container
 {
     public:
         typedef bool(*SortCallback)(const Variant&, const Variant&);
@@ -34,10 +35,19 @@ class LIBREDASM_API ListContainer: public Container
         virtual const Variant& first() const = 0;
         virtual const Variant& last() const = 0;
         virtual size_t indexOf(const Variant &v) const = 0;
-        virtual void append(const Variant& v) = 0;
-        virtual void insert(size_t idx, const Variant& v) = 0;
         virtual void removeAt(size_t idx) = 0;
         virtual void remove(const Variant& v) = 0;
+
+    public:
+        inline size_t find(const std::function<bool(const Variant&)>& cb) const { for(size_t i = 0; i < this->size(); i++) { if(cb(this->at(i))) return i; } return REDasm::npos; }
+        inline void each(const std::function<void(const Variant&)>& cb) const { for(size_t i = 0; i < this->size(); i++) cb(this->at(i)); }
+};
+
+class LIBREDASM_API ListContainer: public ListContainerBase
+{
+    public:
+        virtual void append(const Variant& v) = 0;
+        virtual void insert(size_t idx, const Variant& v) = 0;
         virtual void sort(const SortCallback& cb) = 0;
 };
 

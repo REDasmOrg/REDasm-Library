@@ -4,22 +4,23 @@
 #include <redasm/disassembler/listing/listingitem.h>
 #include <redasm/pimpl.h>
 #include <unordered_map>
+#include "listingitem_impl.h"
 
 namespace REDasm {
 
-class ListingFunctionsImpl: public ListingItemConstContainer
+class ListingFunctionsImpl: public SortedItemList
 {
     PIMPL_DECLARE_Q(ListingFunctions)
     PIMPL_DECLARE_PUBLIC(ListingFunctions)
 
     public:
-        typedef std::pair< const ListingItem*, Graphing::FunctionGraph* > FunctionGraphItem;
-        typedef std::unordered_map< const ListingItem*, Graphing::FunctionGraph* > FunctionGraphs;
+        typedef std::pair<ListingItem*, Graphing::FunctionGraph*> FunctionGraphItem;
+        typedef std::unordered_map<ListingItem*, Graphing::FunctionGraph*> FunctionGraphs;
 
     public:
         ListingFunctionsImpl();
         ~ListingFunctionsImpl();
-        void erase(const ListingItem *item);
+        void remove(ListingItem *item);
 
     private:
         FunctionGraphs m_graphs;

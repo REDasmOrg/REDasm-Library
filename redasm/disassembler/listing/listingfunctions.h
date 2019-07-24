@@ -19,16 +19,16 @@ class LIBREDASM_API ListingFunctions
 
     public:
         ListingFunctions();
-        const ListingItem* at(size_t idx) const;
-        void insert(const ListingItem* item);
+        ListingItem* at(size_t idx) const;
+        void insert(ListingItem* item);
         size_t size() const;
 
     public:
-        const ListingItem *functionFromIndex(size_t idx) const;
-        const Graphing::FunctionGraph* graph(const ListingItem* item) const;
-        Graphing::FunctionGraph* graph(const ListingItem* item);
-        void graph(const ListingItem *item, Graphing::FunctionGraph* graph);
-        void erase(const ListingItem *item);
+        ListingItem *functionFromIndex(size_t idx) const;
+        const Graphing::FunctionGraph* graph(ListingItem* item) const;
+        Graphing::FunctionGraph* graph(ListingItem* item);
+        void graph(ListingItem *item, Graphing::FunctionGraph* graph);
+        void remove(ListingItem *item);
         void invalidateGraphs();
 };
 

@@ -20,6 +20,16 @@ class Set: public SetContainer
         void insert(const Variant &v) override;
         void remove(const Variant &v) override;
         void clear() override;
+
+    public:
+        Variant& at(size_t idx) override;
+        Variant& first() override;
+        Variant& last() override;
+        const Variant& at(size_t idx) const override;
+        const Variant& first() const override;
+        const Variant& last() const override;
+        size_t indexOf(const Variant &v) const override;
+        void removeAt(size_t idx) override;
 };
 
 class SortedSet: public SetContainer
@@ -35,6 +45,16 @@ class SortedSet: public SetContainer
         void insert(const Variant &v) override;
         void remove(const Variant &v) override;
         void clear() override;
+
+    public:
+        Variant& at(size_t idx) override;
+        Variant& first() override;
+        Variant& last() override;
+        const Variant& at(size_t idx) const override;
+        const Variant& first() const override;
+        const Variant& last() const override;
+        size_t indexOf(const Variant &v) const override;
+        void removeAt(size_t idx) override;
 };
 
 } // namespace REDasm

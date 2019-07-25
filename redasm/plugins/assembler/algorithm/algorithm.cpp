@@ -188,10 +188,11 @@ void Algorithm::addressTableState(const State *state)
             fwdstate = Algorithm::MemoryState;
         }
 
-        ReferenceSet targets = r_disasm->getTargets(instruction->address);
+        SortedSet targets = r_disasm->getTargets(instruction->address);
 
-        for(address_t target : targets)
-            FORWARD_STATE_VALUE(fwdstate, target, state);
+        targets.each([&](const Variant& v) {
+            FORWARD_STATE_VALUE(fwdstate, v.toU64(), state);
+        });
 
         return;
     }

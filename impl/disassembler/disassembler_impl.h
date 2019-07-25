@@ -27,8 +27,8 @@ class DisassemblerImpl
         safe_ptr<ListingDocumentType>& document();
         SortedList getCalls(address_t address);
         ReferenceTable* references();
-        ReferenceVector getReferences(address_t address) const;
-        ReferenceSet getTargets(address_t address) const;
+        SortedSet getReferences(address_t address) const;
+        SortedSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
         Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
         CachedInstruction disassembleInstruction(address_t address);

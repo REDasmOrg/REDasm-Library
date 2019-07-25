@@ -9,10 +9,11 @@ ControlFlowAlgorithmImpl::ControlFlowAlgorithmImpl(ControlFlowAlgorithm *algorit
 void ControlFlowAlgorithmImpl::enqueueTargets(const CachedInstruction& instruction)
 {
     PIMPL_Q(ControlFlowAlgorithm);
-    ReferenceSet targets = r_disasm->getTargets(instruction->address);
+    SortedSet targets = r_disasm->getTargets(instruction->address);
 
-    for(address_t target : targets)
-        q->enqueueTarget(target, instruction);
+    targets.each([&](const Variant& v) {
+        q->enqueueTarget(v.toU64(), instruction);
+    });
 }
 
 } // namespace REDasm

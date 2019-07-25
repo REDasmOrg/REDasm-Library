@@ -12,7 +12,7 @@ class ReferenceTableImpl
     PIMPL_DECLARE_PUBLIC(ReferenceTable)
 
     public:
-        typedef std::unordered_map<address_t, ReferenceSet> ReferenceMap;
+        typedef std::unordered_map<address_t, SortedSet> ReferenceMap;
 
     public:
         ReferenceTableImpl() = default;

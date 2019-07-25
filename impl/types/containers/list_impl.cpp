@@ -10,13 +10,13 @@ Variant &ListImpl::at(size_t idx) { return m_list[idx]; }
 const Variant &ListImpl::at(size_t idx) const { return m_list[idx]; }
 size_t ListImpl::size() const { return m_list.size(); }
 
-size_t ListImpl::indexOf(const Variant &obj) const
+size_t ListImpl::indexOf(const Variant &v) const
 {
-    auto it = std::find(m_list.begin(), m_list.end(), obj);
+    auto it = std::find(m_list.begin(), m_list.end(), v);
     return (it == m_list.end()) ? REDasm::npos : std::distance(m_list.begin(), it);
 }
 
-void ListImpl::append(const Variant &obj) { m_list.push_back(obj); }
+void ListImpl::append(const Variant &v) { m_list.push_back(v); }
 void ListImpl::insert(size_t idx, const Variant &v) { m_list.insert(m_list.begin() + idx, v); }
 void ListImpl::removeAt(size_t idx) { m_list.erase(m_list.begin() + idx); }
 

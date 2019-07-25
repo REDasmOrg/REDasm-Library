@@ -1,8 +1,8 @@
 #pragma once
 
 #include <redasm/types/containers/set.h>
+#include "templates/sortedlist_template.h"
 #include <unordered_set>
-#include <set>
 
 namespace REDasm {
 
@@ -16,7 +16,18 @@ class SetImpl
         void remove(const Variant &v);
         void clear();
 
+    public:
+        Variant& at(size_t idx);
+        Variant& first();
+        Variant& last();
+        const Variant& at(size_t idx) const;
+        const Variant& first() const;
+        const Variant& last() const;
+        size_t indexOf(const Variant &v) const;
+        void removeAt(size_t idx);
+
     private:
+        std::deque<Variant> m_list;
         std::unordered_set<Variant> m_set;
 };
 
@@ -30,8 +41,19 @@ class SortedSetImpl
         void remove(const Variant &v);
         void clear();
 
+    public:
+        Variant& at(size_t idx);
+        Variant& first();
+        Variant& last();
+        const Variant& at(size_t idx) const;
+        const Variant& first() const;
+        const Variant& last() const;
+        size_t indexOf(const Variant &v) const;
+        void removeAt(size_t idx);
+
     private:
-        std::set<Variant> m_set;
+        SortedListTemplate<Variant> m_list;
+        std::unordered_set<Variant> m_set;
 };
 
 } // namespace REDasm

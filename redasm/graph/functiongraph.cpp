@@ -163,8 +163,11 @@ bool FunctionGraph::connectBasicBlocks()
 
         if(instruction->is(InstructionType::Jump))
         {
-            for(address_t target : m_disassembler->getTargets(instruction->address))
+            SortedSet targets = m_disassembler->getTargets(instruction->address);
+
+            for(size_t i = 0; i < targets.size(); i++)
             {
+                address_t target = targets[i].toU64();
                 Symbol* symbol = m_document->symbol(target);
 
                 if(!symbol || !symbol->is(SymbolType::Code))
@@ -254,10 +257,11 @@ void FunctionGraph::buildBasicBlock(size_t index)
 
             if(instruction->is(InstructionType::Jump))
             {
-                ReferenceSet targets = m_disassembler->getTargets(instruction->address);
+                SortedSet targets = m_disassembler->getTargets(instruction->address);
 
-                for(address_t target : targets)
+                for(size_t i = 0; i < targets.size(); i++)
                 {
+                    address_t target = targets[i].toU64();
                     Symbol* symbol = m_document->symbol(target);
 
                     if(!symbol || !symbol->is(SymbolType::Code))

@@ -30,8 +30,8 @@ const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(co
 safe_ptr<ListingDocumentType> &Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
 SortedList Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
-ReferenceVector Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
-ReferenceSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }
+SortedSet Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
+SortedSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }
 Symbol *Disassembler::dereferenceSymbol(const Symbol *symbol, u64 *value) { PIMPL_P(Disassembler); return p->dereferenceSymbol(symbol, value); }
 CachedInstruction Disassembler::disassembleInstruction(address_t address) { PIMPL_P(Disassembler); return p->disassembleInstruction(address); }
 address_location Disassembler::getTarget(address_t address) const { PIMPL_P(const Disassembler); return p->getTarget(address); }

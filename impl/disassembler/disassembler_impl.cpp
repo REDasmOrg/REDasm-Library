@@ -65,8 +65,8 @@ SortedList DisassemblerImpl::getCalls(address_t address)
 }
 
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
-ReferenceVector DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.referencesToVector(address); }
-ReferenceSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }
+SortedSet DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.references(address); }
+SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }
 
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {

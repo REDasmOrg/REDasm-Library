@@ -22,8 +22,8 @@ class ListImpl
         const Variant& last() const;
         const Variant& at(size_t idx) const;
         size_t size() const;
-        size_t indexOf(const Variant& obj) const;
-        void append(const Variant& obj);
+        size_t indexOf(const Variant& v) const;
+        void append(const Variant& v);
         void insert(size_t idx, const Variant& v);
         void removeAt(size_t idx);
         void remove(const Variant &v);

@@ -33,7 +33,7 @@ class EdgeList: public Object
         const Edge& at(size_t idx) const;
         bool empty() const;
         void append(const Edge& e);
-        void remove(const Edge& e);
+        void erase(const Edge& e);
         void clear();
         const Edge& operator[](size_t idx) const;
 };

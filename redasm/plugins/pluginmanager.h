@@ -22,7 +22,7 @@ class PluginList: public Object
         const PluginInstance* at(size_t idx) const;
         const PluginInstance* first() const;
         const PluginInstance* last() const;
-        void remove(const PluginInstance* pi);
+        void erase(const PluginInstance* pi);
         bool empty() const;
         size_t size() const;
 

@@ -2,7 +2,6 @@
 
 #include "../../plugins/assembler/printer/printer.h"
 #include "listingdocument.h"
-#include <algorithm>
 
 #define REDASM_WORD_REGEX    "([\\w\\$_\\.]+)"
 
@@ -13,70 +12,44 @@ struct RendererFormat
     size_t start, end; // [start, end]
     String fgstyle, bgstyle;
 
-    inline size_t length() const {
-        if((start == REDasm::npos) || (end == REDasm::npos))
-            return 0;
+    size_t length() const;
+    bool empty() const;
+    bool contains(size_t pos) const;
+    bool equals(size_t start, size_t end) const;
+};
 
-        return start <= end ? (end - start + 1) : 0;
-    }
+class RendererFormatListImpl;
 
-    inline bool empty() const { return this->length() == 0; }
-    inline bool contains(size_t pos) const { return (pos >= start) && (pos <= end); }
-    inline bool equals(size_t start, size_t end) const { return (start == this->start) && (end == this->end); }
+class RendererFormatList
+{
+    PIMPL_DECLARE_P(RendererFormatList)
+    PIMPL_DECLARE_PRIVATE(RendererFormatList)
+
+    public:
+        RendererFormatList();
+        const RendererFormat& at(size_t pos) const;
+        RendererFormat& at(size_t pos);
+        size_t indexFromPos(size_t pos) const;
+        size_t size() const;
+        void append(const RendererFormat& rf);
+        size_t insert(size_t idx, const RendererFormat& rf);
+        size_t erase(size_t start, size_t end);
 };
 
 struct RendererLine
 {
-    RendererLine(bool ignoreflags = false): userdata(nullptr), documentindex(0), index(0), highlighted(false), ignoreflags(ignoreflags) { }
-
     void* userdata;
     size_t documentindex, index;
     bool highlighted, ignoreflags;
-    std::list<RendererFormat> formats;
+    RendererFormatList formats;
     String text;
 
-    String formatText(const RendererFormat& rf) const { return text.substring(rf.start, rf.length()); }
-    size_t length() const { return text.size(); }
-
-    std::list<RendererFormat>::iterator unformat(size_t start, size_t end) {
-        auto begit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(start); });
-        auto endit = std::find_if(formats.begin(), formats.end(), [=](const RendererFormat& rf) -> bool { return rf.contains(end); });
-
-        RendererFormat begrf = *begit, endrf = *endit;
-        auto it = formats.erase(begit, ++endit);
-
-        begrf.end = start - 1; // Shrink first part
-        endrf.start = end + 1; // Shrink last part
-
-        if(!begrf.empty())
-        {
-            it = formats.insert(it, begrf);
-            it++;
-        }
-
-        if(!endrf.empty())
-            it = formats.insert(it, endrf);
-
-        return it;
-    }
-
-    RendererLine& format(size_t start, size_t end, const String& fgstyle = String(), const String& bgstyle = String()) {
-        if(text.empty() || (start >= text.size()))
-            return *this;
-
-        end = std::min(end, text.size() - 1);
-
-        auto it = this->unformat(start, end);
-        formats.insert(it, { start, end, fgstyle, bgstyle });
-        return *this;
-    }
-
-    RendererLine& push(const String& text, const String& fgstyle = String(), const String& bgstyle = String()) {
-        size_t start = this->text.size();
-        formats.push_back({ start, start + text.size() - 1, fgstyle, bgstyle});
-        this->text += text;
-        return *this;
-    }
+    RendererLine(bool ignoreflags = false);
+    String formatText(const RendererFormat& rf) const;
+    size_t length() const;
+    size_t unformat(size_t start, size_t end);
+    RendererLine& format(size_t start, size_t end, const String& fgstyle = String(), const String& bgstyle = String());
+    RendererLine& push(const String& text, const String& fgstyle = String(), const String& bgstyle = String());
 };
 
 enum class ListingRendererFlags

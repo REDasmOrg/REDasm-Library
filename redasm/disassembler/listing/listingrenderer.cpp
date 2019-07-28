@@ -1,5 +1,6 @@
 ﻿#include "listingrenderer.h"
 #include <impl/disassembler/listing/listingrenderer_impl.h>
+#include <algorithm>
 #include "../../disassembler/disassembler.h"
 #include "../../plugins/assembler/assembler.h"
 #include "../../plugins/loader/loader.h"
@@ -12,6 +13,97 @@
 #define HEX_ADDRESS(address) String::hex(address, r_asm->bits())
 
 namespace REDasm {
+
+RendererLine::RendererLine(bool ignoreflags): userdata(nullptr), documentindex(0), index(0), highlighted(false), ignoreflags(ignoreflags) { }
+String RendererLine::formatText(const RendererFormat &rf) const { return text.substring(rf.start, rf.length()); }
+size_t RendererLine::length() const { return text.size(); }
+bool RendererFormat::empty() const { return this->length() == 0; }
+bool RendererFormat::contains(size_t pos) const { return (pos >= start) && (pos <= end); }
+bool RendererFormat::equals(size_t start, size_t end) const { return (start == this->start) && (end == this->end); }
+
+size_t RendererFormat::length() const
+{
+    if((start == REDasm::npos) || (end == REDasm::npos))
+        return 0;
+
+    return start <= end ? (end - start + 1) : 0;
+}
+
+RendererFormatList::RendererFormatList(): m_pimpl_p(new RendererFormatListImpl()) { }
+const RendererFormat &RendererFormatList::at(size_t pos) const { PIMPL_P(const RendererFormatList); return p->at(pos); }
+RendererFormat &RendererFormatList::at(size_t pos) { PIMPL_P(RendererFormatList); return p->at(pos); }
+void RendererFormatList::append(const RendererFormat &rf) { PIMPL_P(RendererFormatList); p->append(rf); }
+size_t RendererFormatList::insert(size_t idx, const RendererFormat &rf) { PIMPL_P(RendererFormatList); return p->insert(idx, rf); }
+
+size_t RendererFormatList::indexFromPos(size_t pos) const
+{
+    PIMPL_P(const RendererFormatList);
+
+    for(size_t i = 0; i < p->size(); i++)
+    {
+        if(p->at(i).contains(pos))
+            return i;
+    }
+
+    return REDasm::npos;
+}
+
+size_t RendererFormatList::size() const { PIMPL_P(const RendererFormatList); return p->size(); }
+
+size_t RendererFormatList::erase(size_t start, size_t end)
+{
+    PIMPL_P(RendererFormatList);
+
+    size_t pos = REDasm::npos;
+
+    for(size_t i = start; i < end; i++)
+        pos = p->eraseAt(start);
+
+    return pos;
+}
+
+RendererLine &RendererLine::push(const String &text, const String &fgstyle, const String &bgstyle)
+{
+    size_t start = this->text.size();
+    formats.append({ start, start + text.size() - 1, fgstyle, bgstyle});
+    this->text += text;
+    return *this;
+}
+
+size_t RendererLine::unformat(size_t start, size_t end)
+{
+    size_t begidx = formats.indexFromPos(start);
+    size_t endidx = formats.indexFromPos(end);
+
+    RendererFormat begrf = formats.at(begidx), endrf = formats.at(endidx);
+    size_t idx = formats.erase(begidx, endidx + 1);
+
+    begrf.end = start - 1; // Shrink first part
+    endrf.start = end + 1; // Shrink last part
+
+    if(!begrf.empty())
+    {
+        idx = formats.insert(idx, begrf);
+        idx++;
+    }
+
+    if(!endrf.empty())
+        idx = formats.insert(idx, endrf);
+
+    return idx;
+}
+
+RendererLine &RendererLine::format(size_t start, size_t end, const String &fgstyle, const String &bgstyle)
+{
+    if(text.empty() || (start >= text.size()))
+        return *this;
+
+    end = std::min(end, text.size() - 1);
+
+    size_t idx = this->unformat(start, end);
+    formats.insert(idx, { start, end, fgstyle, bgstyle });
+    return *this;
+}
 
 ListingRenderer::ListingRenderer(): m_pimpl_p(new ListingRendererImpl(this)) { }
 
@@ -57,8 +149,10 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
     RendererLine rl;
     this->getRendererLine(pos.line, rl);
 
-    for(const RendererFormat& rf : rl.formats)
+    for(size_t i = 0; i < rl.formats.size(); i++)
     {
+        const RendererFormat& rf = rl.formats.at(i);
+
         if(!rf.contains(pos.column))
             continue;
 

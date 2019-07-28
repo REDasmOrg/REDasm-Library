@@ -23,17 +23,25 @@ template<typename T> class ListTemplate
         size_t size() const { return m_list.size(); }
         bool empty() const { return m_list.empty(); }
         void append(const T& v) { m_list.push_back(v); }
-        void insert(size_t idx, const T& v) { m_list.insert(m_list.begin() + idx, v); }
-        void eraseAt(size_t idx) { m_list.erase(m_list.begin() + idx); }
+        size_t eraseAt(size_t idx) { return std::distance(m_list.begin(), m_list.erase(m_list.begin() + idx)); }
         void clear() { m_list.clear(); }
 
     public:
+        size_t insert(size_t idx, const T& v) {
+            if(idx >= m_list.size())  {
+                m_list.push_back(v);
+                return m_list.size() - 1;
+            }
+
+            return std::distance(m_list.begin(), m_list.insert(m_list.begin() + idx, v));
+        }
+
         size_t indexOf(const T& v) const {
             auto it = std::find(m_list.begin(), m_list.end(), v);
             return (it == m_list.end()) ? REDasm::npos : std::distance(m_list.begin(), it);
         }
 
-        void remove(const T &v) {
+        void erase(const T &v) {
             auto it = std::find(m_list.begin(), m_list.end(), v);
 
             if(it != m_list.end())

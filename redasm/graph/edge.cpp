@@ -15,7 +15,7 @@ size_t EdgeList::size() const { PIMPL_P(const EdgeList); return p->size(); }
 const Edge &EdgeList::at(size_t idx) const { PIMPL_P(const EdgeList); return p->at(idx); }
 bool EdgeList::empty() const { PIMPL_P(const EdgeList); return p->empty(); }
 void EdgeList::append(const Edge &e) { PIMPL_P(EdgeList); return p->append(e); }
-void EdgeList::remove(const Edge &e) { PIMPL_P(EdgeList); return p->remove(e); }
+void EdgeList::erase(const Edge &e) { PIMPL_P(EdgeList); return p->erase(e); }
 void EdgeList::clear() { PIMPL_P(EdgeList); return p->clear(); }
 const Edge &EdgeList::operator[](size_t idx) const { return this->at(idx); }
 

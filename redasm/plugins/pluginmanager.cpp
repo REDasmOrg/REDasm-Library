@@ -14,7 +14,7 @@ PluginList::PluginList(): m_pimpl_p(new PluginListImpl()) { }
 const PluginInstance *PluginList::at(size_t idx) const { PIMPL_P(const PluginList); return p->at(idx); }
 const PluginInstance *PluginList::first() const { PIMPL_P(const PluginList); return p->first(); }
 const PluginInstance *PluginList::last() const { PIMPL_P(const PluginList); return p->last(); }
-void PluginList::remove(const PluginInstance *pi) { PIMPL_P(PluginList); p->remove(pi); }
+void PluginList::erase(const PluginInstance *pi) { PIMPL_P(PluginList); p->erase(pi); }
 bool PluginList::empty() const { PIMPL_P(const PluginList); return p->empty(); }
 size_t PluginList::size() const { PIMPL_P(const PluginList); return p->size(); }
 

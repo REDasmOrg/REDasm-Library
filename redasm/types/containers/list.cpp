@@ -18,8 +18,8 @@ size_t List::size() const { PIMPL_P(const List); return p->size(); }
 size_t List::indexOf(const Variant& v) const { PIMPL_P(const List); return p->indexOf(v); }
 void List::append(const Variant &v) { PIMPL_P(List); p->append(v); }
 void List::insert(size_t idx, const Variant &v) { PIMPL_P(List); p->insert(idx, v); }
-void List::eraseAt(size_t idx) { PIMPL_P(List); p->remove(idx); }
-void List::erase(const Variant &v) { PIMPL_P(List); p->remove(v); }
+void List::eraseAt(size_t idx) { PIMPL_P(List); p->eraseAt(idx); }
+void List::erase(const Variant &v) { PIMPL_P(List); p->erase(v); }
 void List::sort(const SortCallback &cb) { PIMPL_P(List); return p->sort(cb); }
 void List::clear() { PIMPL_P(List); return p->clear(); }
 void List::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const List); a(p->m_list); }

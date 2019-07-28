@@ -2,8 +2,11 @@
 
 #include <redasm/disassembler/listing/listingrenderer.h>
 #include <redasm/pimpl.h>
+#include "../../types/containers/templates/list_template.h"
 
 namespace REDasm {
+
+class RendererFormatListImpl: public ListTemplate<RendererFormat> { };
 
 class ListingRendererImpl
 {

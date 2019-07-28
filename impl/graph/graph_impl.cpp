@@ -18,8 +18,8 @@ bool GraphImpl::containsEdge(Node source, Node target) const
     return false;
 }
 
-void GraphImpl::removeEdge(const Edge& e) { m_edges.remove(e); }
-void GraphImpl::removeNode(Node n) { m_nodes.remove(n); this->removeEdges(n); }
+void GraphImpl::removeEdge(const Edge& e) { m_edges.erase(e); }
+void GraphImpl::removeNode(Node n) { m_nodes.erase(n); this->removeEdges(n); }
 
 EdgeList GraphImpl::outgoing(Node n) const
 {

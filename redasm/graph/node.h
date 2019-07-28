@@ -21,7 +21,7 @@ class NodeList: public Object
         Node at(size_t idx) const;
         bool empty() const;
         void append(Node n);
-        void remove(Node n);
+        void erase(Node n);
         void clear();
 };
 

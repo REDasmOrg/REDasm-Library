@@ -1,10 +1,30 @@
 #pragma once
 
+#include <unordered_map>
 #include <functional>
 #include <redasm/pimpl.h>
 #include <redasm/plugins/pluginmanager.h>
+#include "../types/containers/templates/list_template.h"
+#include "../types/containers/templates/dictionary_template.h"
 
 namespace REDasm {
+
+class PluginListImpl: public ListTemplate<const PluginInstance*>
+{
+    PIMPL_DECLARE_Q(PluginList)
+    PIMPL_DECLARE_PUBLIC(PluginList)
+
+    public:
+        void weightSort();
+        void alphaSort();
+};
+
+class PluginMapImpl: public DictionaryTemplate< std::unordered_map<String, PluginInstance>, std::unordered_set<String> >
+{
+    PIMPL_DECLARE_Q(PluginMap)
+    PIMPL_DECLARE_PUBLIC(PluginMap)
+
+};
 
 class PluginManagerImpl
 {
@@ -31,7 +51,7 @@ class PluginManagerImpl
         const PluginInstance* find(const String& path, const String& id, const String& initname);
 
     private:
-        PluginManager::PluginMap m_activeplugins;
+        PluginMap m_activeplugins;
 };
 
 } // namespace REDasm

@@ -41,8 +41,8 @@ class LIBREDASM_API ListContainerBase: public Container
         virtual const Variant& first() const = 0;
         virtual const Variant& last() const = 0;
         virtual size_t indexOf(const Variant &v) const = 0;
-        virtual void remove(const Variant& v) = 0;
-        virtual void removeAt(size_t idx) = 0;
+        virtual void erase(const Variant& v) = 0;
+        virtual void eraseAt(size_t idx) = 0;
 };
 
 class LIBREDASM_API ListContainer: public ListContainerBase
@@ -75,7 +75,7 @@ class LIBREDASM_API DictionaryContainer: public Container
         virtual Variant& value(const Variant& key) = 0;
         virtual bool contains(const Variant& key) const = 0;
         virtual void insert(const Variant& key, const Variant& value) = 0;
-        virtual void remove(const Variant& key) = 0;
+        virtual void erase(const Variant& key) = 0;
 };
 
 } // namespace REDasm

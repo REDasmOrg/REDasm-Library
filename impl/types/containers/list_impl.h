@@ -50,8 +50,8 @@ class SortedListImpl
         size_t indexOf(const Variant& obj) const;
         size_t insertionIndex(const Variant& v) const;
         void insert(const Variant& v);
-        void removeAt(size_t idx);
-        void remove(const Variant &v);
+        void eraseAt(size_t idx);
+        void erase(const Variant &v);
         void releaseObjects();
         void clear();
 

@@ -24,7 +24,7 @@ template<typename T> class ListTemplate
         bool empty() const { return m_list.empty(); }
         void append(const T& v) { m_list.push_back(v); }
         void insert(size_t idx, const T& v) { m_list.insert(m_list.begin() + idx, v); }
-        void removeAt(size_t idx) { m_list.erase(m_list.begin() + idx); }
+        void eraseAt(size_t idx) { m_list.erase(m_list.begin() + idx); }
         void clear() { m_list.clear(); }
 
     public:

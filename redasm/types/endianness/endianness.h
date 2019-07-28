@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <type_traits>
 #include "../base.h"
 #include "../numeric.h"

@@ -11,11 +11,25 @@
 
 namespace REDasm {
 
+void PluginListImpl::weightSort()
+{
+    std::sort(m_list.begin(), m_list.end(), [](const PluginInstance* pi1, const PluginInstance* pi2) -> bool {
+        return pi1->descriptor->plugin->weight() < pi2->descriptor->plugin->weight();
+    });
+}
+
+void PluginListImpl::alphaSort()
+{
+    std::sort(m_list.begin(), m_list.end(), [](const PluginInstance* pi1, const PluginInstance* pi2) -> bool {
+        return String(pi1->descriptor->description) < String(pi2->descriptor->description);
+    });
+}
+
 void PluginManagerImpl::unload(const PluginInstance *pi)
 {
     String id = pi->descriptor->id;
     PluginLoader::unload(pi);
-    m_activeplugins.erase(id);
+    m_activeplugins.pimpl_p()->erase(id);
 }
 
 const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const String &initname)
@@ -25,12 +39,12 @@ const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const St
     if(!PluginLoader::load(pluginpath, initname, &pi))
         return nullptr;
 
-    auto it = m_activeplugins.insert({pi.descriptor->id, pi});
+    m_activeplugins.pimpl_p()->insert(pi.descriptor->id, pi);
 
     if(pi.descriptor->plugin)
-        pi.descriptor->plugin->setInstance(&it.first->second); // Bind Descriptor <-> Plugin
+        pi.descriptor->plugin->setInstance(&m_activeplugins.pimpl_p()->value(pi.descriptor->id)); // Bind Descriptor <-> Plugin
 
-    return &it.first->second;
+    return &m_activeplugins.pimpl_p()->value(pi.descriptor->id);
 }
 
 void PluginManagerImpl::iteratePlugins(const String &initname, const PluginManager_Callback &cb)
@@ -44,10 +58,10 @@ void PluginManagerImpl::iteratePlugins(const String &initname, const PluginManag
 
 void PluginManagerImpl::unloadAll()
 {
-    while(!m_activeplugins.empty())
+    while(!m_activeplugins.pimpl_p()->empty())
     {
-        auto it = m_activeplugins.begin();
-        this->unload(&it->second);
+        const String& id = m_activeplugins.pimpl_p()->first();
+        this->unload(&m_activeplugins.pimpl_p()->value(id));
     }
 }
 

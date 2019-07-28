@@ -21,7 +21,7 @@ class LIBREDASM_API Dictionary: public DictionaryContainer
         Variant& value(const Variant& key) override;
         bool contains(const Variant& key) const override;
         void insert(const Variant& key, const Variant& value) override;
-        void remove(const Variant& key) override;
+        void erase(const Variant& key) override;
         void clear() override;
         const Variant& operator[](const Variant& key) const;
         Variant& operator[](const Variant& key);
@@ -41,7 +41,7 @@ class LIBREDASM_API SortedDictionary: public DictionaryContainer
         Variant& value(const Variant& key) override;
         bool contains(const Variant& key) const override;
         void insert(const Variant& key, const Variant& value) override;
-        void remove(const Variant& key) override;
+        void erase(const Variant& key) override;
         void clear() override;
         const Variant& operator[](const Variant& key) const;
         Variant& operator[](const Variant& key);

@@ -24,7 +24,7 @@ class SetImpl
         const Variant& first() const;
         const Variant& last() const;
         size_t indexOf(const Variant &v) const;
-        void removeAt(size_t idx);
+        void eraseAt(size_t idx);
 
     private:
         std::deque<Variant> m_list;

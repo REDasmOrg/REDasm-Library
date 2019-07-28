@@ -18,8 +18,8 @@ size_t List::size() const { PIMPL_P(const List); return p->size(); }
 size_t List::indexOf(const Variant& v) const { PIMPL_P(const List); return p->indexOf(v); }
 void List::append(const Variant &v) { PIMPL_P(List); p->append(v); }
 void List::insert(size_t idx, const Variant &v) { PIMPL_P(List); p->insert(idx, v); }
-void List::removeAt(size_t idx) { PIMPL_P(List); p->remove(idx); }
-void List::remove(const Variant &v) { PIMPL_P(List); p->remove(v); }
+void List::eraseAt(size_t idx) { PIMPL_P(List); p->remove(idx); }
+void List::erase(const Variant &v) { PIMPL_P(List); p->remove(v); }
 void List::sort(const SortCallback &cb) { PIMPL_P(List); return p->sort(cb); }
 void List::clear() { PIMPL_P(List); return p->clear(); }
 void List::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const List); a(p->m_list); }
@@ -36,8 +36,8 @@ Variant &SortedList::at(size_t idx) { PIMPL_P(SortedList); return p->at(idx); }
 size_t SortedList::size() const { PIMPL_P(const SortedList); return p->size(); }
 size_t SortedList::indexOf(const Variant &v) const { PIMPL_P(const SortedList); return p->indexOf(v); }
 void SortedList::insert(const Variant &v) { PIMPL_P(SortedList); p->insert(v);  }
-void SortedList::removeAt(size_t idx) { PIMPL_P(SortedList); p->removeAt(idx); }
-void SortedList::remove(const Variant &v) { PIMPL_P(SortedList); p->remove(v); }
+void SortedList::eraseAt(size_t idx) { PIMPL_P(SortedList); p->eraseAt(idx); }
+void SortedList::erase(const Variant &v) { PIMPL_P(SortedList); p->erase(v); }
 void SortedList::clear() { PIMPL_P(SortedList); p->clear(); }
 size_t SortedList::insertionIndex(const Variant &v) const { PIMPL_P(const SortedList); return p->insertionIndex(v); }
 void SortedList::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const SortedList); p->m_list.save(a); }

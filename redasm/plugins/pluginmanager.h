@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unordered_map>
-#include <deque>
 #include "../plugins/loader/loader.h"
 #include "../types/base.h"
 #include "../macros.h"
@@ -9,16 +7,45 @@
 
 namespace REDasm {
 
+class PluginMapImpl;
+class PluginListImpl;
 class PluginManagerImpl;
 
-class LIBREDASM_API PluginManager
+class PluginList: public Object
 {
-    PIMPL_DECLARE_P(PluginManager)
-    PIMPL_DECLARE_PRIVATE(PluginManager)
+    REDASM_OBJECT(PluginList)
+    PIMPL_DECLARE_P(PluginList)
+    PIMPL_DECLARE_PRIVATE(PluginList)
 
     public:
-        typedef std::unordered_map<String, PluginInstance> PluginMap;
-        typedef std::deque<const PluginInstance*> PluginList;
+        PluginList();
+        const PluginInstance* at(size_t idx) const;
+        const PluginInstance* first() const;
+        const PluginInstance* last() const;
+        void remove(const PluginInstance* pi);
+        bool empty() const;
+        size_t size() const;
+
+    friend class PluginManager;
+};
+
+class PluginMap: public Object
+{
+    REDASM_OBJECT(PluginMap)
+    PIMPL_DECLARE_P(PluginMap)
+    PIMPL_DECLARE_PRIVATE(PluginMap)
+
+    public:
+        PluginMap();
+
+    friend class PluginManagerImpl;
+};
+
+class LIBREDASM_API PluginManager: public Object
+{
+    REDASM_OBJECT(PluginManager)
+    PIMPL_DECLARE_P(PluginManager)
+    PIMPL_DECLARE_PRIVATE(PluginManager)
 
     private:
         PluginManager();

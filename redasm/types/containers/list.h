@@ -25,8 +25,8 @@ class LIBREDASM_API List: public ListContainer
         size_t indexOf(const Variant &v) const override;
         void append(const Variant& v) override;
         void insert(size_t idx, const Variant& v) override;
-        void removeAt(size_t idx) override;
-        void remove(const Variant& v) override;
+        void eraseAt(size_t idx) override;
+        void erase(const Variant& v) override;
         void sort(const SortCallback& cb) override;
         void clear() override;
 
@@ -52,8 +52,8 @@ class LIBREDASM_API SortedList: public ListContainerBase
         Variant& at(size_t idx) override;
         size_t size() const override;
         size_t indexOf(const Variant &v) const override;
-        void removeAt(size_t idx) override;
-        void remove(const Variant& v) override;
+        void eraseAt(size_t idx) override;
+        void erase(const Variant& v) override;
         void clear() override;
 
     public:

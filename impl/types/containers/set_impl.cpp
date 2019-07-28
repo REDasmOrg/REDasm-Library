@@ -18,7 +18,7 @@ size_t SetImpl::indexOf(const Variant &v) const
     return (it == m_list.end()) ? REDasm::npos : std::distance(m_list.begin(), it);
 }
 
-void SetImpl::removeAt(size_t idx)
+void SetImpl::eraseAt(size_t idx)
 {
     m_set.erase(m_list[idx]);
     m_list.erase(m_list.begin() + idx);

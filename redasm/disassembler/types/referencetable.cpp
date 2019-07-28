@@ -26,7 +26,7 @@ void ReferenceTable::popTarget(address_t target, address_t pointedby)
     auto it = p->m_targets.find(pointedby);
 
     if(it != p->m_targets.end())
-        it->second.remove(target);
+        it->second.erase(target);
 }
 
 SortedSet ReferenceTable::targets(address_t address) const

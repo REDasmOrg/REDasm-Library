@@ -1,5 +1,5 @@
 #include "ordinals_impl.h"
-#include <redasm/libs/json/json.hpp>
+#include <redasm/libs/nlohmann/json.hpp>
 #include <redasm/support/utils.h>
 #include <fstream>
 

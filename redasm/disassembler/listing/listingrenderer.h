@@ -2,6 +2,7 @@
 
 #include "../../plugins/assembler/printer/printer.h"
 #include "listingdocument.h"
+#include <algorithm>
 
 #define REDASM_WORD_REGEX    "([\\w\\$_\\.]+)"
 

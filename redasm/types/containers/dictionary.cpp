@@ -5,6 +5,7 @@ namespace REDasm {
 
 Dictionary::Dictionary(): m_pimpl_p(new DictionaryImpl()) { }
 size_t Dictionary::size() const { PIMPL_P(const Dictionary); return p->size(); }
+const ListContainerBase &Dictionary::keys() const { PIMPL_P(const Dictionary); return p->keys(); }
 const Variant &Dictionary::value(const Variant &key) const { PIMPL_P(const Dictionary); return p->value(key); }
 Variant &Dictionary::value(const Variant &key) { PIMPL_P(Dictionary); return p->value(key); }
 bool Dictionary::contains(const Variant &key) const { PIMPL_P(const Dictionary); return p->contains(key); }
@@ -16,6 +17,7 @@ Variant &Dictionary::operator[](const Variant &key) { return this->value(key); }
 
 SortedDictionary::SortedDictionary(): m_pimpl_p(new SortedDictionaryImpl()) { }
 size_t SortedDictionary::size() const { PIMPL_P(const SortedDictionary); return p->size(); }
+const ListContainerBase &SortedDictionary::keys() const { PIMPL_P(const SortedDictionary); return p->keys(); }
 const Variant &SortedDictionary::value(const Variant &key) const { PIMPL_P(const SortedDictionary); return p->value(key); }
 Variant &SortedDictionary::value(const Variant &key) { PIMPL_P(SortedDictionary); return p->value(key); }
 bool SortedDictionary::contains(const Variant &key) const { PIMPL_P(const SortedDictionary); return p->contains(key); }

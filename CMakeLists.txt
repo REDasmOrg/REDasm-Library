@@ -32,7 +32,7 @@ file(GLOB_RECURSE REDASM_HEADERS
     redasm/database/*.h
     redasm/disassembler/*.h
     redasm/graph/*.h
-    redasm/libs/json/*.h*
+    redasm/libs/nlohmann/*.h*
     redasm/libs/visit_struct/*.h*
     redasm/plugins/*.h
     redasm/static/*.h
@@ -60,6 +60,7 @@ target_include_directories(${PROJECT_NAME}
                            PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                                    $<INSTALL_INTERFACE:redasm>
                                    ${CAPSTONE_INCLUDE}
+                                   ${REDASM_LIBS_INCLUDE}
                            PRIVATE ${IMPL_LIBS_INCLUDE}
                                    impl)
 

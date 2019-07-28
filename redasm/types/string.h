@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../libs/nlohmann/json_fwd.hpp"
 #include "../pimpl.h"
-#include "../libs/json/json.hpp"
 #include "object.h"
 
 namespace REDasm {

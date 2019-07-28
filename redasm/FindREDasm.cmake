@@ -31,7 +31,8 @@ function(redasm_plugin P_NAME)
     target_compile_definitions(${P_NAME} PRIVATE -Dr_plugin=${P_ID} -Dr_plugin_id="${P_ID}")
 
     if(DEFINED REDASM_INCLUDE_PATH)
-        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH} ${REDASM_INCLUDE_PATH}/libs)
+        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH}
+                                             PUBLIC  ${REDASM_INCLUDE_PATH}/libs)
     endif()
 
     if(DEFINED REDASM_LIBRARY_PATH)

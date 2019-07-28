@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include <redasm/libs/visit_struct/visit_struct.hpp>
 #include <redasm/types/api.h>
 #include "../../pimpl.h"

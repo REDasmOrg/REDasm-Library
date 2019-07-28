@@ -1,5 +1,6 @@
 #include "variant.h"
 #include <functional>
+#include <cassert>
 #include <impl/types/variant_impl.h>
 #include <impl/libs/cereal/cereal.hpp>
 #include <impl/libs/cereal/archives/binary.hpp>
@@ -37,6 +38,8 @@ u16 Variant::toU8()  const { PIMPL_P(const Variant); return p->toU8();  }
 u16 Variant::toU16() const { PIMPL_P(const Variant); return p->toU16(); }
 u32 Variant::toU32() const { PIMPL_P(const Variant); return p->toU32(); }
 u64 Variant::toU64() const { PIMPL_P(const Variant); return p->toU64(); }
+int Variant::toInt() const { PIMPL_P(const Variant); return p->toInt(); }
+unsigned int Variant::toUInt() const { PIMPL_P(const Variant); return p->toUInt(); }
 void *Variant::toPointer() const  { PIMPL_P(const Variant); return p->toPointer(); }
 Object *Variant::toObject() const { PIMPL_P(const Variant); return p->toObject();  }
 String Variant::toString()  const { PIMPL_P(const Variant); return p->toString();  }

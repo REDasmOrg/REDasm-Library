@@ -40,12 +40,13 @@ SortedList DisassemblerImpl::getCalls(address_t address)
 
     SortedList calls;
 
-    for(const auto& n : graph->nodes())
-    {
-        const auto* fbb = graph->data(n);
+    graph->nodes().each([&](const Variant& v) {
+        Node n = v.toInt();
+
+        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
 
         if(!fbb)
-            continue;
+            return;
 
         for(size_t i = fbb->startIndex(); i <= fbb->endIndex(); i++)
         {
@@ -59,7 +60,7 @@ SortedList DisassemblerImpl::getCalls(address_t address)
             if(instruction->is(InstructionType::Call))
                 calls.insert(item);
         }
-    }
+    });
 
     return calls;
 }
@@ -82,12 +83,11 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 
     size_t startidx = REDasm::npos, endidx = REDasm::npos;
 
-    for(const auto& n : graph->nodes())
-    {
-        const auto* fbb = graph->data(n);
+    graph->nodes().each([&](Node n) {
+        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
 
         if(!fbb)
-            continue;
+            return;
 
         if(startidx == REDasm::npos)
             startidx = fbb->startIndex();
@@ -98,7 +98,7 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
             endidx = fbb->endIndex();
         else if(endidx < fbb->endIndex())
             endidx = fbb->endIndex();
-    }
+    });
 
     if((startidx == REDasm::npos) | (endidx == REDasm::npos))
         return BufferView();
@@ -512,9 +512,8 @@ void DisassemblerImpl::analyzeStep()
 
 void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *functionitem)
 {
-    PIMPL_Q(Disassembler);
     r_ctx->status("Computing basic blocks @ " + String::hex(functionitem->address()));
-    auto g = std::make_unique<Graphing::FunctionGraph>(q);
+    auto g = std::make_unique<FunctionGraph>();
 
     if(!g->build(functionitem))
         return;

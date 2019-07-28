@@ -1,4 +1,5 @@
 #include "layeredlayout_impl.h"
+#include "layeredlayout_impl.h"
 #include <unordered_set>
 #include <queue>
 
@@ -16,19 +17,19 @@ void LayeredLayoutImpl::createBlocks()
 {
     PIMPL_Q(LayeredLayout);
 
-    for(const Node& n : q->m_graph->nodes())
-    {
+    q->m_graph->nodes().each([&](Node n) {
         q->m_graph->height(n, q->m_graph->height(n) + LLAYOUT_NODE_PADDING); // Pad Node
         m_blocks[n] = LLBlock(n, q->m_graph->width(n), q->m_graph->height(n));
-    }
+    });
 
     //Populate incoming lists
     for(const auto& item : m_blocks)
     {
         const LLBlock& block = item.second;
 
-        for(const Edge& edge : q->m_graph->outgoing(item.first))
-            m_blocks[edge.target].incoming.push_back(block.node);
+        q->m_graph->outgoing(item.first).each([&](const Edge& e) {
+            m_blocks[e.target].incoming.push_back(block.node);
+        });
     }
 }
 
@@ -55,23 +56,22 @@ void LayeredLayoutImpl::makeAcyclic()
             queue.pop();
             m_blockorder.push_back(block.node);
 
-            for(const Edge& edge : q->m_graph->outgoing(block.node))
-            {
-                if(visited.count(edge.target))
-                    continue;
+            q->m_graph->outgoing(block.node).each([&](const Edge& e) {
+                if(visited.count(e.target))
+                    return;
 
                 //If node has no more unseen incoming edges, add it to the graph layout now
-                if(m_blocks[edge.target].incoming.size() == 1)
+                if(m_blocks[e.target].incoming.size() == 1)
                 {
-                    LayeredLayoutImpl::removeFromDeque(m_blocks[edge.target].incoming, block.node);
-                    block.newoutgoing.push_back(edge.target);
-                    queue.push(m_blocks[edge.target].node);
-                    visited.insert(edge.target);
+                    LayeredLayoutImpl::removeFromDeque(m_blocks[e.target].incoming, block.node);
+                    block.newoutgoing.push_back(e.target);
+                    queue.push(m_blocks[e.target].node);
+                    visited.insert(e.target);
                     changed = true;
                 }
                 else
-                    LayeredLayoutImpl::removeFromDeque(m_blocks[edge.target].incoming, block.node);
-            }
+                    LayeredLayoutImpl::removeFromDeque(m_blocks[e.target].incoming, block.node);
+            });
         }
 
         //No more nodes satisfy constraints, pick a node to continue constructing the graph
@@ -84,18 +84,16 @@ void LayeredLayoutImpl::makeAcyclic()
             if(!visited.count(block.node))
                 continue;
 
-            for(const Edge& edge : q->m_graph->outgoing(block.node))
-            {
-                if(visited.count(edge.target))
-                    continue;
+            q->m_graph->outgoing(block.node).each([&](const Edge& e) {
+                if(visited.count(e.target))
+                    return;
 
-                if(!best || (m_blocks[edge.target].incoming.size() < bestedges) || ((m_blocks[edge.target].incoming.size() == bestedges) && (edge.target < best)))
-                {
-                    best = edge.target;
-                    bestedges = static_cast<int>(m_blocks[edge.target].incoming.size());
+                if(!best || (m_blocks[e.target].incoming.size() < bestedges) || ((m_blocks[e.target].incoming.size() == bestedges) && (e.target < best))) {
+                    best = e.target;
+                    bestedges = static_cast<int>(m_blocks[e.target].incoming.size());
                     bestparent = block.node;
                 }
-            }
+            });
         }
 
         if(best)
@@ -147,11 +145,10 @@ void LayeredLayoutImpl::performEdgeRouting()
         LLBlock& block = m_blocks[n];
         LLBlock& start = block;
 
-        for(const Edge& edge : q->m_graph->outgoing(block.node))
-        {
-            LLBlock& end = m_blocks[edge.target];
+        q->m_graph->outgoing(block.node).each([&](const Edge& e) {
+            LLBlock& end = m_blocks[e.target];
             start.edges.push_back(this->routeEdge(m_horizedges, m_vertedges, m_edgevalid, start, end));
-        }
+        });
     }
 }
 
@@ -257,13 +254,13 @@ void LayeredLayoutImpl::precomputeEdgeCoordinates()
 
         for(LLEdge& edge : block.edges)
         {
-            auto start = edge.points[0];
+            const LLPoint& start = edge.points.front();
             auto startcol = start.col;
             auto lastindex = edge.startindex;
-            Point lastpt = { m_coledgex[startcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, q->m_graph->y(block.node) + q->m_graph->height(block.node) + 4 - LLAYOUT_NODE_PADDING };
+            Polyline::Point lastpt = { m_coledgex[startcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, q->m_graph->y(block.node) + q->m_graph->height(block.node) + 4 - LLAYOUT_NODE_PADDING };
 
             Polyline pts;
-            pts.push_back(lastpt);
+            pts.p(lastpt);
 
             for(size_t i = 0; i < edge.points.size(); i++)
             {
@@ -271,26 +268,26 @@ void LayeredLayoutImpl::precomputeEdgeCoordinates()
                 auto endrow = end.row;
                 auto endcol = end.col;
                 auto lastindex = end.index;
-                Point newpt;
+                Polyline::Point newpt;
 
                 if(startcol == endcol)
                     newpt = { lastpt.x, m_rowedgey[endrow] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4 };
                 else
                     newpt = { m_coledgex[endcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, lastpt.y };
 
-                pts.push_back(newpt);
+                pts.p(newpt);
                 lastpt = newpt;
                 startcol = endcol;
             }
 
-            Point newpt = { lastpt.x, q->m_graph->y(edge.targetblock->node) - 1 };
-            pts.push_back(newpt);
+            Polyline::Point newpt = { lastpt.x, q->m_graph->y(edge.targetblock->node) - 1 };
+            pts.p(newpt);
             edge.routes = pts;
 
-            pts.clear();
-            pts.push_back({ newpt.x - 3, newpt.y - 6 });
-            pts.push_back({ newpt.x + 3, newpt.y - 6 });
-            pts.push_back(newpt);
+            pts = Polyline();
+            pts.p(newpt.x - 3, newpt.y - 6);
+            pts.p(newpt.x + 3, newpt.y - 6);
+            pts.p(newpt);
             edge.arrow = pts;
 
             Edge e = q->m_graph->edge(edge.sourceblock->node, edge.targetblock->node);
@@ -304,7 +301,7 @@ void LayeredLayoutImpl::precomputeEdgeCoordinates()
     }
 }
 
-LLEdge LayeredLayoutImpl::routeEdge(LayeredLayoutImpl::EdgesVector &horizedges, LayeredLayoutImpl::EdgesVector &vertedges, Matrix<bool> &edge_valid, LLBlock &start, LLBlock &end)
+LLEdge LayeredLayoutImpl::routeEdge(LayeredLayoutImpl::EdgesVector &horizedges, LayeredLayoutImpl::EdgesVector &vertedges, Matrix<bool> &edgevalid, LLBlock &start, LLBlock &end)
 {
     LLEdge edge;
     edge.sourceblock = &start;
@@ -343,12 +340,12 @@ LLEdge LayeredLayoutImpl::routeEdge(LayeredLayoutImpl::EdgesVector &horizedges, 
 
     if(minrow != maxrow)
     {
-        auto checkColumn = [minrow, maxrow, &edge_valid](int column) -> bool {
-            if(column < 0 || column >= static_cast<int>(edge_valid[minrow].size()))
+        auto checkColumn = [minrow, maxrow, &edgevalid](int column) -> bool {
+            if(column < 0 || column >= static_cast<int>(edgevalid[minrow].size()))
                 return false;
 
             for(int row = minrow; row < maxrow; row++) {
-                if(!edge_valid[row][column])
+                if(!edgevalid[row][column])
                     return false;
             }
 

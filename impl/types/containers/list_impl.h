@@ -4,31 +4,19 @@
 #include <deque>
 #include <redasm/types/containers/list.h>
 #include <redasm/types/variant.h>
+#include "templates/list_template.h"
 #include "templates/sortedlist_template.h"
 
 namespace REDasm {
 
-class ListImpl
+class ListImpl: public ListTemplate<Variant>
 {
     PIMPL_DECLARE_Q(List)
     PIMPL_DECLARE_PUBLIC(List)
 
     public:
         ListImpl() = default;
-        Variant& first();
-        Variant& last();
-        Variant& at(size_t idx);
-        const Variant& first() const;
-        const Variant& last() const;
-        const Variant& at(size_t idx) const;
-        size_t size() const;
-        size_t indexOf(const Variant& v) const;
-        void append(const Variant& v);
-        void insert(size_t idx, const Variant& v);
-        void removeAt(size_t idx);
-        void remove(const Variant &v);
         void releaseObjects();
-        void clear();
         void sort(const List::SortCallback &cb);
 
     public:
@@ -43,9 +31,6 @@ class ListImpl
                     it++;
             }
         }
-
-    protected:
-        std::deque<Variant> m_list;
 };
 
 class SortedListImpl

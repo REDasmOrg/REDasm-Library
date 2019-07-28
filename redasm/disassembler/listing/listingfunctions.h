@@ -1,15 +1,11 @@
 #pragma once
 
-#include <unordered_map>
 #include "listingitem.h"
 #include "../../pimpl.h"
 
 namespace REDasm {
 
-namespace Graphing {
 class FunctionGraph;
-}
-
 class ListingFunctionsImpl;
 
 class LIBREDASM_API ListingFunctions
@@ -25,9 +21,9 @@ class LIBREDASM_API ListingFunctions
 
     public:
         ListingItem *functionFromIndex(size_t idx) const;
-        const Graphing::FunctionGraph* graph(ListingItem* item) const;
-        Graphing::FunctionGraph* graph(ListingItem* item);
-        void graph(ListingItem *item, Graphing::FunctionGraph* graph);
+        const FunctionGraph* graph(ListingItem* item) const;
+        FunctionGraph* graph(ListingItem* item);
+        void graph(ListingItem *item, FunctionGraph* graph);
         void remove(ListingItem *item);
         void invalidateGraphs();
 };

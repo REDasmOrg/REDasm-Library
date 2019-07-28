@@ -16,6 +16,7 @@ class LIBREDASM_API Dictionary: public DictionaryContainer
     public:
         Dictionary();
         size_t size() const override;
+        const ListContainerBase& keys() const override;
         const Variant& value(const Variant& key) const override;
         Variant& value(const Variant& key) override;
         bool contains(const Variant& key) const override;
@@ -35,6 +36,7 @@ class LIBREDASM_API SortedDictionary: public DictionaryContainer
     public:
         SortedDictionary();
         size_t size() const override;
+        const ListContainerBase& keys() const override;
         const Variant& value(const Variant& key) const override;
         Variant& value(const Variant& key) override;
         bool contains(const Variant& key) const override;

@@ -33,9 +33,7 @@ struct LLEdge
     LLBlock *sourceblock, *targetblock;
     std::deque<LLPoint> points;
     int startindex = 0;
-
-    Polyline routes;
-    Polyline arrow;
+    Polyline routes, arrow;
 
     void addPoint(int row, int col, int index = 0) {
         LLPoint point = {row, col, 0};
@@ -53,8 +51,7 @@ struct LLBlock
 
     Node node;
     std::deque<LLEdge> edges;
-    std::deque<Node> incoming;
-    std::deque<Node> newoutgoing;
+    std::deque<Node> incoming, newoutgoing;
 
     float x = 0.0, y = 0.0;
     int width = 0, height = 0;
@@ -86,12 +83,12 @@ class LayeredLayoutImpl
         void precomputeEdgeCoordinates();
 
     private: // Algorithm functions
-        LLEdge routeEdge(EdgesVector& m_horizedges, EdgesVector& m_vertedges, Matrix<bool>& m_edgevalid, LLBlock& start, LLBlock& end);
+        LLEdge routeEdge(EdgesVector& m_horizedges, EdgesVector& m_vertedges, Matrix<bool>& edgevalid, LLBlock& start, LLBlock& end);
         int findHorizEdgeIndex(EdgesVector& edges, int row, int mincol, int maxcol) const;
         int findVertEdgeIndex(EdgesVector &edges, int col, int minrow, int maxrow) const;
         bool isEdgeMarked(EdgesVector& edges, int row, int col, int index) const;
         void markEdge(EdgesVector& edges, int row, int col, int index, bool used = true) const;
-        void adjustGraphLayout(LLBlock & block, int col, int row);
+        void adjustGraphLayout(LLBlock& block, int col, int row);
         void computeLayout(LLBlock &block);
 
     private:

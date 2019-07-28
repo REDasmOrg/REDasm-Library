@@ -1,140 +1,83 @@
 #pragma once
 
-#include <unordered_map>
-#include <deque>
+#include <redasm/types/containers/dictionary.h>
+#include <redasm/types/containers/list.h>
+#include <redasm/types/containers/list.h>
 #include "../types/string.h"
 #include "../macros.h"
+#include "polyline.h"
+#include "edge.h"
+#include "node.h"
 
 namespace REDasm {
-namespace Graphing {
 
-typedef int Node;
-struct Point { int x, y; };
-typedef std::deque<Point> Polyline;
+class GraphImpl;
 
-struct Edge {
-    Edge(const Node& source, const Node& target): source(source), target(target) { }
-    Edge(): source(0), target(0) { }
-    Node source, target;
-
-    inline bool valid() const { return (source != 0) && (target != 0); }
-    inline const Node& opposite(const Node& n) const { return (n == source) ? target : source; }
-    bool operator ==(const Edge& e) const { return (source == e.source) && (target == e.target); }
-    bool operator !=(const Edge& e) const { return (source != e.source) || (target != e.target); }
-};
-
-typedef std::deque<Edge> EdgeList;
-typedef std::deque<Node> NodeList;
-
-struct NodeAttributes {
-    NodeAttributes(): x(0), y(0), width(0), height(0) { }
+struct NodeAttributes
+{
+    NodeAttributes();
     int x, y, width, height;
 };
 
-struct EdgeAttributes {
+struct EdgeAttributes
+{
     String label, color;
     Polyline routes, arrow;
 };
 
-} // namespace Graphing
-} // namespace REDasm
-
-namespace std {
-template<> struct hash<REDasm::Graphing::Edge> {
-    size_t operator()(const REDasm::Graphing::Edge& edge) const {
-        return edge.source ^ edge.target;
-    }
-};
-} // namespace std
-
-namespace REDasm {
-namespace Graphing {
-
-class LIBREDASM_API Graph
+class LIBREDASM_API Graph: public Object
 {
-    public:
-        Graph(): m_nodeid(0), m_areawidth(0), m_areaheight(0), m_root(0) { }
-        bool empty() const { return m_nodes.empty(); }
-        bool containsEdge(const Node& source, const Node& target) const;
-        void removeEdge(const Edge& edge);
-        void removeNode(const Node& n);
-        EdgeList outgoing(const Node& n) const;
-        EdgeList incoming(const Node& n) const;
-        const NodeList& nodes() const { return m_nodes; }
-        const EdgeList& edges() const { return m_edges; }
-        Edge edge(const Node& source, const Node& target) const;
-        void newEdge(const Node& source, const Node& target);
-        Node newNode();
-        Node root() { return m_root; }
+    REDASM_OBJECT(Graph)
+    PIMPL_DECLARE_P(Graph)
+    PIMPL_DECLARE_PRIVATE(Graph)
 
     protected:
-        void setRoot(const Node& n) { m_root = n; }
+        Graph(GraphImpl *p);
 
-    private:
-        void removeEdges(const Node& n);
+    public:
+        Graph();
+        bool empty() const;
+        bool containsEdge(Node source, Node target) const;
+        void removeEdge(const Edge& e);
+        void removeNode(Node n);
+        EdgeList outgoing(Node n) const;
+        EdgeList incoming(Node n) const;
+        const NodeList& nodes() const;
+        const EdgeList& edges() const;
+        Edge edge(Node source, Node target) const;
+        void newEdge(Node source, Node target);
+        Node root() const;
+        Node newNode();
 
     public: // Styling
-        int areaWidth() const { return m_areawidth; }
-        void areaWidth(int w) { m_areawidth = w; }
-        int areaHeight() const { return m_areaheight; }
-        void areaHeight(int h) { m_areaheight = h; }
-        int x(const Node& n) const { return m_nodeattributes.at(n).x; }
-        int y(const Node& n) const { return m_nodeattributes.at(n).y; }
-        void x(const Node& n, int px) { m_nodeattributes.at(n).x = px; }
-        void y(const Node& n, int py) { m_nodeattributes.at(n).y = py; }
-        int width(const Node& n) const { return m_nodeattributes.at(n).width; }
-        int height(const Node& n) const { return m_nodeattributes.at(n).height; }
-        void width(const Node& n, int w) { m_nodeattributes[n].width = w; }
-        void height(const Node& n, int h) { m_nodeattributes[n].height = h; }
-        const String& color(const Edge& e) const { return m_edgeattributes.at(e).color; }
-        void color(const Edge& e, const String& c) { m_edgeattributes[e].color = c; }
-        const String& label(const Edge& e) const { return m_edgeattributes.at(e).label; }
-        void label(const Edge& e, const String& s) { m_edgeattributes[e].label = s; }
-        const Polyline& routes(const Edge& e) const { return m_edgeattributes.at(e).routes; }
-        void routes(const Edge& e, const Polyline& p) { m_edgeattributes.at(e).routes = p; }
-        const Polyline& arrow(const Edge& e) const { return m_edgeattributes.at(e).arrow; }
-        void arrow(const Edge& e, const Polyline& p) { m_edgeattributes.at(e).arrow = p; }
+        int areaWidth() const;
+        int areaHeight() const;
+        void areaWidth(int w);
+        void areaHeight(int h);
+        int x(Node n) const;
+        int y(Node n) const;
+        void x(Node n, int px);
+        void y(Node n, int py);
+        int width(Node n) const;
+        int height(Node n) const;
+        void width(Node n, int w);
+        void height(Node n, int h);
+        const String& color(const Edge& e) const;
+        const String& label(const Edge& e) const;
+        const Polyline& routes(const Edge &e) const;
+        const Polyline& arrow(const Edge &e) const;
+        void color(const Edge& e, const String& c);
+        void label(const Edge& e, const String& s);
+        void routes(const Edge& e, const Polyline& pl);
+        void arrow(const Edge& e, const Polyline& pl);
+
+    public: // Data
+        const Dictionary& data() const;
+        Variant data(Node n) const;
 
     protected:
-        size_t m_nodeid;
-        int m_areawidth, m_areaheight;
-        std::unordered_map<Node, NodeAttributes> m_nodeattributes;
-        std::unordered_map<Edge, EdgeAttributes> m_edgeattributes;
-        EdgeList m_edges;
-        NodeList m_nodes;
-
-    private:
-        Node m_root;
+        void setData(Node n, const Variant& v);
+        void setRoot(Node n);
 };
 
-template<typename T> class GraphT: public Graph
-{
-    protected:
-        typedef std::unordered_map<Node, T> NodeData;
-
-    public:
-        GraphT(): Graph() { }
-        const T* data(const Node& n) const { return const_cast<GraphT<T>*>(this)->data(n); }
-
-    protected:
-        T* data(const Node& n);
-        void setData(const Node& n, const T& data) { m_data[n] = data; }
-        const NodeData& data() const { return m_data; }
-        NodeData& data() { return m_data; }
-
-    private:
-        NodeData m_data;
-};
-
-template<typename T> T* GraphT<T>::data(const Node &n)
-{
-    auto it = m_data.find(n);
-
-    if(it != m_data.end())
-        return &it->second;
-
-    return nullptr;
-}
-
-} // namespace Graphing
 } // namespace REDasm

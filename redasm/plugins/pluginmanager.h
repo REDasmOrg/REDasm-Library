@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <deque>
 #include "../plugins/loader/loader.h"
 #include "../types/base.h"

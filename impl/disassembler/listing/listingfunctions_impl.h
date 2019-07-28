@@ -14,8 +14,8 @@ class ListingFunctionsImpl: public SortedItemList
     PIMPL_DECLARE_PUBLIC(ListingFunctions)
 
     public:
-        typedef std::pair<ListingItem*, Graphing::FunctionGraph*> FunctionGraphItem;
-        typedef std::unordered_map<ListingItem*, Graphing::FunctionGraph*> FunctionGraphs;
+        typedef std::pair<ListingItem*, FunctionGraph*> FunctionGraphItem;
+        typedef std::unordered_map<ListingItem*, FunctionGraph*> FunctionGraphs;
 
     public:
         ListingFunctionsImpl();

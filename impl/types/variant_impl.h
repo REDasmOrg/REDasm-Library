@@ -56,6 +56,8 @@ class VariantImpl
         u16 toU16() const;
         u32 toU32() const;
         u64 toU64() const;
+        int toInt() const;
+        unsigned int toUInt() const;
         void* toPointer() const;
         Object* toObject() const;
         String toString() const;

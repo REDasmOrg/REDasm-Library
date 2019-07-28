@@ -3,13 +3,14 @@
 #include <impl/libs/cereal/cereal.hpp>
 #include <impl/libs/cereal/archives/binary.hpp>
 #include <impl/libs/cereal/types/string.hpp>
-#include "containers/list.h"
-#include "base.h"
-#include "numeric.h"
 #include <algorithm>
 #include <cctype>
 #include <sstream>
 #include <iomanip>
+#include "../libs/nlohmann/json.hpp"
+#include "containers/list.h"
+#include "base.h"
+#include "numeric.h"
 
 namespace REDasm {
 

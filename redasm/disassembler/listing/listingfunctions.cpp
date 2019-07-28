@@ -25,16 +25,16 @@ ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 
 void ListingFunctions::invalidateGraphs() { PIMPL_P(ListingFunctions); p->m_graphs.clear(); }
 
-const Graphing::FunctionGraph *ListingFunctions::graph(ListingItem *item) const
+const FunctionGraph *ListingFunctions::graph(ListingItem *item) const
 {
     PIMPL_P(const ListingFunctions);
     auto it = p->m_graphs.find(item);
     return (it != p->m_graphs.end()) ? it->second : nullptr;
 }
 
-Graphing::FunctionGraph *ListingFunctions::graph(ListingItem *item) { return const_cast<Graphing::FunctionGraph*>(static_cast<const ListingFunctions*>(this)->graph(item)); }
+FunctionGraph *ListingFunctions::graph(ListingItem *item) { return const_cast<FunctionGraph*>(static_cast<const ListingFunctions*>(this)->graph(item)); }
 
-void ListingFunctions::graph(ListingItem *item, Graphing::FunctionGraph* fb)
+void ListingFunctions::graph(ListingItem *item, FunctionGraph* fb)
 {
     PIMPL_P(ListingFunctions);
     auto it = p->m_graphs.find(item);

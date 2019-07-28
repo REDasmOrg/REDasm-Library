@@ -46,6 +46,29 @@ u16 VariantImpl::toU8()  const { return this->isInteger() ? m_keeper.value.u8_  
 u16 VariantImpl::toU16() const { return this->isInteger() ? m_keeper.value.u16_ : u16(); }
 u32 VariantImpl::toU32() const { return this->isInteger() ? m_keeper.value.u32_ : u32(); }
 u64 VariantImpl::toU64() const { return this->isInteger() ? m_keeper.value.u64_ : u64(); }
+
+int VariantImpl::toInt() const
+{
+    if(!this->isInteger())
+        return 0;
+
+    if(std::is_same<int, decltype(m_keeper.value.s8_)>::value) return static_cast<int>(m_keeper.value.s8_);
+    if(std::is_same<int, decltype(m_keeper.value.s16_)>::value) return static_cast<int>(m_keeper.value.s16_);
+    if(std::is_same<int, decltype(m_keeper.value.s32_)>::value) return static_cast<int>(m_keeper.value.s32_);
+    return static_cast<int>(m_keeper.value.s64_);
+}
+
+unsigned int VariantImpl::toUInt() const
+{
+    if(!this->isInteger())
+        return 0;
+
+    if(std::is_same<unsigned int, decltype(m_keeper.value.u8_)>::value) return static_cast<unsigned int>(m_keeper.value.u8_);
+    if(std::is_same<unsigned int, decltype(m_keeper.value.u16_)>::value) return static_cast<unsigned int>(m_keeper.value.u16_);
+    if(std::is_same<unsigned int, decltype(m_keeper.value.u32_)>::value) return static_cast<unsigned int>(m_keeper.value.u32_);
+    return static_cast<unsigned int>(m_keeper.value.u64_);
+}
+
 void *VariantImpl::toPointer() const  { return (m_keeper.type == Variant::Type::POINTER) ? m_keeper.value.pointer : nullptr;  }
 Object *VariantImpl::toObject() const { return (m_keeper.type == Variant::Type::OBJECT) ?  m_keeper.value.object  : nullptr;  }
 String VariantImpl::toString() const  { return (m_keeper.type == Variant::Type::STRING) ?  *m_keeper.value.string : String(); }

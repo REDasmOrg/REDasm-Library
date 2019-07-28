@@ -2,6 +2,7 @@
 
 #include <redasm/disassembler/types/symboltable.h>
 #include <redasm/pimpl.h>
+#include <unordered_map>
 
 namespace REDasm {
 

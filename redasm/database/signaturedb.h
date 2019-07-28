@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "../libs/json/json.hpp"
+#include "../libs/nlohmann/json.hpp"
 #include "../buffer/bufferview.h"
 #include "../types/base.h"
 #include "../pimpl.h"

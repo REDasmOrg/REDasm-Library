@@ -5,6 +5,13 @@
 #include "../../macros.h"
 #include "../../pimpl.h"
 
+#define DECLARE_SORT_FIND(TYPE)  public: \
+        typedef std::function<bool(const TYPE&)> FindCallback; \
+        typedef std::function<void(const TYPE&)> EachCallback; \
+        inline size_t find(const FindCallback& cb) const { for(size_t i = 0; i < this->size(); i++) { if(cb(this->at(i))) return i; } return REDasm::npos; } \
+        inline void each(const EachCallback& cb) const { for(size_t i = 0; i < this->size(); i++) cb(this->at(i)); } \
+        private:
+
 namespace REDasm {
 
 class LIBREDASM_API Container: public Object
@@ -18,9 +25,7 @@ class LIBREDASM_API Container: public Object
 
 class LIBREDASM_API ListContainerBase: public Container
 {
-    public:
-        typedef std::function<bool(const Variant&)> FindCallback;
-        typedef std::function<void(const Variant&)> EachCallback;
+    DECLARE_SORT_FIND(Variant)
 
     public:
         void removeFirst();
@@ -38,10 +43,6 @@ class LIBREDASM_API ListContainerBase: public Container
         virtual size_t indexOf(const Variant &v) const = 0;
         virtual void remove(const Variant& v) = 0;
         virtual void removeAt(size_t idx) = 0;
-
-    public:
-        inline size_t find(const FindCallback& cb) const { for(size_t i = 0; i < this->size(); i++) { if(cb(this->at(i))) return i; } return REDasm::npos; }
-        inline void each(const EachCallback& cb) const { for(size_t i = 0; i < this->size(); i++) cb(this->at(i)); }
 };
 
 class LIBREDASM_API ListContainer: public ListContainerBase
@@ -69,6 +70,7 @@ class LIBREDASM_API DictionaryContainer: public Container
         Variant& operator[](const Variant& key);
 
     public:
+        virtual const ListContainerBase& keys() const = 0;
         virtual const Variant& value(const Variant& key) const = 0;
         virtual Variant& value(const Variant& key) = 0;
         virtual bool contains(const Variant& key) const = 0;

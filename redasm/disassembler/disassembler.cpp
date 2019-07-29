@@ -13,9 +13,9 @@ Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new 
     p->m_algorithm = assembler->createAlgorithm();
     p->m_analyzejob.setOneShot(true);
 
-    EVENT_CONNECT(&p->m_analyzejob, stateChanged, this, [&](Job*) { this->busyChanged(); });
+    p->m_analyzejob.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
     p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
-    EVENT_CONNECT(&p->m_jobs, stateChanged, this, [&](Job*) { this->busyChanged(); });
+    p->m_jobs.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
 }
 
 Disassembler::~Disassembler()

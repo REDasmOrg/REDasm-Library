@@ -1,45 +1,51 @@
 #pragma once
 
 #include <functional>
-#include <list>
-
-#define EVENT_CONNECT(sender, event, owner, handler) (sender)->event.pushBack(owner, handler)
-#define EVENT_DISCONNECT(sender, event, owner)       (sender)->event.disconnect(owner)
+#include "../types/object.h"
+#include "../pimpl.h"
 
 namespace REDasm {
 
-template<typename ...ARGS> struct Event
+class EventImpl;
+class EventArgsImpl;
+
+class EventArgs
 {
-    typedef std::function<void(ARGS...)> HandlerType;
-    typedef std::pair<void*, HandlerType> HandlerItem;
+    PIMPL_DECLARE_P(EventArgs)
+    PIMPL_DECLARE_PRIVATE(EventArgs)
 
-    Event() { }
-    ~Event() { m_handlers.clear(); }
-    Event(const Event& rhs) = delete;
-    Event& operator =(const Event& rhs) = delete;
-    void operator()(ARGS... args) const { for(const auto& item : m_handlers) item.second(std::forward<ARGS>(args)...); }
-    void removeLast() { m_handlers.pop_back(); }
-    void disconnect() { m_handlers.clear(); }
+    public:
+        EventArgs();
+        EventArgs(const Variant& v);
+        const Variant& arg() const;
+        void* sender() const;
+        Object* senderObject() const;
 
-    template<typename T> void disconnect(T* owner) {
-        auto it = m_handlers.begin();
-
-        while(it != m_handlers.end()) {
-            if(it->first != owner) {
-                it++;
-                continue;
-            }
-
-            it = m_handlers.erase(it);
-        }
-    }
-
-    template<typename T> void pushBack(T* owner, const HandlerType& handler) { m_handlers.emplace_back(owner, handler); }
-
-    private:
-        std::list<HandlerItem> m_handlers;
+    friend class Event;
 };
 
-typedef Event<> SimpleEvent;
+class Event: public Object
+{
+    REDASM_OBJECT(Event)
+    PIMPL_DECLARE_P(Event)
+    PIMPL_DECLARE_PRIVATE(Event)
+
+    public:
+        typedef std::function<void(EventArgs*)> HandlerType;
+
+    public:
+        Event();
+        ~Event();
+        void disconnect();
+        void disconnect(void* owner);
+        void connect(void* owner, const HandlerType& handler);
+        void operator()() const;
+        void operator()(const Variant& v) const;
+        void operator()(EventArgs* e) const;
+
+    public:
+        Event(const Event& rhs) = delete;
+        Event& operator =(const Event& rhs) = delete;
+};
 
 }

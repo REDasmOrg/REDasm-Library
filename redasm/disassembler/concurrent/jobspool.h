@@ -8,13 +8,14 @@ namespace REDasm {
 
 class JobsPoolImpl;
 
-class JobsPool
+class JobsPool: public Object
 {
+    REDASM_OBJECT(JobsPool)
     PIMPL_DECLARE_P(JobsPool)
     PIMPL_DECLARE_PRIVATE(JobsPool)
 
     public:
-        Event<Job*> stateChanged;
+        Event stateChanged;
 
     public:
         JobsPool();
@@ -25,7 +26,7 @@ class JobsPool
         void stop();
         void pause();
         void resume();
-        void work(const JobCallback &cb);
+        void work(const Job::JobCallback &cb);
 };
 
 } // namespace REDasm

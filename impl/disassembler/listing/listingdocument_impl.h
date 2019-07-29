@@ -7,13 +7,13 @@
 
 namespace REDasm {
 
-class ListingDocumentChangedImpl
+class ListingDocumentChangedEventArgsImpl
 {
-    PIMPL_DECLARE_Q(ListingDocumentChanged)
-    PIMPL_DECLARE_PUBLIC(ListingDocumentChanged)
+    PIMPL_DECLARE_Q(ListingDocumentChangedEventArgs)
+    PIMPL_DECLARE_PUBLIC(ListingDocumentChangedEventArgs)
 
     public:
-        ListingDocumentChangedImpl(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
+        ListingDocumentChangedEventArgsImpl(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         const ListingItem* item() const;
         ListingDocumentAction action() const;
         bool isInserted() const;

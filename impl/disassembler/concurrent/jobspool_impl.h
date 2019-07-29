@@ -22,10 +22,10 @@ class JobsPoolImpl
         void stop();
         void pause();
         void resume();
-        void work(const JobCallback &cb);
+        void work(const Job::JobCallback &cb);
 
     private:
-        void notifyStateChanged(Job*job);
+        void notifyStateChanged(EventArgs* e);
 
     private:
         std::list< std::unique_ptr<Job> > m_jobs;

@@ -26,7 +26,7 @@ class LIBREDASM_API Disassembler: public Object
     PIMPL_DECLARE_PRIVATE(Disassembler)
 
     public:
-        SimpleEvent busyChanged;
+        Event busyChanged;
 
     public:
         Disassembler(Assembler* assembler, Loader* loader);

@@ -59,6 +59,7 @@ class Variant
         void* toPointer() const;
         Object* toObject() const;
         String toString() const;
+        Object* checkObject(object_id_t id) const;
 
      public:
         Variant& operator=(s8 v);
@@ -87,7 +88,7 @@ class Variant
 
 } // namespace REDasm
 
-template<typename T> T* variant_object(const REDasm::Variant& v) { return reinterpret_cast<T*>(v.toObject()); }
+template<typename T> T* variant_object(const REDasm::Variant& v) { return reinterpret_cast<T*>(v.checkObject(T::ID)); }
 template<typename T> T* variant_pointer(const REDasm::Variant& v) { return reinterpret_cast<T*>(v.toPointer()); }
 
 // Hashing support

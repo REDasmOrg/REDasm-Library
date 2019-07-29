@@ -10,18 +10,18 @@
 
 namespace REDasm {
 
-class ListingDocumentChangedImpl;
+class ListingDocumentChangedEventArgsImpl;
 class ListingDocumentTypeImpl;
 
 enum class ListingDocumentAction { Changed = 0, Inserted, Removed };
 
-class LIBREDASM_API ListingDocumentChanged
+class LIBREDASM_API ListingDocumentChangedEventArgs: public EventArgs
 {
-    PIMPL_DECLARE_P(ListingDocumentChanged)
-    PIMPL_DECLARE_PRIVATE(ListingDocumentChanged)
+    PIMPL_DECLARE_P(ListingDocumentChangedEventArgs)
+    PIMPL_DECLARE_PRIVATE(ListingDocumentChangedEventArgs)
 
     public:
-        ListingDocumentChanged(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
+        ListingDocumentChangedEventArgs(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         const ListingItem* item() const;
         ListingDocumentAction action() const;
         bool isInserted() const;
@@ -36,7 +36,7 @@ class LIBREDASM_API ListingDocumentType: public Object
     PIMPL_DECLARE_PRIVATE(ListingDocumentType)
 
     public:
-        Event<const ListingDocumentChanged*> changed;
+        Event changed;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

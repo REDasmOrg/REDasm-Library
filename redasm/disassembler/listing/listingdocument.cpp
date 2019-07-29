@@ -9,12 +9,12 @@
 
 namespace REDasm {
 
-ListingDocumentChanged::ListingDocumentChanged(const ListingItem *item, size_t index, ListingDocumentAction action): m_pimpl_p(new ListingDocumentChangedImpl(item, index, action)) {  }
-const ListingItem *ListingDocumentChanged::item() const { PIMPL_P(const ListingDocumentChanged); return p->item(); }
-ListingDocumentAction ListingDocumentChanged::action() const { PIMPL_P(const ListingDocumentChanged); return p->action(); }
-bool ListingDocumentChanged::isInserted() const { PIMPL_P(const ListingDocumentChanged); return p->isInserted(); }
-bool ListingDocumentChanged::isRemoved() const { PIMPL_P(const ListingDocumentChanged); return p->isRemoved(); }
-size_t ListingDocumentChanged::index() const { PIMPL_P(const ListingDocumentChanged); return p->index(); }
+ListingDocumentChangedEventArgs::ListingDocumentChangedEventArgs(const ListingItem *item, size_t index, ListingDocumentAction action): EventArgs(), m_pimpl_p(new ListingDocumentChangedEventArgsImpl(item, index, action)) { }
+const ListingItem *ListingDocumentChangedEventArgs::item() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->item(); }
+ListingDocumentAction ListingDocumentChangedEventArgs::action() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->action(); }
+bool ListingDocumentChangedEventArgs::isInserted() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->isInserted(); }
+bool ListingDocumentChangedEventArgs::isRemoved() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->isRemoved(); }
+size_t ListingDocumentChangedEventArgs::index() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->index(); }
 
 void ListingDocumentType::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const ListingDocumentType); return p->save(a); }
 void ListingDocumentType::load(cereal::BinaryInputArchive &a) { PIMPL_P(ListingDocumentType); return p->load(a); }
@@ -99,7 +99,7 @@ void ListingDocumentType::comment(const ListingItem *item, const String &s)
     else
         item->data()->comments.clear();
 
-    ListingDocumentChanged ldc(item, this->findItem(item));
+    ListingDocumentChangedEventArgs ldc(item, this->findItem(item));
     changed(&ldc);
 }
 
@@ -263,7 +263,7 @@ void ListingDocumentType::autoComment(address_t address, const String &s)
 
     it->get()->data()->autocomments.insert(s);
 
-    ListingDocumentChanged ldc(it->get(), this->findItem(it->get()));
+    ListingDocumentChangedEventArgs ldc(it->get(), this->findItem(it->get()));
     changed(&ldc);
 }
 

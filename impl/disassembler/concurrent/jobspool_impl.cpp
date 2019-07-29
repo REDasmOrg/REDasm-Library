@@ -15,7 +15,8 @@ JobsPoolImpl::JobsPoolImpl(JobsPool *q): m_pimpl_q(q), m_running(true)
     for(size_t i = 0; i < m_concurrency; i++)
     {
         auto job = std::make_unique<Job>();
-        EVENT_CONNECT(job, stateChanged, this, std::bind(&JobsPoolImpl::notifyStateChanged, this, std::placeholders::_1));
+
+        job->stateChanged.connect(this, std::bind(&JobsPoolImpl::notifyStateChanged, this, std::placeholders::_1));
         m_jobs.push_back(std::move(job));
     }
 }
@@ -99,7 +100,7 @@ void JobsPoolImpl::resume()
     q->stateChanged(m_jobs.back().get());
 }
 
-void JobsPoolImpl::work(const JobCallback &cb)
+void JobsPoolImpl::work(const Job::JobCallback &cb)
 {
     for(auto& job : m_jobs)
         job->work(cb);
@@ -108,8 +109,10 @@ void JobsPoolImpl::work(const JobCallback &cb)
     q->stateChanged(m_jobs.back().get());
 }
 
-void JobsPoolImpl::notifyStateChanged(Job *job)
+void JobsPoolImpl::notifyStateChanged(EventArgs *e)
 {
+    Job* job = variant_object<Job>(e->arg());
+
     for(const auto& j : m_jobs)
     {
         if(job->state() != j->state())

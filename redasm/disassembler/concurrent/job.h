@@ -8,15 +8,16 @@ namespace REDasm {
 
 class JobImpl;
 class Job;
-typedef std::function<void(Job*)> JobCallback;
 
-class Job
+class Job: public Object
 {
+    REDASM_OBJECT(Job)
     PIMPL_DECLARE_P(Job)
     PIMPL_DECLARE_PRIVATE(Job)
 
     public:
-        Event<Job*> stateChanged;
+        typedef std::function<void(Job*)> JobCallback;
+        Event stateChanged;
 
     public:
         Job();

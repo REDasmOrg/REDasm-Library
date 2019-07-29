@@ -69,7 +69,7 @@ void AlgorithmImpl::analyze()
     r_doc->moveToEP();
 
     // Trigger a Fast Analysis when post disassembling is completed
-    EVENT_CONNECT(r_disasm, busyChanged, this, [&]() {
+    r_disasm->busyChanged.connect(this, [&](EventArgs*) {
         if(r_disasm->busy())
             return;
 

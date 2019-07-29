@@ -26,7 +26,7 @@ class JobImpl
         void pause();
         void resume();
         void setOneShot(bool b);
-        void work(const JobCallback &cb, bool deferred = false);
+        void work(const Job::JobCallback &cb, bool deferred = false);
 
     private:
         void sleep();
@@ -37,7 +37,7 @@ class JobImpl
         bool m_oneshot;
         std::atomic<JobState> m_state;
         std::chrono::milliseconds m_interval;
-        JobCallback m_jobcallback;
+        Job::JobCallback m_jobcallback;
         std::condition_variable m_cv;
         std::thread m_thread;
         std::mutex m_mutex;

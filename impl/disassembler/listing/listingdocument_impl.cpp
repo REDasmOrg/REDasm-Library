@@ -4,12 +4,12 @@
 
 namespace REDasm {
 
-ListingDocumentChangedImpl::ListingDocumentChangedImpl(const ListingItem *item, size_t index, ListingDocumentAction action): m_action(action), m_item(item), m_index(index) { }
-const ListingItem *ListingDocumentChangedImpl::item() const { return m_item; }
-ListingDocumentAction ListingDocumentChangedImpl::action() const { return m_action; }
-bool ListingDocumentChangedImpl::isInserted() const { return m_action == ListingDocumentAction::Inserted; }
-bool ListingDocumentChangedImpl::isRemoved() const { return m_action == ListingDocumentAction::Removed; }
-size_t ListingDocumentChangedImpl::index() const { return m_index; }
+ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem *item, size_t index, ListingDocumentAction action): m_action(action), m_item(item), m_index(index) { }
+const ListingItem *ListingDocumentChangedEventArgsImpl::item() const { return m_item; }
+ListingDocumentAction ListingDocumentChangedEventArgsImpl::action() const { return m_action; }
+bool ListingDocumentChangedEventArgsImpl::isInserted() const { return m_action == ListingDocumentAction::Inserted; }
+bool ListingDocumentChangedEventArgsImpl::isRemoved() const { return m_action == ListingDocumentAction::Removed; }
+size_t ListingDocumentChangedEventArgsImpl::index() const { return m_index; }
 
 ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): SortedListTemplate<ListingItemPtr, ListingItemPtrComparator>(), m_pimpl_q(q), m_documententry(nullptr) { }
 ListingDocumentTypeImpl::~ListingDocumentTypeImpl() { m_segments.releaseObjects(); }
@@ -65,7 +65,7 @@ ListingItem *ListingDocumentTypeImpl::push(address_t address, ListingItemType ty
         return it->get();
 
     it = ContainerType::insert(std::move(item));
-    ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Inserted);
+    ListingDocumentChangedEventArgs ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Inserted);
     q->changed(&ldc);
 
     return it->get();
@@ -79,7 +79,7 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
 
     while(it != this->end())
     {
-        ListingDocumentChanged ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Removed);
+        ListingDocumentChangedEventArgs ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Removed);
         q->changed(&ldc);
 
         if(type == ListingItemType::FunctionItem)

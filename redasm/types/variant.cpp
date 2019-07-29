@@ -43,6 +43,17 @@ unsigned int Variant::toUInt() const { PIMPL_P(const Variant); return p->toUInt(
 void *Variant::toPointer() const  { PIMPL_P(const Variant); return p->toPointer(); }
 Object *Variant::toObject() const { PIMPL_P(const Variant); return p->toObject();  }
 String Variant::toString()  const { PIMPL_P(const Variant); return p->toString();  }
+
+Object *Variant::checkObject(object_id_t id) const
+{
+    Object* obj = this->toObject();
+
+    if(id != Object::ID)
+        assert(obj && (obj->objectId() == id));
+
+    return obj;
+}
+
 Variant &Variant::operator=(s8 v) { PIMPL_P(Variant); p->set(v); return *this; }
 Variant &Variant::operator=(s16 v) { PIMPL_P(Variant); p->set(v); return *this; }
 Variant &Variant::operator=(s32 v) { PIMPL_P(Variant); p->set(v); return *this; }

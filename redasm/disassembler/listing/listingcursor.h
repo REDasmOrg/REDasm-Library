@@ -23,9 +23,9 @@ class LIBREDASM_API ListingCursor: public Object
         };
 
     public:
-        SimpleEvent positionChanged;
-        SimpleEvent backChanged;
-        SimpleEvent forwardChanged;
+        Event positionChanged;
+        Event backChanged;
+        Event forwardChanged;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

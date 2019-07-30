@@ -239,7 +239,7 @@ bool String::operator <(const String &rhs) const { PIMPL_P(const String); return
 bool String::operator >=(const String &rhs) const { PIMPL_P(const String); return p->m_data >= rhs.pimpl_p()->m_data; }
 bool String::operator >(const String &rhs) const { PIMPL_P(const String); return p->m_data > rhs.pimpl_p()->m_data; }
 String &String::operator=(const String &rhs) { PIMPL_P(String); p->m_data = rhs.pimpl_p()->m_data; return *this; }
-String &String::operator=(const char *rhs) { PIMPL_P(String); p->m_data += rhs; return *this; }
+String &String::operator=(const char *rhs) { PIMPL_P(String); p->m_data = rhs; return *this; }
 char String::operator[](size_t idx) const { PIMPL_P(const String); return p->m_data[idx]; }
 char &String::operator[](size_t idx) { PIMPL_P(String); return p->m_data[idx]; }
 void String::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const String); a(p->m_data);  }

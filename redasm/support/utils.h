@@ -15,6 +15,7 @@ class Utils
         Utils() = delete;
         static inline String trampoline(const String& s, const String& prefix = String()) { return prefix + "_" + s; }
         static bool byte(const String& s, u8* val, size_t offset = 0);
+        template<typename T> static T bitreverse(T val);
 
     public:
         template<typename T, typename U> static inline T readpointer(U** p) { T v = *reinterpret_cast<T*>(*p); *p = Utils::relpointer<U>(*p, sizeof(T)); return v; }

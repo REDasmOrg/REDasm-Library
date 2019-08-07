@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <map>
 #include <fstream>
 #include <list>
 #include <redasm/disassembler/listing/cachedinstruction.h>
@@ -17,6 +18,7 @@ class InstructionCache
         size_t size() const;
         bool contains(address_t address) const;
         CachedInstruction find(address_t address);
+        CachedInstruction findNearest(address_t address);
         CachedInstruction allocate(address_t address);
 
     private:
@@ -27,7 +29,7 @@ class InstructionCache
 
     private:
         std::unordered_map<address_t, CachedInstruction> m_cache;
-        std::unordered_map<address_t, std::streamoff> m_offsets;
+        std::map<address_t, std::streamoff> m_offsets;
         std::fstream m_file;
         String m_filepath;
         bool m_lockserialization;

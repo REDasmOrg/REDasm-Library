@@ -124,7 +124,7 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    if(!r_ldr->offset(address).valid)
+    if(!r_ldr->offset(address).valid || r_doc->nearestInstruction(address))
         return false;
 
     return true;

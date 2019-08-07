@@ -37,6 +37,21 @@ InstructionCache::~InstructionCache()
 size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.size(); }
 bool InstructionCache::contains(address_t address) const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.find(address) != m_offsets.end(); }
 
+CachedInstruction InstructionCache::findNearest(address_t address)
+{
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    auto it = m_offsets.lower_bound(address);
+
+    if(it == m_offsets.end())
+        return CachedInstruction();
+
+    if(it != m_offsets.begin())
+        it--;
+
+    CachedInstruction ci = this->find(it->first);
+    return (ci && ci->contains(address)) ? ci : CachedInstruction();
+}
+
 CachedInstruction InstructionCache::find(address_t address)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);

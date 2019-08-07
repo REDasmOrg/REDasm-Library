@@ -462,6 +462,7 @@ const Segment *ListingDocumentType::segmentByName(const String &name) const
 
 void ListingDocumentType::instruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); p->push(instruction->address, ListingItemType::InstructionItem); }
 CachedInstruction ListingDocumentType::instruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.find(address); }
+CachedInstruction ListingDocumentType::nearestInstruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.findNearest(address); }
 size_t ListingDocumentType::findItem(const ListingItem *item) const { PIMPL_P(const ListingDocumentType); return p->findIndex(item->address(), item->type(), item->index()); }
 size_t ListingDocumentType::findFunction(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::FunctionItem); }
 size_t ListingDocumentType::findInstruction(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::InstructionItem); }

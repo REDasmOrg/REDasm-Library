@@ -158,6 +158,7 @@ size_t hash<REDasm::Variant>::operator()(const REDasm::Variant &v) const noexcep
     }
 
     assert(false);
+    return 0;
 }
 
 size_t std::equal_to<REDasm::Variant>::operator()(const REDasm::Variant &v1, const REDasm::Variant &v2) const noexcept { return v1 == v2; }

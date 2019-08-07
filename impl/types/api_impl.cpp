@@ -94,6 +94,19 @@ Instruction *InstructionImpl::reg(register_id_t r, tag_t tag)
     return q;
 }
 
+Instruction *InstructionImpl::tgt(address_t a)
+{
+    PIMPL_Q(Instruction);
+
+    this->imm(a, 0);
+
+    Operand* op = variant_object<Operand>(m_operands.last());
+    op->asTarget();
+
+    this->target(a);
+    return q;
+}
+
 const List &InstructionImpl::targets() const { return m_targets; }
 
 void InstructionImpl::target(address_t address)

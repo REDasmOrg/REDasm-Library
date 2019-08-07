@@ -53,6 +53,7 @@ class InstructionImpl
         Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
         Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type);
         Instruction* reg(register_id_t r, tag_t tag);
+        Instruction* tgt(address_t a);
 
     public:
         const List& targets() const;

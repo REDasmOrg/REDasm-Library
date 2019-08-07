@@ -138,6 +138,7 @@ class Instruction: public Object
         Instruction();
         address_t endAddress() const;
         bool hasOperands() const;
+        bool contains(address_t address) const;
         size_t operandsCount() const;
         const Operand* op(size_t idx) const;
         const Operand* firstOperand() const;
@@ -155,6 +156,7 @@ class Instruction: public Object
         Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
         Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type = OperandType::Local);
         Instruction* reg(register_id_t r, tag_t tag = 0);
+        Instruction* tgt(address_t a);
 
     public:
         const List& targets() const;

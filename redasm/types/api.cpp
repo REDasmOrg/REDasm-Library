@@ -58,6 +58,7 @@ void Operand::load(cereal::BinaryInputArchive &a) { a(type, tag, size, index, lo
 Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(InstructionType::None), address(0), size(0) { }
 address_t Instruction::endAddress() const { return address + size; }
 bool Instruction::hasOperands() const { PIMPL_P(const Instruction); return p->hasOperands(); }
+bool Instruction::contains(address_t address) const { return (address >= this->address) && (address < this->endAddress()); }
 size_t Instruction::operandsCount() const { PIMPL_P(const Instruction); return p->operandsCount(); }
 const Operand *Instruction::op(size_t idx) const { PIMPL_P(const Instruction); return p->op(idx); }
 const Operand *Instruction::firstOperand() const { return this->hasOperands() ? this->op(0) : nullptr; }
@@ -75,6 +76,7 @@ Instruction *Instruction::disp(register_id_t base, register_id_t index, s64 scal
 Instruction *Instruction::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { PIMPL_P(Instruction); return p->arg(locindex, base, index, displacement); }
 Instruction *Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type) { PIMPL_P(Instruction); return p->local(locindex, base, index, displacement, type); }
 Instruction *Instruction::reg(register_id_t r, tag_t tag) { PIMPL_P(Instruction); return p->reg(r, tag); }
+Instruction *Instruction::tgt(address_t a) { PIMPL_P(Instruction); return p->tgt(a); }
 const List &Instruction::targets() const { PIMPL_P(const Instruction); return p->targets(); }
 void Instruction::target(address_t address) { PIMPL_P(Instruction); p->target(address); }
 void Instruction::targetIdx(size_t idx) { PIMPL_P(Instruction); p->targetIdx(idx); }

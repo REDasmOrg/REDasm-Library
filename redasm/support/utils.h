@@ -31,6 +31,7 @@ class Utils
 
     public:
         template<typename T> static inline size_t countbits_r(T val);
+        template<class T> static T signext(T val, const int bits);
 };
 
 template<typename T> T Utils::unmask(T val, T mask)
@@ -59,6 +60,13 @@ template<typename T> size_t Utils::countbits_r(T val)
     if(bits <= 64) return 64;
 
     assert(false);
+}
+
+template<typename T> T Utils::signext(T val, int bits)
+{
+    T m = 1;
+    m <<= bits - 1;
+    return (val ^ m) - m;
 }
 
 } // namespace REDasm

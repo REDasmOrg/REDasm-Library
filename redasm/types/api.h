@@ -10,10 +10,12 @@
 namespace REDasm {
 
 enum class SegmentType: u32 {
-    None = 0x00000000,
-    Code = 0x00000001,
-    Data = 0x00000002,
-    Bss  = 0x00000004,
+    None        = 0x00000000,
+    Code        = 0x00000001,
+    Data        = 0x00000002,
+    Bss         = 0x00000004,
+
+    DataAndCode = Data | Code,
 };
 
 ENUM_FLAGS_OPERATORS(SegmentType)

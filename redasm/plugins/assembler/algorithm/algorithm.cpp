@@ -253,7 +253,7 @@ void Algorithm::pointerState(const State *state)
     else
         return;
 
-    r_disasm->pushTarget(value, state->instruction->address);
+    r_disasm->pushReference(value, state->instruction->address);
 }
 
 void Algorithm::immediateState(const State *state)

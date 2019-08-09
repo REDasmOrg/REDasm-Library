@@ -8,8 +8,6 @@
 
 namespace REDasm {
 
-std::unordered_set<String> InstructionCache::m_activenames;
-
 InstructionCache::InstructionCache(): m_filepath(generateFilePath()), m_lockserialization(false)
 {
     m_file.exceptions(std::fstream::failbit);
@@ -30,8 +28,6 @@ InstructionCache::~InstructionCache()
         m_file.close();
         std::remove(m_filepath.c_str());
     }
-
-    m_activenames.erase(m_filepath);
 }
 
 size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.size(); }
@@ -138,15 +134,10 @@ CachedInstruction InstructionCache::deserialize(address_t address)
 String InstructionCache::generateFilePath()
 {
     String filepath = Path::create(r_ctx->tempPath(), CACHE_FILE_NAME(0));
-    auto it = m_activenames.find(filepath);
 
-    for(size_t i = 1; it != m_activenames.end(); i++)
-    {
+    for(size_t i = 0; Path::exists(filepath); i++)
         filepath = Path::create(r_ctx->tempPath(), CACHE_FILE_NAME(i));
-        it = m_activenames.find(filepath);
-    }
 
-    m_activenames.insert(filepath);
     return filepath;
 }
 

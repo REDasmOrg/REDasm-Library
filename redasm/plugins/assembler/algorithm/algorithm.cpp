@@ -240,6 +240,20 @@ void Algorithm::pointerState(const State *state)
 
     r_doc->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
     r_disasm->checkLocation(state->address, value); // Create Symbol + XRefs
+
+    Symbol* symbol = r_doc->symbol(value);
+
+    if(!symbol)
+        return;
+
+    if(symbol->is(SymbolType::String))
+        r_doc->autoComment(state->instruction->address, "STRING PTR: " + r_disasm->readString(value).quoted());
+    else if(symbol->is(SymbolType::WideString))
+        r_doc->autoComment(state->instruction->address, "WIDE STRING PTR: " + r_disasm->readWString(value).quoted());
+    else
+        return;
+
+    r_disasm->pushTarget(value, state->instruction->address);
 }
 
 void Algorithm::immediateState(const State *state)

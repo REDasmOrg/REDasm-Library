@@ -12,15 +12,20 @@ size_t ListingFunctions::size() const { PIMPL_P(const ListingFunctions); return 
 ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
 {
     PIMPL_P(const ListingFunctions);
+    auto it = p->findGraph(idx);
+    return (it != p->m_graphs.end()) ? it->first : nullptr;
+}
 
-    auto it = std::find_if(p->m_graphs.begin(), p->m_graphs.end(), [idx](const ListingFunctionsImpl::FunctionGraphItem& item) -> bool {
-        return item.second->containsItem(idx);
-    });
+const FunctionBasicBlock *ListingFunctions::basicBlockFromIndex(size_t idx) const
+{
+    PIMPL_P(const ListingFunctions);
+
+    auto it = p->findGraph(idx);
 
     if(it == p->m_graphs.end())
         return nullptr;
 
-    return it->first;
+    return it->second->basicBlockFromIndex(idx);
 }
 
 void ListingFunctions::invalidateGraphs() { PIMPL_P(ListingFunctions); p->m_graphs.clear(); }

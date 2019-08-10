@@ -19,6 +19,7 @@ class FunctionBasicBlockImpl
     private:
         Node m_node;
         size_t m_startidx, m_endidx; // [startidx, endidx]
+        size_t m_startinstructionidx, m_endinstructionidx; // [startinstructionidx, endinstructionidx]
         std::unordered_map<Node, String> m_styles;
 };
 

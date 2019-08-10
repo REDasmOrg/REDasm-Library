@@ -29,7 +29,7 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const
 
 bool ListingRendererImpl::getRendererLine(const document_s_lock &lock, size_t line, RendererLine &rl)
 {
-    const ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
+    ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
 
     if(!item)
         return false;
@@ -101,7 +101,7 @@ void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
 }
 
 bool ListingRendererImpl::hasFlag(ListingRendererFlags flag) const { return m_flags & flag; }
-void ListingRendererImpl::setFlags(ListingRendererFlags flags) { m_flags |= flags; }
+void ListingRendererImpl::setFlags(ListingRendererFlags flags) { m_flags = flags; }
 
 String ListingRendererImpl::escapeString(const String &s)
 {

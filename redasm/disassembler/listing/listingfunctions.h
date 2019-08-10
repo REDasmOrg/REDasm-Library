@@ -6,6 +6,7 @@
 namespace REDasm {
 
 class FunctionGraph;
+class FunctionBasicBlock;
 class ListingFunctionsImpl;
 
 class LIBREDASM_API ListingFunctions
@@ -21,6 +22,7 @@ class LIBREDASM_API ListingFunctions
 
     public:
         ListingItem *functionFromIndex(size_t idx) const;
+        const FunctionBasicBlock* basicBlockFromIndex(size_t idx) const;
         const FunctionGraph* graph(ListingItem* item) const;
         FunctionGraph* graph(ListingItem* item);
         void graph(ListingItem *item, FunctionGraph* graph);

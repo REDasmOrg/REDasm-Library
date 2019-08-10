@@ -3,8 +3,8 @@
 
 namespace REDasm {
 
-FunctionBasicBlockImpl::FunctionBasicBlockImpl(): m_startidx(REDasm::npos), m_endidx(m_startidx) { }
-FunctionBasicBlockImpl::FunctionBasicBlockImpl(size_t startidx): m_startidx(startidx), m_endidx(startidx) { }
+FunctionBasicBlockImpl::FunctionBasicBlockImpl(): m_startidx(REDasm::npos), m_endidx(m_startidx), m_startinstructionidx(REDasm::npos), m_endinstructionidx(REDasm::npos) { }
+FunctionBasicBlockImpl::FunctionBasicBlockImpl(size_t startidx): m_startidx(startidx), m_endidx(startidx), m_startinstructionidx(REDasm::npos), m_endinstructionidx(REDasm::npos) { }
 
 FunctionGraphImpl::FunctionGraphImpl(): GraphImpl() { }
 bool FunctionGraphImpl::containsItem(size_t index) const { return this->basicBlockFromIndex(index) != nullptr; }
@@ -211,6 +211,11 @@ void FunctionGraphImpl::buildBasicBlock(size_t index)
 
         if(item->is(ListingItemType::InstructionItem))
         {
+            if(fbb.instrutionStartIndex() == REDasm::npos)
+                fbb.setInstructionStartIndex(index);
+            else
+                fbb.setInstructionEndIndex(index);
+
             CachedInstruction instruction = r_doc->instruction(item->address());
 
             if(instruction->is(InstructionType::Jump))

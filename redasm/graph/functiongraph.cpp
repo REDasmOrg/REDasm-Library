@@ -10,9 +10,12 @@ FunctionBasicBlock::FunctionBasicBlock(size_t startidx): m_pimpl_p(new FunctionB
 Node FunctionBasicBlock::node() const { PIMPL_P(const FunctionBasicBlock); return p->m_node; }
 size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startidx; }
 size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endidx;  }
+size_t FunctionBasicBlock::instrutionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionidx; }
+size_t FunctionBasicBlock::instrutionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionidx; }
 bool FunctionBasicBlock::contains(size_t index) const { return (index >= this->startIndex()) && (index <= this->endIndex()); }
 bool FunctionBasicBlock::isEmpty() const {  return this->startIndex() > this->endIndex(); }
 size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->endIndex() - this->startIndex()) + 1); }
+size_t FunctionBasicBlock::instructionsCount() const { return (this->instrutionEndIndex() - this->instrutionStartIndex()) + 1; }
 void FunctionBasicBlock::bTrue(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_true"; }
 void FunctionBasicBlock::bFalse(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_false"; }
 
@@ -29,9 +32,21 @@ String FunctionBasicBlock::style(Node n) const
 
 void FunctionBasicBlock::setStartIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_startidx = idx; }
 void FunctionBasicBlock::setEndIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_endidx = idx; }
+
+void FunctionBasicBlock::setInstructionStartIndex(size_t idx)
+{
+    PIMPL_P(FunctionBasicBlock);
+    p->m_startinstructionidx = idx;
+
+    if(p->m_endinstructionidx == REDasm::npos)
+        p->m_endinstructionidx = idx;
+}
+
+void FunctionBasicBlock::setInstructionEndIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_endinstructionidx = idx; }
 void FunctionBasicBlock::setNode(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_node = idx; }
 
 FunctionGraph::FunctionGraph(): Graph(new FunctionGraphImpl()) { }
+const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(size_t index) const { PIMPL_P(const FunctionGraph); return p->basicBlockFromIndex(index); }
 bool FunctionGraph::containsItem(size_t index) const { PIMPL_P(const FunctionGraph); return p->containsItem(index); }
 bool FunctionGraph::build(address_t address) { PIMPL_P(FunctionGraph); return p->build(address); }
 bool FunctionGraph::build(const ListingItem *item) { PIMPL_P(FunctionGraph); return p->build(item); }

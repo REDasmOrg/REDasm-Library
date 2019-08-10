@@ -305,13 +305,19 @@ void ListingRenderer::renderBasicBlock(const document_s_lock &lock, ListingItem 
 
     const FunctionBasicBlock* fbb = lock->functions()->basicBlockFromIndex(rl.documentindex);
 
-    if(!fbb || (fbb->instructionsCount() < 2))
+    if(!fbb)
         return;
 
+    if(fbb->instructionsCount() < 2)
+    {
+        rl.push("  ");
+        return;
+    }
+
     if(fbb->instrutionStartIndex() == rl.documentindex)
-        rl.push("\u250c ", "basicblock");
+        rl.push("\u256d ", "basicblock");
     else if(fbb->instrutionEndIndex() == rl.documentindex)
-        rl.push("\u2514 ", "basicblock");
+        rl.push("\u2570 ", "basicblock");
     else
         rl.push("\u2502 ", "basicblock");
 }

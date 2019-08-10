@@ -44,6 +44,8 @@ class Symbol: public Object
         bool is(SymbolType t) const;
         bool isFunction() const;
         bool isImport() const;
+        bool isExport() const;
+        bool isEntryPoint() const;
         bool isLocked() const;
 
     public:

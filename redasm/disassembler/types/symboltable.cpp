@@ -14,6 +14,8 @@ void Symbol::lock() { type |= SymbolType::Locked; }
 bool Symbol::is(SymbolType t) const { return type & t; }
 bool Symbol::isFunction() const { return type & SymbolType::FunctionMask; }
 bool Symbol::isImport() const { return type & SymbolType::ImportMask; }
+bool Symbol::isExport() const { return type & SymbolType::ExportMask; }
+bool Symbol::isEntryPoint() const { return type & SymbolType::EntryPointMask; }
 bool Symbol::isLocked() const { return type & SymbolType::Locked; }
 void Symbol::save(cereal::BinaryOutputArchive &a) const { a(type, tag, address, size, name); }
 void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, size, name); }

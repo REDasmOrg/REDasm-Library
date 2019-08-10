@@ -247,9 +247,13 @@ void Algorithm::pointerState(const State *state)
         return;
 
     if(symbol->is(SymbolType::String))
-        r_doc->autoComment(state->instruction->address, "STRING PTR: " + r_disasm->readString(value).quoted());
+        r_doc->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
     else if(symbol->is(SymbolType::WideString))
-        r_doc->autoComment(state->instruction->address, "WIDE STRING PTR: " + r_disasm->readWString(value).quoted());
+        r_doc->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+    else if(symbol->isImport())
+        r_doc->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
+    else if(symbol->isExport())
+        r_doc->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
     else
         return;
 

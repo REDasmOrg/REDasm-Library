@@ -297,6 +297,12 @@ void ListingRenderer::renderBasicBlock(const document_s_lock &lock, ListingItem 
     if(this->hasFlag(ListingRendererFlags::HideBasicBlocks))
         return;
 
+    if(rl.highlighted)
+    {
+        rl.push("  ");
+        return;
+    }
+
     const FunctionBasicBlock* fbb = lock->functions()->basicBlockFromIndex(rl.documentindex);
 
     if(!fbb || (fbb->instructionsCount() < 2))

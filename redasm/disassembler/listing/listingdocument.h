@@ -64,6 +64,7 @@ class LIBREDASM_API ListingDocumentType: public Object
 
     public: // ListingItem inserter functions
         void empty(address_t address);
+        void separator(address_t address);
         void meta(address_t address, const String& s, const String& name = String());
         void entry(address_t address, tag_t tag = 0);
         void function(address_t address, const String& name, tag_t tag = 0);

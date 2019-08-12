@@ -218,6 +218,17 @@ const ListingMetaItem &ListingDocumentType::meta(const ListingItem* item) const 
 String ListingDocumentType::type(const ListingItem* item) const { return item->data()->type; }
 void ListingDocumentType::empty(address_t address) { PIMPL_P(ListingDocumentType); p->push(address, ListingItemType::EmptyItem); }
 
+void ListingDocumentType::separator(address_t address)
+{
+    PIMPL_P(ListingDocumentType);
+
+    // Check for duplicate separators
+    if(p->findIndex(address, ListingItemType::SeparatorItem) != REDasm::npos)
+        return;
+
+    p->push(address, ListingItemType::SeparatorItem);
+}
+
 void ListingDocumentType::meta(address_t address, const String &s, const String &name)
 {
     PIMPL_P(ListingDocumentType);

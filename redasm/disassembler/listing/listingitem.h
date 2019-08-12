@@ -13,7 +13,7 @@ struct ListingMetaItem { String name, type; };
 enum class ListingItemType: size_t
 {
     Undefined = 0,
-    SegmentItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem,
+    SegmentItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem, SeparatorItem,
     AllItems = REDasm::npos
 };
 

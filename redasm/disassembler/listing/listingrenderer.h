@@ -57,7 +57,7 @@ enum class ListingRendererFlags
     Normal          = 0,
     HideSegment     = (1 << 1),
     HideAddress     = (1 << 2),
-    HideBasicBlocks = (1 << 3),
+    HideSeparators  = (1 << 3),
 
     HideSegmentAndAddress = HideSegment | HideAddress
 };
@@ -92,11 +92,11 @@ class ListingRenderer
         bool getRendererLine(size_t line, RendererLine& rl);
         void renderSegment(const document_s_lock& lock, ListingItem *item, RendererLine& rl);
         void renderFunction(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
-        void renderBasicBlock(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderInstruction(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderSymbol(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderMeta(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderType(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
+        void renderSeparator(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderAddress(const document_s_lock &lock, ListingItem *item, RendererLine &rl);
         void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl);
         void renderOperands(const CachedInstruction& instruction, RendererLine &rl);

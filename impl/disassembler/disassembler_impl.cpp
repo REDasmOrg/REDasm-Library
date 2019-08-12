@@ -518,6 +518,24 @@ void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *fu
     if(!g->build(functionitem))
         return;
 
+    const NodeList& nodes = g->nodes();
+
+    // Add basic block separators to listing
+    for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
+    {
+        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
+
+        if(!fbb)
+            continue;
+
+        const ListingItem* item = lock->itemAt(fbb->instructionEndIndex());
+
+        if(!item)
+            continue;
+
+        lock->separator(item->address());
+    }
+
     lock->functions()->graph(functionitem, g.release());
 }
 

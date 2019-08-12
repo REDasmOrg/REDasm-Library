@@ -20,8 +20,8 @@ class LIBREDASM_API FunctionBasicBlock: public Object
         Node node() const;
         size_t startIndex() const;
         size_t endIndex() const;
-        size_t instrutionStartIndex() const;
-        size_t instrutionEndIndex() const;
+        size_t instructionStartIndex() const;
+        size_t instructionEndIndex() const;
         size_t count() const;
         size_t instructionsCount() const;
         void bTrue(Node n);

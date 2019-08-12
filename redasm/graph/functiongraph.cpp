@@ -10,12 +10,12 @@ FunctionBasicBlock::FunctionBasicBlock(size_t startidx): m_pimpl_p(new FunctionB
 Node FunctionBasicBlock::node() const { PIMPL_P(const FunctionBasicBlock); return p->m_node; }
 size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startidx; }
 size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endidx;  }
-size_t FunctionBasicBlock::instrutionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionidx; }
-size_t FunctionBasicBlock::instrutionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionidx; }
+size_t FunctionBasicBlock::instructionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionidx; }
+size_t FunctionBasicBlock::instructionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionidx; }
 bool FunctionBasicBlock::contains(size_t index) const { return (index >= this->startIndex()) && (index <= this->endIndex()); }
 bool FunctionBasicBlock::isEmpty() const {  return this->startIndex() > this->endIndex(); }
 size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->endIndex() - this->startIndex()) + 1); }
-size_t FunctionBasicBlock::instructionsCount() const { return (this->instrutionEndIndex() - this->instrutionStartIndex()) + 1; }
+size_t FunctionBasicBlock::instructionsCount() const { return (this->instructionEndIndex() - this->instructionStartIndex()) + 1; }
 void FunctionBasicBlock::bTrue(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_true"; }
 void FunctionBasicBlock::bFalse(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_false"; }
 

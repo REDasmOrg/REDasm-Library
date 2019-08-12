@@ -211,7 +211,7 @@ void FunctionGraphImpl::buildBasicBlock(size_t index)
 
         if(item->is(ListingItemType::InstructionItem))
         {
-            if(fbb.instrutionStartIndex() == REDasm::npos)
+            if(fbb.instructionStartIndex() == REDasm::npos)
                 fbb.setInstructionStartIndex(index);
             else
                 fbb.setInstructionEndIndex(index);

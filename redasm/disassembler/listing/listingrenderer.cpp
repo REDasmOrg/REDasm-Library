@@ -292,36 +292,6 @@ void ListingRenderer::renderFunction(const document_s_lock& lock, ListingItem *i
     });
 }
 
-void ListingRenderer::renderBasicBlock(const document_s_lock &lock, ListingItem *item, RendererLine &rl)
-{
-    if(this->hasFlag(ListingRendererFlags::HideBasicBlocks))
-        return;
-
-    if(rl.highlighted)
-    {
-        rl.push("  ");
-        return;
-    }
-
-    const FunctionBasicBlock* fbb = lock->functions()->basicBlockFromIndex(rl.documentindex);
-
-    if(!fbb)
-        return;
-
-    if(fbb->instructionsCount() < 2)
-    {
-        rl.push("  ");
-        return;
-    }
-
-    if(fbb->instrutionStartIndex() == rl.documentindex)
-        rl.push("\u256d ", "basicblock");
-    else if(fbb->instrutionEndIndex() == rl.documentindex)
-        rl.push("\u2570 ", "basicblock");
-    else
-        rl.push("\u2502 ", "basicblock");
-}
-
 void ListingRenderer::renderInstruction(const document_s_lock& lock, ListingItem *item, RendererLine &rl)
 {
     CachedInstruction instruction = lock->instruction(item->address());
@@ -333,7 +303,6 @@ void ListingRenderer::renderInstruction(const document_s_lock& lock, ListingItem
     else
         this->renderIndent(rl, 1);
 
-    this->renderBasicBlock(lock, item, rl);
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
     this->renderComments(lock, item, rl);
@@ -412,6 +381,17 @@ void ListingRenderer::renderType(const document_s_lock &lock, ListingItem *item,
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push(".type ", "meta_fg").push(lock->type(item), "comment_fg");
+}
+
+void ListingRenderer::renderSeparator(const document_s_lock &lock, ListingItem *item, RendererLine &rl)
+{
+    if(!rl.ignoreflags && this->hasFlag(ListingRendererFlags::HideSeparators))
+        return;
+
+    if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
+        this->renderAddressIndent(lock, item, rl);
+
+    rl.push(String::repeated('-', SEPARATOR_LENGTH), "separator");
 }
 
 void ListingRenderer::renderAddress(const document_s_lock &lock, ListingItem *item, RendererLine &rl)

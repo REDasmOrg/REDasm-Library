@@ -6,8 +6,8 @@
 
 namespace REDasm {
 
-class StringImpl;
 class List;
+class StringImpl;
 
 class String: public Object
 {

@@ -1,5 +1,7 @@
 #pragma once
 
+#define SEPARATOR_LENGTH 50
+
 #include <redasm/disassembler/listing/listingrenderer.h>
 #include <redasm/pimpl.h>
 #include "../../types/containers/templates/list_template.h"

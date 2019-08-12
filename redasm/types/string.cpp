@@ -4,9 +4,9 @@
 #include <impl/libs/cereal/archives/binary.hpp>
 #include <impl/libs/cereal/types/string.hpp>
 #include <algorithm>
-#include <cctype>
 #include <sstream>
 #include <iomanip>
+#include <cctype>
 #include "../libs/nlohmann/json.hpp"
 #include "containers/list.h"
 #include "base.h"
@@ -46,7 +46,8 @@ bool String::endsWith(const String &rhs) const
 }
 
 bool String::contains(const String &s) const { PIMPL_P(const String); return p->m_data.find(s.pimpl_p()->m_data) != std::string::npos; }
-int String::toInt(int base) const { PIMPL_P(const String); return std::stoi(p->m_data, nullptr, base); }
+int String::toInt(int base, bool* ok) const { PIMPL_P(const String); return p->convert<int>(&std::strtol, base, ok); }
+unsigned int String::toUInt(int base, bool *ok) const { PIMPL_P(const String); return p->convert<unsigned int>(&std::strtoul, base, ok); }
 
 void String::removeFirst()
 {

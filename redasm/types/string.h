@@ -40,7 +40,8 @@ class String: public Object
         bool startsWith(const String& rhs) const;
         bool endsWith(const String& rhs) const;
         bool contains(const String& s) const;
-        int toInt(int base = 10) const;
+        int toInt(int base = 10, bool *ok = nullptr) const;
+        unsigned int toUInt(int base = 16, bool *ok = nullptr) const;
         void removeFirst();
         void removeLast();
         String& remove(size_t start, size_t len = npos);

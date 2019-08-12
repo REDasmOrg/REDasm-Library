@@ -13,7 +13,6 @@ class CapstoneAssemblerImpl : public AssemblerImpl
     public:
         CapstoneAssemblerImpl();
         virtual ~CapstoneAssemblerImpl();
-        void init(const AssemblerRequest& request) override;
         csh handle() const;
         int arch() const;
         int mode() const;

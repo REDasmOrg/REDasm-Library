@@ -4,7 +4,6 @@ namespace REDasm {
 
 CapstoneAssemblerImpl::CapstoneAssemblerImpl(): AssemblerImpl(), m_handle(0), m_arch(0), m_mode(0) { }
 CapstoneAssemblerImpl::~CapstoneAssemblerImpl() { this->close(); }
-void CapstoneAssemblerImpl::init(const AssemblerRequest &request) { }
 csh CapstoneAssemblerImpl::handle() const { return m_handle; }
 int CapstoneAssemblerImpl::arch() const { return m_arch; }
 int CapstoneAssemblerImpl::mode() const { return m_mode; }

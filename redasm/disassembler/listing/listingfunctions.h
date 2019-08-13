@@ -21,8 +21,8 @@ class LIBREDASM_API ListingFunctions
         size_t size() const;
 
     public:
-        ListingItem *functionFromIndex(size_t idx) const;
-        const FunctionBasicBlock* basicBlockFromIndex(size_t idx) const;
+        ListingItem *functionFromItem(ListingItem *item) const;
+        const FunctionBasicBlock* basicBlockFromItem(ListingItem *item) const;
         const FunctionGraph* graph(ListingItem* item) const;
         FunctionGraph* graph(ListingItem* item);
         void graph(ListingItem *item, FunctionGraph* graph);

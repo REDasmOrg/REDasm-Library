@@ -20,8 +20,8 @@ InstructionCache::InstructionCache(): m_filepath(generateFilePath()), m_lockseri
 InstructionCache::~InstructionCache()
 {
     m_lockserialization = true;
+    m_loaded.clear();
     m_cache.clear();
-    m_offsets.clear();
 
     if(m_file.is_open())
     {
@@ -30,18 +30,18 @@ InstructionCache::~InstructionCache()
     }
 }
 
-size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.size(); }
-bool InstructionCache::contains(address_t address) const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_offsets.find(address) != m_offsets.end(); }
+size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_cache.size(); }
+bool InstructionCache::contains(address_t address) const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_cache.find(address) != m_cache.end(); }
 
 CachedInstruction InstructionCache::findNearest(address_t address)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
-    auto it = m_offsets.lower_bound(address);
+    auto it = m_cache.lower_bound(address);
 
-    if(it == m_offsets.end())
+    if(it == m_cache.end())
         return CachedInstruction();
 
-    if(it != m_offsets.begin())
+    if(it != m_cache.begin())
         it--;
 
     CachedInstruction ci = this->find(it->first);
@@ -51,9 +51,9 @@ CachedInstruction InstructionCache::findNearest(address_t address)
 CachedInstruction InstructionCache::find(address_t address)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
-    auto it = m_cache.find(address);
+    auto it = m_loaded.find(address);
 
-    if(it != m_cache.end())
+    if(it != m_loaded.end())
         return it->second;
 
     return this->deserialize(address);
@@ -66,6 +66,50 @@ CachedInstruction InstructionCache::allocate(address_t address)
     return cachedinstruction;
 }
 
+CachedInstruction InstructionCache::next(address_t address)
+{
+    address_location loc = this->nextHint(address);
+
+    if(!loc.valid)
+        return CachedInstruction();
+
+    return this->find(loc);
+}
+
+CachedInstruction InstructionCache::prev(address_t address)
+{
+    address_location loc = this->prevHint(address);
+
+    if(!loc.valid)
+        return CachedInstruction();
+
+    return this->find(loc);
+}
+
+address_location InstructionCache::nextHint(address_t address)
+{
+    auto it = m_cache.find(address);
+
+    if(it != m_cache.end())
+        it++;
+
+    if(it == m_cache.end())
+        return REDasm::invalid_location<address_t>();
+
+    return REDasm::make_location(it->first);
+}
+
+address_location InstructionCache::prevHint(address_t address)
+{
+    auto it = m_cache.find(address);
+
+    if((it == m_cache.begin()) || (it == m_cache.end()))
+        return REDasm::invalid_location<address_t>();
+
+    it--;
+    return REDasm::make_location(it->first);
+}
+
 void InstructionCache::deallocate(const CachedInstruction& instruction)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
@@ -76,7 +120,7 @@ void InstructionCache::deallocate(const CachedInstruction& instruction)
     if(m_file.is_open() && instruction)
         this->serialize(instruction);
 
-    m_cache.erase(instruction->address);
+    m_loaded.erase(instruction->address);
 }
 
 void InstructionCache::serialize(const CachedInstruction& instruction)
@@ -88,16 +132,16 @@ void InstructionCache::serialize(const CachedInstruction& instruction)
 
     if(!m_file.is_open())
     {
-        m_cache[instruction->address] = instruction;
+        m_loaded[instruction->address] = instruction;
         return;
     }
 
-    auto it = m_offsets.find(instruction->address);
+    auto it = m_cache.find(instruction->address);
 
-    if(it == m_offsets.end())
+    if(it == m_cache.end())
     {
         m_file.seekp(0, std::ios::end); // Append at end
-        m_offsets[instruction->address] = m_file.tellp();
+        m_cache[instruction->address] = m_file.tellp();
     }
     else
         m_file.seekp(it->second, std::ios::beg);
@@ -112,13 +156,13 @@ CachedInstruction InstructionCache::deserialize(address_t address)
 
     if(!m_file.is_open())
     {
-        auto it = m_cache.find(address);
-        return (it != m_cache.end()) ? it->second : CachedInstruction();
+        auto it = m_loaded.find(address);
+        return (it != m_loaded.end()) ? it->second : CachedInstruction();
     }
 
-    auto it = m_offsets.find(address);
+    auto it = m_cache.find(address);
 
-    if(it == m_offsets.end())
+    if(it == m_cache.end())
         return CachedInstruction();
 
     CachedInstruction cachedinstruction(this, new Instruction());
@@ -127,7 +171,7 @@ CachedInstruction InstructionCache::deserialize(address_t address)
     cereal::BinaryInputArchive archive(m_file);
     archive(*cachedinstruction.get());
 
-    m_cache[cachedinstruction->address] = cachedinstruction;
+    m_loaded[cachedinstruction->address] = cachedinstruction;
     return cachedinstruction;
 }
 

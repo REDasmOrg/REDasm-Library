@@ -48,10 +48,8 @@ SortedList DisassemblerImpl::getCalls(address_t address)
         if(!fbb)
             return;
 
-        for(size_t i = fbb->startIndex(); i <= fbb->endIndex(); i++)
+        for(ListingItem* item = fbb->startItem(); item; item = r_doc->next(item))
         {
-            ListingItem* item = this->document()->itemAt(i);
-
             if(!item->is(ListingItemType::InstructionItem))
                 continue;
 
@@ -59,6 +57,9 @@ SortedList DisassemblerImpl::getCalls(address_t address)
 
             if(instruction->is(InstructionType::Call))
                 calls.insert(item);
+
+            if(item == fbb->endItem())
+                break;
         }
     });
 
@@ -81,7 +82,7 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     if(!graph)
         return BufferView();
 
-    size_t startidx = REDasm::npos, endidx = REDasm::npos;
+    const ListingItem *startitem = nullptr, *enditem = nullptr;
 
     graph->nodes().each([&](Node n) {
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
@@ -89,22 +90,16 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
         if(!fbb)
             return;
 
-        if(startidx == REDasm::npos)
-            startidx = fbb->startIndex();
-        else if(startidx > fbb->startIndex())
-            startidx = fbb->startIndex();
+        if(!startitem)
+            startitem = fbb->startItem();
+        else if(startitem->address() > fbb->startItem()->address())
+            startitem = fbb->startItem();
 
-        if(endidx == REDasm::npos)
-            endidx = fbb->endIndex();
-        else if(endidx < fbb->endIndex())
-            endidx = fbb->endIndex();
+        if(!enditem)
+            enditem = fbb->endItem();
+        else if(enditem->address() < fbb->endItem()->address())
+            enditem = fbb->endItem();
     });
-
-    if((startidx == REDasm::npos) | (endidx == REDasm::npos))
-        return BufferView();
-
-    const ListingItem* startitem = this->document()->itemAt(startidx);
-    const ListingItem* enditem = this->document()->itemAt(endidx);
 
     if(!startitem || !enditem)
         return BufferView();
@@ -528,7 +523,7 @@ void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *fu
         if(!fbb)
             continue;
 
-        const ListingItem* item = lock->itemAt(fbb->instructionEndIndex());
+        const ListingItem* item = fbb->instructionEndItem();
 
         if(!item)
             continue;

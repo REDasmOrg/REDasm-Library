@@ -64,7 +64,7 @@ class LIBREDASM_API ListingDocumentType: public Object
 
     public: // ListingItem inserter functions
         void empty(address_t address);
-        void separator(address_t address);
+        bool separator(address_t address);
         void meta(address_t address, const String& s, const String& name = String());
         void entry(address_t address, tag_t tag = 0);
         void function(address_t address, const String& name, tag_t tag = 0);
@@ -84,10 +84,10 @@ class LIBREDASM_API ListingDocumentType: public Object
     public:
         size_t segmentsCount() const;
         size_t lastLine() const;
-        size_t findItem(const ListingItem* item) const;
-        size_t findFunction(address_t address) const;
-        size_t findInstruction(address_t address) const;
-        size_t findSymbol(address_t address) const;
+        size_t itemIndex(const ListingItem* item) const;
+        size_t functionIndex(address_t address) const;
+        size_t instructionIndex(address_t address) const;
+        size_t symbolIndex(address_t address) const;
         const ListingFunctions *functions() const;
         const ListingCursor* cursor() const;
         const Segment *segmentByName(const String& name) const;
@@ -109,9 +109,15 @@ class LIBREDASM_API ListingDocumentType: public Object
         Symbol *symbol(const String& name) const;
         ListingCursor* cursor();
         ListingItem* itemAt(size_t i) const;
+        ListingItem* next(ListingItem* item) const;
+        ListingItem* prev(ListingItem* item) const;
+        ListingItem* nextInstructionItem(ListingItem* item);
+        ListingItem* prevInstructionItem(ListingItem* item);
         ListingFunctions* functions();
         CachedInstruction cacheInstruction(address_t address);
         CachedInstruction instruction(address_t address);
+        CachedInstruction nextInstruction(const CachedInstruction& instruction);
+        CachedInstruction prevInstruction(const CachedInstruction& instruction);
         CachedInstruction nearestInstruction(address_t address);
         CachedInstruction entryInstruction();
         bool isInstructionCached(address_t address) const;

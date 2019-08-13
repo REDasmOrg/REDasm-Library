@@ -21,7 +21,8 @@ class ListingFunctionsImpl: public SortedItemList
         ListingFunctionsImpl();
         ~ListingFunctionsImpl();
         void remove(ListingItem *item);
-        FunctionGraphs::const_iterator findGraph(size_t idx) const;
+        FunctionGraphs::const_iterator findGraph(ListingItem *item) const;
+        void invalidateGraphs();
 
     private:
         FunctionGraphs m_graphs;

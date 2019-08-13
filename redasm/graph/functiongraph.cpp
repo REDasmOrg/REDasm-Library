@@ -6,16 +6,20 @@
 namespace REDasm {
 
 FunctionBasicBlock::FunctionBasicBlock(): m_pimpl_p(new FunctionBasicBlockImpl()) { }
-FunctionBasicBlock::FunctionBasicBlock(size_t startidx): m_pimpl_p(new FunctionBasicBlockImpl(startidx)) { }
+FunctionBasicBlock::FunctionBasicBlock(Node n, ListingItem* startitem): m_pimpl_p(new FunctionBasicBlockImpl(n, startitem)) { }
 Node FunctionBasicBlock::node() const { PIMPL_P(const FunctionBasicBlock); return p->m_node; }
-size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startidx; }
-size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endidx;  }
-size_t FunctionBasicBlock::instructionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionidx; }
-size_t FunctionBasicBlock::instructionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionidx; }
-bool FunctionBasicBlock::contains(size_t index) const { return (index >= this->startIndex()) && (index <= this->endIndex()); }
-bool FunctionBasicBlock::isEmpty() const {  return this->startIndex() > this->endIndex(); }
+ListingItem* FunctionBasicBlock::startItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_startitem; }
+ListingItem* FunctionBasicBlock::endItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_enditem;  }
+ListingItem* FunctionBasicBlock::instructionStartItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionitem; }
+ListingItem* FunctionBasicBlock::instructionEndItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionitem; }
+size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_startitem);  }
+size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_enditem);  }
+size_t FunctionBasicBlock::instructionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_startinstructionitem); }
+size_t FunctionBasicBlock::instructionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_endinstructionitem); }
+bool FunctionBasicBlock::contains(ListingItem* item) const { PIMPL_P(const FunctionBasicBlock); return (item->address() >= p->m_startitem->address()) && (item->address() <= p->m_enditem->address()); }
+bool FunctionBasicBlock::isEmpty() const { PIMPL_P(const FunctionBasicBlock); return (!p->m_startitem || !p->m_enditem); }
 size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->endIndex() - this->startIndex()) + 1); }
-size_t FunctionBasicBlock::instructionsCount() const { return (this->instructionEndIndex() - this->instructionStartIndex()) + 1; }
+size_t FunctionBasicBlock::instructionsCount() const { return (this->instructionEndItem() - this->instructionStartItem()) + 1; }
 void FunctionBasicBlock::bTrue(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_true"; }
 void FunctionBasicBlock::bFalse(Node n) { PIMPL_P(FunctionBasicBlock); p->m_styles[n] = "graph_edge_false"; }
 
@@ -30,25 +34,26 @@ String FunctionBasicBlock::style(Node n) const
     return it->second;
 }
 
-void FunctionBasicBlock::setStartIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_startidx = idx; }
-void FunctionBasicBlock::setEndIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_endidx = idx; }
+void FunctionBasicBlock::setStartItem(ListingItem *item) { PIMPL_P(FunctionBasicBlock); p->m_startitem = item; }
+void FunctionBasicBlock::setEndItem(ListingItem *item) { PIMPL_P(FunctionBasicBlock); p->m_enditem = item; }
 
-void FunctionBasicBlock::setInstructionStartIndex(size_t idx)
+void FunctionBasicBlock::setInstructionStartItem(ListingItem *item)
 {
     PIMPL_P(FunctionBasicBlock);
-    p->m_startinstructionidx = idx;
+    p->m_startinstructionitem = item;
 
-    if(p->m_endinstructionidx == REDasm::npos)
-        p->m_endinstructionidx = idx;
+    if(!p->m_endinstructionitem)
+        p->m_endinstructionitem = item;
 }
 
-void FunctionBasicBlock::setInstructionEndIndex(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_endinstructionidx = idx; }
-void FunctionBasicBlock::setNode(size_t idx) { PIMPL_P(FunctionBasicBlock); p->m_node = idx; }
+void FunctionBasicBlock::setInstructionEndItem(ListingItem *item) { PIMPL_P(FunctionBasicBlock); p->m_endinstructionitem = item; }
+void FunctionBasicBlock::setNode(Node idx) { PIMPL_P(FunctionBasicBlock); p->m_node = idx; }
 
 FunctionGraph::FunctionGraph(): Graph(new FunctionGraphImpl()) { }
-const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(size_t index) const { PIMPL_P(const FunctionGraph); return p->basicBlockFromIndex(index); }
-bool FunctionGraph::containsItem(size_t index) const { PIMPL_P(const FunctionGraph); return p->containsItem(index); }
+const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(ListingItem* item) const { PIMPL_P(const FunctionGraph); return p->basicBlockFromItem(item); }
+bool FunctionGraph::complete() const { PIMPL_P(const FunctionGraph); return p->complete(); }
+bool FunctionGraph::containsItem(ListingItem* item) const { PIMPL_P(const FunctionGraph); return p->containsItem(item); }
 bool FunctionGraph::build(address_t address) { PIMPL_P(FunctionGraph); return p->build(address); }
-bool FunctionGraph::build(const ListingItem *item) { PIMPL_P(FunctionGraph); return p->build(item); }
+bool FunctionGraph::build(ListingItem *item) { PIMPL_P(FunctionGraph); return p->build(item); }
 
 } // namespace REDasm

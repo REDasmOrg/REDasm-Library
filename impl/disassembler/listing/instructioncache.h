@@ -20,6 +20,10 @@ class InstructionCache
         CachedInstruction find(address_t address);
         CachedInstruction findNearest(address_t address);
         CachedInstruction allocate(address_t address);
+        CachedInstruction next(address_t address);
+        CachedInstruction prev(address_t address);
+        address_location nextHint(address_t address);
+        address_location prevHint(address_t address);
 
     private:
         void deallocate(const CachedInstruction &instruction);
@@ -28,8 +32,8 @@ class InstructionCache
         static String generateFilePath();
 
     private:
-        std::unordered_map<address_t, CachedInstruction> m_cache;
-        std::map<address_t, std::streamoff> m_offsets;
+        mutable std::unordered_map<address_t, CachedInstruction> m_loaded;
+        std::map<address_t, std::streamoff> m_cache;
         std::fstream m_file;
         String m_filepath;
         bool m_lockserialization;

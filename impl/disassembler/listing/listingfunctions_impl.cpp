@@ -4,12 +4,7 @@
 namespace REDasm {
 
 ListingFunctionsImpl::ListingFunctionsImpl(): SortedItemList() { }
-
-ListingFunctionsImpl::~ListingFunctionsImpl()
-{
-    for(const auto& item : m_graphs)
-        delete item.second;
-}
+ListingFunctionsImpl::~ListingFunctionsImpl() { this->invalidateGraphs(); }
 
 void ListingFunctionsImpl::remove(ListingItem *item)
 {
@@ -17,11 +12,19 @@ void ListingFunctionsImpl::remove(ListingItem *item)
     SortedItemList::erase(item);
 }
 
-ListingFunctionsImpl::FunctionGraphs::const_iterator ListingFunctionsImpl::findGraph(size_t idx) const
+ListingFunctionsImpl::FunctionGraphs::const_iterator ListingFunctionsImpl::findGraph(ListingItem* item) const
 {
-    return std::find_if(m_graphs.begin(), m_graphs.end(), [idx](const ListingFunctionsImpl::FunctionGraphItem& item) -> bool {
-        return item.second->containsItem(idx);
+    return std::find_if(m_graphs.begin(), m_graphs.end(), [item](const ListingFunctionsImpl::FunctionGraphItem& fgi) -> bool {
+        return fgi.second->containsItem(item);
     });
+}
+
+void ListingFunctionsImpl::invalidateGraphs()
+{
+    for(const auto& item : m_graphs)
+        delete item.second;
+
+    m_graphs.clear();
 }
 
 } // namespace REDasm

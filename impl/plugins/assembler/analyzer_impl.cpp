@@ -28,7 +28,7 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 
 void AnalyzerImpl::findTrampoline(const Symbol *symbol)
 {
-    size_t index = r_doc->findInstruction(symbol->address);
+    size_t index = r_doc->instructionIndex(symbol->address);
 
     if(index == REDasm::npos)
         return;

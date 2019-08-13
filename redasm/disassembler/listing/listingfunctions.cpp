@@ -9,26 +9,25 @@ ListingItem *ListingFunctions::at(size_t idx) const { PIMPL_P(const ListingFunct
 void ListingFunctions::insert(ListingItem *item) { PIMPL_P(ListingFunctions); p->insert(item); }
 size_t ListingFunctions::size() const { PIMPL_P(const ListingFunctions); return p->size(); }
 
-ListingItem *ListingFunctions::functionFromIndex(size_t idx) const
+ListingItem *ListingFunctions::functionFromItem(ListingItem* item) const
 {
     PIMPL_P(const ListingFunctions);
-    auto it = p->findGraph(idx);
+    auto it = p->findGraph(item);
     return (it != p->m_graphs.end()) ? it->first : nullptr;
 }
 
-const FunctionBasicBlock *ListingFunctions::basicBlockFromIndex(size_t idx) const
+const FunctionBasicBlock *ListingFunctions::basicBlockFromItem(ListingItem* item) const
 {
     PIMPL_P(const ListingFunctions);
-
-    auto it = p->findGraph(idx);
+    auto it = p->findGraph(item);
 
     if(it == p->m_graphs.end())
         return nullptr;
 
-    return it->second->basicBlockFromIndex(idx);
+    return it->second->basicBlockFromIndex(item);
 }
 
-void ListingFunctions::invalidateGraphs() { PIMPL_P(ListingFunctions); p->m_graphs.clear(); }
+void ListingFunctions::invalidateGraphs() { PIMPL_P(ListingFunctions); p->invalidateGraphs(); }
 
 const FunctionGraph *ListingFunctions::graph(ListingItem *item) const
 {

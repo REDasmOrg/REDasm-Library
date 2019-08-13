@@ -2,6 +2,7 @@
 
 #include <redasm/graph/functiongraph.h>
 #include <redasm/pimpl.h>
+#include <unordered_set>
 #include <queue>
 #include "graph_impl.h"
 
@@ -14,12 +15,12 @@ class FunctionBasicBlockImpl
 
     public:
         FunctionBasicBlockImpl();
-        FunctionBasicBlockImpl(size_t startidx);
+        FunctionBasicBlockImpl(Node n, ListingItem* startitem);
 
     private:
         Node m_node;
-        size_t m_startidx, m_endidx; // [startidx, endidx]
-        size_t m_startinstructionidx, m_endinstructionidx; // [startinstructionidx, endinstructionidx]
+        ListingItem *m_startitem, *m_enditem;                       // [startitem, enditem]
+        ListingItem *m_startinstructionitem, *m_endinstructionitem; // [startinstructionitem, endinstructionitem]
         std::unordered_map<Node, String> m_styles;
 };
 
@@ -29,33 +30,28 @@ class FunctionGraphImpl: public GraphImpl
     PIMPL_DECLARE_PUBLIC(FunctionGraph)
 
     private:
-        typedef std::queue<size_t> IndexQueue;
+        typedef std::unordered_set<ListingItem*> VisitedItems;
+        typedef std::queue<ListingItem*> WorkList;
 
     public:
         FunctionGraphImpl();
-        bool containsItem(size_t index) const;
-        bool build(const ListingItem *item);
+        bool containsItem(ListingItem *item) const;
+        bool build(ListingItem *item);
         bool build(address_t address);
+        bool complete() const;
 
     private:
-        const FunctionBasicBlock* basicBlockFromIndex(size_t index) const;
-        FunctionBasicBlock* basicBlockFromIndex(size_t index);
-        void setConnectionType(const CachedInstruction& instruction, FunctionBasicBlock *fromfbb, FunctionBasicBlock *tofbb, bool condition);
-        void incomplete() const;
-        bool isStopItem(const ListingItem *item) const;
-        void buildBasicBlock(size_t index);
+        const FunctionBasicBlock* basicBlockFromItem(ListingItem *item) const;
+        FunctionBasicBlock* basicBlockFromItem(ListingItem *item);
+        FunctionBasicBlock* getBlockAt(ListingItem *item);
+        bool isStopItem(ListingItem *item) const;
         void buildBasicBlocks();
-        void connectBasicBlocks();
-
-    private:
-        size_t instructionIndexFromIndex(size_t idx) const;
-        size_t symbolIndexFromIndex(size_t idx) const;
-        void resetQueue();
+        void incomplete();
 
     private:
         std::deque<FunctionBasicBlock> m_basicblocks;
-        address_location m_graphstart;
-        IndexQueue m_pending;
+        ListingItem* m_graphstart;
+        bool m_complete;
 };
 
 } // namespace REDasm

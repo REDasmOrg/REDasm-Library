@@ -16,8 +16,12 @@ class LIBREDASM_API FunctionBasicBlock: public Object
 
     public:
         FunctionBasicBlock();
-        FunctionBasicBlock(size_t startidx);
+        FunctionBasicBlock(Node n, ListingItem* startitem);
         Node node() const;
+        ListingItem* startItem() const;
+        ListingItem* endItem() const;
+        ListingItem* instructionStartItem() const;
+        ListingItem* instructionEndItem() const;
         size_t startIndex() const;
         size_t endIndex() const;
         size_t instructionStartIndex() const;
@@ -26,14 +30,14 @@ class LIBREDASM_API FunctionBasicBlock: public Object
         size_t instructionsCount() const;
         void bTrue(Node n);
         void bFalse(Node n);
-        bool contains(size_t index) const;
+        bool contains(ListingItem *item) const;
         bool isEmpty() const;
         String style(Node n) const;
-        void setStartIndex(size_t idx);
-        void setEndIndex(size_t idx);
-        void setInstructionStartIndex(size_t idx);
-        void setInstructionEndIndex(size_t idx);
-        void setNode(size_t idx);
+        void setStartItem(ListingItem* item);
+        void setEndItem(ListingItem* item);
+        void setInstructionStartItem(ListingItem* item);
+        void setInstructionEndItem(ListingItem* item);
+        void setNode(Node idx);
 };
 
 class FunctionGraphImpl;
@@ -45,9 +49,10 @@ class LIBREDASM_API FunctionGraph: public Graph
 
     public:
         FunctionGraph();
-        const FunctionBasicBlock* basicBlockFromIndex(size_t index) const;
-        bool containsItem(size_t index) const;
-        bool build(const ListingItem *item);
+        const FunctionBasicBlock* basicBlockFromIndex(ListingItem *item) const;
+        bool complete() const;
+        bool containsItem(ListingItem *item) const;
+        bool build(ListingItem *item);
         bool build(address_t address);
 };
 

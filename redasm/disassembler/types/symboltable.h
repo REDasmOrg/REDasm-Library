@@ -8,7 +8,9 @@ namespace REDasm {
 
 enum class SymbolType: size_t {
     None               = 0,
-    Data               = 1 << 0, String = 1 << 1, Code = 1 << 2,
+    Data               = (1 << 0),
+    String             = (1 << 1),
+    Code               = (1 << 2),
 
     Function           = (1 << 3) | Code,
     EntryPoint         = (1 << 4) | Function,

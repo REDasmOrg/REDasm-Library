@@ -55,9 +55,9 @@ struct RendererLine
 enum class ListingRendererFlags
 {
     Normal          = 0,
-    HideSegment     = (1 << 1),
-    HideAddress     = (1 << 2),
-    HideSeparators  = (1 << 3),
+    HideSegment     = (1 << 0),
+    HideAddress     = (1 << 1),
+    HideSeparators  = (1 << 2),
 
     HideSegmentAndAddress = HideSegment | HideAddress
 };

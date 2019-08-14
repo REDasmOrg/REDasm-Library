@@ -7,6 +7,31 @@ FunctionBasicBlockImpl::FunctionBasicBlockImpl(): m_node(0), m_startitem(nullptr
 FunctionBasicBlockImpl::FunctionBasicBlockImpl(Node n, ListingItem *startitem): m_node(n), m_startitem(startitem), m_enditem(startitem), m_startinstructionitem(nullptr), m_endinstructionitem(nullptr) { }
 
 FunctionGraphImpl::FunctionGraphImpl(): GraphImpl(), m_graphstart(nullptr), m_complete(true) { }
+
+size_t FunctionGraphImpl::bytesCount() const
+{
+    size_t c = 0;
+
+    for(const FunctionBasicBlock& fbb : m_basicblocks)
+    {
+        for(ListingItem* item = fbb.startItem(); item; item = r_doc->next(item))
+        {
+            if(item->is(ListingItemType::InstructionItem))
+            {
+                CachedInstruction instruction = r_doc->instruction(item->address());
+
+                if(instruction)
+                    c += instruction->size;
+            }
+
+            if(item == fbb.endItem())
+                break;
+        }
+    }
+
+    return c;
+}
+
 bool FunctionGraphImpl::containsItem(ListingItem* item) const { return this->basicBlockFromItem(item) != nullptr; }
 
 bool FunctionGraphImpl::build(ListingItem *item)

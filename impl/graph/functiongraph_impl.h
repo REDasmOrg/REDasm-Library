@@ -35,6 +35,7 @@ class FunctionGraphImpl: public GraphImpl
 
     public:
         FunctionGraphImpl();
+        size_t bytesCount() const;
         bool containsItem(ListingItem *item) const;
         bool build(ListingItem *item);
         bool build(address_t address);

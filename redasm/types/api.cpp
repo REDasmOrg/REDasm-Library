@@ -10,8 +10,8 @@ REGISTER_FACTORY_OBJECT(Segment)
 REGISTER_FACTORY_OBJECT(Operand)
 REGISTER_FACTORY_OBJECT(Instruction)
 
-Segment::Segment(): offset(0), address(0), endaddress(0), type(SegmentType::None) { }
-Segment::Segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type) { }
+Segment::Segment(): offset(0), address(0), endaddress(0), type(SegmentType::None), coveragebytes(REDasm::npos) { }
+Segment::Segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type): name(name), offset(offset), endoffset(offset + psize), address(address), endaddress(address + vsize), type(type), coveragebytes(REDasm::npos) { }
 u64 Segment::size() const { return (address > endaddress) ? 0 : (endaddress - address); }
 u64 Segment::rawSize() const { return (offset > endoffset) ? 0 : (endoffset - offset); }
 bool Segment::empty() const { return !this->size(); }

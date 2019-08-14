@@ -72,6 +72,7 @@ class Segment: public Object
         offset_t offset, endoffset;
         address_t address, endaddress;
         SegmentType type;
+        size_t coveragebytes;
 };
 
 struct RegisterOperand

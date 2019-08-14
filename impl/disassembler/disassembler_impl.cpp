@@ -447,6 +447,11 @@ void DisassemblerImpl::computeBasicBlocks()
     ListingFunctions* lf = lock->functions();
     lf->invalidateGraphs();
 
+    r_doc->segments().each([](const Variant& v) {
+        Segment* s = variant_object<Segment>(v);
+        s->coveragebytes = REDasm::npos;
+    });
+
     for(size_t i = 0; i < lf->size(); i++)
         this->computeBasicBlocks(lock, lf->at(i));
 }
@@ -512,6 +517,16 @@ void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *fu
 
     if(!g->build(functionitem))
         return;
+
+    Segment* segment = r_doc->segment(functionitem->address());
+
+    if(segment)
+    {
+        if(segment->coveragebytes == REDasm::npos)
+            segment->coveragebytes = g->bytesCount();
+        else
+            segment->coveragebytes += g->bytesCount();
+    }
 
     const NodeList& nodes = g->nodes();
 

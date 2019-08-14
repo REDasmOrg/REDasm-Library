@@ -50,6 +50,7 @@ class LIBREDASM_API FunctionGraph: public Graph
     public:
         FunctionGraph();
         const FunctionBasicBlock* basicBlockFromIndex(ListingItem *item) const;
+        size_t bytesCount() const;
         bool complete() const;
         bool containsItem(ListingItem *item) const;
         bool build(ListingItem *item);

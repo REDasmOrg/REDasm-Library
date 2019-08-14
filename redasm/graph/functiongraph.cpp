@@ -51,6 +51,7 @@ void FunctionBasicBlock::setNode(Node idx) { PIMPL_P(FunctionBasicBlock); p->m_n
 
 FunctionGraph::FunctionGraph(): Graph(new FunctionGraphImpl()) { }
 const FunctionBasicBlock *FunctionGraph::basicBlockFromIndex(ListingItem* item) const { PIMPL_P(const FunctionGraph); return p->basicBlockFromItem(item); }
+size_t FunctionGraph::bytesCount() const { PIMPL_P(const FunctionGraph); return p->bytesCount(); }
 bool FunctionGraph::complete() const { PIMPL_P(const FunctionGraph); return p->complete(); }
 bool FunctionGraph::containsItem(ListingItem* item) const { PIMPL_P(const FunctionGraph); return p->containsItem(item); }
 bool FunctionGraph::build(address_t address) { PIMPL_P(FunctionGraph); return p->build(address); }

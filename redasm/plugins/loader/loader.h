@@ -15,10 +15,12 @@ class Analyzer;
 
 enum class LoaderFlags: u32
 {
-    None             = 0,
-    CustomAssembler  = 1,
-    CustomAddressing = 2,
-    Binary           = 0xFFFFFFFF
+    None               = 0,
+    CustomAssembler    = (1 << 0),
+    CustomAddressing   = (1 << 1),
+    SkipUnexploredCode = (1 << 2),
+
+    Binary             = 0xFFFFFFFF
 };
 
 ENUM_FLAGS_OPERATORS(LoaderFlags)

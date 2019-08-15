@@ -24,7 +24,7 @@ BufferView AbstractBuffer::view() const { return this->view(0); }
 
 BufferView AbstractBuffer::view(size_t offset, size_t size) const
 {
-    if(!size)
+    if(size == REDasm::npos)
         size = this->size();
 
     return BufferView(this, offset, size);

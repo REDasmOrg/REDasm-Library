@@ -18,7 +18,7 @@ class LIBREDASM_API AbstractBuffer: public Object
         u8 at(size_t idx) const;
         bool empty() const;
         BufferView view() const;
-        BufferView view(size_t offset, size_t size = 0) const;
+        BufferView view(size_t offset, size_t size = REDasm::npos) const;
         u8& operator[](size_t idx);
         u8 operator[](size_t idx) const;
         virtual void resize(size_t size) = 0;

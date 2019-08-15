@@ -8,16 +8,18 @@ namespace REDasm {
 LoaderImpl::LoaderImpl(Loader *loader): m_pimpl_q(loader), PluginImpl(), m_buffer(nullptr) { }
 AbstractBuffer *LoaderImpl::buffer() const { return m_buffer; }
 BufferView LoaderImpl::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
+BufferView LoaderImpl::viewOffset(offset_t offset, size_t size) const { return m_buffer->view(offset, size); }
 const BufferView &LoaderImpl::view() const { return m_view; }
+BufferView LoaderImpl::view(address_t address) const { return this->view(address, REDasm::npos); }
 
-BufferView LoaderImpl::view(address_t address) const
+BufferView LoaderImpl::view(address_t address, size_t size) const
 {
     offset_location offset = this->offset(address);
 
     if(!offset.valid)
         return BufferView();
 
-    return this->viewOffset(offset);
+    return this->viewOffset(offset, size);
 }
 
 BufferView LoaderImpl::viewSegment(const Segment *segment) const

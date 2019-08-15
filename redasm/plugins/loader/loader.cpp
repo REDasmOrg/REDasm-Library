@@ -14,8 +14,10 @@ Loader::Loader(): Plugin(new LoaderImpl(this)) { }
 LoaderFlags Loader::flags() const { return LoaderFlags::None; }
 AbstractBuffer *Loader::buffer() const { PIMPL_P(const Loader); return p->buffer(); }
 BufferView REDasm::Loader::viewOffset(offset_t offset) const { PIMPL_P(const Loader); return p->viewOffset(offset); }
+BufferView Loader::viewOffset(offset_t offset, size_t size) const { PIMPL_P(const Loader); return p->viewOffset(offset, size); }
 const BufferView &Loader::view() const { PIMPL_P(const Loader); return p->view(); }
 BufferView REDasm::Loader::view(address_t address) const { PIMPL_P(const Loader); return p->view(address); }
+BufferView Loader::view(address_t address, size_t size) const { PIMPL_P(const Loader); return p->view(address, size);  }
 BufferView REDasm::Loader::viewSegment(const REDasm::Segment *segment) const { PIMPL_P(const Loader); return p->viewSegment(segment);  }
 ListingDocument &REDasm::Loader::createDocument() { PIMPL_P(Loader); return p->createDocument(); }
 const ListingDocument &REDasm::Loader::document() const { PIMPL_P(const Loader); return p->document(); }

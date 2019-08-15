@@ -17,8 +17,10 @@ class LoaderImpl: public PluginImpl
         LoaderImpl(Loader* loader);
         AbstractBuffer* buffer() const;
         BufferView viewOffset(offset_t offset) const;
+        BufferView viewOffset(offset_t offset, size_t size) const;
         const BufferView& view() const;
         BufferView view(address_t address) const;
+        BufferView view(address_t address, size_t size) const;
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
         const ListingDocument& document() const;

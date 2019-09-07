@@ -5,23 +5,24 @@
 #include <redasm/pimpl.h>
 #include <unordered_map>
 #include "listingitem_impl.h"
+#include "../../types/containers/templates/sortedset_template.h"
 
 namespace REDasm {
 
-class ListingFunctionsImpl: public SortedItemList
+class ListingFunctionsImpl: public SortedSetTemplate<address_t>
 {
     PIMPL_DECLARE_Q(ListingFunctions)
     PIMPL_DECLARE_PUBLIC(ListingFunctions)
 
     public:
-        typedef std::pair<ListingItem*, FunctionGraph*> FunctionGraphItem;
-        typedef std::unordered_map<ListingItem*, FunctionGraph*> FunctionGraphs;
+        typedef std::pair<address_t, FunctionGraph*> FunctionGraphItem;
+        typedef std::unordered_map<address_t, FunctionGraph*> FunctionGraphs;
 
     public:
         ListingFunctionsImpl();
         ~ListingFunctionsImpl();
-        void remove(ListingItem *item);
-        FunctionGraphs::const_iterator findGraph(ListingItem *item) const;
+        void remove(address_t address);
+        FunctionGraphs::const_iterator findGraph(address_t address) const;
         void invalidateGraphs();
 
     private:

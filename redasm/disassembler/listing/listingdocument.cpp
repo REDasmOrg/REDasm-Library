@@ -16,9 +16,9 @@ bool ListingDocumentChangedEventArgs::isInserted() const { PIMPL_P(const Listing
 bool ListingDocumentChangedEventArgs::isRemoved() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->isRemoved(); }
 size_t ListingDocumentChangedEventArgs::index() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->index(); }
 
+ListingDocumentType::ListingDocumentType(): m_pimpl_p(new ListingDocumentTypeImpl(this)) { }
 void ListingDocumentType::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const ListingDocumentType); return p->save(a); }
 void ListingDocumentType::load(cereal::BinaryInputArchive &a) { PIMPL_P(ListingDocumentType); return p->load(a); }
-ListingDocumentType::ListingDocumentType(): m_pimpl_p(new ListingDocumentTypeImpl(this)) { }
 size_t ListingDocumentType::size() const { PIMPL_P(const ListingDocumentType); return p->size(); }
 bool ListingDocumentType::empty() const { PIMPL_P(const ListingDocumentType); return p->empty(); }
 
@@ -112,7 +112,7 @@ ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
         return item;
 
     PIMPL_P(const ListingDocumentType);
-    return p->m_functions.functionFromItem(item);
+    return this->functionItem(p->m_functions.functionFromAddress(item->address()));
 }
 
 ListingItem *ListingDocumentType::functionStart(address_t address) const
@@ -123,7 +123,7 @@ ListingItem *ListingDocumentType::functionStart(address_t address) const
         return nullptr;
 
     PIMPL_P(const ListingDocumentType);
-    return p->m_functions.functionFromItem(item);
+    return this->functionItem(p->m_functions.functionFromAddress(item->address()));
 }
 
 ListingItem *ListingDocumentType::currentFunction() const

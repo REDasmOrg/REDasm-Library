@@ -30,7 +30,7 @@ class LIBREDASM_API FunctionBasicBlock: public Object
         size_t instructionsCount() const;
         void bTrue(Node n);
         void bFalse(Node n);
-        bool contains(ListingItem *item) const;
+        bool contains(address_t address) const;
         bool isEmpty() const;
         String style(Node n) const;
         void setStartItem(ListingItem* item);
@@ -49,11 +49,10 @@ class LIBREDASM_API FunctionGraph: public Graph
 
     public:
         FunctionGraph();
-        const FunctionBasicBlock* basicBlockFromIndex(ListingItem *item) const;
+        const FunctionBasicBlock* basicBlockFromAddress(address_t address) const;
         size_t bytesCount() const;
         bool complete() const;
-        bool containsItem(ListingItem *item) const;
-        bool build(ListingItem *item);
+        bool contains(address_t address) const;
         bool build(address_t address);
 };
 

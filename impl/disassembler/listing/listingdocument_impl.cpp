@@ -57,7 +57,7 @@ ListingItem *ListingDocumentTypeImpl::push(address_t address, ListingItemType ty
         }
     }
     else if(type == ListingItemType::FunctionItem)
-        m_functions.insert(item.get());
+        m_functions.insert(address);
 
     auto it = ContainerType::find(item);
 
@@ -83,7 +83,7 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
         q->changed(&ldc);
 
         if(type == ListingItemType::FunctionItem)
-            m_functions.remove(it->get());
+            m_functions.remove((*it)->address());
 
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());

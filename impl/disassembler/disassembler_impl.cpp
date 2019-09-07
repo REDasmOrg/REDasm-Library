@@ -33,7 +33,7 @@ SortedList DisassemblerImpl::getCalls(address_t address)
     if(!item)
         return SortedList();
 
-    const auto* graph = this->document()->functions()->graph(item);
+    const auto* graph = this->document()->functions()->graph(item->address());
 
     if(!graph)
         return SortedList();
@@ -77,7 +77,7 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     if(!item)
         return BufferView();
 
-    const auto* graph = this->document()->functions()->graph(item);
+    const auto* graph = this->document()->functions()->graph(item->address());
 
     if(!graph)
         return BufferView();
@@ -510,15 +510,15 @@ void DisassemblerImpl::analyzeStep()
         r_ctx->log("Analysis completed");
 }
 
-void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *functionitem)
+void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, address_t address)
 {
-    r_ctx->status("Computing basic blocks @ " + String::hex(functionitem->address()));
+    r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
 
-    if(!g->build(functionitem))
+    if(!g->build(address))
         return;
 
-    Segment* segment = r_doc->segment(functionitem->address());
+    Segment* segment = r_doc->segment(address);
 
     if(segment)
     {
@@ -546,7 +546,7 @@ void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, ListingItem *fu
         lock->separator(item->address());
     }
 
-    lock->functions()->graph(functionitem, g.release());
+    lock->functions()->graph(address, g.release());
 }
 
 } // namespace REDasm

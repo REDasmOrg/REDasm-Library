@@ -3,19 +3,19 @@
 
 namespace REDasm {
 
-ListingFunctionsImpl::ListingFunctionsImpl(): SortedItemList() { }
+ListingFunctionsImpl::ListingFunctionsImpl(): SortedSetTemplate<address_t>() { }
 ListingFunctionsImpl::~ListingFunctionsImpl() { this->invalidateGraphs(); }
 
-void ListingFunctionsImpl::remove(ListingItem *item)
+void ListingFunctionsImpl::remove(address_t address)
 {
-    m_graphs.erase(item);
-    SortedItemList::erase(item);
+    m_graphs.erase(address);
+    SortedSetTemplate<address_t>::remove(address);
 }
 
-ListingFunctionsImpl::FunctionGraphs::const_iterator ListingFunctionsImpl::findGraph(ListingItem* item) const
+ListingFunctionsImpl::FunctionGraphs::const_iterator ListingFunctionsImpl::findGraph(address_t address) const
 {
-    return std::find_if(m_graphs.begin(), m_graphs.end(), [item](const ListingFunctionsImpl::FunctionGraphItem& fgi) -> bool {
-        return fgi.second->containsItem(item);
+    return std::find_if(m_graphs.begin(), m_graphs.end(), [address](const ListingFunctionsImpl::FunctionGraphItem& fgi) -> bool {
+        return fgi.second->contains(address);
     });
 }
 

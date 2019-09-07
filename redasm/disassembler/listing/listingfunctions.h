@@ -16,17 +16,17 @@ class LIBREDASM_API ListingFunctions
 
     public:
         ListingFunctions();
-        ListingItem* at(size_t idx) const;
-        void insert(ListingItem* item);
+        address_t at(size_t idx) const;
+        void insert(address_t address);
         size_t size() const;
 
     public:
-        ListingItem *functionFromItem(ListingItem *item) const;
-        const FunctionBasicBlock* basicBlockFromItem(ListingItem *item) const;
-        const FunctionGraph* graph(ListingItem* item) const;
-        FunctionGraph* graph(ListingItem* item);
-        void graph(ListingItem *item, FunctionGraph* graph);
-        void remove(ListingItem *item);
+        address_location functionFromAddress(address_t address) const;
+        const FunctionBasicBlock* basicBlockFromAddress(address_t address) const;
+        const FunctionGraph* graph(address_t address) const;
+        FunctionGraph* graph(address_t address);
+        void graph(address_t address, FunctionGraph* graph);
+        void remove(address_t address);
         void invalidateGraphs();
 };
 

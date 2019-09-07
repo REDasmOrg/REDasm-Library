@@ -36,16 +36,16 @@ class FunctionGraphImpl: public GraphImpl
     public:
         FunctionGraphImpl();
         size_t bytesCount() const;
-        bool containsItem(ListingItem *item) const;
-        bool build(ListingItem *item);
+        bool contains(address_t address) const;
         bool build(address_t address);
         bool complete() const;
 
     private:
-        const FunctionBasicBlock* basicBlockFromItem(ListingItem *item) const;
-        FunctionBasicBlock* basicBlockFromItem(ListingItem *item);
+        const FunctionBasicBlock* basicBlockFromAddress(address_t address) const;
+        FunctionBasicBlock* basicBlockFromAddress(address_t address);
         FunctionBasicBlock* getBlockAt(ListingItem *item);
         bool isStopItem(ListingItem *item) const;
+        bool build(ListingItem *item);
         void buildBasicBlocks();
         void incomplete();
 

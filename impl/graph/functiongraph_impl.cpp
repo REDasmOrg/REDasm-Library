@@ -32,14 +32,11 @@ size_t FunctionGraphImpl::bytesCount() const
     return c;
 }
 
-bool FunctionGraphImpl::containsItem(ListingItem* item) const { return this->basicBlockFromItem(item) != nullptr; }
+bool FunctionGraphImpl::contains(address_t address) const { return this->basicBlockFromAddress(address) != nullptr; }
 
-bool FunctionGraphImpl::build(ListingItem *item)
+bool FunctionGraphImpl::build(address_t address)
 {
-    if(!item || !item->is(ListingItemType::FunctionItem))
-        return false;
-
-    m_graphstart = r_doc->instructionItem(item->address());
+    m_graphstart = r_doc->instructionItem(address);
 
     if(!m_graphstart)
     {
@@ -56,33 +53,20 @@ bool FunctionGraphImpl::build(ListingItem *item)
     return true;
 }
 
-bool FunctionGraphImpl::build(address_t address)
-{
-    ListingItem* item = r_doc->functionStart(address);
-
-    if(item)
-        return this->build(item);
-
-    return false;
-}
-
 bool FunctionGraphImpl::complete() const { return m_complete; }
 
-const FunctionBasicBlock *FunctionGraphImpl::basicBlockFromItem(ListingItem* item) const
+const FunctionBasicBlock *FunctionGraphImpl::basicBlockFromAddress(address_t address) const
 {
-    if(!item)
-        return nullptr;
-
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
-        if(fbb.contains(item))
+        if(fbb.contains(address))
             return &fbb;
     }
 
     return nullptr;
 }
 
-FunctionBasicBlock *FunctionGraphImpl::basicBlockFromItem(ListingItem* item) { return const_cast<FunctionBasicBlock*>(static_cast<const FunctionGraphImpl*>(this)->basicBlockFromItem(item)); }
+FunctionBasicBlock *FunctionGraphImpl::basicBlockFromAddress(address_t address) { return const_cast<FunctionBasicBlock*>(static_cast<const FunctionGraphImpl*>(this)->basicBlockFromAddress(address)); }
 void FunctionGraphImpl::incomplete() { m_complete = false; }
 
 bool FunctionGraphImpl::isStopItem(ListingItem *item) const
@@ -102,7 +86,7 @@ bool FunctionGraphImpl::isStopItem(ListingItem *item) const
 
 FunctionBasicBlock *FunctionGraphImpl::getBlockAt(ListingItem* item)
 {
-    FunctionBasicBlock* fbb = this->basicBlockFromItem(item);
+    FunctionBasicBlock* fbb = this->basicBlockFromAddress(item->address());
 
     if(fbb)
         return fbb;

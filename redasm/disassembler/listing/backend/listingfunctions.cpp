@@ -1,6 +1,6 @@
 #include "listingfunctions.h"
-#include "../../graph/functiongraph.h"
-#include <impl/disassembler/listing/listingfunctions_impl.h>
+#include "../../../graph/functiongraph.h"
+#include <impl/disassembler/listing/backend/listingfunctions_impl.h>
 
 namespace REDasm {
 

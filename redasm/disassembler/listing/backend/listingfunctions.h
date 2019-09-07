@@ -1,7 +1,7 @@
 #pragma once
 
-#include "listingitem.h"
-#include "../../pimpl.h"
+#include "../listingitem.h"
+#include "../../../pimpl.h"
 
 namespace REDasm {
 

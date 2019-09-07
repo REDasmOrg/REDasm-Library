@@ -2,7 +2,7 @@
 
 #include <redasm/disassembler/listing/listingdocument.h>
 #include "../../types/containers/templates/sortedlist_template.h"
-#include "instructioncache.h"
+#include "backend/instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {

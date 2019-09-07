@@ -466,13 +466,11 @@ void DisassemblerImpl::disassemble()
         return;
     }
 
-    const SymbolTable* symboltable = this->document()->symbols();
+    const ListingFunctions* functions = this->document()->functions();
 
-    // Preload loader functions for analysis
-    symboltable->iterate(SymbolType::FunctionMask, [=](const Symbol* symbol) -> bool {
-        m_algorithm->enqueue(symbol->address);
-        return true;
-    });
+    // Preload functions for analysis
+    for(size_t i = 0; i < functions->size(); i++)
+        m_algorithm->enqueue(functions->at(i));
 
     const Symbol* entrypoint = this->document()->documentEntry();
 

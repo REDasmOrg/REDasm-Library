@@ -9,7 +9,7 @@ namespace REDasm {
 template< typename T, typename Comparator = std::less<T>, typename Container = std::deque<T> > class SortedListTemplate
 {
     public:
-        static const size_t npos = -1;
+        static const size_t npos = size_t(-1);
         typedef typename Container::iterator iterator;
         typedef typename Container::const_iterator const_iterator;
         typedef typename Container::reverse_iterator reverse_iterator;

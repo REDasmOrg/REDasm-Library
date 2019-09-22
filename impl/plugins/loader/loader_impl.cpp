@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-LoaderImpl::LoaderImpl(Loader *loader): m_pimpl_q(loader), PluginImpl(), m_buffer(nullptr) { }
+LoaderImpl::LoaderImpl(Loader *loader): m_pimpl_q(loader), m_buffer(nullptr) { }
 AbstractBuffer *LoaderImpl::buffer() const { return m_buffer; }
 BufferView LoaderImpl::viewOffset(offset_t offset) const { return m_buffer->view(offset); }
 BufferView LoaderImpl::viewOffset(offset_t offset, size_t size) const { return m_buffer->view(offset, size); }
@@ -31,16 +31,19 @@ BufferView LoaderImpl::viewSegment(const Segment *segment) const
 }
 
 ListingDocument &LoaderImpl::createDocument() { m_document = ListingDocument(new ListingDocumentType()); return m_document; }
+ListingDocumentNew& LoaderImpl::createDocumentNew() { m_documentnew = ListingDocumentNew(new ListingDocumentTypeNew()); return m_documentnew; }
 const ListingDocument &LoaderImpl::document() const { return m_document;  }
-ListingDocument &LoaderImpl::document() { return m_document;  }
+const ListingDocumentNew &LoaderImpl::documentNew() const { return m_documentnew; }
+ListingDocument &LoaderImpl::document() { return m_document; }
+ListingDocumentNew &LoaderImpl::documentNew() { return m_documentnew; }
 SignatureIdentifiers &LoaderImpl::signatures() { return m_signatures; }
 void LoaderImpl::signature(const String &sig) { m_signatures.insert(sig); }
 
 offset_location LoaderImpl::offset(address_t address) const
 {
-    for(size_t i = 0; i < m_document->segments().size(); i++)
+    for(size_t i = 0; i < m_documentnew->segments()->size(); i++)
     {
-        const Segment* segment = variant_object<Segment>(m_document->segments()[i]);
+        const Segment* segment = m_documentnew->segments()->at(i);
 
         if(!segment->contains(address))
             continue;
@@ -54,9 +57,9 @@ offset_location LoaderImpl::offset(address_t address) const
 
 address_location LoaderImpl::address(offset_t offset) const
 {
-    for(size_t i = 0; i < m_document->segments().size(); i++)
+    for(size_t i = 0; i < m_documentnew->segments()->size(); i++)
     {
-        const Segment* segment = variant_object<Segment>(m_document->segments()[i]);
+        const Segment* segment = m_documentnew->segments()->at(i);
 
         if(!segment->containsOffset(offset))
             continue;
@@ -82,6 +85,7 @@ void LoaderImpl::init(const LoadRequest &request)
     m_buffer = request.buffer();
     m_view = request.view();     // Full View
     this->createDocument();
+    this->createDocumentNew();
 }
 
 AssemblerRequest LoaderImpl::assembler() const { return nullptr; }

@@ -7,15 +7,13 @@ namespace REDasm {
 
 Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader))
 {
-    r_ctx->setDisassembler(this);
+    // PIMPL_P(Disassembler);
+    // p->m_algorithm = assembler->createAlgorithm();
+    // p->m_analyzejob.setOneShot(true);
 
-    PIMPL_P(Disassembler);
-    p->m_algorithm = assembler->createAlgorithm();
-    p->m_analyzejob.setOneShot(true);
-
-    p->m_analyzejob.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
-    p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
-    p->m_jobs.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
+    // p->m_analyzejob.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
+    // p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
+    // p->m_jobs.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
 }
 
 Disassembler::~Disassembler()
@@ -28,6 +26,8 @@ Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->lo
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
 const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }
 safe_ptr<ListingDocumentType> &Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
+const safe_ptr<ListingDocumentTypeNew>& Disassembler::documentNew() const { PIMPL_P(const Disassembler); return p->documentNew(); }
+safe_ptr<ListingDocumentTypeNew>& Disassembler::documentNew() { PIMPL_P(Disassembler); return p->documentNew(); }
 SortedList Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
 SortedSet Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }

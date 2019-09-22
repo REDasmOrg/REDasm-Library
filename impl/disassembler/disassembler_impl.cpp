@@ -13,18 +13,14 @@
 
 namespace REDasm {
 
-DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader) { }
-
-DisassemblerImpl::~DisassemblerImpl()
-{
-    if(m_loader)
-        m_loader->buffer()->release();
-}
-
+DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader *loader): m_pimpl_q(q), m_assembler(assembler), m_loader(loader) { r_ctx->setDisassembler(q); }
+DisassemblerImpl::~DisassemblerImpl() { if(m_loader) m_loader->buffer()->release(); }
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
 const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return m_loader->document(); }
 safe_ptr<ListingDocumentType> &DisassemblerImpl::document() { return m_loader->document(); }
+const safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() const { return m_loader->documentNew(); }
+safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() { return m_loader->documentNew(); }
 
 SortedList DisassemblerImpl::getCalls(address_t address)
 {
@@ -33,7 +29,7 @@ SortedList DisassemblerImpl::getCalls(address_t address)
     if(!item)
         return SortedList();
 
-    const auto* graph = this->document()->functions()->graph(item->address());
+    const auto* graph = this->document()->functions()->graph(item->address_new);
 
     if(!graph)
         return SortedList();
@@ -53,7 +49,7 @@ SortedList DisassemblerImpl::getCalls(address_t address)
             if(!item->is(ListingItemType::InstructionItem))
                 continue;
 
-            CachedInstruction instruction = this->document()->instruction(item->address());
+            CachedInstruction instruction = this->document()->instruction(item->address_new);
 
             if(instruction->is(InstructionType::Call))
                 calls.insert(item);
@@ -77,7 +73,7 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     if(!item)
         return BufferView();
 
-    const auto* graph = this->document()->functions()->graph(item->address());
+    const auto* graph = this->document()->functions()->graph(item->address_new);
 
     if(!graph)
         return BufferView();
@@ -92,20 +88,20 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 
         if(!startitem)
             startitem = fbb->startItem();
-        else if(startitem->address() > fbb->startItem()->address())
+        else if(startitem->address_new > fbb->startItem()->address_new)
             startitem = fbb->startItem();
 
         if(!enditem)
             enditem = fbb->endItem();
-        else if(enditem->address() < fbb->endItem()->address())
+        else if(enditem->address_new < fbb->endItem()->address_new)
             enditem = fbb->endItem();
     });
 
     if(!startitem || !enditem)
         return BufferView();
 
-    BufferView v = this->loader()->view(startitem->address());
-    v.resize(enditem->address() - startitem->address());
+    BufferView v = this->loader()->view(startitem->address_new);
+    v.resize(enditem->address_new - startitem->address_new);
     return v;
 }
 
@@ -157,7 +153,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
     while(this->readAddress(address, m_assembler->addressWidth(), &target))
     {
-        const Segment* segment = this->document()->segment(target);
+        const Segment* segment = this->documentNew()->segment(target);
 
         if(!segment || !segment->is(SegmentType::Code))
             break;
@@ -192,7 +188,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
         else
         {
             this->pushReference(startaddress, instruction->address);
-            this->document()->pointer(startaddress, SymbolType::Data);
+            this->documentNew()->pointer(startaddress, SymbolType::Data);
         }
     }
 
@@ -201,7 +197,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
 size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
 {
-    const Segment* segment = this->document()->segment(address);
+    const Segment* segment = this->documentNew()->segment(address);
 
     if(!segment || segment->is(SegmentType::Bss))
         return 0;
@@ -210,13 +206,13 @@ size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
 
     size_t count = this->locationIsStringT<u8>(address,
                                                [](u16 b) -> bool { return ::isprint(b) || ::isspace(b); },
-            [](u16 b) -> bool {  return (b == '_') || ::isalnum(b) || ::isspace(b); });
+                                               [](u16 b) -> bool {  return (b == '_') || ::isalnum(b) || ::isspace(b); });
 
     if(count == 1) // Try with wide strings
     {
         count = this->locationIsStringT<u16>(address,
                                              [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return !b2 && (::isprint(b1) || ::isspace(b1)); },
-                [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; });
+                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; });
 
         if(wide)
             *wide = true;
@@ -225,7 +221,7 @@ size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
     return count;
 }
 
-JobState DisassemblerImpl::state() const { return m_jobs.state(); }
+JobState DisassemblerImpl::state() const { return m_engine ? m_engine->state() : JobState::InactiveState; }
 
 String DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
 {
@@ -273,7 +269,7 @@ String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
     if(!item)
         return String();
 
-    const REDasm::Symbol* symbol = this->document()->symbol(item->address());
+    const REDasm::Symbol* symbol = this->document()->symbol(item->address_new);
 
     if(!symbol)
         return String();
@@ -340,7 +336,7 @@ bool DisassemblerImpl::loadSignature(const String &signame)
     return true;
 }
 
-bool DisassemblerImpl::busy() const { return m_analyzejob.active() || m_jobs.active(); }
+bool DisassemblerImpl::busy() const { return m_engine ? m_engine->busy() : false; }
 
 bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
 {
@@ -369,7 +365,7 @@ bool DisassemblerImpl::readAddress(address_t address, size_t size, u64 *value) c
     if(!value)
         return false;
 
-    const Segment* segment = this->document()->segment(address);
+    const Segment* segment = this->documentNew()->segment(address);
 
     if(!segment || segment->is(SegmentType::Bss))
         return false;
@@ -416,12 +412,12 @@ bool DisassemblerImpl::dereference(address_t address, u64 *value) const
 
 void DisassemblerImpl::disassemble(address_t address)
 {
-    m_algorithm->enqueue(address);
+    m_engine->enqueue(address);
 
-    if(m_jobs.active())
+    if(m_engine->busy())
         return;
 
-    this->disassembleJob();
+    m_engine->execute(DisassemblerEngineSteps::Algorithm);
 }
 
 void DisassemblerImpl::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
@@ -447,59 +443,47 @@ void DisassemblerImpl::computeBasicBlocks()
     ListingFunctions* lf = lock->functions();
     lf->invalidateGraphs();
 
-    r_doc->segments().each([](const Variant& v) {
-        Segment* s = variant_object<Segment>(v);
-        s->coveragebytes = REDasm::npos;
-    });
+    for(size_t i = 0; i < this->documentNew()->segments()->size(); i++)
+    {
+        //Segment* s = this->documentNew()->segments()->at(i);
+        //s->coveragebytes = REDasm::npos;
+    }
 
-    for(size_t i = 0; i < lf->size(); i++)
-        this->computeBasicBlocks(lock, lf->at(i));
+    //for(size_t i = 0; i < lf->size(); i++)
+        //this->computeBasicBlocks(lock, lf->at(i));
 }
 
 void DisassemblerImpl::disassemble()
 {
+    m_engine = std::make_unique<DisassemblerEngine>();
     m_starttime = std::chrono::steady_clock::now();
 
-    if(!this->document()->segmentsCount())
+    if(!this->documentNew()->segmentsCount())
     {
         r_ctx->log("ERROR: Segment list is empty");
         return;
     }
 
-    const ListingFunctions* functions = this->document()->functions();
+    const ListingFunctions* functions = r_docnew->functions();
 
     // Preload functions for analysis
     for(size_t i = 0; i < functions->size(); i++)
-        m_algorithm->enqueue(functions->at(i));
+        m_engine->enqueue(functions->at(i));
 
-    const Symbol* entrypoint = this->document()->documentEntry();
+    r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");
 
-    if(entrypoint)
-        m_algorithm->enqueue(entrypoint->address); // Push entry point
-
-    r_ctx->log("Disassembling with " + String::number(m_jobs.concurrency()) + " threads");
-    this->disassembleJob();
+    m_engine->stepCompleted.connect(this, [&](EventArgs*) { PIMPL_Q(Disassembler); q->busyChanged(); });
+    m_engine->execute();
 }
 
-void DisassemblerImpl::stop() { m_jobs.stop(); }
-void DisassemblerImpl::pause() { m_jobs.pause(); }
-void DisassemblerImpl::resume() { m_jobs.resume(); }
-void DisassemblerImpl::disassembleJob() { m_jobs.work(std::bind(&DisassemblerImpl::disassembleStep, this, std::placeholders::_1)); }
-
-void DisassemblerImpl::disassembleStep(Job *job)
-{
-    if(m_algorithm->hasNext())
-        m_algorithm->next();
-    else
-        job->stop();
-
-    if(!m_jobs.active())
-        m_analyzejob.start();
-}
+void DisassemblerImpl::stop() { if(m_engine) m_engine->stop(); }
+void DisassemblerImpl::pause() { if(m_engine) m_engine->pause(); }
+void DisassemblerImpl::resume() { if(m_engine) m_engine->resume(); }
 
 void DisassemblerImpl::analyzeStep()
 {
-    m_algorithm->analyze();
+    return;
+    //m_algorithm->analyze();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
 
     if(duration.count())
@@ -510,6 +494,7 @@ void DisassemblerImpl::analyzeStep()
 
 void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, address_t address)
 {
+    return;
     r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
 
@@ -541,7 +526,7 @@ void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, address_t addre
         if(!item)
             continue;
 
-        lock->separator(item->address());
+        lock->separator(item->address_new);
     }
 
     lock->functions()->graph(address, g.release());

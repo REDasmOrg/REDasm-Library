@@ -17,43 +17,63 @@ enum class ListingItemType: size_t
     AllItems = REDasm::npos
 };
 
-class ListingItemImpl;
 struct ListingItemData;
 
 class LIBREDASM_API ListingItem: public Object
 {
     REDASM_OBJECT(ListingItem)
-    PIMPL_DECLARE_P(ListingItem)
-    PIMPL_DECLARE_PRIVATE(ListingItem)
 
     public:
         ListingItem();
+        ListingItem(address_t address, ListingItemType type);
         ListingItem(address_t address, ListingItemType type, size_t index);
         bool is(ListingItemType t) const;
-        address_t address() const;
-        ListingItemType type() const;
-        size_t index() const;
-        ListingItemData* data() const;
+        bool isValid() const;
+        ListingItemData* data();
         void save(cereal::BinaryOutputArchive &a) const override;
         void load(cereal::BinaryInputArchive &a) override;
+
+    public:
+        address_t address_new;
+        ListingItemType type_new;
+        size_t index_new;
 };
 
 template<typename T> struct ListingItemComparatorT {
     bool operator()(const T& t1, const T& t2) const {
-        if(t1->address() == t2->address()) {
-            if(t1->type() == t2->type())
-                return t1->index() < t2->index();
-            return t1->type() < t2->type();
+        if(t1->address_new == t2->address_new) {
+            if(t1->type_new == t2->type_new)
+                return t1->index_new < t2->index_new;
+            return t1->type_new < t2->type_new;
         }
-        return t1->address() < t2->address();
+        return t1->address_new < t2->address_new;
     }
 };
 
 template<typename T> struct ListingItemFinderT {
     bool operator()(const T& t1, const T& t2) const {
-        if(t1->address() == t2->address())
-            return t1->type() < t2->type();
-        return t1->address() < t2->address();
+        if(t1->address_new == t2->address_new)
+            return t1->type_new < t2->type_new;
+        return t1->address_new < t2->address_new;
+    }
+};
+
+template<typename T> struct ListingItemComparatorNewT {
+    bool operator()(const T& t1, const T& t2) const {
+        if(t1.address_new == t2.address_new) {
+            if(t1.type_new == t2.type_new)
+                return t1.index_new < t2.index_new;
+            return t1.type_new < t2.type_new;
+        }
+        return t1.address_new < t2.address_new;
+    }
+};
+
+template<typename T> struct ListingItemFinderNewT {
+    bool operator()(const T& t1, const T& t2) const {
+        if(t1.address_new == t2.address_new)
+            return t1.type_new < t2.type_new;
+        return t1.address_new < t2.address_new;
     }
 };
 

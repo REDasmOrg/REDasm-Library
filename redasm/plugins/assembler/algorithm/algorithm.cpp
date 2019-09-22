@@ -76,15 +76,13 @@ void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &ins
     if(!op->isCharacter())
         return;
 
-    PIMPL_P(Algorithm);
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
-    r_doc->autoComment(instruction->address, charinfo);
+    r_docnew->autoComment(instruction->address, charinfo);
 }
 
 void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &instruction, u64 value)
 {
-    PIMPL_P(Algorithm);
-    Segment* segment = r_doc->segment(value);
+    const Segment* segment = r_docnew->segment(value);
 
     if(!segment || segment->isPureCode()) // Don't flood "Pure-Code" segments with symbols
         return;
@@ -94,36 +92,34 @@ void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &in
 
 void Algorithm::decodeState(const State *state)
 {
-    if(r_doc->isInstructionCached(state->address))
+    if(r_docnew->isInstructionCached(state->address))
         return;
 
     PIMPL_P(Algorithm);
-    CachedInstruction instruction = r_doc->cacheInstruction(state->address);
+    CachedInstruction instruction = r_docnew->cacheInstruction(state->address);
     size_t status = p->disassemble(state->address, instruction);
 
     if(status == Algorithm::SKIP)
         return;
 
-    r_doc->instruction(instruction);
+    r_docnew->instruction(instruction);
 }
 
 void Algorithm::jumpState(const State *state)
 {
-    PIMPL_P(Algorithm);
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
 
     if(!dir)
-        r_doc->autoComment(state->instruction->address, "Infinite loop");
+        r_docnew->autoComment(state->instruction->address, "Infinite loop");
 
-    r_doc->branch(state->address, dir);
+    r_docnew->branch(state->address, dir);
     DECODE_STATE(state->address);
 }
 
-void Algorithm::callState(const State *state) { PIMPL_P(Algorithm); r_doc->symbol(state->address, SymbolType::Function); }
+void Algorithm::callState(const State *state) { r_docnew->function(state->address); }
 
 void Algorithm::branchState(const State *state)
 {
-    PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
 
     if(instruction->is(InstructionType::Call))
@@ -143,30 +139,28 @@ void Algorithm::branchState(const State *state)
 
 void Algorithm::branchMemoryState(const State *state)
 {
-    PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
     r_disasm->pushTarget(state->address, instruction->address);
 
-    Symbol* symbol = r_doc->symbol(state->address);
+    const Symbol* symbol = r_docnew->symbol(state->address);
 
     if(symbol && symbol->isImport()) // Don't dereference imports
         return;
 
     u64 value = 0;
     r_disasm->dereference(state->address, &value);
-    r_doc->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
+    r_docnew->pointer(state->address);
 
     if(instruction->is(InstructionType::Call))
-        r_doc->symbol(value, SymbolType::Function);
+        r_docnew->function(value);
     else
-        r_doc->symbol(value, SymbolType::Code);
+        r_docnew->label(value);
 
     r_disasm->pushReference(value, state->address);
 }
 
 void Algorithm::addressTableState(const State *state)
 {
-    PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
     size_t c = r_disasm->checkAddressTable(instruction, state->address);
 
@@ -179,21 +173,17 @@ void Algorithm::addressTableState(const State *state)
         state_t fwdstate = Algorithm::BranchState;
 
         if(instruction->is(InstructionType::Call))
-            r_doc->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
+            r_docnew->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
         else if(instruction->is(InstructionType::Jump))
-            r_doc->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
+            r_docnew->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
-            r_doc->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
+            r_docnew->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
             fwdstate = Algorithm::MemoryState;
         }
 
         SortedSet targets = r_disasm->getTargets(instruction->address);
-
-        targets.each([&](const Variant& v) {
-            FORWARD_STATE_VALUE(fwdstate, v.toU64(), state);
-        });
-
+        targets.each([&](const Variant& v) { FORWARD_STATE_VALUE(fwdstate, v.toU64(), state); });
         return;
     }
 
@@ -209,7 +199,6 @@ void Algorithm::addressTableState(const State *state)
 
 void Algorithm::memoryState(const State *state)
 {
-    PIMPL_P(Algorithm);
     u64 value = 0;
 
     if(!r_disasm->dereference(state->address, &value))
@@ -229,7 +218,6 @@ void Algorithm::memoryState(const State *state)
 
 void Algorithm::pointerState(const State *state)
 {
-    PIMPL_P(Algorithm);
     u64 value = 0;
 
     if(!r_disasm->dereference(state->address, &value))
@@ -238,22 +226,22 @@ void Algorithm::pointerState(const State *state)
         return;
     }
 
-    r_doc->symbol(state->address, SymbolType::Data | SymbolType::Pointer);
+    r_docnew->symbol(state->address);
     r_disasm->checkLocation(state->address, value); // Create Symbol + XRefs
 
-    Symbol* symbol = r_doc->symbol(value);
+    const Symbol* symbol = r_docnew->symbol(value);
 
     if(!symbol)
         return;
 
     if(symbol->is(SymbolType::String))
-        r_doc->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
+        r_docnew->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
     else if(symbol->is(SymbolType::WideString))
-        r_doc->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+        r_docnew->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
     else if(symbol->isImport())
-        r_doc->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
+        r_docnew->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
     else if(symbol->isExport())
-        r_doc->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
+        r_docnew->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
     else
         return;
 
@@ -262,7 +250,6 @@ void Algorithm::pointerState(const State *state)
 
 void Algorithm::immediateState(const State *state)
 {
-    PIMPL_P(Algorithm);
     CachedInstruction instruction = state->instruction;
 
     if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())

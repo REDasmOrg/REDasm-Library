@@ -14,7 +14,7 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
     if(!item)
         return true; // Don't execute trampoline analysis
 
-    CachedInstruction instruction = r_doc->instruction(item->address());
+    CachedInstruction instruction = r_doc->instruction(item->address_new);
 
     if(!instruction)
         return true; // Don't execute trampoline analysis

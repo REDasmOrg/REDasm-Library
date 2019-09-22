@@ -23,9 +23,9 @@ class ListingCursorImpl
         void moveTo(size_t line, size_t column, bool save);
 
     private:
-        ListingCursor::Position m_position, m_selection;
+        ListingCursor::Position m_position{0, 0}, m_selection{0, 0};
         PositionStack m_backstack, m_forwardstack;
-        bool m_active;
+        bool m_active{false};
 };
 
 } // namespace REDasm

@@ -6,30 +6,24 @@
 
 namespace REDasm {
 
-ListingItemImpl::ListingItemImpl(): m_address(0), m_type(ListingItemType::Undefined), m_index(0)
-{
-    m_data = std::make_unique<ListingItemData>();
-}
-
-ListingItemImpl::ListingItemImpl(address_t address, ListingItemType type, size_t index): m_address(address), m_type(type), m_index(index)
-{
-    m_data = std::make_unique<ListingItemData>();
-}
+ListingItemImpl::ListingItemImpl(): m_address(0), m_type(ListingItemType::Undefined), m_index(0) { }
+ListingItemImpl::ListingItemImpl(address_t address, ListingItemType type): m_address(address), m_type(type), m_index(0) { }
+ListingItemImpl::ListingItemImpl(address_t address, ListingItemType type, size_t index): m_address(address), m_type(type), m_index(index) { }
 
 void ListingItemImpl::save(cereal::BinaryOutputArchive &a) const
 {
     a(m_address, m_type, m_index,
-      m_data->comments, m_data->autocomments,
-      m_data->meta.name, m_data->meta.type,
-      m_data->type);
+      m_data.comments, m_data.autocomments,
+      m_data.meta.name, m_data.meta.type,
+      m_data.type);
 }
 
 void ListingItemImpl::load(cereal::BinaryInputArchive &a)
 {
     a(m_address, m_type, m_index,
-      m_data->comments, m_data->autocomments,
-      m_data->meta.name, m_data->meta.type,
-      m_data->type);
+      m_data.comments, m_data.autocomments,
+      m_data.meta.name, m_data.meta.type,
+      m_data.type);
 }
 
 } // namespace REDasm

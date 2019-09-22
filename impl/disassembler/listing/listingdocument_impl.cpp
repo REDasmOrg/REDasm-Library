@@ -4,8 +4,10 @@
 
 namespace REDasm {
 
-ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem *item, size_t index, ListingDocumentAction action): m_action(action), m_item(item), m_index(index) { }
+ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem *item, size_t index, ListingDocumentAction action): EventArgsImpl(), m_action(action), m_item(item), m_index(index) { }
+ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem& item, size_t index, ListingDocumentAction action): EventArgsImpl(), m_action(action), m_itemnew(item), m_index(index) { }
 const ListingItem *ListingDocumentChangedEventArgsImpl::item() const { return m_item; }
+const ListingItem& ListingDocumentChangedEventArgsImpl::itemNew() const { return m_itemnew; }
 ListingDocumentAction ListingDocumentChangedEventArgsImpl::action() const { return m_action; }
 bool ListingDocumentChangedEventArgsImpl::isInserted() const { return m_action == ListingDocumentAction::Inserted; }
 bool ListingDocumentChangedEventArgsImpl::isRemoved() const { return m_action == ListingDocumentAction::Removed; }
@@ -33,7 +35,7 @@ ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findIterator(ad
     return this->find(item, ListingItemPtrFinder());
 }
 
-ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findIterator(const ListingItem *item) const { return this->findIterator(item->address(), item->type(), item->index()); }
+ListingDocumentTypeImpl::const_iterator ListingDocumentTypeImpl::findIterator(const ListingItem *item) const { return this->findIterator(item->address_new, item->type_new, item->index_new); }
 
 size_t ListingDocumentTypeImpl::findIndex(address_t address, ListingItemType type, size_t index) const
 {
@@ -61,7 +63,7 @@ ListingItem *ListingDocumentTypeImpl::push(address_t address, ListingItemType ty
 
     auto it = ContainerType::find(item);
 
-    if((it != this->end()) && (((*it)->address() == address) && ((*it)->type() == type)))
+    if((it != this->end()) && (((*it)->address_new == address) && ((*it)->type_new == type)))
         return it->get();
 
     it = ContainerType::insert(std::move(item));
@@ -83,7 +85,7 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
         q->changed(&ldc);
 
         if(type == ListingItemType::FunctionItem)
-            m_functions.remove((*it)->address());
+            m_functions.remove((*it)->address_new);
 
         this->erase(it);
         it = ContainerType::find(item, ListingItemPtrFinder());
@@ -134,7 +136,7 @@ void ListingDocumentTypeImpl::loadItems(cereal::BinaryInputArchive &a)
         if(item->is(ListingItemType::InstructionItem))
         {
             PIMPL_Q(ListingDocumentType);
-            q->instruction(r_disasm->disassembleInstruction(item->address()));
+            q->instruction(r_disasm->disassembleInstruction(item->address_new));
         }
 
         this->insert(std::move(item));

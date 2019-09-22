@@ -11,7 +11,7 @@ ListingRendererImpl::ListingRendererImpl(ListingRenderer *q): m_pimpl_q(q), m_fl
     m_printer = r_asm->createPrinter();
 }
 
-bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine &rl) const
+bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, const Symbol *symbol, RendererLine &rl) const
 {
     u64 value = 0;
 
@@ -27,16 +27,16 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const
     return true;
 }
 
-bool ListingRendererImpl::getRendererLine(const document_s_lock &lock, size_t line, RendererLine &rl)
+bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_t line, RendererLine &rl)
 {
-    ListingItem* item = lock->itemAt(std::min(line, lock->lastLine()));
+    ListingItem item = lock->itemAt(std::min(line, lock->itemsCount() - 1));
 
-    if(!item)
+    if(!item.isValid())
         return false;
 
     PIMPL_Q(ListingRenderer);
 
-    switch(item->type())
+    switch(item.type_new)
     {
         case ListingItemType::SegmentItem: q->renderSegment(lock, item, rl); break;
         case ListingItemType::FunctionItem: q->renderFunction(lock, item, rl); break;
@@ -46,7 +46,7 @@ bool ListingRendererImpl::getRendererLine(const document_s_lock &lock, size_t li
         case ListingItemType::TypeItem: q->renderType(lock, item, rl); break;
         case ListingItemType::SeparatorItem: q->renderSeparator(lock, item, rl); break;
         case ListingItemType::EmptyItem: rl.push(" "); break;
-        default: rl.push("Unknown Type: " + String::number(static_cast<size_t>(item->type()))); break;
+        default: rl.push("Unknown Type: " + String::number(static_cast<size_t>(item.type_new))); break;
     }
 
     return true;

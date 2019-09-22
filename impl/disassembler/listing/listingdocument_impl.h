@@ -2,19 +2,23 @@
 
 #include <redasm/disassembler/listing/listingdocument.h>
 #include "../../types/containers/templates/sortedlist_template.h"
+#include "../../types/containers/templates/list_template.h"
+#include "../../support/event_impl.h"
 #include "backend/instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {
 
-class ListingDocumentChangedEventArgsImpl
+class ListingDocumentChangedEventArgsImpl: public EventArgsImpl
 {
     PIMPL_DECLARE_Q(ListingDocumentChangedEventArgs)
     PIMPL_DECLARE_PUBLIC(ListingDocumentChangedEventArgs)
 
     public:
         ListingDocumentChangedEventArgsImpl(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
+        ListingDocumentChangedEventArgsImpl(const ListingItem& item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         const ListingItem* item() const;
+        const ListingItem& itemNew() const;
         ListingDocumentAction action() const;
         bool isInserted() const;
         bool isRemoved() const;
@@ -22,7 +26,8 @@ class ListingDocumentChangedEventArgsImpl
 
     private:
         ListingDocumentAction m_action;
-        const ListingItem* m_item;
+        const ListingItem* m_item{nullptr};
+        ListingItem m_itemnew;
         size_t m_index;
 };
 

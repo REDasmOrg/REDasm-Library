@@ -72,7 +72,7 @@ class LIBREDASM_API SymbolTable: public Object
 
     public:
         SymbolTable();
-        tag_t size() const;
+        size_t size() const;
         bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
         Symbol *symbol(address_t address) const;
         Symbol *symbol(const String& name) const;

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <redasm/buffer/bufferview.h>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/plugins/loader/loader.h>
 #include "../plugin_impl.h"
 
@@ -23,8 +21,11 @@ class LoaderImpl: public PluginImpl
         BufferView view(address_t address, size_t size) const;
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
+        ListingDocumentNew& createDocumentNew();
         const ListingDocument& document() const;
+        const ListingDocumentNew& documentNew() const;
         ListingDocument& document();
+        ListingDocumentNew& documentNew();
         SignatureIdentifiers &signatures();
         void signature(const String& sig);
 
@@ -41,6 +42,7 @@ class LoaderImpl: public PluginImpl
         SignatureIdentifiers m_signatures;
         AbstractBuffer* m_buffer;
         ListingDocument m_document;
+        ListingDocumentNew m_documentnew;
         BufferView m_view;
 };
 

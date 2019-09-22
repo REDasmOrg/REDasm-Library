@@ -4,6 +4,22 @@ project(LibREDasm)
 include(GNUInstallDirs)
 include(cmake/functions.cmake)
 
+if(UNIX AND NOT APPLE)
+   find_program(CCACHE_PROGRAM ccache)
+   if(CCACHE_PROGRAM AND (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles"))
+       message(STATUS "${PROJECT_NAME}: Found CCache, speed up compilation")
+       set(CMAKE_C_COMPILER_LAUNCHER   ${CCACHE_PROGRAM})
+       set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+   endif()
+
+  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
+  if("${ld_version}" MATCHES "GNU gold")
+      message(STATUS "${PROJECT_NAME}: Found Gold linker, use faster linker")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
+      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold ")
+  endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -57,9 +73,7 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME} capstone-static)
 
 target_include_directories(${PROJECT_NAME}
-                           PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-                                   $<INSTALL_INTERFACE:redasm>
-                                   ${CAPSTONE_INCLUDE}
+                           PUBLIC  ${CAPSTONE_INCLUDE}
                                    ${REDASM_LIBS_INCLUDE}
                            PRIVATE ${IMPL_LIBS_INCLUDE}
                                    impl)

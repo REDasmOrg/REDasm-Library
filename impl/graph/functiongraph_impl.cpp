@@ -18,7 +18,7 @@ size_t FunctionGraphImpl::bytesCount() const
         {
             if(item->is(ListingItemType::InstructionItem))
             {
-                CachedInstruction instruction = r_doc->instruction(item->address());
+                CachedInstruction instruction = r_doc->instruction(item->address_new);
 
                 if(instruction)
                     c += instruction->size;
@@ -71,7 +71,7 @@ void FunctionGraphImpl::incomplete() { m_complete = false; }
 
 bool FunctionGraphImpl::isStopItem(ListingItem *item) const
 {
-    switch(item->type())
+    switch(item->type_new)
     {
         case ListingItemType::FunctionItem:
         case ListingItemType::SegmentItem:
@@ -86,7 +86,7 @@ bool FunctionGraphImpl::isStopItem(ListingItem *item) const
 
 FunctionBasicBlock *FunctionGraphImpl::getBlockAt(ListingItem* item)
 {
-    FunctionBasicBlock* fbb = this->basicBlockFromAddress(item->address());
+    FunctionBasicBlock* fbb = this->basicBlockFromAddress(item->address_new);
 
     if(fbb)
         return fbb;
@@ -124,7 +124,7 @@ void FunctionGraphImpl::buildBasicBlocks()
 
             if(item->is(ListingItemType::InstructionItem))
             {
-                CachedInstruction instruction = r_doc->instruction(item->address());
+                CachedInstruction instruction = r_doc->instruction(item->address_new);
 
                 if(fbb->instructionStartItem())
                     fbb->setInstructionStartItem(item);
@@ -182,7 +182,7 @@ void FunctionGraphImpl::buildBasicBlocks()
             }
             else if(item->is(ListingItemType::SymbolItem) && (item != fbb->startItem()))
             {
-                const Symbol* symbol = r_doc->symbol(item->address());
+                const Symbol* symbol = r_doc->symbol(item->address_new);
 
                 if(symbol && symbol->is(SymbolType::Code) && !symbol->isFunction())
                 {

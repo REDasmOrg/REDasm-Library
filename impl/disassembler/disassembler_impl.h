@@ -10,6 +10,7 @@
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
 #include <redasm/pimpl.h>
+#include "engine/disassemblerengine.h"
 
 namespace REDasm {
 
@@ -25,6 +26,8 @@ class DisassemblerImpl
         Assembler* assembler() const;
         const safe_ptr<ListingDocumentType>& document() const;
         safe_ptr<ListingDocumentType>& document();
+        const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
+        safe_ptr<ListingDocumentTypeNew>& documentNew();
         SortedList getCalls(address_t address);
         ReferenceTable* references();
         SortedSet getReferences(address_t address) const;
@@ -61,8 +64,6 @@ class DisassemblerImpl
         void resume();
 
     private:
-        void disassembleJob();
-        void disassembleStep(Job *job);
         void analyzeStep();
         void computeBasicBlocks(document_x_lock &lock, address_t address);
         template<typename T> String readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const;
@@ -70,12 +71,12 @@ class DisassemblerImpl
 
     private:
         std::chrono::steady_clock::time_point m_starttime;
+        std::unique_ptr<DisassemblerEngine> m_engine;
         safe_ptr<Algorithm> m_algorithm;
         ReferenceTable m_referencetable;
         Assembler* m_assembler;
         Loader* m_loader;
         Job m_analyzejob;
-        JobsPool m_jobs;
 };
 
 template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const

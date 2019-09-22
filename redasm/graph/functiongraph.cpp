@@ -16,7 +16,7 @@ size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock
 size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_enditem);  }
 size_t FunctionBasicBlock::instructionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_startinstructionitem); }
 size_t FunctionBasicBlock::instructionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return r_doc->itemIndex(p->m_endinstructionitem); }
-bool FunctionBasicBlock::contains(address_t address) const { PIMPL_P(const FunctionBasicBlock); return (address >= p->m_startitem->address()) && (address <= p->m_enditem->address()); }
+bool FunctionBasicBlock::contains(address_t address) const { PIMPL_P(const FunctionBasicBlock); return (address >= p->m_startitem->address_new) && (address <= p->m_enditem->address_new); }
 bool FunctionBasicBlock::isEmpty() const { PIMPL_P(const FunctionBasicBlock); return (!p->m_startitem || !p->m_enditem); }
 size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->endIndex() - this->startIndex()) + 1); }
 size_t FunctionBasicBlock::instructionsCount() const { return (this->instructionEndItem() - this->instructionStartItem()) + 1; }

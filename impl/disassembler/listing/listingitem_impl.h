@@ -23,12 +23,13 @@ class ListingItemImpl
 
     public:
         ListingItemImpl();
+        ListingItemImpl(address_t address, ListingItemType type);
         ListingItemImpl(address_t address, ListingItemType type, size_t index);
         void save(cereal::BinaryOutputArchive &a) const;
         void load(cereal::BinaryInputArchive &a);
 
     private:
-        std::unique_ptr<ListingItemData> m_data;
+        ListingItemData m_data;
         address_t m_address;
         ListingItemType m_type;
         size_t m_index;
@@ -36,6 +37,11 @@ class ListingItemImpl
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;
 
+// NEW
+typedef ListingItemComparatorNewT<ListingItem> ListingItemComparatorNew;
+typedef ListingItemFinderNewT<ListingItem> ListingItemConstFinderNew;
+
+// OLD
 typedef ListingItemComparatorT<ListingItemPtr> ListingItemPtrComparator;
 typedef ListingItemComparatorT<const ListingItem*> ListingItemConstComparator;
 typedef ListingItemComparatorT<ListingItem*> ListingItemComparator;

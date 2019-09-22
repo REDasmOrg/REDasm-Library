@@ -6,8 +6,8 @@
 #include "state.h"
 
 #define REGISTER_STATE(id, cb)                        this->registerState(id, std::bind(cb, this, std::placeholders::_1))
-#define EXECUTE_STATE(id, value, index, instruction)  this->executeState({ #id, id, static_cast<u64>(value), index, instruction })
-#define ENQUEUE_STATE(id, value, index, instruction)  this->enqueueState({ #id, id, static_cast<u64>(value), index, instruction })
+#define EXECUTE_STATE(id, value, index, instruction)  this->executeState({ #id, id, {u64(value)}, index, instruction })
+#define ENQUEUE_STATE(id, value, index, instruction)  this->enqueueState({ #id, id, {u64(value)}, index, instruction })
 #define FORWARD_STATE_VALUE(newid, value, state)      EXECUTE_STATE(newid, value, state->index, state->instruction)
 #define FORWARD_STATE(newid, state)                   FORWARD_STATE_VALUE(newid, state->u_value, state)
 #define DECODE_STATE(address)                         ENQUEUE_STATE(Algorithm::DecodeState, address, REDasm::npos, )

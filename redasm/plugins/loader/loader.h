@@ -2,6 +2,7 @@
 
 #include <unordered_set>
 #include "../../disassembler/listing/listingdocument.h"
+#include "../../disassembler/listing/listingdocumentnew.h"
 #include "../../buffer/bufferview.h"
 #include "../assembler/assemblerrequest.h"
 #include "../plugin.h"
@@ -42,6 +43,8 @@ class LIBREDASM_API LoadRequest
 
 typedef std::unordered_set<String> SignatureIdentifiers;
 
+#define ldr_doc this->documentNew()
+
 class LIBREDASM_API Loader: public Plugin
 {
     REDASM_OBJECT(Loader)
@@ -58,7 +61,9 @@ class LIBREDASM_API Loader: public Plugin
         BufferView viewSegment(const Segment* segment) const;
         ListingDocument& createDocument();
         const ListingDocument& document() const;
+        const ListingDocumentNew& documentNew() const;
         ListingDocument& document();
+        ListingDocumentNew& documentNew();
         SignatureIdentifiers &signatures();
         Loader* signature(const String& sig);
         Analyzer* analyzer();

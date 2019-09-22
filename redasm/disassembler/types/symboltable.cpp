@@ -21,6 +21,7 @@ void Symbol::save(cereal::BinaryOutputArchive &a) const { a(type, tag, address, 
 void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, size, name); }
 
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
+size_t SymbolTable::size() const { PIMPL_P(const SymbolTable); return p->m_byaddress.size(); }
 
 bool SymbolTable::create(address_t address, const String &name, SymbolType type, tag_t tag)
 {

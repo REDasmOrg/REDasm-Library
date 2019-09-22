@@ -5,7 +5,7 @@
 
 namespace REDasm {
 
-ListingCursorImpl::ListingCursorImpl(ListingCursor* q): m_pimpl_q(q), m_active(false) { m_position = {0, 0}; }
+ListingCursorImpl::ListingCursorImpl(ListingCursor* q): m_pimpl_q(q) { }
 
 void ListingCursorImpl::save(cereal::BinaryOutputArchive &a) const
 {

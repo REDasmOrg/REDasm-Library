@@ -56,7 +56,7 @@ void AlgorithmImpl::analyze()
         r_ctx->status("Analyzing (Fast)...");
         m_analyzer->analyzeFast();
         r_disasm->computeBasicBlocks();
-        r_doc->moveToEP();
+        r_docnew->moveToEntry();
         return;
     }
 
@@ -66,7 +66,7 @@ void AlgorithmImpl::analyze()
     r_ctx->status("Analyzing...");
     m_analyzer->analyze();
     r_disasm->computeBasicBlocks();
-    r_doc->moveToEP();
+    r_docnew->moveToEntry();
 
     // Trigger a Fast Analysis when post disassembling is completed
     r_disasm->busyChanged.connect(this, [&](EventArgs*) {
@@ -89,7 +89,7 @@ bool AlgorithmImpl::validateState(const State &state) const
     if(!StateMachine::validateState(state))
         return false;
 
-    return r_doc->segment(state.address);
+    return r_docnew->segment(state.address);
 }
 
 void AlgorithmImpl::onNewState(const State *state) const
@@ -119,12 +119,12 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
         return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))
-        m_currentsegment = r_doc->segment(address);
+        m_currentsegment = r_docnew->segment(address);
 
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    if(!r_ldr->offset(address).valid || r_doc->nearestInstruction(address))
+    if(!r_ldr->offset(address).valid) //|| r_doc->nearestInstruction(address))
         return false;
 
     return true;

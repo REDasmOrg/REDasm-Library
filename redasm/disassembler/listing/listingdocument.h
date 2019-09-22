@@ -17,12 +17,13 @@ enum class ListingDocumentAction { Changed = 0, Inserted, Removed };
 
 class LIBREDASM_API ListingDocumentChangedEventArgs: public EventArgs
 {
-    PIMPL_DECLARE_P(ListingDocumentChangedEventArgs)
     PIMPL_DECLARE_PRIVATE(ListingDocumentChangedEventArgs)
 
     public:
         ListingDocumentChangedEventArgs(const ListingItem* item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
+        ListingDocumentChangedEventArgs(const ListingItem& item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         const ListingItem* item() const;
+        const ListingItem& itemNew() const;
         ListingDocumentAction action() const;
         bool isInserted() const;
         bool isRemoved() const;
@@ -53,14 +54,14 @@ class LIBREDASM_API ListingDocumentType: public Object
         void moveToEP();
 
     public: // ListingItemData functions
-        String comment(const ListingItem *item, bool skipauto = false) const;
-        void comment(const ListingItem* item, const String& s);
+        String comment(ListingItem *item, bool skipauto = false) const;
+        void comment(ListingItem *item, const String& s);
         void autoComment(address_t address, const String& s);
 
     public: // ListingItem getter functions
-        String type(const ListingItem *item) const;
+        String type(ListingItem *item) const;
         void type(address_t address, const String& s);
-        const ListingMetaItem &meta(const ListingItem *item) const;
+        const ListingMetaItem &meta(ListingItem *item) const;
 
     public: // ListingItem inserter functions
         void empty(address_t address);

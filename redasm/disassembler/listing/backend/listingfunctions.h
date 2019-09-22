@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../listingitem.h"
+#include "../../../macros.h"
 #include "../../../pimpl.h"
 
 namespace REDasm {
@@ -17,7 +18,7 @@ class LIBREDASM_API ListingFunctions
     public:
         ListingFunctions();
         address_t at(size_t idx) const;
-        void insert(address_t address);
+        bool insert(address_t address);
         size_t size() const;
 
     public:

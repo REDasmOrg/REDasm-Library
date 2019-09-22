@@ -11,7 +11,7 @@ template<typename T> class SortedSetTemplate
         SortedSetTemplate() = default;
         size_t size() const { return m_list.size(); }
         bool contains(const T& t) const { return m_set.find(t) != m_set.end(); }
-        void insert(const T& t) { auto p = m_set.insert(t); if(p.second) m_list.insert(t); }
+        bool insert(const T& t) { auto p = m_set.insert(t); if(p.second) m_list.insert(t); return p.second; }
         void remove(const T& t) { m_set.erase(t); m_list.erase(t); }
         void clear() { m_set.clear(); m_list.clear(); }
 

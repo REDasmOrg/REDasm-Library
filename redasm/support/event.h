@@ -14,6 +14,9 @@ class EventArgs
     PIMPL_DECLARE_P(EventArgs)
     PIMPL_DECLARE_PRIVATE(EventArgs)
 
+    protected:
+        EventArgs(EventArgsImpl* e);
+
     public:
         EventArgs();
         EventArgs(const Variant& v);
@@ -41,7 +44,7 @@ class Event: public Object
         void connect(void* owner, const HandlerType& handler);
         void operator()() const;
         void operator()(const Variant& v) const;
-        void operator()(EventArgs* e) const;
+        void operator()(EventArgs& e) const;
 
     public:
         Event(const Event& rhs) = delete;

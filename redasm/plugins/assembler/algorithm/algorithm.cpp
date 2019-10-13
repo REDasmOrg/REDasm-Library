@@ -41,20 +41,20 @@ void Algorithm::onDecoded(const CachedInstruction& instruction)
             //if(m_emulator && !m_emulator->hasError())
             //    this->emulateOperand(&op, instruction);
 
-            if(!op->is(OperandType::Displacement)) // Try static displacement analysis
+            if(!op->typeIs(OperandType::Displacement)) // Try static displacement analysis
                 continue;
         }
 
-        if(op->is(OperandType::Displacement))
+        if(op->typeIs(OperandType::Displacement))
         {
             if(op->displacementIsDynamic())
                 EXECUTE_STATE(Algorithm::AddressTableState, op->disp.displacement, op->index, instruction);
             else if(op->displacementCanBeAddress())
                 EXECUTE_STATE(Algorithm::MemoryState, op->disp.displacement, op->index, instruction);
         }
-        else if(op->is(OperandType::Memory))
+        else if(op->typeIs(OperandType::Memory))
             EXECUTE_STATE(Algorithm::MemoryState, op->u_value, op->index, instruction);
-        else if(op->is(OperandType::Immediate))
+        else if(op->typeIs(OperandType::Immediate))
             EXECUTE_STATE(Algorithm::ImmediateState, op->u_value, op->index, instruction);
 
         this->onDecodedOperand(op, instruction);
@@ -65,17 +65,13 @@ void Algorithm::onDecodeFailed(const CachedInstruction& instruction)
 {
     r_ctx->problem("Invalid instruction @ " + String::hex(instruction->address));
 
-    if(!instruction->size)
-        return;
-
+    if(!instruction->size) return;
     this->enqueue(instruction->endAddress());
 }
 
 void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &instruction)
 {
-    if(!op->isCharacter())
-        return;
-
+    if(!op->isCharacter()) return;
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
     r_docnew->autoComment(instruction->address, charinfo);
 }
@@ -99,18 +95,14 @@ void Algorithm::decodeState(const State *state)
     CachedInstruction instruction = r_docnew->cacheInstruction(state->address);
     size_t status = p->disassemble(state->address, instruction);
 
-    if(status == Algorithm::SKIP)
-        return;
-
+    if(status == Algorithm::SKIP) return;
     r_docnew->instruction(instruction);
 }
 
 void Algorithm::jumpState(const State *state)
 {
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
-
-    if(!dir)
-        r_docnew->autoComment(state->instruction->address, "Infinite loop");
+    if(!dir) r_docnew->autoComment(state->instruction->address, "Infinite loop");
 
     r_docnew->branch(state->address, dir);
     DECODE_STATE(state->address);
@@ -144,17 +136,15 @@ void Algorithm::branchMemoryState(const State *state)
 
     const Symbol* symbol = r_docnew->symbol(state->address);
 
-    if(symbol && symbol->isImport()) // Don't dereference imports
+    if(symbol && symbol->is(SymbolType::ImportNew)) // Don't dereference imports
         return;
 
     u64 value = 0;
     r_disasm->dereference(state->address, &value);
     r_docnew->pointer(state->address);
 
-    if(instruction->is(InstructionType::Call))
-        r_docnew->function(value);
-    else
-        r_docnew->label(value);
+    if(instruction->is(InstructionType::Call)) r_docnew->function(value);
+    else r_docnew->label(value);
 
     r_disasm->pushReference(value, state->address);
 }
@@ -163,9 +153,7 @@ void Algorithm::addressTableState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
     size_t c = r_disasm->checkAddressTable(instruction, state->address);
-
-    if(c == REDasm::npos)
-        return;
+    if(c == REDasm::npos) return;
 
     if(c > 1)
     {
@@ -189,12 +177,9 @@ void Algorithm::addressTableState(const State *state)
 
     const Operand* op = state->operand();
 
-    if(op->is(OperandType::Displacement))
-        FORWARD_STATE(Algorithm::PointerState, state);
-    else if(op->is(OperandType::Memory))
-        FORWARD_STATE(Algorithm::MemoryState, state);
-    else
-        FORWARD_STATE(Algorithm::ImmediateState, state);
+    if(op->typeIs(OperandType::Displacement)) FORWARD_STATE(Algorithm::PointerState, state);
+    else if(op->typeIs(OperandType::Memory)) FORWARD_STATE(Algorithm::MemoryState, state);
+    else FORWARD_STATE(Algorithm::ImmediateState, state);
 }
 
 void Algorithm::memoryState(const State *state)

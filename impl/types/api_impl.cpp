@@ -65,16 +65,17 @@ Instruction *InstructionImpl::disp(register_id_t base, register_id_t index, s64 
     return q;
 }
 
-Instruction *InstructionImpl::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { return this->local(locindex, base, index, displacement, OperandType::Argument); }
+Instruction *InstructionImpl::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { return this->local(locindex, base, index, displacement, OperandFlags::Argument); }
 
-Instruction *InstructionImpl::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type)
+Instruction *InstructionImpl::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags flags)
 {
     PIMPL_Q(Instruction);
 
     Operand* op = new Operand();
     op->index = m_operands.size();
     op->loc_index = locindex;
-    op->type = OperandType::Displacement | type;
+    op->type = OperandType::Displacement;
+    op->flags = flags;
     op->disp = DisplacementOperand(RegisterOperand(base), RegisterOperand(index), 1, displacement);
 
     m_operands.append(op);

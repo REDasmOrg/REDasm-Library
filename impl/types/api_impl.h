@@ -51,7 +51,7 @@ class InstructionImpl
         Instruction* disp(register_id_t base, register_id_t index, s64 displacement);
         Instruction* disp(register_id_t base, register_id_t index, s64 scale, s64 displacement);
         Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
-        Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type);
+        Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags flags);
         Instruction* reg(register_id_t r, tag_t tag);
         Instruction* tgt(address_t a);
 

@@ -24,6 +24,7 @@ class InstructionCache
         CachedInstruction prev(address_t address);
         address_location nextHint(address_t address);
         address_location prevHint(address_t address);
+        void erase(address_t address);
 
     private:
         void deallocate(const CachedInstruction &instruction);

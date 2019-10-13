@@ -43,7 +43,8 @@ class LIBREDASM_API LoadRequest
 
 typedef std::unordered_set<String> SignatureIdentifiers;
 
-#define ldr_doc this->documentNew()
+#define ldrdoc_r(r) r->documentNew()
+#define ldrdoc      ldrdoc_r(this)
 
 class LIBREDASM_API Loader: public Plugin
 {

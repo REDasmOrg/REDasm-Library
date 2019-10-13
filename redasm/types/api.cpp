@@ -32,28 +32,29 @@ DisplacementOperand::DisplacementOperand(const RegisterOperand &base, const Regi
 void DisplacementOperand::save(cereal::BinaryOutputArchive &a) const { a(base, index, scale, displacement); }
 void DisplacementOperand::load(cereal::BinaryInputArchive &a) { a(base, index, scale, displacement); }
 
-Operand::Operand(): type(OperandType::None), tag(0), size(0), index(REDasm::npos), loc_index(REDasm::npos), u_value(0) { }
-Operand::Operand(OperandType type, s64 value, size_t idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(REDasm::npos), s_value(value) { }
-Operand::Operand(OperandType type, u64 value, size_t idx, tag_t tag): type(type), tag(tag), size(0), index(idx), loc_index(REDasm::npos), u_value(value) { }
-bool Operand::displacementIsDynamic() const { return is(OperandType::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
-bool Operand::displacementCanBeAddress() const { return is(OperandType::Displacement) && (disp.displacement > 0); }
-bool Operand::isCharacter() const { return is(OperandType::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
-bool Operand::isNumeric() const { return is(OperandType::Constant) || is(OperandType::Immediate) || is(OperandType::Memory); }
-bool Operand::isTarget() const { return type & OperandType::Target; }
-bool Operand::is(OperandType t) const { return type & t; }
-void Operand::asTarget() { type |= OperandType::Target; }
+Operand::Operand(): type(OperandType::None), flags(OperandFlags::None), tag(0), size(0), index(REDasm::npos), loc_index(REDasm::npos), u_value(0) { }
+Operand::Operand(OperandType type, s64 value, size_t idx, tag_t tag): type(type), flags(OperandFlags::None), tag(tag), size(0), index(idx), loc_index(REDasm::npos), s_value(value) { }
+Operand::Operand(OperandType type, u64 value, size_t idx, tag_t tag): type(type), flags(OperandFlags::None), tag(tag), size(0), index(idx), loc_index(REDasm::npos), u_value(value) { }
+bool Operand::displacementIsDynamic() const { return typeIs(OperandType::Displacement) && (disp.base.isValid() || disp.index.isValid()); }
+bool Operand::displacementCanBeAddress() const { return typeIs(OperandType::Displacement) && (disp.displacement > 0); }
+bool Operand::isCharacter() const { return typeIs(OperandType::Constant) && (u_value <= 0xFF) && ::isprint(static_cast<u8>(u_value)); }
+bool Operand::isNumeric() const { return typeIs(OperandType::Constant) || typeIs(OperandType::Immediate) || typeIs(OperandType::Memory); }
+bool Operand::isTarget() const { return flags & OperandFlags::Target; }
+bool Operand::typeIs(OperandType t) const { return type == t; }
+bool Operand::hasFlag(OperandFlags f) const { return flags == f; }
+void Operand::asTarget() { flags |= OperandFlags::Target; }
 
 bool Operand::checkCharacter()
 {
-    if(!is(OperandType::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
+    if(!this->typeIs(OperandType::Immediate) || (u_value > 0xFF) || !::isprint(static_cast<u8>(u_value)))
         return false;
 
     type = OperandType::Constant;
     return true;
 }
 
-void Operand::save(cereal::BinaryOutputArchive &a) const { a(type, tag, size, index, loc_index, reg, disp, u_value); }
-void Operand::load(cereal::BinaryInputArchive &a) { a(type, tag, size, index, loc_index, reg, disp, u_value); }
+void Operand::save(cereal::BinaryOutputArchive &a) const { a(type, flags, tag, size, index, loc_index, reg, disp, u_value); }
+void Operand::load(cereal::BinaryInputArchive &a) { a(type, flags, tag, size, index, loc_index, reg, disp, u_value); }
 
 Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(InstructionType::None), address(0), size(0) { }
 address_t Instruction::endAddress() const { return address + size; }
@@ -74,7 +75,7 @@ Instruction *Instruction::disp(register_id_t base, s64 displacement) { PIMPL_P(I
 Instruction *Instruction::disp(register_id_t base, register_id_t index, s64 displacement) { PIMPL_P(Instruction); return p->disp(base, index, displacement); }
 Instruction *Instruction::disp(register_id_t base, register_id_t index, s64 scale, s64 displacement) { PIMPL_P(Instruction); return p->disp(base, index, scale, displacement); }
 Instruction *Instruction::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { PIMPL_P(Instruction); return p->arg(locindex, base, index, displacement); }
-Instruction *Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type) { PIMPL_P(Instruction); return p->local(locindex, base, index, displacement, type); }
+Instruction *Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags flags) { PIMPL_P(Instruction); return p->local(locindex, base, index, displacement, flags); }
 Instruction *Instruction::reg(register_id_t r, tag_t tag) { PIMPL_P(Instruction); return p->reg(r, tag); }
 Instruction *Instruction::tgt(address_t a) { PIMPL_P(Instruction); return p->tgt(a); }
 const List &Instruction::targets() const { PIMPL_P(const Instruction); return p->targets(); }

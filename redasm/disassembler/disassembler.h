@@ -9,8 +9,8 @@
 #include "concurrent/jobstate.h"
 #include "listing/cachedinstruction.h"
 #include "listing/listingitem.h"
-#include "types/referencetable.h"
-#include "types/symboltable.h"
+#include "listing/backend/referencetable.h"
+#include "listing/backend/symboltable.h"
 
 namespace REDasm {
 

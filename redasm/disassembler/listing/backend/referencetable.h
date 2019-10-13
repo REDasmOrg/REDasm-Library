@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../types/containers/set.h"
-#include "../../types/object.h"
-#include "../../macros.h"
-#include "../../pimpl.h"
+#include "../../../types/containers/set.h"
+#include "../../../types/object.h"
+#include "../../../macros.h"
+#include "../../../pimpl.h"
 
 namespace REDasm {
 

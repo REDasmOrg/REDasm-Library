@@ -1,6 +1,7 @@
 #pragma once
 
 #include <redasm/disassembler/listing/backend/blocks/blockitem.h>
+#include <redasm/disassembler/listing/backend/blocks/blockcontainer.h>
 #include <deque>
 
 namespace REDasm {
@@ -12,6 +13,7 @@ class BlockContainerImpl
 
     public:
         BlockContainerImpl() = default;
+        void unexplored(const BlockItem* blockitem);
         BlockItem* unexplored(address_t start);
         BlockItem* unexplored(address_t start, address_t end);
         BlockItem* data(address_t start, address_t end, BlockItemFlags flags);

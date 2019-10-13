@@ -2,7 +2,7 @@
 
 #include "../../support/safe_ptr.h"
 #include "../../support/event.h"
-#include "../types/symboltable.h"
+#include "../listing/backend/symboltable.h"
 #include "cachedinstruction.h"
 #include "backend/listingfunctions.h"
 #include "listingcursor.h"

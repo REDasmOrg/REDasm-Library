@@ -15,6 +15,7 @@ class ListingItems
 
     public:
         ListingItems();
+        bool empty() const;
         size_t size() const;
         size_t insert(address_t address, ListingItemType type, size_t index);
         size_t insert(const ListingItem& item);
@@ -22,8 +23,11 @@ class ListingItems
         size_t indexOf(const ListingItem& item) const;
         const ListingItem& at(size_t idx) const;
         ListingItem& at(size_t idx);
+        void erase(const ListingItem& item);
+        void erase(size_t idx);
 
     public:
+        size_t itemIndex(address_t address) const;
         size_t segmentIndex(address_t address, size_t index = 0) const;
         size_t functionIndex(address_t address, size_t index = 0) const;
         size_t instructionIndex(address_t address, size_t index = 0) const;

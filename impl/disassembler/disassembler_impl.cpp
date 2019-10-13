@@ -426,14 +426,10 @@ void DisassemblerImpl::pushReference(address_t address, address_t refby) { m_ref
 
 void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 {
-    Segment* segment = this->document()->segment(address);
+    Segment* segment = r_docnew->segment(address);
+    if(!segment) return; // || this->checkString(fromaddress, address)) return;
 
-    if(!segment || this->checkString(fromaddress, address))
-        return;
-
-    if(!this->document()->symbol(address))
-        this->document()->symbol(address, SymbolType::Data);
-
+    r_docnew->data(address, r_asm->addressWidth());
     this->pushReference(address, fromaddress);
 }
 
@@ -458,11 +454,7 @@ void DisassemblerImpl::disassemble()
     m_engine = std::make_unique<DisassemblerEngine>();
     m_starttime = std::chrono::steady_clock::now();
 
-    if(!this->documentNew()->segmentsCount())
-    {
-        r_ctx->log("ERROR: Segment list is empty");
-        return;
-    }
+    if(!this->documentNew()->segmentsCount()) return;
 
     const ListingFunctions* functions = r_docnew->functions();
 

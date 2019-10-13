@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include <redasm/disassembler/types/referencetable.h>
+#include <redasm/disassembler/listing/backend/referencetable.h>
 #include <redasm/pimpl.h>
 
 namespace REDasm {

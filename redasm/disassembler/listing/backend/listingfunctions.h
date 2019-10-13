@@ -20,6 +20,8 @@ class LIBREDASM_API ListingFunctions
         address_t at(size_t idx) const;
         bool insert(address_t address);
         size_t size() const;
+        void erase(address_t address);
+        void eraseAt(size_t idx);
 
     public:
         address_location functionFromAddress(address_t address) const;

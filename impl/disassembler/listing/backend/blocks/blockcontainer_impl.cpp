@@ -3,6 +3,8 @@
 
 namespace REDasm {
 
+void BlockContainerImpl::unexplored(const BlockItem* blockitem) { this->unexplored(blockitem->start, blockitem->end); }
+
 BlockItem* BlockContainerImpl::unexplored(address_t start)
 {
     auto it = this->findOverlap(start);
@@ -47,14 +49,10 @@ void BlockContainerImpl::remove(address_t start, address_t end)
 
     auto it = m_blocks.end();
 
-    if((begit != m_blocks.end()) && (endit != m_blocks.end()))
-        it = m_blocks.erase(begit, endit + 1);
-    else if(begit != m_blocks.end())
-        it = m_blocks.erase(begit);
-    else if(endit != m_blocks.end())
-        it = m_blocks.erase(endit);
-    else
-        assert(false);
+    if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = m_blocks.erase(begit, endit + 1);
+    else if(begit != m_blocks.end()) it = m_blocks.erase(begit);
+    else if(endit != m_blocks.end()) it = m_blocks.erase(endit);
+    else assert(false);
 
     if(!begbl.empty())
     {

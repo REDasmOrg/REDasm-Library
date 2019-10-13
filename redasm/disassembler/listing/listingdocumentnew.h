@@ -40,11 +40,13 @@ class ListingDocumentTypeNew
         void function(address_t address, tag_t tag = 0);
         void pointer(address_t address, SymbolType type = SymbolType::Data, tag_t tag = 0);
         void branch(address_t address, s64 direction, tag_t tag = 0);
-        void label(address_t address, tag_t tag = 0);
-
-    public: // Blocks
-        void asciiString(address_t address, size_t len);
-        void wideString(address_t address, size_t len);
+        void label(address_t address);
+        void data(address_t address, size_t size);
+        void asciiString(address_t address, size_t size);
+        void wideString(address_t address, size_t size);
+        void imported(address_t address, const String& name);
+        void exported(address_t address, const String& name);
+        void exportedFunction(address_t address, const String& name);
         void instruction(const CachedInstruction& instruction);
 
     public: // Count
@@ -53,19 +55,25 @@ class ListingDocumentTypeNew
         size_t segmentsCount() const;
         size_t functionsCount() const;
         size_t symbolsCount() const;
+        bool empty() const;
 
     public: // Get-i
-        ListingItem itemAt(size_t idx);
-        const Segment* segmentAt(size_t idx);
+        ListingItem& itemAt(size_t idx);
+        const ListingItem& itemAt(size_t idx) const;
+        const Segment* segmentAt(size_t idx) const;
 
     public: // Get
+        ListingItem currentItem() const;
         CachedInstruction instruction(address_t address);
         address_location function(address_t address) const;
+        Segment* segment(address_t address);
         const Segment* segment(address_t address) const;
         const Symbol* symbol(address_t address) const;
         const Symbol* symbol(const String& name) const;
+        const BlockItem* block(address_t address) const;
 
     public: // Items
+        size_t itemIndex(address_t address);
         size_t itemSegmentIndex(address_t address, size_t index = 0) const;
         size_t itemFunctionIndex(address_t address, size_t index = 0) const;
         size_t itemInstructionIndex(address_t address, size_t index = 0) const;
@@ -85,6 +93,10 @@ class ListingDocumentTypeNew
     public:
         void moveToEntry();
         void setEntry(address_t address);
+        bool goTo(const ListingItem& item);
+        bool goTo(address_t address);
+
+    friend class BlockItemImpl;
 };
 
 typedef safe_ptr<ListingDocumentTypeNew> ListingDocumentNew;

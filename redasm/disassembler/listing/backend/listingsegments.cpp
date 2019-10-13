@@ -7,6 +7,9 @@ namespace REDasm {
 ListingSegments::ListingSegments(): m_pimpl_p(new ListingSegmentsImpl()) { }
 bool ListingSegments::empty() const { PIMPL_P(const ListingSegments); return p->empty(); }
 size_t ListingSegments::size() const { PIMPL_P(const ListingSegments); return p->size(); }
+Segment* ListingSegments::at(size_t idx) { return const_cast<Segment*>(static_cast<const ListingSegments*>(this)->at(idx)); }
+Segment* ListingSegments::find(const String& name) { return const_cast<Segment*>(static_cast<const ListingSegments*>(this)->find(name)); }
+Segment* ListingSegments::find(address_t address) { return const_cast<Segment*>(static_cast<const ListingSegments*>(this)->find(address)); }
 const Segment *ListingSegments::at(size_t idx) const { PIMPL_P(const ListingSegments); return &(p->at(idx)); }
 
 const Segment *ListingSegments::find(const String &name) const
@@ -60,5 +63,8 @@ bool ListingSegments::insert(const String &name, offset_t offset, address_t addr
     p->insert(Segment(name, offset, address, psize, vsize, type));
     return true;
 }
+
+void ListingSegments::erase(const Segment* segment) { PIMPL_P(ListingSegments); p->erase(*segment); }
+void ListingSegments::erase(size_t idx) { PIMPL_P(ListingSegments); p->eraseAt(idx); }
 
 } // namespace REDasm

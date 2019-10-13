@@ -38,19 +38,23 @@ enum class InstructionType: u32 {
 ENUM_FLAGS_OPERATORS(InstructionType)
 
 enum class OperandType : u32 {
-    None          = 0x00000000,
-    Constant      = 0x00000001,  // Simple constant
-    Register      = 0x00000002,  // Register
-    Immediate     = 0x00000004,  // Immediate Value
-    Memory        = 0x00000008,  // Direct Memory Pointer
-    Displacement  = 0x00000010,  // Indirect Memory Pointer
+    None          = 0,
+    Constant,     // Simple constant
+    Register,     // Register
+    Immediate,    // Immediate Value
+    Memory,       // Direct Memory Pointer
+    Displacement, // Indirect Memory Pointer
 
-    Local         = 0x00010000,  // Local Variable
-    Argument      = 0x00020000,  // Function Argument
-    Target        = 0x00040000,  // Branch destination
 };
 
-ENUM_FLAGS_OPERATORS(OperandType)
+enum class OperandFlags: u32 {
+    None          = (1 << 0),
+    Local         = (1 << 1),  // Local Variable
+    Argument      = (1 << 2),  // Function Argument
+    Target        = (1 << 3),  // Branch destination
+};
+
+ENUM_FLAGS_OPERATORS(OperandFlags)
 
 class Segment: public Object
 {
@@ -113,7 +117,8 @@ class Operand: public Object
         bool isCharacter() const;
         bool isNumeric() const;
         bool isTarget() const;
-        bool is(OperandType t) const;
+        bool typeIs(OperandType t) const;
+        bool hasFlag(OperandFlags f) const;
         void asTarget();
         bool checkCharacter();
         void save(cereal::BinaryOutputArchive& a) const override;
@@ -121,6 +126,7 @@ class Operand: public Object
 
     public:
         OperandType type;
+        OperandFlags flags;
         tag_t tag;
         u32 size;
         size_t index, loc_index;
@@ -157,7 +163,7 @@ class Instruction: public Object
         Instruction* disp(register_id_t base, register_id_t index, s64 displacement);
         Instruction* disp(register_id_t base, register_id_t index, s64 scale, s64 displacement);
         Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
-        Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandType type = OperandType::Local);
+        Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags flags = OperandFlags::Local);
         Instruction* reg(register_id_t r, tag_t tag = 0);
         Instruction* tgt(address_t a);
 

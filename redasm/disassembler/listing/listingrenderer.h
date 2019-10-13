@@ -105,7 +105,6 @@ class ListingRenderer
         void renderAddressIndent(const document_s_lock_new &lock, const ListingItem& item, RendererLine& rl);
         void renderIndent(RendererLine &rl, int n = 1);
         Printer* printer() const;
-        ListingCursor* cursor() const;
 };
 
 } // namespace REDasm

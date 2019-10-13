@@ -1,8 +1,8 @@
 #include "referencetable_impl.h"
-#include "../libs/cereal/cereal.hpp"
-#include "../libs/cereal/types/set.hpp"
-#include "../libs/cereal/types/unordered_map.hpp"
-#include "../libs/cereal/archives/binary.hpp"
+#include "../../../libs/cereal/cereal.hpp"
+#include "../../../libs/cereal/types/set.hpp"
+#include "../../../libs/cereal/types/unordered_map.hpp"
+#include "../../../libs/cereal/archives/binary.hpp"
 
 namespace REDasm {
 

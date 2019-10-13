@@ -2,7 +2,7 @@
 
 #include <redasm/libs/visit_struct/visit_struct.hpp>
 #include <redasm/types/api.h>
-#include "../../pimpl.h"
+#include "../../../pimpl.h"
 
 namespace REDasm {
 
@@ -31,9 +31,25 @@ enum class SymbolType: size_t {
     StringMask         = String                        & ~(Pointer),
     WideStringMask     = WideString                    & ~(String    | Pointer),
     TableItemMask      = TableItem                     & ~(Pointer   | Data),
+
+    DataNew     = 0x10000000,
+    StringNew   = 0x10000001,
+    LabelNew    = 0x10000002,
+    FunctionNew = 0x10000003,
+    ImportNew   = 0x10000004,
+};
+
+enum class SymbolFlags: size_t
+{
+    None        = 0,
+    Export      = (1 << 0),
+    EntryPoint  = (1 << 1),
+    AsciiString = (1 << 2),
+    WideString  = (1 << 3),
 };
 
 ENUM_FLAGS_OPERATORS(SymbolType)
+ENUM_FLAGS_OPERATORS(SymbolFlags)
 
 class Symbol: public Object
 {
@@ -41,14 +57,18 @@ class Symbol: public Object
 
     public:
         Symbol();
-        Symbol(SymbolType type, tag_t tag, address_t address, const String& name);
+        Symbol(SymbolType type, SymbolFlags flags, tag_t tag, address_t address, const String& name);
         void lock();
         bool is(SymbolType t) const;
+        bool typeIs(SymbolType t) const;
+        bool hasFlag(SymbolFlags flag) const;
         bool isFunction() const;
         bool isImport() const;
         bool isExport() const;
         bool isEntryPoint() const;
         bool isLocked() const;
+        bool isData() const;
+        bool isCode() const;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;
@@ -56,9 +76,9 @@ class Symbol: public Object
 
     public:
         SymbolType type;
+        SymbolFlags flags;
         tag_t tag;
         address_t address;
-        size_t size;
         String name;
 };
 
@@ -73,12 +93,17 @@ class LIBREDASM_API SymbolTable: public Object
     public:
         SymbolTable();
         size_t size() const;
-        bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
         Symbol *symbol(address_t address) const;
         Symbol *symbol(const String& name) const;
         void iterate(SymbolType type, const std::function<bool(const Symbol*)> &cb) const;
         bool erase(address_t address);
         void clear();
+
+   public:
+        bool create(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag = 0);
+        bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
+        bool create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag = 0);
+        bool create(address_t address, SymbolType type, tag_t tag = 0);
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;
@@ -86,11 +111,11 @@ class LIBREDASM_API SymbolTable: public Object
 
     public:
         static String normalized(const String &s);
-        static String name(address_t address, SymbolType type);
-        static String name(address_t address, const String& s, SymbolType type);
+        static String name(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None);
+        static String name(address_t address, const String& s, SymbolType type, SymbolFlags flags = SymbolFlags::None);
         static String name(const String& name, address_t address);
 };
 
 } // namespace REDasm
 
-VISITABLE_STRUCT(REDasm::Symbol, type, tag, address, size, name);
+VISITABLE_STRUCT(REDasm::Symbol, type, tag, address, name);

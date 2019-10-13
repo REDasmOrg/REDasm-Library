@@ -12,8 +12,8 @@ namespace REDasm {
 
 String Printer::symbol(const Symbol* symbol) const
 {
-    if(symbol->is(SymbolType::Pointer))
-        return symbol->name;
+    //if(symbol->is(SymbolType::Pointer))
+        //return symbol->name;
 
     String s;
 
@@ -32,11 +32,10 @@ String Printer::out(const CachedInstruction &instruction) const
 void Printer::segment(const Segment *segment, const Printer::LineCallback& segmentfunc)
 {
     String s = String::repeated('=', HEADER_SYMBOL_COUNT * 2);
-    u32 bits = r_asm->bits();
 
     segmentfunc(s + " SEGMENT " + (segment ? segment->name.quoted() : "???") +
-                    " START: " + String::hex(segment->address, bits) +
-                    " END: " + String::hex(segment->endaddress, bits) + " " + s);
+                    " START: " + String::hex(segment->address, r_asm->bits()) +
+                    " END: " + String::hex(segment->endaddress, r_asm->bits()) + " " + s);
 }
 
 void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& functionfunc)
@@ -47,27 +46,24 @@ void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& fu
 
 void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) const
 {
-    if(symbol->isFunction() || symbol->is(SymbolType::Code))
-        return;
+    if(symbol->isFunction() || symbol->is(SymbolType::Code)) return;
 
-    const Segment* segment = r_doc->segment(symbol->address);
+    const Segment* segment = r_docnew->segment(symbol->address);
+    if(!segment) return;
 
-    if(!segment)
-        return;
+    // if(symbol->is(SymbolType::Pointer))
+    // {
+    //     const Symbol* ptrsymbol = r_disasm->dereferenceSymbol(symbol);
 
-    if(symbol->is(SymbolType::Pointer))
-    {
-        const Symbol* ptrsymbol = r_disasm->dereferenceSymbol(symbol);
+    //     if(ptrsymbol)
+    //     {
+    //         symbolfunc(symbol, ptrsymbol->name);
+    //         this->symbol(ptrsymbol, symbolfunc); // Emit pointed symbol too
+    //         return;
+    //     }
+    // }
 
-        if(ptrsymbol)
-        {
-            symbolfunc(symbol, ptrsymbol->name);
-            this->symbol(ptrsymbol, symbolfunc); // Emit pointed symbol too
-            return;
-        }
-    }
-
-    if(symbol->is(SymbolType::Data))
+    if(symbol->typeIs(SymbolType::DataNew))
     {
         if(segment->is(SegmentType::Bss))
         {
@@ -82,10 +78,11 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
         symbolfunc(symbol, String::hex(value, r_asm->addressWidth()));
     }
-    else if(symbol->is(SymbolType::WideStringMask))
-        symbolfunc(symbol, " \"" + r_disasm->readWString(symbol->address) + "\"");
-    else if(symbol->is(SymbolType::String))
-        symbolfunc(symbol, " \"" + r_disasm->readString(symbol->address) + "\"");
+    else if(symbol->typeIs(SymbolType::String))
+    {
+        if(symbol->hasFlag(SymbolFlags::WideString)) symbolfunc(symbol, " \"" + r_disasm->readWString(symbol->address) + "\"");
+        else symbolfunc(symbol, " \"" + r_disasm->readString(symbol->address) + "\"");
+    }
 }
 
 String Printer::out(const CachedInstruction &instruction, const OpCallback &opfunc) const
@@ -102,38 +99,28 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
         return s;
     }
 
-    if(instruction->hasOperands())
-        s += " ";
+    if(instruction->hasOperands()) s += " ";
 
     for(size_t i = 0; i < instruction->operandsCount(); i++)
     {
-        if(i)
-            s += ", ";
+        if(i) s += ", ";
 
         String opstr;
         const Operand* op = instruction->op(i);
 
-        if(op->is(OperandType::Constant))
-            opstr = String::hex(op->u_value, 0, true);
-        else if(op->is(OperandType::Immediate))
-            opstr = this->imm(op);
-        else if(op->is(OperandType::Memory))
-            opstr = this->mem(op);
-        else if(op->is(OperandType::Displacement))
-            opstr = this->disp(op);
-        else if(op->is(OperandType::Register))
-            opstr = this->reg(op->reg);
-        else
-            continue;
+        switch(op->type)
+        {
+            case OperandType::Constant:     opstr = String::hex(op->u_value, 0, true); break;
+            case OperandType::Immediate:    opstr = this->imm(op); break;
+            case OperandType::Memory:       opstr = this->mem(op); break;
+            case OperandType::Displacement: opstr = this->disp(op); break;
+            case OperandType::Register:     opstr = this->reg(op->reg); break;
+            default: continue;
+        }
 
         String opsize = this->size(op);
-
-        if(opfunc)
-            opfunc(op, opsize, opstr);
-
-        if(!opsize.empty())
-            s += opsize + " ";
-
+        if(opfunc) opfunc(op, opsize, opstr);
+        if(!opsize.empty()) s += opsize + " ";
         s += opstr;
     }
 
@@ -149,7 +136,7 @@ String Printer::disp(const Operand *operand) const
     if(operand->disp.base.isValid())
         s += this->reg(operand->disp.base);
 
-    if(operand->is(OperandType::Local) || operand->is(OperandType::Argument))
+    if(operand->hasFlag(OperandFlags::Local) || operand->hasFlag(OperandFlags::Argument))
     {
         String loc = this->loc(operand);
 
@@ -178,7 +165,7 @@ String Printer::disp(const Operand *operand) const
     {
         if(operand->disp.displacement > 0)
         {
-            Symbol* symbol = r_doc->symbol(operand->disp.displacement);
+            const Symbol* symbol = r_docnew->symbol(operand->disp.displacement);
 
             if(symbol)
                 s += "+" + symbol->name;
@@ -197,9 +184,9 @@ String Printer::mem(const Operand *operand) const { return this->imm(operand); }
 
 String Printer::imm(const Operand *operand) const
 {
-    Symbol* symbol = r_doc->symbol(operand->u_value);
+    const Symbol* symbol = r_docnew->symbol(operand->u_value);
 
-    if(operand->is(OperandType::Memory))
+    if(operand->typeIs(OperandType::Memory))
         return "[" + (symbol ? symbol->name : String::hex(operand->u_value)) + "]";
 
     return symbol ? symbol->name : String::hex(operand->s_value);

@@ -18,6 +18,7 @@ class ListingRendererImpl
     public:
         ListingRendererImpl(ListingRenderer* q);
         bool renderSymbolPointer(const document_s_lock_new &lock, const Symbol *symbol, RendererLine& rl) const;
+        void renderSymbolPrologue(const document_s_lock_new &lock, const ListingItem& item, const Symbol *symbol, RendererLine& rl);
         bool getRendererLine(const document_s_lock_new& lock, size_t line, RendererLine& rl);
         void highlightSelection(RendererLine& rl);
         void blinkCursor(RendererLine& rl);
@@ -26,10 +27,10 @@ class ListingRendererImpl
         void setFlags(ListingRendererFlags flags);
         static String escapeString(const String& s);
 
+
     private:
         object_ptr<Printer> m_printer;
-        ListingCursor* m_cursor;
-        ListingRendererFlags m_flags;
+        ListingRendererFlags m_flags{ListingRendererFlags::Normal};
 };
 
 } // namespace REDasm

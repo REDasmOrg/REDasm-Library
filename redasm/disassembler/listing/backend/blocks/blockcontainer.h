@@ -15,6 +15,7 @@ class LIBREDASM_API BlockContainer
 
     public:
         BlockContainer();
+        void unexplored(const BlockItem* blockitem);
         BlockItem* unexplored(address_t start);
         BlockItem* unexplored(address_t start, address_t end);
         BlockItem* data(address_t start, address_t end, BlockItemFlags flags = BlockItemFlags::None);

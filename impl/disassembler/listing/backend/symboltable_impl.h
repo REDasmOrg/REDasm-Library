@@ -1,6 +1,6 @@
 #pragma once
 
-#include <redasm/disassembler/types/symboltable.h>
+#include <redasm/disassembler/listing/backend/symboltable.h>
 #include <redasm/pimpl.h>
 #include <unordered_map>
 
@@ -21,7 +21,7 @@ class SymbolTableImpl
         SymbolTableImpl() = default;
         void save(cereal::BinaryOutputArchive &a) const;
         void load(cereal::BinaryInputArchive &a);
-        static String prefix(SymbolType type);
+        static String prefix(SymbolType type, SymbolFlags flags);
 
     private:
         SymbolsByAddress m_byaddress;

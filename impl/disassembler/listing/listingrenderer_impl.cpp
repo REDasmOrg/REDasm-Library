@@ -5,11 +5,7 @@
 
 namespace REDasm {
 
-ListingRendererImpl::ListingRendererImpl(ListingRenderer *q): m_pimpl_q(q), m_flags(ListingRendererFlags::Normal)
-{
-    m_cursor = r_doc->cursor();
-    m_printer = r_asm->createPrinter();
-}
+ListingRendererImpl::ListingRendererImpl(ListingRenderer *q): m_pimpl_q(q) { m_printer = r_asm->createPrinter(); }
 
 bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, const Symbol *symbol, RendererLine &rl) const
 {
@@ -19,20 +15,27 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, c
         return false;
 
     const Symbol* ptrsymbol = lock->symbol(value);
-
-    if(!ptrsymbol)
-        return false;
+    if(!ptrsymbol) return false;
 
     rl.push(ptrsymbol->name, ptrsymbol->isLocked() ? "locked_fg" : "label_fg");
     return true;
 }
 
+void ListingRendererImpl::renderSymbolPrologue(const document_s_lock_new& lock, const ListingItem& item, const Symbol* symbol, RendererLine& rl)
+{
+    PIMPL_Q(ListingRenderer);
+    q->renderAddress(lock, item, rl);
+    q->renderIndent(rl, 3);
+    rl.push(symbol->name, "label_fg");
+    q->renderIndent(rl);
+}
+
 bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_t line, RendererLine &rl)
 {
-    ListingItem item = lock->itemAt(std::min(line, lock->itemsCount() - 1));
+    if(lock->empty()) return false;
 
-    if(!item.isValid())
-        return false;
+    const ListingItem& item = lock->itemAt(std::min(line, lock->itemsCount() - 1));
+    if(!item.isValid()) return false;
 
     PIMPL_Q(ListingRenderer);
 
@@ -57,8 +60,8 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
     if(rl.text.empty())
         return;
 
-    const REDasm::ListingCursor::Position& startsel = m_cursor->startSelection();
-    const REDasm::ListingCursor::Position& endsel = m_cursor->endSelection();
+    const REDasm::ListingCursor::Position& startsel = r_docnew->cursor().startSelection();
+    const REDasm::ListingCursor::Position& endsel = r_docnew->cursor().endSelection();
 
     if(startsel.line != endsel.line)
     {
@@ -72,10 +75,10 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
 
 void ListingRendererImpl::blinkCursor(RendererLine &rl)
 {
-    if(!m_cursor->active())
+    if(!r_docnew->cursor().active())
         return;
 
-    rl.format(m_cursor->currentColumn(), m_cursor->currentColumn(), "cursor_fg", "cursorbg");
+    rl.format(r_docnew->cursor().currentColumn(), r_docnew->cursor().currentColumn(), "cursor_fg", "cursorbg");
 }
 
 void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)

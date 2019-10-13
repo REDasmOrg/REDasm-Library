@@ -1,5 +1,5 @@
 #include "referencetable.h"
-#include <impl/disassembler/types/referencetable_impl.h>
+#include <impl/disassembler/listing/backend/referencetable_impl.h>
 #include <algorithm>
 
 namespace REDasm {

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../../../types/string.h"
 #include "../../../types/base.h"
+#include "../../../types/string.h"
+#include "../../../support/event.h"
 #include "blockitemflags.h"
 
 namespace REDasm {
 
-class BlockItem
+class LIBREDASM_API BlockItem
 {
     public:
         BlockItem();
@@ -15,12 +16,12 @@ class BlockItem
         bool hasFlag(BlockItemFlags flags) const;
         bool empty() const;
         size_t size() const;
+        String displayRange() const;
 
     public:
-        address_t start, end;
+        address_t start, end; // [start, end]
         BlockItemType type;
         BlockItemFlags flags;
-        String name;
 };
 
 } // namespace REDasm

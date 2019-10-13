@@ -4,6 +4,7 @@
 namespace REDasm {
 
 ListingItems::ListingItems(): m_pimpl_p(new ListingItemsImpl()) { }
+bool ListingItems::empty() const { PIMPL_P(const ListingItems); return p->empty(); }
 size_t ListingItems::size() const { PIMPL_P(const ListingItems); return p->size(); }
 size_t ListingItems::insert(address_t address, ListingItemType type, size_t index) { return this->insert(ListingItem(address, type, index)); }
 size_t ListingItems::insert(const ListingItem& item) { PIMPL_P(ListingItems); return static_cast<size_t>(std::distance(p->begin(), p->insert(item))); }
@@ -11,6 +12,20 @@ size_t ListingItems::indexOf(address_t address, ListingItemType type, size_t ind
 size_t ListingItems::indexOf(const ListingItem& item) const { PIMPL_P(const ListingItems); return p->indexOf(item, ListingItemConstFinderNew()); }
 const ListingItem& ListingItems::at(size_t idx) const { PIMPL_P(const ListingItems); return p->at(idx); }
 ListingItem& ListingItems::at(size_t idx) { PIMPL_P(ListingItems); return p->at(idx); }
+void ListingItems::erase(const ListingItem& item) { PIMPL_P(ListingItems); p->erase(item); }
+void ListingItems::erase(size_t idx) { PIMPL_P(ListingItems); p->eraseAt(idx); }
+
+size_t ListingItems::itemIndex(address_t address) const
+{
+    for(ListingItemType t = ListingItemType::FirstItem; t <= ListingItemType::LastItem; t = static_cast<ListingItemType>(static_cast<size_t>(t) + 1))
+    {
+        size_t idx = this->indexOf(address, t);
+        if(idx != REDasm::npos) return idx;
+    }
+
+    return REDasm::npos;
+}
+
 size_t ListingItems::segmentIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::SegmentItem, index); }
 size_t ListingItems::functionIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::FunctionItem, index); }
 size_t ListingItems::instructionIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::InstructionItem, index); }

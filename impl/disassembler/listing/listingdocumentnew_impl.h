@@ -1,7 +1,7 @@
 #pragma once
 
 #include <redasm/disassembler/listing/listingdocumentnew.h>
-#include <redasm/disassembler/types/symboltable.h>
+#include <redasm/disassembler/listing/backend/symboltable.h>
 #include <unordered_set>
 #include "backend/instructioncache.h"
 #include "listingitem_impl.h"
@@ -26,17 +26,31 @@ class ListingDocumentTypeNewImpl
         const Symbol* entry() const;
 
     public:
-        void insert(address_t address, ListingItemType item, size_t index = 0);
-        void function(address_t address, const String& name, SymbolType type, tag_t tag = 0);
+        const ListingItem& insert(address_t address, ListingItemType itemtype, size_t index = 0);
+        void remove(const ListingItem& item);
+
+    public:
+        void symbol(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
+        void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
+        void block(address_t address, size_t size, SymbolType type, SymbolFlags flags = SymbolFlags::None);
+        void block(const CachedInstruction& instruction);
         void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
+
+    public:
+        const Symbol* symbol(address_t address) const;
+        const Symbol* symbol(const String& name) const;
+        void remove(size_t idx);
+        void remove(address_t address, size_t size, BlockItem* newblock);
+        void removeData(address_t address, size_t size, size_t startidx);
+        void removeCode(address_t address, size_t size, size_t startidx);
 
     private:
         ListingCursor m_cursor;
-        BlockContainer m_blocks;
         ListingItems m_items;
         ListingFunctions m_functions;
         ListingSegments m_segments;
         InstructionCache m_instructions;
+        BlockContainer m_blocks;
         std::unordered_set<address_t> m_separators;
         std::unordered_map<address_t, ListingItemData> m_itemdata;
         SymbolTable m_symbols;

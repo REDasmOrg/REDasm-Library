@@ -49,11 +49,13 @@ class DisassemblerEngine
 
     private:
         void algorithmJob(Job* job);
+        void stringsJob(Job*);
 
     private:
         size_t m_currentstep{DisassemblerEngineSteps::None};
         safe_ptr<Algorithm> m_algorithm;
         JobsPool m_jobs;
+        Job m_job;
 };
 
 } // namespace REDasm

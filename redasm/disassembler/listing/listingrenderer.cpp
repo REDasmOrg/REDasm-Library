@@ -127,7 +127,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
         p->getRendererLine(lock, line, rl);
 
-        if(this->cursor()->isLineSelected(line))
+        if(r_docnew->cursor().isLineSelected(line))
             p->highlightSelection(rl);
         else
             p->highlightWord(rl, word);
@@ -193,7 +193,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
     return String();
 }
 
-String ListingRenderer::getCurrentWord() { PIMPL_P(ListingRenderer); return this->wordFromPosition(p->m_cursor->currentPosition()); }
+String ListingRenderer::getCurrentWord() { return this->wordFromPosition(r_docnew->cursor().currentPosition()); }
 
 size_t ListingRenderer::getLastColumn(size_t line)
 {
@@ -307,7 +307,52 @@ void ListingRenderer::renderInstruction(const document_s_lock_new& lock, const L
 void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl)
 {
     PIMPL_P(ListingRenderer);
+    u64 value = 0;
     const Symbol* symbol = lock->symbol(item.address_new);
+    const Segment* segment = lock->segment(symbol->address);
+
+    if(segment && segment->is(SegmentType::Bss))
+    {
+        p->renderSymbolPrologue(lock, item, symbol, rl);
+
+        if(symbol->is(SymbolType::LabelNew))
+        {
+            rl.push(symbol->name, "label_fg");
+            rl.push(" <").push("dynamic branch", "label_fg").push(">");
+        }
+        else
+            rl.push("??", "data_fg");
+
+        return;
+    }
+
+    switch(symbol->type)
+    {
+        case SymbolType::ImportNew:
+            p->renderSymbolPrologue(lock, item, symbol, rl);
+            rl.push("<").push("import", "label_fg").push(">");
+            break;
+
+        case SymbolType::StringNew:
+            p->renderSymbolPrologue(lock, item, symbol, rl);
+            if(symbol->hasFlag(SymbolFlags::WideString)) rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+            else rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+            break;
+
+        case SymbolType::LabelNew:
+            if(!rl.ignoreflags && this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 2);
+            else this->renderAddressIndent(lock, item, rl);
+            rl.push(symbol->name, "label_fg").push(":");
+            break;
+
+        default:
+            p->renderSymbolPrologue(lock, item, symbol, rl);
+            r_disasm->readAddress(symbol->address, r_asm->addressWidth(), &value); // TODO: Check block size
+            rl.push(String::hex(value, r_asm->bits()), lock->segment(value) ? "pointer_fg" : "data_fg");
+            break;
+    }
+
+    return;
 
     if(symbol->is(SymbolType::Code)) // Label or Callback
     {
@@ -346,11 +391,14 @@ void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const Listin
                     return;
             }
 
-            if(symbol->is(SymbolType::WideStringMask))
-                rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
-            else if(symbol->is(SymbolType::StringMask))
-                rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
-            else if(symbol->is(SymbolType::ImportMask))
+            if(symbol->is(SymbolType::String))
+            {
+                if(symbol->hasFlag(SymbolFlags::WideString))
+                    rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+                else
+                    rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+            }
+            else if(symbol->is(SymbolType::ImportNew))
                 rl.push("<").push("import", "label_fg").push(">");
             else
             {
@@ -359,7 +407,7 @@ void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const Listin
                 rl.push(String::hex(value, r_asm->bits()), lock->segment(value) ? "pointer_fg" : "data_fg");
             }
         }
-        else if(symbol->is(SymbolType::ImportMask))
+        else if(symbol->is(SymbolType::ImportNew))
             rl.push("<").push("import", "label_fg").push(">");
         else
             rl.push("??", "data_fg");
@@ -434,25 +482,16 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
             return;
         }
 
-        if(op->index > 0)
-            rl.push(", ");
+        if(op->index > 0) rl.push(", ");
+        if(!opsize.empty()) rl.push(opsize + " ");
 
-        if(!opsize.empty())
-            rl.push(opsize + " ");
-
-        if(op->isNumeric())
-        {
-            if(op->is(REDasm::OperandType::Memory))
-                rl.push(opstr, "memory_fg");
-            else
-                rl.push(opstr, "immediate_fg");
+        if(op->isNumeric()) {
+            if(op->typeIs(REDasm::OperandType::Memory)) rl.push(opstr, "memory_fg");
+            else rl.push(opstr, "immediate_fg");
         }
-        else if(op->is(REDasm::OperandType::Displacement))
-            rl.push(opstr, "displacement_fg");
-        else if(op->is(REDasm::OperandType::Register))
-            rl.push(opstr, "register_fg");
-        else
-            rl.push(opstr);
+        else if(op->typeIs(REDasm::OperandType::Displacement)) rl.push(opstr, "displacement_fg");
+        else if(op->typeIs(REDasm::OperandType::Register)) rl.push(opstr, "register_fg");
+        else rl.push(opstr);
     });
 }
 
@@ -470,15 +509,12 @@ void ListingRenderer::renderAddressIndent(const document_s_lock_new& lock, const
 {
     const Segment* segment = lock->segment(item.address_new);
     size_t count = r_asm->bits() / 4;
-
-    if(segment)
-        count += segment->name.size();
+    if(segment) count += segment->name.size();
 
     rl.push(String::repeated(' ', count + INDENT_WIDTH));
 }
 
 void ListingRenderer::renderIndent(RendererLine &rl, int n) { rl.push(String::repeated(' ', n * INDENT_WIDTH)); }
 Printer *ListingRenderer::printer() const { PIMPL_P(const ListingRenderer); return p->m_printer.get(); }
-ListingCursor *ListingRenderer::cursor() const { PIMPL_P(const ListingRenderer); return p->m_cursor; }
 
 } // namespace REDasm

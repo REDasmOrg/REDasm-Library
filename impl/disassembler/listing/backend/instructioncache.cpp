@@ -110,6 +110,8 @@ address_location InstructionCache::prevHint(address_t address)
     return REDasm::make_location(it->first);
 }
 
+void InstructionCache::erase(address_t address) { m_cache.erase(address); }
+
 void InstructionCache::deallocate(const CachedInstruction& instruction)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);

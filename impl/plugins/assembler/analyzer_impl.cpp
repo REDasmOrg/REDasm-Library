@@ -9,18 +9,12 @@ namespace REDasm {
 
 bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 {
-    const ListingItem* item = r_doc->instructionItem(symbol->address);
+    ListingItem item = r_docnew->itemInstruction(symbol->address);
+    if(!item.isValid()) return true; // Don't execute trampoline analysis
 
-    if(!item)
-        return true; // Don't execute trampoline analysis
-
-    CachedInstruction instruction = r_doc->instruction(item->address_new);
-
-    if(!instruction)
-        return true; // Don't execute trampoline analysis
-
-    if(!instruction->is(InstructionType::Stop))
-        return false;
+    CachedInstruction instruction = r_doc->instruction(item.address_new);
+    if(!instruction) return true; // Don't execute trampoline analysis
+    if(!instruction->is(InstructionType::Stop)) return false;
 
     r_doc->lock(symbol->address, "nullsub_" + String::hex(symbol->address));
     return true;
@@ -28,26 +22,21 @@ bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
 
 void AnalyzerImpl::findTrampoline(const Symbol *symbol)
 {
-    size_t index = r_doc->instructionIndex(symbol->address);
+    size_t index = r_docnew->itemInstructionIndex(symbol->address);
+    if(index == REDasm::npos) return;
 
-    if(index == REDasm::npos)
-        return;
+    const Symbol* symtrampoline = r_asm->findTrampoline(index);
+    if(!symtrampoline) return;
 
-    const Assembler* assembler = r_disasm->assembler();
-    Symbol* symtrampoline = assembler->findTrampoline(index);
-
-    if(!symtrampoline)
-        return;
-
-    const Symbol* symentry = r_doc->documentEntry();
+    const Symbol* symentry = r_docnew->entry();
 
     if(!symtrampoline->is(SymbolType::Import))
     {
-        r_doc->function(symtrampoline->address);
+        r_docnew->function(symtrampoline->address);
 
         if(!symbol->isLocked())
         {
-            symtrampoline = r_doc->symbol(symtrampoline->address); // Get updated symbol name from cache
+            symtrampoline = r_docnew->symbol(symtrampoline->address); // Get updated symbol name from cache
 
             if(!symtrampoline)
                 return;
@@ -57,7 +46,7 @@ void AnalyzerImpl::findTrampoline(const Symbol *symbol)
         else if(symentry && (symbol->address == symentry->address))
         {
             r_doc->lockFunction(symtrampoline->address, START_FUNCTION);
-            r_doc->setDocumentEntry(symtrampoline->address);
+            r_docnew->entry(symtrampoline->address);
         }
         else
             return;
@@ -67,10 +56,8 @@ void AnalyzerImpl::findTrampoline(const Symbol *symbol)
     else
         return;
 
-    CachedInstruction instruction = r_doc->instruction(symbol->address);
-
-    if(!instruction)
-        return;
+    CachedInstruction instruction = r_docnew->instruction(symbol->address);
+    if(!instruction) return;
 
     r_disasm->pushReference(symtrampoline->address, instruction->address);
 }

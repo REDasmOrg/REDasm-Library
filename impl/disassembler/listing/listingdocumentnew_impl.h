@@ -26,7 +26,7 @@ class ListingDocumentTypeNewImpl
         const Symbol* entry() const;
 
     public:
-        const ListingItem& insert(address_t address, ListingItemType itemtype, size_t index = 0);
+        const ListingItem& insert(address_t address, ListingItemType type, size_t index = 0);
         void remove(const ListingItem& item);
 
     public:

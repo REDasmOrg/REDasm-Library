@@ -32,13 +32,19 @@ void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, S
         default: break;
     }
 
-    if(symbol)  this->remove(address, itemtype);
+    if(symbol) this->remove(address, itemtype);
     if(m_symbols.create(address, name, type, flags, tag)) this->insert(address, itemtype);
 }
 
-const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, ListingItemType itemtype, size_t index)
+const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, ListingItemType type, size_t index)
 {
-    size_t idx = m_items.insert(address, itemtype, index);
+    switch(type)
+    {
+        case ListingItemType::FunctionItem: this->insert(address, ListingItemType::EmptyItem); break;
+        default: break;
+    }
+
+    size_t idx = m_items.insert(address, type, index);
     this->notify(idx, ListingDocumentAction::Inserted);
     return m_items.at(idx);
 }
@@ -98,8 +104,13 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
     {
         case ListingItemType::SymbolItem: m_symbols.erase(item.address_new); break;
         case ListingItemType::InstructionItem: m_instructions.erase(item.address_new); break;
-        case ListingItemType::FunctionItem: m_functions.erase(item.address_new); break;
         case ListingItemType::SegmentItem: m_segments.erase(item.address_new); break;
+
+        case ListingItemType::FunctionItem:
+            m_functions.erase(item.address_new);
+            this->remove(item.address_new, ListingItemType::EmptyItem);
+            break;
+
         default: break;
     }
 

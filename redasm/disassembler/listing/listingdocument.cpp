@@ -291,7 +291,7 @@ void ListingDocumentType::branch(address_t address, s64 direction, tag_t tag)
 void ListingDocumentType::symbol(address_t address, const String &name, SymbolType type, tag_t tag)
 {
     PIMPL_P(ListingDocumentType);
-    Symbol* symbol = p->m_symboltable.symbol(address);
+    Symbol* symbol = p->m_symboltable.get(address);
 
     if(symbol)
     {
@@ -342,7 +342,7 @@ void ListingDocumentType::rename(address_t address, const String &name)
 void ListingDocumentType::lock(address_t address, const String &name)
 {
     PIMPL_P(ListingDocumentType);
-    const Symbol* symbol = p->m_symboltable.symbol(address);
+    const Symbol* symbol = p->m_symboltable.get(address);
 
     if(!symbol)
         this->lock(address, name.empty() ? symbol->name : name, SymbolType::Data);
@@ -430,7 +430,7 @@ void ListingDocumentType::eraseSymbol(address_t address)
 void ListingDocumentType::setDocumentEntry(address_t address)
 {
     PIMPL_P(ListingDocumentType);
-    p->m_documententry = p->m_symboltable.symbol(address);
+    p->m_documententry = p->m_symboltable.get(address);
     p->m_cursor.set(this->functionIndex(address));
 }
 
@@ -525,8 +525,8 @@ ListingItem *ListingDocumentType::prevInstructionItem(ListingItem *item)
     return loc.valid ? this->instructionItem(loc) : nullptr;
 }
 
-Symbol* ListingDocumentType::symbol(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.symbol(address); }
-Symbol* ListingDocumentType::symbol(const String &name) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.symbol(SymbolTable::normalized(name)); }
+Symbol* ListingDocumentType::symbol(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.get(address); }
+Symbol* ListingDocumentType::symbol(const String &name) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.get(SymbolTable::normalized(name)); }
 const SymbolTable *ListingDocumentType::symbols() const { PIMPL_P(const ListingDocumentType); return &p->m_symboltable; }
 
 } // namespace REDasm

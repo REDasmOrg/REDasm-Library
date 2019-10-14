@@ -111,7 +111,7 @@ void ListingDocumentTypeImpl::load(cereal::BinaryInputArchive &a)
     this->loadItems(a);
     m_cursor.load(a);
 
-    m_documententry = m_symboltable.symbol(entry);
+    m_documententry = m_symboltable.get(entry);
 }
 
 void ListingDocumentTypeImpl::saveItems(cereal::BinaryOutputArchive &a) const

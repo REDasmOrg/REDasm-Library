@@ -138,6 +138,7 @@ void ListingDocumentTypeNew::autoComment(address_t address, const String& s)
 
 CachedInstruction ListingDocumentTypeNew::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.allocate(address); }
 bool ListingDocumentTypeNew::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_instructions.contains(address); }
+bool ListingDocumentTypeNew::rename(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); return p->rename(address, name); }
 
 void ListingDocumentTypeNew::moveToEntry()
 {
@@ -152,7 +153,7 @@ void ListingDocumentTypeNew::moveToEntry()
 void ListingDocumentTypeNew::setEntry(address_t address)
 {
     PIMPL_P(ListingDocumentTypeNew);
-    p->m_entry = p->m_symbols.symbol(address);
+    p->m_entry = p->m_symbols.get(address);
     p->m_cursor.set(p->m_items.functionIndex(address));
 }
 

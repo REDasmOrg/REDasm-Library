@@ -32,6 +32,17 @@ void SymbolTableImpl::load(cereal::BinaryInputArchive &a)
     }
 }
 
+bool SymbolTableImpl::rename(address_t address, const String& newname)
+{
+    auto it = m_byaddress.find(address);
+    if(it == m_byaddress.end()) return false;
+
+    m_byname.erase(it->second->name);
+    it->second->name = newname;
+    m_byname[newname] = address;
+    return true;
+}
+
 String SymbolTableImpl::prefix(SymbolType type, SymbolFlags flags)
 {
     switch(type)

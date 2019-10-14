@@ -13,8 +13,8 @@ class AnalyzerImpl
 
     public:
         AnalyzerImpl() = default;
-        bool findNullSubs(const Symbol* symbol);
-        void findTrampoline(const Symbol* symbol);
+        bool findNullSubs(address_t address);
+        void findTrampoline(address_t address);
         void checkFunctions();
         void loadSignatures();
         void analyzeFast();

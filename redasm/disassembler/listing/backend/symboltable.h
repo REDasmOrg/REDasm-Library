@@ -93,13 +93,14 @@ class LIBREDASM_API SymbolTable: public Object
     public:
         SymbolTable();
         size_t size() const;
-        Symbol *symbol(address_t address) const;
-        Symbol *symbol(const String& name) const;
+        Symbol *get(address_t address) const;
+        Symbol *get(const String& name) const;
         void iterate(SymbolType type, const std::function<bool(const Symbol*)> &cb) const;
         bool erase(address_t address);
         void clear();
 
    public:
+        bool rename(address_t address, const String& newname);
         bool create(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag = 0);
         bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
         bool create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag = 0);

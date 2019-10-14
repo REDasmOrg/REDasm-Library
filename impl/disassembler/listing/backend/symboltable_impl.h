@@ -21,6 +21,7 @@ class SymbolTableImpl
         SymbolTableImpl() = default;
         void save(cereal::BinaryOutputArchive &a) const;
         void load(cereal::BinaryInputArchive &a);
+        bool rename(address_t address, const String& newname);
         static String prefix(SymbolType type, SymbolFlags flags);
 
     private:

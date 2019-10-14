@@ -4,6 +4,7 @@
 #include <redasm/disassembler/concurrent/jobspool.h>
 #include <redasm/support/safe_ptr.h>
 #include <redasm/support/event.h>
+#include <chrono>
 
 namespace REDasm {
 
@@ -49,13 +50,15 @@ class DisassemblerEngine
 
     private:
         void algorithmJob(Job* job);
+        void analyzeJob(Job*);
         void stringsJob(Job*);
 
     private:
+        std::chrono::steady_clock::time_point m_starttime;
         size_t m_currentstep{DisassemblerEngineSteps::None};
         safe_ptr<Algorithm> m_algorithm;
+        Job m_stringsjob, m_analyzejob;
         JobsPool m_jobs;
-        Job m_job;
 };
 
 } // namespace REDasm

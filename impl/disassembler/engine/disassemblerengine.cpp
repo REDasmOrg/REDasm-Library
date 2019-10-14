@@ -9,7 +9,8 @@ namespace REDasm {
 DisassemblerEngine::DisassemblerEngine()
 {
     m_algorithm = r_asm->createAlgorithm();
-    m_job.setOneShot(true);
+    m_stringsjob.setOneShot(true);
+    m_analyzejob.setOneShot(true);
 }
 
 size_t DisassemblerEngine::currentStep() const { return m_currentstep; }
@@ -41,17 +42,14 @@ void DisassemblerEngine::stop() { m_jobs.stop(); }
 void DisassemblerEngine::pause() { m_jobs.pause(); }
 void DisassemblerEngine::resume() { m_jobs.resume(); }
 
-void DisassemblerEngine::stringsStep() { m_job.work(std::bind(&DisassemblerEngine::stringsJob, this, std::placeholders::_1)); }
+void DisassemblerEngine::stringsStep() { m_stringsjob.work(std::bind(&DisassemblerEngine::stringsJob, this, std::placeholders::_1)); }
 void DisassemblerEngine::algorithmStep() { m_jobs.work(std::bind(&DisassemblerEngine::algorithmJob, this, std::placeholders::_1)); }
-
-void DisassemblerEngine::analyzeStep()
-{
-
-}
+void DisassemblerEngine::analyzeStep() { m_analyzejob.work(std::bind(&DisassemblerEngine::analyzeJob, this, std::placeholders::_1)); }
 
 void DisassemblerEngine::unexploredStep()
 {
-
+    stepCompleted();
+    this->execute();
 }
 
 void DisassemblerEngine::signatureStep()
@@ -81,8 +79,21 @@ void DisassemblerEngine::algorithmJob(Job *job)
     this->execute();
 }
 
+void DisassemblerEngine::analyzeJob(Job*)
+{
+    m_algorithm->analyze();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
+
+    if(duration.count()) r_ctx->log("Analysis completed in ~" + String::number(duration.count()) + " second(s)");
+    else r_ctx->log("Analysis completed");
+
+    stepCompleted();
+    this->execute();
+}
+
 void DisassemblerEngine::stringsJob(Job*)
 {
+    m_starttime = std::chrono::steady_clock::now();
     auto* segments = r_docnew->segments();
 
     for(size_t i = 0; i < segments->size(); i++)

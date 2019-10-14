@@ -90,6 +90,9 @@ class ListingDocumentTypeNew
         CachedInstruction cacheInstruction(address_t address);
         bool isInstructionCached(address_t address) const;
 
+    public: // Symbols
+        bool rename(address_t address, const String& name);
+
     public:
         void moveToEntry();
         void setEntry(address_t address);

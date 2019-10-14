@@ -281,7 +281,7 @@ void ListingRenderer::renderFunction(const document_s_lock_new& lock, const List
     if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
 
-    this->printer()->function(lock->symbols()->symbol(item.address_new), [&](const String& pre, const String& sym, const String& post) {
+    this->printer()->function(lock->symbols()->get(item.address_new), [&](const String& pre, const String& sym, const String& post) {
         if(!pre.empty()) rl.push(pre, "function_fg");
         rl.push(sym, "function_fg");
         if(!post.empty()) rl.push(post, "function_fg");

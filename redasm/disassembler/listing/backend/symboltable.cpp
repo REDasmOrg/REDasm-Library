@@ -70,7 +70,7 @@ bool SymbolTable::create(address_t address, const String& name, SymbolType type,
 bool SymbolTable::create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { return this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
 bool SymbolTable::create(address_t address, SymbolType type, tag_t tag) { return this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
 
-Symbol* SymbolTable::symbol(const String &name) const
+Symbol* SymbolTable::get(const String &name) const
 {
     PIMPL_P(const SymbolTable);
     auto it = p->m_byname.find(name);
@@ -81,7 +81,7 @@ Symbol* SymbolTable::symbol(const String &name) const
     return nullptr;
 }
 
-Symbol* SymbolTable::symbol(address_t address) const
+Symbol* SymbolTable::get(address_t address) const
 {
     PIMPL_P(const SymbolTable);
     auto it = p->m_byaddress.find(address);
@@ -130,6 +130,7 @@ bool SymbolTable::erase(address_t address)
 }
 
 void SymbolTable::clear() { PIMPL_P(SymbolTable); p->m_byaddress.clear(); p->m_byname.clear(); }
+bool SymbolTable::rename(address_t address, const String& newname) { PIMPL_P(SymbolTable); return p->rename(address, newname); }
 void SymbolTable::save(cereal::BinaryOutputArchive &a) const { PIMPL_P(const SymbolTable); p->save(a); }
 void SymbolTable::load(cereal::BinaryInputArchive &a) { PIMPL_P(SymbolTable); p->load(a); }
 

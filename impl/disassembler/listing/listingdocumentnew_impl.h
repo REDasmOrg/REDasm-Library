@@ -30,16 +30,18 @@ class ListingDocumentTypeNewImpl
         void remove(const ListingItem& item);
 
     public:
+        void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
         void symbol(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void block(address_t address, size_t size, SymbolType type, SymbolFlags flags = SymbolFlags::None);
         void block(const CachedInstruction& instruction);
-        void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
+        bool rename(address_t address, const String& name);
 
     public:
         const Symbol* symbol(address_t address) const;
         const Symbol* symbol(const String& name) const;
-        void remove(size_t idx);
+        void removeAt(size_t idx);
+        void remove(address_t address, ListingItemType type);
         void remove(address_t address, size_t size, BlockItem* newblock);
         void removeData(address_t address, size_t size, size_t startidx);
         void removeCode(address_t address, size_t size, size_t startidx);

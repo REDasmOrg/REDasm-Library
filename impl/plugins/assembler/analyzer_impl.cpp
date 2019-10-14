@@ -7,69 +7,44 @@
 
 namespace REDasm {
 
-bool AnalyzerImpl::findNullSubs(const Symbol *symbol)
+bool AnalyzerImpl::findNullSubs(address_t address)
 {
-    ListingItem item = r_docnew->itemInstruction(symbol->address);
-    if(!item.isValid()) return true; // Don't execute trampoline analysis
-
-    CachedInstruction instruction = r_doc->instruction(item.address_new);
+    CachedInstruction instruction = r_docnew->instruction(address);
     if(!instruction) return true; // Don't execute trampoline analysis
     if(!instruction->is(InstructionType::Stop)) return false;
 
-    r_doc->lock(symbol->address, "nullsub_" + String::hex(symbol->address));
+    r_docnew->function(address, "nullsub_" + String::hex(address));
     return true;
 }
 
-void AnalyzerImpl::findTrampoline(const Symbol *symbol)
+void AnalyzerImpl::findTrampoline(address_t address)
 {
-    size_t index = r_docnew->itemInstructionIndex(symbol->address);
+    size_t index = r_docnew->itemInstructionIndex(address);
     if(index == REDasm::npos) return;
 
     const Symbol* symtrampoline = r_asm->findTrampoline(index);
     if(!symtrampoline) return;
 
     const Symbol* symentry = r_docnew->entry();
+    if(symentry->address == address) return;
 
-    if(!symtrampoline->is(SymbolType::Import))
-    {
-        r_docnew->function(symtrampoline->address);
-
-        if(!symbol->isLocked())
-        {
-            symtrampoline = r_docnew->symbol(symtrampoline->address); // Get updated symbol name from cache
-
-            if(!symtrampoline)
-                return;
-
-            r_doc->rename(symbol->address, Utils::trampoline(symtrampoline->name, "jmp_to"));
-        }
-        else if(symentry && (symbol->address == symentry->address))
-        {
-            r_doc->lockFunction(symtrampoline->address, START_FUNCTION);
-            r_docnew->entry(symtrampoline->address);
-        }
-        else
-            return;
-    }
-    else if(symentry && (symbol->address != symentry->address))
-        r_doc->lock(symbol->address, Utils::trampoline(symtrampoline->name));
+    if(symtrampoline->is(SymbolType::ImportNew))
+        r_docnew->rename(address, Utils::trampoline(symtrampoline->name));
     else
-        return;
+        r_docnew->rename(address, Utils::trampoline(symtrampoline->name, "jmp_to"));
 
-    CachedInstruction instruction = r_docnew->instruction(symbol->address);
-    if(!instruction) return;
-
-    r_disasm->pushReference(symtrampoline->address, instruction->address);
+    r_disasm->pushReference(symtrampoline->address, address);
 }
 
 void AnalyzerImpl::checkFunctions()
 {
-    r_disasm->document()->symbols()->iterate(SymbolType::FunctionMask, [this](const Symbol* symbol) -> bool {
-        if(!this->findNullSubs(symbol))
-            this->findTrampoline(symbol);
+    const auto* functions = r_docnew->functions();
 
-        return true;
-    });
+    for(size_t i = 0; i < functions->size(); i++)
+    {
+        if(this->findNullSubs(functions->at(i))) continue;
+        this->findTrampoline(functions->at(i));
+    }
 }
 
 void AnalyzerImpl::loadSignatures()

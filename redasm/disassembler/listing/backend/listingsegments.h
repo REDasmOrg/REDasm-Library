@@ -17,6 +17,7 @@ class LIBREDASM_API ListingSegments
         ListingSegments();
         bool empty() const;
         size_t size() const;
+        size_t indexOf(address_t address) const;
         Segment* at(size_t idx);
         Segment* find(const String& name);
         Segment* find(address_t address);

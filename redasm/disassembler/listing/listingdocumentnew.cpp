@@ -1,6 +1,10 @@
 #include "listingdocumentnew.h"
 #include <impl/disassembler/listing/listingdocumentnew_impl.h>
+#include <impl/support/utils_impl.h>
+#include <redasm/plugins/assembler/assembler.h>
 #include <redasm/context.h>
+
+#define COMMENT_SEPARATOR " | "
 
 namespace REDasm {
 
@@ -54,16 +58,36 @@ void ListingDocumentTypeNew::segment(const String &name, offset_t offset, addres
         r_ctx->log("Segment insertion failed @ " + name.hex());
 }
 
+void ListingDocumentTypeNew::type(address_t address, const String& s)
+{
+    PIMPL_P(ListingDocumentTypeNew);
+    p->m_itemdata[address].type = s;
+
+    this->empty(address);
+    p->insert(address, ListingItemType::TypeItem);
+}
+
+void ListingDocumentTypeNew::table(address_t address, size_t count, tag_t tag)
+{
+    this->tableItem(address, address, 0, tag);
+}
+
+void ListingDocumentTypeNew::tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag)
+{
+    PIMPL_P(ListingDocumentTypeNew);
+
+    p->block(address, r_asm->addressWidth(),
+             SymbolTable::name(startaddress, SymbolType::Data, SymbolFlags::TableItem) + "_" + String::number(idx),
+             SymbolType::Data, SymbolFlags::TableItem);
+}
+
 void ListingDocumentTypeNew::function(address_t address, const String &name, tag_t tag) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, name, SymbolType::FunctionNew, SymbolFlags::None, tag); }
 void ListingDocumentTypeNew::function(address_t address, tag_t tag) { this->function(address, SymbolTable::name(address, SymbolType::FunctionNew), tag); }
 
 void ListingDocumentTypeNew::pointer(address_t address, SymbolType type, tag_t tag)
 {
     PIMPL_P(ListingDocumentTypeNew);
-    type |= SymbolType::Pointer;
-
-    if(p->m_symbols.create(address, type, tag))
-        p->insert(address, ListingItemType::SymbolItem);
+    p->block(address, r_asm->addressWidth(), type, SymbolFlags::Pointer);
 }
 
 void ListingDocumentTypeNew::branch(address_t address, s64 direction, tag_t tag)
@@ -120,6 +144,29 @@ const Segment* ListingDocumentTypeNew::segment(address_t address) const { PIMPL_
 const Symbol* ListingDocumentTypeNew::symbol(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->symbol(address); }
 const Symbol* ListingDocumentTypeNew::symbol(const String& name) const { PIMPL_P(const ListingDocumentTypeNew); return p->symbol(name); }
 const BlockItem* ListingDocumentTypeNew::block(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_blocks.find(address); }
+
+String ListingDocumentTypeNew::type(address_t address) const
+{
+    PIMPL_P(const ListingDocumentTypeNew);
+    auto it = p->m_itemdata.find(address);
+    return it != p->m_itemdata.end() ? it->second.type : String();
+}
+
+String ListingDocumentTypeNew::comment(address_t address, bool skipauto) const
+{
+    PIMPL_P(const ListingDocumentTypeNew);
+    auto it = p->m_itemdata.find(address);
+    if(it == p->m_itemdata.end()) return String();
+
+    String cmt;
+    ListingCommentSet comments = it->second.comments;
+
+    if(!skipauto)
+        comments.insert(it->second.autocomments.begin(), it->second.autocomments.end());
+
+    return UtilsImpl::join(comments, COMMENT_SEPARATOR);
+}
+
 size_t ListingDocumentTypeNew::itemIndex(address_t address) { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.itemIndex(address); }
 size_t ListingDocumentTypeNew::itemSegmentIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.segmentIndex(address, index); }
 size_t ListingDocumentTypeNew::itemFunctionIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.functionIndex(address, index); }
@@ -136,6 +183,20 @@ void ListingDocumentTypeNew::autoComment(address_t address, const String& s)
     PIMPL_P(ListingDocumentTypeNew);
 
     auto it = p->m_itemdata[address].autocomments.insert(s);
+    if(!it.second) return;
+
+    size_t idx = this->itemInstructionIndex(address);
+    if(idx == REDasm::npos) return;
+
+    p->notify(idx);
+}
+
+void ListingDocumentTypeNew::comment(address_t address, const String& s)
+{
+    if(s.empty()) return;
+    PIMPL_P(ListingDocumentTypeNew);
+
+    auto it = p->m_itemdata[address].comments.insert(s);
     if(!it.second) return;
 
     size_t idx = this->itemInstructionIndex(address);

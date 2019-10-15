@@ -60,9 +60,20 @@ void ListingDocumentTypeNewImpl::notify(size_t idx, ListingDocumentAction action
     q->changed(e);
 }
 
-void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags)
+void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags) { this->block(address, size, String(), type, flags); }
+
+void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
 {
-    if(!m_symbols.create(address, type, flags)) return;
+    if(name.empty())
+    {
+        if(!m_symbols.create(address, type, flags))
+            return;
+    }
+    else
+    {
+        if(!m_symbols.create(address, name, type, flags))
+            return;
+    }
 
     BlockItem* b = m_blocks.dataSize(address, size);
     this->remove(address, size, b);

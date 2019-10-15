@@ -497,12 +497,10 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
 
 void ListingRenderer::renderComments(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl)
 {
-    //FIXME: String s = lock->comment(item);
+    String s = lock->comment(item.address_new);
+    if(s.empty()) return;
 
-    //FIXME: if(s.empty())
-    //FIXME:     return;
-
-    //FIXME: rl.push("   # " + ListingRendererImpl::escapeString(s), "comment_fg");
+    rl.push("   # " + ListingRendererImpl::escapeString(s), "comment_fg");
 }
 
 void ListingRenderer::renderAddressIndent(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl)

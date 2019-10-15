@@ -151,6 +151,12 @@ void Algorithm::branchMemoryState(const State *state)
 
 void Algorithm::addressTableState(const State *state)
 {
+    if(state->address == 0x402068)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     CachedInstruction instruction = state->instruction;
     size_t c = r_disasm->checkAddressTable(instruction, state->address);
     if(c == REDasm::npos) return;
@@ -184,6 +190,12 @@ void Algorithm::addressTableState(const State *state)
 
 void Algorithm::memoryState(const State *state)
 {
+    if(state->address == 0x402068)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     u64 value = 0;
 
     if(!r_disasm->dereference(state->address, &value))
@@ -211,18 +223,19 @@ void Algorithm::pointerState(const State *state)
         return;
     }
 
-    r_docnew->symbol(state->address);
+    r_docnew->pointer(state->address);
     r_disasm->checkLocation(state->address, value); // Create Symbol + XRefs
 
     const Symbol* symbol = r_docnew->symbol(value);
+    if(!symbol) return;
 
-    if(!symbol)
-        return;
-
-    if(symbol->is(SymbolType::String))
-        r_docnew->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
-    else if(symbol->is(SymbolType::WideString))
-        r_docnew->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+    if(symbol->typeIs(SymbolType::StringNew))
+    {
+        if(symbol->hasFlag(SymbolFlags::WideString))
+            r_docnew->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+        else
+            r_docnew->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
+    }
     else if(symbol->isImport())
         r_docnew->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
     else if(symbol->isExport())

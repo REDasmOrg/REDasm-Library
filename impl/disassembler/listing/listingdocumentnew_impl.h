@@ -34,6 +34,7 @@ class ListingDocumentTypeNewImpl
         void symbol(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void block(address_t address, size_t size, SymbolType type, SymbolFlags flags = SymbolFlags::None);
+        void block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None);
         void block(const CachedInstruction& instruction);
         bool rename(address_t address, const String& name);
 

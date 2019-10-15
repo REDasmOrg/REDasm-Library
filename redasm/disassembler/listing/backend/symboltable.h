@@ -35,18 +35,20 @@ enum class SymbolType: size_t {
     DataNew     = 0x10000000,
     StringNew   = 0x10000001,
     LabelNew    = 0x10000002,
-    FunctionNew = 0x10000003,
-    ImportNew   = 0x10000004,
+    FunctionNew = 0x10000004,
+    ImportNew   = 0x10000005,
 };
 
 enum class SymbolFlags: size_t
 {
-    None        = 0,
-    Weak        = (1 << 0),
-    Export      = (1 << 1),
-    EntryPoint  = (1 << 2),
-    AsciiString = (1 << 3),
-    WideString  = (1 << 4),
+    None         = 0,
+    Weak         = (1 << 0),
+    Export       = (1 << 1),
+    EntryPoint   = (1 << 2),
+    AsciiString  = (1 << 3),
+    WideString   = (1 << 4),
+    Pointer      = (1 << 5),
+    TableItem    = (1 << 6),
 };
 
 ENUM_FLAGS_OPERATORS(SymbolType)
@@ -68,6 +70,7 @@ class Symbol: public Object
         bool isExport() const;
         bool isEntryPoint() const;
         bool isLocked() const;
+        bool isPointer() const;
         bool isData() const;
         bool isCode() const;
         bool isWeak() const;

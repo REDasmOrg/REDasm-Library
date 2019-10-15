@@ -36,6 +36,9 @@ class ListingDocumentTypeNew
         bool separator(address_t address);
         void segment(const String& name, offset_t offset, address_t address, u64 size, SegmentType type);
         void segment(const String& name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type);
+        void type(address_t address, const String& s);
+        void table(address_t address, size_t count, tag_t tag = 0);
+        void tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag = 0);
         void function(address_t address, const String& name, tag_t tag = 0);
         void function(address_t address, tag_t tag = 0);
         void pointer(address_t address, SymbolType type = SymbolType::Data, tag_t tag = 0);
@@ -71,6 +74,8 @@ class ListingDocumentTypeNew
         const Symbol* symbol(address_t address) const;
         const Symbol* symbol(const String& name) const;
         const BlockItem* block(address_t address) const;
+        String type(address_t address) const;
+        String comment(address_t address, bool skipauto = false) const;
 
     public: // Items
         size_t itemIndex(address_t address);
@@ -85,6 +90,7 @@ class ListingDocumentTypeNew
 
     public: // Item Data
         void autoComment(address_t address, const String& s);
+        void comment(address_t address, const String& s);
 
     public: // Instructions
         CachedInstruction cacheInstruction(address_t address);

@@ -14,11 +14,23 @@ void Symbol::lock() { type |= SymbolType::Locked; }
 bool Symbol::is(SymbolType t) const { return type == t; }
 bool Symbol::typeIs(SymbolType t) const { return type == t; }
 bool Symbol::hasFlag(SymbolFlags flag) const { return flags & flag; }
-bool Symbol::isFunction() const { return type & SymbolType::FunctionMask; }
-bool Symbol::isImport() const { return type & SymbolType::ImportMask; }
-bool Symbol::isExport() const { return type & SymbolType::ExportMask; }
-bool Symbol::isEntryPoint() const { return type & SymbolType::EntryPointMask; }
+bool Symbol::isFunction() const { return type == SymbolType::FunctionNew; }
+bool Symbol::isImport() const { return type == SymbolType::ImportNew; }
 bool Symbol::isLocked() const { return type & SymbolType::Locked; }
+bool Symbol::isEntryPoint() const { return this->hasFlag(SymbolFlags::EntryPoint); }
+bool Symbol::isPointer() const { return this->hasFlag(SymbolFlags::Pointer); }
+
+bool Symbol::isExport() const
+{
+    switch(this->type)
+    {
+        case SymbolType::ExportData:
+        case SymbolType::ExportFunction: return true;
+        default: break;
+    }
+
+    return false;
+}
 
 bool Symbol::isData() const
 {

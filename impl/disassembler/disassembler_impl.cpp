@@ -138,22 +138,20 @@ size_t DisassemblerImpl::getReferencesCount(address_t address) const { return m_
 
 size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction, address_t startaddress)
 {
-    Symbol* symbol = this->document()->symbol(startaddress);
-
-    if(symbol && symbol->is(SymbolType::TableItemMask))
-        return REDasm::npos;
+    const Symbol* symbol = r_docnew->symbol(startaddress);
+    if(symbol && symbol->hasFlag(SymbolFlags::TableItem)) return REDasm::npos;
 
     address_t target = 0, address = startaddress;
 
-    if(!this->readAddress(address, m_assembler->addressWidth(), &target))
+    if(!this->readAddress(address, r_asm->addressWidth(), &target))
         return 0;
 
     r_ctx->statusAddress("Checking address table", startaddress);
     std::unordered_set<address_t> targets;
 
-    while(this->readAddress(address, m_assembler->addressWidth(), &target))
+    while(this->readAddress(address, r_asm->addressWidth(), &target))
     {
-        const Segment* segment = this->documentNew()->segment(target);
+        const Segment* segment = r_docnew->segment(target);
 
         if(!segment || !segment->is(SegmentType::Code))
             break;
@@ -177,18 +175,15 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
             for(auto it = targets.begin(); it != targets.end(); it++, address += m_assembler->addressWidth(), i++)
             {
-                if(address == startaddress)
-                    this->document()->table(address, targets.size());
-                else
-                    this->document()->tableItem(address, startaddress, i);
-
+                if(address == startaddress) r_docnew->table(address, targets.size());
+                else r_docnew->tableItem(address, startaddress, i);
                 this->pushReference(address, instruction->address);
             }
         }
         else
         {
             this->pushReference(startaddress, instruction->address);
-            this->documentNew()->pointer(startaddress, SymbolType::Data);
+            r_docnew->pointer(startaddress, SymbolType::Data);
         }
     }
 
@@ -362,37 +357,27 @@ bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
 
 bool DisassemblerImpl::readAddress(address_t address, size_t size, u64 *value) const
 {
-    if(!value)
-        return false;
+    if(!value) return false;
 
-    const Segment* segment = this->documentNew()->segment(address);
-
-    if(!segment || segment->is(SegmentType::Bss))
-        return false;
+    const Segment* segment = r_docnew->segment(address);
+    if(!segment || segment->is(SegmentType::Bss)) return false;
 
     offset_location offset = m_loader->offset(address);
-
-    if(!offset.valid)
-        return false;
+    if(!offset.valid) return false;
 
     return this->readOffset(offset, size, value);
 }
 
 bool DisassemblerImpl::readOffset(offset_t offset, size_t size, u64 *value) const
 {
-    if(!value)
-        return false;
+    if(!value) return false;
 
-    BufferView viewdest = m_loader->viewOffset(offset);
+    BufferView viewdest = r_ldr->viewOffset(offset);
 
-    if(size == 1)
-        *value = static_cast<u8>(viewdest);
-    else if(size == 2)
-        *value = static_cast<u16>(viewdest);
-    else if(size == 4)
-        *value = static_cast<u32>(viewdest);
-    else if(size == 8)
-        *value = static_cast<u64>(viewdest);
+    if(size == 1) *value = static_cast<u8>(viewdest);
+    else if(size == 2) *value = static_cast<u16>(viewdest);
+    else if(size == 4) *value = static_cast<u32>(viewdest);
+    else if(size == 8) *value = static_cast<u64>(viewdest);
     else
     {
         r_ctx->problem("Invalid size: " + String::number(size));
@@ -427,9 +412,20 @@ void DisassemblerImpl::pushReference(address_t address, address_t refby) { m_ref
 void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 {
     Segment* segment = r_docnew->segment(address);
-    if(!segment) return; // || this->checkString(fromaddress, address)) return;
+    if(!segment) return;
 
-    r_docnew->data(address, r_asm->addressWidth());
+    const Symbol* symbol = r_docnew->symbol(address);
+
+    if(symbol && symbol->is(SymbolType::StringNew))
+    {
+        if(symbol->hasFlag(SymbolFlags::WideString))
+            r_docnew->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
+        else
+            r_docnew->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
+    }
+    else
+        r_docnew->data(address, r_asm->addressWidth());
+
     this->pushReference(address, fromaddress);
 }
 

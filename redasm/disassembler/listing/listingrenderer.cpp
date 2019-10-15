@@ -141,7 +141,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
 const Symbol *ListingRenderer::symbolUnderCursor()
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_doc);
+    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
     return lock->symbol(this->getCurrentWord());
 }
 
@@ -159,7 +159,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
 
         String word = rl.formatText(rf);
 
-        if(r_doc->symbol(word))
+        if(r_docnew->symbol(word))
         {
             if(wordpos)
                 *wordpos = std::make_pair(rf.start, rf.end);

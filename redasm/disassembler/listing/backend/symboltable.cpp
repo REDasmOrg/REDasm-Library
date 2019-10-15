@@ -44,6 +44,7 @@ bool Symbol::isCode() const
     return false;
 }
 
+bool Symbol::isWeak() const { return this->hasFlag(SymbolFlags::Weak); }
 void Symbol::save(cereal::BinaryOutputArchive &a) const { a(type, tag, address, name); }
 void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, name); }
 

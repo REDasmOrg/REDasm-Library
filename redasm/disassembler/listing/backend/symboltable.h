@@ -42,10 +42,11 @@ enum class SymbolType: size_t {
 enum class SymbolFlags: size_t
 {
     None        = 0,
-    Export      = (1 << 0),
-    EntryPoint  = (1 << 1),
-    AsciiString = (1 << 2),
-    WideString  = (1 << 3),
+    Weak        = (1 << 0),
+    Export      = (1 << 1),
+    EntryPoint  = (1 << 2),
+    AsciiString = (1 << 3),
+    WideString  = (1 << 4),
 };
 
 ENUM_FLAGS_OPERATORS(SymbolType)
@@ -69,6 +70,7 @@ class Symbol: public Object
         bool isLocked() const;
         bool isData() const;
         bool isCode() const;
+        bool isWeak() const;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

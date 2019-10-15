@@ -106,6 +106,14 @@ ListingItem& ListingDocumentTypeNew::itemAt(size_t idx) { PIMPL_P(ListingDocumen
 const ListingItem& ListingDocumentTypeNew::itemAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.at(idx); }
 Segment* ListingDocumentTypeNew::segment(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_segments.find(address); }
 const Segment* ListingDocumentTypeNew::segmentAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_segments.at(idx); }
+
+ListingItem ListingDocumentTypeNew::currentItem() const
+{
+    PIMPL_P(const ListingDocumentTypeNew);
+    if(p->m_cursor.currentLine() >= p->m_items.size()) return ListingItem();
+    return p->m_items.at(p->m_cursor.currentLine());
+}
+
 CachedInstruction ListingDocumentTypeNew::instruction(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.find(address); }
 address_location ListingDocumentTypeNew::function(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_functions.functionFromAddress(address); }
 const Segment* ListingDocumentTypeNew::segment(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_segments.find(address); }

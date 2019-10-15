@@ -151,12 +151,6 @@ void Algorithm::branchMemoryState(const State *state)
 
 void Algorithm::addressTableState(const State *state)
 {
-    if(state->address == 0x402068)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     CachedInstruction instruction = state->instruction;
     size_t c = r_disasm->checkAddressTable(instruction, state->address);
     if(c == REDasm::npos) return;
@@ -190,12 +184,6 @@ void Algorithm::addressTableState(const State *state)
 
 void Algorithm::memoryState(const State *state)
 {
-    if(state->address == 0x402068)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     u64 value = 0;
 
     if(!r_disasm->dereference(state->address, &value))

@@ -8,6 +8,7 @@
 namespace REDasm {
 
 template<typename T> struct bits_count { static constexpr size_t value = sizeof(T) * CHAR_BIT; };
+template<size_t bits> struct bytes_count { static constexpr size_t value = bits / CHAR_BIT; };
 
 class Utils
 {

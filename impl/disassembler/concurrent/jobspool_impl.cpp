@@ -9,7 +9,7 @@ JobsPoolImpl::JobsPoolImpl(JobsPool *q): m_pimpl_q(q), m_running(true)
 {
     m_concurrency = std::thread::hardware_concurrency();
 
-    if(!m_concurrency || r_ctx->sync())
+    if(!m_concurrency || r_ctx->sync() || r_ctx->hasFlag(ContextFlags::StepDisassembly))
         m_concurrency = 1;
 
     for(size_t i = 0; i < m_concurrency; i++)
@@ -22,11 +22,7 @@ JobsPoolImpl::JobsPoolImpl(JobsPool *q): m_pimpl_q(q), m_running(true)
 }
 
 JobsPoolImpl::~JobsPoolImpl() { m_running = false; }
-
-size_t JobsPoolImpl::concurrency() const
-{
-    return m_jobs.size();
-}
+size_t JobsPoolImpl::concurrency() const { return m_jobs.size(); }
 
 size_t JobsPoolImpl::activeCount() const
 {
@@ -47,13 +43,9 @@ JobState JobsPoolImpl::state() const
 
     for(auto& job : m_jobs)
     {
-        if(job->state() == JobState::InactiveState)
-            continue;
-
+        if(job->state() == JobState::InactiveState) continue;
         s = job->state();
-
-        if(job->state() != JobState::ActiveState)
-            break;
+        if(job->state() != JobState::ActiveState) break;
     }
 
     return s;

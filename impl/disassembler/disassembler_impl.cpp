@@ -332,6 +332,7 @@ bool DisassemblerImpl::loadSignature(const String &signame)
 }
 
 bool DisassemblerImpl::busy() const { return m_engine ? m_engine->busy() : false; }
+bool DisassemblerImpl::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 
 bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
 {
@@ -458,7 +459,9 @@ void DisassemblerImpl::disassemble()
     for(size_t i = 0; i < functions->size(); i++)
         m_engine->enqueue(functions->at(i));
 
-    r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");
+    if(r_ctx->hasFlag(ContextFlags::StepDisassembly)) r_ctx->log("Stepped disassembly, press F8");
+    else if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
+    else r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");
 
     m_engine->stepCompleted.connect(this, [&](EventArgs*) { PIMPL_Q(Disassembler); q->busyChanged(); });
     m_engine->execute();
@@ -467,18 +470,6 @@ void DisassemblerImpl::disassemble()
 void DisassemblerImpl::stop() { if(m_engine) m_engine->stop(); }
 void DisassemblerImpl::pause() { if(m_engine) m_engine->pause(); }
 void DisassemblerImpl::resume() { if(m_engine) m_engine->resume(); }
-
-void DisassemblerImpl::analyzeStep()
-{
-    return;
-    //m_algorithm->analyze();
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
-
-    if(duration.count())
-        r_ctx->log("Analysis completed in ~" + String::number(duration.count()) + " second(s)");
-    else
-        r_ctx->log("Analysis completed");
-}
 
 void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, address_t address)
 {

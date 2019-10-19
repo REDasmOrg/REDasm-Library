@@ -33,6 +33,10 @@
 #  define LIBREDASM_DEPRECATED_NO_API LIBREDASM_NO_API LIBREDASM_DEPRECATED
 #endif
 
+#define EF_OP_IMPL_UNARY(Enum, op, ret) constexpr ret operator op(Enum lhs) { \
+                                      return static_cast<ret>(op static_cast<std::underlying_type<Enum>::type>(lhs)); \
+                                  }
+
 #define EF_OP_IMPL(Enum, op, ret) constexpr ret operator op(Enum lhs, Enum rhs) { \
                                       return static_cast<ret>(static_cast<std::underlying_type<Enum>::type>(lhs) op \
                                                               static_cast<std::underlying_type<Enum>::type>(rhs)); \
@@ -45,8 +49,11 @@
                                     }
 
 #define ENUM_FLAGS_OPERATORS(Enum) EF_OP_IMPL(Enum, |, Enum)  \
-                                   EF_OP_IMPL(Enum, &, bool)  \
-                                   EF_OP_ASSIGN_IMPL(Enum, |)
+                                   EF_OP_IMPL(Enum, &, size_t)  \
+                                   EF_OP_ASSIGN_IMPL(Enum, |) \
+                                   EF_OP_ASSIGN_IMPL(Enum, &) \
+                                   EF_OP_IMPL_UNARY(Enum, ~, Enum)
+
 
 #define STRINGIFY(x)        #x
 #define DO_UNPAREN(...)     __VA_ARGS__

@@ -312,8 +312,10 @@ void ListingDocumentType::symbol(address_t address, const String &name, SymbolTy
         p->m_symboltable.erase(address);
     }
 
-    if(!this->segment(address) || !p->m_symboltable.create(address, SymbolTable::normalized(name), type, tag))
+    if(!this->segment(address))
         return;
+
+    p->m_symboltable.create(address, SymbolTable::normalized(name), type, tag);
 
     if(type & SymbolType::FunctionMask)
     {

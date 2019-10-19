@@ -33,10 +33,8 @@ void JobImpl::start()
 
     m_state = JobState::ActiveState;
 
-    if(r_ctx->sync())
-        this->doWorkSync();
-    else
-        m_cv.notify_one();
+    if(r_ctx->sync()) this->doWorkSync();
+    else m_cv.notify_one();
 }
 
 void JobImpl::stop()
@@ -61,11 +59,11 @@ void JobImpl::pause()
 
 void JobImpl::resume()
 {
-    if(!this->active() || (m_state != JobState::PausedState))
-        return;
+    if(m_state != JobState::PausedState) return;
 
     PIMPL_Q(Job);
     m_state = JobState::ActiveState;
+    m_cv.notify_all();
     q->stateChanged(q);
 }
 
@@ -73,8 +71,7 @@ void JobImpl::setOneShot(bool b) { m_oneshot = b; }
 
 void JobImpl::work(const Job::JobCallback &cb, bool deferred)
 {
-    if(this->active())
-        return;
+    if(this->active()) return;
 
     m_state = deferred ? JobState::SleepState : JobState::ActiveState;
     m_jobcallback = cb;
@@ -108,11 +105,8 @@ void JobImpl::doWork()
 
     for( ; ; )
     {
-        while((m_state == JobState::SleepState) || (m_state == JobState::PausedState))
-            m_cv.wait(lock);
-
-        if(m_state == JobState::InactiveState)
-            return;
+        while((m_state == JobState::SleepState) || (m_state == JobState::PausedState)) m_cv.wait(lock);
+        if(m_state == JobState::InactiveState) return;
 
         if(m_state == JobState::ActiveState)
         {
@@ -123,6 +117,12 @@ void JobImpl::doWork()
             {
                 this->sleep();
                 return;
+            }
+
+            if(r_ctx->hasFlag(ContextFlags::StepDisassembly))
+            {
+                this->pause();
+                continue;
             }
 
             auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start);

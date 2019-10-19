@@ -1,8 +1,10 @@
 #include "blockcontainer_impl.h"
 #include <cassert>
+#include <algorithm>
 
 namespace REDasm {
 
+BlockContainerImpl::BlockContainerImpl(BlockContainer* q): m_pimpl_q(q) { }
 void BlockContainerImpl::unexplored(const BlockItem* blockitem) { this->unexplored(blockitem->start, blockitem->end); }
 
 BlockItem* BlockContainerImpl::unexplored(address_t start)
@@ -17,9 +19,9 @@ BlockItem *BlockContainerImpl::code(address_t start, address_t end, BlockItemFla
 BlockItem *BlockContainerImpl::unexploredSize(address_t start, size_t size) { return this->markSize(start, size, BlockItemType::Unexplored, BlockItemFlags::None); }
 BlockItem *BlockContainerImpl::dataSize(address_t start, size_t size, BlockItemFlags flags) { return this->markSize(start, size, BlockItemType::Data, flags); }
 BlockItem *BlockContainerImpl::codeSize(address_t start, size_t size, BlockItemFlags flags) { return this->markSize(start, size, BlockItemType::Code, flags); }
-const BlockItem *BlockContainerImpl::at(size_t idx) const { return &(m_blocks.at(idx)); }
-const BlockItem *BlockContainerImpl::find(address_t address) const { auto it = this->findOverlap(address); return (it != m_blocks.end()) ? &(*it) : nullptr; }
-BlockItem* BlockContainerImpl::at(size_t idx) { return &(m_blocks.at(idx)); }
+const BlockItem *BlockContainerImpl::at(size_t idx) const { return std::addressof(m_blocks.at(idx)); }
+const BlockItem *BlockContainerImpl::find(address_t address) const { auto it = const_cast<BlockContainerImpl*>(this)->findOverlap(address); return (it != m_blocks.end()) ? std::addressof(*it) : nullptr; }
+BlockItem* BlockContainerImpl::at(size_t idx) { return std::addressof(m_blocks.at(idx)); }
 BlockItem* BlockContainerImpl::mark(address_t start, address_t end, BlockItemType type, BlockItemFlags flags) { assert(end >= start); return this->insert(start, end, type, flags); }
 BlockItem* BlockContainerImpl::markSize(address_t start, size_t size, BlockItemType type, BlockItemFlags flags) { return this->mark(start, start + size - 1, type, flags); }
 bool BlockContainerImpl::empty() const { return m_blocks.empty(); }
@@ -49,19 +51,19 @@ void BlockContainerImpl::remove(address_t start, address_t end)
 
     auto it = m_blocks.end();
 
-    if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = m_blocks.erase(begit, endit + 1);
-    else if(begit != m_blocks.end()) it = m_blocks.erase(begit);
-    else if(endit != m_blocks.end()) it = m_blocks.erase(endit);
+    if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = this->eraseRange(begit, endit + 1);
+    else if(begit != m_blocks.end()) it = this->eraseBlock(begit);
+    else if(endit != m_blocks.end()) it = this->eraseBlock(endit);
     else assert(false);
 
     if(!begbl.empty())
     {
-        it = m_blocks.insert(it, begbl);
+        it = this->insertBlock(it, begbl);
         it++;
     }
 
     if(!endbl.empty())
-        m_blocks.insert(it, endbl);
+        this->insertBlock(it, endbl);
 }
 
 BlockItem* BlockContainerImpl::insert(address_t start, address_t end, BlockItemType type, BlockItemFlags flags)
@@ -69,27 +71,20 @@ BlockItem* BlockContainerImpl::insert(address_t start, address_t end, BlockItemT
     this->remove(start, end);
     auto it = this->insertionPoint(start);
 
-    if((it != m_blocks.end()) && (type == BlockItemType::Unexplored) && it->typeIs(type))
-    {
-        if(start < it->start) it->start = start;
-        if(end > it->end) it->end = end;
-        return &(*it);
-    }
-
     BlockItem bi;
     bi.start = start;
     bi.end = end;
     bi.type = type;
     bi.flags = flags;
 
-    it = m_blocks.insert(it, bi);
-    return &(*it);
+    it = this->insertBlock(it, bi);
+    return std::addressof(*it);
 }
 
-BlockContainerImpl::Container::const_iterator BlockContainerImpl::findOverlap(address_t address) const
+BlockContainerImpl::Container::iterator BlockContainerImpl::findOverlap(address_t address)
 {
-    Container::const_iterator first = m_blocks.begin(), it;
-    Container::const_iterator::difference_type count = std::distance(first, m_blocks.end()), step;
+    Container::iterator first = m_blocks.begin(), it;
+    Container::iterator::difference_type count = std::distance(first, m_blocks.end()), step;
 
     while(count > 0)
     {
@@ -134,5 +129,36 @@ BlockContainerImpl::Container::iterator BlockContainerImpl::insertionPoint(addre
 
     return first;
 }
+
+template<typename Iterator> Iterator BlockContainerImpl::eraseRange(Iterator startit, Iterator endit)
+{
+    PIMPL_Q(BlockContainer);
+
+    return m_blocks.erase(std::remove_if(startit, endit, [&](BlockItem& bi) -> bool {
+       q->erased(&bi);
+       return true;
+    }));
+}
+
+template<typename Iterator> Iterator BlockContainerImpl::eraseBlock(Iterator it)
+{
+    PIMPL_Q(BlockContainer);
+    BlockItem bi = *it;
+    it = m_blocks.erase(it);
+    q->erased(&bi);
+    return it;
+}
+
+template<typename Iterator> Iterator BlockContainerImpl::insertBlock(Iterator it, const BlockItem& bi)
+{
+    PIMPL_Q(BlockContainer);
+    auto resit = m_blocks.insert(it, bi);
+    q->inserted(std::addressof(*resit));
+    return resit;
+}
+
+template BlockContainerImpl::Container::iterator BlockContainerImpl::eraseRange<BlockContainerImpl::Container::iterator>(BlockContainerImpl::Container::iterator, BlockContainerImpl::Container::iterator);
+template BlockContainerImpl::Container::iterator BlockContainerImpl::eraseBlock(BlockContainerImpl::Container::iterator);
+template BlockContainerImpl::Container::iterator BlockContainerImpl::insertBlock(BlockContainerImpl::Container::iterator, const BlockItem&);
 
 } // namespace REDasm

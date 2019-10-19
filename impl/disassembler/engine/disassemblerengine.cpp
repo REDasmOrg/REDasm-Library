@@ -37,6 +37,22 @@ void DisassemblerEngine::execute(size_t step)
 
 void DisassemblerEngine::enqueue(address_t address) { m_algorithm->enqueue(address); }
 JobState DisassemblerEngine::state() const { return m_jobs.state(); }
+
+bool DisassemblerEngine::needsWeak() const
+{
+    switch(m_currentstep)
+    {
+        case DisassemblerEngineSteps::Strings:
+        case DisassemblerEngineSteps::Algorithm:
+        case DisassemblerEngineSteps::Unexplored:
+            return true;
+
+        default: break;
+    }
+
+    return false;
+}
+
 bool DisassemblerEngine::busy() const { return m_jobs.active(); }
 void DisassemblerEngine::stop() { m_jobs.stop(); }
 void DisassemblerEngine::pause() { m_jobs.pause(); }
@@ -44,7 +60,7 @@ void DisassemblerEngine::resume() { m_jobs.resume(); }
 
 void DisassemblerEngine::stringsStep() { m_stringsjob.work(std::bind(&DisassemblerEngine::stringsJob, this, std::placeholders::_1)); }
 void DisassemblerEngine::algorithmStep() { m_jobs.work(std::bind(&DisassemblerEngine::algorithmJob, this, std::placeholders::_1)); }
-void DisassemblerEngine::analyzeStep() { m_analyzejob.work(std::bind(&DisassemblerEngine::analyzeJob, this, std::placeholders::_1)); }
+void DisassemblerEngine::analyzeStep() { /* m_analyzejob.work(std::bind(&DisassemblerEngine::analyzeJob, this, std::placeholders::_1)); */ }
 
 void DisassemblerEngine::unexploredStep()
 {

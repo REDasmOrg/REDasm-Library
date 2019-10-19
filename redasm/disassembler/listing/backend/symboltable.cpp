@@ -63,25 +63,16 @@ void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, name); 
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
 size_t SymbolTable::size() const { PIMPL_P(const SymbolTable); return p->m_byaddress.size(); }
 
-bool SymbolTable::create(address_t address, const String &name, SymbolType type, SymbolFlags flags, tag_t tag)
+void SymbolTable::create(address_t address, const String &name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     PIMPL_P(SymbolTable);
-    auto it = p->m_byaddress.find(address);
-
-    if(it != p->m_byaddress.end())
-    {
-        const SymbolPtr& symbol = it->second;
-        if(symbol->type > type) return false;
-    }
-
     p->m_byaddress.emplace(address, std::make_unique<Symbol>(type, flags, tag, address, name));
     p->m_byname[name] = address;
-    return it == p->m_byaddress.end();
 }
 
-bool SymbolTable::create(address_t address, const String& name, SymbolType type, tag_t tag) { return this->create(address, name, type, SymbolFlags::None, tag); }
-bool SymbolTable::create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { return this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
-bool SymbolTable::create(address_t address, SymbolType type, tag_t tag) { return this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, const String& name, SymbolType type, tag_t tag) { this->create(address, name, type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
+void SymbolTable::create(address_t address, SymbolType type, tag_t tag) { this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
 
 Symbol* SymbolTable::get(const String &name) const
 {

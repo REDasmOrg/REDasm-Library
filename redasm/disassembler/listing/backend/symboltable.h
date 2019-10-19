@@ -106,10 +106,10 @@ class LIBREDASM_API SymbolTable: public Object
 
    public:
         bool rename(address_t address, const String& newname);
-        bool create(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag = 0);
-        bool create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
-        bool create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag = 0);
-        bool create(address_t address, SymbolType type, tag_t tag = 0);
+        void create(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag = 0);
+        void create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
+        void create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag = 0);
+        void create(address_t address, SymbolType type, tag_t tag = 0);
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

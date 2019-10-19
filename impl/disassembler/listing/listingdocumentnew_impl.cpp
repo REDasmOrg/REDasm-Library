@@ -3,7 +3,12 @@
 
 namespace REDasm {
 
-ListingDocumentTypeNewImpl::ListingDocumentTypeNewImpl(ListingDocumentTypeNew *q): m_pimpl_q(q) { }
+ListingDocumentTypeNewImpl::ListingDocumentTypeNewImpl(ListingDocumentTypeNew *q): m_pimpl_q(q)
+{
+    m_blocks.inserted.connect(this, std::bind(&ListingDocumentTypeNewImpl::onBlockInserted, this, std::placeholders::_1));
+    m_blocks.erased.connect(this, std::bind(&ListingDocumentTypeNewImpl::onBlockErased, this, std::placeholders::_1));
+}
+
 const BlockContainer* ListingDocumentTypeNewImpl::blocks() const { return &m_blocks; }
 const ListingItems* ListingDocumentTypeNewImpl::items() const { return &m_items; }
 const ListingSegments *ListingDocumentTypeNewImpl::segments() const { return &m_segments; }
@@ -17,30 +22,17 @@ void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, Symb
 
 void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
-    const Symbol* symbol = this->symbol(address);
-    if(symbol && (symbol->type > type)) return;
+    if(!this->createSymbol(address, name, type, flags, tag)) return;
 
-    ListingItemType itemtype = ListingItemType::SymbolItem;
-
-    switch(type)
-    {
-        case SymbolType::FunctionNew:
-            itemtype = ListingItemType::FunctionItem;
-            m_functions.insert(address);
-            break;
-
-        default: break;
-    }
-
-    if(symbol) this->remove(address, itemtype);
-    if(m_symbols.create(address, name, type, flags, tag)) this->insert(address, itemtype);
+    this->insert(address, (type == SymbolType::FunctionNew) ? ListingItemType::FunctionItem :
+                                                              ListingItemType::SymbolItem);
 }
 
 const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, ListingItemType type, size_t index)
 {
     switch(type)
     {
-        case ListingItemType::FunctionItem: this->insert(address, ListingItemType::EmptyItem); break;
+        case ListingItemType::FunctionItem: m_functions.insert(address); this->insert(address, ListingItemType::EmptyItem); break;
         default: break;
     }
 
@@ -48,8 +40,6 @@ const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, Listing
     this->notify(idx, ListingDocumentAction::Inserted);
     return m_items.at(idx);
 }
-
-void ListingDocumentTypeNewImpl::remove(const ListingItem& item) { size_t idx = m_items.indexOf(item); this->removeAt(idx); }
 
 void ListingDocumentTypeNewImpl::notify(size_t idx, ListingDocumentAction action)
 {
@@ -64,33 +54,16 @@ void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolTyp
 
 void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
 {
-    if(name.empty())
-    {
-        if(!m_symbols.create(address, type, flags))
-            return;
-    }
-    else
-    {
-        if(!m_symbols.create(address, name, type, flags))
-            return;
-    }
-
-    BlockItem* b = m_blocks.dataSize(address, size);
-    this->remove(address, size, b);
-    this->insert(address, ListingItemType::SymbolItem);
+    if(!this->canOverrideAddress(address, type, flags)) return;
+    if(this->createSymbol(address, name, type, flags)) m_blocks.dataSize(address, size);
 }
 
-void ListingDocumentTypeNewImpl::block(const CachedInstruction& instruction)
-{
-    BlockItem* b = m_blocks.codeSize(instruction->address, instruction->size);
-    this->remove(instruction->address, instruction->size, b);
-    this->insert(instruction->address, ListingItemType::InstructionItem);
-}
+void ListingDocumentTypeNewImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }
+void ListingDocumentTypeNewImpl::unexplored(address_t address, size_t size) { m_blocks.unexploredSize(address, size); }
 
 bool ListingDocumentTypeNewImpl::rename(address_t address, const String& name)
 {
-    if(!m_symbols.rename(address, name))
-        return false;
+    if(!m_symbols.rename(address, name)) return false;
 
     this->notify(m_items.symbolIndex(address));
     return true;
@@ -98,9 +71,12 @@ bool ListingDocumentTypeNewImpl::rename(address_t address, const String& name)
 
 const Symbol* ListingDocumentTypeNewImpl::symbol(address_t address) const
 {
+    const Symbol* symbol =  m_symbols.get(address);
+    if(symbol) return symbol;
+
     const BlockItem* item = m_blocks.find(address);
-    if(!item) return m_symbols.get(address);
-    return m_symbols.get(item->start);
+    if(item) return m_symbols.get(item->start);
+    return nullptr;
 }
 
 const Symbol* ListingDocumentTypeNewImpl::symbol(const String& name) const { return m_symbols.get(name); }
@@ -108,8 +84,8 @@ const Symbol* ListingDocumentTypeNewImpl::symbol(const String& name) const { ret
 void ListingDocumentTypeNewImpl::removeAt(size_t idx)
 {
     this->notify(idx, ListingDocumentAction::Removed);
-
-    const ListingItem& item = m_items.at(idx);
+    ListingItem item = m_items.at(idx);
+    m_items.erase(idx);
 
     switch(item.type_new)
     {
@@ -119,87 +95,75 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
 
         case ListingItemType::FunctionItem:
             m_functions.erase(item.address_new);
+            m_symbols.erase(item.address_new);
             this->remove(item.address_new, ListingItemType::EmptyItem);
             break;
 
         default: break;
     }
-
-    m_items.erase(idx);
 }
 
 void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
 {
     size_t idx = m_items.indexOf(address, type);
 
-    while(idx != REDasm::npos)
+    if(idx == REDasm::npos)
     {
-        this->removeAt(idx);
-        idx = m_items.indexOf(address, type);
+        r_ctx->problem("Cannot delete @ " + String::hex(address) + ", type: " + ListingItem::displayType(type).quoted());
+        return;
+    }
+
+    this->removeAt(idx);
+}
+
+bool ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+{
+    if(!this->canOverrideAddress(address, type, flags)) return false;
+    if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
+
+    if(name.empty()) m_symbols.create(address, type, flags, tag);
+    else m_symbols.create(address, name, type, flags, tag);
+    return true;
+}
+
+bool ListingDocumentTypeNewImpl::canOverrideAddress(address_t address, SymbolType type, SymbolFlags flags) const
+{
+    if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
+
+    const BlockItem* bi = m_blocks.find(address);
+    if((flags & SymbolFlags::Weak) && bi->typeIs(BlockItemType::Code)) return false;
+
+    const Symbol* symbol = this->symbol(address);
+    if(!symbol) return true;
+
+    if(symbol->type > type) return false;
+    if((symbol->type == type) && (!symbol->isWeak() && (flags & SymbolFlags::Weak))) return false;
+    return true;
+}
+
+void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
+{
+    const BlockItem* bi = variant_object<const BlockItem>(e->arg());
+    std::cout << "INSERTED: " << bi->displayRange().c_str() << " " << bi->displayType().c_str() << std::endl;
+
+    switch(bi->type)
+    {
+        case BlockItemType::Unexplored: this->insert(bi->start, ListingItemType::UnexploredItem); break;
+        case BlockItemType::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;
+        case BlockItemType::Code: this->insert(bi->start, ListingItemType::InstructionItem); break;
     }
 }
 
-void ListingDocumentTypeNewImpl::remove(address_t address, size_t size, BlockItem* newblock)
+void ListingDocumentTypeNewImpl::onBlockErased(EventArgs* e)
 {
-    size_t idx = m_items.itemIndex(address);
-    if(idx == REDasm::npos) return;
+    const BlockItem* bi = variant_object<const BlockItem>(e->arg());
+    std::cout << "ERASED: " << bi->displayRange().c_str() << " " << bi->displayType().c_str() << std::endl;
 
-    if(newblock->typeIs(BlockItemType::Data)) this->removeCode(address, size, idx);
-    else if(newblock->typeIs(BlockItemType::Code)) this->removeData(address, size, idx);
-}
-
-void ListingDocumentTypeNewImpl::removeData(address_t address, size_t size, size_t startidx)
-{
-    address_t endaddress = address + size;
-    size_t idx = startidx;
-    ListingItem item = m_items.at(idx);
-
-    while(!m_items.empty() && (item.address_new < endaddress))
+    switch(bi->type)
     {
-        item = m_items.at(idx);
-
-        if(item.is(ListingItemType::SymbolItem))
-        {
-            Symbol* symbol = m_symbols.get(item.address_new);
-
-            if(symbol && symbol->isData())
-            {
-                this->removeAt(idx);
-                continue;
-            }
-        }
-
-        idx++;
-    }
-}
-
-void ListingDocumentTypeNewImpl::removeCode(address_t address, size_t size, size_t startidx)
-{
-    address_t endaddress = address + size;
-    size_t idx = startidx;
-    ListingItem item = m_items.at(idx);
-
-    while(!m_items.empty() && (item.address_new < endaddress))
-    {
-        item = m_items.at(idx);
-
-        if(item.is(ListingItemType::SymbolItem))
-        {
-            Symbol* symbol = m_symbols.get(item.address_new);
-
-            if(symbol && symbol->isCode())
-            {
-                this->removeAt(idx);
-                continue;
-            }
-        }
-        else if(item.is(ListingItemType::InstructionItem))
-        {
-            this->removeAt(idx);
-            continue;
-        }
-
-        idx++;
+        case BlockItemType::Unexplored: this->remove(bi->start, ListingItemType::UnexploredItem); break;
+        case BlockItemType::Data: this->remove(bi->start, ListingItemType::SymbolItem); break;
+        case BlockItemType::Code: this->remove(bi->start, ListingItemType::InstructionItem); break;
     }
 }
 

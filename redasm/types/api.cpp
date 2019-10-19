@@ -56,7 +56,7 @@ bool Operand::checkCharacter()
 void Operand::save(cereal::BinaryOutputArchive &a) const { a(type, flags, tag, size, index, loc_index, reg, disp, u_value); }
 void Operand::load(cereal::BinaryInputArchive &a) { a(type, flags, tag, size, index, loc_index, reg, disp, u_value); }
 
-Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(InstructionType::None), address(0), size(0) { }
+Instruction::Instruction(): m_pimpl_p(new InstructionImpl(this)), id(0), type(InstructionType::None), flags(InstructionFlags::None), address(0), size(0) { }
 address_t Instruction::endAddress() const { return address + size; }
 bool Instruction::hasOperands() const { PIMPL_P(const Instruction); return p->hasOperands(); }
 bool Instruction::contains(address_t address) const { return (address >= this->address) && (address < this->endAddress()); }
@@ -82,6 +82,8 @@ const List &Instruction::targets() const { PIMPL_P(const Instruction); return p-
 void Instruction::target(address_t address) { PIMPL_P(Instruction); p->target(address); }
 void Instruction::targetIdx(size_t idx) { PIMPL_P(Instruction); p->targetIdx(idx); }
 bool Instruction::is(InstructionType t) const { return type & t; }
+bool Instruction::typeIs(InstructionType t) const { return type & t; }
+bool Instruction::hasFlag(InstructionFlags f) const { return flags & f; }
 bool Instruction::is(const char *s) const { return mnemonic == s; }
 bool Instruction::isInvalid() const { return type == InstructionType::Invalid; }
 void *Instruction::userData() const { PIMPL_P(const Instruction); return p->userData(); }
@@ -92,13 +94,13 @@ void Instruction::setUserData(void *userdata) { PIMPL_P(Instruction); p->setUser
 void Instruction::save(cereal::BinaryOutputArchive &a) const
 {
     PIMPL_P(const Instruction);
-    a(mnemonic, address, type, size, id, p->m_operands);
+    a(mnemonic, address, type, flags, size, id, p->m_operands);
 }
 
 void Instruction::load(cereal::BinaryInputArchive &a)
 {
     PIMPL_P(Instruction);
-    a(mnemonic, address, type, size, id, p->m_operands);
+    a(mnemonic, address, type, flags, size, id, p->m_operands);
 }
 
 } // namespace REDasm

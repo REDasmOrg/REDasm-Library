@@ -7,8 +7,11 @@
 
 namespace REDasm {
 
-class LIBREDASM_API BlockItem
+class LIBREDASM_API BlockItem: public Object
 {
+    public:
+        REDASM_OBJECT(BlockItem)
+
     public:
         BlockItem();
         bool contains(address_t address) const;
@@ -17,6 +20,7 @@ class LIBREDASM_API BlockItem
         bool empty() const;
         size_t size() const;
         String displayRange() const;
+        String displayType() const;
 
     public:
         address_t start, end; // [start, end]

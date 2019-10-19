@@ -35,6 +35,7 @@ class DisassemblerEngine
 
     public:
         JobState state() const;
+        bool needsWeak() const;
         bool busy() const;
         void stop();
         void pause();

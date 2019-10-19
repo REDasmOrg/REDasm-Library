@@ -58,6 +58,7 @@ class LIBREDASM_API Disassembler: public Object
         String getHexDump(address_t address, const Symbol** ressymbol = nullptr);
         bool loadSignature(const String& signame);
         bool busy() const;
+        bool needsWeak() const;
         bool checkString(address_t fromaddress, address_t address);
         bool readAddress(address_t address, size_t size, u64 *value) const;
         bool readOffset(offset_t offset, size_t size, u64 *value) const;

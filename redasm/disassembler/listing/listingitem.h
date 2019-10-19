@@ -12,11 +12,11 @@ struct ListingMetaItem { String name, type; };
 
 enum class ListingItemType: size_t
 {
-    Undefined = 0,
+    None        = 0,
     FirstItem,
-    SegmentItem = FirstItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem, SeparatorItem,
-    LastItem = SeparatorItem,
-    AllItems = REDasm::npos
+    SegmentItem = FirstItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem, UnexploredItem, SeparatorItem,
+    LastItem    = SeparatorItem,
+    AllItems    = REDasm::npos
 };
 
 struct ListingItemData;
@@ -34,6 +34,10 @@ class LIBREDASM_API ListingItem: public Object
         ListingItemData* data();
         void save(cereal::BinaryOutputArchive &a) const override;
         void load(cereal::BinaryInputArchive &a) override;
+        String displayType();
+
+    public:
+        static String displayType(ListingItemType type);
 
     public:
         address_t address_new;

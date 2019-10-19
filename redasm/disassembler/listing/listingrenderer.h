@@ -98,6 +98,7 @@ class ListingRenderer
         void renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
         void renderType(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl);
         void renderSeparator(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
+        void renderUnexplored(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
         void renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
         void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl);
         void renderOperands(const CachedInstruction& instruction, RendererLine &rl);

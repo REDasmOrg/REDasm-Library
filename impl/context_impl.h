@@ -18,6 +18,8 @@ class ContextImpl
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
         void checkSettings();
+        void flag(ContextFlags flag, bool set);
+        bool hasFlag(ContextFlags flag) const;
         String capstoneVersion() const;
 
     private:
@@ -28,7 +30,8 @@ class ContextImpl
         ProblemList m_problems;
 
     private:
-        Disassembler* m_disassembler;
+        Disassembler* m_disassembler{nullptr};
+        ContextFlags m_flags{ContextFlags::None};
 
     private:
         static std::unique_ptr<Context> m_instance;

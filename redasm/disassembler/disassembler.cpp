@@ -52,6 +52,7 @@ bool Disassembler::readOffset(offset_t offset, size_t size, u64 *value) const { 
 bool Disassembler::dereference(address_t address, u64 *value) const { PIMPL_P(const Disassembler); return p->dereference(address, value); }
 bool Disassembler::loadSignature(const String &signame) { PIMPL_P(Disassembler); return p->loadSignature(signame); }
 bool Disassembler::busy() const { PIMPL_P(const Disassembler); return p->busy(); }
+bool Disassembler::needsWeak() const { PIMPL_P(const Disassembler); return p->needsWeak(); }
 void Disassembler::popTarget(address_t address, address_t pointedby) { PIMPL_P(Disassembler); p->popTarget(address, pointedby); }
 void Disassembler::pushTarget(address_t address, address_t pointedby) { PIMPL_P(Disassembler); p->pushTarget(address, pointedby); }
 void Disassembler::pushReference(address_t address, address_t refby) { PIMPL_P(Disassembler); p->pushReference(address, refby); }

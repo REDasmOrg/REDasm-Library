@@ -115,9 +115,7 @@ void InstructionCache::erase(address_t address) { m_cache.erase(address); }
 void InstructionCache::deallocate(const CachedInstruction& instruction)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-    if(m_lockserialization)
-        return;
+    if(m_lockserialization) return;
 
     if(m_file.is_open() && instruction)
         this->serialize(instruction);
@@ -128,9 +126,7 @@ void InstructionCache::deallocate(const CachedInstruction& instruction)
 void InstructionCache::serialize(const CachedInstruction& instruction)
 {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
-
-    if(m_lockserialization)
-        return;
+    if(m_lockserialization) return;
 
     if(!m_file.is_open())
     {

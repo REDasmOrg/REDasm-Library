@@ -21,7 +21,7 @@ class CachedInstructionImpl
 
     private:
         std::shared_ptr<Instruction> m_instruction;
-        InstructionCache* m_cache;
+        InstructionCache* m_cache{nullptr};
 };
 
 } // namespace REDasm

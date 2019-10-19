@@ -127,14 +127,10 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
         p->getRendererLine(lock, line, rl);
 
-        if(r_docnew->cursor().isLineSelected(line))
-            p->highlightSelection(rl);
-        else
-            p->highlightWord(rl, word);
+        if(r_docnew->cursor().isLineSelected(line)) p->highlightSelection(rl);
+        else p->highlightWord(rl, word);
 
-        if(rl.highlighted)
-            p->blinkCursor(rl);
-
+        if(rl.highlighted) p->blinkCursor(rl);
         this->renderLine(rl);
     }
 }
@@ -153,17 +149,13 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
     for(size_t i = 0; i < rl.formats.size(); i++)
     {
         const RendererFormat& rf = rl.formats.at(i);
-
-        if(!rf.contains(pos.column))
-            continue;
+        if(!rf.contains(pos.column)) continue;
 
         String word = rl.formatText(rf);
 
         if(r_docnew->symbol(word))
         {
-            if(wordpos)
-                *wordpos = std::make_pair(rf.start, rf.end);
-
+            if(wordpos) *wordpos = std::make_pair(rf.start, rf.end);
             return word;
         }
     }
@@ -181,15 +173,11 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
         if((pos.column < start) || (pos.column > end))
             continue;
 
-        if(wordpos)
-            *wordpos = std::make_pair(start, end);
-
+        if(wordpos) *wordpos = std::make_pair(start, end);
         return match.value;
     }
 
-    if(wordpos)
-        *wordpos = std::make_pair(1, 0);
-
+    if(wordpos) *wordpos = std::make_pair(1, 0);
     return String();
 }
 
@@ -200,9 +188,7 @@ size_t ListingRenderer::getLastColumn(size_t line)
     RendererLine rl;
     this->getRendererLine(line, rl);
     size_t len = rl.length();
-
-    if(!len)
-        return 0;
+    if(!len) return 0;
 
     return len - 1;
 }
@@ -218,9 +204,7 @@ String ListingRenderer::getSelectedText()
 {
     auto lock = s_lock_safe_ptr(r_docnew);
     const ListingCursor& cur = lock->cursor();
-
-    if(!cur.hasSelection())
-        return String();
+    if(!cur.hasSelection()) return String();
 
     const ListingCursor::Position& startpos = cur.startSelection();
     const ListingCursor::Position& endpos = cur.endSelection();
@@ -238,12 +222,9 @@ String ListingRenderer::getSelectedText()
             p->getRendererLine(lock, line, rl);
             String s = rl.text;
 
-            if(line == startpos.line)
-                copied += s.substring(startpos.column);
-            else if(line == endpos.line)
-                copied += s.substring(0, endpos.column + 1);
-            else
-                copied += s;
+            if(line == startpos.line) copied += s.substring(startpos.column);
+            else if(line == endpos.line) copied += s.substring(0, endpos.column + 1);
+            else copied += s;
 
             copied += "\n";
             line++;
@@ -281,7 +262,10 @@ void ListingRenderer::renderFunction(const document_s_lock_new& lock, const List
     if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
 
-    this->printer()->function(lock->symbols()->get(item.address_new), [&](const String& pre, const String& sym, const String& post) {
+    const Symbol* symbol = lock->symbol(item.address_new);
+    if(!symbol) return;
+
+    this->printer()->function(symbol, [&](const String& pre, const String& sym, const String& post) {
         if(!pre.empty()) rl.push(pre, "function_fg");
         rl.push(sym, "function_fg");
         if(!post.empty()) rl.push(post, "function_fg");
@@ -291,13 +275,10 @@ void ListingRenderer::renderFunction(const document_s_lock_new& lock, const List
 void ListingRenderer::renderInstruction(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl)
 {
     CachedInstruction instruction = lock->instruction(item.address_new);
-
     this->renderAddress(lock, item, rl);
 
-    if(!this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
-        this->renderIndent(rl, 3);
-    else
-        this->renderIndent(rl, 1);
+    if(!this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 3);
+    else this->renderIndent(rl, 1);
 
     this->renderMnemonic(instruction, rl);
     this->renderOperands(instruction, rl);
@@ -308,7 +289,10 @@ void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const Listin
 {
     PIMPL_P(ListingRenderer);
     u64 value = 0;
+
     const Symbol* symbol = lock->symbol(item.address_new);
+    if(!symbol) return;
+
     const Segment* segment = lock->segment(symbol->address);
 
     if(segment && segment->is(SegmentType::Bss))
@@ -436,6 +420,26 @@ void ListingRenderer::renderSeparator(const document_s_lock_new& lock, const Lis
         this->renderAddressIndent(lock, item, rl);
 
     rl.push(String::repeated('-', SEPARATOR_LENGTH), "separator");
+}
+
+void ListingRenderer::renderUnexplored(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl)
+{
+    const BlockItem* bi = lock->block(item.address_new);
+    this->renderAddress(lock, item, rl);
+
+    if(!this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 3);
+    else this->renderIndent(rl, 1);
+
+    switch(bi->size())
+    {
+        case 1: rl.push("db "); break;
+        case 2: rl.push("dw "); break;
+        case 4: rl.push("dd "); break;
+        case 8: rl.push("dq "); break;
+        default: rl.push("dup", "instruction_nop").push(" (").push(String::hex(bi->size(), r_asm->bits()), "immediate_fg").push(")"); return;
+    }
+
+    rl.push(String::hex(bi->size()), "immediate_fg");
 }
 
 void ListingRenderer::renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl)

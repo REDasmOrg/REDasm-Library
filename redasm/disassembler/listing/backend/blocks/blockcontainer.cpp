@@ -3,7 +3,7 @@
 
 namespace REDasm {
 
-BlockContainer::BlockContainer(): m_pimpl_p(new BlockContainerImpl()) { }
+BlockContainer::BlockContainer(): m_pimpl_p(new BlockContainerImpl(this)) { }
 void BlockContainer::unexplored(const BlockItem* blockitem) { PIMPL_P(BlockContainer); return p->unexplored(blockitem);  }
 BlockItem *BlockContainer::unexplored(address_t start) { PIMPL_P(BlockContainer); return p->unexplored(start); }
 BlockItem *BlockContainer::unexplored(address_t start, address_t end) { PIMPL_P(BlockContainer); return p->unexplored(start, end); }

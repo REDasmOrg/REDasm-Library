@@ -11,8 +11,9 @@ namespace REDasm {
 
 class ListingDocumentTypeNewImpl;
 
-class ListingDocumentTypeNew
+class ListingDocumentTypeNew: public Object
 {
+    REDASM_OBJECT(ListingDocumentTypeNew)
     PIMPL_DECLARE_P(ListingDocumentTypeNew)
     PIMPL_DECLARE_PRIVATE(ListingDocumentTypeNew)
 
@@ -47,7 +48,7 @@ class ListingDocumentTypeNew
         void data(address_t address, size_t size);
         void asciiString(address_t address, size_t size);
         void wideString(address_t address, size_t size);
-        void imported(address_t address, const String& name);
+        void imported(address_t address, size_t size, const String& name);
         void exported(address_t address, const String& name);
         void exportedFunction(address_t address, const String& name);
         void instruction(const CachedInstruction& instruction);

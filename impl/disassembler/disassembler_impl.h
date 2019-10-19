@@ -48,6 +48,7 @@ class DisassemblerImpl
         String getHexDump(address_t address, const Symbol** ressymbol = nullptr);
         bool loadSignature(const String& signame);
         bool busy() const;
+        bool needsWeak() const;
         bool checkString(address_t fromaddress, address_t address);
         bool readAddress(address_t address, size_t size, u64 *value) const;
         bool readOffset(offset_t offset, size_t size, u64 *value) const;
@@ -64,7 +65,6 @@ class DisassemblerImpl
         void resume();
 
     private:
-        void analyzeStep();
         void computeBasicBlocks(document_x_lock &lock, address_t address);
         template<typename T> String readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const;
         template<typename T> size_t locationIsStringT(address_t address, std::function<bool(T)> isp, std::function<bool(T)> isa) const;

@@ -8,7 +8,7 @@
 
 namespace REDasm {
 
-ListingDocumentTypeNew::ListingDocumentTypeNew(): m_pimpl_p(new ListingDocumentTypeNewImpl(this)) { }
+ListingDocumentTypeNew::ListingDocumentTypeNew(): Object(), m_pimpl_p(new ListingDocumentTypeNewImpl(this)) { }
 const BlockContainer *ListingDocumentTypeNew::blocks() const { PIMPL_P(const ListingDocumentTypeNew); return p->blocks(); }
 const ListingItems *ListingDocumentTypeNew::items() const { PIMPL_P(const ListingDocumentTypeNew); return p->items(); }
 const ListingSegments *ListingDocumentTypeNew::segments() const { PIMPL_P(const ListingDocumentTypeNew); return p->segments(); }
@@ -53,7 +53,10 @@ void ListingDocumentTypeNew::segment(const String &name, offset_t offset, addres
     PIMPL_P(ListingDocumentTypeNew);
 
     if(p->m_segments.insert(name, offset, address, psize, vsize, type))
+    {
+        p->unexplored(address, vsize);
         p->insert(address, ListingItemType::SegmentItem);
+    }
     else
         r_ctx->log("Segment insertion failed @ " + name.hex());
 }
@@ -70,6 +73,7 @@ void ListingDocumentTypeNew::type(address_t address, const String& s)
 void ListingDocumentTypeNew::table(address_t address, size_t count, tag_t tag)
 {
     this->tableItem(address, address, 0, tag);
+    this->type(address, "Table with " + String::number(count) + " case(s)");
 }
 
 void ListingDocumentTypeNew::tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag)
@@ -98,8 +102,7 @@ void ListingDocumentTypeNew::branch(address_t address, s64 direction, tag_t tag)
     if(!direction) name = "infinite_loop_" + name;
     else name = "loc_" + name;
 
-    if(p->m_symbols.create(address, name, SymbolType::LabelNew, tag))
-        p->insert(address, ListingItemType::SymbolItem);
+    p->symbol(address, name, SymbolType::LabelNew);
 }
 
 void ListingDocumentTypeNew::data(address_t address, size_t size)
@@ -114,7 +117,7 @@ void ListingDocumentTypeNew::data(address_t address, size_t size)
 }
 
 void ListingDocumentTypeNew::label(address_t address) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, SymbolType::LabelNew); }
-void ListingDocumentTypeNew::imported(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, name, SymbolType::ImportNew); }
+void ListingDocumentTypeNew::imported(address_t address, size_t size, const String& name) { PIMPL_P(ListingDocumentTypeNew); p->block(address, size, name, SymbolType::ImportNew); }
 void ListingDocumentTypeNew::exported(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, name, SymbolType::DataNew, SymbolFlags::Export); }
 void ListingDocumentTypeNew::exportedFunction(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, name, SymbolType::FunctionNew, SymbolFlags::Export); }
 void ListingDocumentTypeNew::asciiString(address_t address, size_t size) { PIMPL_P(ListingDocumentTypeNew); p->block(address, size, SymbolType::StringNew, SymbolFlags::AsciiString); }

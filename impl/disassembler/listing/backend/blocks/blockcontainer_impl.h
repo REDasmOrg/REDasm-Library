@@ -9,10 +9,14 @@ namespace REDasm {
 class BlockContainerImpl
 {
     public:
+        PIMPL_DECLARE_Q(BlockContainer)
+        PIMPL_DECLARE_PUBLIC(BlockContainer)
+
+    public:
         typedef std::deque<BlockItem> Container;
 
     public:
-        BlockContainerImpl() = default;
+        BlockContainerImpl(BlockContainer* q);
         void unexplored(const BlockItem* blockitem);
         BlockItem* unexplored(address_t start);
         BlockItem* unexplored(address_t start, address_t end);
@@ -34,8 +38,11 @@ class BlockContainerImpl
         BlockItem *markSize(address_t start, size_t size, BlockItemType type, BlockItemFlags flags);
         void remove(address_t start, address_t end);
         BlockItem *insert(address_t start, address_t end, BlockItemType type, BlockItemFlags flags);
-        Container::const_iterator findOverlap(address_t address) const;
+        Container::iterator findOverlap(address_t address);
         Container::iterator insertionPoint(address_t address);
+        template<typename Iterator> Iterator eraseRange(Iterator startit, Iterator endit);
+        template<typename Iterator> Iterator eraseBlock(Iterator it);
+        template<typename Iterator> Iterator insertBlock(Iterator it, const BlockItem& bi);
 
     private:
         Container m_blocks;

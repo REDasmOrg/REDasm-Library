@@ -41,14 +41,15 @@ bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_
 
     switch(item.type_new)
     {
-        case ListingItemType::SegmentItem: q->renderSegment(lock, item, rl); break;
-        case ListingItemType::FunctionItem: q->renderFunction(lock, item, rl); break;
+        case ListingItemType::SegmentItem:     q->renderSegment(lock, item, rl); break;
+        case ListingItemType::FunctionItem:    q->renderFunction(lock, item, rl); break;
         case ListingItemType::InstructionItem: q->renderInstruction(lock, item, rl); break;
-        case ListingItemType::SymbolItem: q->renderSymbol(lock, item, rl); break;
-        case ListingItemType::MetaItem: q->renderMeta(lock, item, rl); break;
-        case ListingItemType::TypeItem: q->renderType(lock, item, rl); break;
-        case ListingItemType::SeparatorItem: q->renderSeparator(lock, item, rl); break;
-        case ListingItemType::EmptyItem: rl.push(" "); break;
+        case ListingItemType::SymbolItem:      q->renderSymbol(lock, item, rl); break;
+        case ListingItemType::MetaItem:        q->renderMeta(lock, item, rl); break;
+        case ListingItemType::TypeItem:        q->renderType(lock, item, rl); break;
+        case ListingItemType::SeparatorItem:   q->renderSeparator(lock, item, rl); break;
+        case ListingItemType::UnexploredItem:  q->renderUnexplored(lock, item, rl); break;
+        case ListingItemType::EmptyItem:       rl.push(" "); break;
         default: rl.push("Unknown Type: " + String::number(static_cast<size_t>(item.type_new))); break;
     }
 

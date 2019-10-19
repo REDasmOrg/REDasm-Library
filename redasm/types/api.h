@@ -37,6 +37,14 @@ enum class InstructionType: u32 {
 
 ENUM_FLAGS_OPERATORS(InstructionType)
 
+enum class InstructionFlags: u32
+{
+    None = (1 << 0),
+    Weak = (1 << 1)
+};
+
+ENUM_FLAGS_OPERATORS(InstructionFlags)
+
 enum class OperandType : u32 {
     None          = 0,
     Constant,     // Simple constant
@@ -44,7 +52,6 @@ enum class OperandType : u32 {
     Immediate,    // Immediate Value
     Memory,       // Direct Memory Pointer
     Displacement, // Indirect Memory Pointer
-
 };
 
 enum class OperandFlags: u32 {
@@ -174,6 +181,8 @@ class Instruction: public Object
 
     public:
         bool is(InstructionType t) const;
+        bool typeIs(InstructionType t) const;
+        bool hasFlag(InstructionFlags f) const;
         bool is(const char* s) const;
         bool isInvalid() const;
         void* userData() const;
@@ -188,6 +197,7 @@ class Instruction: public Object
     public:
         instruction_id_t id; // Backend Specific
         InstructionType type;
+        InstructionFlags flags;
         String mnemonic;
         address_t address;
         u32 size;

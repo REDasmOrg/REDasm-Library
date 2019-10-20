@@ -36,8 +36,7 @@ void StringFinder::find()
 
 size_t StringFinder::locationIsString(const BufferView& view, bool *wide) const
 {
-    if(wide)
-        *wide = false;
+    if(wide) *wide = false;
 
     size_t count = this->locationIsStringT<u8>(view,
                                                [](u16 b) -> bool { return ::isprint(b) || ::isspace(b); },
@@ -49,8 +48,7 @@ size_t StringFinder::locationIsString(const BufferView& view, bool *wide) const
                                              [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return !b2 && (::isprint(b1) || ::isspace(b1)); },
                                              [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; });
 
-        if(wide)
-            *wide = true;
+        if(wide) *wide = true;
     }
 
     return count;

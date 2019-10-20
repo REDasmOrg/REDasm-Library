@@ -105,30 +105,25 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     return v;
 }
 
-Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *value)
+const Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *value)
 {
     address_t address = 0;
-    Symbol* ptrsymbol = nullptr;
+    const Symbol* ptrsymbol = nullptr;
 
     if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &address))
-        ptrsymbol = this->document()->symbol(address);
+        ptrsymbol = r_docnew->symbol(address);
 
-    if(value)
-        *value = address;
-
+    if(value) *value = address;
     return ptrsymbol;
 }
 
 CachedInstruction DisassemblerImpl::disassembleInstruction(address_t address)
 {
-    CachedInstruction instruction = this->document()->instruction(address);
+    CachedInstruction instruction = r_docnew->instruction(address);
+    if(instruction) return instruction;
 
-    if(instruction)
-        return instruction;
-
-    instruction = this->document()->cacheInstruction(address);
+    instruction = r_docnew->cacheInstruction(address);
     m_algorithm->disassembleInstruction(address, instruction);
-    m_algorithm->done(address);
     return instruction;
 }
 
@@ -188,32 +183,6 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
     }
 
     return targets.size();
-}
-
-size_t DisassemblerImpl::locationIsString(address_t address, bool *wide) const
-{
-    const Segment* segment = this->documentNew()->segment(address);
-
-    if(!segment || segment->is(SegmentType::Bss))
-        return 0;
-
-    if(wide) *wide = false;
-
-    size_t count = this->locationIsStringT<u8>(address,
-                                               [](u16 b) -> bool { return ::isprint(b) || ::isspace(b); },
-                                               [](u16 b) -> bool {  return (b == '_') || ::isalnum(b) || ::isspace(b); });
-
-    if(count == 1) // Try with wide strings
-    {
-        count = this->locationIsStringT<u16>(address,
-                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return !b2 && (::isprint(b1) || ::isspace(b1)); },
-                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; });
-
-        if(wide)
-            *wide = true;
-    }
-
-    return count;
 }
 
 JobState DisassemblerImpl::state() const { return m_engine ? m_engine->state() : JobState::InactiveState; }
@@ -333,28 +302,6 @@ bool DisassemblerImpl::loadSignature(const String &signame)
 
 bool DisassemblerImpl::busy() const { return m_engine ? m_engine->busy() : false; }
 bool DisassemblerImpl::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
-
-bool DisassemblerImpl::checkString(address_t fromaddress, address_t address)
-{
-    bool wide = false;
-
-    if(this->locationIsString(address, &wide) < MIN_STRING)
-        return false;
-
-    if(wide)
-    {
-        this->document()->symbol(address, SymbolType::WideString);
-        this->document()->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
-    }
-    else
-    {
-        this->document()->symbol(address, SymbolType::String);
-        this->document()->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
-    }
-
-    this->pushReference(address, fromaddress);
-    return true;
-}
 
 bool DisassemblerImpl::readAddress(address_t address, size_t size, u64 *value) const
 {

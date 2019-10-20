@@ -284,6 +284,19 @@ String String::repeated(char ch, size_t c)
     return s;
 }
 
+String String::join(const List& l, char sep)
+{
+    String res;
+
+    l.each([&](const Variant& v) {
+        if(!v.isString()) return;
+        if(!res.empty()) res += sep;
+        res += v.toString();
+    });
+
+    return res;
+}
+
 template<typename T> String String::number(T value, size_t base, size_t width, char fill)
 {
     String s;

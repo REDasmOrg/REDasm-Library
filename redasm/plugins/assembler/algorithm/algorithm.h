@@ -38,7 +38,6 @@ class Algorithm: public Object
     public:
         Algorithm();
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
-        void done(address_t address);
         void enqueue(address_t address);
         void analyze();
         bool hasNext() const;

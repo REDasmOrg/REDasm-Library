@@ -90,21 +90,21 @@ class ListingRenderer
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
         bool hasFlag(ListingRendererFlags flag) const;
-        bool getRendererLine(size_t line, RendererLine& rl);
-        void renderSegment(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl);
-        void renderFunction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderInstruction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderSymbol(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl);
-        void renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderType(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl);
-        void renderSeparator(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderUnexplored(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl);
-        void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl);
-        void renderOperands(const CachedInstruction& instruction, RendererLine &rl);
-        void renderComments(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl);
-        void renderAddressIndent(const document_s_lock_new &lock, const ListingItem& item, RendererLine& rl);
-        void renderIndent(RendererLine &rl, int n = 1);
+        bool getRendererLine(size_t line, RendererLine& rl) const;
+        void renderSegment(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const;
+        void renderFunction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderInstruction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderSymbol(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderType(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderSeparator(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderUnexplored(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl) const;
+        void renderOperands(const CachedInstruction& instruction, RendererLine &rl) const;
+        void renderComments(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderAddressIndent(const document_s_lock_new &lock, const ListingItem& item, RendererLine& rl) const;
+        void renderIndent(RendererLine &rl, int n = 1) const;
         Printer* printer() const;
 };
 

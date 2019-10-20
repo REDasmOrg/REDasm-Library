@@ -39,12 +39,11 @@ template<typename T> size_t StringFinder::locationIsStringT(const BufferView &vi
     const T* p = reinterpret_cast<const T*>(view.data());
     T firstchar = *p;
 
-    for(size_t i = 0; (i < view.size()) && isp(*p); i++, p++)
+    for(size_t i = 0; (i < view.size()) && (isp(*p) || !(*p)); i++, p++)
     {
         count += sizeof(T);
-
-        if(isa(*p))
-            alphacount++;
+        if(isa(*p)) alphacount++;
+        if(!(*p)) break;
     }
 
     //if((static_cast<double>(alphacount) / count) < 0.51) // ...it might be just data, check alpha ratio...

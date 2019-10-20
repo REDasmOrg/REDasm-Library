@@ -18,8 +18,9 @@ class ListingRendererImpl
     public:
         ListingRendererImpl(ListingRenderer* q);
         bool renderSymbolPointer(const document_s_lock_new &lock, const Symbol *symbol, RendererLine& rl) const;
-        void renderSymbolPrologue(const document_s_lock_new &lock, const ListingItem& item, const Symbol *symbol, RendererLine& rl);
-        bool getRendererLine(const document_s_lock_new& lock, size_t line, RendererLine& rl);
+        void renderSymbolPrologue(const document_s_lock_new &lock, const ListingItem& item, const Symbol *symbol, RendererLine& rl) const;
+        void renderBlockBytes(const BlockItem* bi, RendererLine& rl) const;
+        bool getRendererLine(const document_s_lock_new& lock, size_t line, RendererLine& rl) const;
         void highlightSelection(RendererLine& rl);
         void blinkCursor(RendererLine& rl);
         void highlightWord(RendererLine& rl, const String word);
@@ -27,6 +28,8 @@ class ListingRendererImpl
         void setFlags(ListingRendererFlags flags);
         static String escapeString(const String& s);
 
+    private:
+        void renderPrologue(const document_s_lock_new &lock, const ListingItem& item, RendererLine& rl) const;
 
     private:
         object_ptr<Printer> m_printer;

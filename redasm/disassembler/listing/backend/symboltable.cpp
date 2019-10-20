@@ -66,7 +66,10 @@ size_t SymbolTable::size() const { PIMPL_P(const SymbolTable); return p->m_byadd
 void SymbolTable::create(address_t address, const String &name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     PIMPL_P(SymbolTable);
-    p->m_byaddress.emplace(address, std::make_unique<Symbol>(type, flags, tag, address, name));
+    const Symbol* symbol = this->get(address);
+    if(symbol) p->m_byname.erase(symbol->name); // Remove old name reference
+
+    p->m_byaddress[address] = std::make_unique<Symbol>(type, flags, tag, address, name);
     p->m_byname[name] = address;
 }
 
@@ -117,6 +120,12 @@ void SymbolTable::iterate(SymbolType type, const std::function<bool(const Symbol
 
 bool SymbolTable::erase(address_t address)
 {
+    if(address == 0x00402064)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     PIMPL_P(SymbolTable);
     auto it = p->m_byaddress.find(address);
 

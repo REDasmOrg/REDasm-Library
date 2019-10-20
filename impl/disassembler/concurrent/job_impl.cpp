@@ -24,7 +24,7 @@ JobImpl::~JobImpl()
 
 JobState JobImpl::state() const { return m_state; }
 size_t JobImpl::id() const { return m_id; }
-bool JobImpl::active() const { return m_state > JobState::SleepState; }
+bool JobImpl::active() const { return m_state == JobState::ActiveState; }
 
 void JobImpl::start()
 {

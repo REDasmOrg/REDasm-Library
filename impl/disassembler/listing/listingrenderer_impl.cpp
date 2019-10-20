@@ -1,6 +1,7 @@
 #include "listingrenderer_impl.h"
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/support/utils.h>
 #include <redasm/context.h>
 
 namespace REDasm {
@@ -21,23 +22,22 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, c
     return true;
 }
 
-void ListingRendererImpl::renderSymbolPrologue(const document_s_lock_new& lock, const ListingItem& item, const Symbol* symbol, RendererLine& rl)
+void ListingRendererImpl::renderSymbolPrologue(const document_s_lock_new& lock, const ListingItem& item, const Symbol* symbol, RendererLine& rl) const
 {
-    PIMPL_Q(ListingRenderer);
-    q->renderAddress(lock, item, rl);
-    q->renderIndent(rl, 3);
+    PIMPL_Q(const ListingRenderer);
+    this->renderPrologue(lock, item, rl);
     rl.push(symbol->name, "label_fg");
     q->renderIndent(rl);
 }
 
-bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_t line, RendererLine &rl)
+bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_t line, RendererLine &rl) const
 {
     if(lock->empty()) return false;
 
     const ListingItem& item = lock->itemAt(std::min(line, lock->itemsCount() - 1));
     if(!item.isValid()) return false;
 
-    PIMPL_Q(ListingRenderer);
+    PIMPL_Q(const ListingRenderer);
 
     switch(item.type_new)
     {
@@ -76,16 +76,13 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
 
 void ListingRendererImpl::blinkCursor(RendererLine &rl)
 {
-    if(!r_docnew->cursor().active())
-        return;
-
+    if(!r_docnew->cursor().active()) return;
     rl.format(r_docnew->cursor().currentColumn(), r_docnew->cursor().currentColumn(), "cursor_fg", "cursorbg");
 }
 
 void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
 {
-    if(word.empty())
-        return;
+    if(word.empty()) return;
 
     size_t pos = rl.text.indexOf(word, 0);
     std::list<size_t> locations;
@@ -102,6 +99,37 @@ void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
 
 bool ListingRendererImpl::hasFlag(ListingRendererFlags flag) const { return m_flags & flag; }
 void ListingRendererImpl::setFlags(ListingRendererFlags flags) { m_flags = flags; }
+
+void ListingRendererImpl::renderBlockBytes(const BlockItem* bi, RendererLine& rl) const
+{
+    if(bi->size() > 8)
+    {
+        rl.push(String::hex(bi->size()), "immediate_fg");
+        return;
+    }
+
+    if(!(bi->size() % 2) || (bi->size() == 1))
+    {
+        u64 value = 0;
+        bool res = r_disasm->readAddress(bi->start, bi->size(), &value);
+        rl.push(res ? String::hex(value, bi->size() * CHAR_BIT) : "??", "immediate_fg");
+        return;
+    }
+
+    address_t address = bi->start;
+    rl.push("[");
+
+    for(size_t i = 0; i < bi->size(); i++, address++)
+    {
+        u64 value = 0;
+        bool res = r_disasm->readAddress(address, 1, &value);
+
+        if(i) rl.push(", ");
+        rl.push(res ? String::number(value, 16, 2) : "??", "immediate_fg");
+    }
+
+    rl.push("]");
+}
 
 String ListingRendererImpl::escapeString(const String &s)
 {
@@ -130,6 +158,13 @@ String ListingRendererImpl::escapeString(const String &s)
     }
 
     return res;
+}
+
+void ListingRendererImpl::renderPrologue(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const
+{
+    PIMPL_Q(const ListingRenderer);
+    q->renderAddress(lock, item, rl);
+    q->renderIndent(rl, 3);
 }
 
 } // namespace REDasm

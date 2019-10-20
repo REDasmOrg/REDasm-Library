@@ -18,6 +18,7 @@ class LIBREDASM_API ListingFunctions
     public:
         ListingFunctions();
         address_t at(size_t idx) const;
+        bool contains(address_t address);
         bool insert(address_t address);
         size_t size() const;
         void erase(address_t address);

@@ -21,7 +21,6 @@ class AlgorithmImpl: public StateMachine
     public:
         AlgorithmImpl(Algorithm* algorithm);
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
-        void done(address_t address);
         void enqueue(address_t address);
         void analyze();
 
@@ -40,7 +39,6 @@ class AlgorithmImpl: public StateMachine
 
     private:
         //std::unique_ptr<Emulator> m_emulator;
-        DecodedAddresses m_done;
         Analyzer* m_analyzer;
         const Segment* m_currentsegment;
         bool m_analyzed;

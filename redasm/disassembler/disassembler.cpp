@@ -5,23 +5,8 @@
 
 namespace REDasm {
 
-Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader))
-{
-    // PIMPL_P(Disassembler);
-    // p->m_algorithm = assembler->createAlgorithm();
-    // p->m_analyzejob.setOneShot(true);
-
-    // p->m_analyzejob.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
-    // p->m_analyzejob.work(std::bind(&DisassemblerImpl::analyzeStep, p), true); // Deferred
-    // p->m_jobs.stateChanged.connect(this, [&](EventArgs*) { this->busyChanged(); });
-}
-
-Disassembler::~Disassembler()
-{
-    if(r_ctx->disassembler() == this)
-        r_ctx->setDisassembler(nullptr);
-}
-
+Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new DisassemblerImpl(this, assembler, loader)) { }
+Disassembler::~Disassembler() { if(r_ctx->disassembler() == this) r_ctx->setDisassembler(nullptr); }
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
 const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }
@@ -32,13 +17,12 @@ SortedList Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); re
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
 SortedSet Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 SortedSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }
-Symbol *Disassembler::dereferenceSymbol(const Symbol *symbol, u64 *value) { PIMPL_P(Disassembler); return p->dereferenceSymbol(symbol, value); }
+const Symbol *Disassembler::dereferenceSymbol(const Symbol *symbol, u64 *value) { PIMPL_P(Disassembler); return p->dereferenceSymbol(symbol, value); }
 CachedInstruction Disassembler::disassembleInstruction(address_t address) { PIMPL_P(Disassembler); return p->disassembleInstruction(address); }
 address_location Disassembler::getTarget(address_t address) const { PIMPL_P(const Disassembler); return p->getTarget(address); }
 size_t Disassembler::getTargetsCount(address_t address) const { PIMPL_P(const Disassembler); return p->getTargetsCount(address);  }
 size_t Disassembler::getReferencesCount(address_t address) const { PIMPL_P(const Disassembler); return p->getReferencesCount(address); }
 size_t Disassembler::checkAddressTable(const CachedInstruction &instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
-size_t Disassembler::locationIsString(address_t address, bool *wide) const { PIMPL_P(const Disassembler); return p->locationIsString(address, wide); }
 JobState Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
 String Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }
 String Disassembler::readString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readString(address, len); }
@@ -46,7 +30,6 @@ String Disassembler::readWString(const Symbol *symbol, size_t len) const { PIMPL
 String Disassembler::readWString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(address, len); }
 String Disassembler::getHexDump(address_t address, const Symbol **ressymbol) { PIMPL_P(Disassembler); return p->getHexDump(address, ressymbol); }
 BufferView Disassembler::getFunctionBytes(address_t address) { PIMPL_P(Disassembler); return p->getFunctionBytes(address); }
-bool Disassembler::checkString(address_t fromaddress, address_t address) { PIMPL_P(Disassembler); return p->checkString(fromaddress, address); }
 bool Disassembler::readAddress(address_t address, size_t size, u64 *value) const { PIMPL_P(const Disassembler); return p->readAddress(address, size, value); }
 bool Disassembler::readOffset(offset_t offset, size_t size, u64 *value) const { PIMPL_P(const Disassembler); return p->readOffset(offset, size, value); }
 bool Disassembler::dereference(address_t address, u64 *value) const { PIMPL_P(const Disassembler); return p->dereference(address, value); }

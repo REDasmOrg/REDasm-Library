@@ -20,7 +20,6 @@ void Algorithm::validateTarget(const CachedInstruction& instruction) const { PIM
 bool Algorithm::validateState(const State &state) const { PIMPL_P(const Algorithm); return p->validateState(state); }
 void Algorithm::onNewState(const State* state) const { PIMPL_P(const Algorithm); return p->onNewState(state); }
 size_t Algorithm::disassembleInstruction(address_t address, const CachedInstruction& instruction) { PIMPL_P(Algorithm); return p->disassembleInstruction(address, instruction); }
-void Algorithm::done(address_t address) { PIMPL_P(Algorithm); p->done(address); }
 
 void Algorithm::onDecoded(const CachedInstruction& instruction)
 {
@@ -88,8 +87,7 @@ void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &in
 
 void Algorithm::decodeState(const State *state)
 {
-    if(r_docnew->isInstructionCached(state->address))
-        return;
+    if(r_docnew->isInstructionCached(state->address)) return;
 
     PIMPL_P(Algorithm);
     CachedInstruction instruction = r_docnew->cacheInstruction(state->address);

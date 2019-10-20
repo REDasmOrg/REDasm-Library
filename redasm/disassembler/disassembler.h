@@ -43,13 +43,12 @@ class LIBREDASM_API Disassembler: public Object
         SortedSet getReferences(address_t address) const;
         SortedSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
-        Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
+        const Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
         CachedInstruction disassembleInstruction(address_t address);
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(const CachedInstruction& instruction, address_t address);
-        size_t locationIsString(address_t address, bool *wide = nullptr) const;
         JobState state() const;
         String readString(const Symbol* symbol, size_t len = REDasm::npos) const;
         String readString(address_t address, size_t len = REDasm::npos) const;
@@ -59,7 +58,6 @@ class LIBREDASM_API Disassembler: public Object
         bool loadSignature(const String& signame);
         bool busy() const;
         bool needsWeak() const;
-        bool checkString(address_t fromaddress, address_t address);
         bool readAddress(address_t address, size_t size, u64 *value) const;
         bool readOffset(offset_t offset, size_t size, u64 *value) const;
         bool dereference(address_t address, u64* value) const;

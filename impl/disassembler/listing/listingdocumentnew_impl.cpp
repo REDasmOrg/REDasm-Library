@@ -22,7 +22,8 @@ void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, Symb
 
 void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
-    if(!this->createSymbol(address, name, type, flags, tag)) return;
+    if(!this->canOverrideAddress(address, type, flags)) return;
+    this->createSymbol(address, name, type, flags, tag);
 
     this->insert(address, (type == SymbolType::FunctionNew) ? ListingItemType::FunctionItem :
                                                               ListingItemType::SymbolItem);
@@ -55,7 +56,9 @@ void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolTyp
 void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
 {
     if(!this->canOverrideAddress(address, type, flags)) return;
-    if(this->createSymbol(address, name, type, flags)) m_blocks.dataSize(address, size);
+
+    m_blocks.dataSize(address, size);
+    this->createSymbol(address, name, type, flags);
 }
 
 void ListingDocumentTypeNewImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }
@@ -89,9 +92,12 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
 
     switch(item.type_new)
     {
-        case ListingItemType::SymbolItem: m_symbols.erase(item.address_new); break;
         case ListingItemType::InstructionItem: m_instructions.erase(item.address_new); break;
         case ListingItemType::SegmentItem: m_segments.erase(item.address_new); break;
+
+        case ListingItemType::SymbolItem:
+            if(!m_functions.contains(item.address_new)) m_symbols.erase(item.address_new); // Don't delete functions
+            break;
 
         case ListingItemType::FunctionItem:
             m_functions.erase(item.address_new);
@@ -116,14 +122,12 @@ void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
     this->removeAt(idx);
 }
 
-bool ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
-    if(!this->canOverrideAddress(address, type, flags)) return false;
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
 
     if(name.empty()) m_symbols.create(address, type, flags, tag);
     else m_symbols.create(address, name, type, flags, tag);
-    return true;
 }
 
 bool ListingDocumentTypeNewImpl::canOverrideAddress(address_t address, SymbolType type, SymbolFlags flags) const
@@ -137,14 +141,19 @@ bool ListingDocumentTypeNewImpl::canOverrideAddress(address_t address, SymbolTyp
     if(!symbol) return true;
 
     if(symbol->type > type) return false;
-    if((symbol->type == type) && (!symbol->isWeak() && (flags & SymbolFlags::Weak))) return false;
+
+    if((symbol->type == type))
+    {
+        if(symbol->flags == flags) return false;
+        if(!symbol->isWeak() && (flags & SymbolFlags::Weak)) return false;
+    }
+
     return true;
 }
 
 void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
 {
     const BlockItem* bi = variant_object<const BlockItem>(e->arg());
-    std::cout << "INSERTED: " << bi->displayRange().c_str() << " " << bi->displayType().c_str() << std::endl;
 
     switch(bi->type)
     {
@@ -156,8 +165,7 @@ void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
 
 void ListingDocumentTypeNewImpl::onBlockErased(EventArgs* e)
 {
-    const BlockItem* bi = variant_object<const BlockItem>(e->arg());
-    std::cout << "ERASED: " << bi->displayRange().c_str() << " " << bi->displayType().c_str() << std::endl;
+    BlockItem* bi = variant_object<BlockItem>(e->arg());
 
     switch(bi->type)
     {

@@ -93,6 +93,7 @@ class String: public Object
         static String hexstring(const unsigned char* data, size_t size);
         static String hexstring(const char* data, size_t size);
         static String repeated(char ch, size_t c);
+        static String join(const List& l, char sep);
 
      friend class RegexImpl;
      friend class RegexMatchIteratorImpl;

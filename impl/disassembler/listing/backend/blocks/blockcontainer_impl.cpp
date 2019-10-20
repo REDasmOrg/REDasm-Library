@@ -134,10 +134,12 @@ template<typename Iterator> Iterator BlockContainerImpl::eraseRange(Iterator sta
 {
     PIMPL_Q(BlockContainer);
 
-    return m_blocks.erase(std::remove_if(startit, endit, [&](BlockItem& bi) -> bool {
+    auto it = std::remove_if(startit, endit, [&](BlockItem& bi) -> bool {
        q->erased(&bi);
        return true;
-    }));
+    });
+
+    return m_blocks.erase(it, endit);
 }
 
 template<typename Iterator> Iterator BlockContainerImpl::eraseBlock(Iterator it)

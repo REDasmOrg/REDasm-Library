@@ -32,21 +32,13 @@ AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm): StateMachine(), m_pimpl_q(al
 
 size_t AlgorithmImpl::disassembleInstruction(address_t address, const CachedInstruction& instruction)
 {
-    if(!this->canBeDisassembled(address))
-        return Algorithm::SKIP;
-
-    Symbol* symbol = r_doc->symbol(address);
-
-    if(symbol && !symbol->isLocked() && !symbol->is(SymbolType::Code))
-        r_doc->eraseSymbol(symbol->address);
-
+    if(!this->canBeDisassembled(address)) return Algorithm::SKIP;
     instruction->address = address;
 
     BufferView view = r_ldr->view(address);
     return r_asm->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
 }
 
-void AlgorithmImpl::done(address_t address) { m_done.insert(address); }
 void AlgorithmImpl::enqueue(address_t address) { DECODE_STATE(address);  }
 
 void AlgorithmImpl::analyze()
@@ -114,9 +106,7 @@ void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
 bool AlgorithmImpl::canBeDisassembled(address_t address)
 {
     BufferView view = r_ldr->view(address);
-
-    if(view.eob())
-        return false;
+    if(view.eob()) return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))
         m_currentsegment = r_docnew->segment(address);
@@ -124,7 +114,7 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    if(!r_ldr->offset(address).valid) //|| r_doc->nearestInstruction(address))
+    if(!r_ldr->offset(address).valid)
         return false;
 
     return true;
@@ -141,12 +131,8 @@ void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instructio
 
 size_t AlgorithmImpl::disassemble(address_t address, const CachedInstruction& instruction)
 {
-    auto it = m_done.find(address);
+    if(r_docnew->isInstructionCached(address)) return Algorithm::SKIP;
 
-    if(it != m_done.end())
-        return Algorithm::SKIP;
-
-    this->done(address);
     size_t result = this->disassembleInstruction(address, instruction);
 
     PIMPL_Q(Algorithm);

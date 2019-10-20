@@ -60,7 +60,7 @@ void DisassemblerEngine::resume() { m_jobs.resume(); }
 
 void DisassemblerEngine::stringsStep() { m_stringsjob.work(std::bind(&DisassemblerEngine::stringsJob, this, std::placeholders::_1)); }
 void DisassemblerEngine::algorithmStep() { m_jobs.work(std::bind(&DisassemblerEngine::algorithmJob, this, std::placeholders::_1)); }
-void DisassemblerEngine::analyzeStep() { /* m_analyzejob.work(std::bind(&DisassemblerEngine::analyzeJob, this, std::placeholders::_1)); */ }
+void DisassemblerEngine::analyzeStep() { m_analyzejob.work(std::bind(&DisassemblerEngine::analyzeJob, this, std::placeholders::_1)); }
 
 void DisassemblerEngine::unexploredStep()
 {

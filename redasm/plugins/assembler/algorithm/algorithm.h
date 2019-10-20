@@ -39,7 +39,6 @@ class Algorithm: public Object
         Algorithm();
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void enqueue(address_t address);
-        void analyze();
         bool hasNext() const;
         void next();
 

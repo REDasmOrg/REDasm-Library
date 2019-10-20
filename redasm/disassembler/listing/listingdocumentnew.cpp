@@ -211,14 +211,16 @@ void ListingDocumentTypeNew::comment(address_t address, const String& s)
 CachedInstruction ListingDocumentTypeNew::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.allocate(address); }
 bool ListingDocumentTypeNew::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_instructions.contains(address); }
 bool ListingDocumentTypeNew::rename(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); return p->rename(address, name); }
+ListingItem ListingDocumentTypeNew::functionStart(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->functionStart(address); }
+void ListingDocumentTypeNew::graph(address_t address, FunctionGraph* graph) { PIMPL_P(ListingDocumentTypeNew); return p->graph(address, graph); }
+void ListingDocumentTypeNew::segmentCoverage(address_t address, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverage(address, coverage);  }
+void ListingDocumentTypeNew::segmentCoverageAt(size_t idx, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverageAt(idx, coverage); }
+void ListingDocumentTypeNew::invalidateGraphs() { PIMPL_P(ListingDocumentTypeNew); return p->invalidateGraphs(); }
 
 void ListingDocumentTypeNew::moveToEntry()
 {
     PIMPL_P(ListingDocumentTypeNew);
-
-    if(!p->m_entry)
-        return;
-
+    if(!p->m_entry) return;
     p->m_cursor.set(this->itemFunctionIndex(p->m_entry->address));
 }
 

@@ -26,9 +26,8 @@ class ListingDocumentTypeNewImpl
         const Symbol* entry() const;
 
     public:
+        ListingItem functionStart(address_t address) const;
         const ListingItem& insert(address_t address, ListingItemType type, size_t index = 0);
-
-    public:
         void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
         void symbol(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
@@ -43,6 +42,10 @@ class ListingDocumentTypeNewImpl
         const Symbol* symbol(const String& name) const;
         void remove(address_t address, ListingItemType type);
         void removeAt(size_t idx);
+        void graph(address_t address, FunctionGraph* graph);
+        void segmentCoverage(address_t address, size_t coverage);
+        void segmentCoverageAt(size_t idx, size_t coverage);
+        void invalidateGraphs();
 
     private:
         void createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);

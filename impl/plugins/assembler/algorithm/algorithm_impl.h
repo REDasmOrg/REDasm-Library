@@ -22,7 +22,6 @@ class AlgorithmImpl: public StateMachine
         AlgorithmImpl(Algorithm* algorithm);
         size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void enqueue(address_t address);
-        void analyze();
 
     protected:
         bool validateState(const State& state) const override;

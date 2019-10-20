@@ -1,6 +1,8 @@
 #pragma once
 
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
+#include <redasm/plugins/loader/analyzer.h>
+#include <redasm/disassembler/listing/listingdocumentnew.h>
 #include <redasm/disassembler/concurrent/jobspool.h>
 #include <redasm/support/safe_ptr.h>
 #include <redasm/support/event.h>
@@ -13,7 +15,7 @@ namespace DisassemblerEngineSteps {
 enum {
     None,
     Strings, Algorithm, Unexplored, Analyze, Signature, CFG,
-    Last = CFG
+    Last
 };
 
 } // namespace DisassembleEngineSteps
@@ -50,15 +52,20 @@ class DisassemblerEngine
         void cfgStep();
 
     private:
+        void stringsJob(Job*);
         void algorithmJob(Job* job);
         void analyzeJob(Job*);
-        void stringsJob(Job*);
+        void cfgJob(Job*);
 
     private:
+        void cfg(document_x_lock_new& lock, address_t address);
+
+    private:
+        Analyzer* m_analyzer{nullptr};
         std::chrono::steady_clock::time_point m_starttime;
         size_t m_currentstep{DisassemblerEngineSteps::None};
         safe_ptr<Algorithm> m_algorithm;
-        Job m_stringsjob, m_analyzejob;
+        Job m_stringsjob, m_analyzejob, m_cfgjob;
         JobsPool m_jobs;
 };
 

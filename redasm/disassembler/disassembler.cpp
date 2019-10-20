@@ -40,7 +40,6 @@ void Disassembler::popTarget(address_t address, address_t pointedby) { PIMPL_P(D
 void Disassembler::pushTarget(address_t address, address_t pointedby) { PIMPL_P(Disassembler); p->pushTarget(address, pointedby); }
 void Disassembler::pushReference(address_t address, address_t refby) { PIMPL_P(Disassembler); p->pushReference(address, refby); }
 void Disassembler::checkLocation(address_t fromaddress, address_t address) { PIMPL_P(Disassembler); p->checkLocation(fromaddress, address); }
-void Disassembler::computeBasicBlocks() { PIMPL_P(Disassembler); p->computeBasicBlocks(); }
 void Disassembler::disassemble(address_t address) { PIMPL_P(Disassembler); p->disassemble(address); }
 void Disassembler::disassemble() { PIMPL_P(Disassembler); return p->disassemble(); }
 void Disassembler::stop() { PIMPL_P(Disassembler); p->stop(); }

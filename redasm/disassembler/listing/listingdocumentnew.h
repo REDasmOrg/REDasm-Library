@@ -100,6 +100,13 @@ class ListingDocumentTypeNew: public Object
     public: // Symbols
         bool rename(address_t address, const String& name);
 
+    public: // Graph
+        ListingItem functionStart(address_t address) const;
+        void graph(address_t address, FunctionGraph* graph);
+        void segmentCoverage(address_t address, size_t coverage);
+        void segmentCoverageAt(size_t idx, size_t coverage);
+        void invalidateGraphs();
+
     public:
         void moveToEntry();
         void setEntry(address_t address);

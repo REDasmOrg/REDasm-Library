@@ -67,7 +67,6 @@ class LIBREDASM_API Disassembler: public Object
         void pushTarget(address_t address, address_t pointedby);
         void pushReference(address_t address, address_t refby);
         void checkLocation(address_t fromaddress, address_t address);
-        void computeBasicBlocks();
         void stop();
         void pause();
         void resume();

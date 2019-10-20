@@ -69,22 +69,16 @@ SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_refer
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {
     REDasm::ListingItem* item = this->document()->functionStart(address);
-
-    if(!item)
-        return BufferView();
+    if(!item) return BufferView();
 
     const auto* graph = this->document()->functions()->graph(item->address_new);
-
-    if(!graph)
-        return BufferView();
+    if(!graph) return BufferView();
 
     const ListingItem *startitem = nullptr, *enditem = nullptr;
 
     graph->nodes().each([&](Node n) {
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
-
-        if(!fbb)
-            return;
+        if(!fbb) return;
 
         if(!startitem)
             startitem = fbb->startItem();
@@ -229,23 +223,15 @@ String DisassemblerImpl::readWString(address_t address, size_t len) const
 String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 {
     const REDasm::ListingItem* item = this->document()->functionStart(address);
-
-    if(!item)
-        return String();
+    if(!item) return String();
 
     const REDasm::Symbol* symbol = this->document()->symbol(item->address_new);
-
-    if(!symbol)
-        return String();
+    if(!symbol) return String();
 
     REDasm::BufferView br = this->getFunctionBytes(symbol->address);
+    if(br.eob()) return String();
 
-    if(br.eob())
-        return String();
-
-    if(ressymbol)
-        *ressymbol = symbol;
-
+    if(ressymbol) *ressymbol = symbol;
     return String::hexstring(br.data(), br.size());
 }
 
@@ -292,10 +278,8 @@ bool DisassemblerImpl::loadSignature(const String &signame)
         return true;
     });
 
-    if(c)
-        r_ctx->log("Found " + String::number(c) + " signature(s)");
-    else
-        r_ctx->log("No signatures found");
+    if(c) r_ctx->log("Found " + String::number(c) + " signature(s)");
+    else r_ctx->log("No signatures found");
 
     return true;
 }
@@ -337,19 +321,14 @@ bool DisassemblerImpl::readOffset(offset_t offset, size_t size, u64 *value) cons
 
 bool DisassemblerImpl::dereference(address_t address, u64 *value) const
 {
-    if(!value)
-        return false;
-
+    if(!value) return false;
     return this->readAddress(address, m_assembler->addressWidth(), value);
 }
 
 void DisassemblerImpl::disassemble(address_t address)
 {
     m_engine->enqueue(address);
-
-    if(m_engine->busy())
-        return;
-
+    if(m_engine->busy()) return;
     m_engine->execute(DisassemblerEngineSteps::Algorithm);
 }
 
@@ -377,28 +356,11 @@ void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
     this->pushReference(address, fromaddress);
 }
 
-void DisassemblerImpl::computeBasicBlocks()
-{
-    auto lock = x_lock_safe_ptr(m_loader->document());
-    ListingFunctions* lf = lock->functions();
-    lf->invalidateGraphs();
-
-    for(size_t i = 0; i < this->documentNew()->segments()->size(); i++)
-    {
-        //Segment* s = this->documentNew()->segments()->at(i);
-        //s->coveragebytes = REDasm::npos;
-    }
-
-    //for(size_t i = 0; i < lf->size(); i++)
-        //this->computeBasicBlocks(lock, lf->at(i));
-}
-
 void DisassemblerImpl::disassemble()
 {
     m_engine = std::make_unique<DisassemblerEngine>();
-    m_starttime = std::chrono::steady_clock::now();
 
-    if(!this->documentNew()->segmentsCount()) return;
+    if(!r_docnew->segmentsCount()) return;
 
     const ListingFunctions* functions = r_docnew->functions();
 
@@ -417,45 +379,5 @@ void DisassemblerImpl::disassemble()
 void DisassemblerImpl::stop() { if(m_engine) m_engine->stop(); }
 void DisassemblerImpl::pause() { if(m_engine) m_engine->pause(); }
 void DisassemblerImpl::resume() { if(m_engine) m_engine->resume(); }
-
-void DisassemblerImpl::computeBasicBlocks(document_x_lock &lock, address_t address)
-{
-    return;
-    r_ctx->status("Computing basic blocks @ " + String::hex(address));
-    auto g = std::make_unique<FunctionGraph>();
-
-    if(!g->build(address))
-        return;
-
-    Segment* segment = r_doc->segment(address);
-
-    if(segment)
-    {
-        if(segment->coveragebytes == REDasm::npos)
-            segment->coveragebytes = g->bytesCount();
-        else
-            segment->coveragebytes += g->bytesCount();
-    }
-
-    const NodeList& nodes = g->nodes();
-
-    // Add basic block separators to listing
-    for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
-    {
-        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
-
-        if(!fbb)
-            continue;
-
-        const ListingItem* item = fbb->instructionEndItem();
-
-        if(!item)
-            continue;
-
-        lock->separator(item->address_new);
-    }
-
-    lock->functions()->graph(address, g.release());
-}
 
 } // namespace REDasm

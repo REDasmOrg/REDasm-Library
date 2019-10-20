@@ -18,6 +18,16 @@ const InstructionCache* ListingDocumentTypeNewImpl::instructions() const { retur
 const ListingCursor& ListingDocumentTypeNewImpl::cursor() const { return m_cursor; }
 ListingCursor& ListingDocumentTypeNewImpl::cursor() { return m_cursor; }
 const Symbol* ListingDocumentTypeNewImpl::entry() const { return m_entry; }
+
+ListingItem ListingDocumentTypeNewImpl::functionStart(address_t address) const
+{
+    const BlockItem* block = m_blocks.find(address);
+    if(!block) return ListingItem();
+
+    PIMPL_Q(const ListingDocumentTypeNew);
+    return q->itemFunction(block->start);
+}
+
 void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }
 
 void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
@@ -108,6 +118,31 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
         default: break;
     }
 }
+
+void ListingDocumentTypeNewImpl::graph(address_t address, FunctionGraph* graph) { m_functions.graph(address, graph); }
+
+void ListingDocumentTypeNewImpl::segmentCoverage(address_t address, size_t coverage)
+{
+    size_t idx = m_segments.indexOf(address);
+
+    if(idx == REDasm::npos)
+    {
+        r_ctx->problem("Cannot find segment @ " + String::hex(address));
+        return;
+    }
+
+    this->segmentCoverageAt(idx, coverage);
+}
+
+void ListingDocumentTypeNewImpl::segmentCoverageAt(size_t idx, size_t coverage)
+{
+    Segment* segment = m_segments.at(idx);
+
+    if((coverage == REDasm::npos) || (segment->coveragebytes == REDasm::npos)) segment->coveragebytes = coverage;
+    else segment->coveragebytes += coverage;
+}
+
+void ListingDocumentTypeNewImpl::invalidateGraphs() { m_functions.invalidateGraphs(); }
 
 void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
 {

@@ -39,35 +39,7 @@ size_t AlgorithmImpl::disassembleInstruction(address_t address, const CachedInst
     return r_asm->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
 }
 
-void AlgorithmImpl::enqueue(address_t address) { DECODE_STATE(address);  }
-
-void AlgorithmImpl::analyze()
-{
-    if(m_analyzed)
-    {
-        r_ctx->status("Analyzing (Fast)...");
-        m_analyzer->analyzeFast();
-        r_disasm->computeBasicBlocks();
-        r_docnew->moveToEntry();
-        return;
-    }
-
-    m_analyzed = true;
-    m_analyzer = r_ldr->analyzer();
-
-    r_ctx->status("Analyzing...");
-    m_analyzer->analyze();
-    r_disasm->computeBasicBlocks();
-    r_docnew->moveToEntry();
-
-    // Trigger a Fast Analysis when post disassembling is completed
-    r_disasm->busyChanged.connect(this, [&](EventArgs*) {
-        if(r_disasm->busy())
-            return;
-
-        this->analyze();
-    });
-}
+void AlgorithmImpl::enqueue(address_t address) { DECODE_STATE(address); }
 
 void AlgorithmImpl::loadTargets(const CachedInstruction& instruction)
 {

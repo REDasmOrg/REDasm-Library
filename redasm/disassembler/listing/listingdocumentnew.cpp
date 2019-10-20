@@ -212,6 +212,8 @@ CachedInstruction ListingDocumentTypeNew::cacheInstruction(address_t address) { 
 bool ListingDocumentTypeNew::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_instructions.contains(address); }
 bool ListingDocumentTypeNew::rename(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); return p->rename(address, name); }
 ListingItem ListingDocumentTypeNew::functionStart(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->functionStart(address); }
+const FunctionGraph* ListingDocumentTypeNew::graph(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->graph(address); }
+FunctionGraph* ListingDocumentTypeNew::graph(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->graph(address);  }
 void ListingDocumentTypeNew::graph(address_t address, FunctionGraph* graph) { PIMPL_P(ListingDocumentTypeNew); return p->graph(address, graph); }
 void ListingDocumentTypeNew::segmentCoverage(address_t address, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverage(address, coverage);  }
 void ListingDocumentTypeNew::segmentCoverageAt(size_t idx, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverageAt(idx, coverage); }

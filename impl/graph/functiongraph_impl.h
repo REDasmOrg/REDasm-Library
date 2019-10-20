@@ -1,5 +1,6 @@
 #pragma once
 
+#include <redasm/disassembler/listing/backend/blocks/blockitem.h>
 #include <redasm/graph/functiongraph.h>
 #include <redasm/pimpl.h>
 #include <unordered_set>
@@ -15,12 +16,12 @@ class FunctionBasicBlockImpl
 
     public:
         FunctionBasicBlockImpl();
-        FunctionBasicBlockImpl(Node n, ListingItem* startitem);
+        FunctionBasicBlockImpl(Node n, const ListingItem& startitem);
 
     private:
         Node m_node;
-        ListingItem *m_startitem, *m_enditem;                       // [startitem, enditem]
-        ListingItem *m_startinstructionitem, *m_endinstructionitem; // [startinstructionitem, endinstructionitem]
+        ListingItem m_startitem, m_enditem;                       // [startitem, enditem]
+        ListingItem m_startinstructionitem, m_endinstructionitem; // [startinstructionitem, endinstructionitem]
         std::unordered_map<Node, String> m_styles;
 };
 
@@ -30,8 +31,8 @@ class FunctionGraphImpl: public GraphImpl
     PIMPL_DECLARE_PUBLIC(FunctionGraph)
 
     private:
-        typedef std::unordered_set<ListingItem*> VisitedItems;
-        typedef std::queue<ListingItem*> WorkList;
+        typedef std::unordered_set<const BlockItem*> VisitedItems;
+        typedef std::queue<const BlockItem*> WorkList;
 
     public:
         FunctionGraphImpl();
@@ -43,16 +44,19 @@ class FunctionGraphImpl: public GraphImpl
     private:
         const FunctionBasicBlock* basicBlockFromAddress(address_t address) const;
         FunctionBasicBlock* basicBlockFromAddress(address_t address);
-        FunctionBasicBlock* getBlockAt(ListingItem *item);
-        bool isStopItem(ListingItem *item) const;
+        FunctionBasicBlock* getBasicBlockAt(const BlockItem* block);
         bool build(ListingItem *item);
         void buildBasicBlocks();
         void incomplete();
 
     private:
+        bool processJump(FunctionBasicBlock* fbb, const CachedInstruction& instruction, WorkList& worklist);
+        void processJumpConditional(FunctionBasicBlock* fbb, const BlockItem* block, WorkList& worklist);
+
+    private:
         std::deque<FunctionBasicBlock> m_basicblocks;
-        ListingItem* m_graphstart;
-        bool m_complete;
+        const BlockItem* m_graphstart{nullptr};
+        bool m_complete{true};
 };
 
 } // namespace REDasm

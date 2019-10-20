@@ -102,6 +102,8 @@ class ListingDocumentTypeNew: public Object
 
     public: // Graph
         ListingItem functionStart(address_t address) const;
+        const FunctionGraph* graph(address_t address) const;
+        FunctionGraph* graph(address_t address);
         void graph(address_t address, FunctionGraph* graph);
         void segmentCoverage(address_t address, size_t coverage);
         void segmentCoverageAt(size_t idx, size_t coverage);

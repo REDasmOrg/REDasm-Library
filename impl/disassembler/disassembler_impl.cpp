@@ -40,23 +40,21 @@ SortedList DisassemblerImpl::getCalls(address_t address)
         Node n = v.toInt();
 
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
+        if(!fbb) return;
 
-        if(!fbb)
-            return;
+        // for(ListingItem* item = fbb->startItem(); item; item = r_doc->next(item))
+        // {
+        //     if(!item->is(ListingItemType::InstructionItem))
+        //         continue;
 
-        for(ListingItem* item = fbb->startItem(); item; item = r_doc->next(item))
-        {
-            if(!item->is(ListingItemType::InstructionItem))
-                continue;
+        //     CachedInstruction instruction = this->document()->instruction(item->address_new);
 
-            CachedInstruction instruction = this->document()->instruction(item->address_new);
+        //     if(instruction->is(InstructionType::Call))
+        //         calls.insert(item);
 
-            if(instruction->is(InstructionType::Call))
-                calls.insert(item);
-
-            if(item == fbb->endItem())
-                break;
-        }
+        //     if(item == fbb->endItem())
+        //         break;
+        // }
     });
 
     return calls;
@@ -74,28 +72,23 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     const auto* graph = this->document()->functions()->graph(item->address_new);
     if(!graph) return BufferView();
 
-    const ListingItem *startitem = nullptr, *enditem = nullptr;
+    ListingItem startitem , enditem;
 
     graph->nodes().each([&](Node n) {
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
         if(!fbb) return;
 
-        if(!startitem)
-            startitem = fbb->startItem();
-        else if(startitem->address_new > fbb->startItem()->address_new)
-            startitem = fbb->startItem();
+        if(!startitem.isValid()) startitem = fbb->startItem();
+        else if(startitem.address_new > fbb->startItem().address_new) startitem = fbb->startItem();
 
-        if(!enditem)
-            enditem = fbb->endItem();
-        else if(enditem->address_new < fbb->endItem()->address_new)
-            enditem = fbb->endItem();
+        if(!enditem.isValid()) enditem = fbb->endItem();
+        else if(enditem.address_new < fbb->endItem().address_new) enditem = fbb->endItem();
     });
 
-    if(!startitem || !enditem)
-        return BufferView();
+    if(!startitem.isValid() || !enditem.isValid()) return BufferView();
 
-    BufferView v = this->loader()->view(startitem->address_new);
-    v.resize(enditem->address_new - startitem->address_new);
+    BufferView v = this->loader()->view(startitem.address_new);
+    v.resize(enditem.address_new - startitem.address_new);
     return v;
 }
 

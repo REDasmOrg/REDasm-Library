@@ -16,27 +16,26 @@ class LIBREDASM_API FunctionBasicBlock: public Object
 
     public:
         FunctionBasicBlock();
-        FunctionBasicBlock(Node n, ListingItem* startitem);
+        FunctionBasicBlock(Node n, const ListingItem& startitem);
         Node node() const;
-        ListingItem* startItem() const;
-        ListingItem* endItem() const;
-        ListingItem* instructionStartItem() const;
-        ListingItem* instructionEndItem() const;
+        const ListingItem& startItem() const;
+        const ListingItem& endItem() const;
+        const ListingItem& instructionStartItem() const;
+        const ListingItem& instructionEndItem() const;
         size_t startIndex() const;
         size_t endIndex() const;
         size_t instructionStartIndex() const;
         size_t instructionEndIndex() const;
         size_t count() const;
-        size_t instructionsCount() const;
         void bTrue(Node n);
         void bFalse(Node n);
         bool contains(address_t address) const;
         bool isEmpty() const;
         String style(Node n) const;
-        void setStartItem(ListingItem* item);
-        void setEndItem(ListingItem* item);
-        void setInstructionStartItem(ListingItem* item);
-        void setInstructionEndItem(ListingItem* item);
+        void setStartItem(const ListingItem& item);
+        void setEndItem(const ListingItem& item);
+        void setInstructionStartItem(const ListingItem& item);
+        void setInstructionEndItem(const ListingItem& item);
         void setNode(Node idx);
 };
 

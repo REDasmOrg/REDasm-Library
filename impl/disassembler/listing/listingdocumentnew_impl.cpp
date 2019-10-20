@@ -119,6 +119,8 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
     }
 }
 
+const FunctionGraph* ListingDocumentTypeNewImpl::graph(address_t address) const { return m_functions.graph(address); }
+FunctionGraph* ListingDocumentTypeNewImpl::graph(address_t address) { return m_functions.graph(address);  }
 void ListingDocumentTypeNewImpl::graph(address_t address, FunctionGraph* graph) { m_functions.graph(address, graph); }
 
 void ListingDocumentTypeNewImpl::segmentCoverage(address_t address, size_t coverage)

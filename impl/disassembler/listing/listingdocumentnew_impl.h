@@ -42,6 +42,8 @@ class ListingDocumentTypeNewImpl
         const Symbol* symbol(const String& name) const;
         void remove(address_t address, ListingItemType type);
         void removeAt(size_t idx);
+        const FunctionGraph* graph(address_t address) const;
+        FunctionGraph* graph(address_t address);
         void graph(address_t address, FunctionGraph* graph);
         void segmentCoverage(address_t address, size_t coverage);
         void segmentCoverageAt(size_t idx, size_t coverage);

@@ -15,7 +15,7 @@ namespace DisassemblerEngineSteps {
 enum {
     None,
     Strings, Algorithm, Unexplored, Analyze, Signature, CFG,
-    Last
+    Last = CFG
 };
 
 } // namespace DisassembleEngineSteps

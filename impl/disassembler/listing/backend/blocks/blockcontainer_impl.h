@@ -29,6 +29,7 @@ class BlockContainerImpl
     public:
         bool empty() const;
         size_t size() const;
+        size_t indexOf(const BlockItem* bi) const;
         const BlockItem* at(size_t idx) const;
         const BlockItem* find(address_t address) const;
         BlockItem* at(size_t idx);

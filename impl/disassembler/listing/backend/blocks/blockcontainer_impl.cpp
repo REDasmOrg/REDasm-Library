@@ -27,6 +27,12 @@ BlockItem* BlockContainerImpl::markSize(address_t start, size_t size, BlockItemT
 bool BlockContainerImpl::empty() const { return m_blocks.empty(); }
 size_t BlockContainerImpl::size() const { return m_blocks.size(); }
 
+size_t BlockContainerImpl::indexOf(const BlockItem* bi) const
+{
+    auto it = const_cast<BlockContainerImpl*>(this)->findOverlap(bi->start);
+    return (it != m_blocks.end()) ? std::distance(const_cast<BlockContainerImpl*>(this)->m_blocks.begin(), it) : REDasm::npos;
+}
+
 void BlockContainerImpl::remove(address_t start, address_t end)
 {
     auto begit = this->findOverlap(start);

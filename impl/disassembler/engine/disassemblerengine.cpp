@@ -124,6 +124,7 @@ void DisassemblerEngine::analyzeJob(Job*)
 
 void DisassemblerEngine::cfgJob(Job*)
 {
+    r_ctx->log("Generating CFG...");
     auto lock = x_lock_safe_ptr(r_docnew);
     lock->invalidateGraphs();
 
@@ -149,16 +150,16 @@ void DisassemblerEngine::cfg(document_x_lock_new &lock, address_t address)
     const NodeList& nodes = g->nodes();
 
     // Add basic block separators to listing
-    for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
-    {
-        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
-        if(!fbb) continue;
+    // for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
+    // {
+    //     const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
+    //     if(!fbb) continue;
 
-        const ListingItem* item = fbb->instructionEndItem();
-        if(!item) continue;
+    //     const ListingItem* item = fbb->instructionEndItem();
+    //     if(!item) continue;
 
-        lock->separator(item->address_new);
-    }
+    //     lock->separator(item->address_new);
+    // }
 
     lock->graph(address, g.release());
 }

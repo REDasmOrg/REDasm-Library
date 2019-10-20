@@ -58,7 +58,7 @@ void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const Str
     if(!this->canOverrideAddress(address, type, flags)) return;
 
     m_blocks.dataSize(address, size);
-    this->createSymbol(address, name, type, flags);
+    this->symbol(address, name, type, flags);
 }
 
 void ListingDocumentTypeNewImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }
@@ -158,8 +158,9 @@ void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
     switch(bi->type)
     {
         case BlockItemType::Unexplored: this->insert(bi->start, ListingItemType::UnexploredItem); break;
-        case BlockItemType::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;
+        //case BlockItemType::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;         // Don't add SymbolItem automatically
         case BlockItemType::Code: this->insert(bi->start, ListingItemType::InstructionItem); break;
+        default: break;
     }
 }
 

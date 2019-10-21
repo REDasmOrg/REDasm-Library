@@ -80,10 +80,12 @@ class ListingDocumentTypeNew: public Object
 
     public: // Items
         size_t itemIndex(address_t address);
+        size_t itemListingIndex(address_t address);
         size_t itemSegmentIndex(address_t address, size_t index = 0) const;
         size_t itemFunctionIndex(address_t address, size_t index = 0) const;
         size_t itemInstructionIndex(address_t address, size_t index = 0) const;
         size_t itemSymbolIndex(address_t address, size_t index = 0) const;
+        ListingItem itemListing(address_t address) const;
         ListingItem itemSegment(address_t address) const;
         ListingItem itemFunction(address_t address) const;
         ListingItem itemInstruction(address_t address) const;

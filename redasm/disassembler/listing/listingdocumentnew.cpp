@@ -171,10 +171,12 @@ String ListingDocumentTypeNew::comment(address_t address, bool skipauto) const
 }
 
 size_t ListingDocumentTypeNew::itemIndex(address_t address) { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.itemIndex(address); }
+size_t ListingDocumentTypeNew::itemListingIndex(address_t address) { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.listingIndex(address); }
 size_t ListingDocumentTypeNew::itemSegmentIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.segmentIndex(address, index); }
 size_t ListingDocumentTypeNew::itemFunctionIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.functionIndex(address, index); }
 size_t ListingDocumentTypeNew::itemInstructionIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.instructionIndex(address, index); }
 size_t ListingDocumentTypeNew::itemSymbolIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.symbolIndex(address, index); }
+ListingItem ListingDocumentTypeNew::itemListing(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.listingItem(address);  }
 ListingItem ListingDocumentTypeNew::itemSegment(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.segmentItem(address); }
 ListingItem ListingDocumentTypeNew::itemFunction(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.functionItem(address); }
 ListingItem ListingDocumentTypeNew::itemInstruction(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.instructionItem(address); }

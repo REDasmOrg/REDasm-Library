@@ -55,7 +55,7 @@ bool DisassemblerEngine::needsWeak() const
     return false;
 }
 
-bool DisassemblerEngine::busy() const { return m_jobs.active(); }
+bool DisassemblerEngine::busy() const { return m_jobs.active() || m_stringsjob.active() || m_analyzejob.active() || m_cfgjob.active(); }
 void DisassemblerEngine::stop() { m_jobs.stop(); }
 void DisassemblerEngine::pause() { m_jobs.pause(); }
 void DisassemblerEngine::resume() { m_jobs.resume(); }
@@ -103,13 +103,13 @@ void DisassemblerEngine::analyzeJob(Job*)
     }
     else
     {
-        m_analyzer = r_ldr->analyzer();
         r_ctx->status("Analyzing...");
+        m_analyzer = r_ldr->analyzer();
         m_analyzer->analyze();
 
         // Trigger a Fast Analysis when post disassembling is completed
         r_disasm->busyChanged.connect(this, [&](EventArgs*) {
-            //if(!r_disasm->busy()) this->execute(DisassemblerEngineSteps::Analyze);
+            if(!r_disasm->busy()) this->execute(DisassemblerEngineSteps::Analyze);
         });
 
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
@@ -150,16 +150,14 @@ void DisassemblerEngine::cfg(document_x_lock_new &lock, address_t address)
     const NodeList& nodes = g->nodes();
 
     // Add basic block separators to listing
-    // for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
-    // {
-    //     const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
-    //     if(!fbb) continue;
+    for(size_t i = 0; (nodes.size() > 1) && (i < nodes.size() - 1); i++)
+    {
+        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(g->data(nodes.at(i)));
+        if(!fbb) continue;
 
-    //     const ListingItem* item = fbb->instructionEndItem();
-    //     if(!item) continue;
-
-    //     lock->separator(item->address_new);
-    // }
+        ListingItem item = fbb->endItem();
+        if(item.isValid()) lock->separator(item.address_new);
+    }
 
     lock->graph(address, g.release());
 }

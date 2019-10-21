@@ -53,8 +53,7 @@ JobState JobsPoolImpl::state() const
 
 bool JobsPoolImpl::active() const
 {
-    if(!m_running)
-        return false;
+    if(!m_running) return false;
 
     for(auto& job : m_jobs)
     {

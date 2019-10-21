@@ -3,7 +3,6 @@
 
 namespace REDasm {
 
-FunctionBasicBlockImpl::FunctionBasicBlockImpl(): m_node(0) { }
 FunctionBasicBlockImpl::FunctionBasicBlockImpl(Node n, const ListingItem& startitem): m_node(n), m_startitem(startitem), m_enditem(startitem) { }
 
 FunctionGraphImpl::FunctionGraphImpl(): GraphImpl() { }
@@ -11,23 +10,27 @@ FunctionGraphImpl::FunctionGraphImpl(): GraphImpl() { }
 size_t FunctionGraphImpl::bytesCount() const
 {
     size_t c = 0;
+    const BlockContainer* blocks = r_docnew->blocks();
 
-    // for(const FunctionBasicBlock& fbb : m_basicblocks)
-    // {
-    //     for(ListingItem* item = fbb.startItem(); item; item = r_doc->next(item))
-    //     {
-    //         if(item->is(ListingItemType::InstructionItem))
-    //         {
-    //             CachedInstruction instruction = r_doc->instruction(item->address_new);
+    for(const FunctionBasicBlock& fbb : m_basicblocks)
+    {
+        const BlockItem* startb = r_docnew->block(fbb.startItem().address_new);
+        const BlockItem* lastb = r_docnew->block(fbb.endItem().address_new);
 
-    //             if(instruction)
-    //                 c += instruction->size;
-    //         }
+        for(size_t i = blocks->indexOf(startb); i <= blocks->indexOf(lastb); i++)
+        {
+            const BlockItem* b = blocks->at(i);
+            CachedInstruction instruction = r_docnew->instruction(b->start);
 
-    //         if(item == fbb.endItem())
-    //             break;
-    //     }
-    // }
+            if(!instruction)
+            {
+                r_ctx->problem("Cannot find intruction @ " + String::hex(b->start));
+                continue;
+            }
+
+            c += instruction->size;
+        }
+    }
 
     return c;
 }
@@ -75,9 +78,6 @@ bool FunctionGraphImpl::processJump(FunctionBasicBlock* fbb, const CachedInstruc
     for(size_t i = 0; i < targets.size(); i++)
     {
         const Variant& target = targets.at(i);
-        const Symbol* symbol = r_docnew->symbol(target.toU64());
-        if(!symbol || !symbol->is(SymbolType::LabelNew)) return false;
-
         const BlockItem* destblock = blocks->find(target.toU64());
         if(!destblock) return false;
 
@@ -105,7 +105,7 @@ FunctionBasicBlock *FunctionGraphImpl::getBasicBlockAt(const BlockItem* block)
     FunctionBasicBlock* fbb = this->basicBlockFromAddress(block->start);
     if(fbb) return fbb;
 
-    m_basicblocks.emplace_back(this->newNode(), r_docnew->itemInstruction(block->start));
+    m_basicblocks.emplace_back(this->newNode(), r_docnew->itemListing(block->start));
     fbb = &m_basicblocks.back();
     this->setData(fbb->node(), fbb);
     return fbb;
@@ -128,10 +128,18 @@ void FunctionGraphImpl::buildBasicBlocks()
 
         FunctionBasicBlock* fbb = this->getBasicBlockAt(rbi);
 
-        for(size_t i = blocks->indexOf(rbi); i < blocks->size(); i++)
+        for(size_t i = blocks->indexOf(rbi), first = i; i < blocks->size(); i++)
         {
             const BlockItem* bi = blocks->at(i);
             if(!bi->typeIs(BlockItemType::Code)) break;
+
+            if(i > first)
+            {
+                const Symbol* symbol = r_docnew->symbol(bi->start);
+
+                if(symbol && symbol->isFunction())
+                    break; // Don't overlap functions
+            }
 
             rbi = bi;
             CachedInstruction instruction = r_docnew->instruction(bi->start);
@@ -146,8 +154,11 @@ void FunctionGraphImpl::buildBasicBlocks()
 
                 if(instruction->is(InstructionType::Conditional) && (bi != blocks->last()))
                     this->processJumpConditional(fbb, blocks->at(i + 1), worklist);
+
+                break;
             }
-            else if(instruction->is(InstructionType::Stop))
+
+            if(instruction->is(InstructionType::Stop))
                 break;
         }
 
@@ -157,7 +168,7 @@ void FunctionGraphImpl::buildBasicBlocks()
             continue;
         }
 
-        fbb->setEndItem(r_docnew->itemInstruction(rbi->start));
+        fbb->setEndItem(r_docnew->itemListing(rbi->start));
     }
 }
 

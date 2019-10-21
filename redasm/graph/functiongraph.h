@@ -20,12 +20,8 @@ class LIBREDASM_API FunctionBasicBlock: public Object
         Node node() const;
         const ListingItem& startItem() const;
         const ListingItem& endItem() const;
-        const ListingItem& instructionStartItem() const;
-        const ListingItem& instructionEndItem() const;
         size_t startIndex() const;
         size_t endIndex() const;
-        size_t instructionStartIndex() const;
-        size_t instructionEndIndex() const;
         size_t count() const;
         void bTrue(Node n);
         void bFalse(Node n);
@@ -34,8 +30,6 @@ class LIBREDASM_API FunctionBasicBlock: public Object
         String style(Node n) const;
         void setStartItem(const ListingItem& item);
         void setEndItem(const ListingItem& item);
-        void setInstructionStartItem(const ListingItem& item);
-        void setInstructionEndItem(const ListingItem& item);
         void setNode(Node idx);
 };
 

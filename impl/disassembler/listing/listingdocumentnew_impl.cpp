@@ -172,6 +172,7 @@ void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& n
 
 bool ListingDocumentTypeNewImpl::canOverrideAddress(address_t address, SymbolType type, SymbolFlags flags) const
 {
+    if(!m_segments.find(address)) return false; // Ignore out of segment addresses
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
 
     const BlockItem* bi = m_blocks.find(address);

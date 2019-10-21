@@ -10,12 +10,8 @@ FunctionBasicBlock::FunctionBasicBlock(Node n, const ListingItem& startitem): m_
 Node FunctionBasicBlock::node() const { PIMPL_P(const FunctionBasicBlock); return p->m_node; }
 const ListingItem& FunctionBasicBlock::startItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_startitem; }
 const ListingItem& FunctionBasicBlock::endItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_enditem;  }
-const ListingItem& FunctionBasicBlock::instructionStartItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_startinstructionitem; }
-const ListingItem& FunctionBasicBlock::instructionEndItem() const { PIMPL_P(const FunctionBasicBlock); return p->m_endinstructionitem; }
-size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemIndex(p->m_startitem.address_new);  }
-size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemIndex(p->m_enditem.address_new);  }
-size_t FunctionBasicBlock::instructionStartIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemInstructionIndex(p->m_startinstructionitem.address_new); }
-size_t FunctionBasicBlock::instructionEndIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemInstructionIndex(p->m_endinstructionitem.address_new); }
+size_t FunctionBasicBlock::startIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemListingIndex(p->m_startitem.address_new);  }
+size_t FunctionBasicBlock::endIndex() const { PIMPL_P(const FunctionBasicBlock); return r_docnew->itemListingIndex(p->m_enditem.address_new);  }
 bool FunctionBasicBlock::contains(address_t address) const { PIMPL_P(const FunctionBasicBlock); return (address >= p->m_startitem.address_new) && (address <= p->m_enditem.address_new); }
 bool FunctionBasicBlock::isEmpty() const { PIMPL_P(const FunctionBasicBlock); return (!p->m_startitem.isValid() || !p->m_enditem.isValid()); }
 size_t FunctionBasicBlock::count() const { return this->isEmpty() ? 0 : ((this->endIndex() - this->startIndex()) + 1); }
@@ -33,15 +29,6 @@ String FunctionBasicBlock::style(Node n) const
 
 void FunctionBasicBlock::setStartItem(const ListingItem& item) { PIMPL_P(FunctionBasicBlock); p->m_startitem = item; }
 void FunctionBasicBlock::setEndItem(const ListingItem& item) { PIMPL_P(FunctionBasicBlock); p->m_enditem = item; }
-
-void FunctionBasicBlock::setInstructionStartItem(const ListingItem& item)
-{
-    PIMPL_P(FunctionBasicBlock);
-    p->m_startinstructionitem = item;
-    if(!p->m_endinstructionitem.isValid()) p->m_endinstructionitem = item;
-}
-
-void FunctionBasicBlock::setInstructionEndItem(const ListingItem& item) { PIMPL_P(FunctionBasicBlock); p->m_endinstructionitem = item; }
 void FunctionBasicBlock::setNode(Node idx) { PIMPL_P(FunctionBasicBlock); p->m_node = idx; }
 
 FunctionGraph::FunctionGraph(): Graph(new FunctionGraphImpl()) { }

@@ -15,13 +15,12 @@ class FunctionBasicBlockImpl
     PIMPL_DECLARE_PUBLIC(FunctionBasicBlock)
 
     public:
-        FunctionBasicBlockImpl();
+        FunctionBasicBlockImpl() = default;
         FunctionBasicBlockImpl(Node n, const ListingItem& startitem);
 
     private:
-        Node m_node;
+        Node m_node{0};
         ListingItem m_startitem, m_enditem;                       // [startitem, enditem]
-        ListingItem m_startinstructionitem, m_endinstructionitem; // [startinstructionitem, endinstructionitem]
         std::unordered_map<Node, String> m_styles;
 };
 

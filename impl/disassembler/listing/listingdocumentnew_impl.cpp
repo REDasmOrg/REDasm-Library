@@ -24,8 +24,11 @@ ListingItem ListingDocumentTypeNewImpl::functionStart(address_t address) const
     const BlockItem* block = m_blocks.find(address);
     if(!block) return ListingItem();
 
+    auto location = m_functions.functionFromAddress(address);
+    if(!location.valid) return ListingItem();
+
     PIMPL_Q(const ListingDocumentTypeNew);
-    return q->itemFunction(block->start);
+    return q->itemFunction(location);
 }
 
 void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }

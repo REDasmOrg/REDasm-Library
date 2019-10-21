@@ -26,10 +26,19 @@ size_t ListingItems::itemIndex(address_t address) const
     return REDasm::npos;
 }
 
+size_t ListingItems::listingIndex(address_t address) const
+{
+    size_t idx = this->indexOf(address, ListingItemType::SymbolItem);
+    if(idx == REDasm::npos) idx = this->indexOf(address, ListingItemType::InstructionItem);
+    if(idx == REDasm::npos) idx = this->indexOf(address, ListingItemType::UnexploredItem);
+    return idx;
+}
+
 size_t ListingItems::segmentIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::SegmentItem, index); }
 size_t ListingItems::functionIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::FunctionItem, index); }
 size_t ListingItems::instructionIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::InstructionItem, index); }
 size_t ListingItems::symbolIndex(address_t address, size_t index) const { return this->indexOf(address, ListingItemType::SymbolItem, index); }
+ListingItem ListingItems::listingItem(address_t address) const { size_t idx = this->listingIndex(address); return (idx != REDasm::npos) ? this->at(idx) : ListingItem();  }
 ListingItem ListingItems::segmentItem(address_t address) const { size_t idx = this->segmentIndex(address); return (idx != REDasm::npos) ? this->at(idx) : ListingItem(); }
 ListingItem ListingItems::functionItem(address_t address) const { size_t idx = this->functionIndex(address); return (idx != REDasm::npos) ? this->at(idx) : ListingItem(); }
 ListingItem ListingItems::instructionItem(address_t address) const { size_t idx = this->instructionIndex(address); return (idx != REDasm::npos) ? this->at(idx) : ListingItem(); }

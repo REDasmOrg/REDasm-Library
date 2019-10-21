@@ -28,10 +28,12 @@ class ListingItems
 
     public:
         size_t itemIndex(address_t address) const;
+        size_t listingIndex(address_t address) const;
         size_t segmentIndex(address_t address, size_t index = 0) const;
         size_t functionIndex(address_t address, size_t index = 0) const;
         size_t instructionIndex(address_t address, size_t index = 0) const;
         size_t symbolIndex(address_t address, size_t index = 0) const;
+        ListingItem listingItem(address_t address) const;
         ListingItem segmentItem(address_t address) const;
         ListingItem functionItem(address_t address) const;
         ListingItem instructionItem(address_t address) const;

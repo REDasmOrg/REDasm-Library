@@ -213,6 +213,15 @@ void ListingDocumentTypeNew::comment(address_t address, const String& s)
 CachedInstruction ListingDocumentTypeNew::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.allocate(address); }
 bool ListingDocumentTypeNew::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_instructions.contains(address); }
 bool ListingDocumentTypeNew::rename(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); return p->rename(address, name); }
+
+const Symbol* ListingDocumentTypeNew::functionStartSymbol(address_t address) const
+{
+    PIMPL_P(const ListingDocumentTypeNew);
+    auto location = p->m_functions.functionFromAddress(address);
+    if(!location.valid) return nullptr;
+    return p->symbol(location);
+}
+
 ListingItem ListingDocumentTypeNew::functionStart(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->functionStart(address); }
 const FunctionGraph* ListingDocumentTypeNew::graph(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->graph(address); }
 FunctionGraph* ListingDocumentTypeNew::graph(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->graph(address);  }

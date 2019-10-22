@@ -101,6 +101,7 @@ class ListingDocumentTypeNew: public Object
 
     public: // Symbols
         bool rename(address_t address, const String& name);
+        const Symbol* functionStartSymbol(address_t address) const;
 
     public: // Graph
         ListingItem functionStart(address_t address) const;

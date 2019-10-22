@@ -117,6 +117,12 @@ void DisassemblerEngine::analyzeJob(Job*)
         else r_ctx->log("Analysis completed");
     }
 
+    if(m_algorithm->hasNext()) // Analyzer wants to disassemble: run algorithm again
+    {
+        this->execute(DisassemblerEngineSteps::Algorithm);
+        return;
+    }
+
     r_docnew->moveToEntry();
     stepCompleted();
     this->execute();

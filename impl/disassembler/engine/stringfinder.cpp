@@ -1,7 +1,7 @@
 #include "stringfinder.h"
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/context.h>
-#include <cctype>
+#include <cuchar>
 
 namespace REDasm {
 
@@ -14,44 +14,66 @@ void StringFinder::find()
 
     while(!view.eob())
     {
-        bool wide = false;
-        size_t len = this->locationIsString(view, &wide);
+        address_location loc = r_ldr->addressof(view.data());
+        if(!loc.valid) break;
 
-        if(len && ((len >= MIN_STRING) || (*view == '%')))
-        {
-            address_location loc = r_ldr->addressof(view.data());
+        size_t totalsize = 0;
+        SymbolFlags flags = this->categorize(view, &totalsize);
 
-            if(loc.valid)
-            {
-                if(wide) lock->wideString(loc, len);
-                else lock->asciiString(loc, len);
-            }
+        if(flags & SymbolFlags::AsciiString) lock->asciiString(loc, totalsize);
+        else if(flags & SymbolFlags::WideString) lock->wideString(loc, totalsize);
+        else { view++; continue; }
 
-            view += len;
-        }
-        else
-            view++;
+        view += totalsize;
     }
 }
 
-size_t StringFinder::locationIsString(const BufferView& view, bool *wide) const
+SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
 {
-    if(wide) *wide = false;
+    if(view.size() < (sizeof(char) * 2)) return SymbolFlags::None;
 
-    size_t count = this->locationIsStringT<u8>(view,
-                                               [](u16 b) -> bool { return ::isprint(b) || ::isspace(b); },
-                                               [](u16 b) -> bool { return (b == '_') || ::isalnum(b) || ::isspace(b); });
+    static mbstate_t state;
+    static std::vector<char> buffer(MB_CUR_MAX);
+    char c1 = static_cast<char>(view[0]);
+    char c2 = static_cast<char>(view[1]);
 
-    if(count == 1) // Try with wide strings
+    if(StringFinder::isAscii(c1) && !c2)
     {
-        count = this->locationIsStringT<u16>(view,
-                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return !b2 && (::isprint(b1) || ::isspace(b1)); },
-                                             [](u16 wb) -> bool { u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8; return ( (b1 == '_') || ::isalnum(b1) || ::isspace(b1)) && !b2; });
+        BufferView v = view;
+        std::c16rtomb(nullptr, 0, &state);
+        char16_t wc = *reinterpret_cast<const char16_t*>(v.data());
 
-        if(wide) *wide = true;
+        for(size_t i = 0; !v.eob() && wc; i++, v += sizeof(char16_t))
+        {
+            wc = *reinterpret_cast<const char16_t*>(v.data());
+            size_t c = std::c16rtomb(buffer.data(), wc, &state);
+            if(!c || (c == REDasm::npos) || (c > MB_CUR_MAX)) break;
+            if(StringFinder::isAscii(buffer[0])) continue;
+
+            if((i >= MIN_STRING) || (buffer[0] == '%'))
+            {
+                if(totalsize) *totalsize = i * sizeof(char16_t);
+                return SymbolFlags::WideString;
+            }
+
+            break;
+        }
     }
 
-    return count;
+    for(size_t i = 0; i < view.size(); i++)
+    {
+        if(StringFinder::isAscii(view[i])) continue;
+
+        if((i >= MIN_STRING) || (view[i] == '%'))
+        {
+            if(totalsize) *totalsize = i;
+            return SymbolFlags::AsciiString;
+        }
+
+        break;
+    }
+
+    return SymbolFlags::None;
 }
 
 StringFinderResult::StringFinderResult() { address = REDasm::invalid_location<address_t>(); }

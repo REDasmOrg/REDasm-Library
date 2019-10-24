@@ -62,6 +62,7 @@ class LIBREDASM_API BufferView
 
     public:
         BufferView();
+        BufferView(const BufferView& view);
         BufferView(const AbstractBuffer* buffer, size_t offset, size_t size);
         u8 operator[](size_t idx) const;
         u8& operator[](size_t idx);

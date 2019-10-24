@@ -16,7 +16,7 @@ namespace REDasm {
 
 String::String(): m_pimpl_p(new StringImpl()) { }
 String::String(String &&rhs): m_pimpl_p(new StringImpl()) { PIMPL_P(String); p->m_data.swap(rhs.pimpl_p()->m_data); rhs.pimpl_p()->m_data.clear(); }
-String::String(const String &rhs): m_pimpl_p(new StringImpl()) { PIMPL_P(String); p->m_data = rhs.pimpl_p()->m_data; }
+String::String(const String& s) { PIMPL_COPY(String, s); }
 String::String(const char *rhs, size_t size): m_pimpl_p(new StringImpl()) { PIMPL_P(String); p->m_data = std::string(rhs, size); }
 String::String(const char *rhs): m_pimpl_p(new StringImpl()) { PIMPL_P(String); p->m_data = rhs; }
 String::String(char rhs): m_pimpl_p(new StringImpl()) { PIMPL_P(String); p->m_data = rhs; }

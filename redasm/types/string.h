@@ -22,7 +22,7 @@ class String: public Object
         String();
         explicit String(char rhs);
         String(String&& rhs);
-        String(const String& rhs);
+        String(const String& s);
         String(const char* rhs, size_t size);
         String(const char* rhs);
         void clear();

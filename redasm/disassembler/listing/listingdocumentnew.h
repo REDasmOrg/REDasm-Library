@@ -115,6 +115,7 @@ class ListingDocumentTypeNew: public Object
     public:
         void moveToEntry();
         void setEntry(address_t address);
+        bool canSymbolizeAddress(address_t address) const;
         bool goTo(const ListingItem& item);
         bool goTo(address_t address);
 

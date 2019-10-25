@@ -57,7 +57,7 @@ class DisassemblerImpl
         void resume();
 
     private:
-        template<typename T> String readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const;
+        template<typename T> String readStringT(address_t address, size_t len) const;
 
     private:
         std::unique_ptr<DisassemblerEngine> m_engine;
@@ -67,21 +67,21 @@ class DisassemblerImpl
         Loader* m_loader;
 };
 
-template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const
-{
-    BufferView view = m_loader->view(address);
-    String s;
-    size_t i;
-
-    for(i = 0; (i < len) && !view.eob() && fill(static_cast<T>(view), s); i++)
-        view += sizeof(T);
-
-    String res = s.simplified();
-
-    if(i > len)
-        res += "...";
-
-    return res;
-}
+// template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len, std::function<bool(T, String&)> fill) const
+// {
+//     BufferView view = m_loader->view(address);
+//     String s;
+//     size_t i;
+//
+//     for(i = 0; (i < len) && !view.eob() && fill(static_cast<T>(view), s); i++)
+//         view += sizeof(T);
+//
+//     String res = s.simplified();
+//
+//     if(i > len)
+//         res += "...";
+//
+//     return res;
+// }
 
 } // namespace REDasm

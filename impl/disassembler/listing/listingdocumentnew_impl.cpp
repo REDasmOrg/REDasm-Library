@@ -35,7 +35,7 @@ void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, Symb
 
 void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
-    if(!this->canOverrideAddress(address, type, flags)) return;
+    if(!this->canSymbolizeAddress(address, type, flags)) return;
     this->createSymbol(address, name, type, flags, tag);
 
     this->insert(address, (type == SymbolType::FunctionNew) ? ListingItemType::FunctionItem :
@@ -68,7 +68,7 @@ void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolTyp
 
 void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
 {
-    if(!this->canOverrideAddress(address, type, flags)) return;
+    if(!this->canSymbolizeAddress(address, type, flags)) return;
 
     m_blocks.dataSize(address, size);
     this->symbol(address, name, type, flags);
@@ -170,7 +170,17 @@ void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& n
     else m_symbols.create(address, name, type, flags, tag);
 }
 
-bool ListingDocumentTypeNewImpl::canOverrideAddress(address_t address, SymbolType type, SymbolFlags flags) const
+bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address) const
+{
+    if(!m_segments.find(address)) return false; // Ignore out of segment addresses
+
+    const BlockItem* bi = m_blocks.find(address);
+    if(bi->typeIs(BlockItemType::Code)) return false;
+
+    return true;
+}
+
+bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const
 {
     if(!m_segments.find(address)) return false; // Ignore out of segment addresses
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;

@@ -89,7 +89,7 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     if(!r_ldr->offset(address).valid)
         return false;
 
-    return true;
+    return r_docnew->canSymbolizeAddress(address);
 }
 
 void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instruction)

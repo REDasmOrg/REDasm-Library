@@ -1,6 +1,7 @@
 #include "disassembler_impl.h"
 #include "../libs/cereal/archives/binary.hpp"
 #include "../database/database_impl.h"
+#include "engine/stringfinder.h"
 #include <redasm/disassembler/listing/backend/listingfunctions.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/database/signaturedb.h>
@@ -25,14 +26,10 @@ safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() { return m_loa
 SortedList DisassemblerImpl::getCalls(address_t address)
 {
     REDasm::ListingItem* item = this->document()->functionStart(address);
-
-    if(!item)
-        return SortedList();
+    if(!item) return SortedList();
 
     const auto* graph = this->document()->functions()->graph(item->address_new);
-
-    if(!graph)
-        return SortedList();
+    if(!graph) return SortedList();
 
     SortedList calls;
 
@@ -66,13 +63,13 @@ SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_refer
 
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {
-    REDasm::ListingItem* item = this->document()->functionStart(address);
-    if(!item) return BufferView();
+    REDasm::ListingItem item = r_docnew->functionStart(address);
+    if(!item.isValid()) return BufferView();
 
-    const auto* graph = this->document()->functions()->graph(item->address_new);
+    const auto* graph = r_docnew->graph(item.address_new);
     if(!graph) return BufferView();
 
-    ListingItem startitem , enditem;
+    ListingItem startitem, enditem;
 
     graph->nodes().each([&](Node n) {
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
@@ -134,16 +131,12 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
     while(this->readAddress(address, r_asm->addressWidth(), &target))
     {
         const Segment* segment = r_docnew->segment(target);
-
-        if(!segment || !segment->is(SegmentType::Code))
-            break;
+        if(!segment || !segment->is(SegmentType::Code)) break;
 
         targets.insert(target);
 
-        if(instruction->is(InstructionType::Branch))
-            this->pushTarget(target, instruction->address);
-        else
-            this->checkLocation(startaddress, target);
+        if(instruction->is(InstructionType::Branch)) this->pushTarget(target, instruction->address);
+        else this->checkLocation(startaddress, target);
 
         address += m_assembler->addressWidth();
     }
@@ -184,14 +177,8 @@ String DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
     return this->readString(symbol->address, len);
 }
 
-String DisassemblerImpl::readString(address_t address, size_t len) const
-{
-    return this->readStringT<char>(address, len, [](char b, String& s) {
-        bool r = ::isprint(b) || ::isspace(b);
-        if(r) s += b;
-        return r;
-    });
-}
+String DisassemblerImpl::readString(address_t address, size_t len) const { return this->readStringT<char>(address, len); }
+String DisassemblerImpl::readWString(address_t address, size_t len) const { return this->readStringT<char16_t>(address, len); }
 
 String DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
 {
@@ -203,22 +190,12 @@ String DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
     return this->readWString(symbol->address, len);
 }
 
-String DisassemblerImpl::readWString(address_t address, size_t len) const
-{
-    return this->readStringT<u16>(address, len, [](u16 wb, String& s) {
-        u8 b1 = wb & 0xFF, b2 = (wb & 0xFF00) >> 8;
-        bool r = !b2 && (::isprint(b1) || ::isspace(b1));
-        if(r) s += static_cast<char>(b1);
-        return r;
-    });
-}
-
 String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 {
-    const REDasm::ListingItem* item = this->document()->functionStart(address);
-    if(!item) return String();
+    REDasm::ListingItem item = r_docnew->functionStart(address);
+    if(!item.isValid()) return String();
 
-    const REDasm::Symbol* symbol = this->document()->symbol(item->address_new);
+    const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
     if(!symbol) return String();
 
     REDasm::BufferView br = this->getFunctionBytes(symbol->address);
@@ -372,5 +349,28 @@ void DisassemblerImpl::disassemble()
 void DisassemblerImpl::stop() { if(m_engine) m_engine->stop(); }
 void DisassemblerImpl::pause() { if(m_engine) m_engine->pause(); }
 void DisassemblerImpl::resume() { if(m_engine) m_engine->resume(); }
+
+template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len) const
+{
+    BufferView view = m_loader->view(address);
+    size_t i = 0;
+    String s;
+    char ch;
+
+    for( ; (i < len) && !view.eob(); i++)
+    {
+        if(!StringFinder::toAscii(static_cast<T>(view), &ch)) break;
+        s += ch;
+        view += sizeof(T);
+    }
+
+    String res = s.simplified();
+
+    if(i > len) res += "...";
+    return res;
+}
+
+template String DisassemblerImpl::readStringT<char>(address_t, size_t) const;
+template String DisassemblerImpl::readStringT<char16_t>(address_t, size_t) const;
 
 } // namespace REDasm

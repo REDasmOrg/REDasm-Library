@@ -244,6 +244,8 @@ void ListingDocumentTypeNew::setEntry(address_t address)
     p->m_cursor.set(p->m_items.functionIndex(address));
 }
 
+bool ListingDocumentTypeNew::canSymbolizeAddress(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->canSymbolizeAddress(address); }
+
 bool ListingDocumentTypeNew::goTo(const ListingItem& item)
 {
     if(!item.isValid()) return false;

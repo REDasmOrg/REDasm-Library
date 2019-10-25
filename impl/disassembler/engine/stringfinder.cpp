@@ -17,6 +17,12 @@ void StringFinder::find()
         address_location loc = r_ldr->addressof(view.data());
         if(!loc.valid) break;
 
+        if(loc.value == 0x402001)
+        {
+            int zzz = 0;
+            zzz++;
+        }
+
         size_t totalsize = 0;
         SymbolFlags flags = this->categorize(view, &totalsize);
 
@@ -28,29 +34,36 @@ void StringFinder::find()
     }
 }
 
+bool StringFinder::toAscii(char16_t inch, char* outch)
+{
+    static std::vector<char> buffer(MB_CUR_MAX);
+    size_t c = std::c16rtomb(buffer.data(), inch, nullptr);
+    if(!c || (c == REDasm::npos) || (c > MB_CUR_MAX)) return false;
+
+    bool res = StringFinder::isAscii(buffer[0]);
+    if(res) *outch = buffer[0];
+    return res;
+}
+
 SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
 {
     if(view.size() < (sizeof(char) * 2)) return SymbolFlags::None;
 
-    static mbstate_t state;
-    static std::vector<char> buffer(MB_CUR_MAX);
     char c1 = static_cast<char>(view[0]);
     char c2 = static_cast<char>(view[1]);
 
     if(StringFinder::isAscii(c1) && !c2)
     {
         BufferView v = view;
-        std::c16rtomb(nullptr, 0, &state);
         char16_t wc = *reinterpret_cast<const char16_t*>(v.data());
+        char ch = 0;
 
         for(size_t i = 0; !v.eob() && wc; i++, v += sizeof(char16_t))
         {
             wc = *reinterpret_cast<const char16_t*>(v.data());
-            size_t c = std::c16rtomb(buffer.data(), wc, &state);
-            if(!c || (c == REDasm::npos) || (c > MB_CUR_MAX)) break;
-            if(StringFinder::isAscii(buffer[0])) continue;
+            if(StringFinder::toAscii(wc, &ch)) continue;
 
-            if((i >= MIN_STRING) || (buffer[0] == '%'))
+            if((i >= MIN_STRING) || (ch == '%'))
             {
                 if(totalsize) *totalsize = i * sizeof(char16_t);
                 return SymbolFlags::WideString;

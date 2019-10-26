@@ -65,9 +65,9 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
                 continue;
             }
 
-            if((i >= MIN_STRING) || (ch == '%'))
+            if(i >= MIN_STRING)
             {
-                if(!this->validateString(reinterpret_cast<const char*>(view.data()), ts.size()))
+                if(!this->validateString(reinterpret_cast<const char*>(ts.data()), ts.size()))
                     return SymbolFlags::None;
 
                 if(totalsize) *totalsize = i * sizeof(char16_t);
@@ -82,7 +82,7 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
     {
         if(StringFinder::isAscii(view[i])) continue;
 
-        if((i >= MIN_STRING) || (view[i] == '%'))
+        if(i >= MIN_STRING)
         {
             if(!this->validateString(reinterpret_cast<const char*>(view.data()), i - 1))
                 return SymbolFlags::None;
@@ -99,7 +99,10 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
 
 bool StringFinder::validateString(const char* s, size_t size)
 {
+    if(*s == '%') return true;
+
     std::string str(s, size);
+
     if(GibberishDetector::isGibberish(str)) return false;
 
     double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));

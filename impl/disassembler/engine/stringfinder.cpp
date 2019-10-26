@@ -1,6 +1,8 @@
 #include "stringfinder.h"
+#include "gibberish/gibberishdetector.h"
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/context.h>
+#include <cctype>
 #include <cuchar>
 
 namespace REDasm {
@@ -16,12 +18,6 @@ void StringFinder::find()
     {
         address_location loc = r_ldr->addressof(view.data());
         if(!loc.valid) break;
-
-        if(loc.value == 0x402001)
-        {
-            int zzz = 0;
-            zzz++;
-        }
 
         size_t totalsize = 0;
         SymbolFlags flags = this->categorize(view, &totalsize);
@@ -54,6 +50,7 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
 
     if(StringFinder::isAscii(c1) && !c2)
     {
+        std::vector<char> ts;
         BufferView v = view;
         char16_t wc = *reinterpret_cast<const char16_t*>(v.data());
         char ch = 0;
@@ -61,10 +58,18 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
         for(size_t i = 0; !v.eob() && wc; i++, v += sizeof(char16_t))
         {
             wc = *reinterpret_cast<const char16_t*>(v.data());
-            if(StringFinder::toAscii(wc, &ch)) continue;
+
+            if(StringFinder::toAscii(wc, &ch))
+            {
+                ts.push_back(ch);
+                continue;
+            }
 
             if((i >= MIN_STRING) || (ch == '%'))
             {
+                if(!this->validateString(reinterpret_cast<const char*>(view.data()), ts.size()))
+                    return SymbolFlags::None;
+
                 if(totalsize) *totalsize = i * sizeof(char16_t);
                 return SymbolFlags::WideString;
             }
@@ -79,6 +84,9 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
 
         if((i >= MIN_STRING) || (view[i] == '%'))
         {
+            if(!this->validateString(reinterpret_cast<const char*>(view.data()), i - 1))
+                return SymbolFlags::None;
+
             if(totalsize) *totalsize = i;
             return SymbolFlags::AsciiString;
         }
@@ -87,6 +95,15 @@ SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
     }
 
     return SymbolFlags::None;
+}
+
+bool StringFinder::validateString(const char* s, size_t size)
+{
+    std::string str(s, size);
+    if(GibberishDetector::isGibberish(str)) return false;
+
+    double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));
+    return (alphacount / static_cast<double>(str.size())) > 0.50;
 }
 
 StringFinderResult::StringFinderResult() { address = REDasm::invalid_location<address_t>(); }

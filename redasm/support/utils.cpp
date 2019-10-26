@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <cctype>
 #include <impl/support/utils_impl.h>
+#include <impl/disassembler/engine/gibberish/gibberishdetector.h>
 
 namespace REDasm {
 
@@ -15,6 +16,8 @@ bool Utils::byte(const String& s, u8* val, size_t offset)
     *val = static_cast<u8>(s.substring(offset, 2).toInt(16));
     return true;
 }
+
+bool Utils::isGibberishString(const String& s) { return GibberishDetector::isGibberish(s.c_str()); }
 
 template<typename T> T Utils::bitreverse(T val) { return UtilsImpl::bitreverse(val); }
 

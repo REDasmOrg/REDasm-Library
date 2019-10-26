@@ -30,6 +30,7 @@ class StringFinder
 
     private:
         SymbolFlags categorize(const BufferView& view, size_t* totalsize);
+        bool validateString(const char* s, size_t size);
 
     private:
         BufferView m_view;

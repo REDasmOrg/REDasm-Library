@@ -17,6 +17,7 @@ class Utils
         Utils() = delete;
         static inline String trampoline(const String& s, const String& prefix = String()) { return prefix + "_" + s; }
         static bool byte(const String& s, u8* val, size_t offset = 0);
+        static bool isGibberishString(const String& s);
         template<typename T> static T bitreverse(T val);
 
     public:

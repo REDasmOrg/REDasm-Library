@@ -4,6 +4,7 @@
 
 namespace REDasm {
 
+std::mutex ContextImpl::m_mutex;
 std::unique_ptr<Context> ContextImpl::m_instance;
 Context* ContextImpl::m_parentinstance = nullptr;
 

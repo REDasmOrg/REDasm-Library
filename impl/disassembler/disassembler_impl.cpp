@@ -165,8 +165,6 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
     return targets.size();
 }
 
-JobState DisassemblerImpl::state() const { return m_engine ? m_engine->state() : JobState::InactiveState; }
-
 String DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
 {
     address_t memaddress = 0;
@@ -298,8 +296,7 @@ bool DisassemblerImpl::dereference(address_t address, u64 *value) const
 void DisassemblerImpl::disassemble(address_t address)
 {
     m_engine->enqueue(address);
-    if(m_engine->busy()) return;
-    m_engine->execute(DisassemblerEngineSteps::Algorithm);
+    if(!m_engine->busy()) m_engine->execute(DisassemblerEngineSteps::Algorithm);
 }
 
 void DisassemblerImpl::popTarget(address_t address, address_t pointedby) { m_referencetable.popTarget(address, pointedby); }
@@ -342,13 +339,10 @@ void DisassemblerImpl::disassemble()
     else if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
     else r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");
 
-    m_engine->stepCompleted.connect(this, [&](EventArgs*) { PIMPL_Q(Disassembler); q->busyChanged(); });
     m_engine->execute();
 }
 
 void DisassemblerImpl::stop() { if(m_engine) m_engine->stop(); }
-void DisassemblerImpl::pause() { if(m_engine) m_engine->pause(); }
-void DisassemblerImpl::resume() { if(m_engine) m_engine->resume(); }
 
 template<typename T> String DisassemblerImpl::readStringT(address_t address, size_t len) const
 {

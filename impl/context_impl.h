@@ -3,6 +3,7 @@
 #define CONTEXT_DEBOUNCE_TIMEOUT_MS 100
 
 #include <redasm/context.h>
+#include <mutex>
 #include <chrono>
 #include <set>
 
@@ -12,6 +13,9 @@ class ContextImpl
 {
     PIMPL_DECLARE_Q(Context)
     PIMPL_DECLARE_PUBLIC(Context)
+
+    private:
+        using log_lock = std::lock_guard<std::mutex>;
 
     public:
         ContextImpl();
@@ -34,6 +38,7 @@ class ContextImpl
         ContextFlags m_flags{ContextFlags::None};
 
     private:
+        static std::mutex m_mutex;
         static std::unique_ptr<Context> m_instance;
         static Context* m_parentinstance;
 };

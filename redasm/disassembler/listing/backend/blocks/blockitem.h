@@ -2,7 +2,6 @@
 
 #include "../../../types/base.h"
 #include "../../../types/string.h"
-#include "../../../support/event.h"
 #include "blockitemflags.h"
 
 namespace REDasm {

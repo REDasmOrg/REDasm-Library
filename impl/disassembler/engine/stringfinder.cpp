@@ -1,6 +1,7 @@
 #include "stringfinder.h"
 #include "gibberish/gibberishdetector.h"
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/support/utils.h>
 #include <redasm/context.h>
 #include <cctype>
 #include <cuchar>
@@ -11,23 +12,26 @@ StringFinder::StringFinder(const BufferView &view): m_view(view) { }
 
 void StringFinder::find()
 {
-    auto lock = s_lock_safe_ptr(r_docnew);
     BufferView view = m_view;
+    Utils::sloop([&]() -> bool {
+                     auto lock = x_lock_safe_ptr(r_docnew);
+                     if(view.eob()) return false;
 
-    while(!view.eob())
-    {
-        address_location loc = r_ldr->addressof(view.data());
-        if(!loc.valid) break;
+                     address_location loc = r_ldr->addressof(view.data());
+                     if(!loc.valid) return false;
 
-        size_t totalsize = 0;
-        SymbolFlags flags = this->categorize(view, &totalsize);
+                     r_ctx->status("Searching strings @ " + String::hex(loc.value));
 
-        if(flags & SymbolFlags::AsciiString) lock->asciiString(loc, totalsize);
-        else if(flags & SymbolFlags::WideString) lock->wideString(loc, totalsize);
-        else { view++; continue; }
+                     size_t totalsize = 0;
+                     SymbolFlags flags = this->categorize(view, &totalsize);
 
-        view += totalsize;
-    }
+                     if(flags & SymbolFlags::AsciiString) lock->asciiString(loc, totalsize);
+                     else if(flags & SymbolFlags::WideString) lock->wideString(loc, totalsize);
+                     else { view++; return true; }
+
+                     view += totalsize;
+                     return true;
+     });
 }
 
 bool StringFinder::toAscii(char16_t inch, char* outch)

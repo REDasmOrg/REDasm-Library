@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../support/safe_ptr.h"
-#include "../../support/event.h"
+#include "../../support/event/eventargs.h"
 #include "../listing/backend/symboltable.h"
 #include "cachedinstruction.h"
 #include "backend/listingfunctions.h"
@@ -17,6 +17,7 @@ enum class ListingDocumentAction { Changed = 0, Inserted, Removed };
 
 class LIBREDASM_API ListingDocumentChangedEventArgs: public EventArgs
 {
+    PIMPL_DECLARE_P(ListingDocumentChangedEventArgs)
     PIMPL_DECLARE_PRIVATE(ListingDocumentChangedEventArgs)
 
     public:
@@ -35,9 +36,6 @@ class LIBREDASM_API ListingDocumentType: public Object
     REDASM_OBJECT(ListingDocument)
     PIMPL_DECLARE_P(ListingDocumentType)
     PIMPL_DECLARE_PRIVATE(ListingDocumentType)
-
-    public:
-        Event changed;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

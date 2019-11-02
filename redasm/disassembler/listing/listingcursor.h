@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../support/event.h"
 #include "../../types/object.h"
 #include "../../macros.h"
 #include "../../pimpl.h"
@@ -21,11 +20,6 @@ class LIBREDASM_API ListingCursor: public Object
            bool operator ==(const Position& rhs) const;
            bool operator !=(const Position& rhs) const;
         };
-
-    public:
-        Event positionChanged;
-        Event backChanged;
-        Event forwardChanged;
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;

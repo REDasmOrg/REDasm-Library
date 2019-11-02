@@ -5,8 +5,13 @@ namespace REDasm {
 
 ListingDocumentTypeNewImpl::ListingDocumentTypeNewImpl(ListingDocumentTypeNew *q): m_pimpl_q(q)
 {
-    m_blocks.inserted.connect(this, std::bind(&ListingDocumentTypeNewImpl::onBlockInserted, this, std::placeholders::_1));
-    m_blocks.erased.connect(this, std::bind(&ListingDocumentTypeNewImpl::onBlockErased, this, std::placeholders::_1));
+    EventManager::subscribe_m(StandardEvents::Document_BlockInserted, this, &ListingDocumentTypeNewImpl::onBlockInserted);
+    EventManager::subscribe_m(StandardEvents::Document_BlockErased, this, &ListingDocumentTypeNewImpl::onBlockErased);
+}
+
+ListingDocumentTypeNewImpl::~ListingDocumentTypeNewImpl()
+{
+    EventManager::ungroup(this);
 }
 
 const BlockContainer* ListingDocumentTypeNewImpl::blocks() const { return &m_blocks; }
@@ -46,7 +51,8 @@ const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, Listing
 {
     switch(type)
     {
-        case ListingItemType::FunctionItem: m_functions.insert(address); this->insert(address, ListingItemType::EmptyItem); break;
+        case ListingItemType::FunctionItem:  m_functions.insert(address); this->insert(address, ListingItemType::EmptyItem); break;
+        case ListingItemType::SeparatorItem: m_separators.insert(address); break;
         default: break;
     }
 
@@ -58,10 +64,7 @@ const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, Listing
 void ListingDocumentTypeNewImpl::notify(size_t idx, ListingDocumentAction action)
 {
     if(idx >= m_items.size()) return;
-
-    PIMPL_Q(ListingDocumentTypeNew);
-    ListingDocumentChangedEventArgs e(m_items.at(idx), idx, action);
-    q->changed(e);
+    EventManager::trigger(StandardEvents::Document_Changed, ListingDocumentChangedEventArgs(m_items.at(idx), idx, action));
 }
 
 void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags) { this->block(address, size, String(), type, flags); }
@@ -107,6 +110,7 @@ void ListingDocumentTypeNewImpl::removeAt(size_t idx)
     {
         case ListingItemType::InstructionItem: m_instructions.erase(item.address_new); break;
         case ListingItemType::SegmentItem: m_segments.erase(item.address_new); break;
+        case ListingItemType::SeparatorItem: m_separators.erase(item.address_new); break;
 
         case ListingItemType::SymbolItem:
             if(!m_functions.contains(item.address_new)) m_symbols.erase(item.address_new); // Don't delete functions
@@ -147,7 +151,13 @@ void ListingDocumentTypeNewImpl::segmentCoverageAt(size_t idx, size_t coverage)
     else segment->coveragebytes += coverage;
 }
 
-void ListingDocumentTypeNewImpl::invalidateGraphs() { m_functions.invalidateGraphs(); }
+void ListingDocumentTypeNewImpl::invalidateGraphs()
+{
+    while(!m_separators.empty())
+        this->remove(*m_separators.begin(), ListingItemType::SeparatorItem);
+
+    m_functions.invalidateGraphs();
+}
 
 void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
 {
@@ -202,9 +212,10 @@ bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address, SymbolTy
     return true;
 }
 
-void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
+void ListingDocumentTypeNewImpl::onBlockInserted(const EventArgs* e)
 {
-    const BlockItem* bi = variant_object<const BlockItem>(e->arg());
+    using BlockEventArgs = ValueEventArgs<BlockItem*>;
+    const BlockItem* bi = static_cast<const BlockEventArgs*>(e)->value;
 
     switch(bi->type)
     {
@@ -215,9 +226,10 @@ void ListingDocumentTypeNewImpl::onBlockInserted(EventArgs* e)
     }
 }
 
-void ListingDocumentTypeNewImpl::onBlockErased(EventArgs* e)
+void ListingDocumentTypeNewImpl::onBlockErased(const EventArgs* e)
 {
-    BlockItem* bi = variant_object<BlockItem>(e->arg());
+    using BlockEventArgs = ValueEventArgs<BlockItem*>;
+    const BlockItem* bi = static_cast<const BlockEventArgs*>(e)->value;
 
     switch(bi->type)
     {

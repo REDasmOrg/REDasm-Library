@@ -23,7 +23,6 @@ address_location Disassembler::getTarget(address_t address) const { PIMPL_P(cons
 size_t Disassembler::getTargetsCount(address_t address) const { PIMPL_P(const Disassembler); return p->getTargetsCount(address);  }
 size_t Disassembler::getReferencesCount(address_t address) const { PIMPL_P(const Disassembler); return p->getReferencesCount(address); }
 size_t Disassembler::checkAddressTable(const CachedInstruction &instruction, address_t address) { PIMPL_P(Disassembler); return p->checkAddressTable(instruction, address); }
-JobState Disassembler::state() const { PIMPL_P(const Disassembler); return p->state(); }
 String Disassembler::readString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readString(symbol, len); }
 String Disassembler::readString(address_t address, size_t len) const { PIMPL_P(const Disassembler); return p->readString(address, len); }
 String Disassembler::readWString(const Symbol *symbol, size_t len) const { PIMPL_P(const Disassembler); return p->readWString(symbol, len); }
@@ -43,7 +42,5 @@ void Disassembler::checkLocation(address_t fromaddress, address_t address) { PIM
 void Disassembler::disassemble(address_t address) { PIMPL_P(Disassembler); p->disassemble(address); }
 void Disassembler::disassemble() { PIMPL_P(Disassembler); return p->disassemble(); }
 void Disassembler::stop() { PIMPL_P(Disassembler); p->stop(); }
-void Disassembler::pause() { PIMPL_P(Disassembler); p->pause(); }
-void Disassembler::resume() { PIMPL_P(Disassembler); p->resume(); }
 
 } // namespace REDasm

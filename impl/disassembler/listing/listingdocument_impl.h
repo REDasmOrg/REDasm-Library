@@ -3,13 +3,12 @@
 #include <redasm/disassembler/listing/listingdocument.h>
 #include "../../types/containers/templates/sortedlist_template.h"
 #include "../../types/containers/templates/list_template.h"
-#include "../../support/event_impl.h"
 #include "backend/instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {
 
-class ListingDocumentChangedEventArgsImpl: public EventArgsImpl
+class ListingDocumentChangedEventArgsImpl
 {
     PIMPL_DECLARE_Q(ListingDocumentChangedEventArgs)
     PIMPL_DECLARE_PUBLIC(ListingDocumentChangedEventArgs)

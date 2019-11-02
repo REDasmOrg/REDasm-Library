@@ -1,4 +1,5 @@
 #include "blockcontainer_impl.h"
+#include <redasm/support/event/eventmanager.h>
 #include <cassert>
 #include <algorithm>
 
@@ -138,10 +139,8 @@ BlockContainerImpl::Container::iterator BlockContainerImpl::insertionPoint(addre
 
 template<typename Iterator> Iterator BlockContainerImpl::eraseRange(Iterator startit, Iterator endit)
 {
-    PIMPL_Q(BlockContainer);
-
     auto it = std::remove_if(startit, endit, [&](BlockItem& bi) -> bool {
-       q->erased(&bi);
+       EventManager::trigger<StandardEvents::Document_BlockErased>(&bi);
        return true;
     });
 
@@ -150,18 +149,16 @@ template<typename Iterator> Iterator BlockContainerImpl::eraseRange(Iterator sta
 
 template<typename Iterator> Iterator BlockContainerImpl::eraseBlock(Iterator it)
 {
-    PIMPL_Q(BlockContainer);
     BlockItem bi = *it;
     it = m_blocks.erase(it);
-    q->erased(&bi);
+    EventManager::trigger<StandardEvents::Document_BlockErased>(&bi);
     return it;
 }
 
 template<typename Iterator> Iterator BlockContainerImpl::insertBlock(Iterator it, const BlockItem& bi)
 {
-    PIMPL_Q(BlockContainer);
     auto resit = m_blocks.insert(it, bi);
-    q->inserted(std::addressof(*resit));
+    EventManager::trigger<StandardEvents::Document_BlockInserted>(std::addressof(*resit));
     return resit;
 }
 

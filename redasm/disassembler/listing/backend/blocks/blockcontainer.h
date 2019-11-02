@@ -1,7 +1,6 @@
 #pragma once
 
 #include "blockitem.h"
-#include "../../../support/event.h"
 #include "../../../macros.h"
 #include "../../../pimpl.h"
 
@@ -13,10 +12,6 @@ class LIBREDASM_API BlockContainer
 {
     PIMPL_DECLARE_P(BlockContainer)
     PIMPL_DECLARE_PRIVATE(BlockContainer)
-
-    public:
-        Event inserted;
-        Event erased;
 
     public:
         BlockContainer();

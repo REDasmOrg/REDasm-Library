@@ -9,8 +9,8 @@
 
 namespace REDasm {
 
-ListingDocumentChangedEventArgs::ListingDocumentChangedEventArgs(const ListingItem *item, size_t index, ListingDocumentAction action): EventArgs(new ListingDocumentChangedEventArgsImpl(item, index, action)) { }
-ListingDocumentChangedEventArgs::ListingDocumentChangedEventArgs(const ListingItem& item, size_t index, ListingDocumentAction action): EventArgs(new ListingDocumentChangedEventArgsImpl(item, index, action)) { }
+ListingDocumentChangedEventArgs::ListingDocumentChangedEventArgs(const ListingItem *item, size_t index, ListingDocumentAction action): m_pimpl_p(new ListingDocumentChangedEventArgsImpl(item, index, action)) { }
+ListingDocumentChangedEventArgs::ListingDocumentChangedEventArgs(const ListingItem& item, size_t index, ListingDocumentAction action): m_pimpl_p(new ListingDocumentChangedEventArgsImpl(item, index, action)) { }
 const ListingItem *ListingDocumentChangedEventArgs::item() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->item(); }
 const ListingItem& ListingDocumentChangedEventArgs::itemNew() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->itemNew(); }
 ListingDocumentAction ListingDocumentChangedEventArgs::action() const { PIMPL_P(const ListingDocumentChangedEventArgs); return p->action(); }
@@ -101,8 +101,6 @@ void ListingDocumentType::comment(ListingItem *item, const String &s)
     else
         item->data()->comments.clear();
 
-    ListingDocumentChangedEventArgs ldc(item, this->itemIndex(item));
-    changed(&ldc);
 }
 
 ListingItem *ListingDocumentType::functionStart(ListingItem *item) const
@@ -271,9 +269,6 @@ void ListingDocumentType::autoComment(address_t address, const String &s)
     }
 
     it->get()->data()->autocomments.insert(s);
-
-    ListingDocumentChangedEventArgs ldc(it->get(), this->itemIndex(it->get()));
-    changed(&ldc);
 }
 
 void ListingDocumentType::branch(address_t address, s64 direction, tag_t tag)

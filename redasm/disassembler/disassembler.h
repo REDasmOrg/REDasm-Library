@@ -4,9 +4,7 @@
 #include "../support/safe_ptr.h"
 #include "../types/containers/list.h"
 #include "../types/api.h"
-#include "../support/event.h"
 #include "../pimpl.h"
-#include "concurrent/jobstate.h"
 #include "listing/cachedinstruction.h"
 #include "listing/listingitem.h"
 #include "listing/backend/referencetable.h"
@@ -25,9 +23,6 @@ class LIBREDASM_API Disassembler: public Object
     REDASM_OBJECT(Disassembler)
     PIMPL_DECLARE_P(Disassembler)
     PIMPL_DECLARE_PRIVATE(Disassembler)
-
-    public:
-        Event busyChanged;
 
     public:
         Disassembler(Assembler* assembler, Loader* loader);
@@ -49,7 +44,6 @@ class LIBREDASM_API Disassembler: public Object
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
         size_t checkAddressTable(const CachedInstruction& instruction, address_t address);
-        JobState state() const;
         String readString(const Symbol* symbol, size_t len = REDasm::npos) const;
         String readString(address_t address, size_t len = REDasm::npos) const;
         String readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
@@ -68,8 +62,8 @@ class LIBREDASM_API Disassembler: public Object
         void pushReference(address_t address, address_t refby);
         void checkLocation(address_t fromaddress, address_t address);
         void stop();
-        void pause();
-        void resume();
+
+    friend class DisassemblerStatus;
 };
 
 typedef std::shared_ptr<Disassembler> DisassemblerPtr;

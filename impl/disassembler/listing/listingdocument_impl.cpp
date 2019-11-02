@@ -4,8 +4,8 @@
 
 namespace REDasm {
 
-ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem *item, size_t index, ListingDocumentAction action): EventArgsImpl(), m_action(action), m_item(item), m_index(index) { }
-ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem& item, size_t index, ListingDocumentAction action): EventArgsImpl(), m_action(action), m_itemnew(item), m_index(index) { }
+ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem *item, size_t index, ListingDocumentAction action): m_action(action), m_item(item), m_index(index) { }
+ListingDocumentChangedEventArgsImpl::ListingDocumentChangedEventArgsImpl(const ListingItem& item, size_t index, ListingDocumentAction action): m_action(action), m_itemnew(item), m_index(index) { }
 const ListingItem *ListingDocumentChangedEventArgsImpl::item() const { return m_item; }
 const ListingItem& ListingDocumentChangedEventArgsImpl::itemNew() const { return m_itemnew; }
 ListingDocumentAction ListingDocumentChangedEventArgsImpl::action() const { return m_action; }
@@ -67,9 +67,6 @@ ListingItem *ListingDocumentTypeImpl::push(address_t address, ListingItemType ty
         return it->get();
 
     it = ContainerType::insert(std::move(item));
-    ListingDocumentChangedEventArgs ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Inserted);
-    q->changed(&ldc);
-
     return it->get();
 }
 
@@ -81,9 +78,6 @@ void ListingDocumentTypeImpl::pop(address_t address, ListingItemType type)
 
     while(it != this->end())
     {
-        ListingDocumentChangedEventArgs ldc(it->get(), std::distance(this->begin(), it), ListingDocumentAction::Removed);
-        q->changed(&ldc);
-
         if(type == ListingItemType::FunctionItem)
             m_functions.remove((*it)->address_new);
 

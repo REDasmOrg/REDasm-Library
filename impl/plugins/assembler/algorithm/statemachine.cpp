@@ -44,11 +44,7 @@ void StateMachine::executeState(const State *state)
         r_ctx->log("Unknown state: " + String::hex(state->id));
 }
 
-bool StateMachine::validateState(const State &state) const
-{
-    return true;
-}
-
+bool StateMachine::validateState(const State &state) const { return true; }
 void StateMachine::onNewState(const State *state) const { }
 
 bool StateMachine::getNext(State *state)

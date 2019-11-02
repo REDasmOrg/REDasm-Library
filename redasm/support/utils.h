@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <climits>
 #include <cmath>
 #include <cassert>
@@ -31,6 +32,7 @@ class Utils
 
     public:
         template<typename T, typename U> static inline T* relpointer(U* base, size_t offset) { return reinterpret_cast<T*>(reinterpret_cast<size_t>(base) + offset); }
+        static void sloop(const std::function<bool()>& cb);
 
     public:
         template<typename T> static inline size_t countbits_r(T val);

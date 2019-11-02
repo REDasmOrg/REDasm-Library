@@ -18,9 +18,6 @@ class ListingDocumentTypeNew: public Object
     PIMPL_DECLARE_PRIVATE(ListingDocumentTypeNew)
 
     public:
-        Event changed;
-
-    public:
         ListingDocumentTypeNew();
         const BlockContainer* blocks() const;
         const ListingItems* items() const;

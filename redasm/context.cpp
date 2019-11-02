@@ -2,6 +2,7 @@
 #include "support/utils.h"
 #include "disassembler/disassembler.h"
 #include <impl/context_impl.h>
+#include <impl/context_impl.h>
 
 #define CONTEXT_DEBOUNCE_CHECK  auto now = std::chrono::steady_clock::now(); \
                                 if((now - pimpl_p()->m_laststatusreport) < pimpl_p()->m_debouncetimeout) return; \
@@ -87,23 +88,32 @@ void Context::logproblem(const String &s) { this->log(s); this->problem(s); }
 
 void Context::status(const String &s)
 {
-    CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
+    ContextImpl::log_lock lock(p->m_mutex);
+
+    CONTEXT_DEBOUNCE_CHECK
     p->m_settings.statusCallback(s);
 }
 
 void Context::statusProgress(const String &s, size_t progress)
 {
-    CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
+    ContextImpl::log_lock lock(p->m_mutex);
+
+    if(progress) {
+        CONTEXT_DEBOUNCE_CHECK
+    }
+
     p->m_settings.statusCallback(s);
     p->m_settings.progressCallback(progress);
 }
 
 void Context::statusAddress(const String &s, address_t address)
 {
-    CONTEXT_DEBOUNCE_CHECK
     PIMPL_P(Context);
+    ContextImpl::log_lock lock(p->m_mutex);
+
+    CONTEXT_DEBOUNCE_CHECK
     p->m_settings.statusCallback(s + " @ " + String::hex(address));
 }
 

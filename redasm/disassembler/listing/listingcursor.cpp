@@ -1,5 +1,6 @@
 #include "listingcursor.h"
 #include <impl/disassembler/listing/listingcursor_impl.h>
+#include <redasm/support/event/eventmanager.h>
 
 namespace REDasm {
 
@@ -19,7 +20,7 @@ void ListingCursor::clearSelection()
         return;
 
     p->m_selection = p->m_position;
-    positionChanged();
+    EventManager::trigger(StandardEvents::Cursor_PositionChanged);
 }
 
 const ListingCursor::Position &ListingCursor::currentPosition() const { PIMPL_P(const ListingCursor); return p->m_position; }
@@ -87,10 +88,10 @@ void ListingCursor::select(size_t line, size_t column)
 {
     PIMPL_P(ListingCursor);
 
-    p->m_position = { std::max(line, size_t(0)),
-                      std::max(column, size_t(0)) };
+    p->m_position = { std::max<size_t>(line, 0),
+                      std::max<size_t>(column, 0) };
 
-    positionChanged();
+    EventManager::trigger(StandardEvents::Cursor_PositionChanged);
 }
 
 void ListingCursor::goBack()
@@ -105,8 +106,8 @@ void ListingCursor::goBack()
 
     p->m_forwardstack.push(p->m_position);
     p->moveTo(pos.line, pos.column, false);
-    backChanged();
-    forwardChanged();
+    EventManager::trigger(StandardEvents::Cursor_BackChanged);
+    EventManager::trigger(StandardEvents::Cursor_ForwardChanged);
 }
 
 void ListingCursor::goForward()
@@ -121,8 +122,8 @@ void ListingCursor::goForward()
 
     p->m_backstack.push(p->m_position);
     p->moveTo(pos.line, pos.column, false);
-    backChanged();
-    forwardChanged();
+    EventManager::trigger(StandardEvents::Cursor_BackChanged);
+    EventManager::trigger(StandardEvents::Cursor_ForwardChanged);
 }
 
 bool ListingCursor::Position::operator ==(const ListingCursor::Position &rhs) const

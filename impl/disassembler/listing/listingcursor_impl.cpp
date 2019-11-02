@@ -2,6 +2,7 @@
 #include "../../libs/cereal/cereal.hpp"
 #include "../../libs/cereal/types/stack.hpp"
 #include "../../libs/cereal/archives/binary.hpp"
+#include <redasm/support/event/eventmanager.h>
 
 namespace REDasm {
 
@@ -31,7 +32,7 @@ void ListingCursorImpl::moveTo(size_t line, size_t column, bool save)
         if(m_backstack.empty() || (!m_backstack.empty() && (m_backstack.top() != m_position)))
         {
             m_backstack.push(m_position);
-            q->backChanged();
+            EventManager::trigger(StandardEvents::Cursor_BackChanged);
         }
     }
 

@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <list>
+#include "support/event/eventmanager.h"
 #include "plugins/pluginmanager.h"
 #include "plugins/loader/loader.h"
 #include "support/path.h"
@@ -89,6 +90,7 @@ class LIBREDASM_API Context
 
 } // namespace REDasm
 
+#define r_evt    REDasm::EventManager
 #define r_ctx    REDasm::Context::instance()
 #define r_pm     r_ctx->pluginManager()
 #define r_ui     r_ctx->ui()

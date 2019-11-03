@@ -16,7 +16,7 @@ class JobManager
 {
     public:
         typedef std::function<void()> JobCallback;
-        typedef std::function<void(const JobDispatchArgs*)> JobDispatchCallback;
+        typedef std::function<void(const JobDispatchArgs&)> JobDispatchCallback;
 
     public:
         JobManager() = delete;

@@ -31,6 +31,12 @@ class RingBuffer
             return true;
         }
 
+        void reset() {
+            ring_lock lock(m_mutex);
+            m_data.fill(0);
+            m_head = m_tail = 0;
+        }
+
     private:
         std::array<T, capacity> m_data;
         size_t m_head{0}, m_tail{0};

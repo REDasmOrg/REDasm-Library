@@ -30,7 +30,7 @@ void JobManager::dispatch(size_t jobcount, size_t groupsize, const JobManager::J
 
             for(size_t i = groupjoboffset; i < groupjobend; ++i) {
                 args.jobIndex = i;
-                cb(&args);
+                cb(args);
             }
         };
 
@@ -62,6 +62,8 @@ void JobManager::deinitialize()
 void JobManager::initialize()
 {
     JobManagerImpl::m_numthreads.store(std::max(1u, std::thread::hardware_concurrency()));
+    JobManagerImpl::m_jobpool.reset();
+    JobManagerImpl::m_currentlabel = 0;
     JobManagerImpl::m_finishedlabel.store(0);
     JobManagerImpl::m_initialized.store(true);
 

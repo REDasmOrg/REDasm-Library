@@ -125,7 +125,7 @@ void ListingRendererImpl::renderBlockBytes(const BlockItem* bi, RendererLine& rl
         bool res = r_disasm->readAddress(address, 1, &value);
 
         if(i) rl.push(", ");
-        rl.push(res ? String::number(value, 16, 2) : "??", "immediate_fg");
+        rl.push(res ? String::hex(value, 8) : "??", "immediate_fg");
     }
 
     rl.push("]");

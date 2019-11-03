@@ -24,7 +24,6 @@ class ListingDocumentTypeNewImpl
         const InstructionCache* instructions() const;
         const ListingCursor& cursor() const;
         ListingCursor& cursor();
-        const Symbol* entry() const;
 
     public:
         ListingItem functionStart(address_t address) const;
@@ -65,6 +64,7 @@ class ListingDocumentTypeNewImpl
         InstructionCache m_instructions;
         BlockContainer m_blocks;
         std::unordered_set<address_t> m_separators;
+        std::unordered_map<address_t, size_t> m_metas;
         std::unordered_map<address_t, ListingItemData> m_itemdata;
         SymbolTable m_symbols;
 

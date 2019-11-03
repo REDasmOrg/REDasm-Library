@@ -22,7 +22,6 @@ const SymbolTable* ListingDocumentTypeNewImpl::symbols() const { return &m_symbo
 const InstructionCache* ListingDocumentTypeNewImpl::instructions() const { return &m_instructions; }
 const ListingCursor& ListingDocumentTypeNewImpl::cursor() const { return m_cursor; }
 ListingCursor& ListingDocumentTypeNewImpl::cursor() { return m_cursor; }
-const Symbol* ListingDocumentTypeNewImpl::entry() const { return m_entry; }
 
 ListingItem ListingDocumentTypeNewImpl::functionStart(address_t address) const
 {

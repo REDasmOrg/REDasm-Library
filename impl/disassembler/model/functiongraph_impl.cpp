@@ -93,7 +93,7 @@ bool FunctionGraphImpl::processJump(FunctionBasicBlock* fbb, const CachedInstruc
 
 void FunctionGraphImpl::processJumpConditional(FunctionBasicBlock* fbb, const BlockItem* block, FunctionGraphImpl::WorkList& worklist)
 {
-    //ListingItem* defaultitem = r_doc->symbolItem(instruction->endAddress()); // Check for symbol first (chained jumps)
+    //ListingItem* defaultitem = r_docnew->symbolItem(instruction->endAddress()); // Check for symbol first (chained jumps)
     FunctionBasicBlock* nextfbb = this->getBasicBlockAt(block);
     fbb->bFalse(nextfbb->node());
     this->newEdge(fbb->node(), nextfbb->node());

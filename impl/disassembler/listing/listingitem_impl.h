@@ -3,6 +3,7 @@
 #include <redasm/libs/visit_struct/visit_struct.hpp>
 #include <redasm/disassembler/listing/listingitem.h>
 #include "../types/containers/templates/sortedlist_template.h"
+#include <map>
 #include <unordered_set>
 
 namespace REDasm {
@@ -12,7 +13,7 @@ typedef std::unordered_set<String> ListingCommentSet;
 struct ListingItemData
 {
     ListingCommentSet comments, autocomments;
-    ListingMetaItem meta;
+    std::map<size_t, ListingMetaItem> meta;
     String type;
 };
 
@@ -22,7 +23,7 @@ class ListingItemImpl
     PIMPL_DECLARE_PUBLIC(ListingItem)
 
     public:
-        ListingItemImpl();
+        ListingItemImpl() = default;
         ListingItemImpl(address_t address, ListingItemType type);
         ListingItemImpl(address_t address, ListingItemType type, size_t index);
         void save(cereal::BinaryOutputArchive &a) const;
@@ -30,9 +31,9 @@ class ListingItemImpl
 
     private:
         ListingItemData m_data;
-        address_t m_address;
-        ListingItemType m_type;
-        size_t m_index;
+        address_t m_address{0};
+        ListingItemType m_type{ListingItemType::None};
+        size_t m_index{0};
 };
 
 typedef std::unique_ptr<ListingItem> ListingItemPtr;

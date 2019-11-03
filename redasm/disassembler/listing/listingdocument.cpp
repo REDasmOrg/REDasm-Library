@@ -209,7 +209,7 @@ CachedInstruction ListingDocumentType::entryInstruction()
 }
 
 bool ListingDocumentType::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_instructions.contains(address); }
-const ListingMetaItem &ListingDocumentType::meta(ListingItem* item) const { return item->data()->meta; }
+const ListingMetaItem &ListingDocumentType::meta(ListingItem* item) const { }
 String ListingDocumentType::type(ListingItem* item) const { return item->data()->type; }
 void ListingDocumentType::empty(address_t address) { PIMPL_P(ListingDocumentType); p->push(address, ListingItemType::EmptyItem); }
 
@@ -227,22 +227,22 @@ bool ListingDocumentType::separator(address_t address)
 
 void ListingDocumentType::meta(address_t address, const String &s, const String &name)
 {
-    PIMPL_P(ListingDocumentType);
+    // PIMPL_P(ListingDocumentType);
 
-    size_t index = 0;
-    auto it = p->m_activemeta.find(address);
+    // size_t index = 0;
+    // auto it = p->m_activemeta.find(address);
 
-    if(it != p->m_activemeta.end())
-        index = ++it->second;
-    else
-        p->m_activemeta[address] = 0;
+    // if(it != p->m_activemeta.end())
+    //     index = ++it->second;
+    // else
+    //     p->m_activemeta[address] = 0;
 
-    ListingItem* item = p->push(address, ListingItemType::MetaItem, index);
+    // ListingItem* item = p->push(address, ListingItemType::MetaItem, index);
 
-    if(name.empty())
-        item->data()->meta = { ".meta", s };
-    else
-        item->data()->meta = { "." + name, s };
+    // if(name.empty())
+    //     item->data()->meta = { ".meta", s };
+    // else
+    //     item->data()->meta = { "." + name, s };
 }
 
 void ListingDocumentType::type(address_t address, const String &s)

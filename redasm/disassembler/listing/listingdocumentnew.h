@@ -26,6 +26,7 @@ class ListingDocumentTypeNew: public Object
         const SymbolTable* symbols() const;
         const ListingCursor& cursor() const;
         ListingCursor& cursor();
+        CachedInstruction entryInstruction();
         const Symbol* entry() const;
 
     public: // Insert
@@ -34,15 +35,18 @@ class ListingDocumentTypeNew: public Object
         bool separator(address_t address);
         void segment(const String& name, offset_t offset, address_t address, u64 size, SegmentType type);
         void segment(const String& name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type);
+        void meta(address_t address, const String& s, const String& name = String());
         void type(address_t address, const String& s);
         void table(address_t address, size_t count, tag_t tag = 0);
         void tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag = 0);
         void function(address_t address, const String& name, tag_t tag = 0);
         void function(address_t address, tag_t tag = 0);
         void pointer(address_t address, SymbolType type = SymbolType::Data, tag_t tag = 0);
+        void pointer(address_t address, const String& name, SymbolType type = SymbolType::Data, tag_t tag = 0);
         void branch(address_t address, s64 direction, tag_t tag = 0);
         void label(address_t address);
         void data(address_t address, size_t size);
+        void data(address_t address, size_t size, const String& name);
         void asciiString(address_t address, size_t size);
         void wideString(address_t address, size_t size);
         void imported(address_t address, size_t size, const String& name);

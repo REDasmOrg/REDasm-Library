@@ -16,7 +16,15 @@ const ListingFunctions *ListingDocumentTypeNew::functions() const { PIMPL_P(cons
 const SymbolTable* ListingDocumentTypeNew::symbols() const { PIMPL_P(const ListingDocumentTypeNew); return p->symbols(); }
 const ListingCursor& ListingDocumentTypeNew::cursor() const { PIMPL_P(const ListingDocumentTypeNew); return p->cursor(); }
 ListingCursor& ListingDocumentTypeNew::cursor() { PIMPL_P(ListingDocumentTypeNew); return p->cursor(); }
-const Symbol* ListingDocumentTypeNew::entry() const { PIMPL_P(const ListingDocumentTypeNew); return p->entry(); }
+
+CachedInstruction ListingDocumentTypeNew::entryInstruction()
+{
+   PIMPL_P(const ListingDocumentTypeNew);
+   if(!p->m_entry) return CachedInstruction();
+   return this->instruction(p->m_entry->address);
+}
+
+const Symbol* ListingDocumentTypeNew::entry() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_entry; }
 
 void ListingDocumentTypeNew::entry(address_t address)
 {
@@ -61,6 +69,22 @@ void ListingDocumentTypeNew::segment(const String &name, offset_t offset, addres
         r_ctx->log("Segment insertion failed @ " + name.hex());
 }
 
+void ListingDocumentTypeNew::meta(address_t address, const String& s, const String& name)
+{
+    PIMPL_P(ListingDocumentTypeNew);
+
+    size_t index = 0;
+    auto it = p->m_metas.find(address);
+
+    if(it != p->m_metas.end()) index = ++it->second;
+    else p->m_metas[address] = 0;
+
+    if(name.empty()) p->m_itemdata[address].meta[index] = { ".meta", s };
+    else p->m_itemdata[address].meta[index] = { "." + name, s };
+
+    p->insert(address, ListingItemType::MetaItem, index);
+}
+
 void ListingDocumentTypeNew::type(address_t address, const String& s)
 {
     PIMPL_P(ListingDocumentTypeNew);
@@ -94,6 +118,12 @@ void ListingDocumentTypeNew::pointer(address_t address, SymbolType type, tag_t t
     p->block(address, r_asm->addressWidth(), type, SymbolFlags::Pointer);
 }
 
+void ListingDocumentTypeNew::pointer(address_t address, const String& name, SymbolType type, tag_t tag)
+{
+    PIMPL_P(ListingDocumentTypeNew);
+    p->block(address, r_asm->addressWidth(), name, type, SymbolFlags::Pointer);
+}
+
 void ListingDocumentTypeNew::branch(address_t address, s64 direction, tag_t tag)
 {
     PIMPL_P(ListingDocumentTypeNew);
@@ -105,12 +135,14 @@ void ListingDocumentTypeNew::branch(address_t address, s64 direction, tag_t tag)
     p->symbol(address, name, SymbolType::LabelNew);
 }
 
-void ListingDocumentTypeNew::data(address_t address, size_t size)
+void ListingDocumentTypeNew::data(address_t address, size_t size) { this->data(address, size, String()); }
+
+void ListingDocumentTypeNew::data(address_t address, size_t size, const String& name)
 {
     if(size)
     {
         PIMPL_P(ListingDocumentTypeNew);
-        p->block(address, size, SymbolType::DataNew);
+        p->block(address, size, name, SymbolType::DataNew);
     }
     else
         r_ctx->problem("Invalid data size @ " + String::hex(address));

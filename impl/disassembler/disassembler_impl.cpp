@@ -3,9 +3,9 @@
 #include "../database/database_impl.h"
 #include "engine/stringfinder.h"
 #include <redasm/disassembler/listing/backend/listingfunctions.h>
+#include <redasm/disassembler/model/functiongraph.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/database/signaturedb.h>
-#include <redasm/graph/functiongraph.h>
 #include <redasm/buffer/memorybuffer.h>
 #include <redasm/support/utils.h>
 #include <redasm/support/path.h>
@@ -22,41 +22,6 @@ const safe_ptr<ListingDocumentType> &DisassemblerImpl::document() const { return
 safe_ptr<ListingDocumentType> &DisassemblerImpl::document() { return m_loader->document(); }
 const safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() const { return m_loader->documentNew(); }
 safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() { return m_loader->documentNew(); }
-
-SortedList DisassemblerImpl::getCalls(address_t address)
-{
-    REDasm::ListingItem* item = this->document()->functionStart(address);
-    if(!item) return SortedList();
-
-    const auto* graph = this->document()->functions()->graph(item->address_new);
-    if(!graph) return SortedList();
-
-    SortedList calls;
-
-    graph->nodes().each([&](const Variant& v) {
-        Node n = v.toInt();
-
-        const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
-        if(!fbb) return;
-
-        // for(ListingItem* item = fbb->startItem(); item; item = r_doc->next(item))
-        // {
-        //     if(!item->is(ListingItemType::InstructionItem))
-        //         continue;
-
-        //     CachedInstruction instruction = this->document()->instruction(item->address_new);
-
-        //     if(instruction->is(InstructionType::Call))
-        //         calls.insert(item);
-
-        //     if(item == fbb->endItem())
-        //         break;
-        // }
-    });
-
-    return calls;
-}
-
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
 SortedSet DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.references(address); }
 SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }

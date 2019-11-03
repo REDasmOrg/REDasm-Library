@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "../disassembler/disassembler.h"
-#include "../disassembler/listing/listingdocument.h"
-#include "graph.h"
+#include "../disassembler.h"
+#include "../listing/listingdocument.h"
+#include "../graph/graph.h"
 
 namespace REDasm {
 

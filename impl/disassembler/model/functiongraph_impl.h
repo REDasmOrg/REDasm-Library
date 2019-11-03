@@ -1,11 +1,11 @@
 #pragma once
 
 #include <redasm/disassembler/listing/backend/blocks/blockitem.h>
-#include <redasm/graph/functiongraph.h>
+#include <redasm/disassembler/model/functiongraph.h>
 #include <redasm/pimpl.h>
 #include <unordered_set>
 #include <queue>
-#include "graph_impl.h"
+#include "../graph/graph_impl.h"
 
 namespace REDasm {
 

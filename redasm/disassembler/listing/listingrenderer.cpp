@@ -1,10 +1,10 @@
 ﻿#include "listingrenderer.h"
 #include <impl/disassembler/listing/listingrenderer_impl.h>
 #include <algorithm>
+#include "../../disassembler/model/functiongraph.h"
 #include "../../disassembler/disassembler.h"
 #include "../../plugins/assembler/assembler.h"
 #include "../../plugins/loader/loader.h"
-#include "../../graph/functiongraph.h"
 #include "../../support/utils.h"
 #include "../../types/regex.h"
 #include "../../context.h"

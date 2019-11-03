@@ -37,6 +37,14 @@ class LIBREDASM_API ListingItem: public Object
         String displayType();
 
     public:
+        bool operator ==(const ListingItem& rhs) const;
+        bool operator !=(const ListingItem& rhs) const;
+        bool operator <(const ListingItem& rhs) const;
+        bool operator <=(const ListingItem& rhs) const;
+        bool operator >(const ListingItem& rhs) const;
+        bool operator >=(const ListingItem& rhs) const;
+
+    public:
         static String displayType(ListingItemType type);
 
     public:

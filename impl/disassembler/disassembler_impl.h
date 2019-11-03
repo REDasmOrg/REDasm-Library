@@ -2,6 +2,7 @@
 
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/disassembler/listing/listingdocument.h>
+#include <redasm/disassembler/model/calltree.h>
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/pimpl.h>
@@ -23,7 +24,6 @@ class DisassemblerImpl
         safe_ptr<ListingDocumentType>& document();
         const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
         safe_ptr<ListingDocumentTypeNew>& documentNew();
-        SortedList getCalls(address_t address);
         ReferenceTable* references();
         SortedSet getReferences(address_t address) const;
         SortedSet getTargets(address_t address) const;

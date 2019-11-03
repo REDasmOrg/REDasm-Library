@@ -3,6 +3,11 @@
 #include <impl/libs/cereal/archives/binary.hpp>
 
 #define RETURN_CASE_TYPE_OF(type) case ListingItemType::type: return #type;
+#define R_CMP_LISTING_ITEM(t1, t2, op) if(t1->address_new == t2.address_new) { \
+                                           if(t1->type_new == t2.type_new) return t1->index_new op t2.index_new; \
+                                           return t1->type_new op t2.type_new; \
+                                       } \
+                                       return t1->address_new op t2.address_new;
 
 namespace REDasm {
 
@@ -15,6 +20,23 @@ ListingItemData *ListingItem::data() { return nullptr; }
 void ListingItem::save(cereal::BinaryOutputArchive &a) const { a(address_new, type_new, index_new); }
 void ListingItem::load(cereal::BinaryInputArchive &a) { a(address_new, type_new, index_new); }
 String ListingItem::displayType() { return ListingItem::displayType(this->type_new); }
+
+bool ListingItem::operator ==(const ListingItem& rhs) const
+{
+    return std::tie(this->address_new, this->type_new, this->index_new) ==
+           std::tie(rhs.address_new, rhs.type_new, rhs.index_new);
+}
+
+bool ListingItem::operator !=(const ListingItem& rhs) const
+{
+    return std::tie(this->address_new, this->type_new, this->index_new) !=
+           std::tie(rhs.address_new, rhs.type_new, rhs.index_new);
+}
+
+bool ListingItem::operator <(const ListingItem& rhs) const  { R_CMP_LISTING_ITEM(this, rhs, <)  }
+bool ListingItem::operator <=(const ListingItem& rhs) const { R_CMP_LISTING_ITEM(this, rhs, <=) }
+bool ListingItem::operator >(const ListingItem& rhs) const  { R_CMP_LISTING_ITEM(this, rhs, >)  }
+bool ListingItem::operator >=(const ListingItem& rhs) const { R_CMP_LISTING_ITEM(this, rhs, >=) }
 
 String ListingItem::displayType(ListingItemType type)
 {

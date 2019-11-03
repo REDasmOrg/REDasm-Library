@@ -13,7 +13,7 @@ template <typename Wrapper> static inline typename Wrapper::element_type* pimpl_
 } // namespace Detail
 
 #define PIMPL_DECLARE_P(classname) protected: std::shared_ptr<classname##Impl> m_pimpl_p; private:
-#define PIMPL_DECLARE_Q(classname) protected: classname* m_pimpl_q; private:
+#define PIMPL_DECLARE_Q(classname) protected: classname* m_pimpl_q{nullptr}; private:
 #define PIMPL_COPY(classname, obj) m_pimpl_p = std::make_shared<classname##Impl>(*obj.pimpl_p())
 
 #define PIMPL_DECLARE_PRIVATE(classname) \

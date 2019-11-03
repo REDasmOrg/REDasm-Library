@@ -28,6 +28,7 @@ class GibberishDetector
         GibberishDetector() = delete;
         static bool train(const WordByLines& wordlines, const std::string& goodfile, const std::string& badfile);
         static bool isGibberish(const std::string& text);
+        static void initialize();
 
     private:
         template<typename T, size_t N> static GibberishDetectorData::Matrix2D<T, N> fillMatrix(const T& val);

@@ -13,7 +13,6 @@ const safe_ptr<ListingDocumentType> &Disassembler::document() const { PIMPL_P(co
 safe_ptr<ListingDocumentType> &Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
 const safe_ptr<ListingDocumentTypeNew>& Disassembler::documentNew() const { PIMPL_P(const Disassembler); return p->documentNew(); }
 safe_ptr<ListingDocumentTypeNew>& Disassembler::documentNew() { PIMPL_P(Disassembler); return p->documentNew(); }
-SortedList Disassembler::getCalls(address_t address) { PIMPL_P(Disassembler); return p->getCalls(address); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
 SortedSet Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 SortedSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }

@@ -67,7 +67,6 @@ bool GibberishDetector::train(const GibberishDetector::WordByLines& wordlines, c
 
 bool GibberishDetector::isGibberish(const std::string& s)
 {
-    GibberishDetector::initializeCharIndex();
     return GibberishDetector::avgTransitionProb(s, GibberishDetectorData::TRAINED_COUNTS) <= GibberishDetectorData::TRAINED_THRESHOLD;
 }
 
@@ -110,10 +109,10 @@ double GibberishDetector::avgTransitionProb(const std::string& s, const Gibberis
     return std::exp(logprob / (transitionct ? transitionct : 1));
 }
 
+void GibberishDetector::initialize() { GibberishDetector::initializeCharIndex(); }
+
 void GibberishDetector::initializeCharIndex()
 {
-    if(!m_charidx.empty()) return;
-
     std::for_each(GibberishDetectorData::ACCEPTED_CHARS.begin(), GibberishDetectorData::ACCEPTED_CHARS.end(), [](char c) {
         m_charidx.emplace(c, m_charidx.size());
     });

@@ -1,16 +1,18 @@
 #include "disassemblerengine.h"
+#include <redasm/disassembler/model/functiongraph.h>
 #include <redasm/disassembler/disassembler.h>
 #include <redasm/plugins/assembler/assembler.h>
-#include <redasm/graph/functiongraph.h>
 #include <redasm/support/event/eventmanager.h>
 #include <redasm/support/utils.h>
 #include <redasm/context.h>
+#include "gibberish/gibberishdetector.h"
 #include "stringfinder.h"
 
 namespace REDasm {
 
 DisassemblerEngine::DisassemblerEngine()
 {
+    GibberishDetector::initialize();
     if(!r_ctx->sync()) JobManager::initialize();
     m_algorithm = r_asm->createAlgorithm();
 }

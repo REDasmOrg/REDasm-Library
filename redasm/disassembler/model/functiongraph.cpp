@@ -1,7 +1,7 @@
 #include "functiongraph.h"
-#include <impl/graph/functiongraph_impl.h>
-#include "../support/utils.h"
-#include "../context.h"
+#include <impl/disassembler/model/functiongraph_impl.h>
+#include "../../support/utils.h"
+#include "../../context.h"
 
 namespace REDasm {
 

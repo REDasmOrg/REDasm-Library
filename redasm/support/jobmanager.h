@@ -21,6 +21,7 @@ class JobManager
     public:
         JobManager() = delete;
         static size_t concurrency();
+        static bool initialized();
         static bool last();
         static bool busy();
         static void wait();

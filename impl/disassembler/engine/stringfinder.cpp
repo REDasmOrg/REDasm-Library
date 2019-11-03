@@ -1,6 +1,7 @@
 #include "stringfinder.h"
 #include "gibberish/gibberishdetector.h"
 #include <redasm/disassembler/disassembler.h>
+#include <redasm/support/jobmanager.h>
 #include <redasm/support/utils.h>
 #include <redasm/context.h>
 #include <cctype>
@@ -39,12 +40,12 @@ void StringFinder::findSync()
 void StringFinder::findAsync()
 {
     BufferView view = m_view;
-    Utils::sloop(std::bind(&StringFinder::step, this, view));
+    Utils::yloop(std::bind(&StringFinder::step, this, view));
 }
 
 bool StringFinder::step(BufferView& view)
 {
-    if(view.eob()) return false;
+    if(!JobManager::initialized() || view.eob()) return false;
     address_location loc = r_ldr->addressof(view.data());
     if(!loc.valid) return false;
 

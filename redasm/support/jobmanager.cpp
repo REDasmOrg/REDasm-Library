@@ -6,6 +6,7 @@
 namespace REDasm {
 
 size_t JobManager::concurrency() { return JobManagerImpl::m_numthreads.load(); }
+bool JobManager::initialized() { return JobManagerImpl::m_initialized; }
 bool JobManager::last() { return (JobManagerImpl::m_currentlabel - JobManagerImpl::m_finishedlabel.load()) == 1; }
 bool JobManager::busy() { return JobManagerImpl::m_finishedlabel.load() < JobManagerImpl::m_currentlabel; }
 void JobManager::wait() { while(JobManager::busy()) JobManagerImpl::poll(); }

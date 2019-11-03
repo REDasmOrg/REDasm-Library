@@ -22,6 +22,7 @@ void DisassemblerEngine::reset() { m_currentstep = DisassemblerEngineSteps::None
 
 void DisassemblerEngine::execute()
 {
+    if(!JobManager::initialized()) return;
     size_t newstep = ++m_currentstep;
 
     if(newstep >= DisassemblerEngineSteps::Last)
@@ -118,7 +119,7 @@ void DisassemblerEngine::cfgStep()
 
     if(r_ctx->sync())
     {
-        this->execute();
+        this->cfgJobSync();
         return;
     }
 
@@ -135,8 +136,8 @@ void DisassemblerEngine::cfgStep()
 
 void DisassemblerEngine::algorithmJob(const JobDispatchArgs&)
 {
-    Utils::sloop([&]() -> bool {
-                     if(!m_algorithm->hasNext()) return false;
+    Utils::yloop([&]() -> bool {
+                     if(!JobManager::initialized() || !m_algorithm->hasNext()) return false;
                      m_algorithm->next();
                      return true;
                  });
@@ -168,6 +169,8 @@ void DisassemblerEngine::analyzeJob()
 
 void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 {
+    if(!JobManager::initialized()) return;
+
     const ListingFunctions* lf = r_docnew->functions();
     if(args.jobIndex >= lf->size()) return;
 
@@ -225,6 +228,8 @@ void DisassemblerEngine::cfgJobSync()
 
     for(size_t i = 0; i < lf->size(); i++)
         this->cfgJob({i, 0});
+
+    this->execute();
 }
 
 void DisassemblerEngine::searchStringsAt(size_t index) const

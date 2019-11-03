@@ -22,7 +22,13 @@ bool Utils::byte(const String& s, u8* val, size_t offset)
 
 bool Utils::isGibberishString(const String& s) { return GibberishDetector::isGibberish(s.c_str()); }
 
-void Utils::sloop(const std::function<bool()>& cb)
+void Utils::yloop(const std::function<bool()>& cb)
+{
+    while(cb())
+        std::this_thread::yield();
+}
+
+void Utils::sloop(const std::function<bool ()>& cb)
 {
     static const std::chrono::milliseconds JOB_BASE_INTERVAL(1); // 1ms
     static const std::chrono::milliseconds JOB_MAX_INTERVAL(5); // 5ms

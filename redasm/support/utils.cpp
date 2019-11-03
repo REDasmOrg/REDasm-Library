@@ -28,7 +28,7 @@ void Utils::yloop(const std::function<bool()>& cb)
         std::this_thread::yield();
 }
 
-void Utils::sloop(const std::function<bool ()>& cb)
+void Utils::sloop(const std::function<bool()>& cb)
 {
     static const std::chrono::milliseconds JOB_BASE_INTERVAL(1); // 1ms
     static const std::chrono::milliseconds JOB_MAX_INTERVAL(5); // 5ms

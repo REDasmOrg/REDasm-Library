@@ -133,6 +133,7 @@ ListingItem& ListingDocumentTypeNew::itemAt(size_t idx) { PIMPL_P(ListingDocumen
 const ListingItem& ListingDocumentTypeNew::itemAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.at(idx); }
 Segment* ListingDocumentTypeNew::segment(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_segments.find(address); }
 const Segment* ListingDocumentTypeNew::segmentAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_segments.at(idx); }
+address_t ListingDocumentTypeNew::functionAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_functions.at(idx); }
 
 ListingItem ListingDocumentTypeNew::currentItem() const
 {

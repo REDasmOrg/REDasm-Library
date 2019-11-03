@@ -62,6 +62,7 @@ class ListingDocumentTypeNew: public Object
         ListingItem& itemAt(size_t idx);
         const ListingItem& itemAt(size_t idx) const;
         const Segment* segmentAt(size_t idx) const;
+        address_t functionAt(size_t idx) const;
 
     public: // Get
         ListingItem currentItem() const;

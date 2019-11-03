@@ -38,12 +38,11 @@ void AnalyzerImpl::findTrampoline(address_t address)
 
 void AnalyzerImpl::checkFunctions()
 {
-    const auto* functions = r_docnew->functions();
-
-    for(size_t i = 0; i < functions->size(); i++)
+    for(size_t i = 0; i < r_docnew->functionsCount(); i++)
     {
-        if(this->findNullSubs(functions->at(i))) continue;
-        this->findTrampoline(functions->at(i));
+        address_t address = r_docnew->functionAt(i);
+        if(this->findNullSubs(address)) continue;
+        this->findTrampoline(address);
     }
 }
 

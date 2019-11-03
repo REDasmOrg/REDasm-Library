@@ -326,14 +326,11 @@ void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 void DisassemblerImpl::disassemble()
 {
     m_engine = std::make_unique<DisassemblerEngine>();
-
     if(!r_docnew->segmentsCount()) return;
 
-    const ListingFunctions* functions = r_docnew->functions();
-
     // Preload functions for analysis
-    for(size_t i = 0; i < functions->size(); i++)
-        m_engine->enqueue(functions->at(i));
+    for(size_t i = 0; i < r_docnew->functionsCount(); i++)
+        m_engine->enqueue(r_docnew->functionAt(i));
 
     if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
     else r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");

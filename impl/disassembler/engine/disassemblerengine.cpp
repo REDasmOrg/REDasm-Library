@@ -170,11 +170,9 @@ void DisassemblerEngine::analyzeJob()
 void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 {
     if(!JobManager::initialized()) return;
+    if(args.jobIndex >= r_docnew->functionsCount()) return;
 
-    const ListingFunctions* lf = r_docnew->functions();
-    if(args.jobIndex >= lf->size()) return;
-
-    address_t address = lf->at(args.jobIndex);
+    address_t address = r_docnew->functionAt(args.jobIndex);
     r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
 
@@ -224,9 +222,7 @@ void DisassemblerEngine::algorithmJobSync()
 
 void DisassemblerEngine::cfgJobSync()
 {
-    const ListingFunctions* lf = r_docnew->functions();
-
-    for(size_t i = 0; i < lf->size(); i++)
+    for(size_t i = 0; i < r_docnew->functionsCount(); i++)
         this->cfgJob({i, 0});
 
     this->execute();

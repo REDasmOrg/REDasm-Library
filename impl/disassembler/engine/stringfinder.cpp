@@ -12,26 +12,8 @@ StringFinder::StringFinder(const BufferView &view): m_view(view) { }
 
 void StringFinder::find()
 {
-    BufferView view = m_view;
-    Utils::sloop([&]() -> bool {
-                     auto lock = x_lock_safe_ptr(r_docnew);
-                     if(view.eob()) return false;
-
-                     address_location loc = r_ldr->addressof(view.data());
-                     if(!loc.valid) return false;
-
-                     r_ctx->status("Searching strings @ " + String::hex(loc.value));
-
-                     size_t totalsize = 0;
-                     SymbolFlags flags = this->categorize(view, &totalsize);
-
-                     if(flags & SymbolFlags::AsciiString) lock->asciiString(loc, totalsize);
-                     else if(flags & SymbolFlags::WideString) lock->wideString(loc, totalsize);
-                     else { view++; return true; }
-
-                     view += totalsize;
-                     return true;
-     });
+    if(r_ctx->sync()) this->findSync();
+    else this->findAsync();
 }
 
 bool StringFinder::toAscii(char16_t inch, char* outch)
@@ -43,6 +25,40 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
     bool res = StringFinder::isAscii(buffer[0]);
     if(res) *outch = buffer[0];
     return res;
+}
+
+void StringFinder::findSync()
+{
+    BufferView view = m_view;
+    bool done = false;
+
+    while(!done)
+        done = this->step(view);
+}
+
+void StringFinder::findAsync()
+{
+    BufferView view = m_view;
+    Utils::sloop(std::bind(&StringFinder::step, this, view));
+}
+
+bool StringFinder::step(BufferView& view)
+{
+    if(view.eob()) return false;
+    address_location loc = r_ldr->addressof(view.data());
+    if(!loc.valid) return false;
+
+    r_ctx->status("Searching strings @ " + String::hex(loc.value));
+
+    size_t totalsize = 0;
+    SymbolFlags flags = this->categorize(view, &totalsize);
+
+    if(flags & SymbolFlags::AsciiString) r_docnew->asciiString(loc, totalsize);
+    else if(flags & SymbolFlags::WideString) r_docnew->wideString(loc, totalsize);
+    else { view++; return true; }
+
+    view += totalsize;
+    return true;
 }
 
 SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)

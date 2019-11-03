@@ -45,13 +45,19 @@ class DisassemblerEngine
         void signatureStep();
         void cfgStep();
 
-    private:
-        void stringsJob(const JobDispatchArgs* args);
-        void algorithmJob(const JobDispatchArgs*);
+    private: // Threaded Variants
+        void stringsJob(const JobDispatchArgs& args);
+        void algorithmJob(const JobDispatchArgs&);
         void analyzeJob();
-        void cfgJob(const JobDispatchArgs*args);
+        void cfgJob(const JobDispatchArgs& args);
+
+    private: // Sync Variants
+        void stringsJobSync();
+        void algorithmJobSync();
+        void cfgJobSync();
 
     private:
+        void searchStringsAt(size_t index) const;
         bool calculateCfgThreads(size_t* jobcount, size_t* groupsize) const;
         void notify(bool busy);
 

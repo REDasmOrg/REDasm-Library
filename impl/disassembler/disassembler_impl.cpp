@@ -335,8 +335,7 @@ void DisassemblerImpl::disassemble()
     for(size_t i = 0; i < functions->size(); i++)
         m_engine->enqueue(functions->at(i));
 
-    if(r_ctx->hasFlag(ContextFlags::StepDisassembly)) r_ctx->log("Stepped disassembly, press F8");
-    else if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
+    if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
     else r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");
 
     m_engine->execute();

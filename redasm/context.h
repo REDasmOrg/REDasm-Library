@@ -18,8 +18,7 @@ typedef std::list<String> PluginPaths;
 
 enum class ContextFlags
 {
-    None            = 0,
-    StepDisassembly = (1 << 0)
+    None = 0,
 };
 
 ENUM_FLAGS_OPERATORS(ContextFlags)

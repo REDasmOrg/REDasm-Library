@@ -31,6 +31,9 @@ class StringFinder
     private:
         SymbolFlags categorize(const BufferView& view, size_t* totalsize);
         bool validateString(const char* s, size_t size);
+        bool step(BufferView& view);
+        void findAsync();
+        void findSync();
 
     private:
         BufferView m_view;

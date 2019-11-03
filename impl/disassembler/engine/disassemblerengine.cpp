@@ -9,7 +9,12 @@
 
 namespace REDasm {
 
-DisassemblerEngine::DisassemblerEngine() { JobManager::initialize(); m_algorithm = r_asm->createAlgorithm(); }
+DisassemblerEngine::DisassemblerEngine()
+{
+    if(!r_ctx->sync()) JobManager::initialize();
+    m_algorithm = r_asm->createAlgorithm();
+}
+
 DisassemblerEngine::~DisassemblerEngine() { this->stop(); }
 size_t DisassemblerEngine::currentStep() const { return m_currentstep; }
 size_t DisassemblerEngine::concurrency() const { return JobManager::concurrency(); }
@@ -67,17 +72,39 @@ bool DisassemblerEngine::needsWeak() const
 }
 
 bool DisassemblerEngine::busy() const { return m_busy; }
-void DisassemblerEngine::stop() { JobManager::deinitialize(); this->notify(false); }
+
+void DisassemblerEngine::stop()
+{
+    if(!r_ctx->sync()) JobManager::deinitialize();
+    this->notify(false);
+}
 
 void DisassemblerEngine::stringsStep()
 {
     m_starttime = std::chrono::steady_clock::now();
     this->notify(true);
-    JobManager::dispatch(r_docnew->segmentsCount(), this, &DisassemblerEngine::stringsJob);
+
+    if(r_ctx->sync())
+    {
+        for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
+            this->stringsJob({i, 0});
+
+        this->execute();
+    }
+    else
+        JobManager::dispatch(r_docnew->segmentsCount(), this, &DisassemblerEngine::stringsJob);
 }
 
-void DisassemblerEngine::algorithmStep() { JobManager::dispatch(this, &DisassemblerEngine::algorithmJob); }
-void DisassemblerEngine::analyzeStep() { JobManager::execute(this, &DisassemblerEngine::analyzeJob); }
+void DisassemblerEngine::algorithmStep()
+{
+    if(r_ctx->sync()) this->algorithmJobSync();
+    else JobManager::dispatch(this, &DisassemblerEngine::algorithmJob);
+}
+void DisassemblerEngine::analyzeStep()
+{
+    if(r_ctx->sync()) this->analyzeJob();
+    else JobManager::execute(this, &DisassemblerEngine::analyzeJob);
+}
 void DisassemblerEngine::unexploredStep() { this->execute(); }
 void DisassemblerEngine::signatureStep() { this->execute(); }
 
@@ -88,6 +115,12 @@ void DisassemblerEngine::cfgStep()
 
     for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
         r_docnew->segmentCoverageAt(i, REDasm::npos);
+
+    if(r_ctx->sync())
+    {
+        this->execute();
+        return;
+    }
 
     size_t jobcount = 0, groupsize = 0;
 
@@ -100,7 +133,7 @@ void DisassemblerEngine::cfgStep()
     JobManager::dispatch(jobcount, groupsize, this, &DisassemblerEngine::cfgJob);
 }
 
-void DisassemblerEngine::algorithmJob(const JobDispatchArgs*)
+void DisassemblerEngine::algorithmJob(const JobDispatchArgs&)
 {
     Utils::sloop([&]() -> bool {
                      if(!m_algorithm->hasNext()) return false;
@@ -133,12 +166,12 @@ void DisassemblerEngine::analyzeJob()
     this->execute();
 }
 
-void DisassemblerEngine::cfgJob(const JobDispatchArgs* args)
+void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 {
     const ListingFunctions* lf = r_docnew->functions();
-    if(args->jobIndex >= lf->size()) return;
+    if(args.jobIndex >= lf->size()) return;
 
-    address_t address = lf->at(args->jobIndex);
+    address_t address = lf->at(args.jobIndex);
     r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
 
@@ -170,6 +203,41 @@ void DisassemblerEngine::cfgJob(const JobDispatchArgs* args)
         this->execute();
 }
 
+void DisassemblerEngine::stringsJobSync()
+{
+    for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
+        this->searchStringsAt(i);
+
+    this->execute();
+}
+
+void DisassemblerEngine::algorithmJobSync()
+{
+    while(m_algorithm->hasNext())
+        m_algorithm->next();
+
+    this->execute();
+}
+
+void DisassemblerEngine::cfgJobSync()
+{
+    const ListingFunctions* lf = r_docnew->functions();
+
+    for(size_t i = 0; i < lf->size(); i++)
+        this->cfgJob({i, 0});
+}
+
+void DisassemblerEngine::searchStringsAt(size_t index) const
+{
+    if(index >= r_docnew->segmentsCount()) return;
+
+    const Segment* segment = r_docnew->segmentAt(index);
+    if(!segment->is(SegmentType::Data) || segment->is(SegmentType::Bss)) return;
+
+    StringFinder sf(r_ldr->viewSegment(segment));
+    sf.find();
+}
+
 bool DisassemblerEngine::calculateCfgThreads(size_t* jobcount, size_t* groupsize) const
 {
     if(!r_docnew->functionsCount())
@@ -186,13 +254,9 @@ void DisassemblerEngine::notify(bool busy)
     EventManager::trigger(StandardEvents::Disassembler_BusyChanged);
 }
 
-void DisassemblerEngine::stringsJob(const JobDispatchArgs* args)
+void DisassemblerEngine::stringsJob(const JobDispatchArgs& args)
 {
-    const Segment* segment = r_docnew->segments()->at(args->jobIndex);
-    if(!segment->is(SegmentType::Data) || segment->is(SegmentType::Bss)) return;
-
-    StringFinder sf(r_ldr->viewSegment(segment));
-    sf.find();
+    this->searchStringsAt(args.jobIndex);
 
     if(JobManager::last())
         this->execute();

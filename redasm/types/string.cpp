@@ -3,6 +3,7 @@
 #include <impl/libs/cereal/cereal.hpp>
 #include <impl/libs/cereal/archives/binary.hpp>
 #include <impl/libs/cereal/types/string.hpp>
+#include <type_traits>
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
@@ -309,18 +310,20 @@ template<typename T> String String::number(T value, size_t base, size_t width, c
 
     std::stringstream ss;
 
-    if(base == 8)
-        ss << std::oct;
-    else if(base == 16)
-        ss << std::hex;
+    if(base == 8) ss << std::oct;
+    else if(base == 16) ss << std::hex;
 
-    if(width)
-        ss << std::setw(width);
+    if(width) ss << std::setw(width);
+    if(fill) ss << std::setfill(fill);
 
-    if(fill)
-        ss << std::setfill(fill);
+    if(sizeof(T) == 1)
+    {
+        if(std::is_signed<T>::value) ss << static_cast<typename std::make_signed<size_t>::type>(value);
+        else ss << static_cast<size_t>(value);
+    }
+    else
+        ss << value;
 
-    ss << value;
     s.pimpl_p()->m_data = ss.str();
     return s;
 }

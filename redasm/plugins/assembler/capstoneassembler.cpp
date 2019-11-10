@@ -17,11 +17,11 @@ bool CapstoneAssembler::decodeInstruction(const BufferView &view, Instruction *i
     if(!cs_disasm_iter(p->handle(), &pdata, &len, &address, insn))
         return false;
 
-    instruction->mnemonic = insn->mnemonic;
+    instruction->mnemonic(insn->mnemonic);
     instruction->id = insn->id;
     instruction->size = insn->size;
-    instruction->setUserData(insn);
-    instruction->setFree(&CapstoneAssemblerImpl::free);
+    instruction->puserdata = insn;
+    instruction->free = &CapstoneAssemblerImpl::free;
     return true;
 }
 
@@ -32,19 +32,14 @@ void CapstoneAssembler::open(int arch, int mode) { PIMPL_P(CapstoneAssembler); p
 
 void CapstoneAssembler::onDecoded(Instruction *instruction)
 {
-    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userData());
-
-    if(!insn)
-        return;
+    cs_insn* insn = reinterpret_cast<cs_insn*>(instruction->userdata);
+    if(!insn) return;
 
     PIMPL_P(CapstoneAssembler);
 
-    if(cs_insn_group(p->handle(), insn, CS_GRP_JUMP))
-        instruction->type |= InstructionType::Jump;
-    else if(cs_insn_group(p->handle(), insn, CS_GRP_CALL))
-        instruction->type |= InstructionType::Call;
-    else if(cs_insn_group(p->handle(), insn, CS_GRP_RET))
-        instruction->type |= InstructionType::Stop;
+    if(cs_insn_group(p->handle(), insn, CS_GRP_JUMP)) instruction->type |= InstructionType::Jump;
+    else if(cs_insn_group(p->handle(), insn, CS_GRP_CALL)) instruction->type |= InstructionType::Call;
+    else if(cs_insn_group(p->handle(), insn, CS_GRP_RET)) instruction->type |= InstructionType::Stop;
     else if(cs_insn_group(p->handle(), insn, CS_GRP_INT) || cs_insn_group(p->handle(), insn, CS_GRP_IRET))
         instruction->type |= InstructionType::Privileged;
 }

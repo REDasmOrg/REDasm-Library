@@ -66,14 +66,10 @@ const Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *val
     return ptrsymbol;
 }
 
-CachedInstruction DisassemblerImpl::disassembleInstruction(address_t address)
+CachedInstruction DisassemblerImpl::decodeInstruction(address_t address)
 {
-    CachedInstruction instruction = r_docnew->instruction(address);
-    if(instruction) return instruction;
-
-    instruction = r_docnew->cacheInstruction(address);
-    m_algorithm->disassembleInstruction(address, instruction);
-    return instruction;
+    if(!m_engine) return CachedInstruction();
+    return m_engine->decodeInstruction(address);
 }
 
 address_location DisassemblerImpl::getTarget(address_t address) const { return m_referencetable.target(address); }
@@ -100,7 +96,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
         targets.insert(target);
 
-        if(instruction->is(InstructionType::Branch)) this->pushTarget(target, instruction->address);
+        if(instruction->typeIs(InstructionType::Branch)) this->pushTarget(target, instruction->address);
         else this->checkLocation(startaddress, target);
 
         address += m_assembler->addressWidth();
@@ -192,24 +188,24 @@ bool DisassemblerImpl::loadSignature(const String &signame)
     r_ctx->log("Loading Signature: " + sigdb.name().quoted());
     size_t c = 0;
 
-    this->document()->symbols()->iterate(SymbolType::FunctionMask, [&](const Symbol* symbol) -> bool {
-        if(symbol->isLocked())
-            return true;
+    //FIXME: this->document()->symbols()->iterate(SymbolType::FunctionMask, [&](const Symbol* symbol) -> bool {
+    //     if(symbol->isLocked())
+    //         return true;
 
-        BufferView view = this->getFunctionBytes(symbol->address);
-        offset_location offset = m_loader->offset(symbol->address);
+    //     BufferView view = this->getFunctionBytes(symbol->address);
+    //     offset_location offset = m_loader->offset(symbol->address);
 
-        if(view.eob() || !offset.valid)
-            return true;
+    //     if(view.eob() || !offset.valid)
+    //         return true;
 
-        sigdb.search(view, [&](const json& signature) {
-            String signame = signature["name"];
-            this->document()->lock(symbol->address, signame, signature["symboltype"]);
-            c++;
-        });
+    //     sigdb.search(view, [&](const json& signature) {
+    //         String signame = signature["name"];
+    //         this->document()->lock(symbol->address, signame, signature["symboltype"]);
+    //         c++;
+    //     });
 
-        return true;
-    });
+    //     return true;
+    // });
 
     if(c) r_ctx->log("Found " + String::number(c) + " signature(s)");
     else r_ctx->log("No signatures found");

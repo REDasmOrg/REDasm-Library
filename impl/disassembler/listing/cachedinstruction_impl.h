@@ -14,14 +14,14 @@ class CachedInstructionImpl
 
     public:
         CachedInstructionImpl(CachedInstruction* q);
-        CachedInstructionImpl(CachedInstruction* q, InstructionCache* cache, Instruction* instruction);
+        CachedInstructionImpl(CachedInstruction* q, InstructionCache* cache);
         ~CachedInstructionImpl();
-        Instruction* get() const;
-        size_t referenceCount() const;
 
     private:
         std::shared_ptr<Instruction> m_instruction;
         InstructionCache* m_cache{nullptr};
+
+    friend class InstructionCache;
 };
 
 } // namespace REDasm

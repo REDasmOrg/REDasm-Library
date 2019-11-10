@@ -32,12 +32,12 @@ class Printer: public Object
         virtual String out(const CachedInstruction& instruction, const OpCallback& opfunc) const;
 
     public: // Operand privitives
-        virtual String reg(const RegisterOperand &regop) const;
-        virtual String disp(const Operand *operand) const;
-        virtual String loc(const Operand* operand) const;
-        virtual String mem(const Operand* operand) const;
-        virtual String imm(const Operand* operand) const;
-        virtual String size(const Operand* operand) const;
+        virtual String reg(const RegisterOperand* regop) const;
+        virtual String disp(const Operand* op) const;
+        virtual String loc(const Operand* op) const;
+        virtual String mem(const Operand* op) const;
+        virtual String imm(const Operand* op) const;
+        virtual String size(const Operand* op) const;
 };
 
 } // namespace REDasm

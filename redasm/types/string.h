@@ -83,6 +83,7 @@ class String: public Object
         char& operator[](size_t idx);
 
      public:
+        void copy(char* buffer, size_t maxlen) const;
         void save(cereal::BinaryOutputArchive& a) const override;
         void load(cereal::BinaryInputArchive& a) override;
         template<typename T> static String number(T value, size_t base = 10, size_t width = 0, char fill = '\0');

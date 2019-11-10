@@ -65,12 +65,16 @@ void BlockContainerImpl::remove(address_t start, address_t end)
 
     if(!begbl.empty())
     {
+        begbl.type = BlockItemType::Unexplored; // Demote to "Unexplored"
         it = this->insertBlock(it, begbl);
         it++;
     }
 
     if(!endbl.empty())
+    {
+        endbl.type = BlockItemType::Unexplored; // Demote to "Unexplored"
         this->insertBlock(it, endbl);
+    }
 }
 
 BlockItem* BlockContainerImpl::insert(address_t start, address_t end, BlockItemType type, BlockItemFlags flags)

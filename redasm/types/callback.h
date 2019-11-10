@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace REDasm {
 
@@ -15,5 +16,6 @@ typedef size_t(*Callback_ReturnInteger)();
 typedef PluginDescriptor*(*Callback_PluginInit)(Context*);
 typedef bool(*Callback_PluginExec)(const ArgumentList&);
 typedef void(*Callback_VoidPointer)(void*);
+typedef void(*Callback_UIntPtr)(uintptr_t);
 
 } // namespace REDasm

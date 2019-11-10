@@ -4,6 +4,7 @@
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/support/utils.h>
 #include <redasm/context.h>
+#include <algorithm>
 
 #define INVALID_MNEMONIC "db"
 #define REGISTER_STATE_PRIVATE(id, cb) m_states[id] = std::bind(cb, q, std::placeholders::_1)
@@ -13,9 +14,6 @@ namespace REDasm {
 AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm): StateMachine(), m_pimpl_q(algorithm), m_currentsegment(nullptr), m_analyzed(false)
 {
     m_analyzer = nullptr;
-
-    //if(assembler->hasFlag(AssemblerFlags::CanEmulate))
-        //m_emulator = std::unique_ptr<Emulator>(assembler->createEmulator(disassembler));
 
     PIMPL_Q(Algorithm);
 
@@ -30,22 +28,50 @@ AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm): StateMachine(), m_pimpl_q(al
     REGISTER_STATE_PRIVATE(Algorithm::ImmediateState, &Algorithm::immediateState);
 }
 
-size_t AlgorithmImpl::disassembleInstruction(address_t address, const CachedInstruction& instruction)
+CachedInstruction AlgorithmImpl::decodeInstruction(address_t address)
+{
+    if(r_docnew->isInstructionCached(address)) return r_docnew->instruction(address);
+    return this->decode(address);
+}
+
+size_t AlgorithmImpl::decode(address_t address, const CachedInstruction& instruction)
 {
     if(!this->canBeDisassembled(address)) return Algorithm::SKIP;
     instruction->address = address;
 
     BufferView view = r_ldr->view(address);
+    if(view.eob()) return Algorithm::SKIP;
     return r_asm->decode(view, instruction.get()) ? Algorithm::OK : Algorithm::FAIL;
+}
+
+CachedInstruction AlgorithmImpl::decode(address_t address)
+{
+    PIMPL_Q(Algorithm);
+    CachedInstruction instruction = r_docnew->allocateInstruction();
+    size_t result = this->decode(address, instruction);
+
+    if(result == Algorithm::FAIL)
+    {
+        this->createInvalidInstruction(instruction);
+        q->onDecodeFailed(instruction);
+    }
+    else if(result == Algorithm::OK) q->onDecoded(instruction);
+    else
+    {
+        instruction.invalidate();
+        return CachedInstruction();
+    }
+
+    r_docnew->instruction(instruction); // Store instruction in Document
+    return instruction;
 }
 
 void AlgorithmImpl::enqueue(address_t address) { DECODE_STATE(address); }
 
 void AlgorithmImpl::loadTargets(const CachedInstruction& instruction)
 {
-    instruction->targets().each([&](const Variant& v) {
-        r_disasm->pushTarget(v.toU64(), instruction->address);
-    });
+    for(size_t i = 0; i < instruction->targetscount; i++)
+        r_disasm->pushTarget(instruction->targets[i], instruction->address);
 }
 
 bool AlgorithmImpl::validateState(const State &state) const
@@ -68,25 +94,19 @@ void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
         return;
 
     const Operand* op = instruction->target();
+    if(op && !Operand::isNumeric(op)) return;
 
-    if(op && !op->isNumeric())
-        return;
-
-    r_ctx->problem("No targets found for " + instruction->mnemonic.quoted() + " @ " + String::hex(instruction->address));
+    r_ctx->problem("No targets found for " + instruction->mnemonic().quoted() + " @ " + String::hex(instruction->address));
 }
 
 bool AlgorithmImpl::canBeDisassembled(address_t address)
 {
-    BufferView view = r_ldr->view(address);
-    if(view.eob()) return false;
+    if(r_docnew->isInstructionCached(address)) return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))
         m_currentsegment = r_docnew->segment(address);
 
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
-        return false;
-
-    if(!r_ldr->offset(address).valid)
         return false;
 
     return r_docnew->canSymbolizeAddress(address);
@@ -98,57 +118,7 @@ void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instructio
         instruction->size =1; // Invalid instruction uses at least 1 byte
 
     instruction->type = InstructionType::Invalid;
-    instruction->mnemonic = INVALID_MNEMONIC;
-}
-
-size_t AlgorithmImpl::disassemble(address_t address, const CachedInstruction& instruction)
-{
-    if(r_docnew->isInstructionCached(address)) return Algorithm::SKIP;
-
-    size_t result = this->disassembleInstruction(address, instruction);
-
-    PIMPL_Q(Algorithm);
-
-    if(result == Algorithm::FAIL)
-    {
-        this->createInvalidInstruction(instruction);
-        q->onDecodeFailed(instruction);
-    }
-    else
-    {
-        this->emulate(instruction);
-        q->onDecoded(instruction);
-    }
-
-    return result;
-}
-
-void AlgorithmImpl::emulateOperand(const Operand *op, const CachedInstruction& instruction)
-{
-    // u64 value = 0;
-
-    // if(op->is(OperandType::Register))
-    // {
-    //     if(!m_emulator->read(op, &value))
-    //         return;
-    // }
-    // else if(op->is(OperandType::Displacement))
-    // {
-    //     if(!m_emulator->displacement(op, &value))
-    //         return;
-    // }
-    // else
-    //     return;
-
-    // this->onEmulatedOperand(op, instruction, value);
-}
-
-void AlgorithmImpl::emulate(const CachedInstruction &instruction)
-{
-    //if(!m_emulator)
-        //return;
-
-    //m_emulator->emulate(instruction);
+    instruction->mnemonic(INVALID_MNEMONIC);
 }
 
 } // namespace REDasm

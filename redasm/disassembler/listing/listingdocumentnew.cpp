@@ -17,11 +17,23 @@ const SymbolTable* ListingDocumentTypeNew::symbols() const { PIMPL_P(const Listi
 const ListingCursor& ListingDocumentTypeNew::cursor() const { PIMPL_P(const ListingDocumentTypeNew); return p->cursor(); }
 ListingCursor& ListingDocumentTypeNew::cursor() { PIMPL_P(ListingDocumentTypeNew); return p->cursor(); }
 
-CachedInstruction ListingDocumentTypeNew::entryInstruction()
+const BlockItem* ListingDocumentTypeNew::entryBlock() const
 {
    PIMPL_P(const ListingDocumentTypeNew);
-   if(!p->m_entry) return CachedInstruction();
-   return this->instruction(p->m_entry->address);
+   if(!p->m_entry) return nullptr;
+   return this->block(p->m_entry->address);
+}
+
+const BlockItem* ListingDocumentTypeNew::blockAt(size_t idx) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_blocks.at(idx); }
+const BlockItem* ListingDocumentTypeNew::firstBlock() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_blocks.first(); }
+const BlockItem* ListingDocumentTypeNew::lastBlock() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_blocks.last(); }
+
+size_t ListingDocumentTypeNew::entryBlockIndex() const
+{
+   PIMPL_P(const ListingDocumentTypeNew);
+   const BlockItem* bi = this->entryBlock();
+   if(!bi) return REDasm::npos;
+   return p->m_blocks.indexOf(bi);
 }
 
 const Symbol* ListingDocumentTypeNew::entry() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_entry; }
@@ -154,7 +166,14 @@ void ListingDocumentTypeNew::exported(address_t address, const String& name) { P
 void ListingDocumentTypeNew::exportedFunction(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); p->symbol(address, name, SymbolType::FunctionNew, SymbolFlags::Export); }
 void ListingDocumentTypeNew::asciiString(address_t address, size_t size) { PIMPL_P(ListingDocumentTypeNew); p->block(address, size, SymbolType::StringNew, SymbolFlags::AsciiString); }
 void ListingDocumentTypeNew::wideString(address_t address, size_t size) { PIMPL_P(ListingDocumentTypeNew); p->block(address, size, SymbolType::StringNew, SymbolFlags::WideString); }
-void ListingDocumentTypeNew::instruction(const CachedInstruction& instruction) { PIMPL_P(ListingDocumentTypeNew); p->block(instruction); }
+
+void ListingDocumentTypeNew::instruction(const CachedInstruction& instruction)
+{
+    PIMPL_P(ListingDocumentTypeNew);
+    p->m_instructions.store(instruction);
+    p->block(instruction);
+}
+
 size_t ListingDocumentTypeNew::blocksCount() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_blocks.size(); }
 size_t ListingDocumentTypeNew::itemsCount() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.size(); }
 size_t ListingDocumentTypeNew::segmentsCount() const { PIMPL_P(const ListingDocumentTypeNew); return p->m_segments.size(); }
@@ -203,8 +222,8 @@ String ListingDocumentTypeNew::comment(address_t address, bool skipauto) const
     return UtilsImpl::join(comments, COMMENT_SEPARATOR);
 }
 
-size_t ListingDocumentTypeNew::itemIndex(address_t address) { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.itemIndex(address); }
-size_t ListingDocumentTypeNew::itemListingIndex(address_t address) { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.listingIndex(address); }
+size_t ListingDocumentTypeNew::itemIndex(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.itemIndex(address); }
+size_t ListingDocumentTypeNew::itemListingIndex(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.listingIndex(address); }
 size_t ListingDocumentTypeNew::itemSegmentIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.segmentIndex(address, index); }
 size_t ListingDocumentTypeNew::itemFunctionIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.functionIndex(address, index); }
 size_t ListingDocumentTypeNew::itemInstructionIndex(address_t address, size_t index) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_items.instructionIndex(address, index); }
@@ -243,7 +262,22 @@ void ListingDocumentTypeNew::comment(address_t address, const String& s)
     p->notify(idx);
 }
 
-CachedInstruction ListingDocumentTypeNew::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.allocate(address); }
+CachedInstruction ListingDocumentTypeNew::allocateInstruction() { PIMPL_P(ListingDocumentTypeNew); return p->m_instructions.allocate(); }
+
+size_t ListingDocumentTypeNew::entryInstructionIndex() const
+{
+   PIMPL_P(const ListingDocumentTypeNew);
+   if(!p->m_entry) return REDasm::npos;
+   return this->itemInstructionIndex(p->m_entry->address);
+}
+
+CachedInstruction ListingDocumentTypeNew::entryInstruction()
+{
+   PIMPL_P(const ListingDocumentTypeNew);
+   if(!p->m_entry) return CachedInstruction();
+   return this->instruction(p->m_entry->address);
+}
+
 bool ListingDocumentTypeNew::isInstructionCached(address_t address) const { PIMPL_P(const ListingDocumentTypeNew); return p->m_instructions.contains(address); }
 bool ListingDocumentTypeNew::rename(address_t address, const String& name) { PIMPL_P(ListingDocumentTypeNew); return p->rename(address, name); }
 
@@ -262,6 +296,27 @@ void ListingDocumentTypeNew::graph(address_t address, FunctionGraph* graph) { PI
 void ListingDocumentTypeNew::segmentCoverage(address_t address, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverage(address, coverage);  }
 void ListingDocumentTypeNew::segmentCoverageAt(size_t idx, size_t coverage) { PIMPL_P(ListingDocumentTypeNew); p->segmentCoverageAt(idx, coverage); }
 void ListingDocumentTypeNew::invalidateGraphs() { PIMPL_P(ListingDocumentTypeNew); return p->invalidateGraphs(); }
+
+bool ListingDocumentTypeNew::next(const BlockItem*& item) const
+{
+    if(!item || (item == this->lastBlock())) return false;
+
+    PIMPL_P(const ListingDocumentTypeNew);
+    size_t idx = p->m_blocks.indexOf(item);
+    if(idx == REDasm::npos) return false;
+    item = p->m_blocks.at(++idx);
+    return true;
+}
+
+bool ListingDocumentTypeNew::next(CachedInstruction& item)
+{
+    const BlockItem* bi = this->block(item->address);
+    if(!this->next(bi)) return false;
+
+    PIMPL_P(ListingDocumentTypeNew);
+    item = p->m_instructions.find(bi->start);
+    return item;
+}
 
 void ListingDocumentTypeNew::moveToEntry()
 {

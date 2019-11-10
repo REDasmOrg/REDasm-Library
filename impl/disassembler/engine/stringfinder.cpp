@@ -45,7 +45,7 @@ void StringFinder::findAsync()
 
 bool StringFinder::step(BufferView& view)
 {
-    if(!JobManager::initialized() || view.eob()) return false;
+    if((!r_ctx->sync() && !JobManager::initialized()) || view.eob()) return false;
     address_location loc = r_ldr->addressof(view.data());
     if(!loc.valid) return false;
 

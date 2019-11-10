@@ -18,41 +18,39 @@ void Algorithm::executeState(const State &state) { PIMPL_P(Algorithm); p->execut
 void Algorithm::validateTarget(const CachedInstruction& instruction) const { PIMPL_P(const Algorithm); p->validateTarget(instruction);  }
 bool Algorithm::validateState(const State &state) const { PIMPL_P(const Algorithm); return p->validateState(state); }
 void Algorithm::onNewState(const State* state) const { PIMPL_P(const Algorithm); return p->onNewState(state); }
-size_t Algorithm::disassembleInstruction(address_t address, const CachedInstruction& instruction) { PIMPL_P(Algorithm); return p->disassembleInstruction(address, instruction); }
+CachedInstruction Algorithm::decodeInstruction(address_t address) { PIMPL_P(Algorithm); return p->decodeInstruction(address); }
 
 void Algorithm::onDecoded(const CachedInstruction& instruction)
 {
     PIMPL_P(Algorithm);
 
-    if(instruction->is(InstructionType::Branch))
+    if(instruction->typeIs(InstructionType::Branch))
     {
         p->loadTargets(instruction);
         this->validateTarget(instruction);
     }
 
-    for(size_t i = 0; i < instruction->operandsCount(); i++)
+    for(size_t i = 0; i < instruction->operandscount; i++)
     {
-        const Operand* op = instruction->op(i);
+        const auto* op = &instruction->operandsstruct[i];
 
-        if(!op->isNumeric() || op->displacementIsDynamic())
+        if(!Operand::isNumeric(op) || Operand::displacementIsDynamic(op))
         {
-            //if(m_emulator && !m_emulator->hasError())
-            //    this->emulateOperand(&op, instruction);
-
-            if(!op->typeIs(OperandType::Displacement)) // Try static displacement analysis
+            if(!REDasm::typeIs(op, OperandType::Displacement)) // Try static displacement analysis
                 continue;
         }
 
-        if(op->typeIs(OperandType::Displacement))
+        if(REDasm::typeIs(op, OperandType::Displacement))
         {
-            if(op->displacementIsDynamic())
+            if(Operand::displacementIsDynamic(op))
                 EXECUTE_STATE(Algorithm::AddressTableState, op->disp.displacement, op->index, instruction);
-            else if(op->displacementCanBeAddress())
+            else if(Operand::displacementCanBeAddress(op)) {
                 EXECUTE_STATE(Algorithm::MemoryState, op->disp.displacement, op->index, instruction);
+            }
         }
-        else if(op->typeIs(OperandType::Memory))
+        else if(REDasm::typeIs(op, OperandType::Memory))
             EXECUTE_STATE(Algorithm::MemoryState, op->u_value, op->index, instruction);
-        else if(op->typeIs(OperandType::Immediate))
+        else if(REDasm::typeIs(op, OperandType::Immediate))
             EXECUTE_STATE(Algorithm::ImmediateState, op->u_value, op->index, instruction);
 
         this->onDecodedOperand(op, instruction);
@@ -69,32 +67,12 @@ void Algorithm::onDecodeFailed(const CachedInstruction& instruction)
 
 void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &instruction)
 {
-    if(!op->isCharacter()) return;
+    if(!Operand::isCharacter(op)) return;
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
     r_docnew->autoComment(instruction->address, charinfo);
 }
 
-void Algorithm::onEmulatedOperand(const Operand *op, const CachedInstruction &instruction, u64 value)
-{
-    const Segment* segment = r_docnew->segment(value);
-
-    if(!segment || segment->isPureCode()) // Don't flood "Pure-Code" segments with symbols
-        return;
-
-    EXECUTE_STATE(Algorithm::AddressTableState, value, op->index, instruction);
-}
-
-void Algorithm::decodeState(const State *state)
-{
-    if(r_docnew->isInstructionCached(state->address)) return;
-
-    PIMPL_P(Algorithm);
-    CachedInstruction instruction = r_docnew->cacheInstruction(state->address);
-    size_t status = p->disassemble(state->address, instruction);
-
-    if(status == Algorithm::SKIP) return;
-    r_docnew->instruction(instruction);
-}
+void Algorithm::decodeState(const State *state) { PIMPL_P(Algorithm); p->decode(state->address); }
 
 void Algorithm::jumpState(const State *state)
 {
@@ -111,13 +89,13 @@ void Algorithm::branchState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
 
-    if(instruction->is(InstructionType::Call))
+    if(instruction->typeIs(InstructionType::Call))
         FORWARD_STATE(Algorithm::CallState, state);
-    else if(instruction->is(InstructionType::Jump))
+    else if(instruction->typeIs(InstructionType::Jump))
         FORWARD_STATE(Algorithm::JumpState, state);
     else
     {
-        r_ctx->problem("Invalid branch state for instruction " + instruction->mnemonic.quoted() +
+        r_ctx->problem("Invalid branch state for instruction " + instruction->mnemonic().quoted() +
                        " @ " + String::hex(instruction->address, r_asm->bits()));
         return;
     }
@@ -140,7 +118,7 @@ void Algorithm::branchMemoryState(const State *state)
     r_disasm->dereference(state->address, &value);
     r_docnew->pointer(state->address);
 
-    if(instruction->is(InstructionType::Call)) r_docnew->function(value);
+    if(instruction->typeIs(InstructionType::Call)) r_docnew->function(value);
     else r_docnew->label(value);
 
     r_disasm->pushReference(value, state->address);
@@ -157,9 +135,9 @@ void Algorithm::addressTableState(const State *state)
         r_disasm->pushReference(state->address, instruction->address);
         state_t fwdstate = Algorithm::BranchState;
 
-        if(instruction->is(InstructionType::Call))
+        if(instruction->typeIs(InstructionType::Call))
             r_docnew->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
-        else if(instruction->is(InstructionType::Jump))
+        else if(instruction->typeIs(InstructionType::Jump))
             r_docnew->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
@@ -174,8 +152,8 @@ void Algorithm::addressTableState(const State *state)
 
     const Operand* op = state->operand();
 
-    if(op->typeIs(OperandType::Displacement)) FORWARD_STATE(Algorithm::PointerState, state);
-    else if(op->typeIs(OperandType::Memory)) FORWARD_STATE(Algorithm::MemoryState, state);
+    if(REDasm::typeIs(op, OperandType::Displacement)) FORWARD_STATE(Algorithm::PointerState, state);
+    else if(REDasm::typeIs(op, OperandType::Memory)) FORWARD_STATE(Algorithm::MemoryState, state);
     else FORWARD_STATE(Algorithm::ImmediateState, state);
 }
 
@@ -192,7 +170,7 @@ void Algorithm::memoryState(const State *state)
     CachedInstruction instruction = state->instruction;
     r_disasm->pushReference(state->address, instruction->address);
 
-    if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
+    if(instruction->typeIs(InstructionType::Branch) && Operand::isTarget(state->operand()))
         FORWARD_STATE(Algorithm::BranchMemoryState, state);
     else
         FORWARD_STATE(Algorithm::PointerState, state);
@@ -235,7 +213,7 @@ void Algorithm::immediateState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
 
-    if(instruction->is(InstructionType::Branch) && state->operand()->isTarget())
+    if(instruction->typeIs(InstructionType::Branch) && Operand::isTarget(state->operand()))
         FORWARD_STATE(Algorithm::BranchState, state);
     else
         r_disasm->checkLocation(instruction->address, state->address); // Create Symbol + XRefs

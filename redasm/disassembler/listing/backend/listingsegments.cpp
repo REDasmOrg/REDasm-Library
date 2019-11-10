@@ -30,7 +30,7 @@ const Segment *ListingSegments::find(const String &name) const
     {
         const Segment* segment = this->at(i);
 
-        if(segment->name == name)
+        if(segment->name() == name)
             return segment;
     }
 
@@ -54,7 +54,7 @@ bool ListingSegments::insert(const String &name, offset_t offset, address_t addr
 
         if(segment->is(SegmentType::Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
         {
-            r_ctx->problem("Segment " + name.quoted() + " overlaps " + segment->name.quoted());
+            r_ctx->problem("Segment " + name.quoted() + " overlaps " + segment->name().quoted());
             return false;
         }
     }

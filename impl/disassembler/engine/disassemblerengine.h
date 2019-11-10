@@ -31,6 +31,7 @@ class DisassemblerEngine
         void execute();
         void execute(size_t step);
         void enqueue(address_t address);
+        CachedInstruction decodeInstruction(address_t address);
 
     public:
         bool needsWeak() const;

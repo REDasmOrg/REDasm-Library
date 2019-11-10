@@ -20,24 +20,22 @@ class AlgorithmImpl: public StateMachine
 
     public:
         AlgorithmImpl(Algorithm* algorithm);
-        size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
         void enqueue(address_t address);
+        CachedInstruction decodeInstruction(address_t address);
 
     protected:
         bool validateState(const State& state) const override;
         void onNewState(const State *state) const override;
 
     private:
+        size_t decode(address_t address, const CachedInstruction &instruction);
+        CachedInstruction decode(address_t address);
         void loadTargets(const CachedInstruction &instruction);
         void validateTarget(const CachedInstruction &instruction) const;
         bool canBeDisassembled(address_t address);
         void createInvalidInstruction(const CachedInstruction &instruction);
-        size_t disassemble(address_t address, const CachedInstruction &instruction);
-        void emulateOperand(const Operand* op, const CachedInstruction &instruction);
-        void emulate(const CachedInstruction& instruction);
 
     private:
-        //std::unique_ptr<Emulator> m_emulator;
         Analyzer* m_analyzer;
         const Segment* m_currentsegment;
         bool m_analyzed;

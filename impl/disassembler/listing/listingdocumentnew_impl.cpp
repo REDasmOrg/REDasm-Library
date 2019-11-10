@@ -1,5 +1,6 @@
 #include "listingdocumentnew_impl.h"
 #include <redasm/context.h>
+#include <cassert>
 
 namespace REDasm {
 
@@ -9,11 +10,7 @@ ListingDocumentTypeNewImpl::ListingDocumentTypeNewImpl(ListingDocumentTypeNew *q
     EventManager::subscribe_m(StandardEvents::Document_BlockErased, this, &ListingDocumentTypeNewImpl::onBlockErased);
 }
 
-ListingDocumentTypeNewImpl::~ListingDocumentTypeNewImpl()
-{
-    EventManager::ungroup(this);
-}
-
+ListingDocumentTypeNewImpl::~ListingDocumentTypeNewImpl() { EventManager::ungroup(this); }
 const BlockContainer* ListingDocumentTypeNewImpl::blocks() const { return &m_blocks; }
 const ListingItems* ListingDocumentTypeNewImpl::items() const { return &m_items; }
 const ListingSegments *ListingDocumentTypeNewImpl::segments() const { return &m_segments; }
@@ -185,6 +182,13 @@ bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address) const
 
     const BlockItem* bi = m_blocks.find(address);
     if(bi->typeIs(BlockItemType::Code)) return false;
+
+    if(bi->typeIs(BlockItemType::Data))
+    {
+        const Symbol* symbol = m_symbols.get(bi->start);
+        assert(symbol);
+        return symbol->isWeak();
+    }
 
     return true;
 }

@@ -62,11 +62,10 @@ struct StructVisitor {
             return false;
         }
 
-        auto document = disassembler->document();
         String symbolname = name + "_" + String::hex(address); // Generate an unique name
         StructVisitor visitor(disassembler, address, symbolname);
         visit_struct::visit_types<T>(visitor);
-        document->type(address, symbolname);
+        r_docnew->type(address, symbolname);
         return true;
     }
 

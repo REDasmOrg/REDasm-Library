@@ -100,7 +100,6 @@ class LIBREDASM_API SymbolTable: public Object
         size_t size() const;
         Symbol *get(address_t address) const;
         Symbol *get(const String& name) const;
-        void iterate(SymbolType type, const std::function<bool(const Symbol*)> &cb) const;
         bool erase(address_t address);
         void clear();
 

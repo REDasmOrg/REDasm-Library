@@ -14,12 +14,12 @@ class CachedInstruction
     PIMPL_DECLARE_PRIVATE(CachedInstruction)
 
     private:
-        CachedInstruction(InstructionCache* cache, Instruction* instruction);
+        CachedInstruction(InstructionCache* cache);
 
     public:
         CachedInstruction();
+        void invalidate();
         Instruction* get() const;
-        size_t referenceCount() const;
         Instruction* operator->() const;
         operator bool() const;
 

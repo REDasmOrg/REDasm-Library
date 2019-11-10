@@ -7,7 +7,7 @@ CapstoneAssemblerImpl::~CapstoneAssemblerImpl() { this->close(); }
 csh CapstoneAssemblerImpl::handle() const { return m_handle; }
 int CapstoneAssemblerImpl::arch() const { return m_arch; }
 int CapstoneAssemblerImpl::mode() const { return m_mode; }
-void CapstoneAssemblerImpl::free(void *userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); }
+void CapstoneAssemblerImpl::free(uintptr_t userdata) { cs_free(reinterpret_cast<cs_insn*>(userdata), 1); }
 
 void CapstoneAssemblerImpl::open(int arch, int mode)
 {

@@ -346,6 +346,7 @@ void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const Listin
 void ListingRenderer::renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
+    rl.push("META WIP");
     //FIXME: auto metaitem = lock->meta(item);
     //FIXME: rl.push(metaitem.type + " ", "meta_fg").push(metaitem.name, "comment_fg");
 }
@@ -353,6 +354,7 @@ void ListingRenderer::renderMeta(const document_s_lock_new &lock, const ListingI
 void ListingRenderer::renderType(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
+    rl.push("TYPE WIP");
     //FIXME: rl.push(".type ", "meta_fg").push(lock->type(item), "comment_fg");
 }
 
@@ -394,27 +396,27 @@ void ListingRenderer::renderAddress(const document_s_lock_new &lock, const Listi
     else if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideAddress))
     {
         const Segment* segment = lock->segment(item.address_new);
-        rl.push((segment ? segment->name : "unk") + ":" + HEX_ADDRESS(item.address_new), "address_fg");
+        rl.push((segment ? segment->name() : "unk") + ":" + HEX_ADDRESS(item.address_new), "address_fg");
     }
 }
 
 void ListingRenderer::renderMnemonic(const CachedInstruction &instruction, RendererLine &rl) const
 {
-    String mnemonic = instruction->mnemonic + " ";
+    String mnemonic = instruction->mnemonic() + " ";
 
     if(instruction->isInvalid())
         rl.push(mnemonic, "instruction_invalid");
-    else if(instruction->is(REDasm::InstructionType::Stop))
+    else if(instruction->typeIs(REDasm::InstructionType::Stop))
         rl.push(mnemonic, "instruction_stop");
-    else if(instruction->is(REDasm::InstructionType::Nop))
+    else if(instruction->typeIs(REDasm::InstructionType::Nop))
         rl.push(mnemonic, "instruction_nop");
-    else if(instruction->is(REDasm::InstructionType::Call))
+    else if(instruction->typeIs(REDasm::InstructionType::Call))
         rl.push(mnemonic, "instruction_call");
-    else if(instruction->is(REDasm::InstructionType::Compare))
+    else if(instruction->typeIs(REDasm::InstructionType::Compare))
         rl.push(mnemonic, "instruction_compare");
-    else if(instruction->is(REDasm::InstructionType::Jump))
+    else if(instruction->typeIs(REDasm::InstructionType::Jump))
     {
-        if(instruction->is(REDasm::InstructionType::Conditional))
+        if(instruction->typeIs(REDasm::InstructionType::Conditional))
             rl.push(mnemonic, "instruction_jmp_c");
         else
             rl.push(mnemonic, "instruction_jmp");
@@ -434,12 +436,12 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
         if(op->index > 0) rl.push(", ");
         if(!opsize.empty()) rl.push(opsize + " ");
 
-        if(op->isNumeric()) {
-            if(op->typeIs(REDasm::OperandType::Memory)) rl.push(opstr, "memory_fg");
+        if(Operand::isNumeric(op)) {
+            if(REDasm::typeIs(op, REDasm::OperandType::Memory)) rl.push(opstr, "memory_fg");
             else rl.push(opstr, "immediate_fg");
         }
-        else if(op->typeIs(REDasm::OperandType::Displacement)) rl.push(opstr, "displacement_fg");
-        else if(op->typeIs(REDasm::OperandType::Register)) rl.push(opstr, "register_fg");
+        else if(REDasm::typeIs(op, REDasm::OperandType::Displacement)) rl.push(opstr, "displacement_fg");
+        else if(REDasm::typeIs(op, REDasm::OperandType::Register)) rl.push(opstr, "register_fg");
         else rl.push(opstr);
     });
 }
@@ -456,7 +458,7 @@ void ListingRenderer::renderAddressIndent(const document_s_lock_new& lock, const
 {
     const Segment* segment = lock->segment(item.address_new);
     size_t count = r_asm->bits() / 4;
-    if(segment) count += segment->name.size();
+    if(segment) count += segment->name().size();
 
     rl.push(String::repeated(' ', count + INDENT_WIDTH));
 }

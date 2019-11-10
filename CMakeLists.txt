@@ -48,6 +48,7 @@ file(GLOB_RECURSE REDASM_HEADERS
     redasm/database/*.h
     redasm/disassembler/*.h
     redasm/graph/*.h
+    redasm/lmdb/*.h
     redasm/libs/nlohmann/*.h*
     redasm/libs/visit_struct/*.h*
     redasm/plugins/*.h
@@ -61,6 +62,7 @@ file(GLOB_RECURSE REDASM_SOURCES
      redasm/database/*.c*
      redasm/disassembler/*.c*
      redasm/graph/*.c*
+     redasm/lmdb/*.c*
      redasm/plugins/*.c*
      redasm/support/*.c*
      redasm/types/*.c*

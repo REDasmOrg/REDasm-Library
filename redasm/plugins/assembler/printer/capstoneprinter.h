@@ -15,7 +15,7 @@ class CapstonePrinter: public Printer
         CapstonePrinter();
 
     protected:
-        String reg(const RegisterOperand &regop) const override;
+        String reg(const RegisterOperand* regop) const override;
 };
 
 } // namespace REDasm

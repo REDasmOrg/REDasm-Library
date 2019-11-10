@@ -18,7 +18,7 @@ class CapstoneAssemblerImpl : public AssemblerImpl
         int mode() const;
 
     public:
-        static void free(void* userdata);
+        static void free(uintptr_t userdata);
 
     private:
         void open(int arch, int mode);

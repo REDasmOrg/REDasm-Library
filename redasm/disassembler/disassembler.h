@@ -38,7 +38,7 @@ class LIBREDASM_API Disassembler: public Object
         SortedSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
         const Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
-        CachedInstruction disassembleInstruction(address_t address);
+        CachedInstruction decodeInstruction(address_t address);
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
@@ -61,8 +61,6 @@ class LIBREDASM_API Disassembler: public Object
         void pushReference(address_t address, address_t refby);
         void checkLocation(address_t fromaddress, address_t address);
         void stop();
-
-    friend class DisassemblerStatus;
 };
 
 typedef std::shared_ptr<Disassembler> DisassemblerPtr;

@@ -117,7 +117,6 @@ class LIBREDASM_API ListingDocumentType: public Object
         CachedInstruction instruction(address_t address);
         CachedInstruction nextInstruction(const CachedInstruction& instruction);
         CachedInstruction prevInstruction(const CachedInstruction& instruction);
-        CachedInstruction nearestInstruction(address_t address);
         CachedInstruction entryInstruction();
         bool isInstructionCached(address_t address) const;
         void rename(address_t address, const String& name);

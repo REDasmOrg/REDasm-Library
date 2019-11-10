@@ -26,8 +26,6 @@ class ListingDocumentTypeNew: public Object
         const SymbolTable* symbols() const;
         const ListingCursor& cursor() const;
         ListingCursor& cursor();
-        CachedInstruction entryInstruction();
-        const Symbol* entry() const;
 
     public: // Insert
         void entry(address_t address);
@@ -81,8 +79,8 @@ class ListingDocumentTypeNew: public Object
         String comment(address_t address, bool skipauto = false) const;
 
     public: // Items
-        size_t itemIndex(address_t address);
-        size_t itemListingIndex(address_t address);
+        size_t itemIndex(address_t address) const;
+        size_t itemListingIndex(address_t address) const;
         size_t itemSegmentIndex(address_t address, size_t index = 0) const;
         size_t itemFunctionIndex(address_t address, size_t index = 0) const;
         size_t itemInstructionIndex(address_t address, size_t index = 0) const;
@@ -98,12 +96,22 @@ class ListingDocumentTypeNew: public Object
         void comment(address_t address, const String& s);
 
     public: // Instructions
-        CachedInstruction cacheInstruction(address_t address);
+        CachedInstruction allocateInstruction();
+        CachedInstruction entryInstruction();
+        size_t entryInstructionIndex() const;
         bool isInstructionCached(address_t address) const;
 
     public: // Symbols
         bool rename(address_t address, const String& name);
         const Symbol* functionStartSymbol(address_t address) const;
+        const Symbol* entry() const;
+
+    public: // Blocks
+        const BlockItem* entryBlock() const;
+        const BlockItem* blockAt(size_t idx) const;
+        const BlockItem* firstBlock() const;
+        const BlockItem* lastBlock() const;
+        size_t entryBlockIndex() const;
 
     public: // Graph
         ListingItem functionStart(address_t address) const;
@@ -114,14 +122,16 @@ class ListingDocumentTypeNew: public Object
         void segmentCoverageAt(size_t idx, size_t coverage);
         void invalidateGraphs();
 
+    public: // Iteration
+        bool next(const BlockItem*& item) const;
+        bool next(CachedInstruction& item);
+
     public:
         void moveToEntry();
         void setEntry(address_t address);
         bool canSymbolizeAddress(address_t address) const;
         bool goTo(const ListingItem& item);
         bool goTo(address_t address);
-
-    friend class BlockItemImpl;
 };
 
 typedef safe_ptr<ListingDocumentTypeNew> ListingDocumentNew;

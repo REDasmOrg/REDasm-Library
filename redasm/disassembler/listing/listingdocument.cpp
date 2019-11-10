@@ -26,11 +26,12 @@ bool ListingDocumentType::empty() const { PIMPL_P(const ListingDocumentType); re
 
 bool ListingDocumentType::advance(CachedInstruction &instruction)
 {
-    if(!instruction)
-        return false;
+    //if(!instruction)
+        //return false;
 
-    instruction = this->instruction(instruction->endAddress());
-    return instruction && !instruction->isInvalid();
+    //instruction = this->instruction(instruction->endAddress());
+    //return instruction && !instruction->isInvalid();
+    return false;
 }
 
 const ListingCursor *ListingDocumentType::cursor() const { PIMPL_P(const ListingDocumentType); return &p->m_cursor; }
@@ -79,7 +80,7 @@ void ListingDocumentType::moveToEP()
 
 size_t ListingDocumentType::lastLine() const { return this->size() - 1; }
 ListingFunctions* ListingDocumentType::functions() { PIMPL_P(ListingDocumentType); return &p->m_functions; }
-CachedInstruction ListingDocumentType::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.allocate(address); }
+CachedInstruction ListingDocumentType::cacheInstruction(address_t address) { PIMPL_P(ListingDocumentType); }
 const ListingFunctions* ListingDocumentType::functions() const { PIMPL_P(const ListingDocumentType); return &p->m_functions; }
 const List &ListingDocumentType::segments() const { PIMPL_P(const ListingDocumentType); return p->m_segments; }
 
@@ -353,34 +354,34 @@ void ListingDocumentType::segment(const String &name, offset_t offset, address_t
 
 void ListingDocumentType::segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type)
 {
-    if(!psize && !vsize)
-    {
-        r_ctx->log("Skipping empty segment " + name.quoted());
-        return;
-    }
+    // if(!psize && !vsize)
+    // {
+    //     r_ctx->log("Skipping empty segment " + name.quoted());
+    //     return;
+    // }
 
-    PIMPL_P(ListingDocumentType);
+    // PIMPL_P(ListingDocumentType);
 
-    for(size_t i = 0; i < p->m_segments.size(); i++)
-    {
-        Segment* segment = variant_object<Segment>(p->m_segments[i]);
+    // for(size_t i = 0; i < p->m_segments.size(); i++)
+    // {
+    //     Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
-        if(segment->is(SegmentType::Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
-        {
-            r_ctx->problem("Segment " + name.quoted() + " overlaps " + segment->name.quoted());
-            return;
-        }
-    }
+    //     if(segment->is(SegmentType::Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
+    //     {
+    //         r_ctx->problem("Segment " + name.quoted() + " overlaps " + segment->name().quoted());
+    //         return;
+    //     }
+    // }
 
-    p->m_segments.append(new Segment(name, offset, address, psize, vsize, type));
+    // p->m_segments.append(new Segment(name, offset, address, psize, vsize, type));
 
-    p->m_segments.sort([](const Variant& v1, const Variant& v2) -> bool {
-        Segment* s1 = variant_object<Segment>(v1);
-        Segment* s2 = variant_object<Segment>(v2);
-        return s1->address < s2->address;
-    });
+    // p->m_segments.sort([](const Variant& v1, const Variant& v2) -> bool {
+    //     Segment* s1 = variant_object<Segment>(v1);
+    //     Segment* s2 = variant_object<Segment>(v2);
+    //     return s1->address < s2->address;
+    // });
 
-    p->push(address, ListingItemType::SegmentItem);
+    // p->push(address, ListingItemType::SegmentItem);
 }
 
 void ListingDocumentType::lockFunction(address_t address, const String &name, u32 tag) { this->lock(address, name, SymbolType::Function, tag);  }
@@ -436,15 +437,15 @@ size_t ListingDocumentType::segmentsCount() const { PIMPL_P(const ListingDocumen
 
 Segment *ListingDocumentType::segment(address_t address)
 {
-    PIMPL_P(ListingDocumentType);
+    // PIMPL_P(ListingDocumentType);
 
-    for(size_t i = 0; i < p->m_segments.size(); i++)
-    {
-        Segment* segment = variant_object<Segment>(p->m_segments[i]);
+    // for(size_t i = 0; i < p->m_segments.size(); i++)
+    // {
+    //     Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
-        if(segment->contains(address))
-            return segment;
-    }
+    //     if(segment->contains(address))
+    //         return segment;
+    // }
 
     return nullptr;
 }
@@ -453,24 +454,23 @@ const Segment *ListingDocumentType::segment(address_t address) const { return co
 
 const Segment *ListingDocumentType::segmentByName(const String &name) const
 {
-    PIMPL_P(const ListingDocumentType);
+    // PIMPL_P(const ListingDocumentType);
 
-    for(size_t i = 0; i < p->m_segments.size(); i++)
-    {
-        Segment* segment = variant_object<Segment>(p->m_segments[i]);
+    // for(size_t i = 0; i < p->m_segments.size(); i++)
+    // {
+    //     Segment* segment = variant_object<Segment>(p->m_segments[i]);
 
-        if(segment->name == name)
-            return segment;
-    }
+    //     if(segment->name() == name)
+    //         return segment;
+    // }
 
     return nullptr;
 }
 
 void ListingDocumentType::instruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); p->push(instruction->address, ListingItemType::InstructionItem); }
 CachedInstruction ListingDocumentType::instruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.find(address); }
-CachedInstruction ListingDocumentType::nextInstruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); return p->m_instructions.next(instruction->address); }
-CachedInstruction ListingDocumentType::prevInstruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); return p->m_instructions.prev(instruction->address); }
-CachedInstruction ListingDocumentType::nearestInstruction(address_t address) { PIMPL_P(ListingDocumentType); return p->m_instructions.findNearest(address); }
+CachedInstruction ListingDocumentType::nextInstruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType); /* return p->m_instructions.next(instruction->address); */ }
+CachedInstruction ListingDocumentType::prevInstruction(const CachedInstruction &instruction) { PIMPL_P(ListingDocumentType);/* return p->m_instructions.prev(instruction->address); */ }
 size_t ListingDocumentType::itemIndex(const ListingItem *item) const { PIMPL_P(const ListingDocumentType); return p->findIndex(item->address_new, item->type_new, item->index_new); }
 size_t ListingDocumentType::functionIndex(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::FunctionItem); }
 size_t ListingDocumentType::instructionIndex(address_t address) const { PIMPL_P(const ListingDocumentType); return p->findIndex(address, ListingItemType::InstructionItem); }
@@ -511,15 +511,15 @@ ListingItem *ListingDocumentType::prev(ListingItem *item) const
 ListingItem *ListingDocumentType::nextInstructionItem(ListingItem *item)
 {
     PIMPL_P(ListingDocumentType);
-    address_location loc = p->m_instructions.nextHint(item->address_new);
-    return loc.valid ? this->instructionItem(loc) : nullptr;
+    //address_location loc = p->m_instructions.nextHint(item->address_new);
+    //return loc.valid ? this->instructionItem(loc) : nullptr;
 }
 
 ListingItem *ListingDocumentType::prevInstructionItem(ListingItem *item)
 {
     PIMPL_P(ListingDocumentType);
-    address_location loc = p->m_instructions.prevHint(item->address_new);
-    return loc.valid ? this->instructionItem(loc) : nullptr;
+    //address_location loc = p->m_instructions.prevHint(item->address_new);
+    //return loc.valid ? this->instructionItem(loc) : nullptr;
 }
 
 Symbol* ListingDocumentType::symbol(address_t address) const { PIMPL_P(const ListingDocumentType); return p->m_symboltable.get(address); }

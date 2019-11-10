@@ -29,7 +29,7 @@ class DisassemblerImpl
         SortedSet getTargets(address_t address) const;
         BufferView getFunctionBytes(address_t address);
         const Symbol* dereferenceSymbol(const Symbol* symbol, u64* value = nullptr);
-        CachedInstruction disassembleInstruction(address_t address);
+        CachedInstruction decodeInstruction(address_t address);
         address_location getTarget(address_t address) const;
         size_t getTargetsCount(address_t address) const;
         size_t getReferencesCount(address_t address) const;
@@ -58,12 +58,9 @@ class DisassemblerImpl
 
     private:
         std::unique_ptr<DisassemblerEngine> m_engine;
-        safe_ptr<Algorithm> m_algorithm;
         ReferenceTable m_referencetable;
         Assembler* m_assembler;
         Loader* m_loader;
-
-    friend class DisassemblerStatus;
 };
 
 } // namespace REDasm

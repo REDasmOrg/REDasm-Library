@@ -33,7 +33,7 @@ void Printer::segment(const Segment *segment, const Printer::LineCallback& segme
 {
     String s = String::repeated('=', HEADER_SYMBOL_COUNT * 2);
 
-    segmentfunc(s + " SEGMENT " + (segment ? segment->name.quoted() : "???") +
+    segmentfunc(s + " SEGMENT " + (segment ? segment->name().quoted() : "???") +
                     " START: " + String::hex(segment->address, r_asm->bits()) +
                     " END: " + String::hex(segment->endaddress, r_asm->bits()) + " " + s);
 }
@@ -87,7 +87,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
 String Printer::out(const CachedInstruction &instruction, const OpCallback &opfunc) const
 {
-    String s = instruction->mnemonic;
+    String s = instruction->mnemonic();
 
     if(instruction->isInvalid())
     {
@@ -101,7 +101,7 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
 
     if(instruction->hasOperands()) s += " ";
 
-    for(size_t i = 0; i < instruction->operandsCount(); i++)
+    for(size_t i = 0; i < instruction->operandscount; i++)
     {
         if(i) s += ", ";
 
@@ -114,7 +114,7 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
             case OperandType::Immediate:    opstr = this->imm(op); break;
             case OperandType::Memory:       opstr = this->mem(op); break;
             case OperandType::Displacement: opstr = this->disp(op); break;
-            case OperandType::Register:     opstr = this->reg(op->reg); break;
+            case OperandType::Register:     opstr = this->reg(&op->reg); break;
             default: continue;
         }
 
@@ -127,18 +127,18 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
     return s;
 }
 
-String Printer::reg(const RegisterOperand &regop) const { return "$" + String::number(regop.r); }
+String Printer::reg(const RegisterOperand* regop) const { return "$" + String::number(regop->r); }
 
-String Printer::disp(const Operand *operand) const
+String Printer::disp(const Operand* op) const
 {
     String s;
 
-    if(operand->disp.base.isValid())
-        s += this->reg(operand->disp.base);
+    if(Operand::isBaseValid(op))
+        s += this->reg(&op->disp.basestruct);
 
-    if(operand->hasFlag(OperandFlags::Local) || operand->hasFlag(OperandFlags::Argument))
+    if(hasFlag(op, OperandFlags::Local) || hasFlag(op, OperandFlags::Argument))
     {
-        String loc = this->loc(operand);
+        String loc = this->loc(op);
 
         if(!loc.empty())
         {
@@ -150,48 +150,43 @@ String Printer::disp(const Operand *operand) const
         }
     }
 
-    if(operand->disp.index.isValid())
+    if(Operand::isIndexValid(op))
     {
-        if(!s.empty())
-            s += "+";
+        if(!s.empty()) s += "+";
+        s += this->reg(&op->disp.indexstruct);
 
-        s += this->reg(operand->disp.index);
-
-        if(operand->disp.scale > 1)
-            s += "*" + String::hex(operand->disp.scale);
+        if(op->disp.scale > 1)
+            s += "*" + String::hex(op->disp.scale);
     }
 
-    if(operand->disp.displacement)
+    if(op->disp.displacement)
     {
-        if(operand->disp.displacement > 0)
+        if(op->disp.displacement > 0)
         {
-            const Symbol* symbol = r_docnew->symbol(operand->disp.displacement);
-
-            if(symbol)
-                s += "+" + symbol->name;
-            else
-                s += "+" + String::hex(operand->disp.displacement);
+            const Symbol* symbol = r_docnew->symbol(op->disp.displacement);
+            if(symbol) s += "+" + symbol->name;
+            else s += "+" + String::hex(op->disp.displacement);
         }
-        else if(operand->disp.displacement < 0)
-            s += "-" + String::hex(std::abs(operand->disp.displacement));
+        else if(op->disp.displacement < 0)
+            s += "-" + String::hex(std::abs(op->disp.displacement));
     }
 
     return "[" + s + "]";
 }
 
-String Printer::loc(const Operand *operand) const { return String(); }
-String Printer::mem(const Operand *operand) const { return this->imm(operand); }
+String Printer::loc(const Operand* op) const { return String(); }
+String Printer::mem(const Operand* op) const { return this->imm(op); }
 
-String Printer::imm(const Operand *operand) const
+String Printer::imm(const Operand* op) const
 {
-    const Symbol* symbol = r_docnew->symbol(operand->u_value);
+    const Symbol* symbol = r_docnew->symbol(op->u_value);
 
-    if(operand->typeIs(OperandType::Memory))
-        return "[" + (symbol ? symbol->name : String::hex(operand->u_value)) + "]";
+    if(REDasm::typeIs(op, OperandType::Memory))
+        return "[" + (symbol ? symbol->name : String::hex(op->u_value)) + "]";
 
-    return symbol ? symbol->name : String::hex(operand->s_value);
+    return symbol ? symbol->name : String::hex(op->s_value);
 }
 
-String Printer::size(const Operand *operand) const { return String(); }
+String Printer::size(const Operand* op) const { return String(); }
 
 } // namespace REDasm

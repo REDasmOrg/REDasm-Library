@@ -16,7 +16,6 @@ namespace REDasm {
 
 class AlgorithmImpl;
 class Disassembler;
-class ListingDocumentType;
 
 class Algorithm: public Object
 {
@@ -37,7 +36,7 @@ class Algorithm: public Object
 
     public:
         Algorithm();
-        size_t disassembleInstruction(address_t address, const CachedInstruction &instruction);
+        CachedInstruction decodeInstruction(address_t address);
         void enqueue(address_t address);
         bool hasNext() const;
         void next();
@@ -52,7 +51,6 @@ class Algorithm: public Object
         virtual void onDecoded(const CachedInstruction &instruction);
         virtual void onDecodeFailed(const CachedInstruction& instruction);
         virtual void onDecodedOperand(const Operand* op, const CachedInstruction& instruction);
-        virtual void onEmulatedOperand(const Operand* op, const CachedInstruction& instruction, u64 value);
 
     protected:
         virtual void decodeState(const State *state);

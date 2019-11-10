@@ -24,7 +24,7 @@ void DisassemblerEngine::reset() { m_currentstep = DisassemblerEngineSteps::None
 
 void DisassemblerEngine::execute()
 {
-    if(!JobManager::initialized()) return;
+    if(!r_ctx->sync() && !JobManager::initialized()) return;
     size_t newstep = ++m_currentstep;
 
     if(newstep >= DisassemblerEngineSteps::Last)
@@ -58,6 +58,7 @@ void DisassemblerEngine::execute(size_t step)
 }
 
 void DisassemblerEngine::enqueue(address_t address) { m_algorithm->enqueue(address); }
+CachedInstruction DisassemblerEngine::decodeInstruction(address_t address) { return m_algorithm->decodeInstruction(address); }
 
 bool DisassemblerEngine::needsWeak() const
 {
@@ -177,13 +178,15 @@ void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
     address_t address = r_docnew->functionAt(args.jobIndex);
     r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
+    bool cfgdone = false;
 
     { // Build CFG
         auto lock = s_lock_safe_ptr(r_docnew);
-        if(!g->build(address)) return;
+        cfgdone = g->build(address);
     }
 
-    { // Apply CFG
+    if(cfgdone) // Apply CFG
+    {
         auto lock = x_lock_safe_ptr(r_docnew);
         lock->segmentCoverage(address, g->bytesCount());
 

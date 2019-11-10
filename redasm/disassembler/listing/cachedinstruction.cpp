@@ -4,10 +4,17 @@
 namespace REDasm {
 
 CachedInstruction::CachedInstruction(): m_pimpl_p(new CachedInstructionImpl(this)) { }
-CachedInstruction::CachedInstruction(InstructionCache *cache, Instruction *instruction): m_pimpl_p(new CachedInstructionImpl(this, cache, instruction)) { }
+CachedInstruction::CachedInstruction(InstructionCache *cache): m_pimpl_p(new CachedInstructionImpl(this, cache)) { }
+
+void CachedInstruction::invalidate()
+{
+    PIMPL_P(CachedInstruction);
+    p->m_cache = nullptr;
+    p->m_instruction = nullptr;
+}
+
 Instruction* CachedInstruction::operator->() const { return this->get(); }
 REDasm::CachedInstruction::operator bool() const { PIMPL_P(const CachedInstruction); return p && (p->m_instruction != nullptr); }
-size_t CachedInstruction::referenceCount() const { PIMPL_P(const CachedInstruction); return p->referenceCount(); }
-Instruction *CachedInstruction::get() const { PIMPL_P(const CachedInstruction); return p->get(); }
+Instruction *CachedInstruction::get() const { PIMPL_P(const CachedInstruction); return p->m_instruction.get(); }
 
 } // namespace REDasm

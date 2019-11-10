@@ -131,12 +131,13 @@ Disassembler *Database::load(const String &dbfilename, String &filename)
     loader->init(request);
 
     // Take Assembler/Loader/Buffer Ownership, bind to Context
-    auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader);
-    disassembler->document()->load(in);
+    //auto* disassembler = new Disassembler(static_cast<Assembler*>(assemblerpi->descriptor->plugin), loader);
+    //disassembler->document()->load(in);
 
     // References
-    disassembler->references()->load(in);
-    return disassembler;
+    //disassembler->references()->load(in);
+    //return disassembler;
+    return nullptr;
 }
 
 const String &Database::lastError() { return DatabaseImpl::m_lasterror; }

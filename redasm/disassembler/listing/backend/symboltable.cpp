@@ -99,33 +99,8 @@ Symbol* SymbolTable::get(address_t address) const
     return it->second.get();
 }
 
-void SymbolTable::iterate(SymbolType type, const std::function<bool(const Symbol*)>& cb) const
-{
-    PIMPL_P(const SymbolTable);
-    std::forward_list<const Symbol*> symbols;
-
-    for(auto it = p->m_byaddress.begin(); it != p->m_byaddress.end(); it++)
-    {
-        const SymbolPtr& symbol = it->second;
-
-        if(!(symbol->type & type))
-            continue;
-
-        symbols.push_front(symbol.get()); // m_byaddress can be modified
-    }
-
-    for(const Symbol* symbol : symbols)
-        cb(symbol);
-}
-
 bool SymbolTable::erase(address_t address)
 {
-    if(address == 0x00402064)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     PIMPL_P(SymbolTable);
     auto it = p->m_byaddress.find(address);
 

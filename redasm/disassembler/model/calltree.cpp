@@ -35,7 +35,7 @@ size_t CallTree::populate()
             if(!bi->typeIs(BlockItemType::Code)) continue;
 
             CachedInstruction instruction = r_docnew->instruction(bi->start);
-            if(!instruction->is(InstructionType::Call)) continue;
+            if(!instruction->typeIs(InstructionType::Call)) continue;
             this->add<CallTree>(r_docnew->itemInstruction(bi->start));
         }
     });

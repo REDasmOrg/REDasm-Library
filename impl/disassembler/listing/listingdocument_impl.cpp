@@ -130,7 +130,7 @@ void ListingDocumentTypeImpl::loadItems(cereal::BinaryInputArchive &a)
         if(item->is(ListingItemType::InstructionItem))
         {
             PIMPL_Q(ListingDocumentType);
-            q->instruction(r_disasm->disassembleInstruction(item->address_new));
+            q->instruction(r_disasm->decodeInstruction(item->address_new));
         }
 
         this->insert(std::move(item));

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <redasm/disassembler/listing/cachedinstruction.h>
+#include "backend/instructioncache.h"
 
 namespace REDasm {
 
@@ -18,7 +18,7 @@ class CachedInstructionImpl
         ~CachedInstructionImpl();
 
     private:
-        std::shared_ptr<Instruction> m_instruction;
+        InstructionCache::InstructionPtr m_instruction;
         InstructionCache* m_cache{nullptr};
 
     friend class InstructionCache;

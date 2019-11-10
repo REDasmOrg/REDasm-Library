@@ -1,5 +1,4 @@
 #include "cachedinstruction_impl.h"
-#include "backend/instructioncache.h"
 
 namespace REDasm {
 

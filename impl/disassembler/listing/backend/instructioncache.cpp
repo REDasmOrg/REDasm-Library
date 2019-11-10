@@ -17,15 +17,12 @@ InstructionCache::~InstructionCache()
 {
     m_lockserialization = true;
     m_loaded.clear();
-    m_cache.clear();
 
     m_lmdb.close();
     std::remove(m_filepath.c_str());
 }
 
-size_t InstructionCache::size() const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_cache.size(); }
-bool InstructionCache::contains(address_t address) const { std::lock_guard<std::recursive_mutex> lock(m_mutex); return m_cache.find(address) != m_cache.end(); }
-
+bool InstructionCache::contains(address_t address) const { return m_cached.find(address) != m_cached.end(); }
 CachedInstruction InstructionCache::find(address_t address) { return this->deserialize(address); }
 
 CachedInstruction InstructionCache::allocate()
@@ -35,12 +32,17 @@ CachedInstruction InstructionCache::allocate()
     return ci;
 }
 
-void InstructionCache::store(const CachedInstruction& instruction) { m_loaded[instruction->address] = instruction.pimpl_p()->m_instruction; }
-void InstructionCache::erase(address_t address) { m_cache.erase(address); }
+void InstructionCache::store(const CachedInstruction& instruction)
+{
+    m_loaded[instruction->address] = instruction.pimpl_p()->m_instruction;
+    m_cached.insert(instruction->address);
+}
+
+void InstructionCache::erase(address_t address) { m_cached.erase(address); }
 
 void InstructionCache::serialize(const InstructionPtr& instruction)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    cache_lock lock(m_mutex);
     if(m_lockserialization) return;
 
     auto it = m_loaded.find(instruction->address);
@@ -54,7 +56,7 @@ void InstructionCache::serialize(const InstructionPtr& instruction)
 
 CachedInstruction InstructionCache::deserialize(address_t address)
 {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    cache_lock lock(m_mutex);
     CachedInstruction cachedinstruction(this);
     auto it = m_loaded.find(address);
 

@@ -2,9 +2,6 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <map>
-#include <fstream>
-#include <list>
 #include <redasm/disassembler/listing/cachedinstruction.h>
 #include <redasm/redasm.h>
 #include "../lmdb/lmdb.h"
@@ -19,7 +16,6 @@ class InstructionCache
     public:
         InstructionCache();
         ~InstructionCache();
-        size_t size() const;
         bool contains(address_t address) const;
         CachedInstruction find(address_t address);
         CachedInstruction allocate();
@@ -33,14 +29,14 @@ class InstructionCache
 
     private:
         mutable std::unordered_map<address_t, InstructionPtr> m_loaded;
-        std::map<address_t, std::streamoff> m_cache;
-        std::fstream m_file;
+        std::unordered_set<address_t> m_cached;
         LMDB m_lmdb;
         String m_filepath;
         bool m_lockserialization;
 
     private:
-        mutable std::recursive_mutex m_mutex;
+        using cache_lock = std::lock_guard<std::mutex>;
+        mutable std::mutex m_mutex;
 
     friend class CachedInstructionImpl;
 };

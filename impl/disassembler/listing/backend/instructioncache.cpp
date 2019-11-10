@@ -65,6 +65,10 @@ CachedInstruction InstructionCache::deserialize(address_t address)
         auto t = m_lmdb.transaction();
         t->get(address, static_cast<InstructionStruct*>(instruction.get()));
 
+        // Reset backend specific fields
+        instruction->free = nullptr;
+        instruction->puserdata = nullptr;
+
         m_loaded[address] = instruction;
         cachedinstruction.pimpl_p()->m_instruction = instruction;
     }

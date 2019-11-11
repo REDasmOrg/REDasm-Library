@@ -13,9 +13,6 @@ class CachedInstruction
     PIMPL_DECLARE_P(CachedInstruction)
     PIMPL_DECLARE_PRIVATE(CachedInstruction)
 
-    private:
-        CachedInstruction(InstructionCache* cache);
-
     public:
         CachedInstruction();
         void invalidate();

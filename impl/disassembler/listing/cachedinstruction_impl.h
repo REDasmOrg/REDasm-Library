@@ -14,8 +14,6 @@ class CachedInstructionImpl
 
     public:
         CachedInstructionImpl(CachedInstruction* q);
-        CachedInstructionImpl(CachedInstruction* q, InstructionCache* cache);
-        ~CachedInstructionImpl();
 
     private:
         InstructionCache::InstructionPtr m_instruction;

@@ -15,7 +15,7 @@ LMDBTransaction::~LMDBTransaction()
     mdb_dbi_close(m_env, m_dbi);
 }
 
-void LMDBTransaction::commit() { mdb_txn_commit(m_txn); }
+void LMDBTransaction::commit() { lmdb_check(mdb_txn_commit(m_txn)); }
 void LMDBTransaction::abort() { mdb_txn_abort(m_txn); }
 
 void LMDBTransaction::puts(const String& key, const String& val)

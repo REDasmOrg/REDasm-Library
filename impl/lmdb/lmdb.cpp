@@ -18,7 +18,7 @@ void LMDB::open(const String& filepath, unsigned int dbflags, unsigned int flags
     lmdb_check(mdb_env_open(m_env, filepath.c_str(), flags | MDB_NOSUBDIR, 0664));
 }
 
-LMDBTransactionPtr LMDB::transaction() const { return std::unique_ptr<LMDBTransaction>(new LMDBTransaction(m_env, m_dbflags)); }
+LMDBTransactionPtr LMDB::transaction() const { return LMDBTransactionPtr(new LMDBTransaction(m_env, m_dbflags)); }
 
 void LMDB::close()
 {

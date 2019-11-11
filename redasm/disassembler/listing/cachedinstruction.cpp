@@ -4,7 +4,6 @@
 namespace REDasm {
 
 CachedInstruction::CachedInstruction(): m_pimpl_p(new CachedInstructionImpl(this)) { }
-CachedInstruction::CachedInstruction(InstructionCache *cache): m_pimpl_p(new CachedInstructionImpl(this, cache)) { }
 
 void CachedInstruction::invalidate()
 {

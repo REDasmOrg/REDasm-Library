@@ -170,7 +170,7 @@ void ListingDocumentTypeNew::wideString(address_t address, size_t size) { PIMPL_
 void ListingDocumentTypeNew::instruction(const CachedInstruction& instruction)
 {
     PIMPL_P(ListingDocumentTypeNew);
-    p->m_instructions.store(instruction);
+    p->m_instructions.cache(instruction);
     p->block(instruction);
 }
 

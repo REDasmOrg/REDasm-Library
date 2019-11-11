@@ -1,6 +1,4 @@
 #include "instructioncache.h"
-#include <fstream>
-#include <iomanip>
 #include <redasm/support/utils.h>
 #include "../cachedinstruction_impl.h"
 
@@ -10,7 +8,7 @@ namespace REDasm {
 
 InstructionCache::InstructionCache(): m_filepath(generateFilePath()), m_lockserialization(false)
 {
-    m_lmdb.open(m_filepath, MDB_INTEGERKEY | MDB_CREATE, MDB_NOLOCK);
+    m_lmdb.open(m_filepath, MDB_INTEGERKEY | MDB_CREATE);
 }
 
 InstructionCache::~InstructionCache()
@@ -27,57 +25,59 @@ CachedInstruction InstructionCache::find(address_t address) { return this->deser
 
 CachedInstruction InstructionCache::allocate()
 {
-    CachedInstruction ci(this);
-    ci.pimpl_p()->m_instruction = std::make_shared<Instruction>();
+    CachedInstruction ci;
+    this->allocate(&ci);
     return ci;
 }
 
-void InstructionCache::store(const CachedInstruction& instruction)
-{
-    m_loaded[instruction->address] = instruction.pimpl_p()->m_instruction;
-    m_cached.insert(instruction->address);
-}
-
+void InstructionCache::cache(const CachedInstruction& instruction) { m_cached.insert(instruction->address); }
 void InstructionCache::erase(address_t address) { m_cached.erase(address); }
 
-void InstructionCache::serialize(const InstructionPtr& instruction)
+void InstructionCache::allocate(CachedInstruction* ci)
 {
-    cache_lock lock(m_mutex);
+    ci->pimpl_p()->m_cache = this;
+    ci->pimpl_p()->m_instruction = std::shared_ptr<Instruction>(new Instruction(), [&](Instruction* p) {
+                                           this->serialize(p);
+                                           std::default_delete<Instruction>()(p);
+                                        });
+}
+
+void InstructionCache::serialize(Instruction* instruction)
+{
     if(m_lockserialization) return;
 
-    auto it = m_loaded.find(instruction->address);
-    if((it != m_loaded.end()) && (it->second.use_count() > 1)) return;
-
     auto t = m_lmdb.transaction();
-    t->putr(instruction->address, static_cast<const InstructionStruct*>(instruction.get()));
+    t->putr(instruction->address, static_cast<const InstructionStruct*>(instruction));
     t->commit();
-    m_loaded.erase(instruction->address);
 }
 
 CachedInstruction InstructionCache::deserialize(address_t address)
 {
-    cache_lock lock(m_mutex);
-    CachedInstruction cachedinstruction(this);
-    auto it = m_loaded.find(address);
+    CachedInstruction ci;
+    auto sp = m_loaded[address].lock();
 
-    if(it == m_loaded.end())
+    if(!sp)
     {
-        auto instruction = std::make_shared<Instruction>();
+        this->allocate(&ci);
 
         auto t = m_lmdb.transaction();
-        t->get(address, static_cast<InstructionStruct*>(instruction.get()));
+        t->get(address, static_cast<InstructionStruct*>(ci.get()));
+        t->commit();
 
         // Reset backend specific fields
-        instruction->free = nullptr;
-        instruction->puserdata = nullptr;
+        ci->free = nullptr;
+        ci->puserdata = nullptr;
 
-        m_loaded[address] = instruction;
-        cachedinstruction.pimpl_p()->m_instruction = instruction;
+        // weak_ptr<T> <- shared_ptr<T>
+        m_loaded[address] = sp = ci.pimpl_p()->m_instruction;
     }
     else
-        cachedinstruction.pimpl_p()->m_instruction = it->second;
+    {
+        ci.pimpl_p()->m_cache = this;
+        ci.pimpl_p()->m_instruction = sp;
+    }
 
-    return cachedinstruction;
+    return ci;
 }
 
 String InstructionCache::generateFilePath()

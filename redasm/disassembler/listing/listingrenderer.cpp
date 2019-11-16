@@ -316,6 +316,13 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         return;
     }
 
+    if(symbol->isPointer())
+    {
+        p->renderSymbolPrologue(lock, item, symbol, rl);
+        p->renderSymbolPointer(lock, symbol, rl);
+        return;
+    }
+
     switch(symbol->type)
     {
         case SymbolType::Import:
@@ -346,16 +353,14 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push("META WIP");
-    //FIXME: auto metaitem = lock->meta(item);
-    //FIXME: rl.push(metaitem.type + " ", "meta_fg").push(metaitem.name, "comment_fg");
+    auto metaitem = lock->meta(item.address, item.index);
+    rl.push(metaitem.type + " ", "meta_fg").push(metaitem.name, "comment_fg");
 }
 
 void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
-    rl.push("TYPE WIP");
-    //FIXME: rl.push(".type ", "meta_fg").push(lock->type(item), "comment_fg");
+    rl.push(".type ", "meta_fg").push(lock->type(item.address), "comment_fg");
 }
 
 void ListingRenderer::renderSeparator(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const

@@ -199,6 +199,14 @@ String ListingDocumentType::type(address_t address) const
     return it != p->m_itemdata.end() ? it->second.type : String();
 }
 
+ListingMetaItem ListingDocumentType::meta(address_t address, size_t index) const
+{
+    PIMPL_P(const ListingDocumentType);
+    auto it = p->m_itemdata.find(address);
+    if(it == p->m_itemdata.end()) return ListingMetaItem();
+    return it->second.meta.at(index);
+}
+
 String ListingDocumentType::comment(address_t address, bool skipauto) const
 {
     PIMPL_P(const ListingDocumentType);

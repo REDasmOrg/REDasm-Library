@@ -80,6 +80,7 @@ class ListingDocumentType: public Object
         const Symbol* symbol(const String& name) const;
         const BlockItem* block(address_t address) const;
         String type(address_t address) const;
+        ListingMetaItem meta(address_t address, size_t index) const;
         String comment(address_t address, bool skipauto = false) const;
 
     public: // Items

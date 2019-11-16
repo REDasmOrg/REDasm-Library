@@ -8,7 +8,7 @@
 namespace REDasm {
 
 enum class InstructionType: type_t {
-    None            = 0,
+    None = 0,
     Invalid, Stop, Nop,
     Jump, Call,
     Add, Sub, Mul, Div, Mod, Lsh, Rsh,
@@ -16,8 +16,6 @@ enum class InstructionType: type_t {
     Push, Pop,
     Compare, Load, Store,
 };
-
-ENUM_FLAGS_OPERATORS(InstructionType)
 
 enum class InstructionFlags: flag_t
 {

@@ -1,5 +1,5 @@
 #include "listingcursor.h"
-#include <impl/disassembler/listing/listingcursor_impl.h>
+#include <impl/disassembler/listing/document/listingcursor_impl.h>
 #include <redasm/support/event/eventmanager.h>
 
 namespace REDasm {

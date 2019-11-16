@@ -1,11 +1,15 @@
 #pragma once
 
-#include "backend/blocks/blockcontainer.h"
-#include "backend/listingfunctions.h"
-#include "backend/listingsegments.h"
-#include "backend/listingitems.h"
-#include "../../support/safe_ptr.h"
-#include "listingdocument.h"
+#include "../../../support/safe_ptr.h"
+#include "../backend/blocks/blockcontainer.h"
+#include "../backend/listingfunctions.h"
+#include "../backend/listingsegments.h"
+#include "../backend/listingitems.h"
+#include "../backend/symboltable.h"
+#include "../cachedinstruction.h"
+#include "changedeventargs.h"
+#include "listingitem.h"
+#include "listingcursor.h"
 
 namespace REDasm {
 

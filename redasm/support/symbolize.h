@@ -1,7 +1,7 @@
 #pragma once
 
 #include <type_traits>
-#include "../disassembler/listing/listingdocument.h"
+#include "../disassembler/listing/document/listingdocumentnew.h"
 #include "../disassembler/disassembler.h"
 #include "../context.h"
 #include "demangler.h"
@@ -16,10 +16,10 @@ struct StructVisitor {
         static bool visit(Disassembler* disassembler, address_t address, const String& basename, const char* name) { // Basic Types
             u64 value = 0;
 
-            if(disassembler->dereference(address, &value) && disassembler->document()->segment(value))
-                disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data | SymbolType::Pointer);
-            else
-                disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
+            //if(disassembler->dereference(address, &value) && r_docnew->segment(value))
+                //disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data | SymbolType::Pointer);
+            //else
+                //disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
 
             return true;
         }
@@ -27,7 +27,7 @@ struct StructVisitor {
 
     template<typename T> struct VisitorImpl<T, typename std::enable_if<std::is_array<T>::value && std::is_convertible<T, String>::value>::type> { // Arrays
         static bool visit(Disassembler* disassembler, address_t address, const String& basename, const char* name) {
-            disassembler->document()->lock(address, basename + "." + String(name), SymbolType::String);
+            //disassembler->document()->lock(address, basename + "." + String(name), SymbolType::String);
             return true;
         }
     };
@@ -37,7 +37,7 @@ struct StructVisitor {
             if(!StructVisitor::symbolize<T>(disassembler, address, basename + "." + name))
                 return false;
 
-            disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
+            //disassembler->document()->lock(address, basename + "." + String(name), SymbolType::Data);
             return true;
         }
     };

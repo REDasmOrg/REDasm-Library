@@ -1,9 +1,10 @@
 #pragma once
 
-#include <redasm/disassembler/listing/listingdocumentnew.h>
-#include <redasm/disassembler/listing/backend/symboltable.h>
+#include <unordered_map>
 #include <unordered_set>
-#include "backend/instructioncache.h"
+#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/backend/symboltable.h>
+#include "../backend/instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {

@@ -6,14 +6,13 @@
 #include "../types/api.h"
 #include "../pimpl.h"
 #include "listing/cachedinstruction.h"
-#include "listing/listingitem.h"
+#include "listing/document/listingitem.h"
 #include "listing/backend/referencetable.h"
 #include "listing/backend/symboltable.h"
 
 namespace REDasm {
 
 class ListingDocumentTypeNew;
-class ListingDocumentType;
 class DisassemblerImpl;
 class Assembler;
 class Loader;
@@ -29,8 +28,6 @@ class LIBREDASM_API Disassembler: public Object
         virtual ~Disassembler();
         Loader* loader() const;
         Assembler* assembler() const;
-        const safe_ptr<ListingDocumentType>& document() const;
-        safe_ptr<ListingDocumentType>& document();
         const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
         safe_ptr<ListingDocumentTypeNew>& documentNew();
         ReferenceTable* references();

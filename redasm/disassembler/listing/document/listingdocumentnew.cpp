@@ -1,5 +1,5 @@
 #include "listingdocumentnew.h"
-#include <impl/disassembler/listing/listingdocumentnew_impl.h>
+#include <impl/disassembler/listing/document/listingdocumentnew_impl.h>
 #include <impl/support/utils_impl.h>
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/context.h>

@@ -1,5 +1,5 @@
 #include "listingitem.h"
-#include <impl/disassembler/listing/listingitem_impl.h>
+#include <impl/disassembler/listing/document/listingitem_impl.h>
 #include <impl/libs/cereal/archives/binary.hpp>
 
 #define RETURN_CASE_TYPE_OF(type) case ListingItemType::type: return #type;

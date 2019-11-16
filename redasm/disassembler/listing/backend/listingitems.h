@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../listingitem.h"
+#include "../document/listingitem.h"
 #include "../../../macros.h"
 #include "../../../pimpl.h"
 

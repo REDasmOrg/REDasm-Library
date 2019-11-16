@@ -47,11 +47,11 @@ bool Database::save(Disassembler *disassembler, const String &dbfilename, const 
     mb.save(out);
 
     // ... Document
-    auto lock = s_lock_safe_ptr(loader->document());
-    lock->save(out);
+    //auto lock = s_lock_safe_ptr(loader->document());
+    //lock->save(out);
 
     // ... References
-    disassembler->references()->save(out);
+    //disassembler->references()->save(out);
     return true;
 }
 

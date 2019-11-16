@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "../disassembler.h"
-#include "../listing/listingdocument.h"
 #include "../graph/graph.h"
 
 namespace REDasm {

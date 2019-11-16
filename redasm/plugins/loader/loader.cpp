@@ -19,10 +19,7 @@ const BufferView &Loader::view() const { PIMPL_P(const Loader); return p->view()
 BufferView REDasm::Loader::view(address_t address) const { PIMPL_P(const Loader); return p->view(address); }
 BufferView Loader::view(address_t address, size_t size) const { PIMPL_P(const Loader); return p->view(address, size);  }
 BufferView REDasm::Loader::viewSegment(const REDasm::Segment *segment) const { PIMPL_P(const Loader); return p->viewSegment(segment);  }
-ListingDocument &REDasm::Loader::createDocument() { PIMPL_P(Loader); return p->createDocument(); }
-const ListingDocument &REDasm::Loader::document() const { PIMPL_P(const Loader); return p->document(); }
 const ListingDocumentNew &Loader::documentNew() const { PIMPL_P(const Loader); return p->documentNew(); }
-ListingDocument &REDasm::Loader::document() { PIMPL_P(Loader); return p->document(); }
 ListingDocumentNew &Loader::documentNew() { PIMPL_P(Loader); return p->documentNew(); }
 SignatureIdentifiers &Loader::signatures() { PIMPL_P(Loader); return p->signatures(); }
 Loader *Loader::signature(const String &sig) { PIMPL_P(Loader); p->signature(sig); return this; }

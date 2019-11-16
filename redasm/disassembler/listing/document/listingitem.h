@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../types/containers/list.h"
-#include "../../types/object.h"
-#include "../../types/string.h"
-#include "../../macros.h"
-#include "../../pimpl.h"
+#include "../../../types/containers/list.h"
+#include "../../../types/object.h"
+#include "../../../types/string.h"
+#include "../../../macros.h"
+#include "../../../pimpl.h"
 
 namespace REDasm {
 

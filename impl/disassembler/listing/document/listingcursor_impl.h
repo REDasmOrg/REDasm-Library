@@ -1,6 +1,6 @@
 #pragma once
 
-#include <redasm/disassembler/listing/listingcursor.h>
+#include <redasm/disassembler/listing/document/listingcursor.h>
 #include <redasm/pimpl.h>
 #include <stack>
 

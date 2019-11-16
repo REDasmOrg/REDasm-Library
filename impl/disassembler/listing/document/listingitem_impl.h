@@ -1,7 +1,7 @@
 #pragma once
 
 #include <redasm/libs/visit_struct/visit_struct.hpp>
-#include <redasm/disassembler/listing/listingitem.h>
+#include <redasm/disassembler/listing/document/listingitem.h>
 #include "../types/containers/templates/sortedlist_template.h"
 #include <map>
 #include <unordered_set>

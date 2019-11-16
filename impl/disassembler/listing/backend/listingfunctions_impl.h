@@ -1,10 +1,10 @@
 #pragma once
 
 #include <redasm/disassembler/listing/backend/listingfunctions.h>
-#include <redasm/disassembler/listing/listingitem.h>
+#include <redasm/disassembler/listing/document/listingitem.h>
 #include <redasm/pimpl.h>
 #include <unordered_map>
-#include "../listingitem_impl.h"
+#include "../document/listingitem_impl.h"
 #include "../../../types/containers/templates/sortedset_template.h"
 
 namespace REDasm {

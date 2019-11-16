@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../types/object.h"
-#include "../../macros.h"
-#include "../../pimpl.h"
+#include "../../../types/object.h"
+#include "../../../macros.h"
+#include "../../../pimpl.h"
 
 namespace REDasm {
 

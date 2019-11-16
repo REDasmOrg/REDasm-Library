@@ -1,8 +1,7 @@
 #pragma once
 
 #include "../../plugins/assembler/printer/printer.h"
-#include "listingdocumentnew.h"
-#include "listingdocument.h"
+#include "document/listingdocumentnew.h"
 
 #define REDASM_WORD_REGEX    "([\\w\\$_\\.]+)"
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <redasm/disassembler/disassembler.h>
-#include <redasm/disassembler/listing/listingdocument.h>
 #include <redasm/disassembler/model/calltree.h>
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
 #include <redasm/plugins/loader/loader.h>
@@ -20,8 +19,6 @@ class DisassemblerImpl
         ~DisassemblerImpl();
         Loader* loader() const;
         Assembler* assembler() const;
-        const safe_ptr<ListingDocumentType>& document() const;
-        safe_ptr<ListingDocumentType>& document();
         const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
         safe_ptr<ListingDocumentTypeNew>& documentNew();
         ReferenceTable* references();

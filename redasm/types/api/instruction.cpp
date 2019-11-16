@@ -3,7 +3,6 @@
 
 namespace REDasm {
 
-Instruction::Instruction(): ApiWrap<InstructionStruct>{ } { }
 Instruction::~Instruction() { this->reset(); }
 String Instruction::mnemonic() const { return this->mnemonic_; }
 void Instruction::mnemonic(const String& s) { s.copy(this->mnemonic_, DEFAULT_NAME_SIZE); }

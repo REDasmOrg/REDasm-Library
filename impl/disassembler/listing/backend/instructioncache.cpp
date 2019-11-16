@@ -48,7 +48,7 @@ void InstructionCache::serialize(Instruction* instruction)
     if(m_lockserialization) return;
 
     auto t = m_lmdb.transaction();
-    t->putr(instruction->address, static_cast<const InstructionStruct*>(instruction));
+    t->putr(instruction->address, instruction);
     t->commit();
 }
 
@@ -63,7 +63,7 @@ CachedInstruction InstructionCache::deserialize(address_t address)
         auto t = m_lmdb.transaction();
 
         try {
-            t->get(address, static_cast<InstructionStruct*>(ci.get()));
+            t->get(address, ci.get());
             t->commit();
         }
         catch(const LMDBException& e) {

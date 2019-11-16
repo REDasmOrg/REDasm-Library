@@ -9,11 +9,6 @@
 
 #define FORCE_STANDARD_LAYOUT(T) static_assert(std::is_standard_layout<T>::value, "");
 
-#define BASIC_STRUCT_COPYABLE(T) \
-    T(const T& rhs) = default; \
-    T(const T##Struct& rhs) { *this = rhs; } \
-    T& operator=(const T& rhs) = default;
-
 namespace REDasm {
 
 typedef u32 type_t;
@@ -23,11 +18,5 @@ template<typename T, typename V> inline bool typeIs(const T* t, V v) { return t-
 template<typename T, typename V> inline bool hasFlag(const T* t, V v) { return t->flags & v; }
 template<typename T> inline bool isInvalid(T t) { static_assert(std::is_integral<T>::value, ""); return t == REDasm::npos; }
 template<typename T> inline bool isValid(T t) { static_assert(std::is_integral<T>::value, ""); return t != REDasm::npos; }
-
-template<typename BasicStruct>
-struct ApiWrap: public BasicStruct
-{
-    typedef BasicStruct Struct;
-};
 
 } // namespace REDasm

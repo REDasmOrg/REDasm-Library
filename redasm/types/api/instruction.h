@@ -32,7 +32,7 @@ enum class InstructionFlags: flag_t
 
 ENUM_FLAGS_OPERATORS(InstructionFlags)
 
-struct InstructionStruct
+struct Instruction
 {
     instruction_id_t id;            // Implementation Specific
 
@@ -54,13 +54,8 @@ struct InstructionStruct
 
     size_t operandscount;
     Operand operandsstruct[DEFAULT_CONTAINER_SIZE];
-};
 
-struct Instruction: public ApiWrap<InstructionStruct>
-{
-    BASIC_STRUCT_COPYABLE(Instruction)
-
-    Instruction();
+    Instruction() = default;
     ~Instruction();
     String mnemonic() const;
     void mnemonic(const String& s);
@@ -100,5 +95,7 @@ struct Instruction: public ApiWrap<InstructionStruct>
     bool typeIs(InstructionType t) const;
     operator bool() const;
 };
+
+FORCE_STANDARD_LAYOUT(Instruction)
 
 } // namespace REDasm

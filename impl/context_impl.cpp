@@ -20,7 +20,7 @@ void ContextImpl::setDisassembler(Disassembler *disassembler) { m_disassembler =
 void ContextImpl::checkSettings()
 {
     if(!m_settings.logCallback) m_settings.logCallback = [](const String& s) { std::cout << s.c_str() << std::endl; };
-    if(!m_settings.statusCallback) m_settings.statusCallback = [](const String& s) { };
+    if(!m_settings.statusCallback) m_settings.statusCallback = [](const String&) { };
     if(!m_settings.progressCallback) m_settings.progressCallback = [](size_t) { };
     if(!m_settings.ui) m_settings.ui = std::make_shared<AbstractUI>();
 }

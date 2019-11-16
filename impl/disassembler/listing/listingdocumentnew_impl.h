@@ -51,7 +51,6 @@ class ListingDocumentTypeNewImpl
 
     private:
         void createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
-        bool canSymbolizeAddress(address_t address) const;
         bool canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const;
         void onBlockInserted(const EventArgs* e);
         void onBlockErased(const EventArgs* e);

@@ -176,23 +176,6 @@ void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& n
     else m_symbols.create(address, name, type, flags, tag);
 }
 
-bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address) const
-{
-    if(!m_segments.find(address)) return false; // Ignore out of segment addresses
-
-    const BlockItem* bi = m_blocks.find(address);
-    if(bi->typeIs(BlockItemType::Code)) return false;
-
-    if(bi->typeIs(BlockItemType::Data))
-    {
-        const Symbol* symbol = m_symbols.get(bi->start);
-        assert(symbol);
-        return symbol->isWeak();
-    }
-
-    return true;
-}
-
 bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const
 {
     if(!m_segments.find(address)) return false; // Ignore out of segment addresses

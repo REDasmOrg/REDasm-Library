@@ -109,7 +109,17 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    return r_docnew->canSymbolizeAddress(address);
+    const BlockItem* bi = r_docnew->block(address);
+    if(bi->typeIs(BlockItemType::Code)) return false;
+
+    if(bi->typeIs(BlockItemType::Data))
+    {
+        const Symbol* symbol = r_docnew->symbol(bi->start);
+        assert(symbol);
+        return symbol->isFunction() || symbol->isWeak(); // It's allowed to disassemble above a Function
+    }
+
+    return true;
 }
 
 void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instruction)

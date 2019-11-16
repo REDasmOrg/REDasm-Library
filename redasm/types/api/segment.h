@@ -18,19 +18,14 @@ enum class SegmentType: type_t
 
 ENUM_FLAGS_OPERATORS(SegmentType)
 
-struct SegmentStruct
+struct Segment
 {
     char name_[DEFAULT_NAME_SIZE];
     offset_t offset, endoffset;
     address_t address, endaddress;
     SegmentType type;
     size_t coveragebytes{REDasm::npos};
-};
 
-FORCE_STANDARD_LAYOUT(SegmentStruct);
-
-struct Segment: public ApiWrap<SegmentStruct>
-{
     Segment() = default;
     Segment(const String& name, offset_t offset, address_t addr, u64 psize, u64 vsize, SegmentType t);
     String name() const;
@@ -42,5 +37,7 @@ struct Segment: public ApiWrap<SegmentStruct>
     bool is(SegmentType t) const;
     bool isPureCode() const;
 };
+
+FORCE_STANDARD_LAYOUT(Segment);
 
 } // namespace REDasm

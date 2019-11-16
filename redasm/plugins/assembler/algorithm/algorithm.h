@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include "../../../types/object.h"
 #include "../../../pimpl.h"
 #include "state.h"

@@ -196,6 +196,12 @@ void DisassemblerEngine::analyzeJob()
         auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
         if(duration.count()) r_ctx->log("Analysis completed in ~" + String::number(duration.count()) + " second(s)");
         else r_ctx->log("Analysis completed");
+
+        if(m_algorithm->hasNext())
+        {
+            this->execute(DisassemblerEngineSteps::Algorithm); // Repeat algorithm
+            return;
+        }
     }
 
     this->execute();

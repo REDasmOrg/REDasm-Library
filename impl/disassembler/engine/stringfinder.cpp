@@ -54,8 +54,8 @@ bool StringFinder::step(BufferView& view)
     size_t totalsize = 0;
     SymbolFlags flags = this->categorize(view, &totalsize);
 
-    if(flags & SymbolFlags::AsciiString) r_docnew->asciiString(loc, totalsize);
-    else if(flags & SymbolFlags::WideString) r_docnew->wideString(loc, totalsize);
+    if(flags & SymbolFlags::AsciiString) r_doc->asciiString(loc, totalsize);
+    else if(flags & SymbolFlags::WideString) r_doc->wideString(loc, totalsize);
     else { view++; return true; }
 
     view += totalsize;

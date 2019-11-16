@@ -30,9 +30,9 @@ BufferView LoaderImpl::viewSegment(const Segment *segment) const
     return m_buffer->view(segment->offset, segment->rawSize());
 }
 
-ListingDocumentNew& LoaderImpl::createDocumentNew() { m_documentnew = ListingDocumentNew(new ListingDocumentTypeNew()); return m_documentnew; }
-const ListingDocumentNew &LoaderImpl::documentNew() const { return m_documentnew; }
-ListingDocumentNew &LoaderImpl::documentNew() { return m_documentnew; }
+ListingDocument& LoaderImpl::createDocumentNew() { m_documentnew = ListingDocument(new ListingDocumentType()); return m_documentnew; }
+const ListingDocument &LoaderImpl::documentNew() const { return m_documentnew; }
+ListingDocument &LoaderImpl::documentNew() { return m_documentnew; }
 SignatureIdentifiers &LoaderImpl::signatures() { return m_signatures; }
 void LoaderImpl::signature(const String &sig) { m_signatures.insert(sig); }
 

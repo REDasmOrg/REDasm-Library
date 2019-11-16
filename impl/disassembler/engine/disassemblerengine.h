@@ -2,7 +2,7 @@
 
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
 #include <redasm/plugins/loader/analyzer.h>
-#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/support/jobmanager.h>
 #include <redasm/support/safe_ptr.h>
 #include <chrono>

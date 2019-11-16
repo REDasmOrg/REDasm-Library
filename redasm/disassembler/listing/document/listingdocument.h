@@ -13,16 +13,16 @@
 
 namespace REDasm {
 
-class ListingDocumentTypeNewImpl;
+class ListingDocumentTypeImpl;
 
-class ListingDocumentTypeNew: public Object
+class ListingDocumentType: public Object
 {
-    REDASM_OBJECT(ListingDocumentTypeNew)
-    PIMPL_DECLARE_P(ListingDocumentTypeNew)
-    PIMPL_DECLARE_PRIVATE(ListingDocumentTypeNew)
+    REDASM_OBJECT(ListingDocumentType)
+    PIMPL_DECLARE_P(ListingDocumentType)
+    PIMPL_DECLARE_PRIVATE(ListingDocumentType)
 
     public:
-        ListingDocumentTypeNew();
+        ListingDocumentType();
         const BlockContainer* blocks() const;
         const ListingItems* items() const;
         const ListingSegments* segments() const;
@@ -137,8 +137,8 @@ class ListingDocumentTypeNew: public Object
         bool goTo(address_t address);
 };
 
-typedef safe_ptr<ListingDocumentTypeNew> ListingDocumentNew;
-using document_s_lock_new = s_locked_safe_ptr<ListingDocumentNew>;
-using document_x_lock_new = x_locked_safe_ptr<ListingDocumentNew>;
+typedef safe_ptr<ListingDocumentType> ListingDocument;
+using document_s_lock = s_locked_safe_ptr<ListingDocument>;
+using document_x_lock = x_locked_safe_ptr<ListingDocument>;
 
 } // namespace REDasm

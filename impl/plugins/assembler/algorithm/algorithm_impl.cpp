@@ -30,7 +30,7 @@ AlgorithmImpl::AlgorithmImpl(Algorithm *algorithm): StateMachine(), m_pimpl_q(al
 
 CachedInstruction AlgorithmImpl::decodeInstruction(address_t address)
 {
-    if(r_docnew->isInstructionCached(address)) return r_docnew->instruction(address);
+    if(r_doc->isInstructionCached(address)) return r_doc->instruction(address);
     return this->decode(address);
 }
 
@@ -47,7 +47,7 @@ size_t AlgorithmImpl::decode(address_t address, const CachedInstruction& instruc
 CachedInstruction AlgorithmImpl::decode(address_t address)
 {
     PIMPL_Q(Algorithm);
-    CachedInstruction instruction = r_docnew->allocateInstruction();
+    CachedInstruction instruction = r_doc->allocateInstruction();
     size_t result = this->decode(address, instruction);
 
     if(result == Algorithm::FAIL)
@@ -62,7 +62,7 @@ CachedInstruction AlgorithmImpl::decode(address_t address)
         return CachedInstruction();
     }
 
-    r_docnew->instruction(instruction); // Store instruction in Document
+    r_doc->instruction(instruction); // Store instruction in Document
     return instruction;
 }
 
@@ -79,7 +79,7 @@ bool AlgorithmImpl::validateState(const State &state) const
     if(!StateMachine::validateState(state))
         return false;
 
-    return r_docnew->segment(state.address);
+    return r_doc->segment(state.address);
 }
 
 void AlgorithmImpl::onNewState(const State *state) const
@@ -101,20 +101,20 @@ void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
 
 bool AlgorithmImpl::canBeDisassembled(address_t address)
 {
-    if(r_docnew->isInstructionCached(address)) return false;
+    if(r_doc->isInstructionCached(address)) return false;
 
     if(!m_currentsegment || !m_currentsegment->contains(address))
-        m_currentsegment = r_docnew->segment(address);
+        m_currentsegment = r_doc->segment(address);
 
     if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
         return false;
 
-    const BlockItem* bi = r_docnew->block(address);
+    const BlockItem* bi = r_doc->block(address);
     if(bi->typeIs(BlockItemType::Code)) return false;
 
     if(bi->typeIs(BlockItemType::Data))
     {
-        const Symbol* symbol = r_docnew->symbol(bi->start);
+        const Symbol* symbol = r_doc->symbol(bi->start);
         assert(symbol);
         return symbol->isFunction() || symbol->isWeak(); // It's allowed to disassemble above a Function
     }

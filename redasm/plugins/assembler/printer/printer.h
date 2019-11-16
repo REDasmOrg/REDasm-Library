@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../disassembler/listing/document/listingdocumentnew.h"
+#include "../../../disassembler/listing/document/listingdocument.h"
 #include "../../../types/object.h"
 
 namespace REDasm {

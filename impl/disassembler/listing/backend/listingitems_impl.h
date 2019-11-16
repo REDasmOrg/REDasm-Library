@@ -6,7 +6,7 @@
 
 namespace REDasm {
 
-class ListingItemsImpl: public SortedListTemplate<ListingItem, ListingItemComparatorNew>
+class ListingItemsImpl: public SortedListTemplate<ListingItem>
 {
     public:
         ListingItemsImpl();

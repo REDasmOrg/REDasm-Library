@@ -18,18 +18,18 @@ DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader
 DisassemblerImpl::~DisassemblerImpl() { if(m_loader) m_loader->buffer()->release(); }
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
-const safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() const { return m_loader->documentNew(); }
-safe_ptr<ListingDocumentTypeNew>& DisassemblerImpl::documentNew() { return m_loader->documentNew(); }
+const safe_ptr<ListingDocumentType>& DisassemblerImpl::documentNew() const { return m_loader->documentNew(); }
+safe_ptr<ListingDocumentType>& DisassemblerImpl::documentNew() { return m_loader->documentNew(); }
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
 SortedSet DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.references(address); }
 SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }
 
 BufferView DisassemblerImpl::getFunctionBytes(address_t address)
 {
-    REDasm::ListingItem item = r_docnew->functionStart(address);
+    REDasm::ListingItem item = r_doc->functionStart(address);
     if(!item.isValid()) return BufferView();
 
-    const auto* graph = r_docnew->graph(item.address_new);
+    const auto* graph = r_doc->graph(item.address);
     if(!graph) return BufferView();
 
     ListingItem startitem, enditem;
@@ -39,16 +39,16 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
         if(!fbb) return;
 
         if(!startitem.isValid()) startitem = fbb->startItem();
-        else if(startitem.address_new > fbb->startItem().address_new) startitem = fbb->startItem();
+        else if(startitem.address > fbb->startItem().address) startitem = fbb->startItem();
 
         if(!enditem.isValid()) enditem = fbb->endItem();
-        else if(enditem.address_new < fbb->endItem().address_new) enditem = fbb->endItem();
+        else if(enditem.address < fbb->endItem().address) enditem = fbb->endItem();
     });
 
     if(!startitem.isValid() || !enditem.isValid()) return BufferView();
 
-    BufferView v = this->loader()->view(startitem.address_new);
-    v.resize(enditem.address_new - startitem.address_new);
+    BufferView v = this->loader()->view(startitem.address);
+    v.resize(enditem.address - startitem.address);
     return v;
 }
 
@@ -58,7 +58,7 @@ const Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *val
     const Symbol* ptrsymbol = nullptr;
 
     if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &address))
-        ptrsymbol = r_docnew->symbol(address);
+        ptrsymbol = r_doc->symbol(address);
 
     if(value) *value = address;
     return ptrsymbol;
@@ -76,7 +76,7 @@ size_t DisassemblerImpl::getReferencesCount(address_t address) const { return m_
 
 size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction, address_t startaddress)
 {
-    const Symbol* symbol = r_docnew->symbol(startaddress);
+    const Symbol* symbol = r_doc->symbol(startaddress);
     if(symbol && symbol->hasFlag(SymbolFlags::TableItem)) return REDasm::npos;
 
     address_t target = 0, address = startaddress;
@@ -89,7 +89,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
     while(this->readAddress(address, r_asm->addressWidth(), &target))
     {
-        const Segment* segment = r_docnew->segment(target);
+        const Segment* segment = r_doc->segment(target);
         if(!segment || !segment->is(SegmentType::Code)) break;
 
         targets.insert(target);
@@ -109,15 +109,15 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
             for(auto it = targets.begin(); it != targets.end(); it++, address += m_assembler->addressWidth(), i++)
             {
-                if(address == startaddress) r_docnew->table(address, targets.size());
-                else r_docnew->tableItem(address, startaddress, i);
+                if(address == startaddress) r_doc->table(address, targets.size());
+                else r_doc->tableItem(address, startaddress, i);
                 this->pushReference(address, instruction->address);
             }
         }
         else
         {
             this->pushReference(startaddress, instruction->address);
-            r_docnew->pointer(startaddress, SymbolType::Data);
+            r_doc->pointer(startaddress, SymbolType::Data);
         }
     }
 
@@ -149,10 +149,10 @@ String DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
 
 String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
 {
-    REDasm::ListingItem item = r_docnew->functionStart(address);
+    REDasm::ListingItem item = r_doc->functionStart(address);
     if(!item.isValid()) return String();
 
-    const REDasm::Symbol* symbol = r_docnew->symbol(item.address_new);
+    const REDasm::Symbol* symbol = r_doc->symbol(item.address);
     if(!symbol) return String();
 
     REDasm::BufferView br = this->getFunctionBytes(symbol->address);
@@ -218,7 +218,7 @@ bool DisassemblerImpl::readAddress(address_t address, size_t size, u64 *value) c
 {
     if(!value) return false;
 
-    const Segment* segment = r_docnew->segment(address);
+    const Segment* segment = r_doc->segment(address);
     if(!segment || segment->is(SegmentType::Bss)) return false;
 
     offset_location offset = m_loader->offset(address);
@@ -264,20 +264,20 @@ void DisassemblerImpl::pushReference(address_t address, address_t refby) { m_ref
 
 void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 {
-    Segment* segment = r_docnew->segment(address);
+    Segment* segment = r_doc->segment(address);
     if(!segment) return;
 
-    const Symbol* symbol = r_docnew->symbol(address);
+    const Symbol* symbol = r_doc->symbol(address);
 
     if(symbol && symbol->is(SymbolType::StringNew))
     {
         if(symbol->hasFlag(SymbolFlags::WideString))
-            r_docnew->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
+            r_doc->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
         else
-            r_docnew->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
+            r_doc->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
     }
     else
-        r_docnew->data(address, r_asm->addressWidth());
+        r_doc->data(address, r_asm->addressWidth());
 
     this->pushReference(address, fromaddress);
 }
@@ -285,11 +285,11 @@ void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 void DisassemblerImpl::disassemble()
 {
     m_engine = std::make_unique<DisassemblerEngine>();
-    if(!r_docnew->segmentsCount()) return;
+    if(!r_doc->segmentsCount()) return;
 
     // Preload functions for analysis
-    for(size_t i = 0; i < r_docnew->functionsCount(); i++)
-        m_engine->enqueue(r_docnew->functionAt(i));
+    for(size_t i = 0; i < r_doc->functionsCount(); i++)
+        m_engine->enqueue(r_doc->functionAt(i));
 
     if(m_engine->concurrency() == 1) r_ctx->log("Single threaded disassembly");
     else r_ctx->log("Disassembling with " + String::number(m_engine->concurrency()) + " threads");

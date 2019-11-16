@@ -100,6 +100,5 @@ class LIBREDASM_API Context
 #define r_ui     r_ctx->ui()
 #define r_disasm r_ctx->disassembler()
 #define r_doc    r_disasm->document()
-#define r_docnew r_disasm->documentNew()
 #define r_ldr    r_disasm->loader()
 #define r_asm    r_disasm->assembler()

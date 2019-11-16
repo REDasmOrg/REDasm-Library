@@ -8,7 +8,7 @@ namespace REDasm {
 
 ListingRendererImpl::ListingRendererImpl(ListingRenderer *q): m_pimpl_q(q) { m_printer = r_asm->createPrinter(); }
 
-bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, const Symbol *symbol, RendererLine &rl) const
+bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const Symbol *symbol, RendererLine &rl) const
 {
     u64 value = 0;
 
@@ -22,7 +22,7 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock_new &lock, c
     return true;
 }
 
-void ListingRendererImpl::renderSymbolPrologue(const document_s_lock_new& lock, const ListingItem& item, const Symbol* symbol, RendererLine& rl) const
+void ListingRendererImpl::renderSymbolPrologue(const document_s_lock& lock, const ListingItem& item, const Symbol* symbol, RendererLine& rl) const
 {
     PIMPL_Q(const ListingRenderer);
     this->renderPrologue(lock, item, rl);
@@ -30,7 +30,7 @@ void ListingRendererImpl::renderSymbolPrologue(const document_s_lock_new& lock, 
     q->renderIndent(rl);
 }
 
-bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_t line, RendererLine &rl) const
+bool ListingRendererImpl::getRendererLine(const document_s_lock &lock, size_t line, RendererLine &rl) const
 {
     if(lock->empty()) return false;
 
@@ -39,7 +39,7 @@ bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_
 
     PIMPL_Q(const ListingRenderer);
 
-    switch(item.type_new)
+    switch(item.type)
     {
         case ListingItemType::SegmentItem:     q->renderSegment(lock, item, rl); break;
         case ListingItemType::FunctionItem:    q->renderFunction(lock, item, rl); break;
@@ -50,7 +50,7 @@ bool ListingRendererImpl::getRendererLine(const document_s_lock_new &lock, size_
         case ListingItemType::SeparatorItem:   q->renderSeparator(lock, item, rl); break;
         case ListingItemType::UnexploredItem:  q->renderUnexplored(lock, item, rl); break;
         case ListingItemType::EmptyItem:       rl.push(" "); break;
-        default: rl.push("Unknown Type: " + String::number(static_cast<size_t>(item.type_new))); break;
+        default: rl.push("Unknown Type: " + String::number(static_cast<size_t>(item.type))); break;
     }
 
     return true;
@@ -61,8 +61,8 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
     if(rl.text.empty())
         return;
 
-    const REDasm::ListingCursor::Position& startsel = r_docnew->cursor().startSelection();
-    const REDasm::ListingCursor::Position& endsel = r_docnew->cursor().endSelection();
+    const REDasm::ListingCursor::Position& startsel = r_doc->cursor().startSelection();
+    const REDasm::ListingCursor::Position& endsel = r_doc->cursor().endSelection();
 
     if(startsel.line != endsel.line)
     {
@@ -76,8 +76,8 @@ void ListingRendererImpl::highlightSelection(RendererLine &rl)
 
 void ListingRendererImpl::blinkCursor(RendererLine &rl)
 {
-    if(!r_docnew->cursor().active()) return;
-    rl.format(r_docnew->cursor().currentColumn(), r_docnew->cursor().currentColumn(), "cursor_fg", "cursorbg");
+    if(!r_doc->cursor().active()) return;
+    rl.format(r_doc->cursor().currentColumn(), r_doc->cursor().currentColumn(), "cursor_fg", "cursorbg");
 }
 
 void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
@@ -160,7 +160,7 @@ String ListingRendererImpl::escapeString(const String &s)
     return res;
 }
 
-void ListingRendererImpl::renderPrologue(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const
+void ListingRendererImpl::renderPrologue(const document_s_lock& lock, const ListingItem& item, RendererLine& rl) const
 {
     PIMPL_Q(const ListingRenderer);
     q->renderAddress(lock, item, rl);

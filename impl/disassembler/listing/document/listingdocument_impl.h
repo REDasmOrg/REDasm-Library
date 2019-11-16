@@ -2,21 +2,21 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <redasm/disassembler/listing/document/listingdocumentnew.h>
+#include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/disassembler/listing/backend/symboltable.h>
 #include "../backend/instructioncache.h"
 #include "listingitem_impl.h"
 
 namespace REDasm {
 
-class ListingDocumentTypeNewImpl
+class ListingDocumentTypeImpl
 {
-    PIMPL_DECLARE_Q(ListingDocumentTypeNew)
-    PIMPL_DECLARE_PUBLIC(ListingDocumentTypeNew)
+    PIMPL_DECLARE_Q(ListingDocumentType)
+    PIMPL_DECLARE_PUBLIC(ListingDocumentType)
 
     public:
-        ListingDocumentTypeNewImpl(ListingDocumentTypeNew* q);
-        ~ListingDocumentTypeNewImpl();
+        ListingDocumentTypeImpl(ListingDocumentType* q);
+        ~ListingDocumentTypeImpl();
         const BlockContainer* blocks() const;
         const ListingItems *items() const;
         const ListingSegments* segments() const;

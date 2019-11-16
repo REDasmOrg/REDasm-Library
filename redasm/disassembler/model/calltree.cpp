@@ -23,20 +23,20 @@ size_t CallTree::populate()
         const FunctionBasicBlock* fbb = variant_object<FunctionBasicBlock>(graph->data(n));
         if(!fbb) return;
 
-        const BlockItem* startblock = r_docnew->block(fbb->startItem().address_new);
-        const BlockItem* endblock = r_docnew->block(fbb->endItem().address_new);
+        const BlockItem* startblock = r_doc->block(fbb->startItem().address);
+        const BlockItem* endblock = r_doc->block(fbb->endItem().address);
         if(!startblock || !endblock) return;
 
-        const auto* blocks = r_docnew->blocks();
+        const auto* blocks = r_doc->blocks();
 
         for(size_t i = blocks->indexOf(startblock); i <= blocks->indexOf(endblock); i++)
         {
             const BlockItem* bi = blocks->at(i);
             if(!bi->typeIs(BlockItemType::Code)) continue;
 
-            CachedInstruction instruction = r_docnew->instruction(bi->start);
+            CachedInstruction instruction = r_doc->instruction(bi->start);
             if(!instruction->typeIs(InstructionType::Call)) continue;
-            this->add<CallTree>(r_docnew->itemInstruction(bi->start));
+            this->add<CallTree>(r_doc->itemInstruction(bi->start));
         }
     });
 

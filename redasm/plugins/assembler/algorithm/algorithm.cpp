@@ -69,7 +69,7 @@ void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &ins
 {
     if(!Operand::isCharacter(op)) return;
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
-    r_docnew->autoComment(instruction->address, charinfo);
+    r_doc->autoComment(instruction->address, charinfo);
 }
 
 void Algorithm::decodeState(const State *state) { PIMPL_P(Algorithm); p->decode(state->address); }
@@ -77,13 +77,13 @@ void Algorithm::decodeState(const State *state) { PIMPL_P(Algorithm); p->decode(
 void Algorithm::jumpState(const State *state)
 {
     int dir = BRANCH_DIRECTION(state->instruction, state->address);
-    if(!dir) r_docnew->autoComment(state->instruction->address, "Infinite loop");
+    if(!dir) r_doc->autoComment(state->instruction->address, "Infinite loop");
 
-    r_docnew->branch(state->address, dir);
+    r_doc->branch(state->address, dir);
     DECODE_STATE(state->address);
 }
 
-void Algorithm::callState(const State *state) { r_docnew->function(state->address); }
+void Algorithm::callState(const State *state) { r_doc->function(state->address); }
 
 void Algorithm::branchState(const State *state)
 {
@@ -109,17 +109,17 @@ void Algorithm::branchMemoryState(const State *state)
     CachedInstruction instruction = state->instruction;
     r_disasm->pushTarget(state->address, instruction->address);
 
-    const Symbol* symbol = r_docnew->symbol(state->address);
+    const Symbol* symbol = r_doc->symbol(state->address);
 
     if(symbol && symbol->is(SymbolType::ImportNew)) // Don't dereference imports
         return;
 
     u64 value = 0;
     r_disasm->dereference(state->address, &value);
-    r_docnew->pointer(state->address);
+    r_doc->pointer(state->address);
 
-    if(instruction->typeIs(InstructionType::Call)) r_docnew->function(value);
-    else r_docnew->label(value);
+    if(instruction->typeIs(InstructionType::Call)) r_doc->function(value);
+    else r_doc->label(value);
 
     r_disasm->pushReference(value, state->address);
 }
@@ -136,12 +136,12 @@ void Algorithm::addressTableState(const State *state)
         state_t fwdstate = Algorithm::BranchState;
 
         if(instruction->typeIs(InstructionType::Call))
-            r_docnew->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
         else if(instruction->typeIs(InstructionType::Jump))
-            r_docnew->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
-            r_docnew->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
+            r_doc->autoComment(instruction->address, "Address Table with " + String::number(c) + " cases(s)");
             fwdstate = Algorithm::MemoryState;
         }
 
@@ -186,23 +186,23 @@ void Algorithm::pointerState(const State *state)
         return;
     }
 
-    r_docnew->pointer(state->address);
+    r_doc->pointer(state->address);
     r_disasm->checkLocation(state->address, value); // Create Symbol + XRefs
 
-    const Symbol* symbol = r_docnew->symbol(value);
+    const Symbol* symbol = r_doc->symbol(value);
     if(!symbol) return;
 
     if(symbol->typeIs(SymbolType::StringNew))
     {
         if(symbol->hasFlag(SymbolFlags::WideString))
-            r_docnew->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+            r_doc->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
         else
-            r_docnew->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
+            r_doc->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
     }
     else if(symbol->isImport())
-        r_docnew->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
+        r_doc->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
     else if(symbol->isExport())
-        r_docnew->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
+        r_doc->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
     else
         return;
 

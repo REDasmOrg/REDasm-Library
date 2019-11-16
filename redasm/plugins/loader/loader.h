@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_set>
-#include "../../disassembler/listing/document/listingdocumentnew.h"
+#include "../../disassembler/listing/document/listingdocument.h"
 #include "../../buffer/bufferview.h"
 #include "../assembler/assemblerrequest.h"
 #include "../plugin.h"
@@ -59,8 +59,8 @@ class LIBREDASM_API Loader: public Plugin
         BufferView view(address_t address) const;
         BufferView view(address_t address, size_t size) const;
         BufferView viewSegment(const Segment* segment) const;
-        const ListingDocumentNew& documentNew() const;
-        ListingDocumentNew& documentNew();
+        const ListingDocument& documentNew() const;
+        ListingDocument& documentNew();
         SignatureIdentifiers &signatures();
         Loader* signature(const String& sig);
         Analyzer* analyzer();

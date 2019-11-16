@@ -19,8 +19,6 @@ enum class ListingItemType: size_t
     AllItems    = REDasm::npos
 };
 
-struct ListingItemData;
-
 class LIBREDASM_API ListingItem: public Object
 {
     REDASM_OBJECT(ListingItem)
@@ -31,7 +29,6 @@ class LIBREDASM_API ListingItem: public Object
         ListingItem(address_t address, ListingItemType type, size_t index);
         bool is(ListingItemType t) const;
         bool isValid() const;
-        ListingItemData* data();
         void save(cereal::BinaryOutputArchive &a) const override;
         void load(cereal::BinaryInputArchive &a) override;
         String displayType();
@@ -48,46 +45,16 @@ class LIBREDASM_API ListingItem: public Object
         static String displayType(ListingItemType type);
 
     public:
-        address_t address_new;
-        ListingItemType type_new;
-        size_t index_new;
-};
-
-template<typename T> struct ListingItemComparatorT {
-    bool operator()(const T& t1, const T& t2) const {
-        if(t1->address_new == t2->address_new) {
-            if(t1->type_new == t2->type_new)
-                return t1->index_new < t2->index_new;
-            return t1->type_new < t2->type_new;
-        }
-        return t1->address_new < t2->address_new;
-    }
-};
-
-template<typename T> struct ListingItemFinderT {
-    bool operator()(const T& t1, const T& t2) const {
-        if(t1->address_new == t2->address_new)
-            return t1->type_new < t2->type_new;
-        return t1->address_new < t2->address_new;
-    }
-};
-
-template<typename T> struct ListingItemComparatorNewT {
-    bool operator()(const T& t1, const T& t2) const {
-        if(t1.address_new == t2.address_new) {
-            if(t1.type_new == t2.type_new)
-                return t1.index_new < t2.index_new;
-            return t1.type_new < t2.type_new;
-        }
-        return t1.address_new < t2.address_new;
-    }
+        address_t address;
+        ListingItemType type;
+        size_t index;
 };
 
 template<typename T> struct ListingItemFinderNewT {
     bool operator()(const T& t1, const T& t2) const {
-        if(t1.address_new == t2.address_new)
-            return t1.type_new < t2.type_new;
-        return t1.address_new < t2.address_new;
+        if(t1.address == t2.address)
+            return t1.type < t2.type;
+        return t1.address < t2.address;
     }
 };
 

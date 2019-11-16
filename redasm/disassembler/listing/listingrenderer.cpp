@@ -110,7 +110,7 @@ ListingRenderer::ListingRenderer(): m_pimpl_p(new ListingRendererImpl(this)) { }
 
 void ListingRenderer::render(size_t start, size_t count, void *userdata)
 {
-    auto lock = s_lock_safe_ptr(r_docnew);
+    auto lock = s_lock_safe_ptr(r_doc);
     const ListingCursor& cur = lock->cursor();
     size_t end = start + count, line = start;
     String word = this->getCurrentWord();
@@ -127,7 +127,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
         p->getRendererLine(lock, line, rl);
 
-        if(r_docnew->cursor().isLineSelected(line)) p->highlightSelection(rl);
+        if(r_doc->cursor().isLineSelected(line)) p->highlightSelection(rl);
         else p->highlightWord(rl, word);
 
         if(rl.highlighted) p->blinkCursor(rl);
@@ -137,7 +137,7 @@ void ListingRenderer::render(size_t start, size_t count, void *userdata)
 
 const Symbol *ListingRenderer::symbolUnderCursor()
 {
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     return lock->symbol(this->getCurrentWord());
 }
 
@@ -153,7 +153,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
 
         String word = rl.formatText(rf);
 
-        if(r_docnew->symbol(word))
+        if(r_doc->symbol(word))
         {
             if(wordpos) *wordpos = std::make_pair(rf.start, rf.end);
             return word;
@@ -181,7 +181,7 @@ String ListingRenderer::wordFromPosition(const ListingCursor::Position &pos, Lis
     return String();
 }
 
-String ListingRenderer::getCurrentWord() { return this->wordFromPosition(r_docnew->cursor().currentPosition()); }
+String ListingRenderer::getCurrentWord() { return this->wordFromPosition(r_doc->cursor().currentPosition()); }
 
 size_t ListingRenderer::getLastColumn(size_t line)
 {
@@ -202,7 +202,7 @@ String ListingRenderer::getLine(size_t line)
 
 String ListingRenderer::getSelectedText()
 {
-    auto lock = s_lock_safe_ptr(r_docnew);
+    auto lock = s_lock_safe_ptr(r_doc);
     const ListingCursor& cur = lock->cursor();
     if(!cur.hasSelection()) return String();
 
@@ -246,23 +246,23 @@ void ListingRenderer::setFlags(ListingRendererFlags flags) { PIMPL_P(ListingRend
 bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl) const
 {
     PIMPL_P(const ListingRenderer);
-    auto lock = REDasm::s_lock_safe_ptr(r_docnew);
+    auto lock = REDasm::s_lock_safe_ptr(r_doc);
     return p->getRendererLine(lock, line, rl);
 }
 
-void ListingRenderer::renderSegment(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderSegment(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const
 {
-    this->printer()->segment(lock->segment(item.address_new), [&](const String& line) {
+    this->printer()->segment(lock->segment(item.address), [&](const String& line) {
         rl.push(line, "segment_fg");
     });
 }
 
-void ListingRenderer::renderFunction(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const
+void ListingRenderer::renderFunction(const document_s_lock& lock, const ListingItem& item, RendererLine& rl) const
 {
     if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideSegmentAndAddress))
         this->renderAddressIndent(lock, item, rl);
 
-    const Symbol* symbol = lock->symbol(item.address_new);
+    const Symbol* symbol = lock->symbol(item.address);
     if(!symbol) return;
 
     this->printer()->function(symbol, [&](const String& pre, const String& sym, const String& post) {
@@ -272,9 +272,9 @@ void ListingRenderer::renderFunction(const document_s_lock_new& lock, const List
     });
 }
 
-void ListingRenderer::renderInstruction(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderInstruction(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const
 {
-    CachedInstruction instruction = lock->instruction(item.address_new);
+    CachedInstruction instruction = lock->instruction(item.address);
     this->renderAddress(lock, item, rl);
 
     if(!this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 3);
@@ -285,12 +285,12 @@ void ListingRenderer::renderInstruction(const document_s_lock_new& lock, const L
     this->renderComments(lock, item, rl);
 }
 
-void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const
 {
     PIMPL_P(const ListingRenderer);
     u64 value = 0;
 
-    const Symbol* symbol = lock->symbol(item.address_new);
+    const Symbol* symbol = lock->symbol(item.address);
 
     if(!symbol)
     {
@@ -343,7 +343,7 @@ void ListingRenderer::renderSymbol(const document_s_lock_new& lock, const Listin
     }
 }
 
-void ListingRenderer::renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderMeta(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push("META WIP");
@@ -351,14 +351,14 @@ void ListingRenderer::renderMeta(const document_s_lock_new &lock, const ListingI
     //FIXME: rl.push(metaitem.type + " ", "meta_fg").push(metaitem.name, "comment_fg");
 }
 
-void ListingRenderer::renderType(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderType(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
     this->renderAddressIndent(lock, item, rl);
     rl.push("TYPE WIP");
     //FIXME: rl.push(".type ", "meta_fg").push(lock->type(item), "comment_fg");
 }
 
-void ListingRenderer::renderSeparator(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderSeparator(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const
 {
     if(!rl.ignoreflags && this->hasFlag(ListingRendererFlags::HideSeparators))
         return;
@@ -369,9 +369,9 @@ void ListingRenderer::renderSeparator(const document_s_lock_new& lock, const Lis
     rl.push(String::repeated('-', SEPARATOR_LENGTH), "separator");
 }
 
-void ListingRenderer::renderUnexplored(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const
+void ListingRenderer::renderUnexplored(const document_s_lock& lock, const ListingItem& item, RendererLine& rl) const
 {
-    const BlockItem* bi = lock->block(item.address_new);
+    const BlockItem* bi = lock->block(item.address);
     this->renderAddress(lock, item, rl);
 
     if(!this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 3);
@@ -389,14 +389,14 @@ void ListingRenderer::renderUnexplored(const document_s_lock_new& lock, const Li
     p->renderBlockBytes(bi, rl);
 }
 
-void ListingRenderer::renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderAddress(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
     if(!rl.ignoreflags && (this->hasFlag(ListingRendererFlags::HideSegment) && !this->hasFlag(ListingRendererFlags::HideAddress)))
-        rl.push(HEX_ADDRESS(item.address_new), "address_fg");
+        rl.push(HEX_ADDRESS(item.address), "address_fg");
     else if(rl.ignoreflags || !this->hasFlag(ListingRendererFlags::HideAddress))
     {
-        const Segment* segment = lock->segment(item.address_new);
-        rl.push((segment ? segment->name() : "unk") + ":" + HEX_ADDRESS(item.address_new), "address_fg");
+        const Segment* segment = lock->segment(item.address);
+        rl.push((segment ? segment->name() : "unk") + ":" + HEX_ADDRESS(item.address), "address_fg");
     }
 }
 
@@ -446,17 +446,17 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
     });
 }
 
-void ListingRenderer::renderComments(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderComments(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const
 {
-    String s = lock->comment(item.address_new);
+    String s = lock->comment(item.address);
     if(s.empty()) return;
 
     rl.push("   # " + ListingRendererImpl::escapeString(s), "comment_fg");
 }
 
-void ListingRenderer::renderAddressIndent(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const
+void ListingRenderer::renderAddressIndent(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const
 {
-    const Segment* segment = lock->segment(item.address_new);
+    const Segment* segment = lock->segment(item.address);
     size_t count = r_asm->bits() / 4;
     if(segment) count += segment->name().size();
 

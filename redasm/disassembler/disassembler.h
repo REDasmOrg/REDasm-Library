@@ -12,7 +12,7 @@
 
 namespace REDasm {
 
-class ListingDocumentTypeNew;
+class ListingDocumentType;
 class DisassemblerImpl;
 class Assembler;
 class Loader;
@@ -28,8 +28,8 @@ class LIBREDASM_API Disassembler: public Object
         virtual ~Disassembler();
         Loader* loader() const;
         Assembler* assembler() const;
-        const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
-        safe_ptr<ListingDocumentTypeNew>& documentNew();
+        const safe_ptr<ListingDocumentType>& document() const;
+        safe_ptr<ListingDocumentType>& document();
         ReferenceTable* references();
         SortedSet getReferences(address_t address) const;
         SortedSet getTargets(address_t address) const;

@@ -30,27 +30,12 @@ class ListingItemImpl
         void load(cereal::BinaryInputArchive &a);
 
     private:
-        ListingItemData m_data;
         address_t m_address{0};
         ListingItemType m_type{ListingItemType::None};
         size_t m_index{0};
 };
 
-typedef std::unique_ptr<ListingItem> ListingItemPtr;
-
-// NEW
-typedef ListingItemComparatorNewT<ListingItem> ListingItemComparatorNew;
 typedef ListingItemFinderNewT<ListingItem> ListingItemConstFinderNew;
-
-// OLD
-typedef ListingItemComparatorT<ListingItemPtr> ListingItemPtrComparator;
-typedef ListingItemComparatorT<const ListingItem*> ListingItemConstComparator;
-typedef ListingItemComparatorT<ListingItem*> ListingItemComparator;
-typedef ListingItemFinderT<ListingItemPtr> ListingItemPtrFinder;
-typedef ListingItemFinderT<const ListingItem*> ListingItemConstFinder;
-typedef ListingItemFinderT<ListingItem*> ListingItemFinder;
-
-class SortedItemList: public SortedListTemplate<ListingItem*, ListingItemConstComparator> { };
 
 } // namespace REDasm
 

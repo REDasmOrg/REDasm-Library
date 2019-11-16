@@ -20,9 +20,9 @@ class LoaderImpl: public PluginImpl
         BufferView view(address_t address) const;
         BufferView view(address_t address, size_t size) const;
         BufferView viewSegment(const Segment* segment) const;
-        ListingDocumentNew& createDocumentNew();
-        const ListingDocumentNew& documentNew() const;
-        ListingDocumentNew& documentNew();
+        ListingDocument& createDocumentNew();
+        const ListingDocument& documentNew() const;
+        ListingDocument& documentNew();
         SignatureIdentifiers &signatures();
         void signature(const String& sig);
 
@@ -38,7 +38,7 @@ class LoaderImpl: public PluginImpl
         std::unique_ptr<Analyzer> m_analyzer;
         SignatureIdentifiers m_signatures;
         AbstractBuffer* m_buffer;
-        ListingDocumentNew m_documentnew;
+        ListingDocument m_documentnew;
         BufferView m_view;
 };
 

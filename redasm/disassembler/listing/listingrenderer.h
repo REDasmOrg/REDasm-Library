@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../plugins/assembler/printer/printer.h"
-#include "document/listingdocumentnew.h"
+#include "document/listingdocument.h"
 
 #define REDASM_WORD_REGEX    "([\\w\\$_\\.]+)"
 
@@ -90,19 +90,19 @@ class ListingRenderer
         virtual void renderLine(const RendererLine& rl) = 0;
         bool hasFlag(ListingRendererFlags flag) const;
         bool getRendererLine(size_t line, RendererLine& rl) const;
-        void renderSegment(const document_s_lock_new& lock, const ListingItem& item, RendererLine& rl) const;
-        void renderFunction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
-        void renderInstruction(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
-        void renderSymbol(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
-        void renderMeta(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
-        void renderType(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
-        void renderSeparator(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
-        void renderUnexplored(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
-        void renderAddress(const document_s_lock_new &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderSegment(const document_s_lock& lock, const ListingItem& item, RendererLine& rl) const;
+        void renderFunction(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderInstruction(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderSymbol(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderMeta(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderType(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderSeparator(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderUnexplored(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
+        void renderAddress(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;
         void renderMnemonic(const CachedInstruction& instruction, RendererLine &rl) const;
         void renderOperands(const CachedInstruction& instruction, RendererLine &rl) const;
-        void renderComments(const document_s_lock_new& lock, const ListingItem& item, RendererLine &rl) const;
-        void renderAddressIndent(const document_s_lock_new &lock, const ListingItem& item, RendererLine& rl) const;
+        void renderComments(const document_s_lock& lock, const ListingItem& item, RendererLine &rl) const;
+        void renderAddressIndent(const document_s_lock &lock, const ListingItem& item, RendererLine& rl) const;
         void renderIndent(RendererLine &rl, int n = 1) const;
         Printer* printer() const;
 };

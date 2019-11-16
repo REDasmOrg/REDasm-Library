@@ -29,7 +29,7 @@ void DisassemblerEngine::execute()
 
     if(newstep >= DisassemblerEngineSteps::Last)
     {
-        r_docnew->moveToEntry();
+        r_doc->moveToEntry();
 
         if(m_algorithm->hasNext()) // More addresses pending: run Algorithm again
             this->execute(DisassemblerEngineSteps::Algorithm);
@@ -90,13 +90,13 @@ void DisassemblerEngine::stringsStep()
 
     if(r_ctx->sync())
     {
-        for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
+        for(size_t i = 0; i < r_doc->segmentsCount(); i++)
             this->stringsJob({i, 0});
 
         this->execute();
     }
     else
-        JobManager::dispatch(r_docnew->segmentsCount(), this, &DisassemblerEngine::stringsJob);
+        JobManager::dispatch(r_doc->segmentsCount(), this, &DisassemblerEngine::stringsJob);
 }
 
 void DisassemblerEngine::algorithmStep()
@@ -145,11 +145,11 @@ void DisassemblerEngine::cfgStep()
         return;
     }
 
-    r_docnew->invalidateGraphs();
+    r_doc->invalidateGraphs();
     r_ctx->status("Generating CFG...");
 
-    for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
-        r_docnew->segmentCoverageAt(i, REDasm::npos);
+    for(size_t i = 0; i < r_doc->segmentsCount(); i++)
+        r_doc->segmentCoverageAt(i, REDasm::npos);
 
     if(r_ctx->sync())
     {
@@ -210,21 +210,21 @@ void DisassemblerEngine::analyzeJob()
 void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 {
     if(!JobManager::initialized()) return;
-    if(args.jobIndex >= r_docnew->functionsCount()) return;
+    if(args.jobIndex >= r_doc->functionsCount()) return;
 
-    address_t address = r_docnew->functionAt(args.jobIndex);
+    address_t address = r_doc->functionAt(args.jobIndex);
     r_ctx->status("Computing basic blocks @ " + String::hex(address));
     auto g = std::make_unique<FunctionGraph>();
     bool cfgdone = false;
 
     { // Build CFG
-        auto lock = s_lock_safe_ptr(r_docnew);
+        auto lock = s_lock_safe_ptr(r_doc);
         cfgdone = g->build(address);
     }
 
     if(cfgdone) // Apply CFG
     {
-        auto lock = x_lock_safe_ptr(r_docnew);
+        auto lock = x_lock_safe_ptr(r_doc);
         lock->segmentCoverage(address, g->bytesCount());
 
         const NodeList& nodes = g->nodes();
@@ -236,7 +236,7 @@ void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
             if(!fbb) continue;
 
             ListingItem item = fbb->endItem();
-            if(item.isValid()) lock->separator(item.address_new);
+            if(item.isValid()) lock->separator(item.address);
         }
 
         lock->graph(address, g.release());
@@ -248,7 +248,7 @@ void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 
 void DisassemblerEngine::stringsJobSync()
 {
-    for(size_t i = 0; i < r_docnew->segmentsCount(); i++)
+    for(size_t i = 0; i < r_doc->segmentsCount(); i++)
         this->searchStringsAt(i);
 
     this->execute();
@@ -264,7 +264,7 @@ void DisassemblerEngine::algorithmJobSync()
 
 void DisassemblerEngine::cfgJobSync()
 {
-    for(size_t i = 0; i < r_docnew->functionsCount(); i++)
+    for(size_t i = 0; i < r_doc->functionsCount(); i++)
         this->cfgJob({i, 0});
 
     this->execute();
@@ -272,9 +272,9 @@ void DisassemblerEngine::cfgJobSync()
 
 void DisassemblerEngine::searchStringsAt(size_t index) const
 {
-    if(index >= r_docnew->segmentsCount()) return;
+    if(index >= r_doc->segmentsCount()) return;
 
-    const Segment* segment = r_docnew->segmentAt(index);
+    const Segment* segment = r_doc->segmentAt(index);
     if(!segment->is(SegmentType::Data) || segment->is(SegmentType::Bss)) return;
 
     StringFinder sf(r_ldr->viewSegment(segment));
@@ -283,11 +283,11 @@ void DisassemblerEngine::searchStringsAt(size_t index) const
 
 bool DisassemblerEngine::calculateCfgThreads(size_t* jobcount, size_t* groupsize) const
 {
-    if(!r_docnew->functionsCount())
+    if(!r_doc->functionsCount())
         return false;
 
-    *jobcount = std::min(JobManager::concurrency(), r_docnew->functionsCount());
-    *groupsize = std::min<size_t>(1, std::ceil(r_docnew->functionsCount() / *jobcount));
+    *jobcount = std::min(JobManager::concurrency(), r_doc->functionsCount());
+    *groupsize = std::min<size_t>(1, std::ceil(r_doc->functionsCount() / *jobcount));
     return true;
 }
 

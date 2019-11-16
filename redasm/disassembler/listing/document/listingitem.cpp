@@ -3,34 +3,33 @@
 #include <impl/libs/cereal/archives/binary.hpp>
 
 #define RETURN_CASE_TYPE_OF(type) case ListingItemType::type: return #type;
-#define R_CMP_LISTING_ITEM(t1, t2, op) if(t1->address_new == t2.address_new) { \
-                                           if(t1->type_new == t2.type_new) return t1->index_new op t2.index_new; \
-                                           return t1->type_new op t2.type_new; \
+#define R_CMP_LISTING_ITEM(t1, t2, op) if(t1->address == t2.address) { \
+                                           if(t1->type == t2.type) return t1->index op t2.index; \
+                                           return t1->type op t2.type; \
                                        } \
-                                       return t1->address_new op t2.address_new;
+                                       return t1->address op t2.address;
 
 namespace REDasm {
 
-ListingItem::ListingItem(): address_new(0), type_new(ListingItemType::None), index_new(0) { }
-ListingItem::ListingItem(address_t address, ListingItemType type): address_new(address), type_new(type), index_new(0) { }
-ListingItem::ListingItem(address_t address, ListingItemType type, size_t index): address_new(address), type_new(type), index_new(index) { }
-bool ListingItem::is(ListingItemType t) const { return type_new == t; }
-bool ListingItem::isValid() const { return type_new != ListingItemType::None; }
-ListingItemData *ListingItem::data() { return nullptr; }
-void ListingItem::save(cereal::BinaryOutputArchive &a) const { a(address_new, type_new, index_new); }
-void ListingItem::load(cereal::BinaryInputArchive &a) { a(address_new, type_new, index_new); }
-String ListingItem::displayType() { return ListingItem::displayType(this->type_new); }
+ListingItem::ListingItem(): address(0), type(ListingItemType::None), index(0) { }
+ListingItem::ListingItem(address_t address, ListingItemType type): address(address), type(type), index(0) { }
+ListingItem::ListingItem(address_t address, ListingItemType type, size_t index): address(address), type(type), index(index) { }
+bool ListingItem::is(ListingItemType t) const { return type == t; }
+bool ListingItem::isValid() const { return type != ListingItemType::None; }
+void ListingItem::save(cereal::BinaryOutputArchive &a) const { a(address, type, index); }
+void ListingItem::load(cereal::BinaryInputArchive &a) { a(address, type, index); }
+String ListingItem::displayType() { return ListingItem::displayType(this->type); }
 
 bool ListingItem::operator ==(const ListingItem& rhs) const
 {
-    return std::tie(this->address_new, this->type_new, this->index_new) ==
-           std::tie(rhs.address_new, rhs.type_new, rhs.index_new);
+    return std::tie(this->address, this->type, this->index) ==
+           std::tie(rhs.address, rhs.type, rhs.index);
 }
 
 bool ListingItem::operator !=(const ListingItem& rhs) const
 {
-    return std::tie(this->address_new, this->type_new, this->index_new) !=
-           std::tie(rhs.address_new, rhs.type_new, rhs.index_new);
+    return std::tie(this->address, this->type, this->index) !=
+           std::tie(rhs.address, rhs.type, rhs.index);
 }
 
 bool ListingItem::operator <(const ListingItem& rhs) const  { R_CMP_LISTING_ITEM(this, rhs, <)  }

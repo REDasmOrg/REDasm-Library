@@ -1,7 +1,7 @@
 #pragma once
 
 #include <type_traits>
-#include "../disassembler/listing/document/listingdocumentnew.h"
+#include "../disassembler/listing/document/listingdocument.h"
 #include "../disassembler/disassembler.h"
 #include "../context.h"
 #include "demangler.h"
@@ -65,7 +65,7 @@ struct StructVisitor {
         String symbolname = name + "_" + String::hex(address); // Generate an unique name
         StructVisitor visitor(disassembler, address, symbolname);
         visit_struct::visit_types<T>(visitor);
-        r_docnew->type(address, symbolname);
+        r_doc->type(address, symbolname);
         return true;
     }
 

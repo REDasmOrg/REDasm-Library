@@ -10,17 +10,17 @@ FunctionGraphImpl::FunctionGraphImpl(): GraphImpl() { }
 size_t FunctionGraphImpl::bytesCount() const
 {
     size_t c = 0;
-    const BlockContainer* blocks = r_docnew->blocks();
+    const BlockContainer* blocks = r_doc->blocks();
 
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
-        const BlockItem* startb = r_docnew->block(fbb.startItem().address_new);
-        const BlockItem* lastb = r_docnew->block(fbb.endItem().address_new);
+        const BlockItem* startb = r_doc->block(fbb.startItem().address);
+        const BlockItem* lastb = r_doc->block(fbb.endItem().address);
 
         for(size_t i = blocks->indexOf(startb); i <= blocks->indexOf(lastb); i++)
         {
             const BlockItem* b = blocks->at(i);
-            CachedInstruction instruction = r_docnew->instruction(b->start);
+            CachedInstruction instruction = r_doc->instruction(b->start);
 
             if(!instruction)
             {
@@ -39,7 +39,7 @@ bool FunctionGraphImpl::contains(address_t address) const { return this->basicBl
 
 bool FunctionGraphImpl::build(address_t address)
 {
-    m_graphstart = r_docnew->block(address);
+    m_graphstart = r_doc->block(address);
 
     if(!m_graphstart || !m_graphstart->typeIs(BlockItemType::Code))
     {
@@ -72,13 +72,13 @@ void FunctionGraphImpl::incomplete() { m_complete = false; }
 
 bool FunctionGraphImpl::processJump(FunctionBasicBlock* fbb, const CachedInstruction& instruction, FunctionGraphImpl::WorkList& worklist)
 {
-    const BlockContainer* blocks = r_docnew->blocks();
+    const BlockContainer* blocks = r_doc->blocks();
     SortedSet targets = r_disasm->getTargets(instruction->address);
 
     for(size_t i = 0; i < targets.size(); i++)
     {
         const Variant& target = targets.at(i);
-        const Symbol* symbol = r_docnew->symbol(target.toU64());
+        const Symbol* symbol = r_doc->symbol(target.toU64());
         if(symbol && symbol->isImport()) continue;
 
         const BlockItem* destblock = blocks->find(target.toU64());
@@ -108,7 +108,7 @@ FunctionBasicBlock *FunctionGraphImpl::getBasicBlockAt(const BlockItem* block)
     FunctionBasicBlock* fbb = this->basicBlockFromAddress(block->start);
     if(fbb) return fbb;
 
-    m_basicblocks.emplace_back(this->newNode(), r_docnew->itemListing(block->start));
+    m_basicblocks.emplace_back(this->newNode(), r_doc->itemListing(block->start));
     fbb = &m_basicblocks.back();
     this->setData(fbb->node(), fbb);
     return fbb;
@@ -120,7 +120,7 @@ void FunctionGraphImpl::buildBasicBlocks()
     WorkList worklist;
     worklist.push(m_graphstart);
 
-    const BlockContainer* blocks = r_docnew->blocks();
+    const BlockContainer* blocks = r_doc->blocks();
 
     while(!worklist.empty())
     {
@@ -138,14 +138,14 @@ void FunctionGraphImpl::buildBasicBlocks()
 
             if(i > first)
             {
-                const Symbol* symbol = r_docnew->symbol(bi->start);
+                const Symbol* symbol = r_doc->symbol(bi->start);
 
                 if(symbol && symbol->isFunction())
                     break; // Don't overlap functions
             }
 
             rbi = bi;
-            CachedInstruction instruction = r_docnew->instruction(bi->start);
+            CachedInstruction instruction = r_doc->instruction(bi->start);
 
             if(instruction->typeIs(InstructionType::Jump))
             {
@@ -171,7 +171,7 @@ void FunctionGraphImpl::buildBasicBlocks()
             continue;
         }
 
-        fbb->setEndItem(r_docnew->itemListing(rbi->start));
+        fbb->setEndItem(r_doc->itemListing(rbi->start));
     }
 }
 

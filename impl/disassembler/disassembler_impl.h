@@ -19,8 +19,8 @@ class DisassemblerImpl
         ~DisassemblerImpl();
         Loader* loader() const;
         Assembler* assembler() const;
-        const safe_ptr<ListingDocumentTypeNew>& documentNew() const;
-        safe_ptr<ListingDocumentTypeNew>& documentNew();
+        const safe_ptr<ListingDocumentType>& documentNew() const;
+        safe_ptr<ListingDocumentType>& documentNew();
         ReferenceTable* references();
         SortedSet getReferences(address_t address) const;
         SortedSet getTargets(address_t address) const;

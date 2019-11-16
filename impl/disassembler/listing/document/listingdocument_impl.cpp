@@ -1,26 +1,26 @@
-#include "listingdocumentnew_impl.h"
+#include "listingdocument_impl.h"
 #include <redasm/context.h>
 #include <cassert>
 
 namespace REDasm {
 
-ListingDocumentTypeNewImpl::ListingDocumentTypeNewImpl(ListingDocumentTypeNew *q): m_pimpl_q(q)
+ListingDocumentTypeImpl::ListingDocumentTypeImpl(ListingDocumentType *q): m_pimpl_q(q)
 {
-    EventManager::subscribe_m(StandardEvents::Document_BlockInserted, this, &ListingDocumentTypeNewImpl::onBlockInserted);
-    EventManager::subscribe_m(StandardEvents::Document_BlockErased, this, &ListingDocumentTypeNewImpl::onBlockErased);
+    EventManager::subscribe_m(StandardEvents::Document_BlockInserted, this, &ListingDocumentTypeImpl::onBlockInserted);
+    EventManager::subscribe_m(StandardEvents::Document_BlockErased, this, &ListingDocumentTypeImpl::onBlockErased);
 }
 
-ListingDocumentTypeNewImpl::~ListingDocumentTypeNewImpl() { EventManager::ungroup(this); }
-const BlockContainer* ListingDocumentTypeNewImpl::blocks() const { return &m_blocks; }
-const ListingItems* ListingDocumentTypeNewImpl::items() const { return &m_items; }
-const ListingSegments *ListingDocumentTypeNewImpl::segments() const { return &m_segments; }
-const ListingFunctions *ListingDocumentTypeNewImpl::functions() const { return &m_functions; }
-const SymbolTable* ListingDocumentTypeNewImpl::symbols() const { return &m_symbols; }
-const InstructionCache* ListingDocumentTypeNewImpl::instructions() const { return &m_instructions; }
-const ListingCursor& ListingDocumentTypeNewImpl::cursor() const { return m_cursor; }
-ListingCursor& ListingDocumentTypeNewImpl::cursor() { return m_cursor; }
+ListingDocumentTypeImpl::~ListingDocumentTypeImpl() { EventManager::ungroup(this); }
+const BlockContainer* ListingDocumentTypeImpl::blocks() const { return &m_blocks; }
+const ListingItems* ListingDocumentTypeImpl::items() const { return &m_items; }
+const ListingSegments *ListingDocumentTypeImpl::segments() const { return &m_segments; }
+const ListingFunctions *ListingDocumentTypeImpl::functions() const { return &m_functions; }
+const SymbolTable* ListingDocumentTypeImpl::symbols() const { return &m_symbols; }
+const InstructionCache* ListingDocumentTypeImpl::instructions() const { return &m_instructions; }
+const ListingCursor& ListingDocumentTypeImpl::cursor() const { return m_cursor; }
+ListingCursor& ListingDocumentTypeImpl::cursor() { return m_cursor; }
 
-ListingItem ListingDocumentTypeNewImpl::functionStart(address_t address) const
+ListingItem ListingDocumentTypeImpl::functionStart(address_t address) const
 {
     const BlockItem* block = m_blocks.find(address);
     if(!block) return ListingItem();
@@ -28,13 +28,13 @@ ListingItem ListingDocumentTypeNewImpl::functionStart(address_t address) const
     auto location = m_functions.functionFromAddress(address);
     if(!location.valid) return ListingItem();
 
-    PIMPL_Q(const ListingDocumentTypeNew);
+    PIMPL_Q(const ListingDocumentType);
     return q->itemFunction(location);
 }
 
-void ListingDocumentTypeNewImpl::symbol(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }
+void ListingDocumentTypeImpl::symbol(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }
 
-void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
     this->createSymbol(address, name, type, flags, tag);
@@ -43,7 +43,7 @@ void ListingDocumentTypeNewImpl::symbol(address_t address, const String& name, S
                                                               ListingItemType::SymbolItem);
 }
 
-const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, ListingItemType type, size_t index)
+const ListingItem& ListingDocumentTypeImpl::insert(address_t address, ListingItemType type, size_t index)
 {
     switch(type)
     {
@@ -57,15 +57,15 @@ const ListingItem& ListingDocumentTypeNewImpl::insert(address_t address, Listing
     return m_items.at(idx);
 }
 
-void ListingDocumentTypeNewImpl::notify(size_t idx, ListingDocumentAction action)
+void ListingDocumentTypeImpl::notify(size_t idx, ListingDocumentAction action)
 {
     if(idx >= m_items.size()) return;
     EventManager::trigger(StandardEvents::Document_Changed, ListingDocumentChangedEventArgs(m_items.at(idx), idx, action));
 }
 
-void ListingDocumentTypeNewImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags) { this->block(address, size, String(), type, flags); }
+void ListingDocumentTypeImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags) { this->block(address, size, String(), type, flags); }
 
-void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
+void ListingDocumentTypeImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
 
@@ -73,10 +73,10 @@ void ListingDocumentTypeNewImpl::block(address_t address, size_t size, const Str
     this->symbol(address, name, type, flags);
 }
 
-void ListingDocumentTypeNewImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }
-void ListingDocumentTypeNewImpl::unexplored(address_t address, size_t size) { m_blocks.unexploredSize(address, size); }
+void ListingDocumentTypeImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }
+void ListingDocumentTypeImpl::unexplored(address_t address, size_t size) { m_blocks.unexploredSize(address, size); }
 
-bool ListingDocumentTypeNewImpl::rename(address_t address, const String& name)
+bool ListingDocumentTypeImpl::rename(address_t address, const String& name)
 {
     if(!m_symbols.rename(address, name)) return false;
 
@@ -84,7 +84,7 @@ bool ListingDocumentTypeNewImpl::rename(address_t address, const String& name)
     return true;
 }
 
-const Symbol* ListingDocumentTypeNewImpl::symbol(address_t address) const
+const Symbol* ListingDocumentTypeImpl::symbol(address_t address) const
 {
     const Symbol* symbol =  m_symbols.get(address);
     if(symbol) return symbol;
@@ -94,39 +94,39 @@ const Symbol* ListingDocumentTypeNewImpl::symbol(address_t address) const
     return nullptr;
 }
 
-const Symbol* ListingDocumentTypeNewImpl::symbol(const String& name) const { return m_symbols.get(name); }
+const Symbol* ListingDocumentTypeImpl::symbol(const String& name) const { return m_symbols.get(name); }
 
-void ListingDocumentTypeNewImpl::removeAt(size_t idx)
+void ListingDocumentTypeImpl::removeAt(size_t idx)
 {
     this->notify(idx, ListingDocumentAction::Removed);
     ListingItem item = m_items.at(idx);
     m_items.erase(idx);
 
-    switch(item.type_new)
+    switch(item.type)
     {
-        case ListingItemType::InstructionItem: m_instructions.erase(item.address_new); break;
-        case ListingItemType::SegmentItem: m_segments.erase(item.address_new); break;
-        case ListingItemType::SeparatorItem: m_separators.erase(item.address_new); break;
+        case ListingItemType::InstructionItem: m_instructions.erase(item.address); break;
+        case ListingItemType::SegmentItem: m_segments.erase(item.address); break;
+        case ListingItemType::SeparatorItem: m_separators.erase(item.address); break;
 
         case ListingItemType::SymbolItem:
-            if(!m_functions.contains(item.address_new)) m_symbols.erase(item.address_new); // Don't delete functions
+            if(!m_functions.contains(item.address)) m_symbols.erase(item.address); // Don't delete functions
             break;
 
         case ListingItemType::FunctionItem:
-            m_functions.erase(item.address_new);
-            m_symbols.erase(item.address_new);
-            this->remove(item.address_new, ListingItemType::EmptyItem);
+            m_functions.erase(item.address);
+            m_symbols.erase(item.address);
+            this->remove(item.address, ListingItemType::EmptyItem);
             break;
 
         default: break;
     }
 }
 
-const FunctionGraph* ListingDocumentTypeNewImpl::graph(address_t address) const { return m_functions.graph(address); }
-FunctionGraph* ListingDocumentTypeNewImpl::graph(address_t address) { return m_functions.graph(address);  }
-void ListingDocumentTypeNewImpl::graph(address_t address, FunctionGraph* graph) { m_functions.graph(address, graph); }
+const FunctionGraph* ListingDocumentTypeImpl::graph(address_t address) const { return m_functions.graph(address); }
+FunctionGraph* ListingDocumentTypeImpl::graph(address_t address) { return m_functions.graph(address);  }
+void ListingDocumentTypeImpl::graph(address_t address, FunctionGraph* graph) { m_functions.graph(address, graph); }
 
-void ListingDocumentTypeNewImpl::segmentCoverage(address_t address, size_t coverage)
+void ListingDocumentTypeImpl::segmentCoverage(address_t address, size_t coverage)
 {
     size_t idx = m_segments.indexOf(address);
 
@@ -139,7 +139,7 @@ void ListingDocumentTypeNewImpl::segmentCoverage(address_t address, size_t cover
     this->segmentCoverageAt(idx, coverage);
 }
 
-void ListingDocumentTypeNewImpl::segmentCoverageAt(size_t idx, size_t coverage)
+void ListingDocumentTypeImpl::segmentCoverageAt(size_t idx, size_t coverage)
 {
     Segment* segment = m_segments.at(idx);
 
@@ -147,7 +147,7 @@ void ListingDocumentTypeNewImpl::segmentCoverageAt(size_t idx, size_t coverage)
     else segment->coveragebytes += coverage;
 }
 
-void ListingDocumentTypeNewImpl::invalidateGraphs()
+void ListingDocumentTypeImpl::invalidateGraphs()
 {
     while(!m_separators.empty())
         this->remove(*m_separators.begin(), ListingItemType::SeparatorItem);
@@ -155,7 +155,7 @@ void ListingDocumentTypeNewImpl::invalidateGraphs()
     m_functions.invalidateGraphs();
 }
 
-void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
+void ListingDocumentTypeImpl::remove(address_t address, ListingItemType type)
 {
     size_t idx = m_items.indexOf(address, type);
 
@@ -168,7 +168,7 @@ void ListingDocumentTypeNewImpl::remove(address_t address, ListingItemType type)
     this->removeAt(idx);
 }
 
-void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
 
@@ -176,7 +176,7 @@ void ListingDocumentTypeNewImpl::createSymbol(address_t address, const String& n
     else m_symbols.create(address, name, type, flags, tag);
 }
 
-bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const
+bool ListingDocumentTypeImpl::canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const
 {
     if(!m_segments.find(address)) return false; // Ignore out of segment addresses
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
@@ -198,7 +198,7 @@ bool ListingDocumentTypeNewImpl::canSymbolizeAddress(address_t address, SymbolTy
     return true;
 }
 
-void ListingDocumentTypeNewImpl::onBlockInserted(const EventArgs* e)
+void ListingDocumentTypeImpl::onBlockInserted(const EventArgs* e)
 {
     using BlockEventArgs = ValueEventArgs<BlockItem*>;
     const BlockItem* bi = static_cast<const BlockEventArgs*>(e)->value;
@@ -212,7 +212,7 @@ void ListingDocumentTypeNewImpl::onBlockInserted(const EventArgs* e)
     }
 }
 
-void ListingDocumentTypeNewImpl::onBlockErased(const EventArgs* e)
+void ListingDocumentTypeImpl::onBlockErased(const EventArgs* e)
 {
     using BlockEventArgs = ValueEventArgs<BlockItem*>;
     const BlockItem* bi = static_cast<const BlockEventArgs*>(e)->value;

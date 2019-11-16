@@ -48,7 +48,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 {
     if(symbol->isFunction() || symbol->is(SymbolType::Code)) return;
 
-    const Segment* segment = r_docnew->segment(symbol->address);
+    const Segment* segment = r_doc->segment(symbol->address);
     if(!segment) return;
 
     // if(symbol->is(SymbolType::Pointer))
@@ -163,7 +163,7 @@ String Printer::disp(const Operand* op) const
     {
         if(op->disp.displacement > 0)
         {
-            const Symbol* symbol = r_docnew->symbol(op->disp.displacement);
+            const Symbol* symbol = r_doc->symbol(op->disp.displacement);
             if(symbol) s += "+" + symbol->name;
             else s += "+" + String::hex(op->disp.displacement);
         }
@@ -179,7 +179,7 @@ String Printer::mem(const Operand* op) const { return this->imm(op); }
 
 String Printer::imm(const Operand* op) const
 {
-    const Symbol* symbol = r_docnew->symbol(op->u_value);
+    const Symbol* symbol = r_doc->symbol(op->u_value);
 
     if(REDasm::typeIs(op, OperandType::Memory))
         return "[" + (symbol ? symbol->name : String::hex(op->u_value)) + "]";

@@ -7,8 +7,10 @@
 #include "printer/printer.h"
 #include "assemblerrequest.h"
 
-#define REGISTER_INSTRUCTION(id, cb)    this->registerInstruction(id, std::bind(cb, this, std::placeholders::_1))
-#define SET_INSTRUCTION_TYPE(id, type)  this->setInstructionType(id, type)
+#define REGISTER_INSTRUCTION(id, cb)             this->registerInstruction(id, std::bind(cb, this, std::placeholders::_1))
+#define CLASSIFY_INSTRUCTION_TF(id, type, flags) this->classifyInstruction(id, type, flags)
+#define CLASSIFY_INSTRUCTION_F(id, flags)        this->classifyInstruction(id, InstructionType::None, flags)
+#define CLASSIFY_INSTRUCTION(id, type)           this->classifyInstruction(id, type)
 
 namespace REDasm {
 
@@ -39,7 +41,8 @@ class LIBREDASM_API Assembler : public Plugin
         virtual const Symbol* findTrampoline(size_t index) const;
 
     protected:
-        void setInstructionType(instruction_id_t id, InstructionType type);
+        void classifyInstruction(instruction_id_t id, InstructionType type, InstructionFlags flags = InstructionFlags::None);
+        void setInstructionFlags(instruction_id_t id, InstructionFlags flags);
         void registerInstruction(instruction_id_t id, const InstructionCallback &cb);
         virtual Algorithm* doCreateAlgorithm() const;
         virtual Printer* doCreatePrinter() const;

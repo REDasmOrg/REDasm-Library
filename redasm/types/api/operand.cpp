@@ -20,6 +20,11 @@ bool Operand::isNumeric() const
 
 bool Operand::isTarget() const { return REDasm::hasFlag(this, OperandFlags::Target); }
 void Operand::asTarget() { this->flags |= OperandFlags::Target; }
+bool Operand::isConstant() const { return REDasm::typeIs(this, OperandType::Constant); }
+bool Operand::isRegister() const { return REDasm::typeIs(this, OperandType::Register); }
+bool Operand::isImmediate() const { return REDasm::typeIs(this, OperandType::Immediate); }
+bool Operand::isMemory() const { return REDasm::typeIs(this, OperandType::Memory); }
+bool Operand::isDisplacement() const { return REDasm::typeIs(this, OperandType::Displacement); }
 bool Operand::isCharacter() const { return REDasm::typeIs(this, OperandType::Constant) && (this->u_value <= 0xFF) && ::isprint(static_cast<u8>(this->u_value)); }
 
 bool Operand::checkCharacter()

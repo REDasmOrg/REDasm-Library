@@ -34,7 +34,7 @@ bool CallTreeImpl::hasCalls() const
             if(!bi->typeIs(BlockItemType::Code)) continue;
 
             CachedInstruction instruction = r_doc->instruction(bi->start);
-            if(instruction->typeIs(InstructionType::Call)) return true;
+            if(instruction->isCall()) return true;
         }
     }
 
@@ -57,7 +57,7 @@ address_location CallTreeImpl::fetchLocation() const
     {
         CachedInstruction instruction = r_doc->instruction(address);
 
-        if(!instruction || !instruction->typeIs(InstructionType::Call))
+        if(!instruction || !instruction->isCall())
             return REDasm::invalid_location<address_t>();
 
         auto location = r_disasm->getTarget(instruction->address);

@@ -8,26 +8,23 @@
 namespace REDasm {
 
 enum class InstructionType: type_t {
-    None            = 0x00000000, Stop = 0x00000001, Nop = 0x00000002,
-    Jump            = 0x00000004, Call = 0x00000008,
-    Add             = 0x00000010, Sub  = 0x00000020, Mul = 0x00000040, Div = 0x0000080, Mod = 0x00000100, Lsh = 0x00000200, Rsh = 0x00000400,
-    And             = 0x00000800, Or   = 0x00001000, Xor = 0x00002000, Not = 0x0004000,
-    Push            = 0x00008000, Pop  = 0x00010000,
-    Compare         = 0x00020000, Load = 0x00040000, Store = 0x00080000,
-
-    Conditional     = 0x01000000, Privileged = 0x02000000,
-    Invalid         = 0x10000000,
-    Branch          = Jump | Call,
-    ConditionalJump = Conditional | Jump,
-    ConditionalCall = Conditional | Call,
+    None            = 0,
+    Invalid, Stop, Nop,
+    Jump, Call,
+    Add, Sub, Mul, Div, Mod, Lsh, Rsh,
+    And, Or, Xor, Not,
+    Push, Pop,
+    Compare, Load, Store,
 };
 
 ENUM_FLAGS_OPERATORS(InstructionType)
 
 enum class InstructionFlags: flag_t
 {
-    None = (1 << 0),
-    Weak = (1 << 1)
+    None        = (1 << 0),
+    Weak        = (1 << 1),
+    Conditional = (1 << 2),
+    Privileged  = (1 << 3),
 };
 
 ENUM_FLAGS_OPERATORS(InstructionFlags)
@@ -89,10 +86,18 @@ struct Instruction
     Instruction* target(address_t addr);
     Instruction* targetIdx(size_t idx);
 
-    void reset();
     bool isInvalid() const;
     bool is(const String& mnemonic) const;
     bool typeIs(InstructionType t) const;
+    bool isStop() const;
+    bool isCall() const;
+    bool isJump() const;
+    bool isConditionalCall() const;
+    bool isConditionalJump() const;
+    bool isBranch() const;
+    bool isConditional() const;
+
+    void reset();
     operator bool() const;
 };
 

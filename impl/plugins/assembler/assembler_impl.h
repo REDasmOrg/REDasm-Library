@@ -15,12 +15,12 @@ class AssemblerImpl: public PluginImpl
 
     public:
         AssemblerImpl();
-        void setInstructionType(Instruction *instruction) const;
+        void classify(Instruction *instruction) const;
         virtual void init(const AssemblerRequest &request);
         const AssemblerRequest &request() const;
 
     private:
-        std::unordered_map<instruction_id_t, InstructionType> m_instructiontypes;
+        std::unordered_map<instruction_id_t, std::pair<InstructionType, InstructionFlags>> m_classifiedinstruction;
         Dispatcher<instruction_id_t, Instruction*> m_dispatcher;
         AssemblerRequest m_request;
 };

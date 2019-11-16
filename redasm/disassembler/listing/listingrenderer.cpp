@@ -404,25 +404,16 @@ void ListingRenderer::renderMnemonic(const CachedInstruction &instruction, Rende
 {
     String mnemonic = instruction->mnemonic() + " ";
 
-    if(instruction->isInvalid())
-        rl.push(mnemonic, "instruction_invalid");
-    else if(instruction->typeIs(REDasm::InstructionType::Stop))
-        rl.push(mnemonic, "instruction_stop");
-    else if(instruction->typeIs(REDasm::InstructionType::Nop))
-        rl.push(mnemonic, "instruction_nop");
-    else if(instruction->typeIs(REDasm::InstructionType::Call))
-        rl.push(mnemonic, "instruction_call");
-    else if(instruction->typeIs(REDasm::InstructionType::Compare))
-        rl.push(mnemonic, "instruction_compare");
-    else if(instruction->typeIs(REDasm::InstructionType::Jump))
+    switch(instruction->type)
     {
-        if(instruction->typeIs(REDasm::InstructionType::Conditional))
-            rl.push(mnemonic, "instruction_jmp_c");
-        else
-            rl.push(mnemonic, "instruction_jmp");
+        case InstructionType::Invalid: rl.push(mnemonic, "instruction_invalid"); break;
+        case InstructionType::Stop: rl.push(mnemonic, "instruction_stop"); break;
+        case InstructionType::Nop: rl.push(mnemonic, "instruction_nop"); break;
+        case InstructionType::Call: rl.push(mnemonic, "instruction_call"); break;
+        case InstructionType::Compare: rl.push(mnemonic, "instruction_compare"); break;
+        case InstructionType::Jump: rl.push(mnemonic, instruction->isConditional() ? "instruction_jmp_c" : "instruction_jmp"); break;
+        default: rl.push(mnemonic); break;
     }
-    else
-        rl.push(mnemonic);
 }
 
 void ListingRenderer::renderOperands(const CachedInstruction &instruction, RendererLine &rl) const
@@ -437,11 +428,11 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
         if(!opsize.empty()) rl.push(opsize + " ");
 
         if(op->isNumeric()) {
-            if(REDasm::typeIs(op, REDasm::OperandType::Memory)) rl.push(opstr, "memory_fg");
+            if(op->isMemory()) rl.push(opstr, "memory_fg");
             else rl.push(opstr, "immediate_fg");
         }
-        else if(REDasm::typeIs(op, REDasm::OperandType::Displacement)) rl.push(opstr, "displacement_fg");
-        else if(REDasm::typeIs(op, REDasm::OperandType::Register)) rl.push(opstr, "register_fg");
+        else if(op->isDisplacement()) rl.push(opstr, "displacement_fg");
+        else if(op->isRegister()) rl.push(opstr, "register_fg");
         else rl.push(opstr);
     });
 }

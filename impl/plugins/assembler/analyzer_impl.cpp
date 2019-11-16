@@ -11,7 +11,7 @@ bool AnalyzerImpl::findNullSubs(address_t address)
 {
     CachedInstruction instruction = r_doc->instruction(address);
     if(!instruction) return true; // Don't execute trampoline analysis
-    if(!instruction->typeIs(InstructionType::Stop)) return false;
+    if(!instruction->isStop()) return false;
 
     r_doc->function(address, "nullsub_" + String::hex(address));
     return true;

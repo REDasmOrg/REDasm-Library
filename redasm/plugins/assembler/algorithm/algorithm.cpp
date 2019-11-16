@@ -24,7 +24,7 @@ void Algorithm::onDecoded(const CachedInstruction& instruction)
 {
     PIMPL_P(Algorithm);
 
-    if(instruction->typeIs(InstructionType::Branch))
+    if(instruction->isBranch())
     {
         p->loadTargets(instruction);
         this->validateTarget(instruction);
@@ -88,9 +88,9 @@ void Algorithm::branchState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
 
-    if(instruction->typeIs(InstructionType::Call))
+    if(instruction->isCall())
         FORWARD_STATE(Algorithm::CallState, state);
-    else if(instruction->typeIs(InstructionType::Jump))
+    else if(instruction->isJump())
         FORWARD_STATE(Algorithm::JumpState, state);
     else
     {
@@ -117,7 +117,7 @@ void Algorithm::branchMemoryState(const State *state)
     r_disasm->dereference(state->address, &value);
     r_doc->pointer(state->address);
 
-    if(instruction->typeIs(InstructionType::Call)) r_doc->function(value);
+    if(instruction->isCall()) r_doc->function(value);
     else r_doc->label(value);
 
     r_disasm->pushReference(value, state->address);
@@ -134,9 +134,9 @@ void Algorithm::addressTableState(const State *state)
         r_disasm->pushReference(state->address, instruction->address);
         state_t fwdstate = Algorithm::BranchState;
 
-        if(instruction->typeIs(InstructionType::Call))
+        if(instruction->isCall())
             r_doc->autoComment(instruction->address, "Call Table with " + String::number(c) + " cases(s)");
-        else if(instruction->typeIs(InstructionType::Jump))
+        else if(instruction->isJump())
             r_doc->autoComment(instruction->address, "Jump Table with " + String::number(c) + " cases(s)");
         else
         {
@@ -169,7 +169,7 @@ void Algorithm::memoryState(const State *state)
     CachedInstruction instruction = state->instruction;
     r_disasm->pushReference(state->address, instruction->address);
 
-    if(instruction->typeIs(InstructionType::Branch) && state->operand()->isTarget())
+    if(instruction->isBranch() && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchMemoryState, state);
     else
         FORWARD_STATE(Algorithm::PointerState, state);
@@ -207,7 +207,7 @@ void Algorithm::immediateState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
 
-    if(instruction->typeIs(InstructionType::Branch) && state->operand()->isTarget())
+    if(instruction->isBranch() && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchState, state);
     else
         r_disasm->checkLocation(instruction->address, state->address); // Create Symbol + XRefs

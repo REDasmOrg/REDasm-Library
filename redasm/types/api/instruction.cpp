@@ -163,7 +163,14 @@ void Instruction::reset()
 
 bool Instruction::isInvalid() const { return type == InstructionType::Invalid; }
 bool Instruction::is(const String& mnemonic) const { return this->mnemonic() == mnemonic; }
-bool Instruction::typeIs(InstructionType t) const { return type & t; }
+bool Instruction::typeIs(InstructionType t) const { return REDasm::typeIs(this, t); }
+bool Instruction::isStop() const { return REDasm::typeIs(this, InstructionType::Stop); }
+bool Instruction::isCall() const { return REDasm::typeIs(this, InstructionType::Call); }
+bool Instruction::isJump() const { return REDasm::typeIs(this, InstructionType::Jump); }
+bool Instruction::isConditionalCall() const { return this->isCall() && this->isConditional(); }
+bool Instruction::isConditionalJump() const { return this->isJump() && this->isConditional(); }
+bool Instruction::isBranch() const { return this->isCall() || this->isJump(); }
+bool Instruction::isConditional() const { return REDasm::hasFlag(this, InstructionFlags::Conditional); }
 Instruction::operator bool() const { return type != InstructionType::Invalid; }
 
 } // namespace REDasm

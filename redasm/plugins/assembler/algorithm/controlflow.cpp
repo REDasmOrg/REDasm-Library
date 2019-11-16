@@ -14,9 +14,9 @@ void ControlFlowAlgorithm::onDecoded(const CachedInstruction &instruction)
     PIMPL_P(ControlFlowAlgorithm);
     p->enqueueTargets(instruction);
 
-    if(!instruction->typeIs(InstructionType::Stop))
+    if(!instruction->isStop())
     {
-        if(instruction->typeIs(InstructionType::Jump) && !instruction->typeIs(InstructionType::Conditional))
+        if(instruction->isJump() && !instruction->isConditional())
             return;
 
         this->enqueue(instruction->endAddress());

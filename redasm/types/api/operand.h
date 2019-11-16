@@ -51,6 +51,13 @@ struct Operand
     union { s64 s_value; u64 u_value; };
 
     void asTarget();
+
+    bool isConstant() const;
+    bool isRegister() const;
+    bool isImmediate() const;
+    bool isMemory() const;
+    bool isDisplacement() const;
+
     bool checkCharacter();
     bool isCharacter() const;
     bool isNumeric() const;

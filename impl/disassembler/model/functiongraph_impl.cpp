@@ -86,7 +86,7 @@ bool FunctionGraphImpl::processJump(FunctionBasicBlock* fbb, const CachedInstruc
 
         FunctionBasicBlock* nextfbb = this->getBasicBlockAt(destblock);
 
-        if(instruction->typeIs(InstructionType::Conditional)) fbb->bTrue(nextfbb->node());
+        if(instruction->isConditional()) fbb->bTrue(nextfbb->node());
         this->newEdge(fbb->node(), nextfbb->node());
         worklist.push(destblock);
     }
@@ -147,7 +147,7 @@ void FunctionGraphImpl::buildBasicBlocks()
             rbi = bi;
             CachedInstruction instruction = r_doc->instruction(bi->start);
 
-            if(instruction->typeIs(InstructionType::Jump))
+            if(instruction->isJump())
             {
                 if(!this->processJump(fbb, instruction, worklist))
                 {
@@ -155,13 +155,13 @@ void FunctionGraphImpl::buildBasicBlocks()
                     return;
                 }
 
-                if(instruction->typeIs(InstructionType::Conditional) && (bi != blocks->last()))
+                if(instruction->isConditional() && (bi != blocks->last()))
                     this->processJumpConditional(fbb, blocks->at(i + 1), worklist);
 
                 break;
             }
 
-            if(instruction->typeIs(InstructionType::Stop))
+            if(instruction->isStop())
                 break;
         }
 

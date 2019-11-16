@@ -94,7 +94,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
 
         targets.insert(target);
 
-        if(instruction->typeIs(InstructionType::Branch)) this->pushTarget(target, instruction->address);
+        if(instruction->isBranch()) this->pushTarget(target, instruction->address);
         else this->checkLocation(startaddress, target);
 
         address += m_assembler->addressWidth();

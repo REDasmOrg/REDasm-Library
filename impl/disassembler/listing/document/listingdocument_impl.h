@@ -32,8 +32,8 @@ class ListingDocumentTypeImpl
         void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
         void symbol(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
-        void block(address_t address, size_t size, SymbolType type, SymbolFlags flags = SymbolFlags::None);
-        void block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None);
+        void block(address_t address, size_t size, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
+        void block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void block(const CachedInstruction& instruction);
         void unexplored(address_t address, size_t size);
         bool rename(address_t address, const String& name);

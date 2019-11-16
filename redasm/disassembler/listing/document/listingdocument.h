@@ -32,7 +32,7 @@ class ListingDocumentType: public Object
         ListingCursor& cursor();
 
     public: // Insert
-        void entry(address_t address);
+        void entry(address_t address, tag_t tag = 0);
         void empty(address_t address);
         bool separator(address_t address);
         void segment(const String& name, offset_t offset, address_t address, u64 size, SegmentType type);
@@ -46,14 +46,14 @@ class ListingDocumentType: public Object
         void pointer(address_t address, SymbolType type = SymbolType::Data, tag_t tag = 0);
         void pointer(address_t address, const String& name, SymbolType type = SymbolType::Data, tag_t tag = 0);
         void branch(address_t address, s64 direction, tag_t tag = 0);
-        void label(address_t address);
-        void data(address_t address, size_t size);
-        void data(address_t address, size_t size, const String& name);
-        void asciiString(address_t address, size_t size);
-        void wideString(address_t address, size_t size);
-        void imported(address_t address, size_t size, const String& name);
-        void exported(address_t address, const String& name);
-        void exportedFunction(address_t address, const String& name);
+        void label(address_t address, tag_t tag = 0);
+        void data(address_t address, size_t size, tag_t tag = 0);
+        void data(address_t address, size_t size, const String& name, tag_t tag = 0);
+        void asciiString(address_t address, size_t size, tag_t tag = 0);
+        void wideString(address_t address, size_t size, tag_t tag = 0);
+        void imported(address_t address, size_t size, const String& name, tag_t tag = 0);
+        void exported(address_t address, const String& name, tag_t tag = 0);
+        void exportedFunction(address_t address, const String& name, tag_t tag = 0);
         void instruction(const CachedInstruction& instruction);
 
     public: // Count

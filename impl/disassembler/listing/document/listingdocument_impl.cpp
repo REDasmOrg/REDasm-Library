@@ -63,14 +63,14 @@ void ListingDocumentTypeImpl::notify(size_t idx, ListingDocumentAction action)
     EventManager::trigger(StandardEvents::Document_Changed, ListingDocumentChangedEventArgs(m_items.at(idx), idx, action));
 }
 
-void ListingDocumentTypeImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags) { this->block(address, size, String(), type, flags); }
+void ListingDocumentTypeImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags, tag_t tag) { this->block(address, size, String(), type, flags, tag); }
 
-void ListingDocumentTypeImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags)
+void ListingDocumentTypeImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
 
     m_blocks.dataSize(address, size);
-    this->symbol(address, name, type, flags);
+    this->symbol(address, name, type, flags, tag);
 }
 
 void ListingDocumentTypeImpl::block(const CachedInstruction& instruction) { m_blocks.codeSize(instruction->address, instruction->size); }

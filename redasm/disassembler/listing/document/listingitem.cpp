@@ -16,8 +16,6 @@ ListingItem::ListingItem(address_t address, ListingItemType type): address(addre
 ListingItem::ListingItem(address_t address, ListingItemType type, size_t index): address(address), type(type), index(index) { }
 bool ListingItem::is(ListingItemType t) const { return type == t; }
 bool ListingItem::isValid() const { return type != ListingItemType::None; }
-void ListingItem::save(cereal::BinaryOutputArchive &a) const { a(address, type, index); }
-void ListingItem::load(cereal::BinaryInputArchive &a) { a(address, type, index); }
 String ListingItem::displayType() { return ListingItem::displayType(this->type); }
 
 bool ListingItem::operator ==(const ListingItem& rhs) const

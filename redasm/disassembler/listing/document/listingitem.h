@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../../types/api/api_base.h"
 #include "../../../types/containers/list.h"
 #include "../../../types/object.h"
 #include "../../../types/string.h"
@@ -19,36 +20,30 @@ enum class ListingItemType: size_t
     AllItems    = REDasm::npos
 };
 
-class LIBREDASM_API ListingItem: public Object
+struct LIBREDASM_API ListingItem
 {
-    REDASM_OBJECT(ListingItem)
+    address_t address{0};
+    ListingItemType type{ListingItemType::None};
+    size_t index{0};
 
-    public:
-        ListingItem();
-        ListingItem(address_t address, ListingItemType type);
-        ListingItem(address_t address, ListingItemType type, size_t index);
-        bool is(ListingItemType t) const;
-        bool isValid() const;
-        void save(cereal::BinaryOutputArchive &a) const override;
-        void load(cereal::BinaryInputArchive &a) override;
-        String displayType();
+    ListingItem();
+    ListingItem(address_t address, ListingItemType type);
+    ListingItem(address_t address, ListingItemType type, size_t index);
+    bool is(ListingItemType t) const;
+    bool isValid() const;
+    String displayType();
 
-    public:
-        bool operator ==(const ListingItem& rhs) const;
-        bool operator !=(const ListingItem& rhs) const;
-        bool operator <(const ListingItem& rhs) const;
-        bool operator <=(const ListingItem& rhs) const;
-        bool operator >(const ListingItem& rhs) const;
-        bool operator >=(const ListingItem& rhs) const;
+    bool operator ==(const ListingItem& rhs) const;
+    bool operator !=(const ListingItem& rhs) const;
+    bool operator <(const ListingItem& rhs) const;
+    bool operator <=(const ListingItem& rhs) const;
+    bool operator >(const ListingItem& rhs) const;
+    bool operator >=(const ListingItem& rhs) const;
 
-    public:
-        static String displayType(ListingItemType type);
-
-    public:
-        address_t address;
-        ListingItemType type;
-        size_t index;
+    static String displayType(ListingItemType type);
 };
+
+FORCE_STANDARD_LAYOUT(ListingItem)
 
 template<typename T> struct ListingItemFinderNewT {
     bool operator()(const T& t1, const T& t2) const {

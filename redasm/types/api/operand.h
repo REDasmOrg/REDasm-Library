@@ -50,15 +50,15 @@ struct Operand
     DisplacementOperand disp;
     union { s64 s_value; u64 u_value; };
 
-    static void asTarget(Operand* op);
-    static bool isCharacter(const Operand* op);
-    static bool checkCharacter(Operand* op);
-    static bool isNumeric(const Operand* op);
-    static bool isTarget(const Operand* op);
-    static bool isIndexValid(const Operand* op);
-    static bool isBaseValid(const Operand* op);
-    static bool displacementIsDynamic(const Operand* op);
-    static bool displacementCanBeAddress(const Operand* op);
+    void asTarget();
+    bool checkCharacter();
+    bool isCharacter() const;
+    bool isNumeric() const;
+    bool isTarget() const;
+    bool isIndexValid() const;
+    bool isBaseValid() const;
+    bool displacementIsDynamic() const;
+    bool displacementCanBeAddress() const;
 };
 
 FORCE_STANDARD_LAYOUT(Operand);

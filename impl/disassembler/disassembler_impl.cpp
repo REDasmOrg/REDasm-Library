@@ -57,7 +57,7 @@ const Symbol *DisassemblerImpl::dereferenceSymbol(const Symbol *symbol, u64 *val
     address_t address = 0;
     const Symbol* ptrsymbol = nullptr;
 
-    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &address))
+    if(symbol->isPointer() && this->dereference(symbol->address, &address))
         ptrsymbol = r_doc->symbol(address);
 
     if(value) *value = address;
@@ -77,7 +77,7 @@ size_t DisassemblerImpl::getReferencesCount(address_t address) const { return m_
 size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction, address_t startaddress)
 {
     const Symbol* symbol = r_doc->symbol(startaddress);
-    if(symbol && symbol->hasFlag(SymbolFlags::TableItem)) return REDasm::npos;
+    if(symbol && symbol->isTableItem()) return REDasm::npos;
 
     address_t target = 0, address = startaddress;
 
@@ -117,7 +117,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
         else
         {
             this->pushReference(startaddress, instruction->address);
-            r_doc->pointer(startaddress, SymbolType::Data);
+            r_doc->pointer(startaddress);
         }
     }
 
@@ -128,7 +128,7 @@ String DisassemblerImpl::readString(const Symbol *symbol, size_t len) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &memaddress))
+    if(symbol->isPointer() && this->dereference(symbol->address, &memaddress))
         return this->readString(memaddress, len);
 
     return this->readString(symbol->address, len);
@@ -141,7 +141,7 @@ String DisassemblerImpl::readWString(const Symbol *symbol, size_t len) const
 {
     address_t memaddress = 0;
 
-    if(symbol->is(SymbolType::Pointer) && this->dereference(symbol->address, &memaddress))
+    if(symbol->isPointer() && this->dereference(symbol->address, &memaddress))
         return this->readWString(memaddress, len);
 
     return this->readWString(symbol->address, len);
@@ -269,15 +269,12 @@ void DisassemblerImpl::checkLocation(address_t fromaddress, address_t address)
 
     const Symbol* symbol = r_doc->symbol(address);
 
-    if(symbol && symbol->is(SymbolType::StringNew))
+    if(symbol && symbol->isString())
     {
-        if(symbol->hasFlag(SymbolFlags::WideString))
-            r_doc->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
-        else
-            r_doc->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
+        if(symbol->isWideString()) r_doc->autoComment(fromaddress, "WIDE STRING: " + this->readWString(address).quoted());
+        else r_doc->autoComment(fromaddress, "STRING: " + this->readString(address).quoted());
     }
-    else
-        r_doc->data(address, r_asm->addressWidth());
+    else r_doc->data(address, r_asm->addressWidth());
 
     this->pushReference(address, fromaddress);
 }

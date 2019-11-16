@@ -49,7 +49,7 @@ void ListingDocumentType::entry(address_t address)
     //     name = symbol->name;
 
     //p->function(address, name.empty() ? ENTRY_FUNCTION : name, SymbolType::FunctionNew, SymbolFlags::Export | SymbolFlags::EntryPoint);
-    p->symbol(address, ENTRY_FUNCTION, SymbolType::FunctionNew, SymbolFlags::Export | SymbolFlags::EntryPoint);
+    p->symbol(address, ENTRY_FUNCTION, SymbolType::Function, SymbolFlags::Export | SymbolFlags::EntryPoint);
     this->setEntry(address);
 }
 
@@ -121,8 +121,8 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
              SymbolType::Data, SymbolFlags::TableItem);
 }
 
-void ListingDocumentType::function(address_t address, const String &name, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::FunctionNew, SymbolFlags::None, tag); }
-void ListingDocumentType::function(address_t address, tag_t tag) { this->function(address, SymbolTable::name(address, SymbolType::FunctionNew), tag); }
+void ListingDocumentType::function(address_t address, const String &name, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::Function, SymbolFlags::None, tag); }
+void ListingDocumentType::function(address_t address, tag_t tag) { this->function(address, SymbolTable::name(address, SymbolType::Function), tag); }
 
 void ListingDocumentType::pointer(address_t address, SymbolType type, tag_t tag)
 {
@@ -144,7 +144,7 @@ void ListingDocumentType::branch(address_t address, s64 direction, tag_t tag)
     if(!direction) name = "infinite_loop_" + name;
     else name = "loc_" + name;
 
-    p->symbol(address, name, SymbolType::LabelNew);
+    p->symbol(address, name, SymbolType::Label);
 }
 
 void ListingDocumentType::data(address_t address, size_t size) { this->data(address, size, String()); }
@@ -154,18 +154,18 @@ void ListingDocumentType::data(address_t address, size_t size, const String& nam
     if(size)
     {
         PIMPL_P(ListingDocumentType);
-        p->block(address, size, name, SymbolType::DataNew);
+        p->block(address, size, name, SymbolType::Data);
     }
     else
         r_ctx->problem("Invalid data size @ " + String::hex(address));
 }
 
-void ListingDocumentType::label(address_t address) { PIMPL_P(ListingDocumentType); p->symbol(address, SymbolType::LabelNew); }
-void ListingDocumentType::imported(address_t address, size_t size, const String& name) { PIMPL_P(ListingDocumentType); p->block(address, size, name, SymbolType::ImportNew); }
-void ListingDocumentType::exported(address_t address, const String& name) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::DataNew, SymbolFlags::Export); }
-void ListingDocumentType::exportedFunction(address_t address, const String& name) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::FunctionNew, SymbolFlags::Export); }
-void ListingDocumentType::asciiString(address_t address, size_t size) { PIMPL_P(ListingDocumentType); p->block(address, size, SymbolType::StringNew, SymbolFlags::AsciiString); }
-void ListingDocumentType::wideString(address_t address, size_t size) { PIMPL_P(ListingDocumentType); p->block(address, size, SymbolType::StringNew, SymbolFlags::WideString); }
+void ListingDocumentType::label(address_t address) { PIMPL_P(ListingDocumentType); p->symbol(address, SymbolType::Label); }
+void ListingDocumentType::imported(address_t address, size_t size, const String& name) { PIMPL_P(ListingDocumentType); p->block(address, size, name, SymbolType::Import); }
+void ListingDocumentType::exported(address_t address, const String& name) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::Data, SymbolFlags::Export); }
+void ListingDocumentType::exportedFunction(address_t address, const String& name) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::Function, SymbolFlags::Export); }
+void ListingDocumentType::asciiString(address_t address, size_t size) { PIMPL_P(ListingDocumentType); p->block(address, size, SymbolType::String, SymbolFlags::AsciiString); }
+void ListingDocumentType::wideString(address_t address, size_t size) { PIMPL_P(ListingDocumentType); p->block(address, size, SymbolType::String, SymbolFlags::WideString); }
 
 void ListingDocumentType::instruction(const CachedInstruction& instruction)
 {

@@ -1,64 +1,12 @@
 #include "symboltable.h"
 #include <redasm/support/demangler.h>
 #include <redasm/support/utils.h>
-#include <impl/disassembler/listing/backend/symboltable_impl.h>
+#include <impl/disassembler/listing/backend/symbols/symboltable_impl.h>
 #include <impl/libs/cereal/archives/binary.hpp>
 #include <forward_list>
 #include <sstream>
 
 namespace REDasm {
-
-Symbol::Symbol(): type(SymbolType::None), flags(SymbolFlags::None), tag(0), address(0) { }
-Symbol::Symbol(SymbolType type, SymbolFlags flags, tag_t tag, address_t address, const String& name): type(type), flags(flags), tag(tag), address(address), name(name) { }
-void Symbol::lock() { type |= SymbolType::Locked; }
-bool Symbol::is(SymbolType t) const { return type == t; }
-bool Symbol::typeIs(SymbolType t) const { return type == t; }
-bool Symbol::hasFlag(SymbolFlags flag) const { return flags & flag; }
-bool Symbol::isFunction() const { return type == SymbolType::FunctionNew; }
-bool Symbol::isImport() const { return type == SymbolType::ImportNew; }
-bool Symbol::isLocked() const { return type & SymbolType::Locked; }
-bool Symbol::isEntryPoint() const { return this->hasFlag(SymbolFlags::EntryPoint); }
-bool Symbol::isPointer() const { return this->hasFlag(SymbolFlags::Pointer); }
-
-bool Symbol::isExport() const
-{
-    switch(this->type)
-    {
-        case SymbolType::ExportData:
-        case SymbolType::ExportFunction: return true;
-        default: break;
-    }
-
-    return false;
-}
-
-bool Symbol::isData() const
-{
-    switch(this->type)
-    {
-        case SymbolType::DataNew:
-        case SymbolType::StringNew: return true;
-        default: break;
-    }
-
-    return false;
-}
-
-bool Symbol::isCode() const
-{
-    switch(this->type)
-    {
-        case SymbolType::LabelNew:
-        case SymbolType::FunctionNew: return true;
-        default: break;
-    }
-
-    return false;
-}
-
-bool Symbol::isWeak() const { return this->hasFlag(SymbolFlags::Weak); }
-void Symbol::save(cereal::BinaryOutputArchive &a) const { a(type, tag, address, name); }
-void Symbol::load(cereal::BinaryInputArchive &a) { a(type, tag, address, name); }
 
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
 size_t SymbolTable::size() const { PIMPL_P(const SymbolTable); return p->m_byaddress.size(); }

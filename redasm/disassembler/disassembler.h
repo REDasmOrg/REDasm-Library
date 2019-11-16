@@ -8,7 +8,7 @@
 #include "listing/cachedinstruction.h"
 #include "listing/document/listingitem.h"
 #include "listing/backend/referencetable.h"
-#include "listing/backend/symboltable.h"
+#include "listing/backend/symbols/symboltable.h"
 
 namespace REDasm {
 

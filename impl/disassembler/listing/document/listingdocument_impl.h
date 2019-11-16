@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <redasm/disassembler/listing/backend/symbols/symboltable.h>
 #include <redasm/disassembler/listing/document/listingdocument.h>
-#include <redasm/disassembler/listing/backend/symboltable.h>
 #include "../backend/instructioncache.h"
 #include "listingitem_impl.h"
 

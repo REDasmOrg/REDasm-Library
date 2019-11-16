@@ -94,7 +94,7 @@ void AlgorithmImpl::validateTarget(const CachedInstruction& instruction) const
         return;
 
     const Operand* op = instruction->target();
-    if(op && !Operand::isNumeric(op)) return;
+    if(op && !op->isNumeric()) return;
 
     r_ctx->problem("No targets found for " + instruction->mnemonic().quoted() + " @ " + String::hex(instruction->address));
 }

@@ -18,7 +18,7 @@ bool ListingRendererImpl::renderSymbolPointer(const document_s_lock &lock, const
     const Symbol* ptrsymbol = lock->symbol(value);
     if(!ptrsymbol) return false;
 
-    rl.push(ptrsymbol->name, ptrsymbol->isLocked() ? "locked_fg" : "label_fg");
+    rl.push(ptrsymbol->name, "label_fg");
     return true;
 }
 

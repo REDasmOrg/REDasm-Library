@@ -2,10 +2,10 @@
 
 #include "../../../support/safe_ptr.h"
 #include "../backend/blocks/blockcontainer.h"
+#include "../backend/symbols/symboltable.h"
 #include "../backend/listingfunctions.h"
 #include "../backend/listingsegments.h"
 #include "../backend/listingitems.h"
-#include "../backend/symboltable.h"
 #include "../cachedinstruction.h"
 #include "changedeventargs.h"
 #include "listingitem.h"

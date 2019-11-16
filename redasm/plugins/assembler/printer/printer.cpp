@@ -46,7 +46,7 @@ void Printer::function(const Symbol* symbol, const Printer::FunctionCallback& fu
 
 void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) const
 {
-    if(symbol->isFunction() || symbol->is(SymbolType::Code)) return;
+    if(symbol->isFunction() || symbol->isLabel()) return;
 
     const Segment* segment = r_doc->segment(symbol->address);
     if(!segment) return;
@@ -63,7 +63,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
     //     }
     // }
 
-    if(symbol->typeIs(SymbolType::DataNew))
+    if(symbol->isData())
     {
         if(segment->is(SegmentType::Bss))
         {
@@ -78,9 +78,9 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
         symbolfunc(symbol, String::hex(value, r_asm->addressWidth()));
     }
-    else if(symbol->typeIs(SymbolType::String))
+    else if(symbol->isString())
     {
-        if(symbol->hasFlag(SymbolFlags::WideString)) symbolfunc(symbol, " \"" + r_disasm->readWString(symbol->address) + "\"");
+        if(symbol->isWideString()) symbolfunc(symbol, " \"" + r_disasm->readWString(symbol->address) + "\"");
         else symbolfunc(symbol, " \"" + r_disasm->readString(symbol->address) + "\"");
     }
 }
@@ -132,9 +132,7 @@ String Printer::reg(const RegisterOperand* regop) const { return "$" + String::n
 String Printer::disp(const Operand* op) const
 {
     String s;
-
-    if(Operand::isBaseValid(op))
-        s += this->reg(&op->disp.basestruct);
+    if(op->isBaseValid()) s += this->reg(&op->disp.basestruct);
 
     if(hasFlag(op, OperandFlags::Local) || hasFlag(op, OperandFlags::Argument))
     {
@@ -150,7 +148,7 @@ String Printer::disp(const Operand* op) const
         }
     }
 
-    if(Operand::isIndexValid(op))
+    if(op->isIndexValid())
     {
         if(!s.empty()) s += "+";
         s += this->reg(&op->disp.indexstruct);

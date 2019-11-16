@@ -28,7 +28,7 @@ void AnalyzerImpl::findTrampoline(address_t address)
     const Symbol* symentry = r_doc->entry();
     if(symentry->address == address) return;
 
-    if(symtrampoline->is(SymbolType::ImportNew))
+    if(symtrampoline->isImport())
         r_doc->rename(address, Utils::trampoline(symtrampoline->name));
     else
         r_doc->rename(address, Utils::trampoline(symtrampoline->name, "jmp_to"));

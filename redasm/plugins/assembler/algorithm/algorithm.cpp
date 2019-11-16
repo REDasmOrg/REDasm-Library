@@ -34,7 +34,7 @@ void Algorithm::onDecoded(const CachedInstruction& instruction)
     {
         const auto* op = &instruction->operandsstruct[i];
 
-        if(!Operand::isNumeric(op) || Operand::displacementIsDynamic(op))
+        if(!op->isNumeric() || op->displacementIsDynamic())
         {
             if(!REDasm::typeIs(op, OperandType::Displacement)) // Try static displacement analysis
                 continue;
@@ -42,11 +42,10 @@ void Algorithm::onDecoded(const CachedInstruction& instruction)
 
         if(REDasm::typeIs(op, OperandType::Displacement))
         {
-            if(Operand::displacementIsDynamic(op))
+            if(op->displacementIsDynamic())
                 EXECUTE_STATE(Algorithm::AddressTableState, op->disp.displacement, op->index, instruction);
-            else if(Operand::displacementCanBeAddress(op)) {
+            else if(op->displacementCanBeAddress())
                 EXECUTE_STATE(Algorithm::MemoryState, op->disp.displacement, op->index, instruction);
-            }
         }
         else if(REDasm::typeIs(op, OperandType::Memory))
             EXECUTE_STATE(Algorithm::MemoryState, op->u_value, op->index, instruction);
@@ -67,7 +66,7 @@ void Algorithm::onDecodeFailed(const CachedInstruction& instruction)
 
 void Algorithm::onDecodedOperand(const Operand *op, const CachedInstruction &instruction)
 {
-    if(!Operand::isCharacter(op)) return;
+    if(!op->isCharacter()) return;
     String charinfo = String::hex(op->u_value, 8, true) + "=" + String(static_cast<char>(op->u_value)).quotedSingle();
     r_doc->autoComment(instruction->address, charinfo);
 }
@@ -111,7 +110,7 @@ void Algorithm::branchMemoryState(const State *state)
 
     const Symbol* symbol = r_doc->symbol(state->address);
 
-    if(symbol && symbol->is(SymbolType::ImportNew)) // Don't dereference imports
+    if(symbol && symbol->isImport()) // Don't dereference imports
         return;
 
     u64 value = 0;
@@ -170,7 +169,7 @@ void Algorithm::memoryState(const State *state)
     CachedInstruction instruction = state->instruction;
     r_disasm->pushReference(state->address, instruction->address);
 
-    if(instruction->typeIs(InstructionType::Branch) && Operand::isTarget(state->operand()))
+    if(instruction->typeIs(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchMemoryState, state);
     else
         FORWARD_STATE(Algorithm::PointerState, state);
@@ -192,19 +191,14 @@ void Algorithm::pointerState(const State *state)
     const Symbol* symbol = r_doc->symbol(value);
     if(!symbol) return;
 
-    if(symbol->typeIs(SymbolType::StringNew))
+    if(symbol->isString())
     {
-        if(symbol->hasFlag(SymbolFlags::WideString))
-            r_doc->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
-        else
-            r_doc->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
+        if(symbol->isWideString()) r_doc->autoComment(state->instruction->address, "=> WIDE STRING: " + r_disasm->readWString(value).quoted());
+        else r_doc->autoComment(state->instruction->address, "=> STRING: " + r_disasm->readString(value).quoted());
     }
-    else if(symbol->isImport())
-        r_doc->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
-    else if(symbol->isExport())
-        r_doc->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
-    else
-        return;
+    else if(symbol->isImport()) r_doc->autoComment(state->instruction->address, "=> IMPORT: " + symbol->name);
+    else if(symbol->isExport()) r_doc->autoComment(state->instruction->address, "=> EXPORT: " + symbol->name);
+    else return;
 
     r_disasm->pushReference(value, state->instruction->address);
 }
@@ -213,7 +207,7 @@ void Algorithm::immediateState(const State *state)
 {
     CachedInstruction instruction = state->instruction;
 
-    if(instruction->typeIs(InstructionType::Branch) && Operand::isTarget(state->operand()))
+    if(instruction->typeIs(InstructionType::Branch) && state->operand()->isTarget())
         FORWARD_STATE(Algorithm::BranchState, state);
     else
         r_disasm->checkLocation(instruction->address, state->address); // Create Symbol + XRefs

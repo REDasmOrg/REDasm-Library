@@ -5,31 +5,31 @@ namespace REDasm {
 
 void SymbolTableImpl::save(cereal::BinaryOutputArchive &a) const
 {
-    size_t size = m_byaddress.size();
-    a(size);
+    // size_t size = m_byaddress.size();
+    // a(size);
 
-    for(auto& item : m_byaddress)
-    {
-        a(item.first);
-        item.second->save(a);
-    }
+    // for(auto& item : m_byaddress)
+    // {
+    //     a(item.first);
+    //     item.second->save(a);
+    // }
 }
 
 void SymbolTableImpl::load(cereal::BinaryInputArchive &a)
 {
-    size_t size = 0;
-    a(size);
+    // size_t size = 0;
+    // a(size);
 
-    for(size_t i = 0; i < size; i++)
-    {
-        address_t address;
-        auto symbol = std::make_unique<Symbol>();
-        a(address);
-        symbol->load(a);
+    // for(size_t i = 0; i < size; i++)
+    // {
+    //     address_t address;
+    //     auto symbol = std::make_unique<Symbol>();
+    //     a(address);
+    //     symbol->load(a);
 
-        m_byname[symbol->name] = address;
-        m_byaddress[symbol->address] = std::move(symbol);
-    }
+    //     m_byname[symbol->name] = address;
+    //     m_byaddress[symbol->address] = std::move(symbol);
+    // }
 }
 
 bool SymbolTableImpl::rename(address_t address, const String& newname)
@@ -47,10 +47,10 @@ String SymbolTableImpl::prefix(SymbolType type, SymbolFlags flags)
 {
     switch(type)
     {
-        case SymbolType::StringNew:   return (flags & SymbolFlags::WideString) ? "wstr" : "str";
-        case SymbolType::LabelNew:    return "loc";
-        case SymbolType::FunctionNew: return "sub";
-        case SymbolType::ImportNew:   return "imp";
+        case SymbolType::String:   return (flags & SymbolFlags::WideString) ? "wstr" : "str";
+        case SymbolType::Label:    return "loc";
+        case SymbolType::Function: return "sub";
+        case SymbolType::Import:   return "imp";
         default: break;
     }
 

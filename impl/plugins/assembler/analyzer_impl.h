@@ -1,6 +1,6 @@
 #pragma once
 
-#include <redasm/disassembler/listing/backend/symboltable.h>
+#include <redasm/disassembler/listing/backend/symbols/symboltable.h>
 #include <redasm/plugins/loader/analyzer.h>
 #include <redasm/support/dispatcher.h>
 

@@ -305,7 +305,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
     {
         p->renderSymbolPrologue(lock, item, symbol, rl);
 
-        if(symbol->is(SymbolType::LabelNew))
+        if(symbol->isLabel())
         {
             rl.push(symbol->name, "label_fg");
             rl.push(" <").push("dynamic branch", "label_fg").push(">");
@@ -318,18 +318,18 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 
     switch(symbol->type)
     {
-        case SymbolType::ImportNew:
+        case SymbolType::Import:
             p->renderSymbolPrologue(lock, item, symbol, rl);
             rl.push("<").push("import", "label_fg").push(">");
             break;
 
-        case SymbolType::StringNew:
+        case SymbolType::String:
             p->renderSymbolPrologue(lock, item, symbol, rl);
-            if(symbol->hasFlag(SymbolFlags::WideString)) rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
+            if(symbol->isWideString()) rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             break;
 
-        case SymbolType::LabelNew:
+        case SymbolType::Label:
             if(!rl.ignoreflags && this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 2);
             else this->renderAddressIndent(lock, item, rl);
             rl.push(symbol->name, "label_fg").push(":");
@@ -436,7 +436,7 @@ void ListingRenderer::renderOperands(const CachedInstruction &instruction, Rende
         if(op->index > 0) rl.push(", ");
         if(!opsize.empty()) rl.push(opsize + " ");
 
-        if(Operand::isNumeric(op)) {
+        if(op->isNumeric()) {
             if(REDasm::typeIs(op, REDasm::OperandType::Memory)) rl.push(opstr, "memory_fg");
             else rl.push(opstr, "immediate_fg");
         }

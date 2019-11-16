@@ -3,9 +3,9 @@
 
 namespace REDasm {
 
-bool Operand::isNumeric(const Operand* op)
+bool Operand::isNumeric() const
 {
-    switch(op->type)
+    switch(this->type)
     {
         case OperandType::Constant:
         case OperandType::Immediate:
@@ -18,22 +18,22 @@ bool Operand::isNumeric(const Operand* op)
     return false;
 }
 
-bool Operand::isTarget(const Operand* op) { return REDasm::hasFlag(op, OperandFlags::Target); }
-void Operand::asTarget(Operand* op) { op->flags |= OperandFlags::Target; }
-bool Operand::isCharacter(const Operand* op) { return REDasm::typeIs(op, OperandType::Constant) && (op->u_value <= 0xFF) && ::isprint(static_cast<u8>(op->u_value)); }
+bool Operand::isTarget() const { return REDasm::hasFlag(this, OperandFlags::Target); }
+void Operand::asTarget() { this->flags |= OperandFlags::Target; }
+bool Operand::isCharacter() const { return REDasm::typeIs(this, OperandType::Constant) && (this->u_value <= 0xFF) && ::isprint(static_cast<u8>(this->u_value)); }
 
-bool Operand::checkCharacter(Operand* op)
+bool Operand::checkCharacter()
 {
-    if(!REDasm::typeIs(op, OperandType::Immediate) || (op->u_value > 0xFF) || !::isprint(static_cast<u8>(op->u_value)))
+    if(!REDasm::typeIs(this, OperandType::Immediate) || (this->u_value > 0xFF) || !::isprint(static_cast<u8>(this->u_value)))
         return false;
 
-    op->type = OperandType::Constant;
+    this->type = OperandType::Constant;
     return true;
 }
 
-bool Operand::isIndexValid(const REDasm::Operand* op) { return REDasm::typeIs(op, OperandType::Displacement) && REDasm::isValid(op->disp.indexstruct.r); }
-bool Operand::isBaseValid(const REDasm::Operand* op) { return REDasm::typeIs(op, OperandType::Displacement) && REDasm::isValid(op->disp.basestruct.r); }
-bool Operand::displacementIsDynamic(const Operand* op) { return REDasm::typeIs(op, OperandType::Displacement) && (Operand::isBaseValid(op) || Operand::isIndexValid(op)); }
-bool Operand::displacementCanBeAddress(const Operand* op) { return REDasm::typeIs(op, OperandType::Displacement) && (op->disp.displacement > 0); }
+bool Operand::isIndexValid() const { return REDasm::typeIs(this, OperandType::Displacement) && REDasm::isValid(this->disp.indexstruct.r); }
+bool Operand::isBaseValid() const { return REDasm::typeIs(this, OperandType::Displacement) && REDasm::isValid(this->disp.basestruct.r); }
+bool Operand::displacementIsDynamic() const { return REDasm::typeIs(this, OperandType::Displacement) && (this->isBaseValid() || this->isIndexValid()); }
+bool Operand::displacementCanBeAddress() const { return REDasm::typeIs(this, OperandType::Displacement) && (this->disp.displacement > 0); }
 
 } // namespace REDasm

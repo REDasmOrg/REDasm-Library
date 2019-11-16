@@ -24,7 +24,7 @@ typedef u64 address_t;
 typedef u64 offset_t;
 typedef u64 instruction_id_t;
 typedef s64 register_id_t;
-typedef u64 tag_t;
+typedef uintptr_t tag_t;
 typedef u32 object_id_t;
 typedef object_id_t argument_t;
 

@@ -91,7 +91,7 @@ Instruction* Instruction::reg(register_id_t r, tag_t tag)
 Instruction* Instruction::tgt(address_t addr)
 {
     this->imm(addr, 0);
-    Operand::asTarget(&operandsstruct[operandscount - 1]);
+    operandsstruct[operandscount - 1].asTarget();
     return this->target(addr);
 }
 
@@ -144,9 +144,9 @@ Instruction* Instruction::targetIdx(size_t idx)
     if(idx >= DEFAULT_CONTAINER_SIZE) return this;
 
     auto& op = operandsstruct[idx];
-    Operand::asTarget(&op);
+    op.asTarget();
 
-    if(Operand::isNumeric(&op))
+    if(op.isNumeric())
         this->target(op.u_value);
 
     return this;

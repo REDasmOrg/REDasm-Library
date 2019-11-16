@@ -1,6 +1,7 @@
 #include "instructioncache.h"
 #include <redasm/support/utils.h>
 #include "../cachedinstruction_impl.h"
+#include "../lmdb/lmdbexception.h"
 
 #define CACHE_FILE_NAME(x)          ("redasm_cache_" + String::number(x) + ".tmp")
 
@@ -59,10 +60,17 @@ CachedInstruction InstructionCache::deserialize(address_t address)
     if(!sp)
     {
         this->allocate(&ci);
-
         auto t = m_lmdb.transaction();
-        t->get(address, static_cast<InstructionStruct*>(ci.get()));
-        t->commit();
+
+        try {
+            t->get(address, static_cast<InstructionStruct*>(ci.get()));
+            t->commit();
+        }
+        catch(const LMDBException& e) {
+            r_ctx->problem(String(e.what()) + " @ " + String::hex(address));
+            t->abort();
+            return ci; // Return an invalid instruction
+        }
 
         // Reset backend specific fields
         ci->free = nullptr;

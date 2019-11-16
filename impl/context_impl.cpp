@@ -31,6 +31,7 @@ void ContextImpl::flag(ContextFlags flag, bool set)
     else m_flags &= ~flag;
 }
 
+void ContextImpl::flags(ContextFlags flags) { m_flags = flags; }
 bool ContextImpl::hasFlag(ContextFlags flag) const { return m_flags & flag; }
 
 String ContextImpl::capstoneVersion() const

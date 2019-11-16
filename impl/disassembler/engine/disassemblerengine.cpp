@@ -106,14 +106,45 @@ void DisassemblerEngine::algorithmStep()
 }
 void DisassemblerEngine::analyzeStep()
 {
+    if(r_ctx->hasFlag(ContextFlags::DisableAnalyzer))
+    {
+        this->execute();
+        return;
+    }
+
     if(r_ctx->sync()) this->analyzeJob();
     else JobManager::execute(this, &DisassemblerEngine::analyzeJob);
 }
-void DisassemblerEngine::unexploredStep() { this->execute(); }
-void DisassemblerEngine::signatureStep() { this->execute(); }
+void DisassemblerEngine::unexploredStep()
+{
+    if(r_ctx->hasFlag(ContextFlags::DisableUnexplored))
+    {
+        this->execute();
+        return;
+    }
+
+    this->execute();
+}
+
+void DisassemblerEngine::signatureStep()
+{
+    if(r_ctx->hasFlag(ContextFlags::DisableSignature))
+    {
+        this->execute();
+        return;
+    }
+
+    this->execute();
+}
 
 void DisassemblerEngine::cfgStep()
 {
+    if(r_ctx->hasFlag(ContextFlags::DisableCFG))
+    {
+        this->execute();
+        return;
+    }
+
     r_docnew->invalidateGraphs();
     r_ctx->status("Generating CFG...");
 

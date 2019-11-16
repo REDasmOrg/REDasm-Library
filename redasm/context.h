@@ -18,7 +18,11 @@ typedef std::list<String> PluginPaths;
 
 enum class ContextFlags
 {
-    None = 0,
+    None              = (1 << 0),
+    DisableUnexplored = (1 << 1),
+    DisableAnalyzer   = (1 << 2),
+    DisableSignature  = (1 << 3),
+    DisableCFG        = (1 << 4),
 };
 
 ENUM_FLAGS_OPERATORS(ContextFlags)
@@ -71,6 +75,7 @@ class LIBREDASM_API Context
         bool sync();
         bool hasFlag(ContextFlags flag) const;
         void flag(ContextFlags flag, bool set = true);
+        void flags(ContextFlags flags);
         PluginManager* pluginManager() const;
         AbstractUI* ui() const;
         const PluginPaths& pluginPaths() const;

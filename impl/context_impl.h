@@ -23,6 +23,7 @@ class ContextImpl
         void setDisassembler(Disassembler* disassembler);
         void checkSettings();
         void flag(ContextFlags flag, bool set);
+        void flags(ContextFlags flags);
         bool hasFlag(ContextFlags flag) const;
         String capstoneVersion() const;
 

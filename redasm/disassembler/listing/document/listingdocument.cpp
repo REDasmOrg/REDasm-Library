@@ -110,7 +110,7 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
 
     p->block(address, r_asm->addressWidth(),
              SymbolTable::name(startaddress, SymbolType::Data, SymbolFlags::TableItem) + "_" + String::number(idx),
-             SymbolType::Data, SymbolFlags::TableItem, tag);
+             SymbolType::Data, SymbolFlags::TableItem | SymbolFlags::Pointer, tag);
 }
 
 void ListingDocumentType::function(address_t address, const String &name, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::Function, SymbolFlags::None, tag); }

@@ -113,7 +113,18 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
              SymbolType::Data, SymbolFlags::TableItem | SymbolFlags::Pointer, tag);
 }
 
-void ListingDocumentType::function(address_t address, const String &name, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, SymbolType::Function, SymbolFlags::None, tag); }
+void ListingDocumentType::function(address_t address, const String &name, tag_t tag)
+{
+    PIMPL_P(ListingDocumentType);
+
+    const Symbol* symbol = p->symbol(address);
+
+    if(symbol && symbol->isLabel()) // Remove overlapping label, if any
+        p->remove(symbol->address, ListingItemType::SymbolItem);
+
+    p->symbol(address, name, SymbolType::Function, SymbolFlags::None, tag);
+}
+
 void ListingDocumentType::function(address_t address, tag_t tag) { this->function(address, SymbolTable::name(address, SymbolType::Function), tag); }
 
 void ListingDocumentType::pointer(address_t address, SymbolType type, tag_t tag)

@@ -40,7 +40,7 @@ void ListingDocumentTypeImpl::symbol(address_t address, const String& name, Symb
     this->createSymbol(address, name, type, flags, tag);
 
     this->insert(address, (type == SymbolType::Function) ? ListingItemType::FunctionItem :
-                                                              ListingItemType::SymbolItem);
+                                                           ListingItemType::SymbolItem);
 }
 
 const ListingItem& ListingDocumentTypeImpl::insert(address_t address, ListingItemType type, size_t index)

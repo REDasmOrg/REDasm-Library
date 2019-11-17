@@ -92,10 +92,10 @@ void ListingDocumentType::meta(address_t address, const String& s, const String&
 void ListingDocumentType::type(address_t address, const String& s)
 {
     PIMPL_P(ListingDocumentType);
-    p->m_itemdata[address].type = s;
+    if(p->m_itemdata[address].type == s) return;
 
-    this->empty(address);
-    p->insert(address, ListingItemType::TypeItem);
+    p->m_itemdata[address].type = s;
+    p->replace(address, ListingItemType::TypeItem);
 }
 
 void ListingDocumentType::table(address_t address, size_t count, tag_t tag)
@@ -116,12 +116,6 @@ void ListingDocumentType::tableItem(address_t address, address_t startaddress, u
 void ListingDocumentType::function(address_t address, const String &name, tag_t tag)
 {
     PIMPL_P(ListingDocumentType);
-
-    const Symbol* symbol = p->symbol(address);
-
-    if(symbol && symbol->isLabel()) // Remove overlapping label, if any
-        p->remove(symbol->address, ListingItemType::SymbolItem);
-
     p->symbol(address, name, SymbolType::Function, SymbolFlags::None, tag);
 }
 

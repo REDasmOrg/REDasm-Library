@@ -41,6 +41,7 @@ class ListingDocumentTypeImpl
     public:
         const Symbol* symbol(address_t address) const;
         const Symbol* symbol(const String& name) const;
+        void replace(address_t address, ListingItemType type);
         void remove(address_t address, ListingItemType type);
         void removeAt(size_t idx);
         const FunctionGraph* graph(address_t address) const;

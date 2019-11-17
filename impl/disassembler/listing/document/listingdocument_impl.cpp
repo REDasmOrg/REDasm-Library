@@ -37,6 +37,15 @@ void ListingDocumentTypeImpl::symbol(address_t address, SymbolType type, SymbolF
 void ListingDocumentTypeImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
+
+    const Symbol* symbol = m_symbols.get(address);
+
+    if(symbol)
+    {
+        if(symbol->isFunction()) this->remove(address, ListingItemType::FunctionItem);
+        else this->remove(address, ListingItemType::SymbolItem);
+    }
+
     this->createSymbol(address, name, type, flags, tag);
 
     this->insert(address, (type == SymbolType::Function) ? ListingItemType::FunctionItem :
@@ -48,6 +57,7 @@ const ListingItem& ListingDocumentTypeImpl::insert(address_t address, ListingIte
     switch(type)
     {
         case ListingItemType::FunctionItem:  m_functions.insert(address); this->insert(address, ListingItemType::EmptyItem); break;
+        case ListingItemType::TypeItem: this->insert(address, ListingItemType::EmptyItem); break;
         case ListingItemType::SeparatorItem: m_separators.insert(address); break;
         default: break;
     }
@@ -96,6 +106,12 @@ const Symbol* ListingDocumentTypeImpl::symbol(address_t address) const
 
 const Symbol* ListingDocumentTypeImpl::symbol(const String& name) const { return m_symbols.get(name); }
 
+void ListingDocumentTypeImpl::replace(address_t address, ListingItemType type)
+{
+    this->remove(address, type);
+    this->insert(address, type);
+}
+
 void ListingDocumentTypeImpl::removeAt(size_t idx)
 {
     this->notify(idx, ListingDocumentAction::Removed);
@@ -115,6 +131,10 @@ void ListingDocumentTypeImpl::removeAt(size_t idx)
         case ListingItemType::FunctionItem:
             m_functions.erase(item.address);
             m_symbols.erase(item.address);
+            this->remove(item.address, ListingItemType::EmptyItem);
+            break;
+
+        case ListingItemType::TypeItem:
             this->remove(item.address, ListingItemType::EmptyItem);
             break;
 
@@ -158,13 +178,7 @@ void ListingDocumentTypeImpl::invalidateGraphs()
 void ListingDocumentTypeImpl::remove(address_t address, ListingItemType type)
 {
     size_t idx = m_items.indexOf(address, type);
-
-    if(idx == REDasm::npos)
-    {
-        r_ctx->problem("Cannot delete @ " + String::hex(address) + ", type: " + ListingItem::displayType(type).quoted());
-        return;
-    }
-
+    if(idx == REDasm::npos) return;
     this->removeAt(idx);
 }
 
@@ -188,13 +202,7 @@ bool ListingDocumentTypeImpl::canSymbolizeAddress(address_t address, SymbolType 
     if(!symbol) return true;
 
     if(symbol->type > type) return false;
-
-    if((symbol->type == type))
-    {
-        if(symbol->flags == flags) return false;
-        if(!symbol->isWeak() && (flags & SymbolFlags::Weak)) return false;
-    }
-
+    if((symbol->type == type) && (!symbol->isWeak() && (flags & SymbolFlags::Weak))) return false;
     return true;
 }
 

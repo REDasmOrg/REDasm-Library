@@ -104,6 +104,7 @@ void DisassemblerEngine::algorithmStep()
     if(r_ctx->sync()) this->algorithmJobSync();
     else JobManager::dispatch(this, &DisassemblerEngine::algorithmJob);
 }
+
 void DisassemblerEngine::analyzeStep()
 {
     if(r_ctx->hasFlag(ContextFlags::DisableAnalyzer))
@@ -115,6 +116,7 @@ void DisassemblerEngine::analyzeStep()
     if(r_ctx->sync()) this->analyzeJob();
     else JobManager::execute(this, &DisassemblerEngine::analyzeJob);
 }
+
 void DisassemblerEngine::unexploredStep()
 {
     if(r_ctx->hasFlag(ContextFlags::DisableUnexplored))

@@ -36,20 +36,20 @@ void Algorithm::onDecoded(const CachedInstruction& instruction)
 
         if(!op->isNumeric() || op->displacementIsDynamic())
         {
-            if(!REDasm::typeIs(op, OperandType::Displacement)) // Try static displacement analysis
+            if(!op->isDisplacement()) // Try static displacement analysis
                 continue;
         }
 
-        if(REDasm::typeIs(op, OperandType::Displacement))
+        if(op->isDisplacement())
         {
             if(op->displacementIsDynamic())
                 EXECUTE_STATE(Algorithm::AddressTableState, op->disp.displacement, op->index, instruction);
             else if(op->displacementCanBeAddress())
                 EXECUTE_STATE(Algorithm::MemoryState, op->disp.displacement, op->index, instruction);
         }
-        else if(REDasm::typeIs(op, OperandType::Memory))
+        else if(op->isMemory())
             EXECUTE_STATE(Algorithm::MemoryState, op->u_value, op->index, instruction);
-        else if(REDasm::typeIs(op, OperandType::Immediate))
+        else if(op->isImmediate())
             EXECUTE_STATE(Algorithm::ImmediateState, op->u_value, op->index, instruction);
 
         this->onDecodedOperand(op, instruction);
@@ -82,7 +82,11 @@ void Algorithm::jumpState(const State *state)
     DECODE_STATE(state->address);
 }
 
-void Algorithm::callState(const State *state) { r_doc->function(state->address); }
+void Algorithm::callState(const State *state)
+{
+    r_doc->function(state->address);
+    DECODE_STATE(state->address);
+}
 
 void Algorithm::branchState(const State *state)
 {
@@ -121,6 +125,7 @@ void Algorithm::branchMemoryState(const State *state)
     else r_doc->label(value);
 
     r_disasm->pushReference(value, state->address);
+    DECODE_STATE(value);
 }
 
 void Algorithm::addressTableState(const State *state)

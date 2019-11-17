@@ -116,7 +116,17 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     {
         const Symbol* symbol = r_doc->symbol(bi->start);
         assert(symbol);
-        return symbol->isFunction() || symbol->isWeak(); // It's allowed to disassemble above a Function
+
+        switch(symbol->type) // It's allowed to disassemble above a Function/Label
+        {
+            case SymbolType::Label:
+            case SymbolType::Function:
+                return true;
+
+            default: break;
+        }
+
+        return symbol->isWeak();
     }
 
     return true;

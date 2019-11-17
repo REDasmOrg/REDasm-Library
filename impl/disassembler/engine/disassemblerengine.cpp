@@ -279,7 +279,7 @@ void DisassemblerEngine::searchStringsAt(size_t index) const
     const Segment* segment = r_doc->segmentAt(index);
     if(!segment->is(SegmentType::Data) || segment->is(SegmentType::Bss)) return;
 
-    StringFinder sf(r_ldr->viewSegment(segment));
+    StringFinder sf(segment);
     sf.find();
 }
 

@@ -9,7 +9,7 @@
 
 namespace REDasm {
 
-StringFinder::StringFinder(const BufferView &view): m_view(view) { }
+StringFinder::StringFinder(const Segment* segment): m_segment(segment) { m_view = r_ldr->viewSegment(segment); }
 
 void StringFinder::find()
 {
@@ -49,7 +49,7 @@ bool StringFinder::step(BufferView& view)
     address_location loc = r_ldr->addressof(view.data());
     if(!loc.valid) return false;
 
-    r_ctx->status("Searching strings @ " + String::hex(loc.value));
+    r_ctx->status("Searching strings @ " + m_segment->name() + " in " + String::hex(loc.value));
 
     size_t totalsize = 0;
     SymbolFlags flags = this->categorize(view, &totalsize);

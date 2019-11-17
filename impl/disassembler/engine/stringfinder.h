@@ -20,7 +20,7 @@ struct StringFinderResult
 class StringFinder
 {
     public:
-        StringFinder(const BufferView& view);
+        StringFinder(const Segment* segment);
         void find();
 
     public:
@@ -36,6 +36,7 @@ class StringFinder
         void findSync();
 
     private:
+        const Segment* m_segment;
         BufferView m_view;
 };
 

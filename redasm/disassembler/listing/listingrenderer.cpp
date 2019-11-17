@@ -316,22 +316,26 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
         return;
     }
 
+    bool prologuedone = false;
+
     if(symbol->isPointer())
     {
         p->renderSymbolPrologue(lock, item, symbol, rl);
-        p->renderSymbolPointer(lock, symbol, rl);
-        return;
+        prologuedone = true;
+
+        if(p->renderSymbolPointer(lock, symbol, rl))
+            return;
     }
 
     switch(symbol->type)
     {
         case SymbolType::Import:
-            p->renderSymbolPrologue(lock, item, symbol, rl);
+            if(!prologuedone) p->renderSymbolPrologue(lock, item, symbol, rl);
             rl.push("<").push("import", "label_fg").push(">");
             break;
 
         case SymbolType::String:
-            p->renderSymbolPrologue(lock, item, symbol, rl);
+            if(!prologuedone) p->renderSymbolPrologue(lock, item, symbol, rl);
             if(symbol->isWideString()) rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             break;
@@ -343,7 +347,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
             break;
 
         default:
-            p->renderSymbolPrologue(lock, item, symbol, rl);
+            if(!prologuedone) p->renderSymbolPrologue(lock, item, symbol, rl);
             r_disasm->readAddress(symbol->address, r_asm->addressWidth(), &value); // TODO: Check block size
             rl.push(String::hex(value, r_asm->bits()), lock->segment(value) ? "pointer_fg" : "data_fg");
             break;

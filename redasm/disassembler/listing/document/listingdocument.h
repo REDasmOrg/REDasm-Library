@@ -32,6 +32,7 @@ class ListingDocumentType: public Object
         ListingCursor& cursor();
 
     public: // Insert
+        void symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags = SymbolFlags::None, tag_t tag = 0);
         void entry(address_t address, tag_t tag = 0);
         void empty(address_t address);
         bool separator(address_t address);

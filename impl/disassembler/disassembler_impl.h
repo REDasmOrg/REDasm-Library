@@ -36,7 +36,7 @@ class DisassemblerImpl
         String readWString(const Symbol* symbol, size_t len = REDasm::npos) const;
         String readWString(address_t address, size_t len = REDasm::npos) const;
         String getHexDump(address_t address, const Symbol** ressymbol = nullptr);
-        bool loadSignature(const String& signame);
+        void loadSignature(const String& signame);
         bool busy() const;
         bool needsWeak() const;
         bool readAddress(address_t address, size_t size, u64 *value) const;

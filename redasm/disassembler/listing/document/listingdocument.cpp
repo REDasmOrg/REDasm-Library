@@ -16,6 +16,7 @@ const ListingFunctions *ListingDocumentType::functions() const { PIMPL_P(const L
 const SymbolTable* ListingDocumentType::symbols() const { PIMPL_P(const ListingDocumentType); return p->symbols(); }
 const ListingCursor& ListingDocumentType::cursor() const { PIMPL_P(const ListingDocumentType); return p->cursor(); }
 ListingCursor& ListingDocumentType::cursor() { PIMPL_P(ListingDocumentType); return p->cursor(); }
+void ListingDocumentType::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, type, flags, tag); }
 
 const BlockItem* ListingDocumentType::entryBlock() const
 {

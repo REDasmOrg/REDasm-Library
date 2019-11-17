@@ -48,7 +48,7 @@ BufferView DisassemblerImpl::getFunctionBytes(address_t address)
     if(!startitem.isValid() || !enditem.isValid()) return BufferView();
 
     BufferView v = this->loader()->view(startitem.address);
-    v.resize(enditem.address - startitem.address);
+    v.resize((enditem.address - startitem.address) + 1);
     return v;
 }
 
@@ -162,55 +162,7 @@ String DisassemblerImpl::getHexDump(address_t address, const Symbol **ressymbol)
     return String::hexstring(br.data(), br.size());
 }
 
-bool DisassemblerImpl::loadSignature(const String &signame)
-{
-    String signaturefile = Path::exists(signame) ? signame : r_ctx->signaturedb(signame);
-
-    if(!signaturefile.endsWith(".json"))
-        signaturefile += ".json";
-
-    SignatureDB sigdb;
-
-    if(!sigdb.load(signaturefile))
-    {
-        r_ctx->log("Failed to load " + signaturefile.quoted());
-        return false;
-    }
-
-    if(!sigdb.isCompatible())
-    {
-        r_ctx->log("Signature " + sigdb.name().quoted() + " is not compatible");
-        return false;
-    }
-
-    r_ctx->log("Loading Signature: " + sigdb.name().quoted());
-    size_t c = 0;
-
-    //FIXME: this->document()->symbols()->iterate(SymbolType::FunctionMask, [&](const Symbol* symbol) -> bool {
-    //     if(symbol->isLocked())
-    //         return true;
-
-    //     BufferView view = this->getFunctionBytes(symbol->address);
-    //     offset_location offset = m_loader->offset(symbol->address);
-
-    //     if(view.eob() || !offset.valid)
-    //         return true;
-
-    //     sigdb.search(view, [&](const json& signature) {
-    //         String signame = signature["name"];
-    //         this->document()->lock(symbol->address, signame, signature["symboltype"]);
-    //         c++;
-    //     });
-
-    //     return true;
-    // });
-
-    if(c) r_ctx->log("Found " + String::number(c) + " signature(s)");
-    else r_ctx->log("No signatures found");
-
-    return true;
-}
-
+void DisassemblerImpl::loadSignature(const String &signame) { m_engine->loadSignature(signame); }
 bool DisassemblerImpl::busy() const { return m_engine ? m_engine->busy() : false; }
 bool DisassemblerImpl::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 

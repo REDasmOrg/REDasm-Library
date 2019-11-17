@@ -46,16 +46,6 @@ void AnalyzerImpl::checkFunctions()
     }
 }
 
-void AnalyzerImpl::loadSignatures()
-{
-    for(const String& signame : r_disasm->loader()->signatures())
-        r_disasm->loadSignature(signame);
-}
-
-void AnalyzerImpl::analyzeFast()
-{
-    this->loadSignatures();
-    this->checkFunctions();
-}
+void AnalyzerImpl::analyzeFast() { this->checkFunctions(); }
 
 } // namespace REDasm

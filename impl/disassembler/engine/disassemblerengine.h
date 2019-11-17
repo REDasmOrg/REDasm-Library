@@ -2,10 +2,12 @@
 
 #include <redasm/plugins/assembler/algorithm/algorithm.h>
 #include <redasm/plugins/loader/analyzer.h>
+#include <redasm/plugins/loader/loader.h>
 #include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/support/jobmanager.h>
 #include <redasm/support/safe_ptr.h>
 #include <chrono>
+#include "signaturescanner.h"
 
 namespace REDasm {
 
@@ -13,7 +15,7 @@ namespace DisassemblerEngineSteps {
 
 enum {
     None,
-    Strings, Algorithm, Unexplored, Analyze, Signature, CFG,
+    Strings, Algorithm, Unexplored, Analyze, CFG, Signature,
     Last
 };
 
@@ -31,6 +33,7 @@ class DisassemblerEngine
         void execute();
         void execute(size_t step);
         void enqueue(address_t address);
+        void loadSignature(const String& signame);
         CachedInstruction decodeInstruction(address_t address);
 
     public:
@@ -43,14 +46,15 @@ class DisassemblerEngine
         void algorithmStep();
         void analyzeStep();
         void unexploredStep();
-        void signatureStep();
         void cfgStep();
+        void signatureStep();
 
     private: // Threaded Variants
         void stringsJob(const JobDispatchArgs& args);
         void algorithmJob(const JobDispatchArgs&);
         void analyzeJob();
         void cfgJob(const JobDispatchArgs& args);
+        void signatureJob(const JobDispatchArgs& args);
 
     private: // Sync Variants
         void stringsJobSync();
@@ -59,12 +63,14 @@ class DisassemblerEngine
 
     private:
         void searchStringsAt(size_t index) const;
-        bool calculateCfgThreads(size_t* jobcount, size_t* groupsize) const;
+        bool calculateFunctionsThreads(size_t* jobcount, size_t* groupsize) const;
         void notify(bool busy);
 
     private:
         bool m_busy{false};
         Analyzer* m_analyzer{nullptr};
+        SignatureScanner m_sigscanner;
+        SignatureIdentifiers m_signatures;
         std::chrono::steady_clock::time_point m_starttime;
         size_t m_currentstep{DisassemblerEngineSteps::None};
         safe_ptr<Algorithm> m_algorithm;

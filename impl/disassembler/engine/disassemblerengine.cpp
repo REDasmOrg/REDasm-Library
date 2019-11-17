@@ -51,8 +51,8 @@ void DisassemblerEngine::execute(size_t step)
         case DisassemblerEngineSteps::Algorithm:  this->algorithmStep();  break;
         case DisassemblerEngineSteps::Unexplored: this->unexploredStep(); break;
         case DisassemblerEngineSteps::Analyze:    this->analyzeStep();    break;
-        case DisassemblerEngineSteps::Signature:  this->signatureStep();  break;
         case DisassemblerEngineSteps::CFG:        this->cfgStep();        break;
+        case DisassemblerEngineSteps::Signature:  this->signatureStep();  break;
         default:                                  r_ctx->log("Unknown step: " + String::number(static_cast<size_t>(step))); return;
     }
 }
@@ -101,6 +101,8 @@ void DisassemblerEngine::stringsStep()
 
 void DisassemblerEngine::algorithmStep()
 {
+    m_signatures = r_ldr->signatures(); // Preload signatures
+
     if(r_ctx->sync()) this->algorithmJobSync();
     else JobManager::dispatch(this, &DisassemblerEngine::algorithmJob);
 }
@@ -130,13 +132,21 @@ void DisassemblerEngine::unexploredStep()
 
 void DisassemblerEngine::signatureStep()
 {
-    if(r_ctx->hasFlag(ContextFlags::DisableSignature))
+    if(m_signatures.empty() || r_ctx->hasFlag(ContextFlags::DisableSignature))
     {
         this->execute();
         return;
     }
 
-    this->execute();
+    size_t jobcount = 0, groupsize = 0;
+    this->calculateFunctionsThreads(&jobcount, &groupsize);
+
+    String signame = *m_signatures.begin();
+    m_signatures.erase(signame);
+
+    r_ctx->status("Matching Signature " + signame.quoted());
+    m_sigscanner.load(signame);
+    JobManager::dispatch(jobcount, groupsize, this, &DisassemblerEngine::signatureJob);
 }
 
 void DisassemblerEngine::cfgStep()
@@ -161,7 +171,7 @@ void DisassemblerEngine::cfgStep()
 
     size_t jobcount = 0, groupsize = 0;
 
-    if(!this->calculateCfgThreads(&jobcount, &groupsize))
+    if(!this->calculateFunctionsThreads(&jobcount, &groupsize))
     {
         this->execute();
         return;
@@ -207,6 +217,17 @@ void DisassemblerEngine::analyzeJob()
     }
 
     this->execute();
+}
+
+void DisassemblerEngine::signatureJob(const JobDispatchArgs& args)
+{
+    m_sigscanner.scan(r_doc->functionAt(args.jobIndex));
+    if(!JobManager::last()) return;
+
+    size_t c = m_sigscanner.count();
+    if(c) r_ctx->log("Found " + String::number(c) + " signature(s)");
+    else r_ctx->log("No signatures found");
+    this->execute(DisassemblerEngineSteps::Signature); // Repeat...
 }
 
 void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
@@ -272,6 +293,12 @@ void DisassemblerEngine::cfgJobSync()
     this->execute();
 }
 
+void DisassemblerEngine::loadSignature(const String& signame)
+{
+    m_signatures.insert(signame);
+    this->execute(DisassemblerEngineSteps::Signature);
+}
+
 void DisassemblerEngine::searchStringsAt(size_t index) const
 {
     if(index >= r_doc->segmentsCount()) return;
@@ -283,7 +310,7 @@ void DisassemblerEngine::searchStringsAt(size_t index) const
     sf.find();
 }
 
-bool DisassemblerEngine::calculateCfgThreads(size_t* jobcount, size_t* groupsize) const
+bool DisassemblerEngine::calculateFunctionsThreads(size_t* jobcount, size_t* groupsize) const
 {
     if(!r_doc->functionsCount())
         return false;

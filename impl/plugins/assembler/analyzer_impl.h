@@ -16,7 +16,6 @@ class AnalyzerImpl
         bool findNullSubs(address_t address);
         void findTrampoline(address_t address);
         void checkFunctions();
-        void loadSignatures();
         void analyzeFast();
 
     protected:

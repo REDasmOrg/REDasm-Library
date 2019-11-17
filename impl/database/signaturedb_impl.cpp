@@ -18,7 +18,11 @@ SignatureDBImpl::SignatureDBImpl()
     m_json["signatures"] = json::array();
 }
 
-bool SignatureDBImpl::isCompatible() const { return m_json["assembler"] == r_asm->id(); }
+bool SignatureDBImpl::isCompatible() const
+{
+    auto req = r_asm->request();
+    return (m_json["assembler"] == req.id) || (m_json["assembler"] == req.mode);
+}
 
 String SignatureDBImpl::assembler() const
 {
@@ -93,6 +97,12 @@ void SignatureDBImpl::search(const BufferView &view, const SignatureDB::Signatur
 {
     for(const json& sig : m_json["signatures"])
     {
+        if(sig["name"] == "_strncmp")
+        {
+            int zzz = 0;
+            zzz++;
+        }
+
         if(sig["size"] != view.size())
             continue;
 

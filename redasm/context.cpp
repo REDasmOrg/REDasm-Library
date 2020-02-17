@@ -76,6 +76,8 @@ void Context::problem(const String &s)
     if(p->m_settings.ignoreproblems)
         return;
 
+    std::lock_guard<std::mutex> lock(p->m_mutex);
+
     auto it = p->m_uproblems.find(s);
 
     if(it != p->m_uproblems.end())

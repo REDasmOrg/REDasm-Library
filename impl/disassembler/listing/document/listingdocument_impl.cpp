@@ -42,8 +42,19 @@ void ListingDocumentTypeImpl::symbol(address_t address, const String& name, Symb
 
     if(symbol)
     {
-        if(symbol->isFunction()) this->remove(address, ListingItemType::FunctionItem);
-        else this->remove(address, ListingItemType::SymbolItem);
+        if(symbol->isFunction())
+        {
+            if(type == SymbolType::Function) // Overwrite symbol only
+            {
+                this->createSymbol(address, name, type, flags, tag);
+                this->notify(m_items.functionIndex(address), ListingDocumentAction::Changed);
+                return;
+            }
+
+            this->remove(address, ListingItemType::FunctionItem);
+        }
+        else
+            this->remove(address, ListingItemType::SymbolItem);
     }
 
     this->createSymbol(address, name, type, flags, tag);

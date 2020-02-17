@@ -13,6 +13,7 @@ class ListingDocumentChangedEventArgs: public EventArgs
         ListingDocumentChangedEventArgs(const ListingItem& item, size_t index, ListingDocumentAction action = ListingDocumentAction::Changed);
         bool isInserted() const;
         bool isRemoved() const;
+        bool isChanged() const;
 
     public:
         ListingItem item;

@@ -2,6 +2,7 @@
 #include <impl/support/job/jobmanager_impl.h>
 #include <algorithm>
 #include <thread>
+#include <cmath>
 
 namespace REDasm {
 
@@ -13,11 +14,16 @@ void JobManager::wait() { while(JobManager::busy()) JobManagerImpl::poll(); }
 void JobManager::dispatch(const JobManager::JobDispatchCallback& cb) { JobManager::dispatch(JobManagerImpl::m_numthreads.load(), cb); }
 void JobManager::dispatch(size_t jobcount, const JobManager::JobDispatchCallback& cb) { JobManager::dispatch(jobcount, 1, cb); }
 
+/*
+ * Divide a job onto multiple jobs and execute in parallel.
+ * - jobcount  : How many jobs to generate for this task.
+ * - groupsize : How many jobs to execute per thread. Jobs inside a group execute serially.
+ */
 void JobManager::dispatch(size_t jobcount, size_t groupsize, const JobManager::JobDispatchCallback& cb)
 {
     if(!jobcount || !groupsize) return;
 
-    size_t groupcount = (jobcount + groupsize - 1) / groupsize;
+    size_t groupcount = static_cast<size_t>(std::ceil((jobcount + groupsize - 1) / groupsize));
     JobManagerImpl::m_currentlabel += groupcount;
 
     for(size_t groupindex = 0; groupindex < groupcount; groupindex++)

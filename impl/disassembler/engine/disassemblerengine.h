@@ -63,7 +63,6 @@ class DisassemblerEngine
 
     private:
         void searchStringsAt(size_t index) const;
-        bool calculateFunctionsThreads(size_t* jobcount, size_t* groupsize) const;
         void notify(bool busy);
 
     private:

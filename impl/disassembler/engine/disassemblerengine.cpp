@@ -138,15 +138,12 @@ void DisassemblerEngine::signatureStep()
         return;
     }
 
-    size_t jobcount = 0, groupsize = 0;
-    this->calculateFunctionsThreads(&jobcount, &groupsize);
-
     String signame = *m_signatures.begin();
     m_signatures.erase(signame);
 
     r_ctx->status("Matching Signature " + signame.quoted());
     m_sigscanner.load(signame);
-    JobManager::dispatch(jobcount, groupsize, this, &DisassemblerEngine::signatureJob);
+    JobManager::dispatch(r_doc->functionsCount(), JobManager::concurrency(), this, &DisassemblerEngine::signatureJob);
 }
 
 void DisassemblerEngine::cfgStep()
@@ -169,15 +166,7 @@ void DisassemblerEngine::cfgStep()
         return;
     }
 
-    size_t jobcount = 0, groupsize = 0;
-
-    if(!this->calculateFunctionsThreads(&jobcount, &groupsize))
-    {
-        this->execute();
-        return;
-    }
-
-    JobManager::dispatch(jobcount, groupsize, this, &DisassemblerEngine::cfgJob);
+    JobManager::dispatch(r_doc->functionsCount(), JobManager::concurrency(), this, &DisassemblerEngine::cfgJob);
 }
 
 void DisassemblerEngine::algorithmJob(const JobDispatchArgs&)
@@ -264,6 +253,8 @@ void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)
 
         lock->graph(address, g.release());
     }
+    else
+        r_ctx->problem("Graph creation failed @ " + String::hex(address));
 
     if(JobManager::last())
         this->execute();
@@ -308,16 +299,6 @@ void DisassemblerEngine::searchStringsAt(size_t index) const
 
     StringFinder sf(segment);
     sf.find();
-}
-
-bool DisassemblerEngine::calculateFunctionsThreads(size_t* jobcount, size_t* groupsize) const
-{
-    if(!r_doc->functionsCount())
-        return false;
-
-    *jobcount = std::min(JobManager::concurrency(), r_doc->functionsCount());
-    *groupsize = std::min<size_t>(1, std::ceil(r_doc->functionsCount() / *jobcount));
-    return true;
 }
 
 void DisassemblerEngine::notify(bool busy)

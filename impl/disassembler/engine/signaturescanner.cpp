@@ -6,8 +6,12 @@
 
 namespace REDasm {
 
+const String& SignatureScanner::signatureName() const { return m_signame; }
+
 bool SignatureScanner::load(const String& signame)
 {
+    m_signame = signame;
+
     String signaturefile = Path::exists(signame) ? signame : r_ctx->signaturedb(signame);
     if(!signaturefile.endsWith(".json")) signaturefile += ".json";
 

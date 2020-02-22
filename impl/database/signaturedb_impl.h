@@ -22,7 +22,7 @@ class SignatureDBImpl
         bool load(const String& sigfilename);
         bool save(const String& sigfilename);
         void search(const BufferView& view, const SignatureDB::SignatureFound& cb) const;
-        void searchSignature(const BufferView& view, const json &sig, const SignatureDB::SignatureFound& cb) const;
+        bool searchSignature(const BufferView& view, const json &sig, const SignatureDB::SignatureFound& cb) const;
         bool checkPatterns(const BufferView& view, offset_t offset, const json &sig) const;
 
     private:

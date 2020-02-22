@@ -97,20 +97,12 @@ void SignatureDBImpl::search(const BufferView &view, const SignatureDB::Signatur
 {
     for(const json& sig : m_json["signatures"])
     {
-        if(sig["name"] == "_strncmp")
-        {
-            int zzz = 0;
-            zzz++;
-        }
-
-        if(sig["size"] != view.size())
-            continue;
-
-       this->searchSignature(view, sig, cb);
+        if(sig["size"] != view.size()) continue;
+        if(this->searchSignature(view, sig, cb)) break;
     }
 }
 
-void SignatureDBImpl::searchSignature(const BufferView &view, const json &sig, const SignatureDB::SignatureFound &cb) const
+bool SignatureDBImpl::searchSignature(const BufferView &view, const json &sig, const SignatureDB::SignatureFound &cb) const
 {
     for(offset_t i = 0; i < view.size(); )
     {
@@ -121,8 +113,10 @@ void SignatureDBImpl::searchSignature(const BufferView &view, const json &sig, c
         }
 
         cb(sig);
-        break;
+        return true;
     }
+
+    return false;
 }
 
 bool SignatureDBImpl::checkPatterns(const BufferView &view, offset_t offset, const json &sig) const

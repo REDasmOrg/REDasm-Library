@@ -67,6 +67,7 @@ class DisassemblerEngine
 
     private:
         bool m_busy{false};
+        std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
         Analyzer* m_analyzer{nullptr};
         SignatureScanner m_sigscanner;
         SignatureIdentifiers m_signatures;

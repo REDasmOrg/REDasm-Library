@@ -25,6 +25,8 @@ void DisassemblerEngine::reset() { m_currentstep = DisassemblerEngineSteps::None
 void DisassemblerEngine::execute()
 {
     if(!r_ctx->sync() && !JobManager::initialized()) return;
+    if(m_currentstep == DisassemblerEngineSteps::None) m_sigcount = 0;
+
     size_t newstep = ++m_currentstep;
 
     if(newstep >= DisassemblerEngineSteps::Last)
@@ -134,7 +136,9 @@ void DisassemblerEngine::signatureStep()
 {
     if(m_signatures.empty() || r_ctx->hasFlag(ContextFlags::DisableSignature))
     {
-        this->execute();
+        if(r_ctx->sync() || (!r_ctx->sync() && JobManager::last()))
+            this->execute();
+
         return;
     }
 
@@ -143,6 +147,7 @@ void DisassemblerEngine::signatureStep()
 
     r_ctx->status("Matching Signature " + signame.quoted());
     m_sigscanner.load(signame);
+    m_siganalyzed.store(0);
     JobManager::dispatch(r_doc->functionsCount(), JobManager::concurrency(), this, &DisassemblerEngine::signatureJob);
 }
 
@@ -211,12 +216,16 @@ void DisassemblerEngine::analyzeJob()
 void DisassemblerEngine::signatureJob(const JobDispatchArgs& args)
 {
     m_sigscanner.scan(r_doc->functionAt(args.jobIndex));
-    if(!JobManager::last()) return;
+    m_sigcount.fetch_add(m_sigscanner.count());
+    m_siganalyzed.fetch_add(1);
 
-    size_t c = m_sigscanner.count();
-    if(c) r_ctx->log("Found " + String::number(c) + " signature(s)");
-    else r_ctx->log("No signatures found");
-    this->execute(DisassemblerEngineSteps::Signature); // Repeat...
+    if(m_siganalyzed.load() == r_doc->functionsCount())
+    {
+        if(m_sigcount) r_ctx->log(m_sigscanner.signatureName() + ": Found " + String::number(m_sigcount.load()) + " signature(s)");
+        else r_ctx->log(m_sigscanner.signatureName() + ": No signatures found");
+    }
+    else
+        this->execute(DisassemblerEngineSteps::Signature); // Repeat...
 }
 
 void DisassemblerEngine::cfgJob(const JobDispatchArgs& args)

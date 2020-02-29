@@ -1,6 +1,6 @@
 #pragma once
 
-#include <redasm/types/string.h>
+#include "../types/string.h"
 #include "../pimpl.h"
 
 namespace REDasm {

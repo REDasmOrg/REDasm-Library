@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../pimpl.h"
+#include "../../../../pimpl.h"
 #include "symbol.h"
 
 namespace REDasm {

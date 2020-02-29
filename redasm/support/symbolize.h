@@ -1,7 +1,7 @@
 #pragma once
 
 #include <type_traits>
-#include <redasm/libs/visit_struct/visit_struct.hpp>
+#include "../libs/visit_struct/visit_struct.hpp"
 #include "../disassembler/listing/document/listingdocument.h"
 #include "../disassembler/disassembler.h"
 #include "../context.h"

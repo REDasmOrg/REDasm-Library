@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../types/base.h"
-#include "../../../types/string.h"
+#include "../../../../types/base.h"
+#include "../../../../types/string.h"
 #include "blockitemflags.h"
 
 namespace REDasm {

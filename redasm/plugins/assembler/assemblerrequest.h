@@ -2,7 +2,7 @@
 
 #define ASSEMBLER_REQUEST(id, mode) { (id), (mode) }
 
-#include <redasm/types/string.h>
+#include "../../types/string.h"
 
 namespace REDasm {
 

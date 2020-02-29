@@ -1,8 +1,8 @@
 #pragma once
 
-#include <redasm/types/containers/dictionary.h>
-#include <redasm/types/containers/list.h>
-#include <redasm/types/containers/list.h>
+#include "../types/containers/dictionary.h"
+#include "../types/containers/list.h"
+#include "../types/containers/list.h"
 #include "../types/string.h"
 #include "../macros.h"
 #include "polyline.h"

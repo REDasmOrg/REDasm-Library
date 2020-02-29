@@ -1,8 +1,8 @@
 #pragma once
 
 #include "blockitem.h"
-#include "../../../macros.h"
-#include "../../../pimpl.h"
+#include "../../../../macros.h"
+#include "../../../../pimpl.h"
 
 namespace REDasm {
 

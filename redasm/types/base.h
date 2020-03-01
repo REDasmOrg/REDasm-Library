@@ -28,6 +28,9 @@ typedef uintptr_t tag_t;
 typedef u32 object_id_t;
 typedef object_id_t argument_t;
 
+typedef u32 type_t;
+typedef u32 flag_t;
+
 namespace REDasm {
 
 constexpr size_t npos = static_cast<size_t>(-1);

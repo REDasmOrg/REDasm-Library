@@ -23,10 +23,10 @@ class LIBREDASM_API SymbolTable: public Object
 
    public:
         bool rename(address_t address, const String& newname);
-        void create(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag = 0);
-        void create(address_t address, const String& name, SymbolType type, tag_t tag = 0);
-        void create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag = 0);
-        void create(address_t address, SymbolType type, tag_t tag = 0);
+        void create(address_t address, const String& name, type_t type, flag_t flags, tag_t tag = 0);
+        void create(address_t address, const String& name, type_t type, tag_t tag = 0);
+        void create(address_t address, type_t type, flag_t flags, tag_t tag = 0);
+        void create(address_t address, type_t type, tag_t tag = 0);
 
     public:
         void save(cereal::BinaryOutputArchive &a) const override;
@@ -34,8 +34,8 @@ class LIBREDASM_API SymbolTable: public Object
 
     public:
         static String normalized(const String &s);
-        static String name(address_t address, SymbolType type, SymbolFlags flags = SymbolFlags::None);
-        static String name(address_t address, const String& s, SymbolType type, SymbolFlags flags = SymbolFlags::None);
+        static String name(address_t address, type_t type, flag_t flags = SymbolFlags::None);
+        static String name(address_t address, const String& s, type_t type, flag_t flags = SymbolFlags::None);
         static String name(const String& name, address_t address);
 };
 

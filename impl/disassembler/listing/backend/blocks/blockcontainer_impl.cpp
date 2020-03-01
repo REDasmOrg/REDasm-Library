@@ -15,16 +15,16 @@ BlockItem* BlockContainerImpl::unexplored(address_t start)
 }
 
 BlockItem *BlockContainerImpl::unexplored(address_t start, address_t end) { return this->mark(start, end, BlockItemType::Unexplored, BlockItemFlags::None); }
-BlockItem *BlockContainerImpl::data(address_t start, address_t end, BlockItemFlags flags) { return this->mark(start, end, BlockItemType::Data, flags); }
-BlockItem *BlockContainerImpl::code(address_t start, address_t end, BlockItemFlags flags) { return this->mark(start, end, BlockItemType::Code, flags); }
+BlockItem *BlockContainerImpl::data(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItemType::Data, flags); }
+BlockItem *BlockContainerImpl::code(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItemType::Code, flags); }
 BlockItem *BlockContainerImpl::unexploredSize(address_t start, size_t size) { return this->markSize(start, size, BlockItemType::Unexplored, BlockItemFlags::None); }
-BlockItem *BlockContainerImpl::dataSize(address_t start, size_t size, BlockItemFlags flags) { return this->markSize(start, size, BlockItemType::Data, flags); }
-BlockItem *BlockContainerImpl::codeSize(address_t start, size_t size, BlockItemFlags flags) { return this->markSize(start, size, BlockItemType::Code, flags); }
+BlockItem *BlockContainerImpl::dataSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItemType::Data, flags); }
+BlockItem *BlockContainerImpl::codeSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItemType::Code, flags); }
 const BlockItem *BlockContainerImpl::at(size_t idx) const { return std::addressof(m_blocks.at(idx)); }
 const BlockItem *BlockContainerImpl::find(address_t address) const { auto it = const_cast<BlockContainerImpl*>(this)->findOverlap(address); return (it != m_blocks.end()) ? std::addressof(*it) : nullptr; }
 BlockItem* BlockContainerImpl::at(size_t idx) { return std::addressof(m_blocks.at(idx)); }
-BlockItem* BlockContainerImpl::mark(address_t start, address_t end, BlockItemType type, BlockItemFlags flags) { assert(end >= start); return this->insert(start, end, type, flags); }
-BlockItem* BlockContainerImpl::markSize(address_t start, size_t size, BlockItemType type, BlockItemFlags flags) { return this->mark(start, start + size - 1, type, flags); }
+BlockItem* BlockContainerImpl::mark(address_t start, address_t end, type_t type, flag_t flags) { assert(end >= start); return this->insert(start, end, type, flags); }
+BlockItem* BlockContainerImpl::markSize(address_t start, size_t size, type_t type, flag_t flags) { return this->mark(start, start + size - 1, type, flags); }
 bool BlockContainerImpl::empty() const { return m_blocks.empty(); }
 size_t BlockContainerImpl::size() const { return m_blocks.size(); }
 
@@ -77,7 +77,7 @@ void BlockContainerImpl::remove(address_t start, address_t end)
     }
 }
 
-BlockItem* BlockContainerImpl::insert(address_t start, address_t end, BlockItemType type, BlockItemFlags flags)
+BlockItem* BlockContainerImpl::insert(address_t start, address_t end, type_t type, flag_t flags)
 {
     this->remove(start, end);
     auto it = this->insertionPoint(start);

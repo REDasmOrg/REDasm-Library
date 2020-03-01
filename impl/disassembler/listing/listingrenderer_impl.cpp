@@ -97,8 +97,8 @@ void ListingRendererImpl::highlightWord(RendererLine &rl, const String word)
         rl.format(loc, loc + word.size() - 1, "highlight_fg", "highlight_bg");
 }
 
-bool ListingRendererImpl::hasFlag(ListingRendererFlags flag) const { return m_flags & flag; }
-void ListingRendererImpl::setFlags(ListingRendererFlags flags) { m_flags = flags; }
+bool ListingRendererImpl::hasFlag(flag_t flag) const { return m_flags & flag; }
+void ListingRendererImpl::setFlags(flag_t flags) { m_flags = flags; }
 
 void ListingRendererImpl::renderBlockBytes(const BlockItem* bi, RendererLine& rl) const
 {

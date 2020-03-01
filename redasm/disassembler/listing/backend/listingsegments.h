@@ -24,8 +24,8 @@ class LIBREDASM_API ListingSegments
         const Segment* at(size_t idx) const;
         const Segment* find(const String& name) const;
         const Segment* find(address_t address) const;
-        bool insert(const String& name, offset_t offset, address_t address, u64 size, SegmentType type);
-        bool insert(const String& name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type);
+        bool insert(const String& name, offset_t offset, address_t address, u64 size, type_t type);
+        bool insert(const String& name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type);
         void erase(const Segment* segment);
         void erase(size_t idx);
 };

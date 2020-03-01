@@ -27,7 +27,7 @@ bool Assembler::decodeInstruction(const BufferView &view, Instruction* instructi
 const Symbol* Assembler::findTrampoline(size_t index) const { return nullptr; }
 Algorithm *Assembler::doCreateAlgorithm() const { return new ControlFlowAlgorithm(); }
 Printer *Assembler::doCreatePrinter() const { return new Printer(); }
-void Assembler::classifyInstruction(instruction_id_t id, InstructionType type, InstructionFlags flags) { PIMPL_P(Assembler); p->m_classifiedinstruction[id] = { type, flags }; }
+void Assembler::classifyInstruction(instruction_id_t id, type_t type, flag_t flags) { PIMPL_P(Assembler); p->m_classifiedinstruction[id] = { type, flags }; }
 void Assembler::registerInstruction(instruction_id_t id, const InstructionCallback& cb) { PIMPL_P(Assembler); p->m_dispatcher[id] = cb; }
 void Assembler::onDecoded(Instruction *instruction) { }
 size_t Assembler::addressWidth() const { return this->bits() / CHAR_BIT; }

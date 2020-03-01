@@ -38,9 +38,9 @@ const Segment *ListingSegments::find(const String &name) const
 }
 
 const Segment *ListingSegments::find(address_t address) const { size_t idx = this->indexOf(address); return idx != REDasm::npos ? this->at(idx) : nullptr; }
-bool ListingSegments::insert(const String &name, offset_t offset, address_t address, u64 size, SegmentType type) { return this->insert(name, offset, address, size, size, type); }
+bool ListingSegments::insert(const String &name, offset_t offset, address_t address, u64 size, type_t type) { return this->insert(name, offset, address, size, size, type); }
 
-bool ListingSegments::insert(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type)
+bool ListingSegments::insert(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type)
 {
     if(!psize && !vsize)
     {

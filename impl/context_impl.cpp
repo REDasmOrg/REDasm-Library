@@ -25,14 +25,14 @@ void ContextImpl::checkSettings()
     if(!m_settings.ui) m_settings.ui = std::make_shared<AbstractUI>();
 }
 
-void ContextImpl::flag(ContextFlags flag, bool set)
+void ContextImpl::flag(flag_t flag, bool set)
 {
     if(set) m_flags |= flag;
     else m_flags &= ~flag;
 }
 
-void ContextImpl::flags(ContextFlags flags) { m_flags = flags; }
-bool ContextImpl::hasFlag(ContextFlags flag) const { return m_flags & flag; }
+void ContextImpl::flags(flag_t flags) { m_flags = flags; }
+bool ContextImpl::hasFlag(flag_t flag) const { return m_flags & flag; }
 
 String ContextImpl::capstoneVersion() const
 {

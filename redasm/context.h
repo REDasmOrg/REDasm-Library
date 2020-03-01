@@ -16,17 +16,6 @@ typedef std::function<void(size_t)> Context_ProgressCallback;
 typedef std::deque<String> ProblemList;
 typedef std::list<String> PluginPaths;
 
-enum class ContextFlags
-{
-    None              = (1 << 0),
-    DisableUnexplored = (1 << 1),
-    DisableAnalyzer   = (1 << 2),
-    DisableSignature  = (1 << 3),
-    DisableCFG        = (1 << 4),
-};
-
-ENUM_FLAGS_OPERATORS(ContextFlags)
-
 struct LIBREDASM_API ContextSettings
 {
     ContextSettings(): ignoreproblems(false) { }
@@ -46,6 +35,16 @@ class LIBREDASM_API Context
 {
     PIMPL_DECLARE_P(Context)
     PIMPL_DECLARE_PRIVATE(Context)
+
+    public:
+        enum Flags: flag_t
+        {
+            None              = (1 << 0),
+            DisableUnexplored = (1 << 1),
+            DisableAnalyzer   = (1 << 2),
+            DisableSignature  = (1 << 3),
+            DisableCFG        = (1 << 4),
+        };
 
     private:
         Context();
@@ -73,9 +72,9 @@ class LIBREDASM_API Context
         void statusProgress(const String& s, size_t progress);
         void statusAddress(const String& s, address_t address);
         bool sync();
-        bool hasFlag(ContextFlags flag) const;
-        void flag(ContextFlags flag, bool set = true);
-        void flags(ContextFlags flags);
+        bool hasFlag(flag_t flag) const;
+        void flag(flag_t flag, bool set = true);
+        void flags(flag_t flags);
         PluginManager* pluginManager() const;
         AbstractUI* ui() const;
         const PluginPaths& pluginPaths() const;

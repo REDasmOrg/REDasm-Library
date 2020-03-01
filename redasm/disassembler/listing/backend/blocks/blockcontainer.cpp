@@ -9,11 +9,11 @@ const BlockItem* BlockContainer::first() const { PIMPL_P(const BlockContainer); 
 const BlockItem* BlockContainer::last() const { PIMPL_P(const BlockContainer);  return !p->m_blocks.empty() ? &p->m_blocks.back() : nullptr; }
 BlockItem *BlockContainer::unexplored(address_t start) { PIMPL_P(BlockContainer); return p->unexplored(start); }
 BlockItem *BlockContainer::unexplored(address_t start, address_t end) { PIMPL_P(BlockContainer); return p->unexplored(start, end); }
-BlockItem *BlockContainer::data(address_t start, address_t end, BlockItemFlags flags) { PIMPL_P(BlockContainer); return p->data(start, end, flags); }
-BlockItem *BlockContainer::code(address_t start, address_t end, BlockItemFlags flags) { PIMPL_P(BlockContainer); return p->code(start, end, flags); }
+BlockItem *BlockContainer::data(address_t start, address_t end, flag_t flags) { PIMPL_P(BlockContainer); return p->data(start, end, flags); }
+BlockItem *BlockContainer::code(address_t start, address_t end, flag_t flags) { PIMPL_P(BlockContainer); return p->code(start, end, flags); }
 BlockItem *BlockContainer::unexploredSize(address_t start, size_t size) { PIMPL_P(BlockContainer); return p->unexploredSize(start, size); }
-BlockItem *BlockContainer::dataSize(address_t start, size_t size, BlockItemFlags flags) { PIMPL_P(BlockContainer); return p->dataSize(start, size, flags); }
-BlockItem *BlockContainer::codeSize(address_t start, size_t size, BlockItemFlags flags) { PIMPL_P(BlockContainer); return p->codeSize(start, size, flags); }
+BlockItem *BlockContainer::dataSize(address_t start, size_t size, flag_t flags) { PIMPL_P(BlockContainer); return p->dataSize(start, size, flags); }
+BlockItem *BlockContainer::codeSize(address_t start, size_t size, flag_t flags) { PIMPL_P(BlockContainer); return p->codeSize(start, size, flags); }
 bool BlockContainer::empty() const { PIMPL_P(const BlockContainer); return p->empty(); }
 size_t BlockContainer::size() const { PIMPL_P(const BlockContainer); return p->size(); }
 size_t BlockContainer::indexOf(const BlockItem* bi) const { PIMPL_P(const BlockContainer); return p->indexOf(bi); }

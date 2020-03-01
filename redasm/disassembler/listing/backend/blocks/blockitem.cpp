@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-BlockItem::BlockItem(): Object(), start(REDasm::npos), end(start), type(BlockItemType::Unexplored), flags(BlockItemFlags::None) { }
+BlockItem::BlockItem(): Object(), start(REDasm::npos), end(start) { }
 size_t BlockItem::size() const { return (this->end - this->start) + 1; }
 String BlockItem::displayRange() const { return "[" + String::hex(start) + ", " + String::hex(end) + "]"; }
 
@@ -19,8 +19,8 @@ String BlockItem::displayType() const
 }
 
 bool BlockItem::contains(address_t address) const { return (address >= this->start) && (address <= this->end); }
-bool BlockItem::typeIs(BlockItemType type) const {  return this->type == type; }
-bool BlockItem::hasFlag(REDasm::BlockItemFlags flags) const { return this->flags & flags; }
+bool BlockItem::typeIs(type_t type) const {  return this->type == type; }
+bool BlockItem::hasFlag(flag_t flags) const { return this->flags & flags; }
 bool BlockItem::empty() const { return (this->start > this->end) || (this->start == REDasm::npos) || (this->end == REDasm::npos); }
 
 } // namespace REDasm

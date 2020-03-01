@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-Segment::Segment(const String &name, offset_t off, address_t addr, u64 psize, u64 vsize, SegmentType t)
+Segment::Segment(const String &name, offset_t off, address_t addr, u64 psize, u64 vsize, type_t t)
 {
     name.copy(this->name_, DEFAULT_NAME_SIZE);
     this->type = t;
@@ -18,7 +18,7 @@ u64 Segment::rawSize() const { return (offset > endoffset) ? 0 : (endoffset - of
 bool Segment::empty() const { return !this->size(); }
 bool Segment::contains(address_t addr) const { return (addr >= this->address) && (addr < this->endaddress); }
 bool Segment::containsOffset(offset_t off) const { return !this->is(SegmentType::Bss) && ((off >= this->offset) && (off < this->endoffset)); }
-bool Segment::is(SegmentType t) const { return type & t; }
+bool Segment::is(type_t t) const { return type & t; }
 bool Segment::isPureCode() const { return type == SegmentType::Code; }
 
 } // namespace REDasm

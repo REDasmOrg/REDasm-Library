@@ -63,7 +63,7 @@ Instruction* Instruction::disp(register_id_t base, register_id_t index, s64 scal
 
 Instruction* Instruction::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { return this->local(locindex, base, index, displacement, OperandFlags::Argument); }
 
-Instruction* Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags opflags)
+Instruction* Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, flag_t opflags)
 {
     Operand op;
     op.index = this->operandscount;
@@ -94,7 +94,7 @@ Instruction* Instruction::tgt(address_t addr)
     return this->target(addr);
 }
 
-Instruction* Instruction::op(OperandType optype, s64 val, tag_t t)
+Instruction* Instruction::op(type_t optype, s64 val, tag_t t)
 {
     Operand op{ };
     op.type = optype;
@@ -104,7 +104,7 @@ Instruction* Instruction::op(OperandType optype, s64 val, tag_t t)
     return this->op(op);
 }
 
-Instruction* Instruction::op(OperandType optype, u64 val, tag_t t)
+Instruction* Instruction::op(type_t optype, u64 val, tag_t t)
 {
     Operand op{ };
     op.type = optype;
@@ -163,7 +163,7 @@ void Instruction::reset()
 
 bool Instruction::isInvalid() const { return type == InstructionType::Invalid; }
 bool Instruction::is(const String& mnemonic) const { return this->mnemonic() == mnemonic; }
-bool Instruction::typeIs(InstructionType t) const { return REDasm::typeIs(this, t); }
+bool Instruction::typeIs(type_t t) const { return REDasm::typeIs(this, t); }
 bool Instruction::isStop() const { return REDasm::typeIs(this, InstructionType::Stop); }
 bool Instruction::isCall() const { return REDasm::typeIs(this, InstructionType::Call); }
 bool Instruction::isJump() const { return REDasm::typeIs(this, InstructionType::Jump); }

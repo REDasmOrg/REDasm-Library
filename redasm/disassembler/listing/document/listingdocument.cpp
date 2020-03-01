@@ -16,7 +16,7 @@ const ListingFunctions *ListingDocumentType::functions() const { PIMPL_P(const L
 const SymbolTable* ListingDocumentType::symbols() const { PIMPL_P(const ListingDocumentType); return p->symbols(); }
 const ListingCursor& ListingDocumentType::cursor() const { PIMPL_P(const ListingDocumentType); return p->cursor(); }
 ListingCursor& ListingDocumentType::cursor() { PIMPL_P(ListingDocumentType); return p->cursor(); }
-void ListingDocumentType::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, type, flags, tag); }
+void ListingDocumentType::symbol(address_t address, const String& name, type_t type, flag_t flags, tag_t tag) { PIMPL_P(ListingDocumentType); p->symbol(address, name, type, flags, tag); }
 
 const BlockItem* ListingDocumentType::entryBlock() const
 {
@@ -59,9 +59,9 @@ bool ListingDocumentType::separator(address_t address)
     return true;
 }
 
-void ListingDocumentType::segment(const String &name, offset_t offset, address_t address, u64 size, SegmentType type) { this->segment(name, offset, address, size, size, type);  }
+void ListingDocumentType::segment(const String &name, offset_t offset, address_t address, u64 size, type_t type) { this->segment(name, offset, address, size, size, type);  }
 
-void ListingDocumentType::segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, SegmentType type)
+void ListingDocumentType::segment(const String &name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type)
 {
     PIMPL_P(ListingDocumentType);
 
@@ -122,13 +122,13 @@ void ListingDocumentType::function(address_t address, const String &name, tag_t 
 
 void ListingDocumentType::function(address_t address, tag_t tag) { this->function(address, SymbolTable::name(address, SymbolType::Function), tag); }
 
-void ListingDocumentType::pointer(address_t address, SymbolType type, tag_t tag)
+void ListingDocumentType::pointer(address_t address, type_t type, tag_t tag)
 {
     PIMPL_P(ListingDocumentType);
     p->block(address, r_asm->addressWidth(), type, SymbolFlags::Pointer, tag);
 }
 
-void ListingDocumentType::pointer(address_t address, const String& name, SymbolType type, tag_t tag)
+void ListingDocumentType::pointer(address_t address, const String& name, type_t type, tag_t tag)
 {
     PIMPL_P(ListingDocumentType);
     p->block(address, r_asm->addressWidth(), name, type, SymbolFlags::Pointer, tag);

@@ -41,8 +41,8 @@ class LIBREDASM_API Assembler : public Plugin
         virtual const Symbol* findTrampoline(size_t index) const;
 
     protected:
-        void classifyInstruction(instruction_id_t id, InstructionType type, InstructionFlags flags = InstructionFlags::None);
-        void setInstructionFlags(instruction_id_t id, InstructionFlags flags);
+        void classifyInstruction(instruction_id_t id, type_t type, flag_t flags = InstructionFlags::None);
+        void setInstructionFlags(instruction_id_t id, flag_t flags);
         void registerInstruction(instruction_id_t id, const InstructionCallback &cb);
         virtual Algorithm* doCreateAlgorithm() const;
         virtual Printer* doCreatePrinter() const;

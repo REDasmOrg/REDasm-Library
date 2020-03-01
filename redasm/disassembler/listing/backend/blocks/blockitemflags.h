@@ -1,16 +1,15 @@
 #pragma once
 
-#include "../../../../macros.h"
+#include "../../../types/base.h"
+#include "../../../macros.h"
 
 namespace REDasm {
 
-enum class BlockItemType {
-    Unexplored,
-    Data,
-    Code,
-};
+DECLARE_TYPES(BlockItem, Unexplored, Data, Code)
 
-enum class BlockItemFlags {
+namespace BlockItemFlags {
+
+enum: flag_t {
     None        = 0,
     Function    = (1 << 0),
     Label       = (1 << 1),
@@ -22,6 +21,6 @@ enum class BlockItemFlags {
     Pointer     = (1 << 7),
 };
 
-ENUM_FLAGS_OPERATORS(BlockItemFlags);
+} // namespace BlockItemFlags
 
 } // namespace REDasm

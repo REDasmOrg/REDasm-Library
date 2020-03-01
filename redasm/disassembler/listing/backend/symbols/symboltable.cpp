@@ -11,7 +11,7 @@ namespace REDasm {
 SymbolTable::SymbolTable(): m_pimpl_p(new SymbolTableImpl()) { }
 size_t SymbolTable::size() const { PIMPL_P(const SymbolTable); return p->m_byaddress.size(); }
 
-void SymbolTable::create(address_t address, const String &name, SymbolType type, SymbolFlags flags, tag_t tag)
+void SymbolTable::create(address_t address, const String &name, type_t type, flag_t flags, tag_t tag)
 {
     PIMPL_P(SymbolTable);
     const Symbol* symbol = this->get(address);
@@ -21,9 +21,9 @@ void SymbolTable::create(address_t address, const String &name, SymbolType type,
     p->m_byname[name] = address;
 }
 
-void SymbolTable::create(address_t address, const String& name, SymbolType type, tag_t tag) { this->create(address, name, type, SymbolFlags::None, tag); }
-void SymbolTable::create(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
-void SymbolTable::create(address_t address, SymbolType type, tag_t tag) { this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, const String& name, type_t type, tag_t tag) { this->create(address, name, type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, type_t type, flag_t flags, tag_t tag) { this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
+void SymbolTable::create(address_t address, type_t type, tag_t tag) { this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
 
 Symbol* SymbolTable::get(const String &name) const
 {
@@ -76,14 +76,14 @@ String SymbolTable::normalized(const String& s)
     return String(s).replace(' ', '_');
 }
 
-String SymbolTable::name(address_t address, SymbolType type, SymbolFlags flags)
+String SymbolTable::name(address_t address, type_t type, flag_t flags)
 {
     std::stringstream ss;
     ss << SymbolTableImpl::prefix(type, flags).c_str() << "_" << std::hex << address;
     return ss.str().c_str();
 }
 
-String SymbolTable::name(address_t address, const String &s, SymbolType type, SymbolFlags flags)
+String SymbolTable::name(address_t address, const String &s, type_t type, flag_t flags)
 {
     if(s.empty())
         return SymbolTable::name(address, type, flags);

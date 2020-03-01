@@ -2,7 +2,7 @@
 
 namespace REDasm {
 
-Symbol::Symbol(SymbolType type, SymbolFlags flags, tag_t tag, address_t address, const String& name): type(type), flags(flags), tag(tag), address(address), name(name) { }
+Symbol::Symbol(type_t type, flag_t flags, tag_t tag, address_t address, const String& name): type(type), flags(flags), tag(tag), address(address), name(name) { }
 bool Symbol::isFunction() const { return REDasm::typeIs(this, SymbolType::Function); }
 bool Symbol::isImport() const { return REDasm::typeIs(this, SymbolType::Import); }
 bool Symbol::isLabel() const { return REDasm::typeIs(this, SymbolType::Label); }

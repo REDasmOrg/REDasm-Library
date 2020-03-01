@@ -52,7 +52,7 @@ bool StringFinder::step(BufferView& view)
     r_ctx->status("Searching strings @ " + m_segment->name() + " in " + String::hex(loc.value));
 
     size_t totalsize = 0;
-    SymbolFlags flags = this->categorize(view, &totalsize);
+    flag_t flags = this->categorize(view, &totalsize);
 
     if(flags & SymbolFlags::AsciiString) r_doc->asciiString(loc, totalsize);
     else if(flags & SymbolFlags::WideString) r_doc->wideString(loc, totalsize);
@@ -62,7 +62,7 @@ bool StringFinder::step(BufferView& view)
     return true;
 }
 
-SymbolFlags StringFinder::categorize(const BufferView& view, size_t* totalsize)
+flag_t StringFinder::categorize(const BufferView& view, size_t* totalsize)
 {
     if(view.size() < (sizeof(char) * 2)) return SymbolFlags::None;
 

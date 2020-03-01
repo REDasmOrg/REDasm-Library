@@ -4,39 +4,31 @@
 
 namespace REDasm {
 
-enum class SymbolType: size_t {
-    None = 0,
-    Data,
-    String,
-    Label,
-    Function,
-    Import,
-};
+DECLARE_TYPES(Symbol, None, Data, String, Label, Function, Import)
 
-enum class SymbolFlags: size_t
-{
-    None         = 0,
-    Weak         = (1 << 0),
-    Export       = (1 << 1),
-    EntryPoint   = (1 << 2),
-    AsciiString  = (1 << 3),
-    WideString   = (1 << 4),
-    Pointer      = (1 << 5),
-    TableItem    = (1 << 6),
+namespace SymbolFlags {
+enum: flag_t {
+     None         = 0,
+     Weak         = (1 << 0),
+     Export       = (1 << 1),
+     EntryPoint   = (1 << 2),
+     AsciiString  = (1 << 3),
+     WideString   = (1 << 4),
+     Pointer      = (1 << 5),
+     TableItem    = (1 << 6),
 };
-
-ENUM_FLAGS_OPERATORS(SymbolFlags)
+} // namespace SymbolFlags
 
 struct Symbol
 {
-    SymbolType type;
-    SymbolFlags flags;
+    type_t type;
+    flag_t flags;
     tag_t tag{0};
     address_t address;
     String name;
 
     Symbol() = default;
-    Symbol(SymbolType type, SymbolFlags flags, tag_t tag, address_t address, const String& name);
+    Symbol(type_t type, flag_t flags, tag_t tag, address_t address, const String& name);
     bool isFunction() const;
     bool isImport() const;
     bool isExport() const;

@@ -20,7 +20,7 @@ class AssemblerImpl: public PluginImpl
         const AssemblerRequest &request() const;
 
     private:
-        std::unordered_map<instruction_id_t, std::pair<InstructionType, InstructionFlags>> m_classifiedinstruction;
+        std::unordered_map<instruction_id_t, std::pair<type_t, flag_t>> m_classifiedinstruction;
         Dispatcher<instruction_id_t, Instruction*> m_dispatcher;
         AssemblerRequest m_request;
 };

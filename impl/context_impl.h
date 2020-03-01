@@ -22,9 +22,9 @@ class ContextImpl
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
         void checkSettings();
-        void flag(ContextFlags flag, bool set);
-        void flags(ContextFlags flags);
-        bool hasFlag(ContextFlags flag) const;
+        void flag(flag_t flag, bool set);
+        void flags(flag_t flags);
+        bool hasFlag(flag_t flag) const;
         String capstoneVersion() const;
 
     private:
@@ -36,7 +36,7 @@ class ContextImpl
 
     private:
         Disassembler* m_disassembler{nullptr};
-        ContextFlags m_flags{ContextFlags::None};
+        flag_t m_flags{Context::None};
 
     private:
         static std::mutex m_mutex;

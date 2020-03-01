@@ -32,9 +32,9 @@ ListingItem ListingDocumentTypeImpl::functionStart(address_t address) const
     return q->itemFunction(location);
 }
 
-void ListingDocumentTypeImpl::symbol(address_t address, SymbolType type, SymbolFlags flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }
+void ListingDocumentTypeImpl::symbol(address_t address, type_t type, flag_t flags, tag_t tag) { this->symbol(address, SymbolTable::name(address, type, flags), type, flags, tag); }
 
-void ListingDocumentTypeImpl::symbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeImpl::symbol(address_t address, const String& name, type_t type, flag_t flags, tag_t tag)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
 
@@ -84,9 +84,9 @@ void ListingDocumentTypeImpl::notify(size_t idx, ListingDocumentAction action)
     EventManager::trigger(StandardEvents::Document_Changed, ListingDocumentChangedEventArgs(m_items.at(idx), idx, action));
 }
 
-void ListingDocumentTypeImpl::block(address_t address, size_t size, SymbolType type, SymbolFlags flags, tag_t tag) { this->block(address, size, String(), type, flags, tag); }
+void ListingDocumentTypeImpl::block(address_t address, size_t size, type_t type, flag_t flags, tag_t tag) { this->block(address, size, String(), type, flags, tag); }
 
-void ListingDocumentTypeImpl::block(address_t address, size_t size, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeImpl::block(address_t address, size_t size, const String& name, type_t type, flag_t flags, tag_t tag)
 {
     if(!this->canSymbolizeAddress(address, type, flags)) return;
 
@@ -193,7 +193,7 @@ void ListingDocumentTypeImpl::remove(address_t address, ListingItemType type)
     this->removeAt(idx);
 }
 
-void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name, SymbolType type, SymbolFlags flags, tag_t tag)
+void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name, type_t type, flag_t flags, tag_t tag)
 {
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
 
@@ -201,7 +201,7 @@ void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name
     else m_symbols.create(address, name, type, flags, tag);
 }
 
-bool ListingDocumentTypeImpl::canSymbolizeAddress(address_t address, SymbolType type, SymbolFlags flags) const
+bool ListingDocumentTypeImpl::canSymbolizeAddress(address_t address, type_t type, flag_t flags) const
 {
     if(!m_segments.find(address)) return false; // Ignore out of segment addresses
     if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;

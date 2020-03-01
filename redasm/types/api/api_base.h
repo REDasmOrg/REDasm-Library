@@ -11,9 +11,6 @@
 
 namespace REDasm {
 
-typedef u32 type_t;
-typedef u32 flag_t;
-
 template<typename T, typename V> inline bool typeIs(const T* t, V v) { return t->type == v; }
 template<typename T, typename V> inline bool hasFlag(const T* t, V v) { return t->flags & v; }
 template<typename T> inline bool isInvalid(T t) { static_assert(std::is_integral<T>::value, ""); return t == REDasm::npos; }

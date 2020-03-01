@@ -7,25 +7,18 @@
 
 namespace REDasm {
 
-enum class InstructionType: type_t {
-    None = 0,
-    Invalid, Stop, Nop,
-    Jump, Call,
-    Add, Sub, Mul, Div, Mod, Lsh, Rsh,
-    And, Or, Xor, Not,
-    Push, Pop,
-    Compare, Load, Store,
-};
+DECLARE_TYPES(Instruction, None, Invalid, Stop, Nop, Jump, Call, Add, Sub, Mul, Div,
+              Mod, Lsh, Rsh, And, Or, Xor, Not, Push, Pop, Compare,
+              Load, Store)
 
-enum class InstructionFlags: flag_t
-{
+namespace InstructionFlags {
+enum: flag_t {
     None        = (1 << 0),
     Weak        = (1 << 1),
     Conditional = (1 << 2),
     Privileged  = (1 << 3),
 };
-
-ENUM_FLAGS_OPERATORS(InstructionFlags)
+}
 
 struct Instruction
 {
@@ -38,8 +31,8 @@ struct Instruction
 
     Callback_UIntPtr free{nullptr}; // Implementation Specific
 
-    InstructionType type{InstructionType::None};
-    InstructionFlags flags{InstructionFlags::None};
+    type_t type{InstructionType::None};
+    flag_t flags{InstructionFlags::None};
     address_t address;
     u32 size;
     char mnemonic_[DEFAULT_NAME_SIZE];
@@ -74,11 +67,11 @@ struct Instruction
     Instruction* disp(register_id_t base, register_id_t index, s64 displacement);
     Instruction* disp(register_id_t base, register_id_t index, s64 scale, s64 displacement);
     Instruction* arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement);
-    Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, OperandFlags opflags = OperandFlags::None);
+    Instruction* local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, flag_t opflags = OperandFlags::None);
     Instruction* reg(register_id_t r, tag_t tag = 0);
     Instruction* tgt(address_t addr);
-    Instruction* op(OperandType optype, s64 val, tag_t t = 0);
-    Instruction* op(OperandType optype, u64 val, tag_t t = 0);
+    Instruction* op(type_t optype, s64 val, tag_t t = 0);
+    Instruction* op(type_t optype, u64 val, tag_t t = 0);
     Instruction* op(const Operand& op);
 
     Instruction* target(address_t addr);
@@ -86,7 +79,7 @@ struct Instruction
 
     bool isInvalid() const;
     bool is(const String& mnemonic) const;
-    bool typeIs(InstructionType t) const;
+    bool typeIs(type_t t) const;
     bool isStop() const;
     bool isCall() const;
     bool isJump() const;

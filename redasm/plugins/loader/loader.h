@@ -13,7 +13,8 @@ class LoaderImpl;
 class Disassembler;
 class Analyzer;
 
-enum class LoaderFlags: u32
+namespace LoaderFlags {
+enum: flag_t
 {
     None               = 0,
     CustomAssembler    = (1 << 0),
@@ -22,8 +23,7 @@ enum class LoaderFlags: u32
 
     Binary             = 0xFFFFFFFF
 };
-
-ENUM_FLAGS_OPERATORS(LoaderFlags)
+}
 
 class LIBREDASM_API LoadRequest
 {
@@ -68,7 +68,7 @@ class LIBREDASM_API Loader: public Plugin
         template<typename T> const T* pointer() const { return reinterpret_cast<T*>(this->buffer()->data()); }
 
     public:
-        virtual LoaderFlags flags() const;
+        virtual flag_t flags() const;
         virtual offset_location offset(address_t address) const;
         virtual address_location address(offset_t offset) const;
         virtual address_location reladdress(address_t absaddress) const;

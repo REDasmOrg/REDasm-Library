@@ -29,7 +29,7 @@ class StringFinder
         static bool toAscii(char16_t inch, char* outch);
 
     private:
-        SymbolFlags categorize(const BufferView& view, size_t* totalsize);
+        flag_t categorize(const BufferView& view, size_t* totalsize);
         bool validateString(const char* s, size_t size);
         bool step(BufferView& view);
         void findAsync();

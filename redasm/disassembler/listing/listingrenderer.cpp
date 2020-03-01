@@ -240,8 +240,8 @@ String ListingRenderer::getSelectedText()
     return copied;
 }
 
-bool ListingRenderer::hasFlag(ListingRendererFlags flag) const { PIMPL_P(const ListingRenderer); return p->hasFlag(flag); }
-void ListingRenderer::setFlags(ListingRendererFlags flags) { PIMPL_P(ListingRenderer); p->setFlags(flags); }
+bool ListingRenderer::hasFlag(flag_t flag) const { PIMPL_P(const ListingRenderer); return p->hasFlag(flag); }
+void ListingRenderer::setFlags(flag_t flags) { PIMPL_P(ListingRenderer); p->setFlags(flags); }
 
 bool ListingRenderer::getRendererLine(size_t line, RendererLine &rl) const
 {

@@ -52,8 +52,9 @@ struct RendererLine
     RendererLine& push(const String& text, const String& fgstyle = String(), const String& bgstyle = String());
 };
 
-enum class ListingRendererFlags
-{
+namespace ListingRendererFlags {
+
+enum: flag_t {
     Normal          = 0,
     HideSegment     = (1 << 0),
     HideAddress     = (1 << 1),
@@ -62,7 +63,7 @@ enum class ListingRendererFlags
     HideSegmentAndAddress = HideSegment | HideAddress
 };
 
-ENUM_FLAGS_OPERATORS(ListingRendererFlags)
+}
 
 class ListingRendererImpl;
 
@@ -79,7 +80,7 @@ class ListingRenderer
         virtual ~ListingRenderer() = default;
         virtual void render(size_t start, size_t count, void* userdata = nullptr);
         const REDasm::Symbol* symbolUnderCursor();
-        void setFlags(ListingRendererFlags flags);
+        void setFlags(flag_t flags);
         String wordFromPosition(const ListingCursor::Position& pos, ListingRenderer::Range *wordpos = nullptr);
         String getCurrentWord();
         size_t getLastColumn(size_t line);
@@ -88,7 +89,7 @@ class ListingRenderer
 
     protected:
         virtual void renderLine(const RendererLine& rl) = 0;
-        bool hasFlag(ListingRendererFlags flag) const;
+        bool hasFlag(flag_t flag) const;
         bool getRendererLine(size_t line, RendererLine& rl) const;
         void renderSegment(const document_s_lock& lock, const ListingItem& item, RendererLine& rl) const;
         void renderFunction(const document_s_lock &lock, const ListingItem& item, RendererLine &rl) const;

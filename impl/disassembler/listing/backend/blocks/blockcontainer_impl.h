@@ -20,11 +20,11 @@ class BlockContainerImpl
         void unexplored(const BlockItem* blockitem);
         BlockItem* unexplored(address_t start);
         BlockItem* unexplored(address_t start, address_t end);
-        BlockItem* data(address_t start, address_t end, BlockItemFlags flags);
-        BlockItem* code(address_t start, address_t end, BlockItemFlags flags);
+        BlockItem* data(address_t start, address_t end, flag_t flags);
+        BlockItem* code(address_t start, address_t end, flag_t flags);
         BlockItem* unexploredSize(address_t start, size_t size);
-        BlockItem* dataSize(address_t start, size_t size, BlockItemFlags flags);
-        BlockItem* codeSize(address_t start, size_t size, BlockItemFlags flags);
+        BlockItem* dataSize(address_t start, size_t size, flag_t flags);
+        BlockItem* codeSize(address_t start, size_t size, flag_t flags);
 
     public:
         bool empty() const;
@@ -35,10 +35,10 @@ class BlockContainerImpl
         BlockItem* at(size_t idx);
 
     private:
-        BlockItem *mark(address_t start, address_t end, BlockItemType type, BlockItemFlags flags);
-        BlockItem *markSize(address_t start, size_t size, BlockItemType type, BlockItemFlags flags);
+        BlockItem *mark(address_t start, address_t end, type_t type, flag_t flags);
+        BlockItem *markSize(address_t start, size_t size, type_t type, flag_t flags);
         void remove(address_t start, address_t end);
-        BlockItem *insert(address_t start, address_t end, BlockItemType type, BlockItemFlags flags);
+        BlockItem *insert(address_t start, address_t end, type_t type, flag_t flags);
         Container::iterator findOverlap(address_t address);
         Container::iterator insertionPoint(address_t address);
         template<typename Iterator> Iterator eraseRange(Iterator startit, Iterator endit);

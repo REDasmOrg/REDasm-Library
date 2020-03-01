@@ -43,7 +43,7 @@ bool SymbolTableImpl::rename(address_t address, const String& newname)
     return true;
 }
 
-String SymbolTableImpl::prefix(SymbolType type, SymbolFlags flags)
+String SymbolTableImpl::prefix(type_t type, flag_t flags)
 {
     switch(type)
     {

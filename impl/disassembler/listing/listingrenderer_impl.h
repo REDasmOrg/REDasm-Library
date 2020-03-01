@@ -24,8 +24,8 @@ class ListingRendererImpl
         void highlightSelection(RendererLine& rl);
         void blinkCursor(RendererLine& rl);
         void highlightWord(RendererLine& rl, const String word);
-        bool hasFlag(ListingRendererFlags flag) const;
-        void setFlags(ListingRendererFlags flags);
+        bool hasFlag(flag_t flag) const;
+        void setFlags(flag_t flags);
         static String escapeString(const String& s);
 
     private:
@@ -33,7 +33,7 @@ class ListingRendererImpl
 
     private:
         object_ptr<Printer> m_printer;
-        ListingRendererFlags m_flags{ListingRendererFlags::Normal};
+        flag_t m_flags{ListingRendererFlags::Normal};
 };
 
 } // namespace REDasm

@@ -58,9 +58,9 @@ bool Context::sync()
     return syncmode && !std::strcmp(syncmode, "1");
 }
 
-bool Context::hasFlag(ContextFlags flag) const { PIMPL_P(const Context); return p->hasFlag(flag); }
-void Context::flag(ContextFlags flag, bool set) { PIMPL_P(Context); p->flag(flag, set); }
-void Context::flags(ContextFlags flags) { PIMPL_P(Context); p->flags(flags); }
+bool Context::hasFlag(flag_t flag) const { PIMPL_P(const Context); return p->hasFlag(flag); }
+void Context::flag(flag_t flag, bool set) { PIMPL_P(Context); p->flag(flag, set); }
+void Context::flags(flag_t flags) { PIMPL_P(Context); p->flags(flags); }
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
 AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.ui.get(); }
 const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }

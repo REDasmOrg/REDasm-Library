@@ -54,11 +54,12 @@
                                    EF_OP_ASSIGN_IMPL(Enum, &) \
                                    EF_OP_IMPL_UNARY(Enum, ~, Enum)
 
-
 #define STRINGIFY(x)        #x
 #define DO_UNPAREN(...)     __VA_ARGS__
 #define INVOKE(expr)        expr
 #define UNPAREN(args)       INVOKE(DO_UNPAREN args)
+
+#define DECLARE_TYPES(name, ...) namespace name##Type { enum: type_t { __VA_ARGS__ }; }
 
 #define ENTRY_FUNCTION                             "__redasm_entry__"
 #define START_FUNCTION                             "__redasm_start__"

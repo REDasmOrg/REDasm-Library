@@ -14,8 +14,8 @@ class LIBREDASM_API BlockItem: public Object
     public:
         BlockItem();
         bool contains(address_t address) const;
-        bool typeIs(BlockItemType type) const;
-        bool hasFlag(BlockItemFlags flags) const;
+        bool typeIs(type_t type) const;
+        bool hasFlag(flag_t flags) const;
         bool empty() const;
         size_t size() const;
         String displayRange() const;
@@ -23,8 +23,8 @@ class LIBREDASM_API BlockItem: public Object
 
     public:
         address_t start, end; // [start, end]
-        BlockItemType type;
-        BlockItemFlags flags;
+        type_t type{BlockItemType::Unexplored};
+        flag_t flags{BlockItemFlags::None};
 };
 
 } // namespace REDasm

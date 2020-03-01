@@ -45,7 +45,7 @@ void SignatureScanner::scan(const address_t address)
 
     m_sigdb.search(view, [&](const nlohmann::json& signature) {
         String signame = signature["name"];
-        r_doc->symbol(address, signame, static_cast<SymbolType>(signature["symboltype"]));
+        r_doc->symbol(address, signame, static_cast<type_t>(signature["symboltype"]));
         m_count.fetch_add(1);
     });
 }

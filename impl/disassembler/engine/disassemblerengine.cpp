@@ -111,7 +111,7 @@ void DisassemblerEngine::algorithmStep()
 
 void DisassemblerEngine::analyzeStep()
 {
-    if(r_ctx->hasFlag(ContextFlags::DisableAnalyzer))
+    if(r_ctx->hasFlag(Context::DisableAnalyzer))
     {
         this->execute();
         return;
@@ -123,7 +123,7 @@ void DisassemblerEngine::analyzeStep()
 
 void DisassemblerEngine::unexploredStep()
 {
-    if(r_ctx->hasFlag(ContextFlags::DisableUnexplored))
+    if(r_ctx->hasFlag(Context::DisableUnexplored))
     {
         this->execute();
         return;
@@ -134,7 +134,7 @@ void DisassemblerEngine::unexploredStep()
 
 void DisassemblerEngine::signatureStep()
 {
-    if(m_signatures.empty() || r_ctx->hasFlag(ContextFlags::DisableSignature))
+    if(m_signatures.empty() || r_ctx->hasFlag(Context::DisableSignature))
     {
         if(r_ctx->sync() || (!r_ctx->sync() && JobManager::last()))
             this->execute();
@@ -153,7 +153,7 @@ void DisassemblerEngine::signatureStep()
 
 void DisassemblerEngine::cfgStep()
 {
-    if(r_ctx->hasFlag(ContextFlags::DisableCFG))
+    if(r_ctx->hasFlag(Context::DisableCFG))
     {
         this->execute();
         return;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "api_base.h"
-#include "../macros.h"
+#include "../../macros.h"
 #include "../string.h"
 
 namespace REDasm {

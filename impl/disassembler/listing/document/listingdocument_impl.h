@@ -28,8 +28,8 @@ class ListingDocumentTypeImpl
 
     public:
         ListingItem functionStart(address_t address) const;
-        const ListingItem& insert(address_t address, ListingItemType type, size_t index = 0);
-        void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
+        const ListingItem& insert(address_t address, type_t type, size_t index = 0);
+        void notify(size_t idx, size_t action = ListingDocumentChangedEventArgs::Changed);
         void symbol(address_t address, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
         void symbol(address_t address, const String& name, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
         void block(address_t address, size_t size, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
@@ -41,8 +41,8 @@ class ListingDocumentTypeImpl
     public:
         const Symbol* symbol(address_t address) const;
         const Symbol* symbol(const String& name) const;
-        void replace(address_t address, ListingItemType type);
-        void remove(address_t address, ListingItemType type);
+        void replace(address_t address, type_t type);
+        void remove(address_t address, type_t type);
         void removeAt(size_t idx);
         const FunctionGraph* graph(address_t address) const;
         FunctionGraph* graph(address_t address);

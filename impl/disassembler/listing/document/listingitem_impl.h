@@ -24,14 +24,14 @@ class ListingItemImpl
 
     public:
         ListingItemImpl() = default;
-        ListingItemImpl(address_t address, ListingItemType type);
-        ListingItemImpl(address_t address, ListingItemType type, size_t index);
+        ListingItemImpl(address_t address, type_t type);
+        ListingItemImpl(address_t address, type_t type, size_t index);
         void save(cereal::BinaryOutputArchive &a) const;
         void load(cereal::BinaryInputArchive &a);
 
     private:
         address_t m_address{0};
-        ListingItemType m_type{ListingItemType::None};
+        type_t m_type{ListingItem::None};
         size_t m_index{0};
 };
 

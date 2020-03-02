@@ -46,7 +46,7 @@ void ListingDocumentType::entry(address_t address, tag_t tag)
     this->setEntry(address);
 }
 
-void ListingDocumentType::empty(address_t address) { PIMPL_P(ListingDocumentType); p->insert(address, ListingItemType::EmptyItem); }
+void ListingDocumentType::empty(address_t address) { PIMPL_P(ListingDocumentType); p->insert(address, ListingItem::EmptyItem); }
 
 bool ListingDocumentType::separator(address_t address)
 {
@@ -55,7 +55,7 @@ bool ListingDocumentType::separator(address_t address)
     if(p->m_separators.find(address) != p->m_separators.end())
         return false;
 
-    p->insert(address, ListingItemType::SeparatorItem);
+    p->insert(address, ListingItem::SeparatorItem);
     return true;
 }
 
@@ -68,7 +68,7 @@ void ListingDocumentType::segment(const String &name, offset_t offset, address_t
     if(p->m_segments.insert(name, offset, address, psize, vsize, type))
     {
         p->unexplored(address, vsize);
-        p->insert(address, ListingItemType::SegmentItem);
+        p->insert(address, ListingItem::SegmentItem);
     }
     else
         r_ctx->log("Segment insertion failed @ " + name.hex());
@@ -87,7 +87,7 @@ void ListingDocumentType::meta(address_t address, const String& s, const String&
     if(name.empty()) p->m_itemdata[address].meta[index] = { ".meta", s };
     else p->m_itemdata[address].meta[index] = { "." + name, s };
 
-    p->insert(address, ListingItemType::MetaItem, index);
+    p->insert(address, ListingItem::MetaItem, index);
 }
 
 void ListingDocumentType::type(address_t address, const String& s)
@@ -96,7 +96,7 @@ void ListingDocumentType::type(address_t address, const String& s)
     if(p->m_itemdata[address].type == s) return;
 
     p->m_itemdata[address].type = s;
-    p->replace(address, ListingItemType::TypeItem);
+    p->replace(address, ListingItem::TypeItem);
 }
 
 void ListingDocumentType::table(address_t address, size_t count, tag_t tag)

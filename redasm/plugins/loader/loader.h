@@ -13,18 +13,6 @@ class LoaderImpl;
 class Disassembler;
 class Analyzer;
 
-namespace LoaderFlags {
-enum: flag_t
-{
-    None               = 0,
-    CustomAssembler    = (1 << 0),
-    CustomAddressing   = (1 << 1),
-    SkipUnexploredCode = (1 << 2),
-
-    Binary             = 0xFFFFFFFF
-};
-}
-
 class LIBREDASM_API LoadRequest
 {
     PIMPL_DECLARE_P(LoadRequest)
@@ -49,6 +37,16 @@ class LIBREDASM_API Loader: public Plugin
 {
     REDASM_OBJECT(Loader)
     PIMPL_DECLARE_PRIVATE(Loader)
+
+    public:
+        enum Flags: flag_t {
+            None               = 0,
+            CustomAssembler    = (1 << 0),
+            CustomAddressing   = (1 << 1),
+            SkipUnexploredCode = (1 << 2),
+
+            Binary             = 0xFFFFFFFF
+        };
 
     public:
         Loader();

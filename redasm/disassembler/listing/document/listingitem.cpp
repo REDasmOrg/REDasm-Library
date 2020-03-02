@@ -2,7 +2,7 @@
 #include <impl/disassembler/listing/document/listingitem_impl.h>
 #include <impl/libs/cereal/archives/binary.hpp>
 
-#define RETURN_CASE_TYPE_OF(type) case ListingItemType::type: return #type;
+#define RETURN_CASE_TYPE_OF(type) case ListingItem::type: return #type;
 #define R_CMP_LISTING_ITEM(t1, t2, op) if(t1->address == t2.address) { \
                                            if(t1->type == t2.type) return t1->index op t2.index; \
                                            return t1->type op t2.type; \
@@ -11,11 +11,11 @@
 
 namespace REDasm {
 
-ListingItem::ListingItem(): address(0), type(ListingItemType::None), index(0) { }
-ListingItem::ListingItem(address_t address, ListingItemType type): address(address), type(type), index(0) { }
-ListingItem::ListingItem(address_t address, ListingItemType type, size_t index): address(address), type(type), index(index) { }
-bool ListingItem::is(ListingItemType t) const { return type == t; }
-bool ListingItem::isValid() const { return type != ListingItemType::None; }
+ListingItem::ListingItem(): address(0), type(ListingItem::None), index(0) { }
+ListingItem::ListingItem(address_t address, type_t type): address(address), type(type), index(0) { }
+ListingItem::ListingItem(address_t address, type_t type, size_t index): address(address), type(type), index(index) { }
+bool ListingItem::is(type_t t) const { return type == t; }
+bool ListingItem::isValid() const { return type != ListingItem::None; }
 String ListingItem::displayType() { return ListingItem::displayType(this->type); }
 
 bool ListingItem::operator ==(const ListingItem& rhs) const
@@ -35,7 +35,7 @@ bool ListingItem::operator <=(const ListingItem& rhs) const { R_CMP_LISTING_ITEM
 bool ListingItem::operator >(const ListingItem& rhs) const  { R_CMP_LISTING_ITEM(this, rhs, >)  }
 bool ListingItem::operator >=(const ListingItem& rhs) const { R_CMP_LISTING_ITEM(this, rhs, >=) }
 
-String ListingItem::displayType(ListingItemType type)
+String ListingItem::displayType(type_t type)
 {
     switch(type)
     {

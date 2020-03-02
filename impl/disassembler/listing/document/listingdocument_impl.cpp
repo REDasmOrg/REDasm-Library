@@ -47,38 +47,38 @@ void ListingDocumentTypeImpl::symbol(address_t address, const String& name, type
             if(type == Symbol::T_Function) // Overwrite symbol only
             {
                 this->createSymbol(address, name, type, flags, tag);
-                this->notify(m_items.functionIndex(address), ListingDocumentAction::Changed);
+                this->notify(m_items.functionIndex(address), ListingDocumentChangedEventArgs::Changed);
                 return;
             }
 
-            this->remove(address, ListingItemType::FunctionItem);
+            this->remove(address, ListingItem::FunctionItem);
         }
         else
-            this->remove(address, ListingItemType::SymbolItem);
+            this->remove(address, ListingItem::SymbolItem);
     }
 
     this->createSymbol(address, name, type, flags, tag);
 
-    this->insert(address, (type == Symbol::T_Function) ? ListingItemType::FunctionItem :
-                                                           ListingItemType::SymbolItem);
+    this->insert(address, (type == Symbol::T_Function) ? ListingItem::FunctionItem :
+                                                           ListingItem::SymbolItem);
 }
 
-const ListingItem& ListingDocumentTypeImpl::insert(address_t address, ListingItemType type, size_t index)
+const ListingItem& ListingDocumentTypeImpl::insert(address_t address, type_t type, size_t index)
 {
     switch(type)
     {
-        case ListingItemType::FunctionItem:  m_functions.insert(address); this->insert(address, ListingItemType::EmptyItem); break;
-        case ListingItemType::TypeItem: this->insert(address, ListingItemType::EmptyItem); break;
-        case ListingItemType::SeparatorItem: m_separators.insert(address); break;
+        case ListingItem::FunctionItem:  m_functions.insert(address); this->insert(address, ListingItem::EmptyItem); break;
+        case ListingItem::TypeItem: this->insert(address, ListingItem::EmptyItem); break;
+        case ListingItem::SeparatorItem: m_separators.insert(address); break;
         default: break;
     }
 
     size_t idx = m_items.insert(address, type, index);
-    this->notify(idx, ListingDocumentAction::Inserted);
+    this->notify(idx, ListingDocumentChangedEventArgs::Inserted);
     return m_items.at(idx);
 }
 
-void ListingDocumentTypeImpl::notify(size_t idx, ListingDocumentAction action)
+void ListingDocumentTypeImpl::notify(size_t idx, size_t action)
 {
     if(idx >= m_items.size()) return;
     EventManager::trigger(StandardEvents::Document_Changed, ListingDocumentChangedEventArgs(m_items.at(idx), idx, action));
@@ -117,7 +117,7 @@ const Symbol* ListingDocumentTypeImpl::symbol(address_t address) const
 
 const Symbol* ListingDocumentTypeImpl::symbol(const String& name) const { return m_symbols.get(name); }
 
-void ListingDocumentTypeImpl::replace(address_t address, ListingItemType type)
+void ListingDocumentTypeImpl::replace(address_t address, type_t type)
 {
     this->remove(address, type);
     this->insert(address, type);
@@ -125,28 +125,28 @@ void ListingDocumentTypeImpl::replace(address_t address, ListingItemType type)
 
 void ListingDocumentTypeImpl::removeAt(size_t idx)
 {
-    this->notify(idx, ListingDocumentAction::Removed);
+    this->notify(idx, ListingDocumentChangedEventArgs::Removed);
     ListingItem item = m_items.at(idx);
     m_items.erase(idx);
 
     switch(item.type)
     {
-        case ListingItemType::InstructionItem: m_instructions.erase(item.address); break;
-        case ListingItemType::SegmentItem: m_segments.erase(item.address); break;
-        case ListingItemType::SeparatorItem: m_separators.erase(item.address); break;
+        case ListingItem::InstructionItem: m_instructions.erase(item.address); break;
+        case ListingItem::SegmentItem: m_segments.erase(item.address); break;
+        case ListingItem::SeparatorItem: m_separators.erase(item.address); break;
 
-        case ListingItemType::SymbolItem:
+        case ListingItem::SymbolItem:
             if(!m_functions.contains(item.address)) m_symbols.erase(item.address); // Don't delete functions
             break;
 
-        case ListingItemType::FunctionItem:
+        case ListingItem::FunctionItem:
             m_functions.erase(item.address);
             m_symbols.erase(item.address);
-            this->remove(item.address, ListingItemType::EmptyItem);
+            this->remove(item.address, ListingItem::EmptyItem);
             break;
 
-        case ListingItemType::TypeItem:
-            this->remove(item.address, ListingItemType::EmptyItem);
+        case ListingItem::TypeItem:
+            this->remove(item.address, ListingItem::EmptyItem);
             break;
 
         default: break;
@@ -181,12 +181,12 @@ void ListingDocumentTypeImpl::segmentCoverageAt(size_t idx, size_t coverage)
 void ListingDocumentTypeImpl::invalidateGraphs()
 {
     while(!m_separators.empty())
-        this->remove(*m_separators.begin(), ListingItemType::SeparatorItem);
+        this->remove(*m_separators.begin(), ListingItem::SeparatorItem);
 
     m_functions.invalidateGraphs();
 }
 
-void ListingDocumentTypeImpl::remove(address_t address, ListingItemType type)
+void ListingDocumentTypeImpl::remove(address_t address, type_t type)
 {
     size_t idx = m_items.indexOf(address, type);
     if(idx == REDasm::npos) return;
@@ -224,9 +224,9 @@ void ListingDocumentTypeImpl::onBlockInserted(const EventArgs* e)
 
     switch(bi->type)
     {
-        case BlockItem::T_Unexplored: this->insert(bi->start, ListingItemType::UnexploredItem); break;
-        //case BlockItem::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;         // Don't add SymbolItem automatically
-        case BlockItem::T_Code: this->insert(bi->start, ListingItemType::InstructionItem); break;
+        case BlockItem::T_Unexplored: this->insert(bi->start, ListingItem::UnexploredItem); break;
+        //case BlockItem::Data: this->insert(bi->start, ListingItem::SymbolItem); break;         // Don't add SymbolItem automatically
+        case BlockItem::T_Code: this->insert(bi->start, ListingItem::InstructionItem); break;
         default: break;
     }
 }
@@ -238,9 +238,9 @@ void ListingDocumentTypeImpl::onBlockErased(const EventArgs* e)
 
     switch(bi->type)
     {
-        case BlockItem::T_Unexplored: this->remove(bi->start, ListingItemType::UnexploredItem); break;
-        case BlockItem::T_Data: this->remove(bi->start, ListingItemType::SymbolItem); break;
-        case BlockItem::T_Code: this->remove(bi->start, ListingItemType::InstructionItem); break;
+        case BlockItem::T_Unexplored: this->remove(bi->start, ListingItem::UnexploredItem); break;
+        case BlockItem::T_Data: this->remove(bi->start, ListingItem::SymbolItem); break;
+        case BlockItem::T_Code: this->remove(bi->start, ListingItem::InstructionItem); break;
     }
 }
 

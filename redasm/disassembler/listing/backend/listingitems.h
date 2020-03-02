@@ -17,9 +17,9 @@ class ListingItems
         ListingItems();
         bool empty() const;
         size_t size() const;
-        size_t insert(address_t address, ListingItemType type, size_t index);
+        size_t insert(address_t address, type_t type, size_t index);
         size_t insert(const ListingItem& item);
-        size_t indexOf(address_t address, ListingItemType type, size_t index = 0) const;
+        size_t indexOf(address_t address, type_t type, size_t index = 0) const;
         size_t indexOf(const ListingItem& item) const;
         const ListingItem& at(size_t idx) const;
         ListingItem& at(size_t idx);

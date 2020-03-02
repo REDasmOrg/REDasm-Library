@@ -11,25 +11,24 @@ namespace REDasm {
 
 struct ListingMetaItem { String name, type; };
 
-enum class ListingItemType: size_t
-{
-    None        = 0,
-    FirstItem,
-    SegmentItem = FirstItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem, UnexploredItem, SeparatorItem,
-    LastItem    = SeparatorItem,
-    AllItems    = REDasm::npos
-};
-
 struct LIBREDASM_API ListingItem
 {
+    enum Type: type_t {
+        None        = 0,
+        FirstItem,
+        SegmentItem = FirstItem, EmptyItem, FunctionItem, TypeItem, SymbolItem, MetaItem, InstructionItem, UnexploredItem, SeparatorItem,
+        LastItem    = SeparatorItem,
+        AllItems
+    };
+
     address_t address{0};
-    ListingItemType type{ListingItemType::None};
+    type_t type{ListingItem::None};
     size_t index{0};
 
     ListingItem();
-    ListingItem(address_t address, ListingItemType type);
-    ListingItem(address_t address, ListingItemType type, size_t index);
-    bool is(ListingItemType t) const;
+    ListingItem(address_t address, type_t type);
+    ListingItem(address_t address, type_t type, size_t index);
+    bool is(type_t t) const;
     bool isValid() const;
     String displayType();
 
@@ -40,7 +39,7 @@ struct LIBREDASM_API ListingItem
     bool operator >(const ListingItem& rhs) const;
     bool operator >=(const ListingItem& rhs) const;
 
-    static String displayType(ListingItemType type);
+    static String displayType(type_t type);
 };
 
 FORCE_STANDARD_LAYOUT(ListingItem)

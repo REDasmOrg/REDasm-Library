@@ -6,8 +6,8 @@
 
 namespace REDasm {
 
-ListingItemImpl::ListingItemImpl(address_t address, ListingItemType type): m_address(address), m_type(type), m_index(0) { }
-ListingItemImpl::ListingItemImpl(address_t address, ListingItemType type, size_t index): m_address(address), m_type(type), m_index(index) { }
+ListingItemImpl::ListingItemImpl(address_t address, type_t type): m_address(address), m_type(type), m_index(0) { }
+ListingItemImpl::ListingItemImpl(address_t address, type_t type, size_t index): m_address(address), m_type(type), m_index(index) { }
 
 void ListingItemImpl::save(cereal::BinaryOutputArchive &a) const
 {

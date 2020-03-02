@@ -54,8 +54,8 @@ bool StringFinder::step(BufferView& view)
     size_t totalsize = 0;
     flag_t flags = this->categorize(view, &totalsize);
 
-    if(flags & SymbolFlags::AsciiString) r_doc->asciiString(loc, totalsize);
-    else if(flags & SymbolFlags::WideString) r_doc->wideString(loc, totalsize);
+    if(flags & Symbol::F_AsciiString) r_doc->asciiString(loc, totalsize);
+    else if(flags & Symbol::F_WideString) r_doc->wideString(loc, totalsize);
     else { view++; return true; }
 
     view += totalsize;
@@ -64,7 +64,7 @@ bool StringFinder::step(BufferView& view)
 
 flag_t StringFinder::categorize(const BufferView& view, size_t* totalsize)
 {
-    if(view.size() < (sizeof(char) * 2)) return SymbolFlags::None;
+    if(view.size() < (sizeof(char) * 2)) return Symbol::T_None;
 
     char c1 = static_cast<char>(view[0]);
     char c2 = static_cast<char>(view[1]);
@@ -89,10 +89,10 @@ flag_t StringFinder::categorize(const BufferView& view, size_t* totalsize)
             if(i >= MIN_STRING)
             {
                 if(!this->validateString(reinterpret_cast<const char*>(ts.data()), ts.size()))
-                    return SymbolFlags::None;
+                    return Symbol::T_None;
 
                 if(totalsize) *totalsize = i * sizeof(char16_t);
-                return SymbolFlags::WideString;
+                return Symbol::F_WideString;
             }
 
             break;
@@ -106,16 +106,16 @@ flag_t StringFinder::categorize(const BufferView& view, size_t* totalsize)
         if(i >= MIN_STRING)
         {
             if(!this->validateString(reinterpret_cast<const char*>(view.data()), i - 1))
-                return SymbolFlags::None;
+                return Symbol::T_None;
 
             if(totalsize) *totalsize = i;
-            return SymbolFlags::AsciiString;
+            return Symbol::F_AsciiString;
         }
 
         break;
     }
 
-    return SymbolFlags::None;
+    return Symbol::T_None;
 }
 
 bool StringFinder::validateString(const char* s, size_t size)

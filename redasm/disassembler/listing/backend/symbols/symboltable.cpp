@@ -21,9 +21,9 @@ void SymbolTable::create(address_t address, const String &name, type_t type, fla
     p->m_byname[name] = address;
 }
 
-void SymbolTable::create(address_t address, const String& name, type_t type, tag_t tag) { this->create(address, name, type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, const String& name, type_t type, tag_t tag) { this->create(address, name, type, Symbol::T_None, tag); }
 void SymbolTable::create(address_t address, type_t type, flag_t flags, tag_t tag) { this->create(address, SymbolTable::name(address, type, flags), type, flags, tag); }
-void SymbolTable::create(address_t address, type_t type, tag_t tag) { this->create(address, SymbolTable::name(address, type), type, SymbolFlags::None, tag); }
+void SymbolTable::create(address_t address, type_t type, tag_t tag) { this->create(address, SymbolTable::name(address, type), type, Symbol::T_None, tag); }
 
 Symbol* SymbolTable::get(const String &name) const
 {

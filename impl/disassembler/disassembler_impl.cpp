@@ -90,7 +90,7 @@ size_t DisassemblerImpl::checkAddressTable(const CachedInstruction& instruction,
     while(this->readAddress(address, r_asm->addressWidth(), &target))
     {
         const Segment* segment = r_doc->segment(target);
-        if(!segment || !segment->is(SegmentType::Code)) break;
+        if(!segment || !segment->is(Segment::T_Code)) break;
 
         targets.insert(target);
 
@@ -171,7 +171,7 @@ bool DisassemblerImpl::readAddress(address_t address, size_t size, u64 *value) c
     if(!value) return false;
 
     const Segment* segment = r_doc->segment(address);
-    if(!segment || segment->is(SegmentType::Bss)) return false;
+    if(!segment || segment->is(Segment::T_Bss)) return false;
 
     offset_location offset = m_loader->offset(address);
     if(!offset.valid) return false;

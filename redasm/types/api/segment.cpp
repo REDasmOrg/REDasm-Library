@@ -17,8 +17,8 @@ u64 Segment::size() const { return (address > endaddress) ? 0 : (endaddress - ad
 u64 Segment::rawSize() const { return (offset > endoffset) ? 0 : (endoffset - offset); }
 bool Segment::empty() const { return !this->size(); }
 bool Segment::contains(address_t addr) const { return (addr >= this->address) && (addr < this->endaddress); }
-bool Segment::containsOffset(offset_t off) const { return !this->is(SegmentType::Bss) && ((off >= this->offset) && (off < this->endoffset)); }
+bool Segment::containsOffset(offset_t off) const { return !this->is(Segment::T_Bss) && ((off >= this->offset) && (off < this->endoffset)); }
 bool Segment::is(type_t t) const { return type & t; }
-bool Segment::isPureCode() const { return type == SegmentType::Code; }
+bool Segment::isPureCode() const { return type == Segment::T_Code; }
 
 } // namespace REDasm

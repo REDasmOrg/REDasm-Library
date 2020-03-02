@@ -10,9 +10,9 @@ String BlockItem::displayType() const
 {
     switch(this->type)
     {
-        case BlockItemType::Code:       return "CODE";
-        case BlockItemType::Data:       return "DATA";
-        case BlockItemType::Unexplored: return "UNEXPLORED";
+        case BlockItem::T_Code:       return "CODE";
+        case BlockItem::T_Data:       return "DATA";
+        case BlockItem::T_Unexplored: return "UNEXPLORED";
     }
 
     return String();

@@ -31,7 +31,7 @@ bool CallTreeImpl::hasCalls() const
         for(size_t j = blocks->indexOf(startblock); j <= blocks->indexOf(endblock); j++)
         {
             const BlockItem* bi = blocks->at(j);
-            if(!bi->typeIs(BlockItemType::Code)) continue;
+            if(!bi->typeIs(BlockItem::T_Code)) continue;
 
             CachedInstruction instruction = r_doc->instruction(bi->start);
             if(instruction->isCall()) return true;

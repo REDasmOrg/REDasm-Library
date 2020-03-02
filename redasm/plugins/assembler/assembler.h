@@ -9,7 +9,7 @@
 
 #define REGISTER_INSTRUCTION(id, cb)             this->registerInstruction(id, std::bind(cb, this, std::placeholders::_1))
 #define CLASSIFY_INSTRUCTION_TF(id, type, flags) this->classifyInstruction(id, type, flags)
-#define CLASSIFY_INSTRUCTION_F(id, flags)        this->classifyInstruction(id, InstructionType::None, flags)
+#define CLASSIFY_INSTRUCTION_F(id, flags)        this->classifyInstruction(id, Instruction::T_None, flags)
 #define CLASSIFY_INSTRUCTION(id, type)           this->classifyInstruction(id, type)
 
 namespace REDasm {
@@ -41,7 +41,7 @@ class LIBREDASM_API Assembler : public Plugin
         virtual const Symbol* findTrampoline(size_t index) const;
 
     protected:
-        void classifyInstruction(instruction_id_t id, type_t type, flag_t flags = InstructionFlags::None);
+        void classifyInstruction(instruction_id_t id, type_t type, flag_t flags = Instruction::F_None);
         void setInstructionFlags(instruction_id_t id, flag_t flags);
         void registerInstruction(instruction_id_t id, const InstructionCallback &cb);
         virtual Algorithm* doCreateAlgorithm() const;

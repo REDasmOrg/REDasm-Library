@@ -32,7 +32,7 @@ size_t CallTree::populate()
         for(size_t i = blocks->indexOf(startblock); i <= blocks->indexOf(endblock); i++)
         {
             const BlockItem* bi = blocks->at(i);
-            if(!bi->typeIs(BlockItemType::Code)) continue;
+            if(!bi->typeIs(BlockItem::T_Code)) continue;
 
             CachedInstruction instruction = r_doc->instruction(bi->start);
             if(!instruction->isCall()) continue;

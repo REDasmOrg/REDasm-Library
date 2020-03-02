@@ -37,11 +37,11 @@ void CapstoneAssembler::onDecoded(Instruction *instruction)
 
     PIMPL_P(CapstoneAssembler);
 
-    if(cs_insn_group(p->handle(), insn, CS_GRP_JUMP)) instruction->type = InstructionType::Jump;
-    else if(cs_insn_group(p->handle(), insn, CS_GRP_CALL)) instruction->type = InstructionType::Call;
-    else if(cs_insn_group(p->handle(), insn, CS_GRP_RET)) instruction->type = InstructionType::Stop;
+    if(cs_insn_group(p->handle(), insn, CS_GRP_JUMP)) instruction->type = Instruction::T_Jump;
+    else if(cs_insn_group(p->handle(), insn, CS_GRP_CALL)) instruction->type = Instruction::T_Call;
+    else if(cs_insn_group(p->handle(), insn, CS_GRP_RET)) instruction->type = Instruction::T_Stop;
     else if(cs_insn_group(p->handle(), insn, CS_GRP_INT) || cs_insn_group(p->handle(), insn, CS_GRP_IRET))
-        instruction->flags |= InstructionFlags::Privileged;
+        instruction->flags |= Instruction::F_Privileged;
 }
 
 } // namespace REDasm

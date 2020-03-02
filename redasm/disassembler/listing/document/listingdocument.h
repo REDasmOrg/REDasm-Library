@@ -32,7 +32,7 @@ class ListingDocumentType: public Object
         ListingCursor& cursor();
 
     public: // Insert
-        void symbol(address_t address, const String& name, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
+        void symbol(address_t address, const String& name, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
         void entry(address_t address, tag_t tag = 0);
         void empty(address_t address);
         bool separator(address_t address);
@@ -44,8 +44,8 @@ class ListingDocumentType: public Object
         void tableItem(address_t address, address_t startaddress, u64 idx, tag_t tag = 0);
         void function(address_t address, const String& name, tag_t tag = 0);
         void function(address_t address, tag_t tag = 0);
-        void pointer(address_t address, type_t type = SymbolType::Data, tag_t tag = 0);
-        void pointer(address_t address, const String& name, type_t type = SymbolType::Data, tag_t tag = 0);
+        void pointer(address_t address, type_t type = Symbol::T_Data, tag_t tag = 0);
+        void pointer(address_t address, const String& name, type_t type = Symbol::T_Data, tag_t tag = 0);
         void branch(address_t address, s64 direction, tag_t tag = 0);
         void label(address_t address, tag_t tag = 0);
         void data(address_t address, size_t size, tag_t tag = 0);

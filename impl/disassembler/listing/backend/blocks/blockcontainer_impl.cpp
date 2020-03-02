@@ -14,12 +14,12 @@ BlockItem* BlockContainerImpl::unexplored(address_t start)
     return (it != m_blocks.end()) ? this->unexplored(it->start, it->end) : nullptr;
 }
 
-BlockItem *BlockContainerImpl::unexplored(address_t start, address_t end) { return this->mark(start, end, BlockItemType::Unexplored, BlockItemFlags::None); }
-BlockItem *BlockContainerImpl::data(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItemType::Data, flags); }
-BlockItem *BlockContainerImpl::code(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItemType::Code, flags); }
-BlockItem *BlockContainerImpl::unexploredSize(address_t start, size_t size) { return this->markSize(start, size, BlockItemType::Unexplored, BlockItemFlags::None); }
-BlockItem *BlockContainerImpl::dataSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItemType::Data, flags); }
-BlockItem *BlockContainerImpl::codeSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItemType::Code, flags); }
+BlockItem *BlockContainerImpl::unexplored(address_t start, address_t end) { return this->mark(start, end, BlockItem::T_Unexplored, BlockItem::F_None); }
+BlockItem *BlockContainerImpl::data(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItem::T_Data, flags); }
+BlockItem *BlockContainerImpl::code(address_t start, address_t end, flag_t flags) { return this->mark(start, end, BlockItem::T_Code, flags); }
+BlockItem *BlockContainerImpl::unexploredSize(address_t start, size_t size) { return this->markSize(start, size, BlockItem::T_Unexplored, BlockItem::F_None); }
+BlockItem *BlockContainerImpl::dataSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItem::T_Data, flags); }
+BlockItem *BlockContainerImpl::codeSize(address_t start, size_t size, flag_t flags) { return this->markSize(start, size, BlockItem::T_Code, flags); }
 const BlockItem *BlockContainerImpl::at(size_t idx) const { return std::addressof(m_blocks.at(idx)); }
 const BlockItem *BlockContainerImpl::find(address_t address) const { auto it = const_cast<BlockContainerImpl*>(this)->findOverlap(address); return (it != m_blocks.end()) ? std::addressof(*it) : nullptr; }
 BlockItem* BlockContainerImpl::at(size_t idx) { return std::addressof(m_blocks.at(idx)); }
@@ -65,14 +65,14 @@ void BlockContainerImpl::remove(address_t start, address_t end)
 
     if(!begbl.empty())
     {
-        begbl.type = BlockItemType::Unexplored; // Demote to "Unexplored"
+        begbl.type = BlockItem::T_Unexplored; // Demote to "Unexplored"
         it = this->insertBlock(it, begbl);
         it++;
     }
 
     if(!endbl.empty())
     {
-        endbl.type = BlockItemType::Unexplored; // Demote to "Unexplored"
+        endbl.type = BlockItem::T_Unexplored; // Demote to "Unexplored"
         this->insertBlock(it, endbl);
     }
 }

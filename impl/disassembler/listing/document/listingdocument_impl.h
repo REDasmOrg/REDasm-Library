@@ -30,10 +30,10 @@ class ListingDocumentTypeImpl
         ListingItem functionStart(address_t address) const;
         const ListingItem& insert(address_t address, ListingItemType type, size_t index = 0);
         void notify(size_t idx, ListingDocumentAction action = ListingDocumentAction::Changed);
-        void symbol(address_t address, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
-        void symbol(address_t address, const String& name, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
-        void block(address_t address, size_t size, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
-        void block(address_t address, size_t size, const String& name, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
+        void symbol(address_t address, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
+        void symbol(address_t address, const String& name, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
+        void block(address_t address, size_t size, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
+        void block(address_t address, size_t size, const String& name, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
         void block(const CachedInstruction& instruction);
         void unexplored(address_t address, size_t size);
         bool rename(address_t address, const String& name);
@@ -52,7 +52,7 @@ class ListingDocumentTypeImpl
         void invalidateGraphs();
 
     private:
-        void createSymbol(address_t address, const String& name, type_t type, flag_t flags = SymbolFlags::None, tag_t tag = 0);
+        void createSymbol(address_t address, const String& name, type_t type, flag_t flags = Symbol::T_None, tag_t tag = 0);
         bool canSymbolizeAddress(address_t address, type_t type, flag_t flags) const;
         void onBlockInserted(const EventArgs* e);
         void onBlockErased(const EventArgs* e);

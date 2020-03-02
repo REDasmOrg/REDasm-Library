@@ -4,24 +4,6 @@
 
 namespace REDasm {
 
-DECLARE_TYPES(Operand,
-    None,
-    Constant,     // Simple constant
-    Register,     // Register
-    Immediate,    // Immediate Value
-    Memory,       // Direct Memory Pointer
-    Displacement, // Indirect Memory Pointer
-)
-
-namespace OperandFlags {
-enum: flag_t {
-    None          = (1 << 0),
-    Local         = (1 << 1),  // Local Variable
-    Argument      = (1 << 2),  // Function Argument
-    Target        = (1 << 3),  // Branch destination
-};
-}
-
 struct RegisterOperand
 {
     register_id_t r{-1};
@@ -41,6 +23,22 @@ FORCE_STANDARD_LAYOUT(DisplacementOperand);
 
 struct Operand
 {
+    enum Type: type_t {
+        T_None,
+        T_Constant,     // Simple constant
+        T_Register,     // Register
+        T_Immediate,    // Immediate Value
+        T_Memory,       // Direct Memory Pointer
+        T_Displacement, // Indirect Memory Pointer
+    };
+
+    enum Flags: flag_t {
+        F_None,
+        F_Local         = (1 << 1),  // Local Variable
+        F_Argument      = (1 << 2),  // Function Argument
+        F_Target        = (1 << 3),  // Branch destination
+    };
+
     type_t type;
     flag_t flags;
     tag_t tag;

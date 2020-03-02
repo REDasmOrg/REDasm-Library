@@ -106,21 +106,21 @@ bool AlgorithmImpl::canBeDisassembled(address_t address)
     if(!m_currentsegment || !m_currentsegment->contains(address))
         m_currentsegment = r_doc->segment(address);
 
-    if(!m_currentsegment || !m_currentsegment->is(SegmentType::Code))
+    if(!m_currentsegment || !m_currentsegment->is(Segment::T_Code))
         return false;
 
     const BlockItem* bi = r_doc->block(address);
-    if(bi->typeIs(BlockItemType::Code)) return false;
+    if(bi->typeIs(BlockItem::T_Code)) return false;
 
-    if(bi->typeIs(BlockItemType::Data))
+    if(bi->typeIs(BlockItem::T_Data))
     {
         const Symbol* symbol = r_doc->symbol(bi->start);
         assert(symbol);
 
         switch(symbol->type) // It's allowed to disassemble above a Function/Label
         {
-            case SymbolType::Label:
-            case SymbolType::Function:
+            case Symbol::T_Label:
+            case Symbol::T_Function:
                 return true;
 
             default: break;
@@ -137,7 +137,7 @@ void AlgorithmImpl::createInvalidInstruction(const CachedInstruction& instructio
     if(!instruction->size)
         instruction->size =1; // Invalid instruction uses at least 1 byte
 
-    instruction->type = InstructionType::Invalid;
+    instruction->type = Instruction::T_Invalid;
     instruction->mnemonic(INVALID_MNEMONIC);
 }
 

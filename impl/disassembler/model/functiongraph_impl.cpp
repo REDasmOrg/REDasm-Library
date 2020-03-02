@@ -41,7 +41,7 @@ bool FunctionGraphImpl::build(address_t address)
 {
     m_graphstart = r_doc->block(address);
 
-    if(!m_graphstart || !m_graphstart->typeIs(BlockItemType::Code))
+    if(!m_graphstart || !m_graphstart->typeIs(BlockItem::T_Code))
     {
         this->incomplete();
         return false;
@@ -134,7 +134,7 @@ void FunctionGraphImpl::buildBasicBlocks()
         for(size_t i = blocks->indexOf(rbi), first = i; i < blocks->size(); i++)
         {
             const BlockItem* bi = blocks->at(i);
-            if(!bi->typeIs(BlockItemType::Code)) break;
+            if(!bi->typeIs(BlockItem::T_Code)) break;
 
             if(i > first)
             {

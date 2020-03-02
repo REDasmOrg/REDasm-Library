@@ -24,7 +24,7 @@ BufferView LoaderImpl::view(address_t address, size_t size) const
 
 BufferView LoaderImpl::viewSegment(const Segment *segment) const
 {
-    if(!segment || segment->empty() || segment->is(SegmentType::Bss))
+    if(!segment || segment->empty() || segment->is(Segment::T_Bss))
         return BufferView();
 
     return m_buffer->view(segment->offset, segment->rawSize());

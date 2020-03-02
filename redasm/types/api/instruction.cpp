@@ -28,15 +28,15 @@ Operand* Instruction::lastOperand() { return operandscount ? this->op(operandsco
 Operand* Instruction::target()
 {
     auto it = std::find_if(std::begin(operandsstruct), std::end(operandsstruct), [](const Operand& op) -> bool{
-        return op.flags & OperandFlags::Target;
+        return op.flags & Operand::F_Target;
     });
 
     return it != std::end(operandsstruct) ? std::addressof(*it) : nullptr;
 }
 
-Instruction* Instruction::mem(address_t v, tag_t tag) { return this->op(OperandType::Memory, v, tag); }
-Instruction* Instruction::cnst(address_t v, tag_t tag) { return this->op(OperandType::Constant, v, tag); }
-Instruction* Instruction::imm(u64 v, tag_t tag) { return this->op(OperandType::Immediate, v, tag); }
+Instruction* Instruction::mem(address_t v, tag_t tag) { return this->op(Operand::T_Memory, v, tag); }
+Instruction* Instruction::cnst(address_t v, tag_t tag) { return this->op(Operand::T_Constant, v, tag); }
+Instruction* Instruction::imm(u64 v, tag_t tag) { return this->op(Operand::T_Immediate, v, tag); }
 Instruction* Instruction::disp(register_id_t base, s64 displacement) { return this->disp(base, REDasm::npos, displacement); }
 Instruction* Instruction::disp(register_id_t base, register_id_t index, s64 displacement) { return this->disp(base, index, 1, displacement); }
 
@@ -46,12 +46,12 @@ Instruction* Instruction::disp(register_id_t base, register_id_t index, s64 scal
 
     if((base == REDasm::npos) && (index == REDasm::npos))
     {
-        op.type = OperandType::Memory;
+        op.type = Operand::T_Memory;
         op.u_value = scale * displacement;
     }
     else
     {
-        op.type = OperandType::Displacement;
+        op.type = Operand::T_Displacement;
         op.disp.basestruct.r = base;
         op.disp.indexstruct.r = index;
         op.disp.scale = scale;
@@ -61,14 +61,14 @@ Instruction* Instruction::disp(register_id_t base, register_id_t index, s64 scal
     return this->op(op);
 }
 
-Instruction* Instruction::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { return this->local(locindex, base, index, displacement, OperandFlags::Argument); }
+Instruction* Instruction::arg(size_t locindex, register_id_t base, register_id_t index, s64 displacement) { return this->local(locindex, base, index, displacement, Operand::F_Argument); }
 
 Instruction* Instruction::local(size_t locindex, register_id_t base, register_id_t index, s64 displacement, flag_t opflags)
 {
     Operand op;
     op.index = this->operandscount;
     op.loc_index = locindex;
-    op.type = OperandType::Displacement;
+    op.type = Operand::T_Displacement;
     op.flags = opflags;
     op.disp.basestruct.r = base;
     op.disp.indexstruct.r = index;
@@ -81,7 +81,7 @@ Instruction* Instruction::reg(register_id_t r, tag_t tag)
 {
     Operand op;
     op.index = this->operandscount;
-    op.type = OperandType::Register;
+    op.type = Operand::T_Register;
     op.reg.r = r;
     op.reg.tag = tag;
     return this->op(op);
@@ -158,20 +158,20 @@ void Instruction::reset()
 
     this->free = nullptr;
     this->userdata = { };
-    this->type = InstructionType::Invalid;
+    this->type = Instruction::T_Invalid;
 }
 
-bool Instruction::isInvalid() const { return type == InstructionType::Invalid; }
+bool Instruction::isInvalid() const { return type == Instruction::T_Invalid; }
 bool Instruction::is(const String& mnemonic) const { return this->mnemonic() == mnemonic; }
 bool Instruction::typeIs(type_t t) const { return REDasm::typeIs(this, t); }
-bool Instruction::isStop() const { return REDasm::typeIs(this, InstructionType::Stop); }
-bool Instruction::isCall() const { return REDasm::typeIs(this, InstructionType::Call); }
-bool Instruction::isJump() const { return REDasm::typeIs(this, InstructionType::Jump); }
+bool Instruction::isStop() const { return REDasm::typeIs(this, Instruction::T_Stop); }
+bool Instruction::isCall() const { return REDasm::typeIs(this, Instruction::T_Call); }
+bool Instruction::isJump() const { return REDasm::typeIs(this, Instruction::T_Jump); }
 bool Instruction::isConditionalCall() const { return this->isCall() && this->isConditional(); }
 bool Instruction::isConditionalJump() const { return this->isJump() && this->isConditional(); }
 bool Instruction::isBranch() const { return this->isCall() || this->isJump(); }
-bool Instruction::isConditional() const { return REDasm::hasFlag(this, InstructionFlags::Conditional); }
-Instruction::operator bool() const { return type != InstructionType::Invalid; }
+bool Instruction::isConditional() const { return REDasm::hasFlag(this, Instruction::F_Conditional); }
+Instruction::operator bool() const { return type != Instruction::T_Invalid; }
 
 } // namespace REDasm
 

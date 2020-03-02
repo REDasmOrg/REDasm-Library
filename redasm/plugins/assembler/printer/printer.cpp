@@ -12,7 +12,7 @@ namespace REDasm {
 
 String Printer::symbol(const Symbol* symbol) const
 {
-    //if(symbol->is(SymbolType::Pointer))
+    //if(symbol->is(Symbol::Pointer))
         //return symbol->name;
 
     String s;
@@ -51,7 +51,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
     const Segment* segment = r_doc->segment(symbol->address);
     if(!segment) return;
 
-    // if(symbol->is(SymbolType::Pointer))
+    // if(symbol->is(Symbol::Pointer))
     // {
     //     const Symbol* ptrsymbol = r_disasm->dereferenceSymbol(symbol);
 
@@ -65,7 +65,7 @@ void Printer::symbol(const Symbol* symbol, const SymbolCallback &symbolfunc) con
 
     if(symbol->isData())
     {
-        if(segment->is(SegmentType::Bss))
+        if(segment->is(Segment::T_Bss))
         {
             symbolfunc(symbol, "??");
             return;
@@ -110,11 +110,11 @@ String Printer::out(const CachedInstruction &instruction, const OpCallback &opfu
 
         switch(op->type)
         {
-            case OperandType::Constant:     opstr = String::hex(op->u_value, 0, true); break;
-            case OperandType::Immediate:    opstr = this->imm(op); break;
-            case OperandType::Memory:       opstr = this->mem(op); break;
-            case OperandType::Displacement: opstr = this->disp(op); break;
-            case OperandType::Register:     opstr = this->reg(&op->reg); break;
+            case Operand::T_Constant:     opstr = String::hex(op->u_value, 0, true); break;
+            case Operand::T_Immediate:    opstr = this->imm(op); break;
+            case Operand::T_Memory:       opstr = this->mem(op); break;
+            case Operand::T_Displacement: opstr = this->disp(op); break;
+            case Operand::T_Register:     opstr = this->reg(&op->reg); break;
             default: continue;
         }
 
@@ -134,7 +134,7 @@ String Printer::disp(const Operand* op) const
     String s;
     if(op->isBaseValid()) s += this->reg(&op->disp.basestruct);
 
-    if(hasFlag(op, OperandFlags::Local) || hasFlag(op, OperandFlags::Argument))
+    if(hasFlag(op, Operand::F_Local) || hasFlag(op, Operand::F_Argument))
     {
         String loc = this->loc(op);
 
@@ -179,7 +179,7 @@ String Printer::imm(const Operand* op) const
 {
     const Symbol* symbol = r_doc->symbol(op->u_value);
 
-    if(REDasm::typeIs(op, OperandType::Memory))
+    if(REDasm::typeIs(op, Operand::T_Memory))
         return "[" + (symbol ? symbol->name : String::hex(op->u_value)) + "]";
 
     return symbol ? symbol->name : String::hex(op->s_value);

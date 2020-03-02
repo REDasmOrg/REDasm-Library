@@ -156,8 +156,8 @@ void Algorithm::addressTableState(const State *state)
 
     const Operand* op = state->operand();
 
-    if(REDasm::typeIs(op, OperandType::Displacement)) FORWARD_STATE(Algorithm::PointerState, state);
-    else if(REDasm::typeIs(op, OperandType::Memory)) FORWARD_STATE(Algorithm::MemoryState, state);
+    if(REDasm::typeIs(op, Operand::T_Displacement)) FORWARD_STATE(Algorithm::PointerState, state);
+    else if(REDasm::typeIs(op, Operand::T_Memory)) FORWARD_STATE(Algorithm::MemoryState, state);
     else FORWARD_STATE(Algorithm::ImmediateState, state);
 }
 

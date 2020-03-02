@@ -34,8 +34,8 @@ class LIBREDASM_API SymbolTable: public Object
 
     public:
         static String normalized(const String &s);
-        static String name(address_t address, type_t type, flag_t flags = SymbolFlags::None);
-        static String name(address_t address, const String& s, type_t type, flag_t flags = SymbolFlags::None);
+        static String name(address_t address, type_t type, flag_t flags = Symbol::T_None);
+        static String name(address_t address, const String& s, type_t type, flag_t flags = Symbol::T_None);
         static String name(const String& name, address_t address);
 };
 

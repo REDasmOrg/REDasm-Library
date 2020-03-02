@@ -44,7 +44,7 @@ void ListingDocumentTypeImpl::symbol(address_t address, const String& name, type
     {
         if(symbol->isFunction())
         {
-            if(type == SymbolType::Function) // Overwrite symbol only
+            if(type == Symbol::T_Function) // Overwrite symbol only
             {
                 this->createSymbol(address, name, type, flags, tag);
                 this->notify(m_items.functionIndex(address), ListingDocumentAction::Changed);
@@ -59,7 +59,7 @@ void ListingDocumentTypeImpl::symbol(address_t address, const String& name, type
 
     this->createSymbol(address, name, type, flags, tag);
 
-    this->insert(address, (type == SymbolType::Function) ? ListingItemType::FunctionItem :
+    this->insert(address, (type == Symbol::T_Function) ? ListingItemType::FunctionItem :
                                                            ListingItemType::SymbolItem);
 }
 
@@ -195,7 +195,7 @@ void ListingDocumentTypeImpl::remove(address_t address, ListingItemType type)
 
 void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name, type_t type, flag_t flags, tag_t tag)
 {
-    if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
+    if(r_disasm->needsWeak()) flags |= Symbol::F_Weak;
 
     if(name.empty()) m_symbols.create(address, type, flags, tag);
     else m_symbols.create(address, name, type, flags, tag);
@@ -204,16 +204,16 @@ void ListingDocumentTypeImpl::createSymbol(address_t address, const String& name
 bool ListingDocumentTypeImpl::canSymbolizeAddress(address_t address, type_t type, flag_t flags) const
 {
     if(!m_segments.find(address)) return false; // Ignore out of segment addresses
-    if(r_disasm->needsWeak()) flags |= SymbolFlags::Weak;
+    if(r_disasm->needsWeak()) flags |= Symbol::F_Weak;
 
     const BlockItem* bi = m_blocks.find(address);
-    if((flags & SymbolFlags::Weak) && bi->typeIs(BlockItemType::Code)) return false;
+    if((flags & Symbol::F_Weak) && bi->typeIs(BlockItem::T_Code)) return false;
 
     const Symbol* symbol = this->symbol(address);
     if(!symbol) return true;
 
     if(symbol->type > type) return false;
-    if((symbol->type == type) && (!symbol->isWeak() && (flags & SymbolFlags::Weak))) return false;
+    if((symbol->type == type) && (!symbol->isWeak() && (flags & Symbol::F_Weak))) return false;
     return true;
 }
 
@@ -224,9 +224,9 @@ void ListingDocumentTypeImpl::onBlockInserted(const EventArgs* e)
 
     switch(bi->type)
     {
-        case BlockItemType::Unexplored: this->insert(bi->start, ListingItemType::UnexploredItem); break;
-        //case BlockItemType::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;         // Don't add SymbolItem automatically
-        case BlockItemType::Code: this->insert(bi->start, ListingItemType::InstructionItem); break;
+        case BlockItem::T_Unexplored: this->insert(bi->start, ListingItemType::UnexploredItem); break;
+        //case BlockItem::Data: this->insert(bi->start, ListingItemType::SymbolItem); break;         // Don't add SymbolItem automatically
+        case BlockItem::T_Code: this->insert(bi->start, ListingItemType::InstructionItem); break;
         default: break;
     }
 }
@@ -238,9 +238,9 @@ void ListingDocumentTypeImpl::onBlockErased(const EventArgs* e)
 
     switch(bi->type)
     {
-        case BlockItemType::Unexplored: this->remove(bi->start, ListingItemType::UnexploredItem); break;
-        case BlockItemType::Data: this->remove(bi->start, ListingItemType::SymbolItem); break;
-        case BlockItemType::Code: this->remove(bi->start, ListingItemType::InstructionItem); break;
+        case BlockItem::T_Unexplored: this->remove(bi->start, ListingItemType::UnexploredItem); break;
+        case BlockItem::T_Data: this->remove(bi->start, ListingItemType::SymbolItem); break;
+        case BlockItem::T_Code: this->remove(bi->start, ListingItemType::InstructionItem); break;
     }
 }
 

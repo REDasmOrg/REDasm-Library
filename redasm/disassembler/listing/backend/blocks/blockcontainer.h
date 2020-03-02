@@ -20,11 +20,11 @@ class LIBREDASM_API BlockContainer
         const BlockItem* last() const;
         BlockItem* unexplored(address_t start);
         BlockItem* unexplored(address_t start, address_t end);
-        BlockItem* data(address_t start, address_t end, flag_t flags = BlockItemFlags::None);
-        BlockItem* code(address_t start, address_t end, flag_t flags = BlockItemFlags::None);
+        BlockItem* data(address_t start, address_t end, flag_t flags = BlockItem::F_None);
+        BlockItem* code(address_t start, address_t end, flag_t flags = BlockItem::F_None);
         BlockItem* unexploredSize(address_t start, size_t size);
-        BlockItem* dataSize(address_t start, size_t size, flag_t flags = BlockItemFlags::None);
-        BlockItem* codeSize(address_t start, size_t size, flag_t flags = BlockItemFlags::None);
+        BlockItem* dataSize(address_t start, size_t size, flag_t flags = BlockItem::F_None);
+        BlockItem* codeSize(address_t start, size_t size, flag_t flags = BlockItem::F_None);
 
     public:
         bool empty() const;

@@ -52,7 +52,7 @@ bool ListingSegments::insert(const String &name, offset_t offset, address_t addr
     {
         const Segment* segment = this->at(i);
 
-        if(segment->is(SegmentType::Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
+        if(segment->is(Segment::T_Bss) ? segment->contains(address) : ((segment->offset == offset) || segment->contains(address)))
         {
             r_ctx->problem("Segment " + name.quoted() + " overlaps " + segment->name().quoted());
             return false;

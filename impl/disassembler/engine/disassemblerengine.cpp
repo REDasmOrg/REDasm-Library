@@ -304,7 +304,7 @@ void DisassemblerEngine::searchStringsAt(size_t index) const
     if(index >= r_doc->segmentsCount()) return;
 
     const Segment* segment = r_doc->segmentAt(index);
-    if(!segment->is(SegmentType::Data) || segment->is(SegmentType::Bss)) return;
+    if(!segment->is(Segment::T_Data) || segment->is(Segment::T_Bss)) return;
 
     StringFinder sf(segment);
     sf.find();

@@ -301,7 +301,7 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 
     const Segment* segment = lock->segment(symbol->address);
 
-    if(segment && segment->is(SegmentType::Bss))
+    if(segment && segment->is(Segment::T_Bss))
     {
         p->renderSymbolPrologue(lock, item, symbol, rl);
 
@@ -329,18 +329,18 @@ void ListingRenderer::renderSymbol(const document_s_lock& lock, const ListingIte
 
     switch(symbol->type)
     {
-        case SymbolType::Import:
+        case Symbol::T_Import:
             if(!prologuedone) p->renderSymbolPrologue(lock, item, symbol, rl);
             rl.push("<").push("import", "label_fg").push(">");
             break;
 
-        case SymbolType::String:
+        case Symbol::T_String:
             if(!prologuedone) p->renderSymbolPrologue(lock, item, symbol, rl);
             if(symbol->isWideString()) rl.push(r_disasm->readWString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             else rl.push(r_disasm->readString(symbol, STRING_THRESHOLD).quoted(), "string_fg");
             break;
 
-        case SymbolType::Label:
+        case Symbol::T_Label:
             if(!rl.ignoreflags && this->hasFlag(ListingRendererFlags::HideSegmentAndAddress)) this->renderIndent(rl, 2);
             else this->renderAddressIndent(lock, item, rl);
             rl.push(symbol->name, "label_fg").push(":");
@@ -415,12 +415,12 @@ void ListingRenderer::renderMnemonic(const CachedInstruction &instruction, Rende
 
     switch(instruction->type)
     {
-        case InstructionType::Invalid: rl.push(mnemonic, "instruction_invalid"); break;
-        case InstructionType::Stop: rl.push(mnemonic, "instruction_stop"); break;
-        case InstructionType::Nop: rl.push(mnemonic, "instruction_nop"); break;
-        case InstructionType::Call: rl.push(mnemonic, "instruction_call"); break;
-        case InstructionType::Compare: rl.push(mnemonic, "instruction_compare"); break;
-        case InstructionType::Jump: rl.push(mnemonic, instruction->isConditional() ? "instruction_jmp_c" : "instruction_jmp"); break;
+        case Instruction::T_Invalid: rl.push(mnemonic, "instruction_invalid"); break;
+        case Instruction::T_Stop: rl.push(mnemonic, "instruction_stop"); break;
+        case Instruction::T_Nop: rl.push(mnemonic, "instruction_nop"); break;
+        case Instruction::T_Call: rl.push(mnemonic, "instruction_call"); break;
+        case Instruction::T_Compare: rl.push(mnemonic, "instruction_compare"); break;
+        case Instruction::T_Jump: rl.push(mnemonic, instruction->isConditional() ? "instruction_jmp_c" : "instruction_jmp"); break;
         default: rl.push(mnemonic); break;
     }
 }

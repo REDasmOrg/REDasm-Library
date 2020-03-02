@@ -6,20 +6,17 @@
 
 namespace REDasm {
 
-namespace SegmentType {
-enum: type_t
-{
-    None        = 0x00000000,
-    Code        = 0x00000001,
-    Data        = 0x00000002,
-    Bss         = 0x00000004,
-
-    DataAndCode = Data | Code,
-};
-}
-
 struct Segment
 {
+    enum Type : type_t {
+        T_None        = 0x00000000,
+        T_Code        = 0x00000001,
+        T_Data        = 0x00000002,
+        T_Bss         = 0x00000004,
+
+        T_DataAndCode = T_Data | T_Code,
+    };
+
     char name_[DEFAULT_NAME_SIZE];
     offset_t offset, endoffset;
     address_t address, endaddress;

@@ -47,18 +47,18 @@ String SymbolTableImpl::prefix(type_t type, flag_t flags)
 {
     switch(type)
     {
-        case SymbolType::String:   return (flags & SymbolFlags::WideString) ? "wstr" : "str";
-        case SymbolType::Label:    return "loc";
-        case SymbolType::Function: return "sub";
-        case SymbolType::Import:   return "imp";
+        case Symbol::T_String:   return (flags & Symbol::F_WideString) ? "wstr" : "str";
+        case Symbol::T_Label:    return "loc";
+        case Symbol::T_Function: return "sub";
+        case Symbol::T_Import:   return "imp";
         default: break;
     }
 
-    if(flags & SymbolFlags::TableItem) return "tbl";
+    if(flags & Symbol::F_TableItem) return "tbl";
 
     return "data";
 
-//    if(type & SymbolType::Pointer)
+//    if(type & Symbol::Pointer)
 //        return "ptr";
 }
 

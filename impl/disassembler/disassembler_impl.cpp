@@ -18,8 +18,8 @@ DisassemblerImpl::DisassemblerImpl(Disassembler* q, Assembler *assembler, Loader
 DisassemblerImpl::~DisassemblerImpl() { if(m_loader) m_loader->buffer()->release(); }
 Loader *DisassemblerImpl::loader() const { return m_loader; }
 Assembler *DisassemblerImpl::assembler() const { return m_assembler; }
-const safe_ptr<ListingDocumentType>& DisassemblerImpl::documentNew() const { return m_loader->documentNew(); }
-safe_ptr<ListingDocumentType>& DisassemblerImpl::documentNew() { return m_loader->documentNew(); }
+const safe_ptr<ListingDocumentType>& DisassemblerImpl::document() const { return m_loader->document(); }
+safe_ptr<ListingDocumentType>& DisassemblerImpl::document() { return m_loader->document(); }
 ReferenceTable *DisassemblerImpl::references() { return &m_referencetable; }
 SortedSet DisassemblerImpl::getReferences(address_t address) const { return m_referencetable.references(address); }
 SortedSet DisassemblerImpl::getTargets(address_t address) const { return m_referencetable.targets(address); }

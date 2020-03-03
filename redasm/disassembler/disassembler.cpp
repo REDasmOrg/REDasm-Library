@@ -9,8 +9,8 @@ Disassembler::Disassembler(Assembler *assembler, Loader *loader): m_pimpl_p(new 
 Disassembler::~Disassembler() { if(r_ctx->disassembler() == this) r_ctx->setDisassembler(nullptr); }
 Loader *Disassembler::loader() const { PIMPL_P(const Disassembler); return p->loader(); }
 Assembler *Disassembler::assembler() const { PIMPL_P(const Disassembler); return p->assembler(); }
-const safe_ptr<ListingDocumentType>& Disassembler::document() const { PIMPL_P(const Disassembler); return p->documentNew(); }
-safe_ptr<ListingDocumentType>& Disassembler::document() { PIMPL_P(Disassembler); return p->documentNew(); }
+const safe_ptr<ListingDocumentType>& Disassembler::document() const { PIMPL_P(const Disassembler); return p->document(); }
+safe_ptr<ListingDocumentType>& Disassembler::document() { PIMPL_P(Disassembler); return p->document(); }
 ReferenceTable *Disassembler::references() { PIMPL_P(Disassembler); return p->references(); }
 SortedSet Disassembler::getReferences(address_t address) const { PIMPL_P(const Disassembler); return p->getReferences(address); }
 SortedSet Disassembler::getTargets(address_t address) const { PIMPL_P(const Disassembler); return p->getTargets(address); }

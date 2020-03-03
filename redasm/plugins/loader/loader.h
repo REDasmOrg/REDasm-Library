@@ -30,7 +30,7 @@ class LIBREDASM_API LoadRequest
 
 typedef std::unordered_set<String> SignatureIdentifiers;
 
-#define ldrdoc_r(r) r->documentNew()
+#define ldrdoc_r(r) r->document()
 #define ldrdoc      ldrdoc_r(this)
 
 class LIBREDASM_API Loader: public Plugin
@@ -57,8 +57,8 @@ class LIBREDASM_API Loader: public Plugin
         BufferView view(address_t address) const;
         BufferView view(address_t address, size_t size) const;
         BufferView viewSegment(const Segment* segment) const;
-        const ListingDocument& documentNew() const;
-        ListingDocument& documentNew();
+        const ListingDocument& document() const;
+        ListingDocument& document();
         SignatureIdentifiers &signatures();
         Loader* signature(const String& sig);
         Analyzer* analyzer();

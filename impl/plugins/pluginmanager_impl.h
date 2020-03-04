@@ -36,7 +36,7 @@ class PluginManagerImpl
         typedef std::function<IterateResult(const PluginInstance*)> PluginManager_Callback;
 
     public:
-        PluginManagerImpl() = default;
+        PluginManagerImpl();
         const PluginInstance* load(const String& pluginpath, const String& initname);
         const PluginInstance* find(const String& id, const String& initname);
         void iteratePlugins(const String& initname, const PluginManager_Callback& cb);
@@ -47,6 +47,8 @@ class PluginManagerImpl
         bool execute(const String& id, const ArgumentList& args);
 
     private:
+        void loadResidentPlugins();
+        void pushActive(const PluginInstance* pi);
         bool iteratePlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
         const PluginInstance* find(const String& path, const String& id, const String& initname);
 

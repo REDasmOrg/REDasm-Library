@@ -22,19 +22,8 @@ PluginManager::PluginManager(): m_pimpl_p(new PluginManagerImpl()) { }
 PluginManager::~PluginManager() { this->unloadAll(); }
 void PluginManager::unloadAll() { PIMPL_P(PluginManager); p->unloadAll(); }
 void PluginManager::unload(const PluginInstance *pi) { PIMPL_P(PluginManager); p->unload(pi); }
-
-void PluginManager::unload(const PluginList &pl)
-{
-    for(size_t i = 0; i < pl.size(); i++)
-        this->unload(pl.at(i));
-}
-
-PluginManager *PluginManager::instance()
-{
-    static PluginManager instance;
-    return &instance;
-}
-
+void PluginManager::unload(const PluginList &pl) { for(size_t i = 0; i < pl.size(); i++) this->unload(pl.at(i)); }
+PluginManager *PluginManager::instance() { static PluginManager instance; return &instance; }
 const PluginMap &PluginManager::activePlugins() const { PIMPL_P(const PluginManager); return p->m_activeplugins; }
 const PluginInstance *PluginManager::findLoader(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_LOADER_NAME); }
 const PluginInstance *PluginManager::findAssembler(const String &id) { PIMPL_P(PluginManager); return p->find(id, REDASM_INIT_ASSEMBLER_NAME); }

@@ -6,6 +6,7 @@ namespace REDasm {
 
 std::mutex ContextImpl::m_mutex;
 std::unique_ptr<Context> ContextImpl::m_instance;
+std::deque<String> ContextImpl::m_pluginpaths;
 Context* ContextImpl::m_parentinstance = nullptr;
 
 ContextImpl::ContextImpl()
@@ -15,6 +16,7 @@ ContextImpl::ContextImpl()
 }
 
 Disassembler *ContextImpl::disassembler() const { return m_disassembler; }
+void ContextImpl::addPluginPath(const String& s) { m_pluginpaths.push_back(s); }
 void ContextImpl::setDisassembler(Disassembler *disassembler) { m_disassembler = disassembler; }
 
 void ContextImpl::checkSettings()

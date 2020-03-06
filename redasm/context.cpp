@@ -1,7 +1,7 @@
 #include "context.h"
 #include "support/utils.h"
 #include "disassembler/disassembler.h"
-#include <impl/context_impl.h>
+#include <impl/types/container_impl.h>
 #include <impl/context_impl.h>
 
 #define CONTEXT_DEBOUNCE_CHECK  auto now = std::chrono::steady_clock::now(); \
@@ -38,6 +38,7 @@ const ProblemList &Context::problems() const { PIMPL_P(const Context); return p-
 void Context::clearProblems() { PIMPL_P(Context); p->m_uproblems.clear(); p->m_problems.clear(); }
 Disassembler *Context::disassembler() const { PIMPL_P(const Context); return p->disassembler(); }
 void Context::setDisassembler(Disassembler *disassembler) { PIMPL_P(Context); p->setDisassembler(disassembler); }
+void Context::addPluginPath(const String& s) { PIMPL_P(Context); p->addPluginPath(s); }
 
 void Context::cwd(const String &s)
 {
@@ -63,7 +64,7 @@ void Context::flag(flag_t flag, bool set) { PIMPL_P(Context); p->flag(flag, set)
 void Context::flags(flag_t flags) { PIMPL_P(Context); p->flags(flags); }
 PluginManager *Context::pluginManager() const { return PluginManager::instance(); }
 AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.ui.get(); }
-const PluginPaths &Context::pluginPaths() const { PIMPL_P(const Context); return p->m_settings.pluginPaths; }
+PluginPaths* Context::pluginPaths() const { PIMPL_P(const Context); return REDasm::list_adapter<String>(&p->m_pluginpaths); }
 String Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
 String Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
 String Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }

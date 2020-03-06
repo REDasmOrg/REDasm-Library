@@ -20,6 +20,7 @@ class ContextImpl
     public:
         ContextImpl();
         Disassembler* disassembler() const;
+        void addPluginPath(const String& s);
         void setDisassembler(Disassembler* disassembler);
         void checkSettings();
         void flag(flag_t flag, bool set);
@@ -41,6 +42,7 @@ class ContextImpl
     private:
         static std::mutex m_mutex;
         static std::unique_ptr<Context> m_instance;
+        static std::deque<String> m_pluginpaths;
         static Context* m_parentinstance;
 };
 

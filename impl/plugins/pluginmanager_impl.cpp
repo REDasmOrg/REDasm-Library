@@ -48,9 +48,11 @@ const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const St
 
 void PluginManagerImpl::iteratePlugins(const String &initname, const PluginManager_Callback &cb)
 {
-    for(const String& pluginpath : r_ctx->pluginPaths())
+    REDasm::list_adapter_ptr<String> adapter(r_ctx->pluginPaths());
+
+    for(size_t i = 0; i < adapter->size(); i++)
     {
-        if(this->iteratePlugins(pluginpath.c_str(), initname, cb))
+        if(this->iteratePlugins(adapter->at(i).c_str(), initname, cb))
             break;
     }
 }
@@ -176,9 +178,11 @@ const PluginInstance *PluginManagerImpl::find(const String &path, const String &
 
 const PluginInstance *PluginManagerImpl::find(const String &id, const String &initname)
 {
-    for(const String& pluginpath : r_ctx->pluginPaths())
+    REDasm::list_adapter_ptr<String> adapter(r_ctx->pluginPaths());
+
+    for(size_t i = 0; i < adapter->size(); i++)
     {
-        const PluginInstance* pi = this->find(pluginpath.c_str(), id, initname);
+        const PluginInstance* pi = this->find(adapter->at(i).c_str(), id, initname);
         if(pi) return pi;
     }
 

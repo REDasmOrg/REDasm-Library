@@ -5,6 +5,7 @@
 #include "support/event/eventmanager.h"
 #include "plugins/pluginmanager.h"
 #include "plugins/loader/loader.h"
+#include "types/container.h"
 #include "support/path.h"
 #include "pimpl.h"
 #include "ui.h"
@@ -14,7 +15,7 @@ namespace REDasm {
 typedef std::function<void(const String&)> Context_LogCallback;
 typedef std::function<void(size_t)> Context_ProgressCallback;
 typedef std::deque<String> ProblemList;
-typedef std::list<String> PluginPaths;
+typedef ListAdapter<String> PluginPaths;
 
 struct LIBREDASM_API ContextSettings
 {
@@ -25,7 +26,6 @@ struct LIBREDASM_API ContextSettings
     Context_LogCallback statusCallback;
     Context_ProgressCallback progressCallback;
     std::shared_ptr<AbstractUI> ui;
-    PluginPaths pluginPaths;
     bool ignoreproblems;
 };
 
@@ -63,6 +63,7 @@ class LIBREDASM_API Context
     public:
         Disassembler* disassembler() const;
         void setDisassembler(Disassembler* disassembler);
+        void addPluginPath(const String& s);
         void cwd(const String& s);
         void sync(bool b);
         void log(const String& s);
@@ -77,7 +78,7 @@ class LIBREDASM_API Context
         void flags(flag_t flags);
         PluginManager* pluginManager() const;
         AbstractUI* ui() const;
-        const PluginPaths& pluginPaths() const;
+        PluginPaths* pluginPaths() const;
         String capstoneVersion() const;
         String runtimePath() const;
         String tempPath() const;

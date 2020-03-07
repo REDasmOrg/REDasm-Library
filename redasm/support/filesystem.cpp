@@ -1,5 +1,6 @@
 #include "filesystem.h"
 #include <impl/types/container_impl.h>
+#include <fstream>
 #include <cstring>
 #include <deque>
 
@@ -24,6 +25,9 @@ namespace FS {
 
 Path::Path(const String& value): value(value) { }
 bool Path::empty() const { return value.empty(); }
+bool Path::exists() const { return this->isFile() || this->isDir(); }
+bool Path::isDir() const { return Path::isDir(value); }
+bool Path::isFile() const { return Path::isFile(value); }
 
 String Path::path() const
 {
@@ -64,6 +68,19 @@ Path& Path::append(const String& rhs)
     value += rhs;
     return *this;
 }
+
+String Path::join(const String& lhs, const String& rhs) { return Path(lhs).append(rhs).value; }
+bool Path::isFile(const String& filepath) { std::ifstream ifs(filepath.c_str()); return ifs.is_open(); }
+
+bool Path::isDir(const String& filepath)
+{
+    DIR* dir = opendir(filepath.c_str());
+    bool isdir = dir != nullptr;
+    if(dir) closedir(dir);
+    return isdir;
+}
+
+bool Path::exists(const String& filepath) { return Path::isFile(filepath) || Path::isDir(filepath); }
 
 String Path::sep()
 {

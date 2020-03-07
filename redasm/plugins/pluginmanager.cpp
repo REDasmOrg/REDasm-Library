@@ -4,7 +4,6 @@
 #include <redasm/plugins/assembler/assembler.h>
 #include <redasm/plugins/loader/loader.h>
 #include <redasm/plugins/plugin.h>
-#include <redasm/support/path.h>
 #include <redasm/context.h>
 
 namespace REDasm {
@@ -34,7 +33,7 @@ PluginList PluginManager::getLoaders(const LoadRequest& request)
     PIMPL_P(PluginManager);
     PluginList plugins;
 
-    p->iteratePlugins(REDASM_INIT_LOADER_NAME, [&plugins, request](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
+    p->scanPlugins(REDASM_INIT_LOADER_NAME, [&plugins, request](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
         Loader* loader = plugin_cast<Loader>(pi);
         bool res = loader->test(request);
 
@@ -56,7 +55,7 @@ PluginList PluginManager::getAssemblers()
     PIMPL_P(PluginManager);
     PluginList plugins;
 
-    p->iteratePlugins(REDASM_INIT_ASSEMBLER_NAME, [&plugins](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
+    p->scanPlugins(REDASM_INIT_ASSEMBLER_NAME, [&plugins](const PluginInstance* pi) -> PluginManagerImpl::IterateResult {
         plugins.pimpl_p()->append(pi);
         return PluginManagerImpl::IterateResult::Continue;
     });

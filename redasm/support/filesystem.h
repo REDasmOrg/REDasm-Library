@@ -13,12 +13,20 @@ struct Path
 {
     Path(const String& value);
     bool empty() const;
+    bool exists() const;
+    bool isDir() const;
+    bool isFile() const;
     String path() const;
     String name() const;
     String stem() const;
     String ext() const;
 
     Path& append(const String& rhs);
+
+    static String join(const String& lhs, const String& rhs);
+    static bool isFile(const String& filepath);
+    static bool isDir(const String& filepath);
+    static bool exists(const String& filepath);
 
     static String sep();
     static char sepChar();

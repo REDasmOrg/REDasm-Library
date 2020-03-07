@@ -1,13 +1,7 @@
 #include "pluginmanager_impl.h"
 #include "pluginloader.h"
-#include <redasm/support/utils.h>
+#include <redasm/support/filesystem.h>
 #include <redasm/context.h>
-
-#ifdef _WIN32
-    #include "../libs/dirent/dirent.h"
-#else
-    #include <dirent.h>
-#endif
 
 namespace REDasm {
 
@@ -46,13 +40,13 @@ const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const St
     return &m_activeplugins.pimpl_p()->value(pi.descriptor->id);
 }
 
-void PluginManagerImpl::iteratePlugins(const String &initname, const PluginManager_Callback &cb)
+void PluginManagerImpl::scanPlugins(const String &initname, const PluginManager_Callback &cb)
 {
     REDasm::list_adapter_ptr<String> adapter(r_ctx->pluginPaths());
 
     for(size_t i = 0; i < adapter->size(); i++)
     {
-        if(this->iteratePlugins(adapter->at(i).c_str(), initname, cb))
+        if(this->scanPlugins(adapter->at(i).c_str(), initname, cb))
             break;
     }
 }
@@ -83,7 +77,7 @@ bool PluginManagerImpl::execute(const String &id, const ArgumentList& args)
 
 void PluginManagerImpl::loadResidentPlugins()
 {
-    this->iteratePlugins(REDASM_INIT_PLUGIN_NAME, [&](const PluginInstance* pi) -> IterateResult {
+    this->scanPlugins(REDASM_INIT_PLUGIN_NAME, [&](const PluginInstance* pi) -> IterateResult {
         this->pushActive(pi);
         return IterateResult::Continue;
     });
@@ -97,82 +91,41 @@ void PluginManagerImpl::pushActive(const PluginInstance* pi)
         pi->descriptor->plugin->setInstance(&m_activeplugins.pimpl_p()->value(pi->descriptor->id)); // Bind Descriptor <-> Plugin
 }
 
-bool PluginManagerImpl::iteratePlugins(const String &path, const String &initname, const PluginManagerImpl::PluginManager_Callback &cb)
+bool PluginManagerImpl::scanPlugins(const String &path, const String &initname, const PluginManagerImpl::PluginManager_Callback &cb)
 {
-    DIR* dir = opendir(path.c_str());
+    REDasm::list_adapter_ptr<FS::Entry> entries(FS::recurse(path));
 
-    if(!dir)
-        return false;
-
-    struct dirent* entry = nullptr;
-
-    while((entry = readdir(dir)))
+    for(size_t i = 0; i < entries->size(); i++)
     {
-        if(!std::strcmp(entry->d_name, ".") || !std::strcmp(entry->d_name, ".."))
-            continue;
-
-        if(entry->d_type == DT_DIR) // Recurse folders
-        {
-            String rpath = Path::create(path, entry->d_name);
-
-            if(this->iteratePlugins(rpath.c_str(), initname, cb))
-                return true;
-
-            continue;
-        }
-
-        if(!String(entry->d_name).endsWith(SHARED_OBJECT_EXT))
-            continue;
+        const FS::Entry& entry = entries->at(i);
+        if(entry.path.ext() != SHARED_OBJECT_EXT) continue;
 
         const PluginInstance* pi = nullptr;
-
-        if(!(pi = this->load(Path::create(path, entry->d_name), initname)))
-            continue;
+        if(!(pi = this->load(entry.value(), initname))) continue;
 
         IterateResult res = cb(pi);
-
-        if(res == IterateResult::Done)
-        {
-            closedir(dir);
-            return true;
-        }
-
-        if(res == IterateResult::Unload)
-            this->unload(pi);
+        if(res == IterateResult::Done) return true;
+        if(res == IterateResult::Unload) this->unload(pi);
     }
 
-    closedir(dir);
     return false;
 }
 
 const PluginInstance *PluginManagerImpl::find(const String &path, const String &id, const String &initname)
 {
-    DIR* dir = opendir(path.c_str());
-    if(!dir) return nullptr;
-
-    struct dirent* entry = nullptr;
+    REDasm::list_adapter_ptr<FS::Entry> entries(FS::recurse(path));
     const PluginInstance* pi = nullptr;
 
-    while(!pi && (entry = readdir(dir)))
+    for(size_t i = 0; i < entries->size(); i++)
     {
-        if(!std::strcmp(entry->d_name, ".") || !std::strcmp(entry->d_name, ".."))
-            continue;
+        const FS::Entry& entry = entries->at(i);
+        if(entry.path.ext() != SHARED_OBJECT_EXT) continue;
+        if(entry.path.stem() != id) continue;
 
-        String rpath = Path::create(path, entry->d_name);
-
-        if(entry->d_type == DT_DIR) // Recurse folders
-        {
-            pi = this->find(rpath.c_str(), id, initname);
-            continue;
-        }
-
-        if(Path::fileNameOnly(entry->d_name) != id)
-            continue;
-
-        pi = this->load(rpath, initname);
+        pi = this->load(entry.value(), initname);
+        break;
     }
 
-    closedir(dir);
     return pi;
 }
 

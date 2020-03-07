@@ -67,6 +67,13 @@ AbstractUI *Context::ui() const { PIMPL_P(const Context); return p->m_settings.u
 PluginPaths* Context::pluginPaths() const { PIMPL_P(const Context); return REDasm::list_adapter<String>(&p->m_pluginpaths); }
 String Context::runtimePath() const { PIMPL_P(const Context); return p->m_settings.runtimePath; }
 String Context::tempPath() const { PIMPL_P(const Context); return p->m_settings.tempPath;  }
+String Context::rnt(const FS::Path& p) const { return FS::Path::join(this->runtimePath(), p.value); }
+String Context::db(const FS::Path& p) const { return this->rnt(FS::Path::join("database", p.value)); }
+String Context::signaturedb(const FS::Path& p) const { return this->db(FS::Path::join("signatures", p.value)); }
+String Context::loaderdb(const FS::Path& p) const { return this->db(FS::Path::join("loaders", p.value)); }
+String Context::assemblerdb(const FS::Path& p) const { return this->db(FS::Path::join("assemblers", p.value)); }
+String Context::plugindb(const FS::Path& p) const { return this->db(FS::Path::join("plugins", p.value)); }
+
 String Context::capstoneVersion() const { PIMPL_P(const Context); return p->capstoneVersion(); }
 void Context::log(const String &s) { PIMPL_P(Context); p->m_settings.logCallback(s); }
 

@@ -1,7 +1,7 @@
 #include "signaturescanner.h"
 #include <redasm/disassembler/listing/document/listingdocument.h>
 #include <redasm/disassembler/disassembler.h>
-#include <redasm/support/path.h>
+#include <redasm/support/filesystem.h>
 #include <redasm/context.h>
 
 namespace REDasm {
@@ -12,8 +12,9 @@ bool SignatureScanner::load(const String& signame)
 {
     m_signame = signame;
 
-    String signaturefile = Path::exists(signame) ? signame : r_ctx->signaturedb(signame);
-    if(!signaturefile.endsWith(".json")) signaturefile += ".json";
+    FS::Path sigpath(signame);
+    String signaturefile = sigpath.isFile() ? signame : r_ctx->signaturedb(signame);
+    if(sigpath.ext() != ".json") signaturefile += ".json";
 
     m_sigdb = SignatureDB();
     m_count.store(0);

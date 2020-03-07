@@ -1,6 +1,5 @@
 #include "pluginloader.h"
-#include <redasm/support/utils.h>
-#include <redasm/support/path.h>
+#include <redasm/support/filesystem.h>
 #include <redasm/context.h>
 
 namespace REDasm {
@@ -12,7 +11,7 @@ bool PluginLoader::load(const String &pluginpath, const String& initname, Plugin
     if((lr = PluginLoader::loadLibrary(pluginpath, initname, pi)) != LoadResult::Ok)
     {
         if(lr == LoadResult::Failed)
-            r_ctx->log(Path::fileName(pluginpath) + ": Loading failed");
+            r_ctx->log(FS::Path(pluginpath).name() + ": Loading failed");
         //else if(lr == LoadResult::InvalidInit)
           //r_ctx->log(Path::fileName(pluginpath) + ": '" + initname + "': Not found");
 
@@ -27,9 +26,9 @@ bool PluginLoader::load(const String &pluginpath, const String& initname, Plugin
     if(!f() || !pi->descriptor->plugin)
     {
         if(!pi->descriptor->plugin)
-            r_ctx->log(Path::fileName(pluginpath) + ": Plugin field is NULL");
+            r_ctx->log(FS::Path(pluginpath).name() + ": Plugin field is NULL");
         else
-            r_ctx->log(Path::fileName(pluginpath) + ": Call to " + String(REDASM_LOAD_NAME).quoted() + " failed");
+            r_ctx->log(FS::Path(pluginpath).name() + ": Call to " + String(REDASM_LOAD_NAME).quoted() + " failed");
 
         PluginLoader::unloadLibrary(pi->handle);
         return false;

@@ -6,7 +6,7 @@
 #include "plugins/pluginmanager.h"
 #include "plugins/loader/loader.h"
 #include "types/container.h"
-#include "support/path.h"
+#include "support/filesystem.h"
 #include "pimpl.h"
 #include "ui.h"
 
@@ -84,12 +84,12 @@ class LIBREDASM_API Context
         String tempPath() const;
 
     public:
-        template<typename... T> inline String rnt(const String& p, T... args) const { return Path::create(this->runtimePath(), p, args...); }
-        template<typename... T> inline String db(const String& p, T... args) const { return this->rnt("database", p, args...); }
-        template<typename... T> inline String signaturedb(const String& p, T... args) const { return this->db("signatures", p, args...); }
-        template<typename... T> inline String loaderdb(const String& p, T... args) const { return this->db("loaders", p, args...); }
-        template<typename... T> inline String assemblerdb(const String& p, T... args) const { return this->db("assemblers", p, args...); }
-        template<typename... T> inline String plugindb(const String& p, T... args) const { return this->db("plugins", p, args...); }
+        String rnt(const FS::Path& p) const;
+        String db(const FS::Path& p) const;
+        String signaturedb(const FS::Path& p) const;
+        String loaderdb(const FS::Path& p) const;
+        String assemblerdb(const FS::Path& p) const;
+        String plugindb(const FS::Path& p) const;
 };
 
 } // namespace REDasm

@@ -1,5 +1,5 @@
 #include "instructioncache.h"
-#include <redasm/support/utils.h>
+#include <redasm/support/filesystem.h>
 #include "../cachedinstruction_impl.h"
 #include "../lmdb/lmdbexception.h"
 
@@ -90,10 +90,10 @@ CachedInstruction InstructionCache::deserialize(address_t address)
 
 String InstructionCache::generateFilePath()
 {
-    String filepath = Path::create(r_ctx->tempPath(), CACHE_FILE_NAME(0));
+    String filepath = FS::Path::join(r_ctx->tempPath(), CACHE_FILE_NAME(0));
 
-    for(size_t i = 0; Path::exists(filepath); i++)
-        filepath = Path::create(r_ctx->tempPath(), CACHE_FILE_NAME(i));
+    for(size_t i = 0; FS::Path::exists(filepath); i++)
+        filepath = FS::Path::join(r_ctx->tempPath(), CACHE_FILE_NAME(i));
 
     return filepath;
 }

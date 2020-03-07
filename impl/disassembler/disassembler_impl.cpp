@@ -8,7 +8,6 @@
 #include <redasm/database/signaturedb.h>
 #include <redasm/buffer/memorybuffer.h>
 #include <redasm/support/utils.h>
-#include <redasm/support/path.h>
 #include <redasm/context.h>
 #include <cctype>
 

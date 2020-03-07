@@ -39,7 +39,7 @@ class PluginManagerImpl
         PluginManagerImpl();
         const PluginInstance* load(const String& pluginpath, const String& initname);
         const PluginInstance* find(const String& id, const String& initname);
-        void iteratePlugins(const String& initname, const PluginManager_Callback& cb);
+        void scanPlugins(const String& initname, const PluginManager_Callback& cb);
         void unload(const PluginInstance* pi);
         void unloadAll();
 
@@ -49,7 +49,7 @@ class PluginManagerImpl
     private:
         void loadResidentPlugins();
         void pushActive(const PluginInstance* pi);
-        bool iteratePlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
+        bool scanPlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
         const PluginInstance* find(const String& path, const String& id, const String& initname);
 
     private:

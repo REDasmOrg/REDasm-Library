@@ -13,8 +13,8 @@ template<typename T> class ListAdapterT: public ListAdapter<T>    // Copy
 
     public:
         ListAdapterT(const Container& c): m_c(c) { }
-        size_t size() const override { return m_c->size(); }
-        const T& at(size_t idx) const override { return m_c->operator[](idx); }
+        size_t size() const override { return m_c.size(); }
+        const T& at(size_t idx) const override { return m_c.operator[](idx); }
 
     private:
         Container m_c;

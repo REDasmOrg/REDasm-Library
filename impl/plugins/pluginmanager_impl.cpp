@@ -47,13 +47,17 @@ void PluginManagerImpl::scanPlugins(const String &initname, const PluginManager_
 
 void PluginManagerImpl::unloadAll()
 {
+    this->shutdown();
+    this->loadResidentPlugins(); // Reload
+}
+
+void PluginManagerImpl::shutdown()
+{
     while(!m_activeplugins.pimpl_p()->empty())
     {
         const String& id = m_activeplugins.pimpl_p()->first();
         this->unload(&m_activeplugins.pimpl_p()->value(id));
     }
-
-    this->loadResidentPlugins(); // Reload
 }
 
 bool PluginManagerImpl::execute(const String &id, const ArgumentList& args)

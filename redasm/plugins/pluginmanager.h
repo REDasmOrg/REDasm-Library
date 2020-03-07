@@ -53,6 +53,7 @@ class LIBREDASM_API PluginManager: public Object
 
     public:
         ~PluginManager();
+        void shutdown();
         void unloadAll();
         void unload(const PluginInstance* pi);
         void unload(const PluginList& pl);

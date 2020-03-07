@@ -42,6 +42,7 @@ class PluginManagerImpl
         void scanPlugins(const String& initname, const PluginManager_Callback& cb);
         void unload(const PluginInstance* pi);
         void unloadAll();
+        void shutdown();
 
     public:
         bool execute(const String& id, const ArgumentList& args);

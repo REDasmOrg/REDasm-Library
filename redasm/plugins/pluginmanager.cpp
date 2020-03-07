@@ -18,7 +18,8 @@ bool PluginList::empty() const { PIMPL_P(const PluginList); return p->empty(); }
 size_t PluginList::size() const { PIMPL_P(const PluginList); return p->size(); }
 
 PluginManager::PluginManager(): m_pimpl_p(new PluginManagerImpl()) { }
-PluginManager::~PluginManager() { this->unloadAll(); }
+PluginManager::~PluginManager() { this->shutdown(); }
+void PluginManager::shutdown() { PIMPL_P(PluginManager); p->shutdown(); }
 void PluginManager::unloadAll() { PIMPL_P(PluginManager); p->unloadAll(); }
 void PluginManager::unload(const PluginInstance *pi) { PIMPL_P(PluginManager); p->unload(pi); }
 void PluginManager::unload(const PluginList &pl) { for(size_t i = 0; i < pl.size(); i++) this->unload(pl.at(i)); }

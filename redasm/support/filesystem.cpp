@@ -113,14 +113,8 @@ static void dir(const REDasm::String& path, std::deque<Entry>& entries, bool rec
                 if(recurse) FS::dir(abspath, entries, true);
                 continue;
 
-            case DT_LNK:
-                itype = Info::SymLink;
-                continue; // NOTE: Must be implemented
-
-            case DT_REG:
-                itype = Info::File;
-                break;
-
+            case DT_LNK: itype = Info::SymLink; break;
+            case DT_REG: itype = Info::File; break;
             default: continue;
         }
 

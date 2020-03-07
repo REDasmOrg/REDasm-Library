@@ -49,7 +49,7 @@ class PluginManagerImpl
     private:
         void loadResidentPlugins();
         void pushActive(const PluginInstance* pi);
-        bool scanPlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
+        void scanPlugins(const String& path, const String& initname, const PluginManager_Callback& cb);
         const PluginInstance* find(const String& path, const String& id, const String& initname);
 
     private:

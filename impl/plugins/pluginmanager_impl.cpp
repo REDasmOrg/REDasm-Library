@@ -26,10 +26,7 @@ void PluginManagerImpl::unload(const PluginInstance *pi)
     m_activeplugins.pimpl_p()->erase(id);
 }
 
-PluginManagerImpl::PluginManagerImpl()
-{
-    this->loadResidentPlugins();
-}
+PluginManagerImpl::PluginManagerImpl() { this->loadResidentPlugins(); }
 
 const PluginInstance *PluginManagerImpl::load(const String &pluginpath, const String &initname)
 {
@@ -45,10 +42,7 @@ void PluginManagerImpl::scanPlugins(const String &initname, const PluginManager_
     REDasm::list_adapter_ptr<String> adapter(r_ctx->pluginPaths());
 
     for(size_t i = 0; i < adapter->size(); i++)
-    {
-        if(this->scanPlugins(adapter->at(i).c_str(), initname, cb))
-            break;
-    }
+        this->scanPlugins(adapter->at(i).c_str(), initname, cb);
 }
 
 void PluginManagerImpl::unloadAll()
@@ -91,7 +85,7 @@ void PluginManagerImpl::pushActive(const PluginInstance* pi)
         pi->descriptor->plugin->setInstance(&m_activeplugins.pimpl_p()->value(pi->descriptor->id)); // Bind Descriptor <-> Plugin
 }
 
-bool PluginManagerImpl::scanPlugins(const String &path, const String &initname, const PluginManagerImpl::PluginManager_Callback &cb)
+void PluginManagerImpl::scanPlugins(const String &path, const String &initname, const PluginManagerImpl::PluginManager_Callback &cb)
 {
     REDasm::list_adapter_ptr<FS::Entry> entries(FS::recurse(path));
 
@@ -104,11 +98,9 @@ bool PluginManagerImpl::scanPlugins(const String &path, const String &initname, 
         if(!(pi = this->load(entry.value(), initname))) continue;
 
         IterateResult res = cb(pi);
-        if(res == IterateResult::Done) return true;
+        if(res == IterateResult::Done) return;
         if(res == IterateResult::Unload) this->unload(pi);
     }
-
-    return false;
 }
 
 const PluginInstance *PluginManagerImpl::find(const String &path, const String &id, const String &initname)

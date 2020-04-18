@@ -1,0 +1,98 @@
+#pragma once
+
+#include <unordered_set>
+#include <string>
+#include <chrono>
+#include <mutex>
+#include <list>
+#include <rdapi/context.h>
+#include "plugin/interface/pluginmanager.h"
+#include "object.h"
+
+template<typename Callback>
+struct CallbackStruct
+{
+    Callback callback{nullptr};
+    void* userdata{nullptr};
+};
+
+class Disassembler;
+
+class Context: public Object
+{
+    private:
+        typedef std::unordered_map<const RDLoaderPlugin*, RDAssemblerPlugin*> LoaderToAssemblerMap;
+        typedef std::unordered_map<std::string, RDPluginHeader*> PluginMap;
+        using log_lock = std::scoped_lock<std::mutex>;
+
+    public:
+        Context() = default;
+        void addPluginPath(const char* pluginpath);
+        void setDisassembler(Disassembler* disassembler);
+        void setRuntimePath(const char* rntpath);
+        void setTempPath(const char* tmppath);
+        void setIgnoreProblems(bool ignore);
+        void setLogCallback(RD_LogCallback callback, void* userdata);
+        void setStatusCallback(RD_StatusCallback callback, void* userdata);
+        void setProgressCallback(RD_ProgressCallback callback, void* userdata);
+
+    public:
+        void statusProgress(const char* s, size_t progress);
+        void statusAddress(const char* s, address_t address);
+        void status(const char* s);
+        void log(const char* s);
+        void sync(bool b);
+
+    public: // Plugin
+        bool registerPlugin(RDLoaderPlugin* ploader);
+        bool registerPlugin(RDAssemblerPlugin* passembler);
+        void getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
+        void getAssemblers(Callback_AssemblerPlugin callback, void* userdata);
+        RDAssemblerPlugin* getAssembler(const RDLoaderPlugin* ploader) const;
+        RDAssemblerPlugin* findAssembler(const char* id) const;
+
+    public:
+        static Context* instance();
+        static void freePlugin(RDPluginHeader* plugin);
+
+    public:
+        void setFlags(flag_t flag);
+        flag_t flags() const;
+        bool sync() const;
+        PluginManager* pluginManager();
+        Disassembler* disassembler() const;
+        const char* runtimePath() const;
+        const char* tempPath() const;
+        void status(const std::string& s);
+        void log(const std::string& s);
+        void getProblems(RD_ProblemCallback callback, void* userdata);
+        void problem(const std::string& s);
+        void init();
+
+    private:
+        static void initPlugin(RDPluginHeader* plugin);
+        bool registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap);
+
+    private:
+        Disassembler* m_disassembler{nullptr};
+        flag_t m_flags{ContextFlag_None};
+        PluginManager m_pluginmanager;
+        PluginMap m_loaders, m_assemblers;
+        LoaderToAssemblerMap m_loadertoassembler;
+        CallbackStruct<RD_LogCallback> m_logcallback;
+        CallbackStruct<RD_StatusCallback> m_statuscallback;
+        CallbackStruct<RD_ProgressCallback> m_progresscallback;
+        std::unordered_set<std::string> m_pluginpaths, m_problems;
+        std::chrono::steady_clock::time_point m_laststatusreport;
+        std::chrono::milliseconds m_debouncetimeout;
+        std::string m_rntpath, m_tmppath;
+        std::mutex m_mutex;
+        bool m_sync{false}, m_ignoreproblems{false};
+};
+
+#define rd_ctx    Context::instance()
+#define rd_pm     rd_ctx->pluginManager()
+#define rd_disasm rd_ctx->disassembler()
+#define rd_asm    rd_disasm->assembler()
+#define rd_ldr    rd_disasm->loader()
+#define rd_doc    rd_ldr->document()

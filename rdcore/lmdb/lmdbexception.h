@@ -1,0 +1,16 @@
+#pragma once
+
+#include <exception>
+
+class LMDBException: public std::exception
+{
+    public:
+        LMDBException(int err);
+        const char* what() const noexcept override;
+
+    private:
+        int m_err{0};
+};
+
+
+inline void lmdb_check(int res) { if(res) throw LMDBException(res); }

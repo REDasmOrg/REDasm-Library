@@ -20,65 +20,28 @@ if(UNIX AND NOT APPLE)
   endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
-# Some libraries needs this relative directory
-set(IMPL_LIBS_INCLUDE   ${CMAKE_CURRENT_SOURCE_DIR}/impl/libs)
-set(REDASM_LIBS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/redasm/libs)
+# Libs
+file(GLOB_RECURSE LIBS_HEADERS libs/*.h*)
+file(GLOB_RECURSE LIBS_SOURCES libs/*.c*)
 
-# Capstone (Override Settings)
-set(CAPSTONE_SRC ${REDASM_LIBS_INCLUDE}/capstone)
-set(CAPSTONE_INCLUDE ${CAPSTONE_SRC}/include)
-set(CAPSTONE_BUILD_TESTS  OFF CACHE BOOL "")
-set(CAPSTONE_BUILD_SHARED OFF CACHE BOOL "")
-set(CAPSTONE_BUILD_STATIC ON  CACHE BOOL "")
-add_subdirectory(${CAPSTONE_SRC})
-
-# Impl
-file(GLOB_RECURSE IMPL_HEADERS impl/*.h*)
-file(GLOB_RECURSE IMPL_SOURCES impl/*.c*)
+# Core
+file(GLOB_RECURSE RDCORE_HEADERS rdcore/*.h*)
+file(GLOB_RECURSE RDCORE_SOURCES rdcore/*.c*)
 
 # API
-file(GLOB_RECURSE REDASM_HEADERS
-    redasm/buffer/*.h*
-    redasm/database/*.h
-    redasm/disassembler/*.h
-    redasm/graph/*.h
-    redasm/lmdb/*.h
-    redasm/libs/nlohmann/*.h*
-    redasm/libs/visit_struct/*.h*
-    redasm/plugins/*.h
-    redasm/static/*.h
-    redasm/support/*.h
-    redasm/types/*.h
-    context.h level.h macros.h pimpl.h redasm.h ui.h)
+file(GLOB_RECURSE RDAPI_HEADERS rdapi/*.h*)
+file(GLOB_RECURSE RDAPI_SOURCES rdapi/*.c*)
 
-file(GLOB_RECURSE REDASM_SOURCES
-     redasm/buffer/*.c*
-     redasm/database/*.c*
-     redasm/disassembler/*.c*
-     redasm/graph/*.c*
-     redasm/lmdb/*.c*
-     redasm/plugins/*.c*
-     redasm/support/*.c*
-     redasm/types/*.c*
-     context.cpp ui.cpp)
-
-set(HEADERS ${REDASM_HEADERS} ${IMPL_HEADERS})
-set(SOURCES ${REDASM_SOURCES} ${IMPL_SOURCES})
+set(HEADERS ${LIBS_HEADERS} ${RDCORE_HEADERS} ${RDAPI_HEADERS})
+set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
-target_link_libraries(${PROJECT_NAME} capstone-static)
-
-target_include_directories(${PROJECT_NAME}
-                           PUBLIC  ${CAPSTONE_INCLUDE}
-                                   ${REDASM_LIBS_INCLUDE}
-                           PRIVATE ${IMPL_LIBS_INCLUDE}
-                                   impl)
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -86,22 +49,18 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
 
 if(PORTABLE_MODE)
-    # Create "redasm" folder
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/redasm")
+    # Create "rdapi" folder
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/rdapi")
 
     # Copy Headers
-    foreach(HEADER ${REDASM_HEADERS})
+    foreach(HEADER ${RDAPI_HEADERS})
         string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" DST_HEADER ${HEADER})
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${HEADER} "${CMAKE_BINARY_DIR}/${DST_HEADER}")
     endforeach()
 
     # Copy FindREDasm.cmake
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-                       "${CMAKE_CURRENT_SOURCE_DIR}/redasm/FindREDasm.cmake" "${CMAKE_BINARY_DIR}/redasm")
-
-    # Copy capstone headers
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       "${CMAKE_CURRENT_SOURCE_DIR}/redasm/libs/capstone/include/capstone" "${CMAKE_BINARY_DIR}/redasm/libs/capstone")
+                       "${CMAKE_CURRENT_SOURCE_DIR}/rdapi/FindREDasm.cmake" "${CMAKE_BINARY_DIR}/rdapi")
 else()
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/redasm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*")
 endif()

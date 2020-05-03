@@ -1,8 +1,8 @@
 #include "pluginloader.h"
-#include "../../support/fs.h"
 #include "../../context.h"
-#include <string.h>
+#include <filesystem>
 #include <cstdlib>
+#include <string.h>
 
 #define REDASM_PLUGIN_STRUCT_NAME "redasm_plugin"
 
@@ -12,8 +12,10 @@ bool PluginLoader::load(const std::string& pluginpath, RDPluginInstance& pi)
 
     if((lr = PluginLoader::loadLibrary(pluginpath, pi)) != LoadResult::Ok)
     {
-        if(lr == LoadResult::Failed) rd_ctx->log(FS::Path(pluginpath).name() + ": Loading failed");
-        else if(lr == LoadResult::InvalidEntry) rd_ctx->log(FS::Path(pluginpath).name() + ": '" + REDASM_PLUGIN_STRUCT_NAME + "': Not found");
+        std::string pluginfilename = std::filesystem::path(pluginpath).filename();
+
+        if(lr == LoadResult::Failed) rd_ctx->log(pluginfilename + ": Loading failed");
+        else if(lr == LoadResult::InvalidEntry) rd_ctx->log(pluginfilename + ": '" + REDASM_PLUGIN_STRUCT_NAME + "': Not found");
         return false;
     }
 

@@ -2,8 +2,8 @@
 #include "../../lmdb/lmdbexception.h"
 #include "../../lmdb/lmdb.h"
 #include "../../support/utils.h"
-#include "../../support/fs.h"
 #include "../../context.h"
+#include <filesystem>
 #include <cassert>
 
 #define CACHE_FILE_NAME(x) ("redasm_cache_" + Utils::number(x) + ".tmp")
@@ -87,10 +87,10 @@ void InstructionCache::cache(const RDInstruction* instruction)
 
 std::string InstructionCache::generateFilePath()
 {
-    std::string filepath = FS::Path::join(rd_ctx->tempPath(), CACHE_FILE_NAME(0));
+    auto filepath = std::filesystem::path(rd_ctx->tempPath()).append(CACHE_FILE_NAME(0));
 
-    for(size_t i = 0; FS::Path::exists(filepath); i++)
-        filepath = FS::Path::join(rd_ctx->tempPath(), CACHE_FILE_NAME(i));
+    for(size_t i = 0; std::filesystem::exists(filepath); i++)
+        filepath = std::filesystem::path(rd_ctx->tempPath()).append(CACHE_FILE_NAME(i));
 
     return filepath;
 }

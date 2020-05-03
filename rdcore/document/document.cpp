@@ -343,8 +343,7 @@ bool Document::canSymbolizeAddress(address_t address, type_t type, flag_t flags)
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDBlock block;
-    m_blocks->find(address, &block);
-    if((flags & SymbolFlags_Weak) && (block.type == BlockType_Code)) return false;
+    assert(m_blocks->find(address, &block));
 
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;

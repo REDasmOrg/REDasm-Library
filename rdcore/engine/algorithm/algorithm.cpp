@@ -28,6 +28,7 @@ const RDInstruction* Algorithm::decodeInstruction(address_t address)
 {
     //if(rd_doc->isInstructionCached(address)) return rd_doc->instruction(address, nullptr);
     //return this->decode(address);
+    return nullptr;
 }
 
 void Algorithm::enqueue(address_t address) { DECODE_STATE(address); }

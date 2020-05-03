@@ -1,18 +1,19 @@
 #include "pluginmanager.h"
 #include "pluginloader.h"
-#include "../../support/fs.h"
+#include <filesystem>
 
 PluginManager::PluginManager() { }
 PluginManager::~PluginManager() { this->unloadAll(); }
 
 void PluginManager::loadAll(const std::string& pluginpath)
 {
-    FS::EntryList entries(FS::recurse(pluginpath));
+    std::filesystem::directory_entry e(pluginpath);
+    if(!e.is_directory()) return;
 
-    for(const FS::Entry& entry : entries)
+    for(const auto& entry : std::filesystem::recursive_directory_iterator(e, std::filesystem::directory_options::follow_directory_symlink))
     {
-        if(entry.path.ext() != SHARED_OBJECT_EXT) continue;
-        this->load(entry.value());
+        if(entry.is_directory() || entry.path().extension() != SHARED_OBJECT_EXT) continue;
+        this->load(entry.path());
     }
 }
 

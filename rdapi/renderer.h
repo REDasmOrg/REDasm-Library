@@ -31,6 +31,7 @@ enum RDRendererFlags {
     RendererFlags_NoIndent         = (1 << 3),
     RendererFlags_NoCursor         = (1 << 4),
     RendererFlags_NoHighlightWords = (1 << 5),
+    RendererFlags_NoComments       = (1 << 6),
 
     RendererFlags_NoSegmentAndAddress = RendererFlags_NoSegment | RendererFlags_NoAddress,
     RendererFlags_Simplified          = ~0

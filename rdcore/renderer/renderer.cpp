@@ -590,6 +590,9 @@ bool Renderer::renderParams(RDRenderItemParams* rip) const
 
 void Renderer::renderComments(RDRenderItemParams* rip)
 {
+    const Renderer* r = CPTR(const Renderer, rip->renderer);
+    if(r->flags() & RendererFlags_NoComments) return;
+
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     std::string comment = d->document()->comment(rip->documentitem->address, false);
     if(comment.empty()) return;

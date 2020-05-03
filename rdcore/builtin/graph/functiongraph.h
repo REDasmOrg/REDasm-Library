@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <optional>
 #include <list>
 #include <string>
 #include "../../document/document.h"
@@ -43,10 +42,8 @@ class FunctionGraph: public StyledGraph
         bool complete() const;
 
     private:
-        std::optional<address_t> findNextBranch(address_t address, RDDocumentItem* item);
         FunctionBasicBlock* requestBasicBlock(address_t startaddress);
         bool build(RDDocumentItem* item);
-        std::optional<address_t> findNextLabel(address_t address, RDDocumentItem* item);
         void buildBasicBlocks();
 
     private:

@@ -154,61 +154,6 @@ FunctionBasicBlock* FunctionGraph::requestBasicBlock(address_t startaddress)
     return &newfbb;
 }
 
-std::optional<address_t> FunctionGraph::findNextBranch(address_t address, RDDocumentItem* item)
-{
-    bool found = false;
-    std::optional<address_t> branchaddress;
-    size_t idx = m_document->instructionIndex(address);
-
-    for(size_t i = idx + 1; i < m_document->itemsCount(); i++)
-    {
-        assert(m_document->itemAt(i, item));
-        if(found) break;
-        if(item->type != DocumentItemType_Instruction) continue;
-
-        InstructionLock instruction(CPTR(RDDocument, &m_document), item->address);
-
-        switch(instruction->type)
-        {
-            case InstructionType_Jump:
-            case InstructionType_Stop:
-                branchaddress = std::make_optional<address_t>(item->address);
-                found = true;
-                break;
-
-            default: break;
-        }
-    }
-
-    return branchaddress;
-}
-
-std::optional<address_t> FunctionGraph::findNextLabel(address_t address, RDDocumentItem* item)
-{
-    size_t idx = m_document->instructionIndex(address);
-    if(idx == RD_NPOS) return std::nullopt;
-
-    address_t prevaddress = address;
-
-    for(size_t i = idx + 1; i < m_document->itemsCount(); i++)
-    {
-        assert(m_document->itemAt(i, item));
-
-        switch(item->type)
-        {
-            case DocumentItemType_Symbol:
-            case DocumentItemType_Function:
-                return prevaddress;
-
-            default: break;
-        }
-
-        prevaddress = item->address;
-    }
-
-    return prevaddress;
-}
-
 void FunctionGraph::buildBasicBlocks()
 {
     const BlockContainer* blockcontainer = m_document->blocks();

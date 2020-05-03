@@ -274,7 +274,6 @@ void Engine::searchStringsAt(size_t index) const
     rd_doc->segmentAt(index, &segment);
 
     if(segment.type & SegmentType_Bss) return;
-    if(!(segment.type & SegmentType_Data)) return;
 
     StringFinder sf(segment);
     sf.find();

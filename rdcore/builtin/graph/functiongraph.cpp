@@ -1,14 +1,22 @@
 #include "functiongraph.h"
 #include "../../document/backend/blockcontainer.h"
+#include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
+#include <unordered_set>
 #include <cassert>
 #include <stack>
 
 FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, address_t address): node(n), startaddress(address), endaddress(address), m_document(document) { }
 bool FunctionBasicBlock::contains(address_t address) const { return ((address >= startaddress) && (address <= endaddress)); }
-bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const { return this->getItem(startaddress, item); }
-bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const { return this->getItem(endaddress, item); }
+
+bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
+{
+    if(m_document->symbolItem(startaddress, item)) return true;
+    return m_document->instructionItem(startaddress, item);
+}
+
+bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const { return m_document->instructionItem(endaddress, item); }
 
 size_t FunctionBasicBlock::startIndex() const
 {
@@ -41,14 +49,8 @@ const char* FunctionBasicBlock::getStyle(RDGraphNode n) const
     return (it != m_styles.end()) ? it->second.c_str() : nullptr;
 }
 
-void FunctionBasicBlock::bFalse(RDGraphNode n) { m_styles[n] = "graph_edge_true"; }
-void FunctionBasicBlock::bTrue(RDGraphNode n) { m_styles[n] = "graph_edge_false"; }
-
-bool FunctionBasicBlock::getItem(address_t address, RDDocumentItem* item) const
-{
-    if(m_document->symbolItem(address, item)) return true;
-    return m_document->instructionItem(address, item);
-}
+void FunctionBasicBlock::bFalse(RDGraphNode n) { m_styles[n] = "graph_edge_false"; }
+void FunctionBasicBlock::bTrue(RDGraphNode n) { m_styles[n] = "graph_edge_true"; }
 
 FunctionGraph::FunctionGraph(Disassembler* disassembler): StyledGraph(), m_disassembler(disassembler), m_document(disassembler->document()) { }
 const FunctionBasicBlock* FunctionGraph::basicBlock(address_t address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
@@ -122,15 +124,34 @@ bool FunctionGraph::complete() const { return m_complete; }
 
 FunctionBasicBlock* FunctionGraph::requestBasicBlock(address_t startaddress)
 {
-    auto it = std::find_if(m_basicblocks.begin(), m_basicblocks.end(), [startaddress](const auto& fbb) {
-        return fbb.startaddress == startaddress;
-    });
+    FunctionBasicBlock* fbb = this->basicBlock(startaddress);
 
-    if(it != m_basicblocks.end()) return std::addressof(*it);
+    if(fbb)
+    {
+        if(fbb->startaddress == startaddress) return fbb;
 
-    FunctionBasicBlock& fbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
-    this->setData(fbb.node, std::addressof(fbb));
-    return &fbb;
+        // Split and link 'fbb'
+        const BlockContainer* blockcontainer = m_document->blocks();
+        FunctionBasicBlock& splitfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
+        splitfbb.endaddress = fbb->endaddress;
+
+        RDBlock block;
+        assert(blockcontainer->find(startaddress, &block));
+
+        size_t idx = blockcontainer->indexOf(&block);
+        assert(idx && (idx != RD_NPOS));
+
+        block = blockcontainer->at(--idx);
+        fbb->endaddress = block.start;
+
+        this->pushEdge(fbb->node, splitfbb.node);
+        this->setData(splitfbb.node, std::addressof(splitfbb));
+        return std::addressof(splitfbb);
+    }
+
+    FunctionBasicBlock& newfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
+    this->setData(newfbb.node, std::addressof(newfbb));
+    return &newfbb;
 }
 
 std::optional<address_t> FunctionGraph::findNextBranch(address_t address, RDDocumentItem* item)
@@ -139,7 +160,7 @@ std::optional<address_t> FunctionGraph::findNextBranch(address_t address, RDDocu
     std::optional<address_t> branchaddress;
     size_t idx = m_document->instructionIndex(address);
 
-    for(size_t i = idx; i < m_document->itemsCount(); i++)
+    for(size_t i = idx + 1; i < m_document->itemsCount(); i++)
     {
         assert(m_document->itemAt(i, item));
         if(found) break;
@@ -162,15 +183,26 @@ std::optional<address_t> FunctionGraph::findNextBranch(address_t address, RDDocu
     return branchaddress;
 }
 
-address_t FunctionGraph::findNextLabel(address_t address, RDDocumentItem* item)
+std::optional<address_t> FunctionGraph::findNextLabel(address_t address, RDDocumentItem* item)
 {
-    address_t prevaddress = address;
     size_t idx = m_document->instructionIndex(address);
+    if(idx == RD_NPOS) return std::nullopt;
+
+    address_t prevaddress = address;
 
     for(size_t i = idx + 1; i < m_document->itemsCount(); i++)
     {
         assert(m_document->itemAt(i, item));
-        if(item->type == DocumentItemType_Symbol) break;
+
+        switch(item->type)
+        {
+            case DocumentItemType_Symbol:
+            case DocumentItemType_Function:
+                return prevaddress;
+
+            default: break;
+        }
+
         prevaddress = item->address;
     }
 
@@ -179,58 +211,80 @@ address_t FunctionGraph::findNextLabel(address_t address, RDDocumentItem* item)
 
 void FunctionGraph::buildBasicBlocks()
 {
-    std::stack<address_t> worklist;
-    worklist.push(m_graphstart.start);
+    const BlockContainer* blockcontainer = m_document->blocks();
 
-    while(!worklist.empty())
+    std::unordered_set<RDBlock> doneblocks;
+    std::stack<RDBlock> blocks;
+    blocks.push(m_graphstart);
+
+    while(!blocks.empty())
     {
-        address_t currentaddress = worklist.top();
-        worklist.pop();
+        RDBlock block = blocks.top();
+        blocks.pop();
 
-        FunctionBasicBlock* fbb = this->requestBasicBlock(currentaddress);
-next:
-        RDDocumentItem label, branch;
-        auto prevlabeladdress = this->findNextLabel(currentaddress, &label);
-        auto branchaddress = this->findNextBranch(currentaddress, &branch);
+        if(doneblocks.find(block) != doneblocks.end()) continue;
+        doneblocks.insert(block);
 
-        if(label.address < branch.address)
+        size_t idx = blockcontainer->indexOf(&block);
+        assert(idx != RD_NPOS);
+
+        FunctionBasicBlock* fbb = this->requestBasicBlock(block.start);
+        address_t endaddress = block.start;
+
+        for(size_t i = idx; i < blockcontainer->size(); i++)
         {
-            fbb->endaddress = prevlabeladdress;
-            currentaddress = label.address;
+            const RDBlock& b = blockcontainer->at(i);
+            if(b.type != BlockType_Code) break;
 
-            FunctionBasicBlock* nextfbb = this->requestBasicBlock(currentaddress);
-            this->pushEdge(fbb->node, nextfbb->node);
-            fbb = nextfbb;
-            goto next;
+            InstructionLock instruction(CPTR(RDDocument, &m_document), b.start);
+
+            if(!instruction || (instruction->type == InstructionType_Stop))
+            {
+                endaddress = b.start;
+                break;
+            }
+
+            if(instruction->type != InstructionType_Jump)
+            {
+                endaddress = b.start;
+                continue;
+            }
+
+            const address_t* targets = nullptr;
+            size_t c = m_disassembler->getTargets(instruction->address, &targets);
+
+            for(size_t i = 0; i < c; i++)
+            {
+                address_t target = targets[i];
+
+                RDSymbol symbol;
+                if(m_document->symbol(target, &symbol) && (symbol.type == SymbolType_Import)) continue;
+
+                FunctionBasicBlock* nextfbb = this->requestBasicBlock(target);
+                fbb->bTrue(nextfbb->node);
+                this->pushEdge(fbb->node, nextfbb->node);
+
+                RDBlock tgtblock;
+                if(!blockcontainer->find(target, &tgtblock)) continue;
+                if(target > fbb->startaddress) blocks.push(tgtblock);
+            }
+
+            if(instruction->flags & InstructionFlags_Conditional)
+            {
+                address_t nextaddress = Sugar::endAddress(*instruction);
+
+                FunctionBasicBlock* nextfbb = this->requestBasicBlock(nextaddress);
+                fbb->bFalse(nextfbb->node);
+                this->pushEdge(fbb->node, nextfbb->node);
+
+                if((i + 1) < blockcontainer->size())
+                    blocks.push(blockcontainer->at(i + 1));
+            }
+
+            endaddress = b.start;
+            break;
         }
 
-        fbb->endaddress = *branchaddress;
-
-        if(!branchaddress) continue;
-        InstructionLock instruction(CPTR(RDDocument, &m_document), *branchaddress);
-        if(instruction->type != InstructionType_Jump) continue;
-
-        const address_t* targets = nullptr;
-        size_t c = m_disassembler->getTargets(instruction->address, &targets);
-
-        for(size_t i = 0; i < c; i++)
-        {
-            RDSymbol symbol;
-            if(m_document->symbol(targets[i], &symbol) && (symbol.type == SymbolType_Import)) continue;
-
-            FunctionBasicBlock* nextfbb = this->requestBasicBlock(targets[i]);
-            fbb->bTrue(nextfbb->node);
-            this->pushEdge(fbb->node, nextfbb->node);
-            worklist.push(targets[i]);
-        }
-
-        if(!(instruction->flags & InstructionFlags_Conditional)) continue;
-
-        FunctionBasicBlock* nextfbb = this->requestBasicBlock(branch.address);
-        fbb->bFalse(nextfbb->node);
-        this->pushEdge(fbb->node, nextfbb->node);
-        fbb = nextfbb;
-        currentaddress = fbb->startaddress;
-        goto next;
+        fbb->endaddress = endaddress;
     }
 }

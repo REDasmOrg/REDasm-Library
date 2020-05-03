@@ -1,7 +1,5 @@
 #pragma once
 
-// https://www.backerstreet.com/decompiler/basic_blocks.php
-
 #include <unordered_map>
 #include <optional>
 #include <list>
@@ -28,9 +26,6 @@ struct FunctionBasicBlock
     address_t startaddress, endaddress; // [startaddress, endaddress]
 
     private:
-        bool getItem(address_t address, RDDocumentItem* item) const;
-
-    private:
         std::unordered_map<RDGraphNode, std::string> m_styles;
         SafeDocument& m_document;
 };
@@ -51,7 +46,7 @@ class FunctionGraph: public StyledGraph
         std::optional<address_t> findNextBranch(address_t address, RDDocumentItem* item);
         FunctionBasicBlock* requestBasicBlock(address_t startaddress);
         bool build(RDDocumentItem* item);
-        address_t findNextLabel(address_t address, RDDocumentItem* item);
+        std::optional<address_t> findNextLabel(address_t address, RDDocumentItem* item);
         void buildBasicBlocks();
 
     private:

@@ -14,6 +14,14 @@ bool RDFunctionGraph_GetBasicBlock(const RDGraph* graph, RDGraphNode n, const RD
     return true;
 }
 
+
+bool RDFunctionGraph_Contains(const RDGraph* graph, address_t address)
+{
+    const Graph* g = CPTR(const Graph, graph);
+    const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
+    return fg ? (fg->basicBlock(address) != nullptr) : false;
+}
+
 const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getStyle(node); }
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startIndex(); }

@@ -473,6 +473,7 @@ bool Renderer::renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemPa
     else
         ri->push("???", "instruction_invalid");
 
+    Renderer::renderComments(rip);
     return true;
 }
 
@@ -585,6 +586,17 @@ bool Renderer::renderParams(RDRenderItemParams* rip) const
     auto slot = m_slots[rip->type];
     if(!slot) return false;
     return slot(aplugin, rip);
+}
+
+void Renderer::renderComments(RDRenderItemParams* rip)
+{
+    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
+    std::string comment = d->document()->comment(rip->documentitem->address, false);
+    if(comment.empty()) return;
+
+    Renderer::renderIndent(rip, 3);
+    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    ri->push("# " + comment, "comment_fg");
 }
 
 bool Renderer::renderSeparator(const RDDocumentItem* item, RDRendererItem* ritem) const

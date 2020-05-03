@@ -59,6 +59,7 @@ class Renderer: public Object
         void renderAddress(const RDDocumentItem* item, RendererItem* ritem) const;
         void renderAddressIndent(const RDDocumentItem* item, RendererItem* ritem) const;
         void renderIndent(RendererItem* ritem, size_t n) const;
+        static void renderComments(RDRenderItemParams* rip);
         static void renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip, address_t address);
         static void renderRegister(RDRenderItemParams* rip, register_t r);
 

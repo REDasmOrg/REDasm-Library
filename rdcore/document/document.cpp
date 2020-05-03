@@ -14,6 +14,7 @@
 #include "../context.h"
 
 #define REDASM_ENTRY_FUNCTION "__redasm_entry__"
+#define COMMENT_SEPARATOR     " | "
 
 Document::Document()
 {
@@ -124,6 +125,19 @@ size_t Document::segmentsCount() const { return m_segments->size(); }
 size_t Document::functionsCount() const { return m_functions->size(); }
 size_t Document::symbolsCount() const { return m_symbols->size(); }
 bool Document::empty() const { return m_items->empty(); }
+
+std::string Document::comment(address_t address, bool skipauto)
+{
+    auto it = m_itemdata.find(address);
+    if(it == m_itemdata.end()) return std::string();
+
+    auto comments = it->second.comments;
+
+    if(!skipauto)
+        comments.insert(it->second.autocomments.begin(), it->second.autocomments.end());
+
+    return Utils::join(comments, COMMENT_SEPARATOR);
+}
 
 void Document::autoComment(address_t address, const std::string& s)
 {

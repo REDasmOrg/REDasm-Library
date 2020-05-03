@@ -25,9 +25,23 @@ class Utils
         static void yloop(const std::function<bool()>& cb);
 
     public:
+        template<typename Container> static std::string join(const Container& c, const char* sep);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
 };
+
+template<typename Container>
+std::string Utils::join(const Container& c, const char* sep)
+{
+    std::stringstream ss;
+
+    for(auto it = c.begin(); it != c.end(); it++) {
+        if(it != c.begin()) ss << sep;
+        ss << *it;
+    }
+
+    return ss.str();
+}
 
 template<typename T>
 std::string Utils::number(T value, size_t base, size_t width, char fill)

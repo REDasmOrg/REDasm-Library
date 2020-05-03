@@ -114,13 +114,13 @@ bool FunctionGraph::build(address_t address)
     this->buildBasicBlocks();
     if(this->empty()) return false;
 
-    this->setRoot(this->getBasicBlockAt(m_graphstart.start)->node);
+    this->setRoot(this->basicBlock(m_graphstart.start)->node);
     return true;
 }
 
 bool FunctionGraph::complete() const { return m_complete; }
 
-FunctionBasicBlock* FunctionGraph::getBasicBlockAt(address_t startaddress)
+FunctionBasicBlock* FunctionGraph::requestBasicBlock(address_t startaddress)
 {
     auto it = std::find_if(m_basicblocks.begin(), m_basicblocks.end(), [startaddress](const auto& fbb) {
         return fbb.startaddress == startaddress;
@@ -187,7 +187,7 @@ void FunctionGraph::buildBasicBlocks()
         address_t currentaddress = worklist.top();
         worklist.pop();
 
-        FunctionBasicBlock* fbb = this->getBasicBlockAt(currentaddress);
+        FunctionBasicBlock* fbb = this->requestBasicBlock(currentaddress);
 next:
         RDDocumentItem label, branch;
         auto prevlabeladdress = this->findNextLabel(currentaddress, &label);
@@ -198,7 +198,7 @@ next:
             fbb->endaddress = prevlabeladdress;
             currentaddress = label.address;
 
-            FunctionBasicBlock* nextfbb = this->getBasicBlockAt(currentaddress);
+            FunctionBasicBlock* nextfbb = this->requestBasicBlock(currentaddress);
             this->pushEdge(fbb->node, nextfbb->node);
             fbb = nextfbb;
             goto next;
@@ -218,7 +218,7 @@ next:
             RDSymbol symbol;
             if(m_document->symbol(targets[i], &symbol) && (symbol.type == SymbolType_Import)) continue;
 
-            FunctionBasicBlock* nextfbb = this->getBasicBlockAt(targets[i]);
+            FunctionBasicBlock* nextfbb = this->requestBasicBlock(targets[i]);
             fbb->bTrue(nextfbb->node);
             this->pushEdge(fbb->node, nextfbb->node);
             worklist.push(targets[i]);
@@ -226,7 +226,7 @@ next:
 
         if(!(instruction->flags & InstructionFlags_Conditional)) continue;
 
-        FunctionBasicBlock* nextfbb = this->getBasicBlockAt(branch.address);
+        FunctionBasicBlock* nextfbb = this->requestBasicBlock(branch.address);
         fbb->bFalse(nextfbb->node);
         this->pushEdge(fbb->node, nextfbb->node);
         fbb = nextfbb;

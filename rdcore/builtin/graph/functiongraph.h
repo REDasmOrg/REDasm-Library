@@ -49,7 +49,7 @@ class FunctionGraph: public StyledGraph
 
     private:
         std::optional<address_t> findNextBranch(address_t address, RDDocumentItem* item);
-        FunctionBasicBlock* getBasicBlockAt(address_t startaddress);
+        FunctionBasicBlock* requestBasicBlock(address_t startaddress);
         bool build(RDDocumentItem* item);
         address_t findNextLabel(address_t address, RDDocumentItem* item);
         void buildBasicBlocks();

@@ -9,5 +9,6 @@
 #include "buffer.h"
 #include "events.h"
 #include "support.h"
+#include "database.h"
 #include "disassembler.h"
 #include "document/cursor.h"

@@ -2,6 +2,7 @@
 #include "support/utils.h"
 #include <rdapi/loader.h>
 #include <rdapi/assembler.h>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -13,7 +14,14 @@
     if((now - m_laststatusreport) < m_debouncetimeout) return; \
     m_laststatusreport = now;
 
+Context::Context()
+{
+    m_tmppath = std::filesystem::temp_directory_path();
+    m_rntpath = std::filesystem::current_path();
+}
+
 void Context::addPluginPath(const char* pluginpath) { m_pluginpaths.insert(pluginpath); }
+void Context::addDatabasePath(const char* dbpath) { m_dbpaths.insert(dbpath);  }
 
 void Context::setLogCallback(RD_LogCallback callback, void* userdata)
 {
@@ -146,6 +154,7 @@ flag_t Context::flags() const { return m_flags; }
 bool Context::sync() const { return m_sync; }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }
 Disassembler* Context::disassembler() const { return m_disassembler; }
+const Context::StringSet& Context::databasePaths() const { return m_dbpaths; }
 const char* Context::runtimePath() const { return m_rntpath.c_str(); }
 const char* Context::tempPath() const { return m_tmppath.c_str(); }
 void Context::status(const std::string& s) { this->status(s.c_str()); }

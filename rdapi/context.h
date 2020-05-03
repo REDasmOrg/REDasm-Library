@@ -35,6 +35,7 @@ RD_API_EXPORT void RD_SetLogCallback(RD_LogCallback callback, void* userdata);
 RD_API_EXPORT void RD_SetStatusCallback(RD_StatusCallback callback, void* userdata);
 RD_API_EXPORT void RD_SetProgressCallback(RD_ProgressCallback callback, void* userdata);
 RD_API_EXPORT void RD_AddPluginPath(const char* pluginpath);
+RD_API_EXPORT void RD_AddDatabasePath(const char* dbpath);
 RD_API_EXPORT void RD_GetProblems(RD_ProblemCallback callback, void* userdata);
 RD_API_EXPORT void RD_Status(const char* s);
 RD_API_EXPORT void RD_Log(const char* s);

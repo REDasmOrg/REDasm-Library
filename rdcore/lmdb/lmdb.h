@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libs/lmdb/lmdb.h>
+#include "../libs/lmdb/lmdb.h"
 #include "lmdbtransaction.h"
 
 class LMDB

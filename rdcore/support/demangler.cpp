@@ -2,8 +2,8 @@
 #include <regex>
 #include <algorithm>
 #include <cstring>
-#include <libs/binutils_demangler/demangle.h> // Itanium Demangler
-#include <libs/undname.h>                     // MSVC Demangler
+#include "../libs/binutils_demangler/demangle.h" // Itanium Demangler
+#include "../libs/undname.h"                     // MSVC Demangler
 
 #define DEMAGLER_BUFFER_SIZE 2048
 #define MSVC_MANGLED_REGEX   "(\\?.+Z)"

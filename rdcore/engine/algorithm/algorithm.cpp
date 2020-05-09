@@ -61,15 +61,15 @@ bool Algorithm::canBeDisassembled(address_t address)
 {
     if(m_document->isInstructionCached(address)) return false;
 
-    if(!m_document->segment(address, &m_currentsegment)|| !(m_currentsegment.type & SegmentType_Code))
+    if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code))
         return false;
 
     RDBlock b;
     assert(m_document->block(address, &b));
 
-    if(b.type == BlockType_Code) return false;
+    if(IS_TYPE(&b, BlockType_Code)) return false;
 
-    if(b.type == BlockType_Data)
+    if(IS_TYPE(&b, BlockType_Data))
     {
         RDSymbol symbol;
         assert(m_document->symbol(b.start, &symbol));
@@ -81,7 +81,7 @@ bool Algorithm::canBeDisassembled(address_t address)
             default: break;
         }
 
-        return symbol.flags & SymbolFlags_Weak;
+        return HAS_FLAG(&symbol, SymbolFlags_Weak);
     }
 
     return true;
@@ -120,7 +120,7 @@ void Algorithm::branchMemoryState(const RDInstruction* instruction, address_t va
     m_disassembler->pushTarget(value, instruction->address);
 
     RDSymbol symbol;
-    if(m_document->symbol(value, &symbol) && (symbol.type == SymbolType_Import)) return; // Don't dereference imports
+    if(m_document->symbol(value, &symbol) && IS_TYPE(&symbol, SymbolType_Import)) return; // Don't dereference imports
 
     RDLocation loc = m_disassembler->dereference(value);
     if(!loc.valid) return;
@@ -150,14 +150,14 @@ void Algorithm::pointerState(const RDInstruction* instruction, address_t value)
     RDSymbol symbol;
     if(!m_document->symbol(loc.value, &symbol)) return;
 
-    if(symbol.type == SymbolType_String)
+    if(IS_TYPE(&symbol, SymbolType_String))
     {
-        if(symbol.flags == SymbolFlags_WideString) m_document->autoComment(instruction->address, "=> WIDE STRING: " + Utils::quoted(m_disassembler->readWString(loc.value)));
+        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) m_document->autoComment(instruction->address, "=> WIDE STRING: " + Utils::quoted(m_disassembler->readWString(loc.value)));
         else m_document->autoComment(instruction->address, "=> STRING: " + Utils::quoted(m_disassembler->readWString(loc.value)));
     }
-    else if(symbol.type & SymbolType_Import)
+    else if(HAS_FLAG(&symbol, SymbolType_Import))
         m_document->autoComment(instruction->address, std::string("=> IMPORT: ") + m_document->name(symbol.address));
-    else if(symbol.flags & SymbolFlags_Export)
+    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
         m_document->autoComment(instruction->address, std::string("=> EXPORT: ") + m_document->name(symbol.address));
     else
         return;

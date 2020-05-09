@@ -12,6 +12,7 @@ RD_API_EXPORT RDAssemblerPlugin* RDDisassembler_GetAssembler(const RDDisassemble
 RD_API_EXPORT RDLoader* RDDisassembler_GetLoader(const RDDisassembler* d);
 RD_API_EXPORT RDDocument* RDDisassembler_GetDocument(const RDDisassembler* d);
 RD_API_EXPORT RDBuffer* RDDisassembler_GetBuffer(const RDDisassembler* d);
+RD_API_EXPORT const RDBlockContainer* RDDisassembler_GetBlocks(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_Bits(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_AddressWidth(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_GetReferencesCount(const RDDisassembler* d, address_t address);

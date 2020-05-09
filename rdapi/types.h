@@ -57,20 +57,20 @@ typedef struct RDLocation {
     bool valid;
 } RDLocation;
 
-enum RDSegmentType {
-    SegmentType_None,
-    SegmentType_Code = (1 << 0),
-    SegmentType_Data = (1 << 1),
-    SegmentType_Bss  = (1 << 2),
+enum RDSegmentFlags {
+    SegmentFlags_None,
+    SegmentFlags_Code = (1 << 0),
+    SegmentFlags_Data = (1 << 1),
+    SegmentFlags_Bss  = (1 << 2),
 
-    SegmentType_CodeData  = SegmentType_Code | SegmentType_Data
+    SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data
 };
 
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
     offset_t offset, endoffset;
     address_t address, endaddress;
-    type_t type;
+    flag_t flags;
     size_t coveragebytes;
     size_t itemscount;
 } RDSegment;
@@ -110,7 +110,7 @@ typedef struct RDOperand {
 enum RDInstructionType {
     InstructionType_None,
     InstructionType_Invalid,
-    InstructionType_Stop,
+    InstructionType_Ret,
     InstructionType_Nop,
     InstructionType_Jump,
     InstructionType_Call,
@@ -137,6 +137,7 @@ enum RDInstructionFlags {
     InstructionFlags_Weak        = (1 << 1),
     InstructionFlags_Conditional = (1 << 2),
     InstructionFlags_Privileged  = (1 << 3),
+    InstructionFlags_Stop        = (1 << 4),
 };
 
 typedef struct RDInstruction {

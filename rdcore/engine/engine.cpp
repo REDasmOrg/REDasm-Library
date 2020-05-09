@@ -270,7 +270,7 @@ void Engine::searchStringsAt(size_t index) const
     RDSegment segment;
     rd_doc->segmentAt(index, &segment);
 
-    if(segment.type & SegmentType_Bss) return;
+    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return;
 
     StringFinder sf(segment);
     sf.find();

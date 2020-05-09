@@ -39,7 +39,7 @@ const SymbolTable* Document::symbols() const { return m_symbols.get(); }
 const BlockContainer* Document::blocks() const { return m_blocks.get(); }
 const RDSymbol* Document::entry() const { return &m_entry; }
 
-void Document::segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type)
+void Document::segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags)
 {
     size_t len = std::min<size_t>(name.size(), DEFAULT_NAME_SIZE);
 
@@ -48,7 +48,7 @@ void Document::segment(const std::string& name, offset_t offset, address_t addre
     segment.endoffset = offset + psize;
     segment.address = address;
     segment.endaddress = address + vsize;
-    segment.type = type;
+    segment.flags = flags;
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
 
     m_segments->insert(segment);
@@ -191,8 +191,8 @@ address_t Document::functionAt(size_t idx) const { return m_functions->at(idx); 
 
 RDLocation Document::entryPoint() const
 {
-    if(m_entry.type != SymbolType_Function) return {0, false};
-    return { m_entry.address, true };
+    if(!IS_TYPE(&m_entry, SymbolType_Function)) return {{0}, false};
+    return { {m_entry.address}, true };
 }
 
 bool Document::unlockInstruction(const RDInstruction* instruction) const { return m_instructions->unlock(instruction); }
@@ -363,7 +363,7 @@ bool Document::canSymbolizeAddress(address_t address, type_t type, flag_t flags)
     if(!m_symbols->get(block.start, &symbol)) return true;
 
     if(symbol.type > type) return false;
-    if((symbol.type == type) && (!(symbol.flags & SymbolFlags_Weak) && (flags & SymbolFlags_Weak))) return false;
+    if((symbol.type == type) && (!HAS_FLAG(&symbol, SymbolFlags_Weak) && (flags & SymbolFlags_Weak))) return false;
     return true;
 }
 

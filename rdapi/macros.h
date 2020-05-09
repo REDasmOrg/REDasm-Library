@@ -20,3 +20,5 @@
 #endif
 
 #define DECLARE_HANDLE(name) typedef struct name { void* __unused; } name
+#define HAS_FLAG(obj, f)     ((obj)->flags & (f))
+#define IS_TYPE(obj, t)      ((obj)->type == (t))

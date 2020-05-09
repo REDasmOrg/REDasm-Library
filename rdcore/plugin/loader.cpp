@@ -31,7 +31,7 @@ BufferView* Loader::view(address_t address, size_t size) const
 
 BufferView* Loader::view(const RDSegment& segment) const
 {
-    if(segment.type & SegmentType_Bss) return nullptr;
+    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return nullptr;
     return m_buffer->view(segment.offset, SegmentContainer::offsetSize(segment));
 }
 
@@ -42,35 +42,35 @@ SafeDocument& Loader::document() { return m_document; }
 RDLocation Loader::offset(address_t address) const
 {
     RDSegment segment;
-    if(!m_document->segment(address, &segment)|| (segment.type == SegmentType_Bss)) return { 0, false };
+    if(!m_document->segment(address, &segment)|| HAS_FLAG(&segment, SegmentFlags_Bss)) return { {0}, false };
 
     address -= segment.address;
     address += segment.offset;
-    return { address, true };
+    return { {address}, true };
 }
 
 RDLocation Loader::address(offset_t offset) const
 {
     RDSegment segment;
-    if(!m_document->segmentOffset(offset, &segment)) return { 0, false };
+    if(!m_document->segmentOffset(offset, &segment)) return { {0}, false };
 
     offset -= segment.offset;
     offset += segment.address;
-    return { offset, true };
+    return { {offset}, true };
 }
 
 RDLocation Loader::addressof(const u8* ptr) const
 {
-    if(!m_buffer->contains(ptr)) return { 0, false };
+    if(!m_buffer->contains(ptr)) return { {0}, false };
     RDLocation loc = this->fileoffset(ptr);
-    if(!loc.valid) return { 0, false };
+    if(!loc.valid) return { {0}, false };
     return this->address(loc.value);
 }
 
 RDLocation Loader::fileoffset(const u8* ptr) const
 {
-    if(!m_buffer->contains(ptr)) return { 0, false };
-    return { static_cast<location_t>(ptr - m_buffer->data()), true };
+    if(!m_buffer->contains(ptr)) return { {0}, false };
+    return { {static_cast<location_t>(ptr - m_buffer->data())}, true };
 }
 
 u8* Loader::addrpointer(address_t address) const

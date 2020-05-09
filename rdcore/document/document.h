@@ -36,7 +36,7 @@ class Document: public Object
         const RDSymbol* entry() const;
 
     public: // Insertion
-        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type);
+        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags);
         void imported(address_t address, size_t size, const std::string& name);
         void exported(address_t address, const std::string& name);
         void exportedFunction(address_t address, const std::string& name);

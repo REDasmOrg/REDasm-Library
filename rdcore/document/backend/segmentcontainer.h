@@ -14,8 +14,8 @@ struct SegmentSorter
 struct SegmentComparator
 {
     bool operator()(const RDSegment& segment1, const RDSegment& segment2) const {
-        return std::tie(segment1.name, segment1.type, segment1.offset, segment1.address, segment1.endoffset, segment1.endaddress) ==
-               std::tie(segment2.name, segment2.type, segment2.offset, segment2.address, segment2.endoffset, segment2.endaddress);
+        return std::tie(segment1.name, segment1.flags, segment1.offset, segment1.address, segment1.endoffset, segment1.endaddress) ==
+               std::tie(segment2.name, segment2.flags, segment2.offset, segment2.address, segment2.endoffset, segment2.endaddress);
     }
 };
 

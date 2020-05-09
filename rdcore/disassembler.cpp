@@ -98,9 +98,9 @@ void Disassembler::markLocation(address_t fromaddress, address_t address)
 
     RDSymbol symbol;
 
-    if(this->document()->symbol(address, &symbol) && (symbol.type == SymbolType_String))
+    if(this->document()->symbol(address, &symbol) && IS_TYPE(&symbol, SymbolType_String))
     {
-        if(symbol.flags & SymbolFlags_WideString) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
         else this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
     }
     else this->document()->data(address, this->addressWidth(), std::string());
@@ -111,7 +111,7 @@ void Disassembler::markLocation(address_t fromaddress, address_t address)
 size_t Disassembler::markTable(const RDInstruction* instruction, address_t startaddress)
 {
     RDSymbol symbol;
-    if(this->document()->symbol(startaddress, &symbol) && (symbol.flags & SymbolFlags_TableItem)) return RD_NPOS;
+    if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
 
     address_t target = 0, address = startaddress;
 
@@ -125,7 +125,7 @@ size_t Disassembler::markTable(const RDInstruction* instruction, address_t start
     {
         RDSegment segment;
 
-        if(!this->document()->segment(target, &segment) || !(segment.type & SegmentType_Code)) break;
+        if(!this->document()->segment(target, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) break;
         targets.insert(target);
 
         if(Sugar::isBranch(instruction)) this->pushTarget(target, instruction->address);
@@ -212,14 +212,14 @@ BufferView* Disassembler::getFunctionBytes(address_t& address) const
         const auto* fbb = reinterpret_cast<const FunctionBasicBlock*>(graph->data(nodes[i])->p_data);
         if(!fbb) return nullptr;
 
-        if((startitem.type == DocumentItemType_None) || (startitem.address > fbb->startaddress))
+        if(IS_TYPE(&startitem, DocumentItemType_None) || (startitem.address > fbb->startaddress))
             assert(fbb->getStartItem(&startitem));
 
-        if((enditem.type == DocumentItemType_None) || (enditem.address < fbb->endaddress))
+        if(IS_TYPE(&enditem, DocumentItemType_None) || (enditem.address < fbb->endaddress))
             assert(fbb->getEndItem(&enditem));
     }
 
-    if((startitem.type == DocumentItemType_None) || (enditem.type == DocumentItemType_None)) return nullptr;
+    if(IS_TYPE(&startitem, DocumentItemType_None) || IS_TYPE(&enditem, DocumentItemType_None)) return nullptr;
 
     address = loc.address;
     return this->loader()->view(startitem.address, (enditem.address - startitem.address) + 1);

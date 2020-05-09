@@ -89,7 +89,7 @@ bool Renderer::renderImmediate(RDRenderItemParams* rip)
     if(name) value = name;
     else value = Utils::hex(rip->operand->u_value, d->assembler()->bits);
 
-    if(rip->operand->type == OperandType_Memory) ri->push("[").push(value, "memory_fg").push("]");
+    if(IS_TYPE(rip->operand, OperandType_Memory)) ri->push("[").push(value, "memory_fg").push("]");
     else ri->push(value, "immediate_fg");
     return true;
 }
@@ -141,13 +141,13 @@ bool Renderer::renderMnemonic(const RDAssemblerPlugin*, RDRenderItemParams* rip)
     switch(rip->instruction->type)
     {
         case InstructionType_Invalid: ri->push(rip->instruction->mnemonic, "instruction_invalid"); break;
-        case InstructionType_Stop:    ri->push(rip->instruction->mnemonic, "instruction_stop");    break;
+        case InstructionType_Ret:     ri->push(rip->instruction->mnemonic, "instruction_ret");    break;
         case InstructionType_Nop:     ri->push(rip->instruction->mnemonic, "instruction_nop");     break;
         case InstructionType_Call:    ri->push(rip->instruction->mnemonic, "instruction_call");    break;
         case InstructionType_Compare: ri->push(rip->instruction->mnemonic, "instruction_compare"); break;
 
         case InstructionType_Jump:
-            ri->push(rip->instruction->mnemonic, (rip->instruction->flags & InstructionFlags_Conditional) ? "instruction_jmp_c" : "instruction_jmp");
+            ri->push(rip->instruction->mnemonic, HAS_FLAG(rip->instruction, InstructionFlags_Conditional) ? "instruction_jmp_c" : "instruction_jmp");
             break;
 
         default: ri->push(rip->instruction->mnemonic); break;
@@ -492,7 +492,7 @@ bool Renderer::renderOperand(const RDAssemblerPlugin* plugin, RDRenderItemParams
     }
 }
 
-bool Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip)
+bool Renderer::renderSymbol(const RDAssemblerPlugin* , RDRenderItemParams* rip)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
@@ -508,11 +508,11 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
 
     RDSegment segment;
 
-    if(d->document()->segment(symbol.address, &segment) && (segment.type & SegmentType_Bss))
+    if(d->document()->segment(symbol.address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
     {
         Renderer::renderSymbolPrologue(rip);
 
-        if(symbol.type == SymbolType_Label)
+        if(IS_TYPE(&symbol, SymbolType_Label))
         {
             ri->push(d->document()->name(rip->documentitem->address), "label_fg");
             ri->push(" <").push("dynamic branch", "label_fg").push(">");
@@ -525,7 +525,7 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
 
     bool prologuedone = false;
 
-    if(symbol.flags & SymbolFlags_Pointer)
+    if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
         Renderer::renderSymbolPrologue(rip);
         prologuedone = true;
@@ -541,7 +541,7 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
 
         case SymbolType_String:
             if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-            if(symbol.flags & SymbolFlags_WideString) ri->push(Utils::quoted(d->readWString(rip->documentitem->address, STRING_THRESHOLD)), "string_fg");
+            if(HAS_FLAG(&symbol, SymbolFlags_WideString)) ri->push(Utils::quoted(d->readWString(rip->documentitem->address, STRING_THRESHOLD)), "string_fg");
             else ri->push(Utils::quoted(d->readString(rip->documentitem->address, STRING_THRESHOLD)), "string_fg");
             break;
 
@@ -688,7 +688,7 @@ void Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
         return;
     }
 
-    if(symbol.flags & SymbolFlags_Pointer)
+    if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
         ri->push(name, "pointer_fg");
         return;

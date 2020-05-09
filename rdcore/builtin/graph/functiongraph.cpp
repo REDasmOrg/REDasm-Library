@@ -110,7 +110,7 @@ bool FunctionGraph::contains(address_t address) const
 
 bool FunctionGraph::build(address_t address)
 {
-    if(!m_document->block(address, &m_graphstart) || (m_graphstart.type != BlockType_Code))
+    if(!m_document->block(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
         return false;
 
     this->buildBasicBlocks();
@@ -179,17 +179,17 @@ void FunctionGraph::buildBasicBlocks()
         for(size_t i = idx; i < blockcontainer->size(); i++)
         {
             const RDBlock& b = blockcontainer->at(i);
-            if(b.type != BlockType_Code) break;
+            if(!IS_TYPE(&b, BlockType_Code)) break;
 
             InstructionLock instruction(CPTR(RDDocument, &m_document), b.start);
 
-            if(!instruction || (instruction->type == InstructionType_Stop))
+            if(!instruction || HAS_FLAG(*instruction, InstructionFlags_Stop))
             {
                 endaddress = b.start;
                 break;
             }
 
-            if(instruction->type != InstructionType_Jump)
+            if(!IS_TYPE(*instruction, InstructionType_Jump))
             {
                 endaddress = b.start;
                 continue;
@@ -203,7 +203,7 @@ void FunctionGraph::buildBasicBlocks()
                 address_t target = targets[i];
 
                 RDSymbol symbol;
-                if(m_document->symbol(target, &symbol) && (symbol.type == SymbolType_Import)) continue;
+                if(m_document->symbol(target, &symbol) && IS_TYPE(&symbol, SymbolType_Import)) continue;
 
                 FunctionBasicBlock* nextfbb = this->requestBasicBlock(target);
                 fbb->bTrue(nextfbb->node);
@@ -214,7 +214,7 @@ void FunctionGraph::buildBasicBlocks()
                 if(target > fbb->startaddress) blocks.push(tgtblock);
             }
 
-            if(instruction->flags & InstructionFlags_Conditional)
+            if(HAS_FLAG(*instruction, InstructionFlags_Conditional))
             {
                 address_t nextaddress = Sugar::endAddress(*instruction);
 

@@ -6,8 +6,9 @@
 #include <rdapi/document/block.h>
 #include <rdapi/types.h>
 #include "../../eventdispatcher.h"
+#include "../../object.h"
 
-class BlockContainer
+class BlockContainer: public Object
 {
     private:
         typedef std::vector<RDBlock> Container;

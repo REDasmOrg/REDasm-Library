@@ -2,16 +2,13 @@
 #include <rdcore/disassembler.h>
 #include <rdcore/support/sugar.h>
 
-RDDisassembler* RDDisassembler_Create(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler)
-{
-    return CPTR(RDDisassembler, new Disassembler(request, ploader, passembler));
-}
-
+RDDisassembler* RDDisassembler_Create(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler) { return CPTR(RDDisassembler, new Disassembler(request, ploader, passembler)); }
 bool RD_DisassemblerBusy(const RDDisassembler* d) { return CPTR(const Disassembler, d)->busy(); }
 RDAssemblerPlugin* RDDisassembler_GetAssembler(const RDDisassembler* d) { return CPTR(const Disassembler, d)->assembler(); }
 RDLoader* RDDisassembler_GetLoader(const RDDisassembler* d) { return CPTR(RDLoader, CPTR(const Disassembler, d)->loader()); }
 RDDocument* RDDisassembler_GetDocument(const RDDisassembler* d) { return CPTR(RDDocument, std::addressof(CPTR(const Disassembler, d)->document())); }
 RDBuffer* RDDisassembler_GetBuffer(const RDDisassembler* d) { return CPTR(RDBuffer, CPTR(const Disassembler, d)->buffer()); }
+const RDBlockContainer* RDDisassembler_GetBlocks(const RDDisassembler* d) { return CPTR(const RDBlockContainer, CPTR(const Disassembler, d)->document()->blocks()); }
 size_t RDDisassembler_Bits(const RDDisassembler* d) { return CPTR(const Disassembler, d)->bits(); }
 size_t RDDisassembler_AddressWidth(const RDDisassembler* d) { return CPTR(const Disassembler, d)->addressWidth(); }
 size_t RDDisassembler_GetReferencesCount(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->getReferencesCount(address); }

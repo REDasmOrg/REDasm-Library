@@ -35,7 +35,7 @@ bool Analyzer::findNullSubs(x_lock_document& lock, address_t address)
     RDInstruction* instruction = nullptr;
     if(!lock->lockInstruction(address, &instruction)) return true; // Don't execute trampoline analysis
 
-    bool isnullsub = (instruction->type == InstructionType_Stop);
+    bool isnullsub = HAS_FLAG(instruction, InstructionFlags_Stop);
     if(isnullsub) lock->rename(address, "nullsub_" + Utils::hex(address, m_disassembler->bits()));
     lock->unlockInstruction(instruction);
     return isnullsub;
@@ -57,7 +57,7 @@ void Analyzer::findTrampoline(x_lock_document& lock, address_t address)
     if(!loc.valid || !lock->symbol(loc.value, &symbol)) goto cleanup;
     if(!(name = lock->name(symbol.address))) goto cleanup;
 
-    if(symbol.type == SymbolType_Import) lock->rename(address, "_" + std::string(name));
+    if(IS_TYPE(&symbol, SymbolType_Import)) lock->rename(address, "_" + std::string(name));
     else lock->rename(address, "jmp_to_" + std::string(name));
 
 cleanup:

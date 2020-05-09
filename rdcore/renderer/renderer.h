@@ -49,7 +49,7 @@ class Renderer: public Object
         static bool renderFunction(const RDAssemblerPlugin*, RDRenderItemParams* rip);
         static bool renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
         static bool renderOperand(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
-        static bool renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
+        static bool renderSymbol(const RDAssemblerPlugin*, RDRenderItemParams* rip);
 
     private:
         template<typename ...Args> bool renderParams(type_t type, const RDDocumentItem* item, RDRendererItem* ritem, Args... args) const;

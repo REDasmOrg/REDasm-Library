@@ -40,7 +40,7 @@ size_t SegmentContainer::addressSize(const RDSegment& segment)
 
 size_t SegmentContainer::offsetSize(const RDSegment& segment)
 {
-    if(segment.type & SegmentType_Bss) return 0;
+    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return 0;
     return (segment.offset > segment.endoffset) ? 0 : (segment.endoffset - segment.offset);
 }
 
@@ -51,6 +51,6 @@ bool SegmentContainer::containsAddress(const RDSegment* segment, address_t addre
 
 bool SegmentContainer::containsOffset(const RDSegment* segment, offset_t offset)
 {
-    if(segment->type & SegmentType_Bss) return false;
+    if(HAS_FLAG(segment, SegmentFlags_Bss)) return false;
     return (offset >= segment->offset) && (offset < segment->endoffset);
 }

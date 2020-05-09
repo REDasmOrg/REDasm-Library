@@ -13,7 +13,7 @@ void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic)
     std::copy_n(mnemonic, std::min<size_t>(std::strlen(mnemonic), sizeof(instruction->mnemonic)), instruction->mnemonic);
 }
 
-address_t RDInstruction_EndAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
+address_t RDInstruction_NextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
 
 RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type)
 {

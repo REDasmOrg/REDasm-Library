@@ -34,6 +34,7 @@ class Disassembler: public Object
         std::string readString(address_t address, size_t len = RD_NPOS) const;  // Internal C++ Helper
 
     public: // Engine/Algorithm
+        bool decode(address_t address, RDInstruction** instruction);
         void handleOperand(const RDInstruction* instruction, const RDOperand* op);
         void enqueueAddress(const RDInstruction* instruction, address_t address);
         void enqueue(address_t address);

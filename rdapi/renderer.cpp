@@ -21,4 +21,3 @@ void RDRendererItem_Push(RDRendererItem* ritem, const char* s, const char* fgsty
 void RD_RendererAddress(RDRenderItemParams* rip) { Renderer::renderAddress(rip); }
 void RD_RenderAddressIndent(RDRenderItemParams* rip) { Renderer::renderAddressIndent(rip); }
 void RD_RenderIndent(RDRenderItemParams* rip, size_t n) { Renderer::renderIndent(rip, n); }
-

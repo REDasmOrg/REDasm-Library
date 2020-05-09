@@ -37,6 +37,7 @@ RD_API_EXPORT void RD_SetProgressCallback(RD_ProgressCallback callback, void* us
 RD_API_EXPORT void RD_AddPluginPath(const char* pluginpath);
 RD_API_EXPORT void RD_AddDatabasePath(const char* dbpath);
 RD_API_EXPORT void RD_GetProblems(RD_ProblemCallback callback, void* userdata);
+RD_API_EXPORT void RD_StatusAddress(const char* s, address_t address);
 RD_API_EXPORT void RD_Status(const char* s);
 RD_API_EXPORT void RD_Log(const char* s);
 RD_API_EXPORT void RD_Problem(const char* s);
@@ -55,7 +56,8 @@ RD_API_EXPORT RDDocument* RD_GetDocument(void);
 
 #ifdef __cplusplus
   #include <string>
-  #define rd_log(s)     RD_Log(std::string(s).c_str())
-  #define rd_problem(s) RD_Problem(std::string(s).c_str())
-  #define rd_status(s)  RD_Status(std::string(s).c_str())
+  #define rd_log(s)                    RD_Log(std::string(s).c_str())
+  #define rd_problem(s)                RD_Problem(std::string(s).c_str())
+  #define rd_status(s)                 RD_Status(std::string(s).c_str())
+  #define rd_statusaddress(s, address) RD_StatusAddress(std::string(s).c_str(), address)
 #endif

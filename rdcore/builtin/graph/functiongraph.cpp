@@ -216,7 +216,7 @@ void FunctionGraph::buildBasicBlocks()
 
             if(HAS_FLAG(*instruction, InstructionFlags_Conditional))
             {
-                address_t nextaddress = Sugar::endAddress(*instruction);
+                address_t nextaddress = Sugar::nextAddress(*instruction);
 
                 FunctionBasicBlock* nextfbb = this->requestBasicBlock(nextaddress);
                 fbb->bFalse(nextfbb->node);

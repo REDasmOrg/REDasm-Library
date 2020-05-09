@@ -9,11 +9,10 @@
 
 Algorithm::Algorithm(Disassembler* disassembler): StateMachine(disassembler) { }
 
-const RDInstruction* Algorithm::decodeInstruction(address_t address)
+bool Algorithm::decodeInstruction(address_t address, RDInstruction** instruction)
 {
-    //if(m_document->isInstructionCached(address)) return m_document->instruction(address, nullptr);
-    //return this->decode(address);
-    return nullptr;
+    if(!m_document->isInstructionCached(address)) this->decodeAddress(address);
+    return m_document->lockInstruction(address, instruction);
 }
 
 void Algorithm::handleOperand(const RDInstruction* instruction, const RDOperand* operand)
@@ -57,7 +56,7 @@ size_t Algorithm::decode(address_t address, RDInstruction* instruction)
     return m_disassembler->decode(view.get(), instruction) ? Algorithm::OK : Algorithm::FAIL;
 }
 
-bool Algorithm::canBeDisassembled(address_t address)
+bool Algorithm::canBeDisassembled(address_t address) const
 {
     if(m_document->isInstructionCached(address)) return false;
 
@@ -87,7 +86,7 @@ bool Algorithm::canBeDisassembled(address_t address)
     return true;
 }
 
-void Algorithm::nextAddress(address_t address)
+void Algorithm::decodeAddress(address_t address)
 {
     RDInstruction instruction{ };
     size_t result = this->decode(address, &instruction);
@@ -98,7 +97,7 @@ void Algorithm::nextAddress(address_t address)
 
         case Algorithm::FAIL:
             this->invalidInstruction(&instruction);
-            this->onDecodeFailed(&instruction);
+            this->decodeFailed(&instruction);
             break;
 
         default: return;
@@ -107,12 +106,12 @@ void Algorithm::nextAddress(address_t address)
     m_document->instruction(&instruction);
 }
 
-void Algorithm::onDecodeFailed(const RDInstruction* instruction)
+void Algorithm::decodeFailed(const RDInstruction* instruction)
 {
     rd_ctx->problem("Invalid instruction @ " + Utils::hex(instruction->address));
 
     if(!instruction->size) return;
-    this->enqueue(Sugar::endAddress(instruction));
+    this->enqueue(Sugar::nextAddress(instruction));
 }
 
 void Algorithm::branchMemoryState(const RDInstruction* instruction, address_t value)

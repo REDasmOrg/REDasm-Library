@@ -10,7 +10,7 @@ int Sugar::branchDirection(const RDInstruction* instruction, address_t address)
                             static_cast<std::make_signed<decltype(instruction->address)>::type>(instruction->address));
 }
 
-address_t Sugar::endAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
+address_t Sugar::nextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
 bool Sugar::isBranch(const RDInstruction* instruction) { return IS_TYPE(instruction, InstructionType_Call) || IS_TYPE(instruction, InstructionType_Jump); }
 
 bool Sugar::isUnconditionalJump(const RDInstruction* instruction)

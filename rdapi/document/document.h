@@ -80,22 +80,3 @@ RD_API_EXPORT void RDDocument_AddData(RDDocument* d, address_t address, size_t s
 RD_API_EXPORT void RDDocument_AddFunction(RDDocument* d, address_t address, const char* name);
 RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, address_t address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, address_t address);
-
-#ifdef __cplusplus
-struct InstructionLock {
-    InstructionLock(RDDocument* d, address_t address): m_document(d) { RDDocument_LockInstruction(d, address, &m_instruction); }
-    InstructionLock(RDDocument* d, const RDLocation& loc): m_document(d) { if(loc.valid) RDDocument_LockInstruction(d, loc.value, &m_instruction);  }
-    ~InstructionLock() { if(m_document) RDDocument_UnlockInstruction(m_document, m_instruction); }
-    RDInstruction* operator *() const { return m_instruction; }
-    RDInstruction* operator ->() const { return m_instruction; }
-    operator bool() const { return m_instruction; }
-
-    InstructionLock() = delete;
-    InstructionLock(const InstructionLock&) = delete;
-    void operator=(InstructionLock&) = delete;
-
-    private:
-        RDDocument* m_document{nullptr};
-        RDInstruction* m_instruction{nullptr};
-};
-#endif

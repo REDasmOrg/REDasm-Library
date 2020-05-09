@@ -33,7 +33,7 @@ class Renderer: public Object
     public:
         static void renderAddress(RDRenderItemParams* rip);
         static void renderAddressIndent(RDRenderItemParams* rip);
-        static void renderIndent(RDRenderItemParams* rip, size_t n);
+        static void renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags = false);
         static bool renderConstant(RDRenderItemParams* rip);
         static bool renderImmediate(RDRenderItemParams* rip);
         static bool renderMemory(RDRenderItemParams* rip);
@@ -58,7 +58,7 @@ class Renderer: public Object
         bool renderUnexplored(const RDDocumentItem* item, RDRendererItem* ritem) const;
         void renderAddress(const RDDocumentItem* item, RendererItem* ritem) const;
         void renderAddressIndent(const RDDocumentItem* item, RendererItem* ritem) const;
-        void renderIndent(RendererItem* ritem, size_t n) const;
+        void renderIndent(RendererItem* ritem, size_t n, bool ignoreflags = false) const;
         static void renderComments(RDRenderItemParams* rip);
         static void renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip, address_t address);
         static void renderRegister(RDRenderItemParams* rip, register_t r);

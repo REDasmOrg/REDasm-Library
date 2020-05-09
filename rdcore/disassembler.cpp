@@ -72,6 +72,7 @@ std::string Disassembler::readString(address_t address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
+bool Disassembler::decode(address_t address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction);  }
 void Disassembler::handleOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->handleOperand(instruction, op); }
 void Disassembler::enqueueAddress(const RDInstruction* instruction, address_t address) { m_algorithm->enqueueAddress(instruction, address);  }
 void Disassembler::enqueue(address_t address) { m_algorithm->enqueue(address); }

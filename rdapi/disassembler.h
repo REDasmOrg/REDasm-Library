@@ -21,6 +21,7 @@ RD_API_EXPORT size_t RDDisassembler_GetReferences(const RDDisassembler* d, addre
 RD_API_EXPORT size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets);
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address);
+RD_API_EXPORT bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction);
 RD_API_EXPORT void RDDisassembler_PushReference(RDDisassembler* d, address_t address, address_t refby);
 RD_API_EXPORT void RDDisassembler_PopReference(RDDisassembler* d, address_t address, address_t refby);
 RD_API_EXPORT void RDDisassembler_HandleOperand(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op);
@@ -34,3 +35,25 @@ RD_API_EXPORT const char* RD_ReadString(const RDDisassembler* d, address_t addre
 RD_API_EXPORT const char16_t* RD_ReadWString(const RDDisassembler* d, address_t address, size_t* len);
 RD_API_EXPORT void RD_DisassembleAddress(RDDisassembler* d, address_t address);
 RD_API_EXPORT void RD_Disassemble(RDDisassembler* d);
+
+#ifdef __cplusplus
+struct InstructionLock {
+    InstructionLock(RDDisassembler* d, address_t address): m_document(RDDisassembler_GetDocument(d)) { RDDisassembler_Decode(d, address, &m_instruction); }
+    InstructionLock(RDDocument* d, address_t address): m_document(d) { this->lock(address); }
+    InstructionLock(RDDocument* d, const RDLocation& loc): m_document(d) { if(loc.valid) this->lock(loc.address); }
+    ~InstructionLock() { this->unlock(); }
+    void lock(address_t address) { this->unlock(); RDDocument_LockInstruction(m_document, address, &m_instruction); }
+    void unlock() { if(m_document && m_instruction) RDDocument_UnlockInstruction(m_document, m_instruction); }
+    RDInstruction* operator *() const { return m_instruction; }
+    RDInstruction* operator ->() const { return m_instruction; }
+    operator bool() const { return m_instruction; }
+
+    InstructionLock() = delete;
+    InstructionLock(const InstructionLock&) = delete;
+    void operator=(InstructionLock&) = delete;
+
+    private:
+        RDDocument* m_document{nullptr};
+        RDInstruction* m_instruction{nullptr};
+};
+#endif

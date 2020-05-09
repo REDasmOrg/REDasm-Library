@@ -64,11 +64,11 @@ void Renderer::renderAddressIndent(RDRenderItemParams* rip)
     renderer->renderAddressIndent(rip->documentitem, ri);
 }
 
-void Renderer::renderIndent(RDRenderItemParams* rip, size_t n)
+void Renderer::renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags)
 {
     const Renderer* renderer = CPTR(const Renderer, rip->renderer);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    renderer->renderIndent(ri, n);
+    renderer->renderIndent(ri, n, ignoreflags);
 }
 
 bool Renderer::renderConstant(RDRenderItemParams* rip)
@@ -594,7 +594,7 @@ void Renderer::renderComments(RDRenderItemParams* rip)
     std::string comment = d->document()->comment(rip->documentitem->address, false);
     if(comment.empty()) return;
 
-    Renderer::renderIndent(rip, 3);
+    Renderer::renderIndent(rip, 3, true);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
     ri->push("# " + comment, "comment_fg");
 }
@@ -669,9 +669,9 @@ void Renderer::renderAddressIndent(const RDDocumentItem* item, RendererItem* rit
     ritem->push(std::string(c + INDENT_WIDTH, ' '));
 }
 
-void Renderer::renderIndent(RendererItem* ritem, size_t n) const
+void Renderer::renderIndent(RendererItem* ritem, size_t n, bool ignoreflags) const
 {
-    if(m_flags & RendererFlags_NoIndent) return;
+    if(!ignoreflags && (m_flags & RendererFlags_NoIndent)) return;
     ritem->push(std::string(n * INDENT_WIDTH, ' '));
 }
 

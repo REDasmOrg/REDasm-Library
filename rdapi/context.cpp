@@ -13,6 +13,7 @@ void RD_AddPluginPath(const char* pluginpath) { rd_ctx->addPluginPath(pluginpath
 void RD_AddDatabasePath(const char* dbpath) { rd_ctx->addDatabasePath(dbpath); }
 void RD_GetProblems(RD_ProblemCallback callback, void* userdata) { rd_ctx->getProblems(callback, userdata); }
 void RD_Log(const char* s) { rd_ctx->log(s); }
+void RD_StatusAddress(const char* s, address_t address) { rd_ctx->statusAddress(s, address); }
 void RD_Status(const char* s) { rd_ctx->status(s); }
 void RD_Problem(const char* s) { rd_ctx->problem(s); }
 void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }

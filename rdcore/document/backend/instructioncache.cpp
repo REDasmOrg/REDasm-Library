@@ -8,10 +8,7 @@
 
 #define CACHE_FILE_NAME(x) ("redasm_cache_" + Utils::number(x) + ".tmp")
 
-InstructionCache::InstructionCache(): m_filepath(generateFilePath()), m_lockserialization(false)
-{
-    m_lmdb.open(m_filepath, MDB_INTEGERKEY | MDB_CREATE);
-}
+InstructionCache::InstructionCache(): m_filepath(generateFilePath()) { m_lmdb.open(m_filepath, MDB_INTEGERKEY | MDB_CREATE); }
 
 InstructionCache::~InstructionCache()
 {
@@ -65,21 +62,24 @@ bool InstructionCache::unlock(const RDInstruction* instruction) const
     size_t refcount = --it->second.refcount;
     if(refcount) return true;
 
+    this->write(instruction);
     m_loaded.erase(it);
     return true;
 }
 
 void InstructionCache::erase(address_t address) { m_cache.erase(address); }
 
-void InstructionCache::cache(const RDInstruction* instruction)
+bool InstructionCache::write(const RDInstruction* instruction) const
 {
-    if(m_lockserialization) return;
+    if(m_lockserialization) return false;
 
-    m_cache.insert(instruction->address);
     auto t = m_lmdb.transaction();
     t->putr(instruction->address, instruction);
     t->commit();
+    return true;
 }
+
+void InstructionCache::cache(const RDInstruction* instruction) { if(this->write(instruction)) m_cache.insert(instruction->address); }
 
 std::string InstructionCache::generateFilePath()
 {

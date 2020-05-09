@@ -25,12 +25,13 @@ class InstructionCache
         void erase(address_t address);
 
     private:
+        bool write(const RDInstruction* instruction) const;
         static std::string generateFilePath();
 
     private:
         mutable std::unordered_map<address_t, CachedInstruction> m_loaded;
         std::unordered_set<address_t> m_cache;
         std::string m_filepath;
-        bool m_lockserialization;
+        bool m_lockserialization{false};
         LMDB m_lmdb;
 };

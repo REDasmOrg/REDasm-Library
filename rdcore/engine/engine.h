@@ -16,9 +16,6 @@ class Engine
         enum { EngineState_None, EngineState_Strings, EngineState_Algorithm, EngineState_Unexplored,
                EngineState_Analyze, EngineState_CFG, EngineState_Signature, EngineState_Last };
 
-    private:
-        typedef safe_ptr<Algorithm> SafeAlgorithm;
-
     public:
         Engine(Disassembler* disassembler);
         ~Engine();
@@ -27,7 +24,6 @@ class Engine
         void reset();
         void execute();
         void execute(size_t step);
-        void enqueue(address_t address);
 
     public:
         bool needsWeak() const;
@@ -68,6 +64,6 @@ class Engine
         std::chrono::steady_clock::time_point m_starttime;
         size_t m_currentstep{Engine::EngineState_None};
         Disassembler* m_disassembler;
-        SafeAlgorithm m_algorithm;
+        SafeAlgorithm& m_algorithm;
 };
 

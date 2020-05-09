@@ -46,10 +46,6 @@ bool InstructionCache::lock(address_t address, RDInstruction** instruction) cons
             return false;
         }
 
-        // Reset backend specific fields
-        ci.free = nullptr;
-        ci.userdata = 0;
-
         m_loaded[address] = { ci, 1 };
     }
     else

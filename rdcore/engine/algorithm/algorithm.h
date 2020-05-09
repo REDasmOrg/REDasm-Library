@@ -1,8 +1,7 @@
 #pragma once
 
-#define ENQUEUE_STATE(id, value, index, instruction)  this->enqueueState({ #id, id, {u64(value)}, index, instruction })
-#define DECODE_STATE(address)                         ENQUEUE_STATE(Algorithm::State_Decode, address, RD_NPOS, nullptr)
-
+#include <rdapi/disassembler.h>
+#include "../../support/safe_ptr.h"
 #include "statemachine.h"
 
 class Algorithm: public StateMachine
@@ -11,35 +10,34 @@ class Algorithm: public StateMachine
         enum { OK, SKIP, FAIL };
 
     public:
-        Algorithm();
-        virtual ~Algorithm() = default;
+        Algorithm(Disassembler* disassembler);
         const RDInstruction* decodeInstruction(address_t address);
-        void enqueue(address_t address);
+        void handleOperand(const RDInstruction* instruction, const RDOperand* operand);
+        void enqueueAddress(const RDInstruction* instruction, address_t address);
+
+    protected:
+        void nextAddress(address_t address) override;
 
     private:
         size_t decode(address_t address, RDInstruction* instruction);
-        void decode(address_t address);
-        void validateTarget(const RDInstruction* instruction) const;
         void invalidInstruction(RDInstruction* instruction) const;
         bool canBeDisassembled(address_t address);
+        void onDecodeFailed(const RDInstruction* instruction);
 
-    protected:
-        virtual void onDecodedOperand(const RDOperand* op, const RDInstruction* instruction);
-        virtual void onDecodeFailed(const RDInstruction* instruction);
-        virtual void onDecoded(const RDInstruction* instruction);
-
-    protected:
-        virtual void decodeState(const RDState *state);
-        virtual void jumpState(const RDState *state);
-        virtual void callState(const RDState *state);
-        virtual void branchState(const RDState *state);
-        virtual void branchMemoryState(const RDState *state);
-        virtual void addressTableState(const RDState *state);
-        virtual void memoryState(const RDState* state);
-        virtual void pointerState(const RDState* state);
-        virtual void immediateState(const RDState* state);
+    private: // Private States
+        void branchMemoryState(const RDInstruction* instruction, address_t value);
+        void pointerState(const RDInstruction* instruction, address_t value);
 
     private:
-        RDSegment m_currentsegment{};
+        void jumpState(const RDInstruction* instruction, address_t value);
+        void callState(const RDInstruction* instruction, address_t value);
+        //void addressTableState(const State *state);
+        void memoryState(const RDInstruction* instruction, address_t value);
+        void immediateState(const RDInstruction* instruction, address_t value);
+        void constantState(const RDInstruction* instruction, address_t value);
+
+    private:
+        RDSegment m_currentsegment{ };
 };
 
+typedef safe_ptr<Algorithm> SafeAlgorithm;

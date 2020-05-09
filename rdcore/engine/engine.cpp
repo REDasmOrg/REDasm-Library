@@ -4,17 +4,16 @@
 #include "../disassembler.h"
 #include "../context.h"
 #include "../builtin/graph/functiongraph.h"
-#include "algorithm/controlflow.h"
 #include "gibberish/gibberishdetector.h"
 #include "stringfinder.h"
 #include "analyzer.h"
+#include <rdapi/disassembler.h>
 
-Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler)
+Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm())
 {
     GibberishDetector::initialize();
     if(!rd_ctx->sync()) JobManager::initialize();
 
-    m_algorithm = SafeAlgorithm(new ControlFlowAlgorithm());
     m_analyzer.reset(new Analyzer(disassembler));
 }
 
@@ -60,8 +59,6 @@ void Engine::execute(size_t step)
         default:                             rd_ctx->log("Unknown step: " + Utils::number(step)); return;
     }
 }
-
-void Engine::enqueue(address_t address) { m_algorithm->enqueue(address); }
 
 bool Engine::needsWeak() const
 {

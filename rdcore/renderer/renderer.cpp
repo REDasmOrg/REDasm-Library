@@ -74,7 +74,7 @@ void Renderer::renderIndent(RDRenderItemParams* rip, size_t n)
 bool Renderer::renderConstant(RDRenderItemParams* rip)
 {
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(Utils::hex(rip->instruction->operands[rip->opindex].u_value), "immediate_fg");
+    ri->push(Utils::hex(rip->operand->u_value), "immediate_fg");
     return true;
 }
 
@@ -82,15 +82,14 @@ bool Renderer::renderImmediate(RDRenderItemParams* rip)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    const RDOperand op = rip->instruction->operands[rip->opindex];
 
     std::string value;
-    const char* name = d->document()->name(op.address);
+    const char* name = d->document()->name(rip->operand->address);
 
     if(name) value = name;
-    else value = Utils::hex(op.u_value, d->assembler()->bits);
+    else value = Utils::hex(rip->operand->u_value, d->assembler()->bits);
 
-    if(op.type == OperandType_Memory) ri->push("[").push(value, "memory_fg").push("]");
+    if(rip->operand->type == OperandType_Memory) ri->push("[").push(value, "memory_fg").push("]");
     else ri->push(value, "immediate_fg");
     return true;
 }
@@ -101,28 +100,27 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
 {
     if(!rip->instruction) return false;
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    const RDOperand& op = rip->instruction->operands[rip->opindex];
     size_t prevsize = ri->size();
     ri->push("[");
 
-    if(Sugar::isBaseValid(&op)) Renderer::renderRegister(rip, op.base);
+    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand->base);
 
-    if(Sugar::isIndexValid(&op))
+    if(Sugar::isIndexValid(rip->operand))
     {
         if(prevsize != ri->size()) ri->push("+");
         prevsize++;
 
-        Renderer::renderRegister(rip, op.index);
-        if(op.scale > 1) ri->push("*").push(Utils::hex(op.scale), "immediate_fg");
+        Renderer::renderRegister(rip, rip->operand->index);
+        if(rip->operand->scale > 1) ri->push("*").push(Utils::hex(rip->operand->scale), "immediate_fg");
     }
 
-    if(op.displacement > 0)
+    if(rip->operand->displacement > 0)
     {
         if(prevsize != ri->size()) ri->push("+");
-        Renderer::renderSymbol(plugin, rip, op.address);
+        Renderer::renderSymbol(plugin, rip, rip->operand->address);
     }
-    else if(op.displacement < 0)
-        ri->push("-").push(Utils::hex(std::abs(op.displacement)), "immediate_fg");
+    else if(rip->operand->displacement < 0)
+        ri->push("-").push(Utils::hex(std::abs(rip->operand->displacement)), "immediate_fg");
 
     ri->push("]");
     return true;
@@ -131,7 +129,7 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
 bool Renderer::renderRegister(const RDAssemblerPlugin*, RDRenderItemParams* rip)
 {
     if(!rip->instruction) return false;
-    Renderer::renderRegister(rip, rip->instruction->operands[rip->opindex].reg);
+    Renderer::renderRegister(rip, rip->operand->reg);
     return true;
 }
 
@@ -190,7 +188,7 @@ bool Renderer::renderItem(size_t index, RDRendererItem* ritem) const
         default:                          return false;
     }
 
-    bool res = this->renderParams(slottype, &item, ritem, &symbol, instruction, RD_NPOS);
+    bool res = this->renderParams(slottype, &item, ritem, &symbol, instruction, nullptr);
     if(instruction) m_disassembler->document()->unlockInstruction(instruction);
     return res;
 }
@@ -464,9 +462,11 @@ bool Renderer::renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemPa
         rip->type = RendererItemType_Operand;
         ri->push(" ");
 
-        for(rip->opindex = 0; rip->opindex < rip->instruction->operandscount; rip->opindex++)
+        for(size_t i = 0; i < rip->instruction->operandscount; i++)
         {
-            if(rip->opindex) ri->push(", ");
+            rip->operand = &rip->instruction->operands[i];
+
+            if(i) ri->push(", ");
             r->renderParams(rip);
         }
     }
@@ -479,12 +479,9 @@ bool Renderer::renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemPa
 
 bool Renderer::renderOperand(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip)
 {
-    if(rip->opindex >= rip->instruction->operandscount) return false;
-    if(rip->opindex >= DEFAULT_CONTAINER_SIZE) return false;
+    if(!rip->operand) return false;
 
-    const RDOperand& op = rip->instruction->operands[rip->opindex];
-
-    switch(op.type)
+    switch(rip->operand->type)
     {
         case OperandType_Constant:     return Renderer::renderConstant(rip);
         case OperandType_Immediate:    return Renderer::renderImmediate(rip);

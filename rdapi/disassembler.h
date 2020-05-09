@@ -5,22 +5,6 @@
 #include "loader.h"
 #include "assembler.h"
 
-typedef u32 state_t;
-
-typedef struct RDState {
-    const char* name;
-    state_t id;
-
-    union {
-        u64 u_value;
-        s64 s_value;
-        address_t address;
-    };
-
-    size_t opindex;
-    const RDInstruction* instruction;
-} RDState;
-
 DECLARE_HANDLE(RDDisassembler);
 
 RD_API_EXPORT RDDisassembler* RDDisassembler_Create(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
@@ -36,6 +20,12 @@ RD_API_EXPORT size_t RDDisassembler_GetReferences(const RDDisassembler* d, addre
 RD_API_EXPORT size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets);
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address);
+RD_API_EXPORT void RDDisassembler_PushReference(RDDisassembler* d, address_t address, address_t refby);
+RD_API_EXPORT void RDDisassembler_PopReference(RDDisassembler* d, address_t address, address_t refby);
+RD_API_EXPORT void RDDisassembler_HandleOperand(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op);
+RD_API_EXPORT void RDDisassembler_Enqueue(RDDisassembler* d, address_t address);
+RD_API_EXPORT void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInstruction* instruction, address_t address);
+RD_API_EXPORT void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction);
 
 // Extra Functions
 RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, address_t address, RDSymbol* symbol);

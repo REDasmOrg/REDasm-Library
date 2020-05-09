@@ -1,45 +1,31 @@
 #pragma once
 
-#include <array>
-#include <forward_list>
-#include <functional>
+#include <list>
 #include <rdapi/disassembler.h>
+#include "../../document/document_fwd.h"
 
-typedef std::function<void(const RDState*)> StateCallback;
+class Disassembler;
 
 class StateMachine
 {
-    protected:
-        enum: size_t {
-            State_Decode,
-            State_Jump, State_Call,
-            State_Branch, State_BranchMemory,
-            State_AddressTable, State_Memory, State_Pointer, State_Immediate,
-            State_Length
-        };
-
     public:
-        StateMachine() = default;
+        StateMachine(Disassembler* disassembler);
         virtual ~StateMachine() = default;
         size_t pending() const;
         bool hasNext() const;
+        void enqueue(address_t address);
+        void schedule(address_t address);
         void next();
 
-    protected:
-        void executeState(const RDState* state);
-        void executeState(const RDState& state);
-        void enqueueState(const RDState& state);
-
     private:
-        bool validateState(const RDState* state) const;
-        void onNewState(const RDState* state) const;
-        bool getNext(RDState* state);
+        virtual void nextAddress(address_t address) = 0;
+        bool getNext(address_t* address);
 
     protected:
-        std::array<StateCallback, State_Length> m_states;
+        Disassembler* m_disassembler;
+        SafeDocument& m_document;
 
     private:
-        std::forward_list<RDState> m_pending;
-        size_t m_count{0};
+        std::list<address_t> m_pending;
 };
 

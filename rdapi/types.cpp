@@ -1,5 +1,6 @@
 #include "types.h"
 #include <rdcore/document/backend/segmentcontainer.h>
+#include <rdcore/support/sugar.h>
 #include <algorithm>
 #include <cstring>
 
@@ -12,11 +13,21 @@ void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic)
     std::copy_n(mnemonic, std::min<size_t>(std::strlen(mnemonic), sizeof(instruction->mnemonic)), instruction->mnemonic);
 }
 
-bool RDInstruction_PushOperand(RDInstruction* instruction, RDOperand* op)
-{
-    if(!instruction || (instruction->operandscount >= DEFAULT_CONTAINER_SIZE)) return false;
+address_t RDInstruction_EndAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
 
-    op->pos = instruction->operandscount++;
-    instruction->operands[op->pos] = *op;
-    return true;
+RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type)
+{
+    if(!instruction || (instruction->operandscount >= DEFAULT_CONTAINER_SIZE)) return nullptr;
+
+    RDOperand op{ };
+    op.type = type;
+    op.pos = instruction->operandscount++;
+    instruction->operands[op.pos] = op;
+    return &instruction->operands[op.pos];
+}
+
+bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic)
+{
+    if(!mnemonic || (std::strlen(mnemonic) > DEFAULT_NAME_SIZE)) return false;
+    return !std::strcmp(instruction->mnemonic, mnemonic);
 }

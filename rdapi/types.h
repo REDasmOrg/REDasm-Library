@@ -23,9 +23,6 @@ typedef location_t offset_t;
 
 typedef u64 instruction_id_t;
 typedef s64 register_id_t;
-typedef uintptr_t tag_t;
-typedef u32 object_id_t;
-typedef object_id_t argument_t;
 
 typedef u16 type_t;
 typedef u16 flag_t;
@@ -41,6 +38,14 @@ typedef u16 flag_t;
 #else
     #define RD_NREG (register_id_t)(-1)
 #endif
+
+#define RD_USERDATA_FIELD \
+    union { \
+        intptr_t i_data; \
+        uintptr_t u_data; \
+        const char* s_data; \
+        void* p_data; \
+    };
 
 typedef struct RDLocation {
     union {
@@ -71,7 +76,7 @@ typedef struct RDSegment {
 } RDSegment;
 
 enum RDOperandType {
-    OperandType_None,
+    OperandType_Void,
     OperandType_Constant,     // Simple constant
     OperandType_Register,     // Register
     OperandType_Immediate,    // Immediate Value
@@ -79,17 +84,9 @@ enum RDOperandType {
     OperandType_Displacement, // Indirect Memory Pointer
 };
 
-enum RDOperandFlags {
-    OperandFlags_None,
-    OperandFlags_Local    = (1 << 1),  // Local Variable
-    OperandFlags_Argument = (1 << 2),  // Function Argument
-    OperandFlags_Target   = (1 << 3),  // Branch destination
-};
-
 typedef struct RDOperand {
     type_t type;
-    flag_t flags;
-    u32 size, pos, locindex;
+    u32 pos;
 
     union {
         register_id_t reg;
@@ -106,6 +103,8 @@ typedef struct RDOperand {
         u64 u_value;
         address_t address;
     };
+
+    RD_USERDATA_FIELD
 } RDOperand;
 
 enum RDInstructionType {
@@ -140,25 +139,23 @@ enum RDInstructionFlags {
     InstructionFlags_Privileged  = (1 << 3),
 };
 
-typedef void(*RD_FreeCallback)(uintptr_t);
-
 typedef struct RDInstruction {
     instruction_id_t id;  // Implementation Specific
-    uintptr_t userdata;   // Implementation Specific
-    RD_FreeCallback free; // Implementation Specific
 
     address_t address;
     char mnemonic[DEFAULT_NAME_SIZE];
     type_t type;
     flag_t flags;
     u32 size;
-    //size_t targetscount;
-    //address_t targets[DEFAULT_CONTAINER_SIZE];
     u32 operandscount;
     RDOperand operands[DEFAULT_CONTAINER_SIZE];
+
+    RD_USERDATA_FIELD
 } RDInstruction;
 
 RD_API_EXTERN_C size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXTERN_C size_t RDSegment_Size(const RDSegment* s);
-RD_API_EXTERN_C bool RDInstruction_PushOperand(RDInstruction* instruction, RDOperand* op);
+RD_API_EXTERN_C address_t RDInstruction_EndAddress(const RDInstruction* instruction);
+RD_API_EXTERN_C RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type);
+RD_API_EXTERN_C bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic);
 RD_API_EXTERN_C void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic);

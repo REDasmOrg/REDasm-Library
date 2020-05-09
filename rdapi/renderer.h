@@ -46,9 +46,8 @@ typedef struct RDRenderItemParams {
     RDRendererItem* rendereritem;
 
     const RDSymbol* symbol;
-
-    RDInstruction* instruction;
-    size_t opindex;
+    const RDInstruction* instruction;
+    const RDOperand* operand;
 } RDRenderItemParams;
 
 typedef struct RDRendererFormat {

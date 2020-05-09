@@ -14,5 +14,5 @@ RD_API_EXPORT void RDBuffer_Resize(RDBuffer* buffer, size_t size);
 
 DECLARE_HANDLE(RDBufferView);
 
-RD_API_EXPORT u8* RDBufferView_Data(RDBufferView* buffer);
+RD_API_EXPORT u8* RDBufferView_Data(RDBufferView* view);
 RD_API_EXPORT size_t RDBufferView_Size(const RDBufferView* view);

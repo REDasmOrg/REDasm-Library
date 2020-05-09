@@ -11,16 +11,18 @@ Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* pload
 {
     rd_ctx->setDisassembler(this);
     m_loader = std::make_unique<Loader>(request, ploader);
+    m_algorithm = SafeAlgorithm(new Algorithm(this));
 }
 
 RDAssemblerPlugin* Disassembler::assembler() const { return m_passembler; }
 Loader* Disassembler::loader() const { return m_loader.get(); }
+SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 
 void Disassembler::disassembleAddress(address_t address)
 {
-    m_engine->enqueue(address);
+    m_algorithm->enqueue(address);
     if(!m_engine->busy()) m_engine->execute(Engine::EngineState_Algorithm);
 }
 
@@ -32,7 +34,7 @@ void Disassembler::disassemble()
 
     // Preload functions for analysis
     for(size_t i = 0; i < this->document()->functionsCount(); i++)
-        m_engine->enqueue(this->document()->functionAt(i));
+        m_algorithm->enqueue(this->document()->functionAt(i));
 
     if(rd_ctx->sync() || m_engine->concurrency() == 1) rd_ctx->log("Single threaded disassembly");
     else rd_ctx->log("Disassembling with " + Utils::number(m_engine->concurrency()) + " threads");
@@ -70,6 +72,9 @@ std::string Disassembler::readString(address_t address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
+void Disassembler::handleOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->handleOperand(instruction, op); }
+void Disassembler::enqueueAddress(const RDInstruction* instruction, address_t address) { m_algorithm->enqueueAddress(instruction, address);  }
+void Disassembler::enqueue(address_t address) { m_algorithm->enqueue(address); }
 size_t Disassembler::getReferences(address_t address, const address_t** references) const { return m_references.references(address, references); }
 size_t Disassembler::getTargets(address_t address, const address_t** targets) const { return m_references.targets(address, targets); }
 RDLocation Disassembler::getTarget(address_t address) const { return m_references.target(address); }
@@ -156,7 +161,18 @@ size_t Disassembler::markTable(const RDInstruction* instruction, address_t start
 
 size_t Disassembler::addressWidth() const { return m_passembler->bits / CHAR_BIT;  }
 size_t Disassembler::bits() const { return m_passembler->bits; }
-bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const { return m_passembler->decode(m_passembler, CPTR(RDBufferView, view), instruction); }
+
+bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const
+{
+    if(!m_passembler->decode) return false;
+    return m_passembler->decode(m_passembler, CPTR(RDBufferView, view), instruction);
+}
+
+void Disassembler::emulate(const RDInstruction* instruction)
+{
+    if(!m_passembler->emulate) return;
+    m_passembler->emulate(m_passembler, CPTR(RDDisassembler, this), instruction);
+}
 
 bool Disassembler::readAddress(address_t address, size_t size, u64* value) const
 {

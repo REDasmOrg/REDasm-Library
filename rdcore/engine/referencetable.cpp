@@ -1,7 +1,12 @@
 #include "referencetable.h"
 
 void ReferenceTable::pushReference(address_t address, address_t refby) { m_references[address].insert(refby); }
-void ReferenceTable::pushTarget(address_t target, address_t refby) { m_targets[refby].insert(target); }
+
+void ReferenceTable::pushTarget(address_t target, address_t refby)
+{
+    this->pushReference(target, refby); // Targets are references too
+    m_targets[refby].insert(target);
+}
 
 void ReferenceTable::popReference(address_t target, address_t refby)
 {
@@ -11,6 +16,8 @@ void ReferenceTable::popReference(address_t target, address_t refby)
 
 void ReferenceTable::popTarget(address_t target, address_t refby)
 {
+    this->popReference(target, refby);  // Targets are references too
+
     auto it = m_targets.find(refby);
     if(it != m_targets.end()) it->second.remove(target);
 }
@@ -18,8 +25,8 @@ void ReferenceTable::popTarget(address_t target, address_t refby)
 RDLocation ReferenceTable::target(address_t address) const
 {
     auto it = m_targets.find(address);
-    if((it == m_targets.end()) || it->second.empty()) return { 0, false };
-    return { it->second.front(), true };
+    if((it == m_targets.end()) || it->second.empty()) return { {0}, false };
+    return { {it->second.front()}, true };
 }
 
 size_t ReferenceTable::targets(address_t address, const address_t** targets) const

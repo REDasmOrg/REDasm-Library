@@ -7,14 +7,17 @@
 #include "engine/engine.h"
 #include "engine/referencetable.h"
 #include "engine/stringfinder.h"
+#include "engine/algorithm/algorithm.h"
 #include "support/utils.h"
 
 class Disassembler: public Object
 {
+
     public:
         Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
         RDAssemblerPlugin* assembler() const;
         Loader* loader() const;
+        SafeAlgorithm& algorithm();
         SafeDocument& document() const;
         MemoryBuffer* buffer() const;
         bool needsWeak() const;
@@ -30,8 +33,14 @@ class Disassembler: public Object
         std::string readWString(address_t address, size_t len = RD_NPOS) const; // Internal C++ Helper
         std::string readString(address_t address, size_t len = RD_NPOS) const;  // Internal C++ Helper
 
+    public: // Engine/Algorithm
+        void handleOperand(const RDInstruction* instruction, const RDOperand* op);
+        void enqueueAddress(const RDInstruction* instruction, address_t address);
+        void enqueue(address_t address);
+
     public: // Assembler
         bool decode(BufferView* view, RDInstruction* instruction) const;
+        void emulate(const RDInstruction* instruction);
         size_t addressWidth() const;
         size_t bits() const;
 
@@ -63,6 +72,7 @@ class Disassembler: public Object
         std::unique_ptr<Loader> m_loader;
         RDAssemblerPlugin* m_passembler;
         ReferenceTable m_references;
+        SafeAlgorithm m_algorithm;
 };
 
 template<typename T>

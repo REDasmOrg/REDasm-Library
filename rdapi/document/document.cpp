@@ -20,6 +20,7 @@ bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol*
 bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction) { return docptr(d)->lockInstruction(address, instruction); }
 bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction) { return docptr(d)->unlockInstruction(instruction);  }
 const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address) { return docptr(d)->symbols()->getName(address); }
+RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index) { return docptr(d)->functionAt(index); }
 RDLocation RDDocument_EntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
 RDLocation RDDocument_FunctionStart(const RDDocument* d, address_t address) { return docptr(d)->functionStart(address); }
 size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item) { return docptr(d)->itemIndex(item); }
@@ -52,4 +53,3 @@ bool RDDocument_GetFunctionGraph(const RDDocument* d, address_t address, RDGraph
      if(item && g) *item = CPTR(RDGraph, g);
      return g;
 }
-

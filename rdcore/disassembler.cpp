@@ -34,7 +34,7 @@ void Disassembler::disassemble()
 
     // Preload functions for analysis
     for(size_t i = 0; i < this->document()->functionsCount(); i++)
-        m_algorithm->enqueue(this->document()->functionAt(i));
+        m_algorithm->enqueue(this->document()->functionAt(i).address);
 
     if(rd_ctx->sync() || m_engine->concurrency() == 1) rd_ctx->log("Single threaded disassembly");
     else rd_ctx->log("Disassembling with " + Utils::number(m_engine->concurrency()) + " threads");

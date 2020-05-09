@@ -24,9 +24,9 @@ void Analyzer::checkFunctions()
 
     for(size_t i = 0; i < lock->functionsCount(); i++)
     {
-        address_t address = lock->functionAt(i);
-        if(this->findNullSubs(lock, address)) continue;
-        this->findTrampoline(lock, address);
+        RDLocation loc = lock->functionAt(i);
+        if(this->findNullSubs(lock, loc.address)) continue;
+        this->findTrampoline(lock, loc.address);
     }
 }
 

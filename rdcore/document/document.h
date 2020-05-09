@@ -74,7 +74,7 @@ class Document: public Object
         bool itemAt(size_t idx, RDDocumentItem* item) const;
         bool blockAt(size_t idx, RDBlock* block) const;
         bool segmentAt(size_t idx, RDSegment* segment) const;
-        address_t functionAt(size_t idx) const;
+        RDLocation functionAt(size_t idx) const;
 
     public: // Get
         RDLocation entryPoint() const;

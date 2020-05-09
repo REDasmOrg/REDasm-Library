@@ -196,14 +196,14 @@ void Engine::cfgJob(const JobDispatchArgs& args)
 {
     if(args.jobindex >= m_disassembler->document()->functionsCount()) return;
 
-    address_t address = m_disassembler->document()->functionAt(args.jobindex);
-    rd_ctx->status("Computing basic blocks @ " + Utils::hex(address));
+    RDLocation loc = m_disassembler->document()->functionAt(args.jobindex);
+    rd_ctx->status("Computing basic blocks @ " + Utils::hex(loc.address));
     auto g = std::make_unique<FunctionGraph>(m_disassembler);
     bool cfgdone = false;
 
     { // Build CFG
         auto lock = s_lock_safe_ptr(m_disassembler->document());
-        cfgdone = g->build(address);
+        cfgdone = g->build(loc.address);
     }
 
     if(cfgdone) // Apply CFG
@@ -229,7 +229,7 @@ void Engine::cfgJob(const JobDispatchArgs& args)
         lock->graph(g.release());
     }
     else
-        rd_ctx->problem("Graph creation failed @ " + Utils::hex(address));
+        rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));
 
     if(JobManager::last())
         this->execute();

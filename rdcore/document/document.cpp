@@ -187,7 +187,12 @@ size_t Document::itemsAt(size_t startidx, size_t count, RDDocumentItem* item) co
 bool Document::itemAt(size_t idx, RDDocumentItem* item) const { return m_items->get(idx, item); }
 bool Document::blockAt(size_t idx, RDBlock* block) const { return m_blocks->get(idx, block); }
 bool Document::segmentAt(size_t idx, RDSegment* segment) const { return m_segments->get(idx, segment); }
-address_t Document::functionAt(size_t idx) const { return m_functions->at(idx); }
+
+RDLocation Document::functionAt(size_t idx) const
+{
+    if(idx >= m_functions->size()) return { {0}, false };
+    return { {m_functions->at(idx)}, true };
+}
 
 RDLocation Document::entryPoint() const
 {

@@ -105,12 +105,12 @@ void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlug
     {
         RDLoaderPlugin* ploader = reinterpret_cast<RDLoaderPlugin*>(item.second);
 
-        Context::initPlugin(&ploader->header);
+        Context::initPlugin(reinterpret_cast<RDPluginHeader*>(ploader));
         RDAssemblerPlugin* passembler = ploader->test(ploader, loadrequest);
 
         if(!passembler)
         {
-            Context::freePlugin(&ploader->header);
+            Context::freePlugin(reinterpret_cast<RDPluginHeader*>(ploader));
             continue;
         }
 

@@ -15,7 +15,7 @@ typedef void (*Callback_AssemblerEmulate)(const struct RDAssemblerPlugin* plugin
 typedef void (*Callback_AssemblerPlugin)(struct RDAssemblerPlugin* plugin, void* userdata);
 
 typedef struct RDAssemblerPlugin {
-    RDPluginHeader header;
+    RD_PLUGIN_HEADER
     u32 bits;
 
     Callback_AssemblerDecode decode;

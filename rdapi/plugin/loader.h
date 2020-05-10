@@ -35,7 +35,7 @@ typedef void (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoa
 typedef void (*Callback_LoaderAnalyze)(struct RDLoaderPlugin* ploader, RDDisassembler* disassembler);
 
 typedef struct RDLoaderPlugin {
-    RDPluginHeader header;
+    RD_PLUGIN_HEADER
     flag_t flags;
 
     Callback_LoaderTest test;

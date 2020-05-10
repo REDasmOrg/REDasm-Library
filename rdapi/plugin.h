@@ -13,9 +13,16 @@
 
 #define RD_PLUGIN(type, id, name, init, free, ...) \
     static type id = { \
-        { #id, name, PluginState_Loaded, init, free, { nullptr } }, \
+        #id, name, PluginState_Loaded, init, free, { 0 }, \
         __VA_ARGS__ \
     };
+
+#define RD_PLUGIN_HEADER \
+    const char *id, *name; \
+    size_t state; \
+    Callback_PluginInit init; \
+    Callback_PluginFree free; \
+    RD_USERDATA_FIELD
 
 struct RDPluginHeader;
 
@@ -29,17 +36,7 @@ enum PluginState: size_t {
 };
 
 typedef struct RDPluginHeader {
-    const char *id, *name;
-    size_t state;
-
-    Callback_PluginInit init;
-    Callback_PluginFree free;
-
-    union {
-        void* puserdata;
-        uintptr_t userdata;
-    };
-
+    RD_PLUGIN_HEADER
 } RDPluginHeader;
 
 typedef struct RDPluginDescriptor {

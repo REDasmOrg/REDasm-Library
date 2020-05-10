@@ -3,7 +3,6 @@
 #include <memory>
 #include "object.h"
 #include "plugin/loader.h"
-#include "plugin/assembler.h"
 #include "engine/engine.h"
 #include "engine/referencetable.h"
 #include "engine/stringfinder.h"

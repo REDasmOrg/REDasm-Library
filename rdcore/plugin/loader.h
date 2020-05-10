@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <rdapi/loader.h>
+#include <rdapi/plugin/loader.h>
 #include "../document/document.h"
 #include "../buffer/buffer.h"
 #include "../object.h"

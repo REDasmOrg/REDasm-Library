@@ -1,9 +1,9 @@
 #pragma once
 
-#include "macros.h"
-#include "buffer.h"
-#include "plugin.h"
-#include "renderer.h"
+#include "../macros.h"
+#include "../buffer.h"
+#include "../plugin.h"
+#include "../renderer.h"
 
 DECLARE_HANDLE(RDAssembler);
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "document/document.h"
+#include "../document/document.h"
+#include "../plugin.h"
+#include "../buffer.h"
 #include "assembler.h"
-#include "plugin.h"
-#include "buffer.h"
 
 enum RDLoaderFlags {
     LoaderFlags_None               = 0,

@@ -1,7 +1,5 @@
 #include "context.h"
 #include "support/utils.h"
-#include <rdapi/loader.h>
-#include <rdapi/assembler.h>
 #include <filesystem>
 #include <iostream>
 #include <sstream>

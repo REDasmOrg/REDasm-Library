@@ -2,8 +2,6 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "loader.h"
-#include "assembler.h"
 #include "object.h"
 #include "macros.h"
 

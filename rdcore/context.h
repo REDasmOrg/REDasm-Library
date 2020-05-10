@@ -6,6 +6,8 @@
 #include <mutex>
 #include <list>
 #include <rdapi/context.h>
+#include <rdapi/plugin/loader.h>
+#include <rdapi/plugin/assembler.h>
 #include "plugin/interface/pluginmanager.h"
 #include "object.h"
 

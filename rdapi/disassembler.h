@@ -2,8 +2,9 @@
 
 #include "macros.h"
 #include "types.h"
-#include "loader.h"
-#include "assembler.h"
+#include "plugin/loader.h"
+#include "plugin/assembler.h"
+
 
 DECLARE_HANDLE(RDDisassembler);
 

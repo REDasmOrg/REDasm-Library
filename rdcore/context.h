@@ -8,6 +8,7 @@
 #include <rdapi/context.h>
 #include <rdapi/plugin/loader.h>
 #include <rdapi/plugin/assembler.h>
+#include <rdapi/plugin/command.h>
 #include "plugin/interface/pluginmanager.h"
 #include "object.h"
 
@@ -50,6 +51,8 @@ class Context: public Object
     public: // Plugin
         bool registerPlugin(RDLoaderPlugin* ploader);
         bool registerPlugin(RDAssemblerPlugin* passembler);
+        bool registerPlugin(RDCommandPlugin* pcommand);
+        bool commandExecute(const char* command, const RDArguments* arguments);
         void getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
         void getAssemblers(Callback_AssemblerPlugin callback, void* userdata);
         RDAssemblerPlugin* getAssembler(const RDLoaderPlugin* ploader) const;
@@ -82,7 +85,7 @@ class Context: public Object
         Disassembler* m_disassembler{nullptr};
         flag_t m_flags{ContextFlag_None};
         PluginManager m_pluginmanager;
-        PluginMap m_loaders, m_assemblers;
+        PluginMap m_loaders, m_assemblers, m_commands;
         LoaderToAssemblerMap m_loadertoassembler;
         CallbackStruct<RD_LogCallback> m_logcallback;
         CallbackStruct<RD_StatusCallback> m_statuscallback;

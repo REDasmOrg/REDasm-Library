@@ -12,4 +12,5 @@
 #include "disassembler.h"
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
+#include "plugin/command.h"
 #include "document/cursor.h"

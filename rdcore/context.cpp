@@ -12,12 +12,7 @@
     if((now - m_laststatusreport) < m_debouncetimeout) return; \
     m_laststatusreport = now;
 
-Context::Context()
-{
-    m_tmppath = std::filesystem::temp_directory_path();
-    m_rntpath = std::filesystem::current_path();
-}
-
+Context::Context(): m_rntpath(std::filesystem::current_path()), m_tmppath(std::filesystem::temp_directory_path()) { }
 void Context::addPluginPath(const char* pluginpath) { m_pluginpaths.insert(pluginpath); }
 void Context::addDatabasePath(const char* dbpath) { m_dbpaths.insert(dbpath);  }
 
@@ -95,6 +90,28 @@ void Context::log(const char* s)
 void Context::sync(bool b) { m_sync = b; }
 bool Context::registerPlugin(RDLoaderPlugin* ploader) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(ploader), m_loaders); }
 bool Context::registerPlugin(RDAssemblerPlugin* passembler) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(passembler), m_assemblers); }
+bool Context::registerPlugin(RDCommandPlugin* pcommand) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(pcommand), m_commands);  }
+
+bool Context::commandExecute(const char* command, const RDArguments* arguments)
+{
+    auto it = m_commands.find(command);
+
+    if((it == m_commands.end()) || !it->second)
+    {
+        this->log("Cannot find command " + Utils::quoted(command));
+        return false;
+    }
+
+    RDCommandPlugin* pcommand = reinterpret_cast<RDCommandPlugin*>(std::addressof(it->second));
+
+    if(!pcommand->execute(pcommand, arguments))
+    {
+        this->log("Command execution " + Utils::quoted(command) + " failed");
+        return false;
+    }
+
+    return true;
+}
 
 void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata)
 {

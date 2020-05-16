@@ -5,8 +5,6 @@
 #include "../plugin.h"
 #include "../renderer.h"
 
-DECLARE_HANDLE(RDAssembler);
-
 struct RDAssemblerPlugin;
 struct RDDisassembler;
 

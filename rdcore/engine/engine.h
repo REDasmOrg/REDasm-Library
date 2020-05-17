@@ -1,6 +1,5 @@
 #pragma once
 
-#include <chrono>
 #include <atomic>
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
@@ -61,7 +60,6 @@ class Engine
         std::unique_ptr<Analyzer> m_analyzer;
         //SignatureScanner m_sigscanner;
         //SignatureIdentifiers m_signatures;
-        std::chrono::steady_clock::time_point m_starttime;
         size_t m_currentstep{Engine::EngineState_None};
         Disassembler* m_disassembler;
         SafeAlgorithm& m_algorithm;

@@ -34,6 +34,7 @@ void Engine::execute()
         if(!m_algorithm->hasNext())
         {
             this->notify(false);
+            rd_ctx->log("Analysis completed");
             rd_ctx->status("Ready");
         }
         else // More addresses pending: run Algorithm again
@@ -85,7 +86,6 @@ void Engine::stop()
 
 void Engine::stringsStep()
 {
-    m_starttime = std::chrono::steady_clock::now();
     this->notify(true);
 
     if(rd_ctx->sync())
@@ -183,10 +183,6 @@ void Engine::analyzeJob()
 {
     rd_ctx->status("Analyzing...");
     m_analyzer->analyze();
-
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - m_starttime);
-    if(duration.count()) rd_ctx->log("Analysis completed in ~" + Utils::number(duration.count()) + " second(s)");
-    else rd_ctx->log("Analysis completed");
 
     if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
     else this->execute();

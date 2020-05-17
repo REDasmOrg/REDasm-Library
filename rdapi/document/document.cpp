@@ -42,6 +42,7 @@ void RDDocument_AddExportedFunction(RDDocument* d, address_t address, const char
 void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction) { docptr(d)->instruction(instruction); }
 void RDDocument_AddAsciiString(RDDocument* d, address_t address, size_t size) { docptr(d)->asciiString(address, size); }
 void RDDocument_AddWideString(RDDocument* d, address_t address, size_t size) { docptr(d)->wideString(address, size); }
+void RDDocument_AddPointer(RDDocument* d, address_t address, type_t type, const char* name) { docptr(d)->pointer(address, type, name); }
 void RDDocument_AddData(RDDocument* d, address_t address, size_t size, const char* name) { docptr(d)->data(address, size, name); }
 void RDDocument_AddFunction(RDDocument* d, address_t address, const char* name) { docptr(d)->function(address, name); }
 void RDDocument_AddSeparator(RDDocument* d, address_t address) { docptr(d)->separator(address); }

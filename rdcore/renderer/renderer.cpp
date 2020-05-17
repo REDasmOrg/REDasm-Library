@@ -707,6 +707,7 @@ void Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
 
 void Renderer::renderRegister(RDRenderItemParams* rip, register_t r)
 {
+    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push("$" + Utils::number(r), "register_fg");
+    ri->push(d->registerName(r), "register_fg");
 }

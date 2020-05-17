@@ -1,5 +1,4 @@
 #include "pluginmanager.h"
-#include "pluginloader.h"
 #include <filesystem>
 
 PluginManager::PluginManager() { }
@@ -17,11 +16,11 @@ void PluginManager::loadAll(const std::string& pluginpath)
     }
 }
 
-void PluginManager::unload(const RDPluginInstance* pi)
+void PluginManager::unload(const PluginInstance* pi)
 {
-    std::string id = pi->descriptor->id;
+    library_t handle = pi->handle;
     PluginLoader::unload(pi);
-    m_plugins.erase(id);
+    m_plugins.erase(handle);
 }
 
 void PluginManager::unloadAll()
@@ -32,7 +31,7 @@ void PluginManager::unloadAll()
 
 void PluginManager::load(const std::string& pluginpath)
 {
-    RDPluginInstance pi;
+    PluginInstance pi;
     if(!PluginLoader::load(pluginpath, pi)) return;
-    m_plugins[pi.descriptor->id] = pi;
+    m_plugins[pi.handle] = pi;
 }

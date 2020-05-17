@@ -14,6 +14,7 @@ class Utils
     public:
         Utils() = delete;
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
+        static inline std::string trampoline(const std::string& s) { return "_" + s; }
         static std::string hexString(BufferView* view);
         static std::string toString(const std::u16string& s);
         static std::string quoted(const std::u16string& s);

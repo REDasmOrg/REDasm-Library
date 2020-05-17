@@ -58,5 +58,7 @@ RD_API_EXPORT void RDLoader_Load(RDLoader* ldr);
 RD_API_EXPORT void RD_GetLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
 RD_API_EXPORT u8* RD_AddrPointer(const RDLoader* ldr, address_t address);
 RD_API_EXPORT u8* RD_Pointer(const RDLoader* ldr, offset_t offset);
+RD_API_EXPORT RDLocation RD_FileOffset(const RDLoader* ldr, const void* ptr);
+RD_API_EXPORT RDLocation RD_AddressOf(const RDLoader* ldr, const void* ptr);
 RD_API_EXPORT RDLocation RD_Offset(const RDLoader* ldr, address_t address);
 RD_API_EXPORT RDLocation RD_Address(const RDLoader* ldr, offset_t offset);

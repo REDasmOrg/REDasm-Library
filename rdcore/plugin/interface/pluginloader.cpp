@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <string.h>
 
-#define REDASM_PLUGIN_STRUCT_NAME "redasm_plugin"
+#define REDASM_MODULE_ENTRY_NAME "redasm_entry"
 
-bool PluginLoader::load(const std::string& pluginpath, RDPluginInstance& pi)
+bool PluginLoader::load(const std::string& pluginpath, PluginInstance& pi)
 {
     LoadResult lr;
 
@@ -15,18 +15,14 @@ bool PluginLoader::load(const std::string& pluginpath, RDPluginInstance& pi)
         std::string pluginfilename = std::filesystem::path(pluginpath).filename();
 
         if(lr == LoadResult::Failed) rd_ctx->log(pluginfilename + ": Loading failed");
-        else if(lr == LoadResult::InvalidEntry) rd_ctx->log(pluginfilename + ": '" + REDASM_PLUGIN_STRUCT_NAME + "': Not found");
+        else if(lr == LoadResult::InvalidEntry) rd_ctx->log(pluginfilename + ": '" + REDASM_MODULE_ENTRY_NAME + "': Not found");
         return false;
     }
 
     return true;
 }
 
-void PluginLoader::unload(const RDPluginInstance* pi)
-{
-    std::free(const_cast<char*>(pi->path));
-    PluginLoader::unloadLibrary(pi->handle);
-}
+void PluginLoader::unload(const PluginInstance* pi) { PluginLoader::unloadLibrary(pi->handle); }
 
 void* PluginLoader::func(library_t lib, const char* name)
 {
@@ -37,7 +33,7 @@ void* PluginLoader::func(library_t lib, const char* name)
 #endif
 }
 
-PluginLoader::LoadResult PluginLoader::loadLibrary(const std::string& pluginpath, RDPluginInstance& pi)
+PluginLoader::LoadResult PluginLoader::loadLibrary(const std::string& pluginpath, PluginInstance& pi)
 {
 #ifdef _WIN32
     pi.handle = LoadLibraryA(pluginpath.c_str());
@@ -54,16 +50,16 @@ PluginLoader::LoadResult PluginLoader::loadLibrary(const std::string& pluginpath
         return LoadResult::Failed;
     }
 
-    pi.descriptor = PluginLoader::funcT<RDPluginDescriptor*>(pi.handle, REDASM_PLUGIN_STRUCT_NAME);
+    pi.entry = PluginLoader::funcT<Callback_ModuleEntry>(pi.handle, REDASM_MODULE_ENTRY_NAME);
 
-    if(!pi.descriptor || !pi.descriptor->entry)
+    if(!pi.entry)
     {
         PluginLoader::unloadLibrary(pi.handle);
         return LoadResult::InvalidEntry;
     }
 
     pi.path = strdup(pluginpath.c_str());
-    pi.descriptor->entry();
+    pi.entry();
     return LoadResult::Ok;
 }
 

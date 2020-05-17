@@ -4,20 +4,20 @@
 #include "level.h"
 #include "types.h"
 
-#define RD_DECLARE_PLUGIN(entry) \
-    RD_API_EXPORT RDPluginDescriptor redasm_plugin = { \
-        RDAPI_LEVEL, \
-        rd_plugin_id, \
-        entry \
-    };
-
-#define RD_PLUGIN(type, id, name, init, free, ...) \
-    static type id = { \
-        #id, name, PluginState_Loaded, init, free, { 0 }, \
-        __VA_ARGS__ \
-    };
+#define RD_PLUGIN(type, pluginid, pluginname) \
+    static type pluginid = []() { \
+        type id##var{ }; \
+        id##var.apilevel = RDAPI_LEVEL; \
+        id##var.apibits = sizeof(size_t); \
+        id##var.id = #pluginid; \
+        id##var.name = pluginname; \
+        id##var.state = PluginState_Loaded; \
+        return id##var; \
+    }()
 
 #define RD_PLUGIN_HEADER \
+    apilevel_t apilevel; \
+    u32 apibits; \
     const char *id, *name; \
     size_t state; \
     Callback_PluginInit init; \
@@ -26,7 +26,12 @@
 
 struct RDPluginHeader;
 
-typedef void (*Callback_PluginEntry)(void);
+#ifdef rd_plugin_id
+RD_API_EXPORT void redasm_entry(void);
+#else
+typedef void (*Callback_ModuleEntry)(void);
+#endif
+
 typedef void (*Callback_PluginInit)(RDPluginHeader*);
 typedef void (*Callback_PluginFree)(RDPluginHeader*);
 
@@ -38,18 +43,5 @@ enum PluginState: size_t {
 typedef struct RDPluginHeader {
     RD_PLUGIN_HEADER
 } RDPluginHeader;
-
-typedef struct RDPluginDescriptor {
-    apilevel_t apiLevel;
-    const char *id;
-
-    Callback_PluginEntry entry;
-} RDPluginDescriptor;
-
-typedef struct RDPluginInstance {
-    void* handle;
-    const char *path;
-    const RDPluginDescriptor* descriptor;
-} RDPluginInstance;
 
 RD_API_EXPORT void RDPlugin_Free(RDPluginHeader* plugin);

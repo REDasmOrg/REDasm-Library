@@ -1,5 +1,6 @@
 #include "lmdb.h"
 #include "lmdbexception.h"
+#include <string>
 
 #define LMDB_MAP_SIZE  4UL * 1024UL * 1024UL * 1024UL // 4GiB
 

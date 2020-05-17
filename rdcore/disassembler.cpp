@@ -175,6 +175,12 @@ void Disassembler::emulate(const RDInstruction* instruction)
     m_passembler->emulate(m_passembler, CPTR(RDDisassembler, this), instruction);
 }
 
+std::string Disassembler::registerName(register_t r) const
+{
+    if(m_passembler->regname) return m_passembler->regname(m_passembler, r);
+    return "$" + Utils::number(r);
+}
+
 bool Disassembler::readAddress(address_t address, size_t size, u64* value) const
 {
     RDSegment segment;

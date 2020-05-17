@@ -57,7 +57,7 @@ void Analyzer::findTrampoline(x_lock_document& lock, address_t address)
     if(!loc.valid || !lock->symbol(loc.value, &symbol)) goto cleanup;
     if(!(name = lock->name(symbol.address))) goto cleanup;
 
-    if(IS_TYPE(&symbol, SymbolType_Import)) lock->rename(address, "_" + std::string(name));
+    if(IS_TYPE(&symbol, SymbolType_Import)) lock->rename(address, Utils::trampoline(name));
     else lock->rename(address, "jmp_to_" + std::string(name));
 
 cleanup:

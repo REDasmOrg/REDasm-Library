@@ -99,9 +99,7 @@ std::string SymbolTable::prefix(type_t type, flag_t flags)
     }
 
     if(flags & SymbolFlags_TableItem) return "tbl";
+    if(flags & SymbolFlags_Pointer) return "ptr";
 
     return "data";
-
-//    if(type & Symbol::Pointer)
-//        return "ptr";
 }

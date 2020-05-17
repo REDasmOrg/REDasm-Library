@@ -26,8 +26,8 @@ class Loader: public Object
     public:
         RDLocation offset(address_t address) const;
         RDLocation address(offset_t offset) const;
-        RDLocation addressof(const u8* ptr) const;
-        RDLocation fileoffset(const u8* ptr) const;
+        RDLocation addressof(const void* ptr) const;
+        RDLocation fileoffset(const void* ptr) const;
         u8* addrpointer(address_t address) const;
         u8* pointer(offset_t offset) const;
 

@@ -3,6 +3,7 @@
 #include <rdapi/plugin.h>
 #include <unordered_map>
 #include <string>
+#include "pluginloader.h"
 
 class PluginManager
 {
@@ -10,13 +11,13 @@ class PluginManager
         PluginManager();
         ~PluginManager();
         void loadAll(const std::string& pluginpath);
-        void unload(const RDPluginInstance* pi);
+        void unload(const PluginInstance* pi);
         void unloadAll();
 
     private:
         void load(const std::string& pluginpath);
 
     private:
-        std::unordered_map<std::string, RDPluginInstance> m_plugins;
+        std::unordered_map<library_t, PluginInstance> m_plugins;
 };
 

@@ -26,6 +26,16 @@ const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)
     return s.c_str();
 }
 
+
+
+const char* RD_Trampoline(const char* name)
+{
+    // Fixed internal storage
+    static std::string s;
+    s = Utils::trampoline(name);
+    return s.c_str();
+}
+
 const char* RD_ToString(size_t value) { return RD_ToStringBase(value, 10, 0, '0'); }
 u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offset); }
 bool RD_InRange(address_t address, address_t start, address_t end) { return ((address >= start) && (address < end));  }

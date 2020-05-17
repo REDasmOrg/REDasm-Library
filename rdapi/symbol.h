@@ -29,3 +29,4 @@ typedef struct RDSymbol {
     flag_t flags;
 } RDSymbol;
 
+RD_API_EXPORT const char* RDSymbol_NameHint(address_t address, const char* s, type_t type, flag_t flags);

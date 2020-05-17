@@ -19,11 +19,11 @@ class SymbolTable: public Object
    public:
         void create(address_t address, const std::string& name, type_t type, flag_t flags);
         bool rename(address_t address, const std::string& newname);
+        static std::string name(address_t address, const char* s, type_t type, flag_t flags);
         static std::string name(address_t address, type_t type, flag_t flags);
 
    private:
         static std::string normalized(const char* s);
-        static std::string name(address_t address, const char* s, type_t type, flag_t flags);
         static std::string name(const char* s, address_t address);
         static std::string prefix(type_t type, flag_t flags);
 

@@ -1,5 +1,6 @@
 #include "lmdbtransaction.h"
 #include "lmdbexception.h"
+#include <string>
 
 LMDBTransaction::LMDBTransaction(MDB_env* env, unsigned int dbflags): m_env(env)
 {

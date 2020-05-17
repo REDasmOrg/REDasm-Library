@@ -59,18 +59,18 @@ RDLocation Loader::address(offset_t offset) const
     return { {offset}, true };
 }
 
-RDLocation Loader::addressof(const u8* ptr) const
+RDLocation Loader::addressof(const void* ptr) const
 {
-    if(!m_buffer->contains(ptr)) return { {0}, false };
+    if(!m_buffer->contains(reinterpret_cast<const u8*>(ptr))) return { {0}, false };
     RDLocation loc = this->fileoffset(ptr);
     if(!loc.valid) return { {0}, false };
     return this->address(loc.value);
 }
 
-RDLocation Loader::fileoffset(const u8* ptr) const
+RDLocation Loader::fileoffset(const void* ptr) const
 {
-    if(!m_buffer->contains(ptr)) return { {0}, false };
-    return { {static_cast<location_t>(ptr - m_buffer->data())}, true };
+    if(!m_buffer->contains(reinterpret_cast<const u8*>(ptr))) return { {0}, false };
+    return { {static_cast<location_t>(reinterpret_cast<const u8*>(ptr) - m_buffer->data())}, true };
 }
 
 u8* Loader::addrpointer(address_t address) const

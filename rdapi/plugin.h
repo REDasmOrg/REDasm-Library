@@ -4,16 +4,19 @@
 #include "level.h"
 #include "types.h"
 
-#define RD_PLUGIN(type, pluginid, pluginname) \
-    static type pluginid = []() { \
-        type id##var{ }; \
-        id##var.apilevel = RDAPI_LEVEL; \
-        id##var.apibits = sizeof(size_t); \
-        id##var.id = #pluginid; \
-        id##var.name = pluginname; \
-        id##var.state = PluginState_Loaded; \
-        return id##var; \
-    }()
+#ifdef __cplusplus
+    #define RD_PLUGIN_DECLARE(type, pluginid) static type pluginid = {};
+#else
+    #define RD_PLUGIN_DECLARE(type, pluginid) static type pluginid = {0};
+#endif
+
+#define RD_PLUGIN_CREATE(type, pluginid, pluginname) \
+    RD_PLUGIN_DECLARE(type, pluginid)  \
+    pluginid.apilevel = RDAPI_LEVEL;   \
+    pluginid.apibits = sizeof(size_t); \
+    pluginid.id = #pluginid;           \
+    pluginid.name = pluginname;        \
+    pluginid.state = PluginState_Loaded
 
 #define RD_PLUGIN_HEADER \
     apilevel_t apilevel; \

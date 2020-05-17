@@ -275,5 +275,5 @@ void Engine::searchStringsAt(size_t index) const
 void Engine::notify(bool busy)
 {
     m_busy = busy;
-    EventDispatcher::dispatch<RDEventArgs>(RDEvents::Event_DisassemblerBusyChanged, this);
+    EventDispatcher::dispatch<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }

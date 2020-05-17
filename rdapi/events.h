@@ -14,8 +14,8 @@ typedef uintptr_t event_t;
 enum RDEvents {
     Event_None = 0,
 
-    // Standard Events
-    Event_DisassemblerBusyChanged,
+    // General Events
+    Event_BusyChanged,
 
     // Document Events
     Event_DocumentBlockInserted,

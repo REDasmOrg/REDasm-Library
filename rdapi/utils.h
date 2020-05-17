@@ -12,6 +12,7 @@ enum RDEndianness {
 struct RDInstruction;
 
 RD_API_EXTERN_C const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix);
+RD_API_EXTERN_C const char* RD_ToHexAuto(size_t value);
 RD_API_EXTERN_C const char* RD_ToHex(size_t value);
 RD_API_EXTERN_C const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill);
 RD_API_EXTERN_C const char* RD_ToString(size_t value);

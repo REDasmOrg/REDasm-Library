@@ -10,12 +10,13 @@ const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix)
     // Fixed internal storage
     static std::string s;
 
-    if(!bits) bits = rd_ctx->disassembler()->assembler()->bits;
+    if(bits == RD_NPOS) bits = rd_ctx->disassembler()->assembler()->bits;
 
     s = Utils::hex(value, bits, withprefix);
     return s.c_str();
 }
 
+const char* RD_ToHexAuto(size_t value) { return RD_ToHexBits(value, RD_NPOS, false); }
 const char* RD_ToHex(size_t value) { return RD_ToHexBits(value, 0, false); }
 
 const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)
@@ -25,8 +26,6 @@ const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)
     s = Utils::number(value, base, width, fill);
     return s.c_str();
 }
-
-
 
 const char* RD_Trampoline(const char* name)
 {

@@ -36,7 +36,7 @@ bool Analyzer::findNullSubs(x_lock_document& lock, address_t address)
     if(!lock->lockInstruction(address, &instruction)) return true; // Don't execute trampoline analysis
 
     bool isnullsub = HAS_FLAG(instruction, InstructionFlags_Stop);
-    if(isnullsub) lock->rename(address, "nullsub_" + Utils::hex(address, m_disassembler->bits()));
+    if(isnullsub) lock->rename(address, "nullsub_" + Utils::hex(address));
     lock->unlockInstruction(instruction);
     return isnullsub;
 }

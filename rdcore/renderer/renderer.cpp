@@ -87,7 +87,7 @@ bool Renderer::renderImmediate(RDRenderItemParams* rip)
     const char* name = d->document()->name(rip->operand->address);
 
     if(name) value = name;
-    else value = Utils::hex(rip->operand->u_value, d->assembler()->bits);
+    else value = Utils::hex(rip->operand->u_value);
 
     if(IS_TYPE(rip->operand, OperandType_Memory)) ri->push("[").push(value, "memory_fg").push("]");
     else ri->push(value, "immediate_fg");

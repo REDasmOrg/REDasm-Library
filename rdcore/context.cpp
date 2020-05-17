@@ -159,14 +159,21 @@ RDAssemblerPlugin* Context::findAssembler(const char* id) const
     return (it != m_assemblers.end()) ? reinterpret_cast<RDAssemblerPlugin*>(it->second) : nullptr;
 }
 
-void Context::setDisassembler(Disassembler* disassembler) { m_disassembler = disassembler; }
+void Context::setDisassembler(Disassembler* disassembler)
+{
+    m_disassembler = disassembler;
+    m_problems.clear(); // New disassembler, New problems
+}
+
 void Context::setRuntimePath(const char* rntpath) { m_rntpath = rntpath; }
 void Context::setTempPath(const char* tmppath) { m_tmppath = tmppath; }
 void Context::setIgnoreProblems(bool ignore) { m_ignoreproblems = ignore; }
 Context* Context::instance() { static Context context; return &context; }
 void Context::setFlags(flag_t flag) { m_flags = flag; }
 flag_t Context::flags() const { return m_flags; }
+bool Context::hasProblems() const { return !m_problems.empty(); }
 bool Context::sync() const { return m_sync; }
+size_t Context::problemsCount() const { return m_problems.size(); }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }
 Disassembler* Context::disassembler() const { return m_disassembler; }
 const Context::StringSet& Context::databasePaths() const { return m_dbpaths; }

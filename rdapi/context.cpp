@@ -3,6 +3,7 @@
 #include <rdcore/context.h>
 
 RDContext* RD_GetContext(void) { return CPTR(RDContext, rd_ctx); }
+size_t RD_ProblemsCount(void) { return rd_ctx->problemsCount(); }
 void RD_InitContext(void) { rd_ctx->init(); }
 void RD_SetTempPath(const char* tmppath) { rd_ctx->setTempPath(tmppath); }
 void RD_SetRuntimePath(const char* rntpath) { rd_ctx->setRuntimePath(rntpath); }
@@ -18,12 +19,13 @@ void RD_Status(const char* s) { rd_ctx->status(s); }
 void RD_Problem(const char* s) { rd_ctx->problem(s); }
 void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }
 void RD_SetSync(bool sync) { rd_ctx->sync(sync); }
+bool RD_HasProblems(void) { return rd_ctx->hasProblems(); }
 bool RD_IsSync(void) { return rd_ctx->sync(); }
-bool RD_IsBusy() { return rd_disasm->busy(); }
+bool RD_IsBusy(void) { return rd_disasm->busy(); }
 
 RDDisassembler* RD_GetDisassembler(void) { return CPTR(RDDisassembler, rd_disasm); }
-RDDocument* RD_GetDocument() { return CPTR(RDDocument, std::addressof(rd_doc)); }
+RDDocument* RD_GetDocument(void) { return CPTR(RDDocument, std::addressof(rd_doc)); }
 void RD_SetContextFlags(flag_t flags) { rd_ctx->setFlags(flags); }
-flag_t RD_GetContextFlags() { return rd_ctx->flags(); }
-const char* RD_RuntimePath() { return rd_ctx->runtimePath(); }
-const char* RD_TempPath() { return rd_ctx->tempPath(); }
+flag_t RD_GetContextFlags(void) { return rd_ctx->flags(); }
+const char* RD_RuntimePath(void) { return rd_ctx->runtimePath(); }
+const char* RD_TempPath(void) { return rd_ctx->tempPath(); }

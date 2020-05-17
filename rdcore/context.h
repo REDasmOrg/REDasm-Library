@@ -65,7 +65,9 @@ class Context: public Object
     public:
         void setFlags(flag_t flag);
         flag_t flags() const;
+        bool hasProblems() const;
         bool sync() const;
+        size_t problemsCount() const;
         PluginManager* pluginManager();
         Disassembler* disassembler() const;
         const StringSet& databasePaths() const;

@@ -26,6 +26,7 @@ typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
 
 // General
 RD_API_EXPORT RDContext* RD_GetContext(void);
+RD_API_EXPORT size_t RD_ProblemsCount(void);
 RD_API_EXPORT void RD_InitContext(void);
 RD_API_EXPORT void RD_SetRuntimePath(const char* rntpath);
 RD_API_EXPORT void RD_SetTempPath(const char* rntpath);
@@ -41,6 +42,7 @@ RD_API_EXPORT void RD_Log(const char* s);
 RD_API_EXPORT void RD_Problem(const char* s);
 RD_API_EXPORT void RD_SetIgnoreProblems(bool ignore);
 RD_API_EXPORT void RD_SetSync(bool sync);
+RD_API_EXPORT bool RD_HasProblems(void);
 RD_API_EXPORT bool RD_IsSync(void);
 RD_API_EXPORT bool RD_IsBusy(void);
 

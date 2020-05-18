@@ -250,7 +250,8 @@ const std::string& Renderer::getSelectedText() const
     {
         RendererItem ritem;
         this->renderItem(startpos->line, CPTR(RDRendererItem, &ritem));
-        m_selectedtext = ritem.text().substr(startpos->column, endpos->column - startpos->column + 1);
+        if(startpos->column >= ritem.text().size()) m_selectedtext.clear();
+        else m_selectedtext = ritem.text().substr(startpos->column, endpos->column - startpos->column + 1);
     }
 
     return m_selectedtext;

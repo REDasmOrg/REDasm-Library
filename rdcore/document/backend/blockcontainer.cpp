@@ -27,7 +27,7 @@ bool BlockContainer::find(address_t address, RDBlock* block) const
 
 bool BlockContainer::get(size_t idx, RDBlock* block) const
 {
-    if(!block) return false;
+    if(!block || (idx >= m_blocks.size())) return false;
     *block = m_blocks[idx];
     return true;
 }

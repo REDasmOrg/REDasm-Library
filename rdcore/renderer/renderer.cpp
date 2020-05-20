@@ -103,14 +103,14 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
     size_t prevsize = ri->size();
     ri->push("[");
 
-    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand->base);
+    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->instruction, rip->operand->base);
 
     if(Sugar::isIndexValid(rip->operand))
     {
         if(prevsize != ri->size()) ri->push("+");
         prevsize++;
 
-        Renderer::renderRegister(rip, rip->operand->index);
+        Renderer::renderRegister(rip, rip->instruction, rip->operand->index);
         if(rip->operand->scale > 1) ri->push("*").push(Utils::hex(rip->operand->scale), "immediate_fg");
     }
 
@@ -129,7 +129,7 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
 bool Renderer::renderRegister(const RDAssemblerPlugin*, RDRenderItemParams* rip)
 {
     if(!rip->instruction) return false;
-    Renderer::renderRegister(rip, rip->operand->reg);
+    Renderer::renderRegister(rip, rip->instruction, rip->operand->reg);
     return true;
 }
 
@@ -706,9 +706,9 @@ void Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
     }
 }
 
-void Renderer::renderRegister(RDRenderItemParams* rip, register_t r)
+void Renderer::renderRegister(RDRenderItemParams* rip, const RDInstruction* instruction, register_t r)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(d->registerName(r), "register_fg");
+    ri->push(d->registerName(instruction, r), "register_fg");
 }

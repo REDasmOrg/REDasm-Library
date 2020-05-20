@@ -61,7 +61,7 @@ class Renderer: public Object
         void renderIndent(RendererItem* ritem, size_t n, bool ignoreflags = false) const;
         static void renderComments(RDRenderItemParams* rip);
         static void renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip, address_t address);
-        static void renderRegister(RDRenderItemParams* rip, register_t r);
+        static void renderRegister(RDRenderItemParams* rip, const RDInstruction* instruction, register_t r);
 
     private:
         static std::array<Callback_RenderItem, DocumentItemType_Length> m_slots;

@@ -78,8 +78,9 @@ class Document: public Object
 
     public: // Get
         RDLocation entryPoint() const;
-        bool unlockInstruction(const RDInstruction* instruction) const;
+        bool prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const;
         bool lockInstruction(address_t address, RDInstruction** instruction) const;
+        bool unlockInstruction(const RDInstruction* instruction) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
         bool symbol(address_t address, RDSymbol* symbol) const;
         bool block(address_t address, RDBlock* block) const;

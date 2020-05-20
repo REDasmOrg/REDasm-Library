@@ -52,6 +52,7 @@ RD_API_EXPORT bool RDDocument_GetSymbolItem(const RDDocument* d, address_t addre
 RD_API_EXPORT bool RDDocument_GetSymbolByAddress(const RDDocument* d, address_t address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetFunctionGraph(const RDDocument* d, address_t address, RDGraph** item);
+RD_API_EXPORT bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction);
 RD_API_EXPORT bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction);
 RD_API_EXPORT bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address);

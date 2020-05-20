@@ -17,6 +17,7 @@ bool RDDocument_GetInstructionItem(const RDDocument* d, address_t address, RDDoc
 bool RDDocument_GetSymbolItem(const RDDocument* d, address_t address, RDDocumentItem* item) { return docptr(d)->symbolItem(address, item); }
 bool RDDocument_GetSymbolByAddress(const RDDocument* d, address_t address, RDSymbol* symbol) { return docptr(d)->symbol(address, symbol); }
 bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol) { return docptr(d)->symbol(name, symbol); }
+bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction) { return docptr(d)->prevInstruction(instruction, previnstruction); }
 bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction) { return docptr(d)->lockInstruction(address, instruction); }
 bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction) { return docptr(d)->unlockInstruction(instruction);  }
 const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address) { return docptr(d)->symbols()->getName(address); }

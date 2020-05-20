@@ -205,6 +205,17 @@ RDLocation Document::entryPoint() const
 
 bool Document::unlockInstruction(const RDInstruction* instruction) const { return m_instructions->unlock(instruction); }
 bool Document::lockInstruction(address_t address, RDInstruction** instruction) const { return m_instructions->lock(address, instruction); }
+
+bool Document::prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const
+{
+    RDBlock block;
+    if(!m_blocks->find(instruction->address, &block)) return false;
+
+    size_t idx = m_blocks->indexOf(&block);
+    if(!m_blocks->get(--idx, &block)) return false;
+    return this->lockInstruction(block.address, previnstruction);
+}
+
 bool Document::symbol(const char* name, RDSymbol* symbol) const { return m_symbols->get(name, symbol); }
 bool Document::symbol(address_t address, RDSymbol* symbol) const { return m_symbols->get(address, symbol); }
 bool Document::block(address_t address, RDBlock* block) const { return m_blocks->find(address, block); }

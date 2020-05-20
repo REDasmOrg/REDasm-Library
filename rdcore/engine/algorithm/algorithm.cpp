@@ -106,11 +106,16 @@ void Algorithm::decodeAddress(address_t address)
     m_document->instruction(&instruction);
 }
 
-void Algorithm::decodeFailed(const RDInstruction* instruction)
+void Algorithm::decodeFailed(RDInstruction* instruction)
 {
     rd_ctx->problem("Invalid instruction @ " + Utils::hex(instruction->address));
 
-    if(!instruction->size) return;
+    if(!instruction->size) instruction->size = 1;
+
+    instruction->operands[0].type = OperandType_Constant;
+    instruction->operands[0].u_value = instruction->size;
+    instruction->operandscount = 1;
+
     this->enqueue(Sugar::nextAddress(instruction));
 }
 

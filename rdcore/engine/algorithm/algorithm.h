@@ -21,7 +21,7 @@ class Algorithm: public StateMachine
     private:
         size_t decode(address_t address, RDInstruction* instruction);
         bool canBeDisassembled(address_t address) const;
-        void decodeFailed(const RDInstruction* instruction);
+        void decodeFailed(RDInstruction* instruction);
         void invalidInstruction(RDInstruction* instruction) const;
 
     private: // Private States

@@ -175,10 +175,21 @@ void Disassembler::emulate(const RDInstruction* instruction)
     m_passembler->emulate(m_passembler, CPTR(RDDisassembler, this), instruction);
 }
 
-std::string Disassembler::registerName(register_t r) const
+std::string Disassembler::registerName(const RDInstruction* instruction, register_t r) const
 {
-    if(m_passembler->regname) return m_passembler->regname(m_passembler, r);
+    if(m_passembler->regname)
+    {
+        const char* rn = m_passembler->regname(m_passembler, instruction, r);
+        if(rn) return rn;
+    }
+
     return "$" + Utils::number(r);
+}
+
+bool Disassembler::encode(RDEncodedInstruction* encoded) const
+{
+    if(!encoded->decoded || !m_passembler->encode) return false;
+    return m_passembler->encode(m_passembler, encoded);
 }
 
 bool Disassembler::readAddress(address_t address, size_t size, u64* value) const

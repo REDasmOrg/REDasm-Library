@@ -39,8 +39,9 @@ class Disassembler: public Object
         void enqueue(address_t address);
 
     public: // Assembler
-        std::string registerName(register_t r) const;
+        std::string registerName(const RDInstruction* instruction, register_t r) const;
         bool decode(BufferView* view, RDInstruction* instruction) const;
+        bool encode(RDEncodedInstruction* encoded) const;
         void emulate(const RDInstruction* instruction);
         size_t addressWidth() const;
         size_t bits() const;

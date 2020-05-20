@@ -22,8 +22,9 @@ RD_API_EXPORT size_t RDDisassembler_GetReferences(const RDDisassembler* d, addre
 RD_API_EXPORT size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets);
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address);
-RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, register_id_t r);
+RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, register_id_t r);
 RD_API_EXPORT bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction);
+RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);
 RD_API_EXPORT void RDDisassembler_PushReference(RDDisassembler* d, address_t address, address_t refby);
 RD_API_EXPORT void RDDisassembler_PopReference(RDDisassembler* d, address_t address, address_t refby);
 RD_API_EXPORT void RDDisassembler_HandleOperand(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op);

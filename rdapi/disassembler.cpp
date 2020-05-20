@@ -18,6 +18,7 @@ size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, con
 RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->getTarget(address); }
 RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->dereference(address); }
 bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction) { return CPTR(Disassembler, d)->decode(address, instruction); }
+bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded) { return CPTR(Disassembler, d)->encode(encoded); }
 void RDDisassembler_PushReference(RDDisassembler* d, address_t address, address_t refby) { CPTR(Disassembler, d)->pushReference(address, refby); }
 void RDDisassembler_PopReference(RDDisassembler* d, address_t address, address_t refby) { CPTR(Disassembler, d)->popReference(address, refby); }
 void RDDisassembler_HandleOperand(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op) { CPTR(Disassembler, d)->handleOperand(instruction, op); }
@@ -25,10 +26,10 @@ void RDDisassembler_Enqueue(RDDisassembler* d, address_t address) { CPTR(Disasse
 void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInstruction* instruction, address_t address) { CPTR(Disassembler, d)->enqueueAddress(instruction, address); }
 void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction) { CPTR(Disassembler, d)->enqueue(Sugar::nextAddress(instruction)); }
 
-const char* RDDisassembler_RegisterName(RDDisassembler* d, register_id_t r)
+const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, register_id_t r)
 {
     static std::string s;
-    s = CPTR(Disassembler, d)->registerName(r);
+    s = CPTR(Disassembler, d)->registerName(instruction, r);
     return s.c_str();
 }
 

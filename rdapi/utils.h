@@ -36,6 +36,7 @@ RD_API_EXTERN_C u64 RD_Swap64LE(u16 val);
   #define rd_str(s)                                 std::string(s).c_str()
   #define rd_tohexbits(value, bits, withprefix)     std::string(RD_ToHexBits(value, bits, withprefix))
   #define rd_tohex(value)                           std::string(RD_ToHex(value))
+  #define rd_tohexauto(value)                       std::string(RD_ToHexAuto(value))
   #define rd_tostringbase(value, base, width, fill) std::string(RD_ToStringBase(value, base, width, fill))
   #define rd_tostring(value)                        std::string(RD_ToString(value))
 #endif

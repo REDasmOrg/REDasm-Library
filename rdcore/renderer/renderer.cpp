@@ -19,6 +19,7 @@
 #define HEADER_SYMBOL_COUNT 10
 #define SEPARATOR_LENGTH    50
 #define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
+#define COMMENT_SEPARATOR   " | "
 
 std::array<Callback_RenderItem, DocumentItemType_Length> Renderer::m_slots{ };
 
@@ -592,7 +593,7 @@ void Renderer::renderComments(RDRenderItemParams* rip)
     if(r->flags() & RendererFlags_NoComments) return;
 
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    std::string comment = d->document()->comment(rip->documentitem->address, false);
+    std::string comment = d->document()->comment(rip->documentitem->address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
     Renderer::renderIndent(rip, 3, true);

@@ -1,7 +1,7 @@
 #include "document.h"
 #include <rdcore/document/backend/symboltable.h>
-#include <rdcore/document/document.h>
 #include <rdcore/builtin/graph/functiongraph.h>
+#include <rdcore/document/document.h>
 
 static inline const SafeDocument& docptr(const RDDocument* d) { return *reinterpret_cast<const SafeDocument*>(d); }
 static inline SafeDocument& docptr(RDDocument* d) { return *reinterpret_cast<SafeDocument*>(d); }
@@ -35,7 +35,7 @@ size_t RDDocument_BlockCount(const RDDocument* d) { return docptr(d)->blocksCoun
 size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
 size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsCount(); }
 void RDDocument_SetEntry(RDDocument* d, address_t address) { docptr(d)->entry(address); }
-void RDDocument_AddComment(RDDocument* d, address_t address, const char* comment) { docptr(d)->comment(address, comment); }
+void RDDocument_Comment(RDDocument* d, address_t address, const char* comment) { docptr(d)->comment(address, comment); }
 void RDDocument_AddAutoComment(RDDocument* d, address_t address, const char* comment) { docptr(d)->autoComment(address, comment); }
 void RDDocument_AddSegmentSize(RDDocument* d, const char* name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type) { docptr(d)->segment(name, offset, address, psize, vsize, type); }
 void RDDocument_AddSegment(RDDocument* d, const char* name, offset_t offset, address_t address, u64 size, type_t type) { docptr(d)->segment(name, offset, address, size, size, type); }
@@ -56,4 +56,11 @@ bool RDDocument_GetFunctionGraph(const RDDocument* d, address_t address, RDGraph
      FunctionGraph* g = docptr(d)->graph(address);
      if(item && g) *item = CPTR(RDGraph, g);
      return g;
+}
+
+const char* RDDocument_GetComments(const RDDocument* d, address_t address, const char* separator)
+{
+    static std::string s;
+    s = docptr(d)->comment(address, true, separator);
+    return s.c_str();
 }

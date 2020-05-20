@@ -5,12 +5,16 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <deque>
 #include <rdapi/types.h>
 
 class BufferView;
 
 class Utils
 {
+    private:
+        typedef std::deque<std::string> StringContainer;
+
     public:
         Utils() = delete;
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
@@ -23,6 +27,7 @@ class Utils
         static std::string quotedSingle(const std::string& s);
         static std::string simplified(const std::u16string& s);
         static std::string simplified(std::string s);
+        static StringContainer split(const std::string& s, char sep);
         static void yloop(const std::function<bool()>& cb);
 
     public:
@@ -37,7 +42,7 @@ std::string Utils::join(const Container& c, const char* sep)
     std::stringstream ss;
 
     for(auto it = c.begin(); it != c.end(); it++) {
-        if(it != c.begin()) ss << sep;
+        if(sep && (it != c.begin())) ss << sep;
         ss << *it;
     }
 

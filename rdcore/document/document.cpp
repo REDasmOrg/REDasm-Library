@@ -14,7 +14,6 @@
 #include "../context.h"
 
 #define REDASM_ENTRY_FUNCTION "__redasm_entry__"
-#define COMMENT_SEPARATOR     " | "
 
 Document::Document()
 {
@@ -129,7 +128,7 @@ size_t Document::functionsCount() const { return m_functions->size(); }
 size_t Document::symbolsCount() const { return m_symbols->size(); }
 bool Document::empty() const { return m_items->empty(); }
 
-std::string Document::comment(address_t address, bool skipauto)
+std::string Document::comment(address_t address, bool skipauto, const char* separator) const
 {
     auto it = m_itemdata.find(address);
     if(it == m_itemdata.end()) return std::string();
@@ -139,7 +138,7 @@ std::string Document::comment(address_t address, bool skipauto)
     if(!skipauto)
         comments.insert(it->second.autocomments.begin(), it->second.autocomments.end());
 
-    return Utils::join(comments, COMMENT_SEPARATOR);
+    return Utils::join(comments, separator);
 }
 
 void Document::autoComment(address_t address, const std::string& s)
@@ -156,10 +155,11 @@ void Document::autoComment(address_t address, const std::string& s)
 
 void Document::comment(address_t address, const std::string& s)
 {
+    m_itemdata[address].comments.clear();
     if(s.empty()) return;
 
-    auto it = m_itemdata[address].comments.insert(s);
-    if(it.second) return;
+    auto parts = Utils::split(s, '\n');
+    for(const std::string& part : parts) m_itemdata[address].comments.insert(part);
 
     size_t idx = m_items->instructionIndex(address);
     if(idx == RD_NPOS) return;

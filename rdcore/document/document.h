@@ -64,7 +64,7 @@ class Document: public Object
         bool empty() const;
 
     public: // Data
-        std::string comment(address_t address, bool skipauto);
+        std::string comment(address_t address, bool skipauto, const char* separator) const;
         void autoComment(address_t address, const std::string& s);
         void comment(address_t address, const std::string& s);
         void rename(address_t address, const std::string& newname);

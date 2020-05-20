@@ -56,6 +56,7 @@ RD_API_EXPORT bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstr
 RD_API_EXPORT bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction);
 RD_API_EXPORT bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address);
+RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, address_t address, const char* separator);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index);
 RD_API_EXPORT RDLocation RDDocument_EntryPoint(const RDDocument* d);
 RD_API_EXPORT RDLocation RDDocument_FunctionStart(const RDDocument* d, address_t address);
@@ -70,7 +71,7 @@ RD_API_EXPORT size_t RDDocument_SegmentsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FunctionsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_SymbolsCount(const RDDocument* d);
 RD_API_EXPORT void RDDocument_SetEntry(RDDocument* d, address_t address);
-RD_API_EXPORT void RDDocument_AddComment(RDDocument* d, address_t address, const char* comment);
+RD_API_EXPORT void RDDocument_Comment(RDDocument* d, address_t address, const char* comment);
 RD_API_EXPORT void RDDocument_AddAutoComment(RDDocument* d, address_t address, const char* comment);
 RD_API_EXPORT void RDDocument_AddSegmentSize(RDDocument* d, const char* name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type);
 RD_API_EXPORT void RDDocument_AddSegment(RDDocument* d, const char* name, offset_t offset, address_t address, u64 size, type_t type);

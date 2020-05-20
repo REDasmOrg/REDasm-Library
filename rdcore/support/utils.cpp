@@ -36,4 +36,19 @@ std::string Utils::simplified(std::string s)
     return s;
 }
 
+Utils::StringContainer Utils::split(const std::string& s, char sep)
+{
+    StringContainer parts;
+    std::string part;
+    std::stringstream ss(s);
+
+    while(std::getline(ss, part, sep))
+    {
+        if(part.empty()) continue;
+        parts.push_back(part);
+    }
+
+    return parts;
+}
+
 void Utils::yloop(const std::function<bool()>& cb) { while(cb()) std::this_thread::yield(); }

@@ -70,6 +70,8 @@ RD_API_EXPORT size_t RDDocument_SegmentsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FunctionsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_SymbolsCount(const RDDocument* d);
 RD_API_EXPORT void RDDocument_SetEntry(RDDocument* d, address_t address);
+RD_API_EXPORT void RDDocument_AddComment(RDDocument* d, address_t address, const char* comment);
+RD_API_EXPORT void RDDocument_AddAutoComment(RDDocument* d, address_t address, const char* comment);
 RD_API_EXPORT void RDDocument_AddSegmentSize(RDDocument* d, const char* name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type);
 RD_API_EXPORT void RDDocument_AddSegment(RDDocument* d, const char* name, offset_t offset, address_t address, u64 size, type_t type);
 RD_API_EXPORT void RDDocument_AddImported(RDDocument* d, address_t address, size_t size, const char* name);

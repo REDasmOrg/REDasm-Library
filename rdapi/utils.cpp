@@ -43,9 +43,9 @@ const char* RD_Demangle(const char* name) { return name ? Demangler::demangled(n
 u16 RD_Swap16(u16 val) { return Endian::swap16(val); }
 u32 RD_Swap32(u16 val) { return Endian::swap32(val); }
 u64 RD_Swap64(u16 val) { return Endian::swap64(val); }
-u16 RD_Swap16BE(u16 val) { return Endian::swap16be(val); }
-u32 RD_Swap32BE(u16 val) { return Endian::swap32be(val); }
-u64 RD_Swap64BE(u16 val) { return Endian::swap64be(val); }
-u16 RD_Swap16LE(u16 val) { return Endian::swap16le(val); }
-u32 RD_Swap32LE(u16 val) { return Endian::swap32le(val); }
-u64 RD_Swap64LE(u16 val) { return Endian::swap64le(val); }
+u16 RD_ToLittleEndian16(u16 val) { return Endian::tolittlendian16(val); }
+u32 RD_ToLittleEndian32(u32 val) { return Endian::tolittlendian32(val); }
+u64 RD_ToLittleEndian64(u64 val) { return Endian::tolittlendian64(val); }
+u16 RD_ToBigEndian16(u16 val) { return Endian::tobigendian16(val); }
+u32 RD_ToBigEndian32(u32 val) { return Endian::tobigendian32(val); }
+u64 RD_ToBigEndian64(u64 val) { return Endian::tobigendian64(val); }

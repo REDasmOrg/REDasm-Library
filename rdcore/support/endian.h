@@ -19,20 +19,20 @@ class Endian
 
     private:
         template<typename T> static T swap(T v) { u8* p = reinterpret_cast<u8*>(&v); std::reverse(p, p + sizeof(T)); return v; }
-        template<typename T> static T swapbe(T v) { return IsLittleEndian ? swap<T>(v) : v; }
-        template<typename T> static T swaple(T v) { return IsBigEndian ? swap<T>(v) : v; }
+        template<typename T> static T tolittlendian(T v) { return IsLittleEndian ? swap<T>(v) : v; }
+        template<typename T> static T tobigendian(T v) { return IsBigEndian ? swap<T>(v) : v; }
 
     public:
         Endian() = delete;
         static inline u16 swap16(u16 v) { return swap<u16>(v); }
         static inline u32 swap32(u32 v) { return swap<u32>(v); }
         static inline u64 swap64(u64 v) { return swap<u64>(v); }
-        static inline u16 swap16le(u16 v) { return swaple<u16>(v); }
-        static inline u32 swap32le(u32 v) { return swaple<u32>(v); }
-        static inline u64 swap64le(u64 v) { return swaple<u64>(v); }
-        static inline u16 swap16be(u16 v) { return swapbe<u16>(v); }
-        static inline u32 swap32be(u32 v) { return swapbe<u32>(v); }
-        static inline u64 swap64be(u64 v) { return swapbe<u64>(v); }
+        static inline u16 tobigendian16(u16 v) { return tobigendian<u16>(v); }
+        static inline u32 tobigendian32(u32 v) { return tobigendian<u32>(v); }
+        static inline u64 tobigendian64(u64 v) { return tobigendian<u64>(v); }
+        static inline u16 tolittlendian16(u16 v) { return tolittlendian<u16>(v); }
+        static inline u32 tolittlendian32(u32 v) { return tolittlendian<u32>(v); }
+        static inline u64 tolittlendian64(u64 v) { return tolittlendian<u64>(v); }
 
     static_assert(Endian::IsLittleEndian != Endian::IsBigEndian, "Unsupported platform endianness");
 };

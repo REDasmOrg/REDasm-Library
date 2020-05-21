@@ -22,14 +22,14 @@ RD_API_EXTERN_C u8* RD_RelPointer(void* ptr, size_t offset);
 RD_API_EXTERN_C bool RD_InRange(address_t address, address_t start, address_t end);
 RD_API_EXTERN_C bool RD_InRangeSize(address_t address, address_t start, address_t size);
 RD_API_EXTERN_C u16 RD_Swap16(u16 val);
-RD_API_EXTERN_C u32 RD_Swap32(u16 val);
-RD_API_EXTERN_C u64 RD_Swap64(u16 val);
-RD_API_EXTERN_C u16 RD_Swap16BE(u16 val);
-RD_API_EXTERN_C u32 RD_Swap32BE(u16 val);
-RD_API_EXTERN_C u64 RD_Swap64BE(u16 val);
-RD_API_EXTERN_C u16 RD_Swap16LE(u16 val);
-RD_API_EXTERN_C u32 RD_Swap32LE(u16 val);
-RD_API_EXTERN_C u64 RD_Swap64LE(u16 val);
+RD_API_EXTERN_C u32 RD_Swap32(u32 val);
+RD_API_EXTERN_C u64 RD_Swap64(u64 val);
+RD_API_EXTERN_C u16 RD_ToLittleEndian16(u16 val);
+RD_API_EXTERN_C u32 RD_ToLittleEndian32(u32 val);
+RD_API_EXTERN_C u64 RD_ToLittleEndian64(u64 val);
+RD_API_EXTERN_C u16 RD_ToBigEndian16(u16 val);
+RD_API_EXTERN_C u32 RD_ToBigEndian32(u32 val);
+RD_API_EXTERN_C u64 RD_ToBigEndian64(u64 val);
 
 #ifdef __cplusplus
   #include <string>

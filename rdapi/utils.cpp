@@ -40,12 +40,12 @@ u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offs
 bool RD_InRange(address_t address, address_t start, address_t end) { return ((address >= start) && (address < end));  }
 bool RD_InRangeSize(address_t address, address_t start, address_t size) { return ((address >= start) && (address < (start + size))); }
 const char* RD_Demangle(const char* name) { return name ? Demangler::demangled(name) : nullptr; }
-u16 RD_Swap16(u16 val) { return Endian::swap16(val); }
-u32 RD_Swap32(u16 val) { return Endian::swap32(val); }
-u64 RD_Swap64(u16 val) { return Endian::swap64(val); }
-u16 RD_ToLittleEndian16(u16 val) { return Endian::tolittlendian16(val); }
-u32 RD_ToLittleEndian32(u32 val) { return Endian::tolittlendian32(val); }
-u64 RD_ToLittleEndian64(u64 val) { return Endian::tolittlendian64(val); }
-u16 RD_ToBigEndian16(u16 val) { return Endian::tobigendian16(val); }
-u32 RD_ToBigEndian32(u32 val) { return Endian::tobigendian32(val); }
-u64 RD_ToBigEndian64(u64 val) { return Endian::tobigendian64(val); }
+u16 RD_Swap16(u16 hostval) { return Endian::swap16(hostval); }
+u32 RD_Swap32(u16 hostval) { return Endian::swap32(hostval); }
+u64 RD_Swap64(u16 hostval) { return Endian::swap64(hostval); }
+u16 RD_FromLittleEndian16(u16 hostval) { return Endian::fromlittleendian16(hostval); }
+u32 RD_FromLittleEndian32(u32 hostval) { return Endian::fromlittleendian32(hostval); }
+u64 RD_FromLittleEndian64(u64 hostval) { return Endian::fromlittleendian64(hostval); }
+u16 RD_FromBigEndian16(u16 hostval) { return Endian::frombigendian16(hostval); }
+u32 RD_FromBigEndian32(u32 hostval) { return Endian::frombigendian32(hostval); }
+u64 RD_FromBigEndian64(u64 hostval) { return Endian::frombigendian64(hostval); }

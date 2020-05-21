@@ -21,15 +21,23 @@ RD_API_EXTERN_C const char* RD_Demangle(const char* name);
 RD_API_EXTERN_C u8* RD_RelPointer(void* ptr, size_t offset);
 RD_API_EXTERN_C bool RD_InRange(address_t address, address_t start, address_t end);
 RD_API_EXTERN_C bool RD_InRangeSize(address_t address, address_t start, address_t size);
-RD_API_EXTERN_C u16 RD_Swap16(u16 val);
-RD_API_EXTERN_C u32 RD_Swap32(u32 val);
-RD_API_EXTERN_C u64 RD_Swap64(u64 val);
-RD_API_EXTERN_C u16 RD_ToLittleEndian16(u16 val);
-RD_API_EXTERN_C u32 RD_ToLittleEndian32(u32 val);
-RD_API_EXTERN_C u64 RD_ToLittleEndian64(u64 val);
-RD_API_EXTERN_C u16 RD_ToBigEndian16(u16 val);
-RD_API_EXTERN_C u32 RD_ToBigEndian32(u32 val);
-RD_API_EXTERN_C u64 RD_ToBigEndian64(u64 val);
+RD_API_EXTERN_C u16 RD_Swap16(u16 hostval);
+RD_API_EXTERN_C u32 RD_Swap32(u32 hostval);
+RD_API_EXTERN_C u64 RD_Swap64(u64 hostval);
+RD_API_EXTERN_C u16 RD_FromLittleEndian16(u16 hostval);
+RD_API_EXTERN_C u32 RD_FromLittleEndian32(u32 hostval);
+RD_API_EXTERN_C u64 RD_FromLittleEndian64(u64 hostval);
+RD_API_EXTERN_C u16 RD_FromBigEndian16(u16 hostval);
+RD_API_EXTERN_C u32 RD_FromBigEndian32(u32 hostval);
+RD_API_EXTERN_C u64 RD_FromBigEndian64(u64 hostval);
+
+// Some function aliases for endianness conversion
+inline u16 RD_ToLittleEndian16(u16 hostval) { return RD_FromLittleEndian16(hostval); }
+inline u32 RD_ToLittleEndian32(u32 hostval) { return RD_FromLittleEndian32(hostval); }
+inline u64 RD_ToLittleEndian64(u64 hostval) { return RD_FromLittleEndian64(hostval); }
+inline u16 RD_ToBigEndian16(u16 hostval) { return RD_FromBigEndian16(hostval); }
+inline u32 RD_ToBigEndian32(u32 hostval) { return RD_FromBigEndian32(hostval); }
+inline u64 RD_ToBigEndian64(u64 hostval) { return RD_FromBigEndian64(hostval); }
 
 #ifdef __cplusplus
   #include <string>

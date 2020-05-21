@@ -40,6 +40,12 @@ const RDSymbol* Document::entry() const { return &m_entry; }
 
 void Document::segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags)
 {
+    if((!(flags & SegmentFlags_Bss) && !psize) || !vsize)
+    {
+        rd_ctx->log("Segment '" + name + "' is empty, skipping");
+        return;
+    }
+
     size_t len = std::min<size_t>(name.size(), DEFAULT_NAME_SIZE);
 
     RDSegment segment{ };

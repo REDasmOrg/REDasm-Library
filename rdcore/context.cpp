@@ -34,7 +34,7 @@ void Context::setProgressCallback(RD_ProgressCallback callback, void* userdata)
     m_progresscallback.userdata = userdata;
 }
 
-void Context::statusProgress(const char* s, size_t progress)
+void Context::statusProgress(const char* s, size_t progress) const
 {
     log_lock lock(m_mutex);
 
@@ -51,7 +51,7 @@ void Context::statusProgress(const char* s, size_t progress)
         m_progresscallback.callback(progress, m_progresscallback.userdata);
 }
 
-void Context::statusAddress(const char* s, address_t address)
+void Context::statusAddress(const char* s, address_t address) const
 {
     log_lock lock(m_mutex);
     CONTEXT_DEBOUNCE_CHECK
@@ -65,7 +65,7 @@ void Context::statusAddress(const char* s, address_t address)
         std::cout << ss.str() << std::endl;
 }
 
-void Context::status(const char* s)
+void Context::status(const char* s) const
 {
     log_lock lock(m_mutex);
     CONTEXT_DEBOUNCE_CHECK
@@ -76,7 +76,7 @@ void Context::status(const char* s)
         std::cout << s << std::endl;
 }
 
-void Context::log(const char* s)
+void Context::log(const char* s) const
 {
     log_lock lock(m_mutex);
     CONTEXT_DEBOUNCE_CHECK
@@ -123,15 +123,15 @@ void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlug
         RDLoaderPlugin* ploader = reinterpret_cast<RDLoaderPlugin*>(item.second);
 
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(ploader));
-        RDAssemblerPlugin* passembler = ploader->test(ploader, loadrequest);
+        const char* assemblerid = ploader->test(ploader, loadrequest);
 
-        if(!passembler)
+        if(!assemblerid)
         {
             Context::freePlugin(reinterpret_cast<RDPluginHeader*>(ploader));
             continue;
         }
 
-        m_loadertoassembler[ploader] = passembler; // Save proposed assembler
+        m_loadertoassembler[ploader] = assemblerid; // Save proposed assembler
         callback(ploader, userdata);
     }
 }
@@ -147,10 +147,20 @@ void Context::getAssemblers(Callback_AssemblerPlugin callback, void* userdata)
     }
 }
 
+const char* Context::getAssemblerId(const RDLoaderPlugin* ploader) const
+{
+    auto it = m_loadertoassembler.find(ploader);
+    return (it != m_loadertoassembler.end()) ? it->second : nullptr;
+}
+
 RDAssemblerPlugin* Context::getAssembler(const RDLoaderPlugin* ploader) const
 {
     auto it = m_loadertoassembler.find(ploader);
-    return (it != m_loadertoassembler.end()) ? reinterpret_cast<RDAssemblerPlugin*>(it->second) : nullptr;
+    if(it == m_loadertoassembler.end()) return nullptr;
+
+    RDAssemblerPlugin* passembler = this->findAssembler(it->second);
+    if(!passembler) this->log("Cannot find assembler '" + std::string(it->second) + "'");
+    return passembler;
 }
 
 RDAssemblerPlugin* Context::findAssembler(const char* id) const
@@ -179,10 +189,10 @@ Disassembler* Context::disassembler() const { return m_disassembler; }
 const Context::StringSet& Context::databasePaths() const { return m_dbpaths; }
 const char* Context::runtimePath() const { return m_rntpath.c_str(); }
 const char* Context::tempPath() const { return m_tmppath.c_str(); }
-void Context::status(const std::string& s) { this->status(s.c_str()); }
-void Context::log(const std::string& s) { this->log(s.c_str()); }
+void Context::status(const std::string& s) const { this->status(static_cast<const char*>(s.c_str())); }
+void Context::log(const std::string& s) const { this->log(s.c_str()); }
 
-void Context::getProblems(RD_ProblemCallback callback, void* userdata)
+void Context::getProblems(RD_ProblemCallback callback, void* userdata) const
 {
     for(const std::string& problem : m_problems)
         callback(problem.c_str(), userdata);

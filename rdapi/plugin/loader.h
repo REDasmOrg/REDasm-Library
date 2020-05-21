@@ -29,7 +29,7 @@ DECLARE_HANDLE(RDLoader);
 
 struct RDLoaderPlugin;
 
-typedef RDAssemblerPlugin* (*Callback_LoaderTest)(const struct RDLoaderPlugin* plugin, const RDLoaderRequest* request);
+typedef const char* (*Callback_LoaderTest)(const struct RDLoaderPlugin* plugin, const RDLoaderRequest* request);
 typedef void (*Callback_LoaderLoad)(struct RDLoaderPlugin* ploader, RDLoader* loader);
 typedef void (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoaderBuildRequest* req);
 typedef void (*Callback_LoaderAnalyze)(struct RDLoaderPlugin* ploader, RDDisassembler* disassembler);
@@ -47,6 +47,7 @@ typedef struct RDLoaderPlugin {
 typedef void (*Callback_LoaderPlugin)(RDLoaderPlugin* ploader, void* userdata);
 
 RD_API_EXPORT bool RDLoader_Register(RDLoaderPlugin* ploader);
+RD_API_EXPORT const char* RDLoader_GetAssemblerId(const RDLoaderPlugin* ploader);
 RD_API_EXPORT RDAssemblerPlugin* RDLoader_GetAssembler(const RDLoaderPlugin* ploader);
 RD_API_EXPORT flag_t RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);

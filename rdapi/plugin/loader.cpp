@@ -3,6 +3,7 @@
 #include <rdcore/plugin/loader.h>
 
 bool RDLoader_Register(RDLoaderPlugin* ploader) { return rd_ctx->registerPlugin(ploader); }
+const char* RDLoader_GetAssemblerId(const RDLoaderPlugin* ploader) { return rd_ctx->getAssemblerId(ploader); }
 RDAssemblerPlugin* RDLoader_GetAssembler(const RDLoaderPlugin* ploader) { return rd_ctx->getAssembler(ploader); }
 RDDocument* RDLoader_GetDocument(RDLoader* ldr) { return CPTR(RDDocument, std::addressof(CPTR(Loader, ldr)->document())); }
 RDBuffer* RDLoader_GetBuffer(RDLoader* ldr) { return CPTR(RDBuffer, CPTR(Loader, ldr)->buffer()); }

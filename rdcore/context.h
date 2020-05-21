@@ -25,7 +25,7 @@ class Context: public Object
 {
     private:
         typedef std::unordered_set<std::string> StringSet;
-        typedef std::unordered_map<const RDLoaderPlugin*, RDAssemblerPlugin*> LoaderToAssemblerMap;
+        typedef std::unordered_map<const RDLoaderPlugin*, const char*> LoaderToAssemblerMap;
         typedef std::unordered_map<std::string, RDPluginHeader*> PluginMap;
         using log_lock = std::scoped_lock<std::mutex>;
 
@@ -42,10 +42,10 @@ class Context: public Object
         void setProgressCallback(RD_ProgressCallback callback, void* userdata);
 
     public:
-        void statusProgress(const char* s, size_t progress);
-        void statusAddress(const char* s, address_t address);
-        void status(const char* s);
-        void log(const char* s);
+        void statusProgress(const char* s, size_t progress) const;
+        void statusAddress(const char* s, address_t address) const;
+        void status(const char* s) const;
+        void log(const char* s) const;
         void sync(bool b);
 
     public: // Plugin
@@ -55,6 +55,7 @@ class Context: public Object
         bool commandExecute(const char* command, const RDArguments* arguments);
         void getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
         void getAssemblers(Callback_AssemblerPlugin callback, void* userdata);
+        const char* getAssemblerId(const RDLoaderPlugin* ploader) const;
         RDAssemblerPlugin* getAssembler(const RDLoaderPlugin* ploader) const;
         RDAssemblerPlugin* findAssembler(const char* id) const;
 
@@ -73,9 +74,9 @@ class Context: public Object
         const StringSet& databasePaths() const;
         const char* runtimePath() const;
         const char* tempPath() const;
-        void status(const std::string& s);
-        void log(const std::string& s);
-        void getProblems(RD_ProblemCallback callback, void* userdata);
+        void status(const std::string& s) const;
+        void log(const std::string& s) const;
+        void getProblems(RD_ProblemCallback callback, void* userdata) const;
         void problem(const std::string& s);
         void init();
 
@@ -93,10 +94,10 @@ class Context: public Object
         CallbackStruct<RD_StatusCallback> m_statuscallback;
         CallbackStruct<RD_ProgressCallback> m_progresscallback;
         StringSet m_pluginpaths, m_dbpaths, m_problems;
-        std::chrono::steady_clock::time_point m_laststatusreport;
+        mutable std::chrono::steady_clock::time_point m_laststatusreport;
         std::chrono::milliseconds m_debouncetimeout;
         std::string m_rntpath, m_tmppath;
-        std::mutex m_mutex;
+        mutable std::mutex m_mutex;
         bool m_sync{false}, m_ignoreproblems{false};
 };
 

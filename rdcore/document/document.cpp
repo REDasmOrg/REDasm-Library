@@ -387,7 +387,6 @@ bool Document::canSymbolizeAddress(address_t address, type_t type, flag_t flags)
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;
 
-    if(symbol.type > type) return false;
     if((symbol.type == type) && (!HAS_FLAG(&symbol, SymbolFlags_Weak) && (flags & SymbolFlags_Weak))) return false;
     return true;
 }

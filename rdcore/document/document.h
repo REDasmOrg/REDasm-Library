@@ -115,7 +115,7 @@ class Document: public Object
         void replace(address_t address, type_t type);
         void remove(address_t address, type_t type);
         void removeAt(size_t idx);
-        bool canSymbolizeAddress(address_t address, type_t type, flag_t flags) const;
+        bool canSymbolizeAddress(address_t address, flag_t flags) const;
 
     private:
         static void onBlockInserted(const RDEventArgs* e, void* userdata);

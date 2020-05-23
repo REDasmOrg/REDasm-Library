@@ -21,7 +21,7 @@
 #define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
 #define COMMENT_SEPARATOR   " | "
 
-std::array<Callback_RenderItem, DocumentItemType_Length> Renderer::m_slots{ };
+std::array<Callback_AssemblerRender, DocumentItemType_Length> Renderer::m_slots{ };
 
 Renderer::Renderer(Disassembler* disassembler, const Cursor* cursor, flag_t flags): m_disassembler(disassembler), m_cursor(cursor), m_flags(flags)
 {
@@ -104,14 +104,14 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
     size_t prevsize = ri->size();
     ri->push("[");
 
-    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->instruction, rip->operand->base);
+    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand->base);
 
     if(Sugar::isIndexValid(rip->operand))
     {
         if(prevsize != ri->size()) ri->push("+");
         prevsize++;
 
-        Renderer::renderRegister(rip, rip->instruction, rip->operand->index);
+        Renderer::renderRegister(rip, rip->operand->index);
         if(rip->operand->scale > 1) ri->push("*").push(Utils::hex(rip->operand->scale), "immediate_fg");
     }
 
@@ -127,14 +127,14 @@ bool Renderer::renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemP
     return true;
 }
 
-bool Renderer::renderRegister(const RDAssemblerPlugin*, RDRenderItemParams* rip)
+bool Renderer::renderRegister(RDRenderItemParams* rip)
 {
     if(!rip->instruction) return false;
-    Renderer::renderRegister(rip, rip->instruction, rip->operand->reg);
+    Renderer::renderRegister(rip, rip->operand->reg);
     return true;
 }
 
-bool Renderer::renderMnemonic(const RDAssemblerPlugin*, RDRenderItemParams* rip)
+bool Renderer::renderMnemonic(RDRenderItemParams* rip)
 {
     if(!rip->instruction || !std::strlen(rip->instruction->mnemonic)) return false;
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
@@ -154,6 +154,7 @@ bool Renderer::renderMnemonic(const RDAssemblerPlugin*, RDRenderItemParams* rip)
         default: ri->push(rip->instruction->mnemonic); break;
     }
 
+    if(rip->instruction->operandscount) ri->push(" ");
     return true;
 }
 
@@ -371,8 +372,15 @@ void Renderer::highlightWords(RendererItem* ritem) const
 
 void Renderer::renderPrologue(RDRenderItemParams* rip)
 {
-    Renderer::renderAddress(rip);
-    Renderer::renderIndent(rip, 3);
+    const Renderer* r = CPTR(const Renderer, rip->renderer);
+
+    if(!(r->m_flags & RendererFlags_NoSegmentAndAddress))
+    {
+        Renderer::renderAddress(rip);
+        Renderer::renderIndent(rip, 3);
+    }
+    else
+        Renderer::renderIndent(rip, 1);
 }
 
 void Renderer::renderSymbolPrologue(RDRenderItemParams* rip)
@@ -443,26 +451,17 @@ bool Renderer::renderFunction(const RDAssemblerPlugin*, RDRenderItemParams* rip)
     return true;
 }
 
-bool Renderer::renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip)
+bool Renderer::renderInstruction(const RDAssemblerPlugin*, RDRenderItemParams* rip)
 {
     const Renderer* r = CPTR(const Renderer, rip->renderer);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-
-    if(!(r->m_flags & RendererFlags_NoSegmentAndAddress))
-    {
-        Renderer::renderAddress(rip);
-        Renderer::renderIndent(rip, 3);
-    }
-    else
-        Renderer::renderIndent(rip, 1);
+    Renderer::renderPrologue(rip);
 
     if(rip->instruction)
     {
-        Renderer::renderMnemonic(plugin, rip);
+        Renderer::renderMnemonic(rip);
         if(!rip->instruction->operandscount) return true;
-
         rip->type = RendererItemType_Operand;
-        ri->push(" ");
 
         for(size_t i = 0; i < rip->instruction->operandscount; i++)
         {
@@ -489,7 +488,7 @@ bool Renderer::renderOperand(const RDAssemblerPlugin* plugin, RDRenderItemParams
         case OperandType_Immediate:    return Renderer::renderImmediate(rip);
         case OperandType_Memory:       return Renderer::renderMemory(rip);
         case OperandType_Displacement: return Renderer::renderDisplacement(plugin, rip);
-        case OperandType_Register:     return Renderer::renderRegister(plugin, rip);
+        case OperandType_Register:     return Renderer::renderRegister(rip);
         default: return false;
     }
 }
@@ -707,9 +706,9 @@ void Renderer::renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams*
     }
 }
 
-void Renderer::renderRegister(RDRenderItemParams* rip, const RDInstruction* instruction, register_t r)
+void Renderer::renderRegister(RDRenderItemParams* rip, register_t r)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(d->registerName(instruction, r), "register_fg");
+    ri->push(d->registerName(rip->instruction, r), "register_fg");
 }

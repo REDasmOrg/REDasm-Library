@@ -12,12 +12,14 @@ const char* RDRenderer_GetInstruction(const RDRenderer* r, address_t address) { 
 bool RDRenderer_GetSelectedSymbol(const RDRenderer* r, RDSymbol* symbol) { return CPTR(const Renderer, r)->selectedSymbol(symbol); }
 bool RDRenderer_GetItem(const RDRenderer* r, size_t index, RDRendererItem* ritem) { return CPTR(const Renderer, r)->renderItem(index, ritem); }
 void RDRenderer_GetItems(const RDRenderer* r, size_t index, size_t count, Callback_Render render, void* userdata) { return CPTR(const Renderer, r)->render(index, count, render, userdata); }
-void RDRenderer_Immediate(const RDRenderer* r, RDRenderItemParams* rip) { CPTR(const Renderer, r)->renderImmediate(rip); }
 size_t RDRendererItem_GetItemFormats(const RDRendererItem* ritem, const RDRendererFormat** formats) { return CPTR(const RendererItem, ritem)->formats(formats); }
 size_t RDRendererItem_GetDocumentIndex(const RDRendererItem* ritem) { return CPTR(const RendererItem, ritem)->documentIndex(); }
 const char* RDRendererItem_GetItemText(const RDRendererItem* ritem) { return CPTR(const RendererItem, ritem)->text().c_str(); }
 void RDRendererItem_Push(RDRendererItem* ritem, const char* s, const char* fgstyle, const char* bgstyle) { CPTR(RendererItem, ritem)->push(s, fgstyle ? fgstyle : std::string(), bgstyle ? bgstyle : std::string()); }
-
-void RD_RendererAddress(RDRenderItemParams* rip) { Renderer::renderAddress(rip); }
-void RD_RenderAddressIndent(RDRenderItemParams* rip) { Renderer::renderAddressIndent(rip); }
-void RD_RenderIndent(RDRenderItemParams* rip, size_t n) { Renderer::renderIndent(rip, n); }
+void RDRenderer_Prologue(RDRenderItemParams* rip) { Renderer::renderPrologue(rip); }
+void RDRenderer_Address(RDRenderItemParams* rip) { Renderer::renderAddress(rip); }
+void RDRenderer_AddressIndent(RDRenderItemParams* rip) { Renderer::renderAddressIndent(rip); }
+void RDRenderer_Immediate(RDRenderItemParams* rip) { Renderer::renderImmediate(rip); }
+void RDRenderer_Register(RDRenderItemParams* rip, register_id_t r) { Renderer::renderRegister(rip, r); }
+void RDRenderer_Mnemonic(RDRenderItemParams* rip) { Renderer::renderMnemonic(rip); }
+void RDRenderer_Indent(RDRenderItemParams* rip, size_t n) { Renderer::renderIndent(rip, n); }

@@ -31,23 +31,24 @@ class Renderer: public Object
         void highlightWords(RendererItem* ritem) const;
 
     public:
+        static void renderPrologue(RDRenderItemParams* rip);
         static void renderAddress(RDRenderItemParams* rip);
         static void renderAddressIndent(RDRenderItemParams* rip);
         static void renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags = false);
+        static void renderRegister(RDRenderItemParams* rip, register_t r);
         static bool renderConstant(RDRenderItemParams* rip);
         static bool renderImmediate(RDRenderItemParams* rip);
         static bool renderMemory(RDRenderItemParams* rip);
+        static bool renderMnemonic(RDRenderItemParams* rip);
         static bool renderDisplacement(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
-        static bool renderRegister(const RDAssemblerPlugin*, RDRenderItemParams* rip);
 
     private:
-        static void renderPrologue(RDRenderItemParams* rip);
-        static bool renderMnemonic(const RDAssemblerPlugin*, RDRenderItemParams* rip);
         static bool renderSymbolPointer(RDRenderItemParams* rip);
         static void renderSymbolPrologue(RDRenderItemParams* rip);
+        static bool renderRegister(RDRenderItemParams* rip);
         static bool renderSegment(const RDAssemblerPlugin*, RDRenderItemParams* rip);
         static bool renderFunction(const RDAssemblerPlugin*, RDRenderItemParams* rip);
-        static bool renderInstruction(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
+        static bool renderInstruction(const RDAssemblerPlugin*, RDRenderItemParams* rip);
         static bool renderOperand(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
         static bool renderSymbol(const RDAssemblerPlugin*, RDRenderItemParams* rip);
 
@@ -61,10 +62,9 @@ class Renderer: public Object
         void renderIndent(RendererItem* ritem, size_t n, bool ignoreflags = false) const;
         static void renderComments(RDRenderItemParams* rip);
         static void renderSymbol(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip, address_t address);
-        static void renderRegister(RDRenderItemParams* rip, const RDInstruction* instruction, register_t r);
 
     private:
-        static std::array<Callback_RenderItem, DocumentItemType_Length> m_slots;
+        static std::array<Callback_AssemblerRender, DocumentItemType_Length> m_slots;
         mutable std::string m_lastword, m_selectedtext, m_instructionstr;
         Disassembler* m_disassembler;
         const Cursor* m_cursor;

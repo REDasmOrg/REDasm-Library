@@ -30,6 +30,7 @@ typedef size_t (*Callback_AssemblerEncode)(const struct RDAssemblerPlugin* plugi
 typedef bool (*Callback_AssemblerDecode)(const struct RDAssemblerPlugin* plugin, RDBufferView* view, RDInstruction* instruction);
 typedef void (*Callback_AssemblerEmulate)(const struct RDAssemblerPlugin* plugin, RDDisassembler* disassembler, const RDInstruction* instruction);
 typedef void (*Callback_AssemblerPlugin)(struct RDAssemblerPlugin* plugin, void* userdata);
+typedef bool (*Callback_AssemblerRender)(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
 
 typedef struct RDAssemblerPlugin {
     RD_PLUGIN_HEADER
@@ -40,7 +41,7 @@ typedef struct RDAssemblerPlugin {
     Callback_AssemblerEncode encode;
     Callback_AssemblerDecode decode;
     Callback_AssemblerEmulate emulate;
-    Callback_RenderItem render;
+    Callback_AssemblerRender render;
 } RDAssemblerPlugin;
 
 RD_API_EXPORT void RD_GetAssemblers(Callback_AssemblerPlugin callback, void* userdata);

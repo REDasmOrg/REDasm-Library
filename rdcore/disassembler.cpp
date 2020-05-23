@@ -36,9 +36,6 @@ void Disassembler::disassemble()
     for(size_t i = 0; i < this->document()->functionsCount(); i++)
         m_algorithm->enqueue(this->document()->functionAt(i).address);
 
-    if(rd_ctx->sync() || m_engine->concurrency() == 1) rd_ctx->log("Single threaded disassembly");
-    else rd_ctx->log("Disassembling with " + Utils::number(m_engine->concurrency()) + " threads");
-
     m_engine->execute();
 }
 
@@ -93,20 +90,23 @@ RDLocation Disassembler::dereference(address_t address) const
     return loc;
 }
 
-void Disassembler::markLocation(address_t fromaddress, address_t address)
+type_t Disassembler::markLocation(address_t fromaddress, address_t address)
 {
-    if(!this->document()->segment(address, nullptr)) return;
+    if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
     RDSymbol symbol;
+    type_t type = SymbolType_Data;
 
     if(this->document()->symbol(address, &symbol) && IS_TYPE(&symbol, SymbolType_String))
     {
         if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
         else this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+        type = symbol.type;
     }
     else this->document()->data(address, this->addressWidth(), std::string());
 
     this->pushReference(address, fromaddress);
+    return type;
 }
 
 size_t Disassembler::markTable(const RDInstruction* instruction, address_t startaddress)

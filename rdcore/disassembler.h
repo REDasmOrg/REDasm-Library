@@ -59,7 +59,7 @@ class Disassembler: public Object
 
     public: // Symbols
         RDLocation dereference(address_t address) const;
-        void markLocation(address_t fromaddress, address_t address);
+        type_t markLocation(address_t fromaddress, address_t address);
         size_t markTable(const RDInstruction* instruction, address_t startaddress);
 
     public:

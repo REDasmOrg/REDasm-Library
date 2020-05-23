@@ -65,7 +65,6 @@ bool Engine::needsWeak() const
 {
     switch(m_currentstep)
     {
-        case Engine::EngineState_Strings:
         case Engine::EngineState_Algorithm:
         case Engine::EngineState_Unexplored:
             return true;

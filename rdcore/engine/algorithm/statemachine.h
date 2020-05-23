@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <deque>
 #include <rdapi/disassembler.h>
 #include "../../document/document_fwd.h"
 
@@ -26,6 +26,6 @@ class StateMachine
         SafeDocument& m_document;
 
     private:
-        std::list<address_t> m_pending;
+        std::deque<address_t> m_pending;
 };
 

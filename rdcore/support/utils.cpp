@@ -1,7 +1,6 @@
 #include "utils.h"
 #include <algorithm>
 #include <codecvt>
-#include <thread>
 #include "../buffer/view.h"
 
 std::string Utils::hexString(BufferView* view)
@@ -32,8 +31,20 @@ std::string Utils::simplified(const std::u16string& s) { return Utils::simplifie
 
 std::string Utils::simplified(std::string s)
 {
-    std::replace_if(s.begin(), s.end(), [](char ch) -> bool { return std::isspace(ch); }, ' ');
-    return s;
+    std::string res;
+
+    for(char ch : s)
+    {
+        switch(ch)
+        {
+            case '\t': res += "\\t"; break;
+            case '\n': res += "\\n"; break;
+            case '\r': res += "\\r"; break;
+            default: res += ch;
+        }
+    }
+
+    return res;
 }
 
 Utils::StringContainer Utils::split(const std::string& s, char sep)
@@ -50,5 +61,3 @@ Utils::StringContainer Utils::split(const std::string& s, char sep)
 
     return parts;
 }
-
-void Utils::yloop(const std::function<bool()>& cb) { while(cb()) std::this_thread::yield(); }

@@ -28,7 +28,6 @@ class Utils
         static std::string simplified(const std::u16string& s);
         static std::string simplified(std::string s);
         static StringContainer split(const std::string& s, char sep);
-        static void yloop(const std::function<bool()>& cb);
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);

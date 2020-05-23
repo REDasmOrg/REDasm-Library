@@ -88,6 +88,8 @@ bool Algorithm::canBeDisassembled(address_t address) const
 
 void Algorithm::decodeAddress(address_t address)
 {
+    rd_ctx->status("Decoding @ " + Utils::hex(address));
+
     RDInstruction instruction{ };
     size_t result = this->decode(address, &instruction);
 

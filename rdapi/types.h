@@ -102,6 +102,7 @@ typedef struct RDOperand {
 
         u64 u_value;
         address_t address;
+        offset_t offset;
     };
 
     RD_USERDATA_FIELD

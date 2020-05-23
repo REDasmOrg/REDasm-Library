@@ -542,8 +542,8 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* , RDRenderItemParams* rip)
 
         case SymbolType_String:
             if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-            if(HAS_FLAG(&symbol, SymbolFlags_WideString)) ri->push(Utils::quoted(d->readWString(rip->documentitem->address, STRING_THRESHOLD)), "string_fg");
-            else ri->push(Utils::quoted(d->readString(rip->documentitem->address, STRING_THRESHOLD)), "string_fg");
+            if(HAS_FLAG(&symbol, SymbolFlags_WideString)) ri->push(Utils::quoted(Utils::simplified(d->readWString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
+            else ri->push(Utils::quoted(Utils::simplified(d->readString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
             break;
 
         case SymbolType_Label:
@@ -597,7 +597,7 @@ void Renderer::renderComments(RDRenderItemParams* rip)
 
     Renderer::renderIndent(rip, 3, true);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push("# " + comment, "comment_fg");
+    ri->push("# " + Utils::simplified(comment), "comment_fg");
 }
 
 bool Renderer::renderSeparator(const RDDocumentItem* item, RDRendererItem* ritem) const

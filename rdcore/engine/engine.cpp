@@ -8,25 +8,21 @@
 #include "stringfinder.h"
 #include "analyzer.h"
 #include <rdapi/disassembler.h>
+#include <thread>
 
 Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm())
 {
     GibberishDetector::initialize();
-    if(!rd_ctx->sync()) JobManager::initialize();
-
     m_analyzer.reset(new Analyzer(disassembler));
 }
 
 Engine::~Engine() { this->stop(); }
 size_t Engine::currentStep() const { return m_currentstep; }
-size_t Engine::concurrency() const { return JobManager::concurrency(); }
 void Engine::reset() { m_currentstep = Engine::EngineState_None; }
 
 void Engine::execute()
 {
-    if(!rd_ctx->sync() && !JobManager::initialized()) return;
     if(m_currentstep == Engine::EngineState_None) m_sigcount = 0;
-
     size_t newstep = ++m_currentstep;
 
     if(newstep >= Engine::EngineState_Last)
@@ -76,34 +72,29 @@ bool Engine::needsWeak() const
 }
 
 bool Engine::busy() const { return m_busy; }
-
-void Engine::stop()
-{
-    if(!rd_ctx->sync()) JobManager::deinitialize();
-    this->notify(false);
-}
+void Engine::stop() { this->notify(false); }
 
 void Engine::stringsStep()
 {
     this->notify(true);
 
-    if(rd_ctx->sync())
-    {
-        for(size_t i = 0; i < rd_doc->segmentsCount(); i++)
-            this->stringsJob({i, 0});
+    for(size_t i = 0; i < rd_doc->segmentsCount(); i++)
+        this->searchStringsAt(i);
 
-        this->execute();
-    }
-    else
-        JobManager::dispatch(rd_doc->segmentsCount(), this, &Engine::stringsJob);
+    this->execute();
 }
 
 void Engine::algorithmStep()
 {
     //m_signatures = r_ldr->signatures(); // Preload signatures
 
-    if(rd_ctx->sync()) this->algorithmJobSync();
-    else JobManager::dispatch(this, &Engine::algorithmJob);
+    while(m_algorithm->hasNext())
+    {
+        m_algorithm->next();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    this->execute();
 }
 
 void Engine::analyzeStep()
@@ -114,8 +105,11 @@ void Engine::analyzeStep()
         return;
     }
 
-    if(rd_ctx->sync()) this->analyzeJob();
-    else JobManager::execute(this, &Engine::analyzeJob);
+    rd_ctx->status("Analyzing...");
+    m_analyzer->analyze();
+
+    if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
+    else this->execute();
 }
 
 void Engine::unexploredStep()
@@ -143,13 +137,10 @@ void Engine::cfgStep()
     //for(size_t i = 0; i < r_doc->segmentsCount(); i++)
         //r_doc->segmentCoverageAt(i, REDasm::npos);
 
-    if(rd_ctx->sync())
-    {
-        this->cfgJobSync();
-        return;
-    }
+    for(size_t i = 0; i < rd_doc->functionsCount(); i++)
+        this->generateCfg(i);
 
-    JobManager::dispatch(rd_doc->functionsCount(), JobManager::concurrency(), this, &Engine::cfgJob);
+    this->execute();
 }
 
 void Engine::signatureStep()
@@ -158,40 +149,9 @@ void Engine::signatureStep()
     this->execute();
 }
 
-void Engine::stringsJob(const JobDispatchArgs& args)
+void Engine::generateCfg(size_t funcindex)
 {
-    this->searchStringsAt(args.jobindex);
-
-    if(JobManager::last())
-        this->execute();
-}
-
-void Engine::algorithmJob(const JobDispatchArgs&)
-{
-    Utils::yloop([&]() -> bool {
-                     if(!JobManager::initialized() || !m_algorithm->hasNext()) return false;
-                     m_algorithm->next();
-                     return true;
-                 });
-
-    if(JobManager::last())
-        this->execute();
-}
-
-void Engine::analyzeJob()
-{
-    rd_ctx->status("Analyzing...");
-    m_analyzer->analyze();
-
-    if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
-    else this->execute();
-}
-
-void Engine::cfgJob(const JobDispatchArgs& args)
-{
-    if(args.jobindex >= m_disassembler->document()->functionsCount()) return;
-
-    RDLocation loc = m_disassembler->document()->functionAt(args.jobindex);
+    RDLocation loc = m_disassembler->document()->functionAt(funcindex);
     rd_ctx->status("Computing basic blocks @ " + Utils::hex(loc.address));
     auto g = std::make_unique<FunctionGraph>(m_disassembler);
     bool cfgdone = false;
@@ -225,37 +185,6 @@ void Engine::cfgJob(const JobDispatchArgs& args)
     }
     else
         rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));
-
-    if(JobManager::last())
-        this->execute();
-}
-
-void Engine::signatureJob(const JobDispatchArgs& args)
-{
-}
-
-void Engine::stringsJobSync()
-{
-    for(size_t i = 0; i < rd_doc->segmentsCount(); i++)
-        this->searchStringsAt(i);
-
-    this->execute();
-}
-
-void Engine::algorithmJobSync()
-{
-    while(m_algorithm->hasNext())
-        m_algorithm->next();
-
-    this->execute();
-}
-
-void Engine::cfgJobSync()
-{
-    for(size_t i = 0; i < rd_doc->functionsCount(); i++)
-        this->cfgJob({i, 0});
-
-    this->execute();
 }
 
 void Engine::searchStringsAt(size_t index) const

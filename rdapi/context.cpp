@@ -18,9 +18,7 @@ void RD_StatusAddress(const char* s, address_t address) { rd_ctx->statusAddress(
 void RD_Status(const char* s) { rd_ctx->status(s); }
 void RD_Problem(const char* s) { rd_ctx->problem(s); }
 void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }
-void RD_SetSync(bool sync) { rd_ctx->sync(sync); }
 bool RD_HasProblems(void) { return rd_ctx->hasProblems(); }
-bool RD_IsSync(void) { return rd_ctx->sync(); }
 bool RD_IsBusy(void) { return rd_disasm->busy(); }
 
 RDDisassembler* RD_GetDisassembler(void) { return CPTR(RDDisassembler, rd_disasm); }

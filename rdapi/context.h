@@ -41,9 +41,7 @@ RD_API_EXPORT void RD_Status(const char* s);
 RD_API_EXPORT void RD_Log(const char* s);
 RD_API_EXPORT void RD_Problem(const char* s);
 RD_API_EXPORT void RD_SetIgnoreProblems(bool ignore);
-RD_API_EXPORT void RD_SetSync(bool sync);
 RD_API_EXPORT bool RD_HasProblems(void);
-RD_API_EXPORT bool RD_IsSync(void);
 RD_API_EXPORT bool RD_IsBusy(void);
 
 // Context

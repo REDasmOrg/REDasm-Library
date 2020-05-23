@@ -3,7 +3,6 @@
 #include <atomic>
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
-#include "../support/job/jobmanager.h"
 #include "../support/safe_ptr.h"
 
 class Disassembler;
@@ -19,7 +18,6 @@ class Engine
         Engine(Disassembler* disassembler);
         ~Engine();
         size_t currentStep() const;
-        size_t concurrency() const;
         void reset();
         void execute();
         void execute(size_t step);
@@ -37,20 +35,8 @@ class Engine
         void cfgStep();
         void signatureStep();
 
-    private: // Threaded Variants
-        void stringsJob(const JobDispatchArgs& args);
-        void algorithmJob(const JobDispatchArgs&);
-        void analyzeJob();
-        void cfgJob(const JobDispatchArgs& args);
-        void signatureJob(const JobDispatchArgs& args);
-
-    private: // Sync Variants
-        void stringsJobSync();
-        void algorithmJobSync();
-        void cfgJobSync();
-
-
     private:
+        void generateCfg(size_t funcindex);
         void searchStringsAt(size_t index) const;
         void notify(bool busy);
 

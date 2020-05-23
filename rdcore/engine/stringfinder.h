@@ -21,8 +21,6 @@ class StringFinder
         flag_t categorize(const BufferView* view, size_t* totalsize) const;
         bool validateString(const char* s, size_t size) const;
         bool step(BufferView* view);
-        void findAsync();
-        void findSync();
 
     private:
         std::unique_ptr<BufferView> m_view;

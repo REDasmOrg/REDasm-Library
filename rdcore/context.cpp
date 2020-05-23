@@ -87,7 +87,6 @@ void Context::log(const char* s) const
         std::cout << s << std::endl;
 }
 
-void Context::sync(bool b) { m_sync = b; }
 bool Context::registerPlugin(RDLoaderPlugin* ploader) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(ploader), m_loaders); }
 bool Context::registerPlugin(RDAssemblerPlugin* passembler) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(passembler), m_assemblers); }
 bool Context::registerPlugin(RDCommandPlugin* pcommand) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(pcommand), m_commands);  }
@@ -182,7 +181,6 @@ Context* Context::instance() { static Context context; return &context; }
 void Context::setFlags(flag_t flag) { m_flags = flag; }
 flag_t Context::flags() const { return m_flags; }
 bool Context::hasProblems() const { return !m_problems.empty(); }
-bool Context::sync() const { return m_sync; }
 size_t Context::problemsCount() const { return m_problems.size(); }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }
 Disassembler* Context::disassembler() const { return m_disassembler; }

@@ -46,7 +46,6 @@ class Context: public Object
         void statusAddress(const char* s, address_t address) const;
         void status(const char* s) const;
         void log(const char* s) const;
-        void sync(bool b);
 
     public: // Plugin
         bool registerPlugin(RDLoaderPlugin* ploader);
@@ -67,7 +66,6 @@ class Context: public Object
         void setFlags(flag_t flag);
         flag_t flags() const;
         bool hasProblems() const;
-        bool sync() const;
         size_t problemsCount() const;
         PluginManager* pluginManager();
         Disassembler* disassembler() const;
@@ -98,7 +96,7 @@ class Context: public Object
         std::chrono::milliseconds m_debouncetimeout;
         std::string m_rntpath, m_tmppath;
         mutable std::mutex m_mutex;
-        bool m_sync{false}, m_ignoreproblems{false};
+        bool m_ignoreproblems{false};
 };
 
 #define rd_ctx    Context::instance()

@@ -1,11 +1,11 @@
 #include "stringfinder.h"
 #include "gibberish/gibberishdetector.h"
-#include "../support/job/jobmanager.h"
 #include "../document/document.h"
 #include "../support/utils.h"
 #include "../disassembler.h"
 #include "../context.h"
 #include <rdapi/symbol.h>
+#include <thread>
 #include <vector>
 #include <cctype>
 #include <cuchar>
@@ -14,8 +14,15 @@ StringFinder::StringFinder(const RDSegment& segment): m_segment(segment) { m_vie
 
 void StringFinder::find()
 {
-    if(rd_ctx->sync()) this->findSync();
-    else this->findAsync();
+    BufferView view;
+    m_view->copyTo(&view);
+    bool hasnext = true;
+
+    while(hasnext)
+    {
+        hasnext = this->step(&view);
+        std::this_thread::yield();
+    }
 }
 
 bool StringFinder::toAscii(char inch, char* outch)
@@ -36,24 +43,9 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
     return res;
 }
 
-void StringFinder::findSync()
-{
-    BufferView view;
-    m_view->copyTo(&view);
-    bool hasnext = true;
-    while(hasnext) hasnext = this->step(&view);
-}
-
-void StringFinder::findAsync()
-{
-    BufferView view;
-    m_view->copyTo(&view);
-    Utils::yloop(std::bind(&StringFinder::step, this, &view));
-}
-
 bool StringFinder::step(BufferView* view)
 {
-    if((!rd_ctx->sync() && !JobManager::initialized()) || view->empty()) return false;
+    if(view->empty()) return false;
     RDLocation loc = rd_ldr->addressof(view->data());
     if(!loc.valid) return false;
 

@@ -31,3 +31,19 @@ bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnem
     if(!mnemonic || (std::strlen(mnemonic) > DEFAULT_NAME_SIZE)) return false;
     return !std::strcmp(instruction->mnemonic, mnemonic);
 }
+
+void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx)
+{
+    if(!instruction || (idx >= instruction->operandscount)) return;
+
+    auto endit = std::remove_if(std::begin(instruction->operands),
+                                std::end(instruction->operands),
+                                [idx](const RDOperand& op) { return op.pos == idx; });
+
+    std::for_each(endit, std::end(instruction->operands), [](RDOperand& op) { op = { }; });
+    instruction->operandscount--;
+
+    // Recalculate positions
+    for(size_t i = 0; i < instruction->operandscount; i++)
+        instruction->operands[i].pos = i;
+}

@@ -28,6 +28,7 @@ class EventDispatcher
 template<typename EventArgs, typename ...Args>
 void EventDispatcher::dispatch(event_id_t id, void* sender, Args... args)
 {
+    event_lock lock(m_mutex);
     EventArgs e = { id, sender, args... };
     auto range = m_events.equal_range(id);
 

@@ -91,7 +91,7 @@ void Engine::algorithmStep()
     while(m_algorithm->hasNext())
     {
         m_algorithm->next();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        std::this_thread::yield();
     }
 
     this->execute();

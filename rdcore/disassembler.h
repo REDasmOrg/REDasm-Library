@@ -14,6 +14,7 @@ class Disassembler: public Object
 
     public:
         Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
+        ~Disassembler();
         RDAssemblerPlugin* assembler() const;
         Loader* loader() const;
         SafeAlgorithm& algorithm();

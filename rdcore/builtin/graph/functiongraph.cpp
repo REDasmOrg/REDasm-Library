@@ -116,7 +116,10 @@ bool FunctionGraph::build(address_t address)
     this->buildBasicBlocks();
     if(this->empty()) return false;
 
-    this->setRoot(this->basicBlock(m_graphstart.start)->node);
+    FunctionBasicBlock* fbb = this->basicBlock(m_graphstart.start);
+    if(!fbb) return false;
+
+    this->setRoot(fbb->node);
     return true;
 }
 

@@ -1,6 +1,7 @@
 #include "disassembler.h"
 #include "support/sugar.h"
 #include "support/utils.h"
+#include "eventdispatcher.h"
 #include "context.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
@@ -14,6 +15,7 @@ Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* pload
     m_algorithm = SafeAlgorithm(new Algorithm(this));
 }
 
+Disassembler::~Disassembler() { EventDispatcher::unsubscribeAll(); }
 RDAssemblerPlugin* Disassembler::assembler() const { return m_passembler; }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }

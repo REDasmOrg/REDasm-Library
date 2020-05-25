@@ -29,8 +29,6 @@ void EventDispatcher::subscribe(void* owner, Callback_Event listener, void* user
 void EventDispatcher::unsubscribe(void* owner) { m_listeners.erase(owner); }
 void EventDispatcher::unsubscribeAll() { m_listeners.clear(); }
 
-#include <iostream>
-
 void EventDispatcher::loop()
 {
     while(m_initialized.load())

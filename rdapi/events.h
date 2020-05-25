@@ -9,7 +9,6 @@
     void* sender;
 
 typedef u32 event_id_t;
-typedef uintptr_t event_t;
 
 enum RDEvents {
     Event_None = 0,
@@ -18,8 +17,6 @@ enum RDEvents {
     Event_BusyChanged,
 
     // Document Events
-    Event_DocumentBlockInserted,
-    Event_DocumentBlockRemoved,
     Event_DocumentChanged,
 
     // Cursor Events
@@ -30,7 +27,6 @@ enum RDEvents {
     Event_UserFirst = (1u << 31),
 };
 
-struct RDBlock;
 struct RDCursor;
 struct RDCursorPos;
 
@@ -53,14 +49,8 @@ typedef struct RDCursorEventArgs {
     const RDCursorPos* selection;
 } RDCursorEventArgs;
 
-typedef struct RDDocumentBlockEventArgs {
-    RD_EVENTARGS_BASE
-
-    RDBlock block;
-} RDDocumentBlockEventArgs;
-
 typedef void(*RD_EventCallback)(const RDEventArgs* e, void* userdata);
+typedef void(*Callback_Event)(const RDEventArgs* e, void* userdata);
 
-RD_API_EXPORT event_t RDEvent_Subscribe(event_id_t id, RD_EventCallback eventcb, void* userdata);
-RD_API_EXPORT void RDEvent_Unsubscribe(event_t event);
-RD_API_EXPORT void RDEvent_UnsubscribeAll();
+RD_API_EXPORT void RDEvent_Subscribe(void* owner, Callback_Event eventcb, void* userdata);
+RD_API_EXPORT void RDEvent_Unsubscribe(void* owner);

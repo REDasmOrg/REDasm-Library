@@ -1,39 +1,49 @@
 #include "eventdispatcher.h"
-#include <algorithm>
 
-std::recursive_mutex EventDispatcher::m_mutex;
-EventDispatcher::EventMap EventDispatcher::m_events;
+std::atomic_bool EventDispatcher::m_initialized{false};
+std::thread EventDispatcher::m_worker;
+std::queue<std::unique_ptr<RDEventArgs>> EventDispatcher::m_events;
+std::condition_variable EventDispatcher::m_cv;
 
-event_t EventDispatcher::subscribe(event_id_t id, RD_EventCallback callback, void* userdata)
+std::mutex EventDispatcher::m_mutex;
+std::unordered_map<void*, EventDispatcher::EventItem> EventDispatcher::m_listeners;
+
+void EventDispatcher::initialize()
 {
-    event_lock lock(m_mutex);
-
-    auto event = std::make_unique<EventItem>();
-    event->id = id;
-    event->callback = callback;
-    event->userdata = userdata;
-
-    auto it = m_events.insert({ id, std::move(event) });
-    return reinterpret_cast<event_t>(it->second.get());
+    m_initialized.store(true);
+    m_worker = std::thread(&EventDispatcher::loop);
 }
 
-void EventDispatcher::unsubscribe(event_t e)
+void EventDispatcher::deinitialize()
 {
     event_lock lock(m_mutex);
+    m_initialized.store(false);
+    m_listeners.clear();
+    m_cv.notify_all();
 
-    EventItem* event = reinterpret_cast<EventItem*>(e);
-    auto range = m_events.equal_range(event->id);
-
-    auto it = std::find_if(range.first, range.second, [event](const auto& item) {
-        return std::tie(item.second->id, item.second->userdata, item.second->callback) ==
-               std::tie(event->id, event->userdata, event->callback);
-    });
-
-    if(it != m_events.end()) m_events.erase(it);
+    if(m_worker.joinable())
+        m_worker.join();
 }
 
-void EventDispatcher::unsubscribeAll()
+void EventDispatcher::subscribe(void* owner, Callback_Event listener, void* userdata) { m_listeners[owner] = { listener, userdata }; }
+void EventDispatcher::unsubscribe(void* owner) { m_listeners.erase(owner); }
+void EventDispatcher::unsubscribeAll() { m_listeners.clear(); }
+
+void EventDispatcher::loop()
 {
-    event_lock lock(m_mutex);
-    m_events.clear();
+    while(m_initialized.load())
+    {
+        {
+            event_lock lock(m_mutex);
+            m_cv.wait(lock, []() { return !m_events.empty() || !m_initialized.load();});
+        }
+
+        if(m_events.empty() || !m_initialized.load()) continue;
+
+        const auto e = std::move(m_events.front());
+        m_events.pop();
+
+        for(const auto& [owner, item] : m_listeners)
+            item.listener(e.get(), item.userdata);
+    }
 }

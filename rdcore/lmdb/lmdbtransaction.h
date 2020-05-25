@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 #include <rdapi/types.h>
 #include "../libs/lmdb/lmdb.h"
 

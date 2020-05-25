@@ -20,18 +20,13 @@ Document::Document()
     m_instructions = std::make_unique<InstructionCache>();
     m_segments     = std::make_unique<SegmentContainer>();
     m_functions    = std::make_unique<FunctionContainer>();
-    m_blocks       = std::make_unique<BlockContainer>();
     m_items        = std::make_unique<ItemContainer>();
     m_symbols      = std::make_unique<SymbolTable>();
 
-    m_events.insert(EventDispatcher::subscribe(Event_DocumentBlockInserted,
-                                               &Document::onBlockInserted, this));
-
-    m_events.insert(EventDispatcher::subscribe(Event_DocumentBlockRemoved,
-                                               &Document::onBlockRemoved, this));
+    m_blocks = std::make_unique<BlockContainer>();
+    m_blocks->blockInserted = std::bind(&Document::onBlockInserted, this, std::placeholders::_1);
+    m_blocks->blockRemoved = std::bind(&Document::onBlockRemoved, this, std::placeholders::_1);
 }
-
-Document::~Document() { std::for_each(m_events.begin(), m_events.end(), &EventDispatcher::unsubscribe); }
 
 bool Document::isInstructionCached(address_t address) const { return m_instructions->contains(address); }
 const SymbolTable* Document::symbols() const { return m_symbols.get(); }
@@ -330,7 +325,7 @@ const RDDocumentItem& Document::insert(address_t address, type_t type, u16 index
 void Document::notify(size_t idx, type_t action)
 {
     if(idx >= m_items->size()) return;
-    EventDispatcher::dispatch<RDDocumentEventArgs>(Event_DocumentChanged, this, action, idx, m_items->at(idx));
+    EventDispatcher::enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, action, idx, m_items->at(idx));
 }
 
 void Document::replace(address_t address, type_t type)
@@ -349,7 +344,7 @@ void Document::remove(address_t address, type_t type)
 void Document::removeAt(size_t idx)
 {
     RDDocumentItem item = m_items->at(idx);
-    EventDispatcher::dispatch<RDDocumentEventArgs>(Event_DocumentChanged, this, DocumentAction_ItemRemoved, idx, item);
+    EventDispatcher::enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, DocumentAction_ItemRemoved, idx, item);
     m_items->removeAt(idx);
 
     switch(item.type)
@@ -391,30 +386,24 @@ bool Document::canSymbolizeAddress(address_t address, flag_t flags) const
     return true;
 }
 
-void Document::onBlockInserted(const RDEventArgs* e, void* userdata)
+void Document::onBlockInserted(const RDBlock& b)
 {
-    const RDDocumentBlockEventArgs* be = reinterpret_cast<const RDDocumentBlockEventArgs*>(e);
-    Document* thethis = reinterpret_cast<Document*>(userdata);
-
-    switch(be->block.type)
+    switch(b.type)
     {
-        case BlockType_Unexplored: thethis->insert(be->block.start, DocumentItemType_Unexplored); break;
-        //case BlockType_Data: thethis->insert(be->block.start, DocumentItemType_Symbol); break;
-        case BlockType_Code: thethis->insert(be->block.start, DocumentItemType_Instruction); break;
+        case BlockType_Unexplored: this->insert(b.start, DocumentItemType_Unexplored); break;
+        //case BlockType_Data: thethis->insert(b.start, DocumentItemType_Symbol); break;
+        case BlockType_Code: this->insert(b.start, DocumentItemType_Instruction); break;
         default: break;
     }
 }
 
-void Document::onBlockRemoved(const RDEventArgs* e, void* userdata)
+void Document::onBlockRemoved(const RDBlock& b)
 {
-    const RDDocumentBlockEventArgs* be = reinterpret_cast<const RDDocumentBlockEventArgs*>(e);
-    Document* thethis = reinterpret_cast<Document*>(userdata);
-
-    switch(be->block.type)
+    switch(b.type)
     {
-        case BlockType_Unexplored: thethis->remove(be->block.start, DocumentItemType_Unexplored); break;
-        case BlockType_Data: thethis->remove(be->block.start, DocumentItemType_Symbol); break;
-        case BlockType_Code: thethis->remove(be->block.start, DocumentItemType_Instruction); break;
+        case BlockType_Unexplored: this->remove(b.start, DocumentItemType_Unexplored); break;
+        case BlockType_Data: this->remove(b.start, DocumentItemType_Symbol); break;
+        case BlockType_Code: this->remove(b.start, DocumentItemType_Instruction); break;
         default: break;
     }
 }

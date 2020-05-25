@@ -1,5 +1,6 @@
 #include "context.h"
 #include "support/utils.h"
+#include "eventdispatcher.h"
 #include <filesystem>
 #include <iostream>
 #include <sstream>
@@ -12,7 +13,8 @@
     if((now - m_laststatusreport) < m_debouncetimeout) return; \
     m_laststatusreport = now;
 
-Context::Context(): m_rntpath(std::filesystem::current_path()), m_tmppath(std::filesystem::temp_directory_path()) { }
+Context::Context(): m_rntpath(std::filesystem::current_path()), m_tmppath(std::filesystem::temp_directory_path()) { EventDispatcher::initialize(); }
+Context::~Context() { EventDispatcher::deinitialize(); }
 void Context::addPluginPath(const char* pluginpath) { m_pluginpaths.insert(pluginpath); }
 void Context::addDatabasePath(const char* dbpath) { m_dbpaths.insert(dbpath);  }
 

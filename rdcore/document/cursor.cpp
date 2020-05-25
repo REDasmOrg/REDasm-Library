@@ -16,7 +16,7 @@ void Cursor::goBack()
 
     m_forwardstack.push(m_position);
     this->moveTo(pos.line, pos.column, false);
-    EventDispatcher::dispatch<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+    EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
 }
 
 void Cursor::goForward()
@@ -28,7 +28,7 @@ void Cursor::goForward()
 
     m_backstack.push(m_position);
     this->moveTo(pos.line, pos.column, false);
-    EventDispatcher::dispatch<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+    EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
 }
 
 void Cursor::clearSelection()
@@ -36,7 +36,7 @@ void Cursor::clearSelection()
     if(Cursor::equalPos(&m_position, &m_selection)) return;
 
     m_selection = m_position;
-    EventDispatcher::dispatch<RDCursorEventArgs>(Event_CursorPositionChanged, this, &m_position, &m_selection);
+    EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorPositionChanged, this, &m_position, &m_selection);
 }
 
 void Cursor::set(size_t line, size_t column) { this->moveTo(line, column, false); }
@@ -47,7 +47,7 @@ void Cursor::select(size_t line, size_t column)
     m_position = { std::max<size_t>(line, 0),
                    std::max<size_t>(column, 0) };
 
-    EventDispatcher::dispatch<RDCursorEventArgs>(Event_CursorPositionChanged, this, &m_position, &m_selection);
+    EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorPositionChanged, this, &m_position, &m_selection);
 }
 
 const RDCursorPos* Cursor::position() const { return &m_position; }
@@ -118,7 +118,7 @@ void Cursor::moveTo(size_t line, size_t column, bool save)
         if(m_backstack.empty() || (!m_backstack.empty() && !Cursor::equalPos(&m_backstack.top(), &m_position)))
         {
             m_backstack.push(m_position);
-            EventDispatcher::dispatch<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+            EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
         }
     }
 

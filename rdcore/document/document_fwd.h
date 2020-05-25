@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../support/safe_ptr.h"
+#include <rdapi/document/document.h>
 
 class Document;
 

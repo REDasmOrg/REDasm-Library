@@ -8,7 +8,8 @@
 #include "stringfinder.h"
 #include "analyzer.h"
 #include <rdapi/disassembler.h>
-#include <thread>
+#include <future>
+#include <vector>
 
 Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm())
 {
@@ -77,10 +78,12 @@ void Engine::stop() { this->notify(false); }
 void Engine::stringsStep()
 {
     this->notify(true);
+    std::vector<std::future<void>> f(rd_doc->segmentsCount());
 
     for(size_t i = 0; i < rd_doc->segmentsCount(); i++)
-        this->searchStringsAt(i);
+        f[i] = std::async(std::bind(&Engine::searchStringsAt, this, i));
 
+    std::for_each(f.begin(), f.end(), [](auto& f) { f.get(); });
     this->execute();
 }
 
@@ -91,7 +94,7 @@ void Engine::algorithmStep()
     while(m_algorithm->hasNext())
     {
         m_algorithm->next();
-        std::this_thread::yield();
+        std::this_thread::sleep_for(DEFAULT_SLEEP_TIME);
     }
 
     this->execute();
@@ -203,5 +206,5 @@ void Engine::searchStringsAt(size_t index) const
 void Engine::notify(bool busy)
 {
     m_busy = busy;
-    EventDispatcher::dispatch<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }

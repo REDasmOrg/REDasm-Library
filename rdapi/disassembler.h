@@ -5,7 +5,6 @@
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
 
-
 DECLARE_HANDLE(RDDisassembler);
 
 RD_API_EXPORT RDDisassembler* RDDisassembler_Create(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);

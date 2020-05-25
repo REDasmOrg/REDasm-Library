@@ -8,6 +8,8 @@
 #include <deque>
 #include <rdapi/types.h>
 
+#define DEFAULT_SLEEP_TIME std::chrono::milliseconds(5)
+
 class BufferView;
 
 class Utils

@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <list>
 #include <string>
-#include "../../document/document.h"
+#include "../../document/document_fwd.h"
 #include "../../graph/styledgraph.h"
 
 class Disassembler;

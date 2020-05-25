@@ -2,38 +2,45 @@
 
 #include <rdapi/events.h>
 #include <unordered_map>
-#include <memory>
+#include <condition_variable>
+#include <atomic>
+#include <thread>
+#include <queue>
 #include <mutex>
 
 class EventDispatcher
 {
     private:
-        using event_lock = std::scoped_lock<std::recursive_mutex>;
-        struct EventItem { event_id_t id; void* userdata; RD_EventCallback callback; };
-        typedef std::unique_ptr<EventItem> EventItemPtr;
-        typedef std::unordered_multimap<event_id_t, EventItemPtr> EventMap;
+        typedef std::unique_lock<std::mutex> event_lock;
+        struct EventItem { Callback_Event listener; void* userdata; };
 
     public:
         EventDispatcher() = delete;
-        template<typename EventArgs, typename ...Args> static void dispatch(event_id_t id, void* sender, Args... args);
-        static event_t subscribe(event_id_t id, RD_EventCallback callback, void* userdata);
-        static void unsubscribe(event_t e);
+        template<typename EventArgs, typename ...Args> static void enqueue(event_id_t id, void* sender, Args... args);
+        static void initialize();
+        static void deinitialize();
+        static void subscribe(void* owner, Callback_Event listener, void* userdata);
+        static void unsubscribe(void* owner);
         static void unsubscribeAll();
 
     private:
-        static EventMap m_events;
-        static std::recursive_mutex m_mutex;
+        static void loop();
+
+    private:
+        static std::atomic_bool m_initialized;
+        static std::thread m_worker;
+        static std::condition_variable m_cv;
+        static std::queue<std::unique_ptr<RDEventArgs>> m_events;
+        static std::unordered_map<void*, EventItem> m_listeners;
+        static std::mutex m_mutex;
 };
 
 template<typename EventArgs, typename ...Args>
-void EventDispatcher::dispatch(event_id_t id, void* sender, Args... args)
+void EventDispatcher::enqueue(event_id_t id, void* sender, Args... args)
 {
     event_lock lock(m_mutex);
-    EventArgs e = { id, sender, args... };
-    auto range = m_events.equal_range(id);
-
-    for(auto it = range.first; it != range.second; it++) {
-        const auto& event = it->second;
-        event->callback(reinterpret_cast<const RDEventArgs*>(&e), event->userdata);
-    }
+    EventArgs* e = new EventArgs();
+    *e = { id, sender, args... };
+    m_events.push(std::unique_ptr<RDEventArgs>(reinterpret_cast<RDEventArgs*>(e)));
+    m_cv.notify_all();
 }

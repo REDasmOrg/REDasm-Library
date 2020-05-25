@@ -5,13 +5,17 @@
 #include <vector>
 #include <rdapi/document/block.h>
 #include <rdapi/types.h>
-#include "../../eventdispatcher.h"
 #include "../../object.h"
 
 class BlockContainer: public Object
 {
     private:
         typedef std::vector<RDBlock> Container;
+        typedef std::function<void(const RDBlock&)> Callback;
+
+    public:
+        Callback blockInserted;
+        Callback blockRemoved;
 
     public:
         BlockContainer() = default;
@@ -55,7 +59,7 @@ template<typename Iterator>
 Iterator BlockContainer::eraseRange(Iterator startit, Iterator endit)
 {
     auto it = std::remove_if(startit, endit, [&](RDBlock& b) -> bool {
-              EventDispatcher::dispatch<RDDocumentBlockEventArgs>(Event_DocumentBlockRemoved, this, b);
+              if(blockRemoved) blockRemoved(b);
               return true;
     });
 
@@ -67,7 +71,7 @@ Iterator BlockContainer::eraseBlock(Iterator it)
 {
     RDBlock b = *it;
     it = m_blocks.erase(it);
-    EventDispatcher::dispatch<RDDocumentBlockEventArgs>(Event_DocumentBlockRemoved, this, b);
+    if(blockRemoved) blockRemoved(b);
     return it;
 }
 
@@ -75,7 +79,7 @@ template<typename Iterator>
 Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
 {
     auto resit = m_blocks.insert(it, bi);
-    EventDispatcher::dispatch<RDDocumentBlockEventArgs>(Event_DocumentBlockInserted, this, *resit);
+    if(blockInserted) blockInserted(*resit);
     return resit;
 }
 

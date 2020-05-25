@@ -5,16 +5,16 @@
 #include <map>
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
+#include "../document/backend/segmentcontainer.h"
+#include "../document/backend/functioncontainer.h"
+#include "../document/backend/instructioncache.h"
+#include "../document/backend/blockcontainer.h"
+#include "../document/backend/itemcontainer.h"
+#include "../document/backend/symboltable.h"
 #include "../object.h"
 #include "document_fwd.h"
 
 class FunctionGraph;
-class FunctionContainer;
-class SegmentContainer;
-class InstructionCache;
-class BlockContainer;
-class ItemContainer;
-class SymbolTable;
 
 class Document: public Object
 {
@@ -29,7 +29,7 @@ class Document: public Object
 
     public:
         Document();
-        virtual ~Document();
+        virtual ~Document() = default;
         bool isInstructionCached(address_t address) const;
         const SymbolTable* symbols() const;
         const BlockContainer* blocks() const;
@@ -116,15 +116,12 @@ class Document: public Object
         void remove(address_t address, type_t type);
         void removeAt(size_t idx);
         bool canSymbolizeAddress(address_t address, flag_t flags) const;
-
-    private:
-        static void onBlockInserted(const RDEventArgs* e, void* userdata);
-        static void onBlockRemoved(const RDEventArgs* e, void* userdata);
+        void onBlockInserted(const RDBlock& b);
+        void onBlockRemoved(const RDBlock& b);
 
     private:
         RDSymbol m_entry{ };
         std::unordered_map<address_t, ItemData> m_itemdata;
-        std::unordered_set<event_t> m_events;
         std::unordered_set<address_t> m_separators;
         std::unique_ptr<InstructionCache> m_instructions;
         std::unique_ptr<SegmentContainer> m_segments;

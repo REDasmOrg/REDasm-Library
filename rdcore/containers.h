@@ -45,6 +45,7 @@ class SortedContainer: public AbstractContainer<T>
         size_t insert(const T& t) override;
         size_t indexOf(const T& t) const override;
         size_t size() const override { return m_container.size(); }
+        size_t capacity() { return m_container.capacity(); }
         bool empty() const override { return m_container.empty(); }
         void remove(const T& t) override;
         void removeAt(size_t idx) override;

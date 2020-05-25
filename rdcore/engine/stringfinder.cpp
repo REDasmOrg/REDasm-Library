@@ -21,7 +21,7 @@ void StringFinder::find()
     while(hasnext)
     {
         hasnext = this->step(&view);
-        std::this_thread::yield();
+        std::this_thread::sleep_for(DEFAULT_SLEEP_TIME);
     }
 }
 

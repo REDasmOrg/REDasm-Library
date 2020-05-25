@@ -31,6 +31,7 @@ class Context: public Object
 
     public:
         Context();
+        virtual ~Context();
         void addPluginPath(const char* pluginpath);
         void addDatabasePath(const char* dbpath);
         void setDisassembler(Disassembler* disassembler);

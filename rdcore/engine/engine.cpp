@@ -78,12 +78,17 @@ void Engine::stop() { this->notify(false); }
 void Engine::stringsStep()
 {
     this->notify(true);
-    std::vector<std::future<void>> f(rd_doc->segmentsCount());
+    int maxworkers = std::max<int>(1, std::thread::hardware_concurrency() - 1); // n_cores (-1 -> we are inside another thread)
+    std::vector<std::future<void>> f(maxworkers);
 
-    for(size_t i = 0; i < rd_doc->segmentsCount(); i++)
-        f[i] = std::async(std::bind(&Engine::searchStringsAt, this, i));
+    for(size_t segidx = 0; segidx < m_disassembler->document()->segmentsCount(); )
+    {
+        for(int i = 0; i < maxworkers; i++, segidx++)
+            f[i] = std::async(std::bind(&Engine::searchStringsAt, this, segidx));
 
-    std::for_each(f.begin(), f.end(), [](auto& f) { f.get(); });
+        std::for_each(f.begin(), f.end(), [](auto& f) { f.get(); });
+    }
+
     this->execute();
 }
 

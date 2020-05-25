@@ -1,5 +1,7 @@
 #pragma once
 
+// https://embeddedartistry.com/blog/2017/02/08/implementing-an-asynchronous-dispatch-queue
+
 #include <rdapi/events.h>
 #include <unordered_map>
 #include <condition_variable>
@@ -42,5 +44,9 @@ void EventDispatcher::enqueue(event_id_t id, void* sender, Args... args)
     EventArgs* e = new EventArgs();
     *e = { id, sender, args... };
     m_events.push(std::unique_ptr<RDEventArgs>(reinterpret_cast<RDEventArgs*>(e)));
+
+    // Manual unlocking is done before notifying, to avoid waking up
+    // the waiting thread only to block again (see notify_one for details)
+    lock.unlock();
     m_cv.notify_all();
 }

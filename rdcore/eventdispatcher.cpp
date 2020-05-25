@@ -16,9 +16,9 @@ void EventDispatcher::initialize()
 
 void EventDispatcher::deinitialize()
 {
-    event_lock lock(m_mutex);
     m_initialized.store(false);
     m_listeners.clear();
+    EventDispatcher::unsubscribeAll();
     m_cv.notify_all();
 
     if(m_worker.joinable())
@@ -29,21 +29,27 @@ void EventDispatcher::subscribe(void* owner, Callback_Event listener, void* user
 void EventDispatcher::unsubscribe(void* owner) { m_listeners.erase(owner); }
 void EventDispatcher::unsubscribeAll() { m_listeners.clear(); }
 
+#include <iostream>
+
 void EventDispatcher::loop()
 {
     while(m_initialized.load())
     {
-        {
-            event_lock lock(m_mutex);
-            m_cv.wait(lock, []() { return !m_events.empty() || !m_initialized.load();});
-        }
+        event_lock lock(m_mutex);
 
+        // Wait until we have events or deinitialized
+        m_cv.wait(lock, []() { return !m_events.empty() || !m_initialized.load(); });
         if(m_events.empty() || !m_initialized.load()) continue;
 
+        // After wait, we own the lock
         const auto e = std::move(m_events.front());
         m_events.pop();
 
+        lock.unlock(); // Unlock now that we're done messing with the queue
+
         for(const auto& [owner, item] : m_listeners)
             item.listener(e.get(), item.userdata);
+
+        lock.lock();
     }
 }

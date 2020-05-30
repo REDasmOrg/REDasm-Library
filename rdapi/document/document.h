@@ -55,6 +55,7 @@ RD_API_EXPORT bool RDDocument_GetFunctionGraph(const RDDocument* d, address_t ad
 RD_API_EXPORT bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction);
 RD_API_EXPORT bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction);
 RD_API_EXPORT bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction);
+RD_API_EXPORT bool RDDocument_Rename(RDDocument* d, address_t address, const char* newname);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address);
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, address_t address, const char* separator);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index);

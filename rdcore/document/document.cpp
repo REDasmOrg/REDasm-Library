@@ -167,10 +167,11 @@ void Document::comment(address_t address, const std::string& s)
     this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
 }
 
-void Document::rename(address_t address, const std::string& newname)
+bool Document::rename(address_t address, const std::string& newname)
 {
-    if(!m_symbols->rename(address, newname)) return;
+    if(!m_symbols->rename(address, newname)) return false;
     this->notify(m_items->symbolIndex(address), DocumentAction_ItemChanged);
+    return true;
 }
 
 size_t Document::itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const

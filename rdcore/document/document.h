@@ -67,7 +67,7 @@ class Document: public Object
         std::string comment(address_t address, bool skipauto, const char* separator) const;
         void autoComment(address_t address, const std::string& s);
         void comment(address_t address, const std::string& s);
-        void rename(address_t address, const std::string& newname);
+        bool rename(address_t address, const std::string& newname);
 
     public: // Get-i
         size_t itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const;

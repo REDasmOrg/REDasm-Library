@@ -20,6 +20,7 @@ bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol*
 bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction) { return docptr(d)->prevInstruction(instruction, previnstruction); }
 bool RDDocument_LockInstruction(const RDDocument* d, address_t address, RDInstruction** instruction) { return docptr(d)->lockInstruction(address, instruction); }
 bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction) { return docptr(d)->unlockInstruction(instruction);  }
+bool RDDocument_Rename(RDDocument* d, address_t address, const char* newname) { return docptr(d)->rename(address, newname ? newname : std::string()); }
 const char* RDDocument_GetSymbolName(const RDDocument* d, address_t address) { return docptr(d)->symbols()->getName(address); }
 RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index) { return docptr(d)->functionAt(index); }
 RDLocation RDDocument_EntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }

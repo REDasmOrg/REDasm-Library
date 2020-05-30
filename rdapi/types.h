@@ -67,6 +67,7 @@ enum RDSegmentFlags {
     SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data
 };
 
+#pragma pack(push, 1)
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
     offset_t offset, endoffset;
@@ -75,6 +76,7 @@ typedef struct RDSegment {
     size_t coveragebytes;
     size_t itemscount;
 } RDSegment;
+#pragma pack(pop)
 
 enum RDOperandType {
     OperandType_Void,
@@ -85,6 +87,7 @@ enum RDOperandType {
     OperandType_Displacement, // Indirect Memory Pointer
 };
 
+#pragma pack(push, 1)
 typedef struct RDOperand {
     type_t type;
     u32 pos;
@@ -108,6 +111,7 @@ typedef struct RDOperand {
 
     RD_USERDATA_FIELD
 } RDOperand;
+#pragma pack(pop)
 
 enum RDInstructionType {
     InstructionType_None,
@@ -142,6 +146,7 @@ enum RDInstructionFlags {
     InstructionFlags_Stop        = (1 << 4),
 };
 
+#pragma pack(push, 1)
 typedef struct RDInstruction {
     instruction_id_t id;  // Implementation Specific
 
@@ -155,11 +160,12 @@ typedef struct RDInstruction {
 
     RD_USERDATA_FIELD
 } RDInstruction;
+#pragma pack(pop)
 
 RD_API_EXTERN_C size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXTERN_C size_t RDSegment_Size(const RDSegment* s);
 RD_API_EXTERN_C address_t RDInstruction_NextAddress(const RDInstruction* instruction);
 RD_API_EXTERN_C RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type);
 RD_API_EXTERN_C void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx);
-RD_API_EXTERN_C bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic);
 RD_API_EXTERN_C void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic);
+RD_API_EXTERN_C bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic);

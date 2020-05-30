@@ -10,7 +10,7 @@
 #include <cctype>
 #include <cuchar>
 
-StringFinder::StringFinder(const RDSegment& segment): m_segment(segment) { m_view.reset(rd_ldr->view(segment)); }
+StringFinder::StringFinder(Disassembler* disassembler, const RDSegment& segment): m_disassembler(disassembler), m_segment(segment) { m_view.reset(m_disassembler->loader()->view(segment)); }
 
 void StringFinder::find()
 {
@@ -46,7 +46,7 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
 bool StringFinder::step(BufferView* view)
 {
     if(view->empty()) return false;
-    RDLocation loc = rd_ldr->addressof(view->data());
+    RDLocation loc = m_disassembler->loader()->addressof(view->data());
     if(!loc.valid) return false;
 
     rd_ctx->status("Searching strings @ " + std::string(m_segment.name) + " in " + Utils::hex(loc.value));
@@ -54,8 +54,8 @@ bool StringFinder::step(BufferView* view)
     size_t totalsize = 0;
     flag_t flags = this->categorize(view, &totalsize);
 
-    if(flags & SymbolFlags_AsciiString) rd_doc->asciiString(loc.value, totalsize);
-    else if(flags & SymbolFlags_WideString) rd_doc->wideString(loc.value, totalsize);
+    if(flags & SymbolFlags_AsciiString) m_disassembler->document()->asciiString(loc.value, totalsize);
+    else if(flags & SymbolFlags_WideString) m_disassembler->document()->wideString(loc.value, totalsize);
     else { view->advance(1); return true; }
 
     view->advance(totalsize);

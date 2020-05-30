@@ -21,8 +21,6 @@ void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }
 bool RD_HasProblems(void) { return rd_ctx->hasProblems(); }
 bool RD_IsBusy(void) { return rd_disasm->busy(); }
 
-RDDisassembler* RD_GetDisassembler(void) { return CPTR(RDDisassembler, rd_disasm); }
-RDDocument* RD_GetDocument(void) { return CPTR(RDDocument, std::addressof(rd_doc)); }
 void RD_SetContextFlags(flag_t flags) { rd_ctx->setFlags(flags); }
 flag_t RD_GetContextFlags(void) { return rd_ctx->flags(); }
 const char* RD_RuntimePath(void) { return rd_ctx->runtimePath(); }

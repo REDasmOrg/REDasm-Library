@@ -51,7 +51,7 @@ size_t Algorithm::decode(address_t address, RDInstruction* instruction)
     if(!this->canBeDisassembled(address)) return Algorithm::SKIP;
     instruction->address = address;
 
-    std::unique_ptr<BufferView> view(rd_ldr->view(address));
+    std::unique_ptr<BufferView> view(m_disassembler->loader()->view(address));
     if(!view || view->empty()) return Algorithm::SKIP;
     return m_disassembler->decode(view.get(), instruction) ? Algorithm::OK : Algorithm::FAIL;
 }

@@ -103,6 +103,3 @@ class Context: public Object
 #define rd_ctx    Context::instance()
 #define rd_pm     rd_ctx->pluginManager()
 #define rd_disasm rd_ctx->disassembler()
-#define rd_asm    rd_disasm->assembler()
-#define rd_ldr    rd_disasm->loader()
-#define rd_doc    rd_ldr->document()

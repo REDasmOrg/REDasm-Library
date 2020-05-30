@@ -6,10 +6,12 @@
 #include "../buffer/view.h"
 #include <rdapi/types.h>
 
+class Disassembler;
+
 class StringFinder
 {
     public:
-        StringFinder(const RDSegment& segment);
+        StringFinder(Disassembler* disassembler, const RDSegment& segment);
         void find();
 
     public:
@@ -23,6 +25,7 @@ class StringFinder
         bool step(BufferView* view);
 
     private:
+        Disassembler* m_disassembler;
         std::unique_ptr<BufferView> m_view;
         RDSegment m_segment;
 };

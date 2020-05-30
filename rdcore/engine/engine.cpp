@@ -145,7 +145,7 @@ void Engine::cfgStep()
     //for(size_t i = 0; i < r_doc->segmentsCount(); i++)
         //r_doc->segmentCoverageAt(i, REDasm::npos);
 
-    for(size_t i = 0; i < rd_doc->functionsCount(); i++)
+    for(size_t i = 0; i < m_disassembler->document()->functionsCount(); i++)
         this->generateCfg(i);
 
     this->execute();
@@ -194,14 +194,14 @@ void Engine::generateCfg(size_t funcindex)
 
 void Engine::searchStringsAt(size_t index) const
 {
-    if(index >= rd_doc->segmentsCount()) return;
+    if(index >= m_disassembler->document()->segmentsCount()) return;
 
     RDSegment segment;
-    rd_doc->segmentAt(index, &segment);
+    m_disassembler->document()->segmentAt(index, &segment);
 
     if(HAS_FLAG(&segment, SegmentFlags_Bss)) return;
 
-    StringFinder sf(segment);
+    StringFinder sf(m_disassembler, segment);
     sf.find();
 }
 

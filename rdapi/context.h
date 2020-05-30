@@ -49,8 +49,6 @@ RD_API_EXPORT void RD_SetContextFlags(flag_t flags);
 RD_API_EXPORT flag_t RD_GetContextFlags(void);
 RD_API_EXPORT const char* RD_RuntimePath(void);
 RD_API_EXPORT const char* RD_TempPath(void);
-RD_API_EXPORT RDDisassembler* RD_GetDisassembler(void);
-RD_API_EXPORT RDDocument* RD_GetDocument(void);
 
 #ifdef __cplusplus
   #include <string>

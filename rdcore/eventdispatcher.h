@@ -42,7 +42,7 @@ void EventDispatcher::enqueue(event_id_t id, void* sender, Args... args)
 {
     event_lock lock(m_mutex);
     EventArgs* e = new EventArgs();
-    *e = { id, sender, args... };
+    *e = { id, sender, nullptr, { nullptr }, args... };
     m_events.push(std::unique_ptr<RDEventArgs>(reinterpret_cast<RDEventArgs*>(e)));
 
     // Manual unlocking is done before notifying, to avoid waking up

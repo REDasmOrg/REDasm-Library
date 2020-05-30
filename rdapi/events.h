@@ -6,7 +6,9 @@
 
 #define RD_EVENTARGS_BASE \
     event_id_t eventid; \
-    void* sender;
+    void* sender; \
+    void* owner; \
+    RD_USERDATA_FIELD;
 
 typedef u32 event_id_t;
 
@@ -55,8 +57,7 @@ typedef struct RDCursorEventArgs {
     const RDCursorPos* selection;
 } RDCursorEventArgs;
 
-typedef void(*RD_EventCallback)(const RDEventArgs* e, void* userdata);
-typedef void(*Callback_Event)(const RDEventArgs* e, void* userdata);
+typedef void(*Callback_Event)(const RDEventArgs* e);
 
 RD_API_EXPORT void RDEvent_Subscribe(void* owner, Callback_Event eventcb, void* userdata);
 RD_API_EXPORT void RDEvent_Unsubscribe(void* owner);

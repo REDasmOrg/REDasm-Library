@@ -41,10 +41,11 @@ typedef u16 flag_t;
 
 #define RD_USERDATA_FIELD \
     union { \
+        void* p_data; \
+        void* userdata; \
         intptr_t i_data; \
         uintptr_t u_data; \
         const char* s_data; \
-        void* p_data; \
     };
 
 typedef struct RDLocation {

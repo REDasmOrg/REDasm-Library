@@ -40,13 +40,17 @@ void EventDispatcher::loop()
         if(m_events.empty() || !m_initialized.load()) continue;
 
         // After wait, we own the lock
-        const auto e = std::move(m_events.front());
+        auto e = std::move(m_events.front());
         m_events.pop();
 
         lock.unlock(); // Unlock now that we're done messing with the queue
 
         for(const auto& [owner, item] : m_listeners)
-            item.listener(e.get(), item.userdata);
+        {
+            e->owner = owner;
+            e->userdata = item.userdata;
+            item.listener(e.get());
+        }
 
         lock.lock();
     }

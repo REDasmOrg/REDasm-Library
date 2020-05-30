@@ -52,17 +52,22 @@ void SymbolTable::create(address_t address, const std::string& name, type_t type
 
 bool SymbolTable::rename(address_t address, const std::string& newname)
 {
-    auto it = m_byaddress.find(address);
-    if(it == m_byaddress.end()) return false;
+    if(newname.empty()) return false;
+
+    auto ait = m_byaddress.find(address);
+    if(ait == m_byaddress.end()) return false;
+
+    auto nit = m_byname.find(newname);
+
+    if(nit != m_byname.end())
+    {
+        if(nit->second == address) return true; // Name is unchanged
+        return false; // This name belongs to another symbol
+    }
 
     m_byname[newname] = address;
     m_stringtable[address] = newname;
     return true;
-}
-
-std::string SymbolTable::normalized(const char* s)
-{
-    return s;
 }
 
 std::string SymbolTable::name(address_t address, type_t type, flag_t flags)

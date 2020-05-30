@@ -1,7 +1,6 @@
 #include "document.h"
 #include <algorithm>
 #include <cstring>
-#include <cassert>
 #include "backend/segmentcontainer.h"
 #include "backend/functioncontainer.h"
 #include "backend/instructioncache.h"
@@ -377,7 +376,7 @@ bool Document::canSymbolizeAddress(address_t address, flag_t flags) const
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDBlock block;
-    assert(m_blocks->find(address, &block));
+    if(!m_blocks->find(address, &block)) return false;
 
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;

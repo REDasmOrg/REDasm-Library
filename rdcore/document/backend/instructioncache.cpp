@@ -4,7 +4,6 @@
 #include "../../support/utils.h"
 #include "../../context.h"
 #include <filesystem>
-#include <cassert>
 
 #define CACHE_FILE_NAME(x) ("redasm_cache_" + Utils::number(x) + ".tmp")
 
@@ -26,11 +25,11 @@ bool InstructionCache::lock(address_t address, RDInstruction** instruction) cons
     if(!instruction || (m_cache.find(address) == m_cache.end()))
         return false;
 
-    RDInstruction ci{ };
     auto it = m_loaded.find(address);
 
     if(it == m_loaded.end())
     {
+        RDInstruction ci{ };
         auto t = m_lmdb.transaction();
 
         try {
@@ -57,7 +56,7 @@ bool InstructionCache::unlock(const RDInstruction* instruction) const
     if(!instruction) return false;
 
     auto it = m_loaded.find(instruction->address);
-    assert(it != m_loaded.end());
+    if(it == m_loaded.end()) return false;
 
     size_t refcount = --it->second.refcount;
     if(refcount) return true;

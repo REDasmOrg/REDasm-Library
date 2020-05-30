@@ -59,7 +59,8 @@ std::string Demangler::demangleMSVC(const std::string& s, bool simplified)
     if(!__unDName(v.data(), s.c_str(), static_cast<int>(v.size()), std::malloc, std::free, flags))
         return s;
 
-    return v.data();}
+    return v.data();
+}
 
 std::string Demangler::demangleItanium(const std::string& s)
 {

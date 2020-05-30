@@ -1,4 +1,5 @@
 #include "disassembler.h"
+#include "support/error.h"
 #include "support/sugar.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
@@ -6,7 +7,6 @@
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
 #include <climits>
-#include <cassert>
 
 Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler): m_passembler(passembler)
 {
@@ -233,10 +233,14 @@ BufferView* Disassembler::getFunctionBytes(address_t& address) const
         if(!fbb) return nullptr;
 
         if(IS_TYPE(&startitem, DocumentItemType_None) || (startitem.address > fbb->startaddress))
-            assert(fbb->getStartItem(&startitem));
+        {
+            if(!fbb->getStartItem(&startitem)) REDasmError("Cannot find start item");
+        }
 
         if(IS_TYPE(&enditem, DocumentItemType_None) || (enditem.address < fbb->endaddress))
-            assert(fbb->getEndItem(&enditem));
+        {
+            if(!fbb->getEndItem(&enditem)) REDasmError("Cannot find end item");
+        }
     }
 
     if(IS_TYPE(&startitem, DocumentItemType_None) || IS_TYPE(&enditem, DocumentItemType_None)) return nullptr;

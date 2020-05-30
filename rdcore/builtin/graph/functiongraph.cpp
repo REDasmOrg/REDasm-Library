@@ -1,10 +1,10 @@
 #include "functiongraph.h"
 #include "../../document/backend/blockcontainer.h"
+#include "../../support/error.h"
 #include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
 #include <unordered_set>
-#include <cassert>
 #include <stack>
 
 FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, address_t address): node(n), startaddress(address), endaddress(address), m_document(document) { }
@@ -76,8 +76,8 @@ size_t FunctionGraph::bytesCount() const
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
         RDBlock startb, endb;
-        assert(m_document->block(fbb.startaddress, &startb));
-        assert(m_document->block(fbb.endaddress, &endb));
+        if(!m_document->block(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
+        if(!m_document->block(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
 
         for(size_t i = blocks->indexOf(&startb); i <= blocks->indexOf(&endb); i++)
         {
@@ -139,10 +139,10 @@ FunctionBasicBlock* FunctionGraph::requestBasicBlock(address_t startaddress)
         splitfbb.endaddress = fbb->endaddress;
 
         RDBlock block;
-        assert(blockcontainer->find(startaddress, &block));
+        if(!blockcontainer->find(startaddress, &block)) REDasmError("Cannot find block", startaddress);
 
         size_t idx = blockcontainer->indexOf(&block);
-        assert(idx && (idx != RD_NPOS));
+        if(idx == RD_NPOS) REDasmError("Invalid index for block", block.address);
 
         block = blockcontainer->at(--idx);
         fbb->endaddress = block.start;
@@ -174,7 +174,7 @@ void FunctionGraph::buildBasicBlocks()
         doneblocks.insert(block);
 
         size_t idx = blockcontainer->indexOf(&block);
-        assert(idx != RD_NPOS);
+        if(idx == RD_NPOS) REDasmError("Invalid index for block", block.address);
 
         FunctionBasicBlock* fbb = this->requestBasicBlock(block.start);
         address_t endaddress = block.start;

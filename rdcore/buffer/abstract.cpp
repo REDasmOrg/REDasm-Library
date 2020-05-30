@@ -1,10 +1,10 @@
 #include "abstract.h"
+#include "../support/error.h"
 #include <algorithm>
-#include <cassert>
 
 u8 AbstractBuffer::at(size_t offset) const
 {
-    assert(this->data() && (offset < this->size()));
+    if(!this->data() || (offset >= this->size())) REDasmError("Offset out of range");
     return this->data()[offset];
 }
 

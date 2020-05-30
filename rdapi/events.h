@@ -15,6 +15,7 @@ enum RDEvents {
 
     // General Events
     Event_BusyChanged,
+    Event_Error,
 
     // Document Events
     Event_DocumentChanged,
@@ -33,6 +34,11 @@ struct RDCursorPos;
 typedef struct RDEventArgs {
     RD_EVENTARGS_BASE
 } RDEventArgs;
+
+typedef struct RDErrorEventArgs {
+    RD_EVENTARGS_BASE
+    const char* message;
+} RDErrorEventArgs;
 
 typedef struct RDDocumentEventArgs {
     RD_EVENTARGS_BASE

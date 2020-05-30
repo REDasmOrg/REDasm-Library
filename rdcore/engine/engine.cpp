@@ -164,14 +164,11 @@ void Engine::generateCfg(size_t funcindex)
     auto g = std::make_unique<FunctionGraph>(m_disassembler);
     bool cfgdone = false;
 
-    { // Build CFG
-        auto lock = s_lock_safe_ptr(m_disassembler->document());
-        cfgdone = g->build(loc.address);
-    }
+    // Build CFG
+    cfgdone = g->build(loc.address);
 
     if(cfgdone) // Apply CFG
     {
-        auto lock = x_lock_safe_ptr(m_disassembler->document());
         //lock->segmentCoverage(address, g->bytesCount());
 
         const RDGraphNode* nodes = nullptr;
@@ -186,10 +183,10 @@ void Engine::generateCfg(size_t funcindex)
             RDDocumentItem item;
             if(!fbb->getEndItem(&item)) continue;
 
-            lock->separator(item.address);
+            m_disassembler->document()->separator(item.address);
         }
 
-        lock->graph(g.release());
+        m_disassembler->document()->graph(g.release());
     }
     else
         rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));

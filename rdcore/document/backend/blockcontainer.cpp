@@ -1,5 +1,6 @@
 #include "blockcontainer.h"
-#include <cassert>
+#include "../../support/error.h"
+#include "../../support/utils.h"
 
 void BlockContainer::unexplored(const RDBlock* blockitem) { this->unexplored(blockitem->start, blockitem->end); }
 
@@ -49,7 +50,13 @@ size_t BlockContainer::size(const RDBlock* b)
 
 bool BlockContainer::contains(const RDBlock* b, address_t address) { return (address >= b->start) && (address <= b->end); }
 bool BlockContainer::empty(const RDBlock* b) { return (b->start > b->end)|| (b->start == RD_NPOS) || (b->end == RD_NPOS); }
-void BlockContainer::mark(address_t start, address_t end, type_t type) { assert(end >= start); this->insert(start, end, type); }
+
+void BlockContainer::mark(address_t start, address_t end, type_t type)
+{
+    if(end < start) REDasmError("Trying to insert an empty block [" + Utils::hex(start) + ", " + Utils::hex(end) + "]");
+    this->insert(start, end, type);
+}
+
 void BlockContainer::markSize(address_t start, size_t size, type_t type) { this->mark(start, start + size - 1, type); }
 
 void BlockContainer::remove(address_t start, address_t end)
@@ -79,7 +86,7 @@ void BlockContainer::remove(address_t start, address_t end)
     if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = this->eraseRange(begit, endit + 1);
     else if(begit != m_blocks.end()) it = this->eraseBlock(begit);
     else if(endit != m_blocks.end()) it = this->eraseBlock(endit);
-    else assert(false);
+    else REDasmError("BlockContainer: remove failed");
 
     if(!BlockContainer::empty(&begbl))
     {

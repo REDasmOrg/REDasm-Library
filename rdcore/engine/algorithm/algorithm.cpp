@@ -1,11 +1,11 @@
 #include "algorithm.h"
 #include "../../document/document.h"
+#include "../../support/error.h"
 #include "../../support/utils.h"
 #include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
 #include <rdapi/disassembler.h>
-#include <cassert>
 
 Algorithm::Algorithm(Disassembler* disassembler): StateMachine(disassembler) { }
 
@@ -30,7 +30,7 @@ void Algorithm::handleOperand(const RDInstruction* instruction, const RDOperand*
             this->memoryState(instruction, operand->displacement);
             break;
 
-        default: assert(false);
+        default: break;
     }
 }
 
@@ -64,14 +64,16 @@ bool Algorithm::canBeDisassembled(address_t address) const
         return false;
 
     RDBlock b;
-    assert(m_document->block(address, &b));
+    if(!m_document->block(address, &b)) return false;
 
     if(IS_TYPE(&b, BlockType_Code)) return false;
 
     if(IS_TYPE(&b, BlockType_Data))
     {
         RDSymbol symbol;
-        assert(m_document->symbol(b.start, &symbol));
+
+        if(!m_document->symbol(b.start, &symbol))
+            REDasmError("Invalid symbol", b.start);
 
         switch(symbol.type)
         {

@@ -47,6 +47,7 @@ class SortedContainer: public AbstractContainer<T>
         size_t size() const override { return m_container.size(); }
         size_t capacity() { return m_container.capacity(); }
         bool empty() const override { return m_container.empty(); }
+        void reserve(size_t n) { m_container.reserve(n); }
         void remove(const T& t) override;
         void removeAt(size_t idx) override;
 
@@ -85,7 +86,7 @@ size_t SortedContainer<T, Sorter, Comparator, unique>::data(const T** t) const
 template<typename T, typename Sorter, typename Comparator, bool unique>
 size_t SortedContainer<T, Sorter, Comparator, unique>::insert(const T& t)
 {
-    if(unique) {
+    if constexpr(unique) {
         size_t idx = this->indexOf(t);
         if(idx != RD_NPOS) return idx;
     }

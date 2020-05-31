@@ -166,6 +166,7 @@ RD_API_EXTERN_C size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXTERN_C size_t RDSegment_Size(const RDSegment* s);
 RD_API_EXTERN_C address_t RDInstruction_NextAddress(const RDInstruction* instruction);
 RD_API_EXTERN_C RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type);
+RD_API_EXTERN_C void RDInstruction_ClearOperands(RDInstruction* instruction);
 RD_API_EXTERN_C void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx);
 RD_API_EXTERN_C void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic);
 RD_API_EXTERN_C bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic);

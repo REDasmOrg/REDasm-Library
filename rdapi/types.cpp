@@ -47,3 +47,9 @@ void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx)
     for(size_t i = 0; i < instruction->operandscount; i++)
         instruction->operands[i].pos = i;
 }
+
+void RDInstruction_ClearOperands(RDInstruction* instruction)
+{
+    std::fill_n(std::begin(instruction->operands), instruction->operandscount, RDOperand{ });
+    instruction->operandscount = 0;
+}

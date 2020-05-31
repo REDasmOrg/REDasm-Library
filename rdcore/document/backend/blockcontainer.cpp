@@ -106,5 +106,5 @@ void BlockContainer::insert(address_t start, address_t end, type_t type)
 {
     this->remove(start, end);
     auto it = this->insertionPoint(m_blocks.begin(), m_blocks.end(), start);
-    this->insertBlock(it, { start, end, type });
+    this->insertBlock(it, { {start}, end, type });
 }

@@ -166,7 +166,12 @@ void Algorithm::jumpState(const RDInstruction* instruction, address_t value)
 
 void Algorithm::callState(const RDInstruction* instruction, address_t value)
 {
-    m_document->function(value, std::string());
+    RDSegment segment;
+    if(!m_document->segment(value, &segment)) return;
+
+    if(!HAS_FLAG(&segment, SegmentFlags_Code)) m_document->label(value);
+    else m_document->function(value, std::string());
+
     m_disassembler->pushTarget(value, instruction->address);
 }
 

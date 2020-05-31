@@ -147,7 +147,7 @@ void Document::autoComment(address_t address, const std::string& s)
     if(s.empty()) return;
 
     auto it = m_itemdata[address].autocomments.insert(s);
-    if(it.second) return;
+    if(!it.second) return;
 
     size_t idx = m_items->instructionIndex(address);
     if(idx == RD_NPOS) return;

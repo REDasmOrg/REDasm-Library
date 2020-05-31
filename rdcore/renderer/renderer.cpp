@@ -529,14 +529,8 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* , RDRenderItemParams* rip)
     {
         Renderer::renderSymbolPrologue(rip);
 
-        if(IS_TYPE(&symbol, SymbolType_Label))
-        {
-            ri->push(d->document()->name(rip->documentitem->address), "label_fg");
-            ri->push(" <").push("dynamic branch", "label_fg").push(">");
-        }
-        else
-            ri->push("???", "data_fg");
-
+        if(IS_TYPE(&symbol, SymbolType_Label)) ri->push(" <").push("dynamic branch", "label_fg").push(">");
+        else ri->push("???", "data_fg");
         return true;
     }
 

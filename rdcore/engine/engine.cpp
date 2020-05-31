@@ -11,6 +11,8 @@
 #include <future>
 #include <vector>
 
+#include <iostream>
+
 Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm())
 {
     GibberishDetector::initialize();
@@ -84,7 +86,7 @@ void Engine::stringsStep()
     for(size_t segidx = 0; segidx < m_disassembler->document()->segmentsCount(); )
     {
         for(int i = 0; i < maxworkers; i++, segidx++)
-            f[i] = std::async(std::bind(&Engine::searchStringsAt, this, segidx));
+            f[i] = std::async(std::bind(&Engine::findStringsAt, this, segidx));
 
         std::for_each(f.begin(), f.end(), [](auto& f) { f.get(); });
     }
@@ -122,13 +124,30 @@ void Engine::analyzeStep()
 
 void Engine::unexploredStep()
 {
-    if(rd_ctx->flags() & ContextFlag_DisableUnexplored)
+    if(m_unexploreddone || (rd_ctx->flags() & ContextFlag_DisableUnexplored))
     {
         this->execute();
         return;
     }
 
-    this->execute();
+    m_unexploreddone = true; // Run this step once
+
+    RDSegment segment;
+    const BlockContainer* bc = m_disassembler->document()->blocks();
+
+    for(size_t i = 0; i < bc->size(); i++)
+    {
+        const RDBlock& block = bc->at(i);
+        rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->bits()));
+
+        if(!IS_TYPE(&block, BlockType_Unexplored)) continue;
+        if(!m_disassembler->document()->segment(block.address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
+
+        m_algorithm->enqueue(block.address);
+    }
+
+    if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
+    else this->execute();
 }
 
 void Engine::cfgStep()
@@ -192,7 +211,7 @@ void Engine::generateCfg(size_t funcindex)
         rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));
 }
 
-void Engine::searchStringsAt(size_t index) const
+void Engine::findStringsAt(size_t index) const
 {
     if(index >= m_disassembler->document()->segmentsCount()) return;
 

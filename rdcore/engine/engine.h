@@ -36,12 +36,12 @@ class Engine
         void signatureStep();
 
     private:
+        void findStringsAt(size_t index) const;
         void generateCfg(size_t funcindex);
-        void searchStringsAt(size_t index) const;
         void notify(bool busy);
 
     private:
-        bool m_busy{false};
+        bool m_busy{false}, m_unexploreddone{false};
         std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
         std::unique_ptr<Analyzer> m_analyzer;
         //SignatureScanner m_sigscanner;

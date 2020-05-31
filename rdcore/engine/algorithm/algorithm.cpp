@@ -46,34 +46,34 @@ void Algorithm::enqueueAddress(const RDInstruction* instruction, address_t addre
     this->schedule(address);
 }
 
-size_t Algorithm::decode(address_t address, RDInstruction* instruction)
+size_t Algorithm::decode(address_t address, RDInstruction* instruction, RDBlock* block)
 {
-    if(!this->canBeDisassembled(address)) return Algorithm::SKIP;
-    instruction->address = address;
+    if(!this->canBeDisassembled(address, block)) return Algorithm::SKIP;
 
-    std::unique_ptr<BufferView> view(m_disassembler->loader()->view(address));
+    instruction->address = address;
+    block->address = address; // Adjust to address for size calculation
+
+    std::unique_ptr<BufferView> view(m_disassembler->loader()->view(address, BlockContainer::size(block)));
     if(!view || view->empty()) return Algorithm::SKIP;
     return m_disassembler->decode(view.get(), instruction) ? Algorithm::OK : Algorithm::FAIL;
 }
 
-bool Algorithm::canBeDisassembled(address_t address) const
+bool Algorithm::canBeDisassembled(address_t address, RDBlock* block) const
 {
     if(m_document->isInstructionCached(address)) return false;
 
     if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code))
         return false;
 
-    RDBlock b;
-    if(!m_document->block(address, &b)) return false;
+    if(!m_document->block(address, block)) return false;
+    if(IS_TYPE(block, BlockType_Code)) return false;
 
-    if(IS_TYPE(&b, BlockType_Code)) return false;
-
-    if(IS_TYPE(&b, BlockType_Data))
+    if(IS_TYPE(block, BlockType_Data))
     {
         RDSymbol symbol;
 
-        if(!m_document->symbol(b.start, &symbol))
-            REDasmError("Invalid symbol", b.start);
+        if(!m_document->symbol(block->address, &symbol))
+            REDasmError("Invalid symbol", block->address);
 
         switch(symbol.type)
         {
@@ -92,8 +92,12 @@ void Algorithm::decodeAddress(address_t address)
 {
     rd_ctx->status("Decoding @ " + Utils::hex(address));
 
+    RDBlock block;
     RDInstruction instruction{ };
-    size_t result = this->decode(address, &instruction);
+    size_t result = this->decode(address, &instruction, &block);
+
+    if(instruction.size > BlockContainer::size(&block)) // Check block/instruction boundaries
+        return;
 
     switch(result)
     {
@@ -110,7 +114,6 @@ void Algorithm::decodeAddress(address_t address)
 
         default: break;
     }
-
 }
 
 void Algorithm::decodeFailed(RDInstruction* instruction)

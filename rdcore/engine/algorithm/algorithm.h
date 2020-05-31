@@ -19,8 +19,8 @@ class Algorithm: public StateMachine
         void decodeAddress(address_t address) override;
 
     private:
-        size_t decode(address_t address, RDInstruction* instruction);
-        bool canBeDisassembled(address_t address) const;
+        size_t decode(address_t address, RDInstruction* instruction, RDBlock* block);
+        bool canBeDisassembled(address_t address, RDBlock* block) const;
         void decodeFailed(RDInstruction* instruction);
         void invalidInstruction(RDInstruction* instruction) const;
 

@@ -76,6 +76,7 @@ class Context: public Object
         void status(const std::string& s) const;
         void log(const std::string& s) const;
         void getProblems(RD_ProblemCallback callback, void* userdata) const;
+        void getPluginPaths(RD_PluginCallback callback, void* userdata) const;
         void problem(const std::string& s);
         void init();
 

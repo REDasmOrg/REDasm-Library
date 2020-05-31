@@ -21,8 +21,9 @@ struct RDLoader;
 
 typedef void (*RD_LogCallback)(const char* s, void* userdata);
 typedef void (*RD_StatusCallback)(const char* s, void* userdata);
-typedef void (*RD_ProgressCallback)(size_t pending, void* userdata);
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
+typedef void (*RD_PluginCallback)(const char* s, void* userdata);
+typedef void (*RD_ProgressCallback)(size_t pending, void* userdata);
 
 // General
 RD_API_EXPORT RDContext* RD_GetContext(void);
@@ -36,6 +37,7 @@ RD_API_EXPORT void RD_SetProgressCallback(RD_ProgressCallback callback, void* us
 RD_API_EXPORT void RD_AddPluginPath(const char* pluginpath);
 RD_API_EXPORT void RD_AddDatabasePath(const char* dbpath);
 RD_API_EXPORT void RD_GetProblems(RD_ProblemCallback callback, void* userdata);
+RD_API_EXPORT void RD_GetPluginPaths(RD_PluginCallback callback, void* userdata);
 RD_API_EXPORT void RD_StatusAddress(const char* s, address_t address);
 RD_API_EXPORT void RD_Status(const char* s);
 RD_API_EXPORT void RD_Log(const char* s);

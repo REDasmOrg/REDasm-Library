@@ -58,7 +58,7 @@ PluginLoader::LoadResult PluginLoader::loadLibrary(const std::string& pluginpath
         return LoadResult::InvalidEntry;
     }
 
-    pi.path = strdup(pluginpath.c_str());
+    pi.path = pluginpath;
     pi.entry();
     return LoadResult::Ok;
 }

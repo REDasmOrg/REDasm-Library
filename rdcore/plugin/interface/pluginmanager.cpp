@@ -20,14 +20,11 @@ void PluginManager::unload(const PluginInstance* pi)
 {
     library_t handle = pi->handle;
     PluginLoader::unload(pi);
+
     m_plugins.erase(handle);
 }
 
-void PluginManager::unloadAll()
-{
-    while(!m_plugins.empty())
-        this->unload(&m_plugins.begin()->second);
-}
+void PluginManager::unloadAll() { while(!m_plugins.empty()) this->unload(&m_plugins.begin()->second); }
 
 void PluginManager::load(const std::string& pluginpath)
 {

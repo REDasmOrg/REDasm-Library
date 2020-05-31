@@ -5,7 +5,7 @@
 #include "types.h"
 
 #ifdef __cplusplus
-    #define RD_PLUGIN_DECLARE(type, pluginid) static type pluginid = {};
+    #define RD_PLUGIN_DECLARE(type, pluginid) static type pluginid = { };
 #else
     #define RD_PLUGIN_DECLARE(type, pluginid) static type pluginid = {0};
 #endif
@@ -35,8 +35,8 @@ RD_API_EXPORT void redasm_entry(void);
 typedef void (*Callback_ModuleEntry)(void);
 #endif
 
-typedef void (*Callback_PluginInit)(RDPluginHeader*);
-typedef void (*Callback_PluginFree)(RDPluginHeader*);
+typedef void (*Callback_PluginInit)(RDPluginHeader*);   // Plugin Initialization
+typedef void (*Callback_PluginFree)(RDPluginHeader*);   // Plugin Deinitialization
 
 enum PluginState: size_t {
     PluginState_Loaded,

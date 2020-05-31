@@ -145,37 +145,6 @@ void Algorithm::branchMemoryState(const RDInstruction* instruction, address_t va
     this->enqueue(loc.address);
 }
 
-void Algorithm::pointerState(const RDInstruction* instruction, address_t value)
-{
-    RDLocation loc = m_disassembler->dereference(value);
-
-    if(!loc.valid)
-    {
-        this->immediateState(instruction, value);
-        return;
-    }
-
-    m_document->pointer(value, SymbolType_Data, std::string());
-    m_disassembler->markLocation(value, loc.value);
-
-    RDSymbol symbol;
-    if(!m_document->symbol(loc.value, &symbol)) return;
-
-    if(IS_TYPE(&symbol, SymbolType_String))
-    {
-        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) m_document->autoComment(instruction->address, "=> WIDE STRING: " + Utils::quoted(m_disassembler->readWString(loc.value)));
-        else m_document->autoComment(instruction->address, "=> STRING: " + Utils::quoted(m_disassembler->readWString(loc.value)));
-    }
-    else if(HAS_FLAG(&symbol, SymbolType_Import))
-        m_document->autoComment(instruction->address, std::string("=> IMPORT: ") + m_document->name(symbol.address));
-    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
-        m_document->autoComment(instruction->address, std::string("=> EXPORT: ") + m_document->name(symbol.address));
-    else
-        return;
-
-    m_disassembler->pushReference(loc.value, instruction->address);
-}
-
 void Algorithm::invalidInstruction(RDInstruction* instruction) const
 {
     if(!instruction->size) instruction->size = 1; // Invalid instructions uses at least 1 byte
@@ -257,7 +226,7 @@ void Algorithm::memoryState(const RDInstruction* instruction, address_t value)
    m_disassembler->pushReference(value, instruction->address);
 
    if(Sugar::isBranch(instruction)) this->branchMemoryState(instruction, value);
-   else this->pointerState(instruction, value);
+   else m_disassembler->markPointer(instruction->address, value);
 }
 
 void Algorithm::immediateState(const RDInstruction* instruction, address_t value) { m_disassembler->markLocation(instruction->address, value); }

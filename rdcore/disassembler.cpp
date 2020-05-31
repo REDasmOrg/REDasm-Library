@@ -107,6 +107,12 @@ type_t Disassembler::markLocation(address_t fromaddress, address_t address)
 {
     if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
+    if(fromaddress == 0x80074A70)
+    {
+        int zzz = 0;
+        zzz++;
+    }
+
     RDSymbol symbol;
     type_t type = SymbolType_Data;
 
@@ -116,10 +122,47 @@ type_t Disassembler::markLocation(address_t fromaddress, address_t address)
         else this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
         type = symbol.type;
     }
-    else this->document()->data(address, this->addressWidth(), std::string());
+    else
+    {
+        RDLocation loc = this->dereference(address);
+
+        if(loc.valid && this->document()->symbol(loc.address, nullptr))
+            this->markPointer(fromaddress, address); // It points to another symbol
+        else
+            this->document()->data(address, this->addressWidth(), std::string());
+    }
 
     this->pushReference(address, fromaddress);
     return type;
+}
+
+type_t Disassembler::markPointer(address_t fromaddress, address_t address)
+{
+    RDLocation loc = this->dereference(address);
+    if(!loc.valid) return this->markLocation(fromaddress, address);
+
+    this->document()->pointer(address, SymbolType_Data, std::string());
+
+    RDSymbol symbol;
+    if(!this->document()->symbol(loc.address, &symbol)) return SymbolType_None;
+
+    const char* symbolname = this->document()->name(symbol.address);
+    if(!symbolname) return SymbolType_None;
+
+    if(IS_TYPE(&symbol, SymbolType_String))
+    {
+        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
+        else this->document()->autoComment(fromaddress, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
+    }
+    else if(HAS_FLAG(&symbol, SymbolType_Import))
+        this->document()->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
+    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
+        this->document()->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
+    else
+        return SymbolType_None;
+
+    this->pushReference(loc.address, fromaddress);
+    return SymbolType_Data;
 }
 
 size_t Disassembler::markTable(const RDInstruction* instruction, address_t startaddress)
@@ -207,10 +250,7 @@ bool Disassembler::encode(RDEncodedInstruction* encoded) const
 
 bool Disassembler::readAddress(address_t address, size_t size, u64* value) const
 {
-    RDSegment segment;
-    if(!this->document()->segment(address, &segment)) return false;
-
-    std::unique_ptr<BufferView> view(m_loader->view(segment));
+    std::unique_ptr<BufferView> view(m_loader->view(address));
     if(!view) return false;
 
     switch(size)

@@ -26,7 +26,6 @@ class Algorithm: public StateMachine
 
     private: // Private States
         void branchMemoryState(const RDInstruction* instruction, address_t value);
-        void pointerState(const RDInstruction* instruction, address_t value);
 
     private:
         void jumpState(const RDInstruction* instruction, address_t value);

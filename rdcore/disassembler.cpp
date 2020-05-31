@@ -107,12 +107,6 @@ type_t Disassembler::markLocation(address_t fromaddress, address_t address)
 {
     if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
-    if(fromaddress == 0x80074A70)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     RDSymbol symbol;
     type_t type = SymbolType_Data;
 

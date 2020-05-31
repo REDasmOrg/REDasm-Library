@@ -53,7 +53,6 @@ class Renderer: public Object
         static bool renderSymbol(const RDAssemblerPlugin*, RDRenderItemParams* rip);
 
     private:
-        template<typename ...Args> bool renderParams(type_t type, const RDDocumentItem* item, RDRendererItem* ritem, Args... args) const;
         bool renderParams(RDRenderItemParams* rip) const;
         bool renderSeparator(const RDDocumentItem* item, RDRendererItem* ritem) const;
         bool renderUnexplored(const RDDocumentItem* item, RDRendererItem* ritem) const;
@@ -70,12 +69,3 @@ class Renderer: public Object
         const Cursor* m_cursor;
         flag_t m_flags;
 };
-
-template<typename ...Args>
-bool Renderer::renderParams(type_t type, const RDDocumentItem* item, RDRendererItem* ritem, Args... args) const
-{
-    if(type >= m_slots.size()) return false;
-
-    RDRenderItemParams rip = { type, CPTR(const RDRenderer, this), CPTR(RDDisassembler, m_disassembler), item, ritem, args... };
-    return this->renderParams(&rip);
-}

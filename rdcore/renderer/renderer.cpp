@@ -190,7 +190,19 @@ bool Renderer::renderItem(size_t index, RDRendererItem* ritem) const
         default:                          return false;
     }
 
-    bool res = this->renderParams(slottype, &item, ritem, &symbol, instruction, nullptr);
+    RDRenderItemParams rip = { slottype,
+                               CPTR(const RDRenderer, this), CPTR(RDDisassembler, m_disassembler),
+                               &item, ritem, &symbol, instruction, nullptr };
+
+    bool res = this->renderParams(&rip);
+
+    // Post rendering code
+    switch(item.type)
+    {
+        case DocumentItemType_Instruction: Renderer::renderComments(&rip); break;
+        default: break;
+    }
+
     if(instruction) m_disassembler->document()->unlockInstruction(instruction);
     return res;
 }
@@ -216,7 +228,12 @@ const std::string& Renderer::getInstruction(address_t address) const
     if(!m_disassembler->document()->lockInstruction(address, &instruction)) return m_instructionstr;
 
     RendererItem ritem;
-    if(this->renderParams(RendererItemType_Instruction, &item, CPTR(RDRendererItem, &ritem), nullptr, instruction))
+
+    RDRenderItemParams rip = { RendererItemType_Instruction,
+                               CPTR(const RDRenderer, this), CPTR(RDDisassembler, m_disassembler),
+                               &item, CPTR(RDRendererItem, &ritem), nullptr, instruction, nullptr };
+
+    if(this->renderParams(&rip))
         m_instructionstr = ritem.text();
 
     m_disassembler->document()->unlockInstruction(instruction);
@@ -474,7 +491,6 @@ bool Renderer::renderInstruction(const RDAssemblerPlugin*, RDRenderItemParams* r
     else
         ri->push("???", "instruction_invalid");
 
-    Renderer::renderComments(rip);
     return true;
 }
 
@@ -578,6 +594,8 @@ void Renderer::renderAddress(const RDDocumentItem* item, RendererItem* ritem) co
 
 bool Renderer::renderParams(RDRenderItemParams* rip) const
 {
+    if(rip->type >= m_slots.size()) return false;
+
     RDAssemblerPlugin* aplugin = m_disassembler->assembler();
     if(aplugin->render && aplugin->render(aplugin, rip)) return true;
 

@@ -9,14 +9,14 @@ const size_t GibberishDetector::DEFAULT_COUNTS_VALUE = 10;
 GibberishDetectorData::MatrixCounts GibberishDetector::m_counts;
 GibberishDetector::CharIndex GibberishDetector::m_charidx;
 
-bool GibberishDetector::train(const GibberishDetector::WordByLines& wordlines, const std::string& goodfile, const std::string& badfile)
+bool GibberishDetector::train(const std::string& bigfile, const std::string& goodfile, const std::string& badfile)
 {
     GibberishDetector::initializeCounts();
     GibberishDetector::initializeCharIndex();
 
-    std::for_each(wordlines.begin(), wordlines.end(), [](const std::string& line) {
-        for(const auto& n : GibberishDetector::ngram(line))
-            m_counts[m_charidx[n.first]][m_charidx[n.second]] += 1;
+    bool res = GibberishDetector::lines(bigfile, [](const std::string& line) {
+        for(const auto& [a, b] : GibberishDetector::ngram(line))
+            m_counts[m_charidx[a]][m_charidx[b]] += 1;
     });
 
     for(auto& row : m_counts)
@@ -30,7 +30,7 @@ bool GibberishDetector::train(const GibberishDetector::WordByLines& wordlines, c
 
     std::deque<double> goodprobs, badprobs;
 
-    bool res = GibberishDetector::lines(goodfile, [&](const std::string& line) { goodprobs.push_back(GibberishDetector::avgTransitionProb(line, m_counts)); });
+    res = GibberishDetector::lines(goodfile, [&](const std::string& line) { goodprobs.push_back(GibberishDetector::avgTransitionProb(line, m_counts)); });
     if(!res) return false;
 
     res = GibberishDetector::lines(badfile, [&](const std::string& line) { badprobs.push_back(GibberishDetector::avgTransitionProb(line, m_counts)); });
@@ -41,8 +41,8 @@ bool GibberishDetector::train(const GibberishDetector::WordByLines& wordlines, c
     double max = *std::max_element(badprobs.begin(), badprobs.end());
 
     double thresh = (min + max) / 2.0;
-    std::cout << "static const double TRAINED_THRESH = " << thresh << "; " << std::endl;
-    std::cout << "static const double TRAINED_COUNTS[" << m_counts.size() << "][" << m_counts.size()<< "] = {\n";
+    std::cout << "const double TRAINED_THRESHOLD = " << thresh << "; " << std::endl;
+    std::cout << "const double TRAINED_COUNTS = {\n{" << std::endl;
 
     for(const auto& row : m_counts)
     {
@@ -59,7 +59,7 @@ bool GibberishDetector::train(const GibberishDetector::WordByLines& wordlines, c
         std::cout << std::endl;
     }
 
-    std::cout << "};" << std::endl;
+    std::cout << "}\n};" << std::endl;
     return true;
 }
 
@@ -70,7 +70,7 @@ bool GibberishDetector::isGibberish(const std::string& s)
 
 GibberishDetector::NGramList GibberishDetector::ngram(const std::string& s)
 {
-    std::string ns = normalize(s);
+    std::string ns = GibberishDetector::normalize(s);
     NGramList nglist;
 
     for(int i = 0; i < static_cast<int>(ns.size()) - 1; i++)

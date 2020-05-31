@@ -11,9 +11,6 @@
 
 class GibberishDetector
 {
-    public:
-        typedef std::list<std::string> WordByLines;
-
     private:
         static const size_t DEFAULT_COUNTS_VALUE;
 
@@ -24,7 +21,7 @@ class GibberishDetector
 
     public:
         GibberishDetector() = delete;
-        static bool train(const WordByLines& wordlines, const std::string& goodfile, const std::string& badfile);
+        static bool train(const std::string& bigfile, const std::string& goodfile, const std::string& badfile);
         static bool isGibberish(const std::string& text);
         static void initialize();
 

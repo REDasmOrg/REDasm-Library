@@ -97,17 +97,20 @@ void Algorithm::decodeAddress(address_t address)
 
     switch(result)
     {
-        case Algorithm::OK: m_disassembler->emulate(&instruction); break;
+        case Algorithm::OK:
+            m_document->instruction(&instruction);
+            m_disassembler->emulate(&instruction);
+            break;
 
         case Algorithm::FAIL:
             this->invalidInstruction(&instruction);
+            m_document->instruction(&instruction);
             this->decodeFailed(&instruction);
             break;
 
-        default: return;
+        default: break;
     }
 
-    m_document->instruction(&instruction);
 }
 
 void Algorithm::decodeFailed(RDInstruction* instruction)

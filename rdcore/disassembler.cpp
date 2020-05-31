@@ -43,7 +43,7 @@ void Disassembler::disassemble()
 
 void Disassembler::stop() { if(m_engine) m_engine->stop(); }
 
-const char* Disassembler::getHexDump(address_t address, RDSymbol* symbol) const
+const char* Disassembler::getFunctionHexDump(address_t address, RDSymbol* symbol) const
 {
     static std::string hexdump;
 
@@ -51,6 +51,17 @@ const char* Disassembler::getHexDump(address_t address, RDSymbol* symbol) const
     if(!view) return nullptr;
 
     if(symbol && !this->document()->symbol(address, symbol)) return nullptr;
+
+    hexdump = Utils::hexString(view.get());
+    return hexdump.c_str();
+}
+
+const char* Disassembler::getHexDump(address_t address, size_t size) const
+{
+    static std::string hexdump;
+
+    std::unique_ptr<BufferView> view(m_loader->view(address, size));
+    if(!view) return nullptr;
 
     hexdump = Utils::hexString(view.get());
     return hexdump.c_str();

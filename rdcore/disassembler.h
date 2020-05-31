@@ -27,7 +27,8 @@ class Disassembler: public Object
         void stop();
 
     public:
-        const char* getHexDump(address_t address, RDSymbol* symbol) const;
+        const char* getFunctionHexDump(address_t address, RDSymbol* symbol) const;
+        const char* getHexDump(address_t address, size_t size) const;
         const char16_t* readWString(address_t address, size_t* len) const;
         const char* readString(address_t address, size_t* len) const;
         std::string readWString(address_t address, size_t len = RD_NPOS) const; // Internal C++ Helper

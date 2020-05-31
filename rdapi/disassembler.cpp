@@ -26,6 +26,7 @@ void RDDisassembler_HandleOperand(RDDisassembler* d, const RDInstruction* instru
 void RDDisassembler_Enqueue(RDDisassembler* d, address_t address) { CPTR(Disassembler, d)->enqueue(address); }
 void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInstruction* instruction, address_t address) { CPTR(Disassembler, d)->enqueueAddress(instruction, address); }
 void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction) { CPTR(Disassembler, d)->enqueue(Sugar::nextAddress(instruction)); }
+const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, address_t address, RDSymbol* symbol) { return CPTR(const Disassembler, d)->getFunctionHexDump(address, symbol);  }
 
 const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, register_id_t r)
 {
@@ -34,8 +35,9 @@ const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* 
     return s.c_str();
 }
 
-const char* RD_HexDump(const RDDisassembler* d, address_t address, RDSymbol* symbol) { return CPTR(const Disassembler, d)->getHexDump(address, symbol); }
+const char* RD_HexDump(const RDDisassembler* d, address_t address, size_t size) { return CPTR(const Disassembler, d)->getHexDump(address, size); }
 const char* RD_ReadString(const RDDisassembler* d, address_t address, size_t* len) { return CPTR(const Disassembler, d)->readString(address, len); }
 const char16_t* RD_ReadWString(const RDDisassembler* d, address_t address, size_t* len) { return CPTR(const Disassembler, d)->readWString(address, len); }
 void RD_DisassembleAddress(RDDisassembler* d, address_t address) { CPTR(Disassembler, d)->disassembleAddress(address); }
 void RD_Disassemble(RDDisassembler* d) { CPTR(Disassembler, d)->disassemble(); }
+

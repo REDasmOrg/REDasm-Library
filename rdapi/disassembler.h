@@ -23,6 +23,7 @@ RD_API_EXPORT type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t fr
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address);
 RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, register_id_t r);
+RD_API_EXPORT const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, address_t address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction);
 RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);
 RD_API_EXPORT void RDDisassembler_PushReference(RDDisassembler* d, address_t address, address_t refby);
@@ -33,7 +34,7 @@ RD_API_EXPORT void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInst
 RD_API_EXPORT void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction);
 
 // Extra Functions
-RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, address_t address, RDSymbol* symbol);
+RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, address_t address, size_t size);
 RD_API_EXPORT const char* RD_ReadString(const RDDisassembler* d, address_t address, size_t* len);
 RD_API_EXPORT const char16_t* RD_ReadWString(const RDDisassembler* d, address_t address, size_t* len);
 RD_API_EXPORT void RD_DisassembleAddress(RDDisassembler* d, address_t address);

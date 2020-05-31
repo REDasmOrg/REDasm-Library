@@ -7,7 +7,6 @@
 #include <rdcore/document/cursor.h>
 #include <rdcore/context.h>
 #include <algorithm>
-#include <iostream>
 #include <cstring>
 #include <climits>
 #include <cmath>
@@ -15,6 +14,7 @@
 #include <list>
 
 #define INDENT_WIDTH         2
+#define INDENT_COMMENT      10
 #define STRING_THRESHOLD    48
 #define HEADER_SYMBOL_COUNT 10
 #define SEPARATOR_LENGTH    50
@@ -609,12 +609,15 @@ void Renderer::renderComments(RDRenderItemParams* rip)
     const Renderer* r = CPTR(const Renderer, rip->renderer);
     if(r->flags() & RendererFlags_NoComments) return;
 
+    // Recalculate comment column
+    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    r->m_commentcolumn = std::max<size_t>(r->m_commentcolumn, ri->text().size());
+
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     std::string comment = d->document()->comment(rip->documentitem->address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
-    Renderer::renderIndent(rip, 3, true);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    ri->push(std::string((r->m_commentcolumn - ri->text().size()) + INDENT_COMMENT, ' '));
     ri->push("# " + Utils::simplified(comment), "comment_fg");
 }
 

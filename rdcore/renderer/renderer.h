@@ -65,6 +65,7 @@ class Renderer: public Object
     private:
         static std::array<Callback_AssemblerRender, DocumentItemType_Length> m_slots;
         mutable std::string m_lastword, m_selectedtext, m_instructionstr;
+        mutable size_t m_commentcolumn; // Make renderer update comment column dynamically
         Disassembler* m_disassembler;
         const Cursor* m_cursor;
         flag_t m_flags;

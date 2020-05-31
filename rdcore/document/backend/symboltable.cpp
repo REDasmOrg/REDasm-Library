@@ -14,12 +14,10 @@ const char* SymbolTable::getName(address_t address) const
 
 bool SymbolTable::get(address_t address, RDSymbol* symbol) const
 {
-    if(!symbol) return false;
-
     auto it = m_byaddress.find(address);
     if(it == m_byaddress.end()) return false;
 
-    *symbol = it->second;
+    if(symbol) *symbol = it->second;
     return true;
 }
 

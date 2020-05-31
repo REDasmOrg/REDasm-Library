@@ -554,27 +554,38 @@ bool Renderer::renderSymbol(const RDAssemblerPlugin* , RDRenderItemParams* rip)
         case SymbolType_Import:
             if(!prologuedone) Renderer::renderSymbolPrologue(rip);
             ri->push("<").push("import", "import_fg").push(">");
-            break;
+            return true;
 
         case SymbolType_String:
             if(!prologuedone) Renderer::renderSymbolPrologue(rip);
             if(HAS_FLAG(&symbol, SymbolFlags_WideString)) ri->push(Utils::quoted(Utils::simplified(d->readWString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
             else ri->push(Utils::quoted(Utils::simplified(d->readString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
-            break;
+            return true;
 
         case SymbolType_Label:
             Renderer::renderAddressIndent(rip);
             ri->push(d->document()->name(rip->documentitem->address), "label_fg").push(":");
-            break;
+            return true;
 
-        default:
-            u64 value = 0;
-            if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-            d->readAddress(rip->documentitem->address, d->addressWidth(), &value); // TODO: Check block size
-            ri->push(Utils::hex(value, d->bits()), d->document()->segment(value, nullptr) ? "pointer_fg" : "data_fg");
-            break;
+        default: break;
     }
 
+    if(!prologuedone) Renderer::renderSymbolPrologue(rip);
+
+    RDLocation loc = d->dereference(rip->documentitem->address);
+
+    if(loc.valid)
+    {
+        const char* symbolname = d->document()->name(loc.address);
+
+        if(symbolname)
+        {
+            ri->push(symbolname, "label_fg");
+            return true;
+        }
+    }
+
+    ri->push(Utils::hex(loc.address, d->bits()), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
     return true;
 }
 

@@ -121,11 +121,33 @@ flag_t StringFinder::categorize(const BufferView* view, size_t* totalsize) const
 
 bool StringFinder::validateString(const char* s, size_t size) const
 {
-    if(*s == '%') return true;
-
     std::string str(s, size);
-    if(GibberishDetector::isGibberish(str)) return false;
+
+    switch(str.front()) // Some Heuristics
+    {
+        case '\'': if((str.back() != '\''))   return false; break;
+        case '\"': if((str.back() != '\"'))   return false; break;
+        case '<':  if((str.back() != '>'))    return false; break;
+        case '(':  if((str.back() != ')'))    return false; break;
+        case '[':  if((str.back() != ']'))    return false; break;
+        case '{':  if((str.back() != '}'))    return false; break;
+        case '%':  if(!this->checkFormats(s)) return false; break;
+        default:   if(GibberishDetector::isGibberish(str)) return false; break;
+    }
 
     double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));
     return (alphacount / static_cast<double>(str.size())) > 0.50;
+}
+
+bool StringFinder::checkFormats(const std::string& s) const
+{
+    static std::unordered_set<std::string> formats = {
+        "%c", "%d", "%e", "%E", "%f", "%g", "%G",
+        "%hi", "%hu", "%i", "%l", "%ld", "%li",
+        "%lf", "%Lf", "%lu", "%lli, %lld", "%llu",
+        "%o", "%p", "%s", "%u",
+        "%x", "%X", "%n", "%%"
+    };
+
+    return formats.find(s) != formats.end();
 }

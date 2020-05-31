@@ -1,6 +1,6 @@
 #pragma once
 
-#define MIN_STRING 4
+#define MIN_STRING 5
 
 #include <memory>
 #include "../buffer/view.h"
@@ -22,6 +22,7 @@ class StringFinder
     private:
         flag_t categorize(const BufferView* view, size_t* totalsize) const;
         bool validateString(const char* s, size_t size) const;
+        bool checkFormats(const std::string& s) const;
         bool step(BufferView* view);
 
     private:

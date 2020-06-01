@@ -103,7 +103,7 @@ RDLocation Disassembler::dereference(address_t address) const
     return loc;
 }
 
-type_t Disassembler::markLocation(address_t fromaddress, address_t address)
+type_t Disassembler::markLocation(address_t address, address_t fromaddress)
 {
     if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
@@ -121,7 +121,7 @@ type_t Disassembler::markLocation(address_t fromaddress, address_t address)
         RDLocation loc = this->dereference(address);
 
         if(loc.valid && this->document()->symbol(loc.address, nullptr))
-            this->markPointer(fromaddress, address); // It points to another symbol
+            this->markPointer(address, fromaddress); // It points to another symbol
         else
             this->document()->data(address, this->addressWidth(), std::string());
     }
@@ -130,10 +130,10 @@ type_t Disassembler::markLocation(address_t fromaddress, address_t address)
     return type;
 }
 
-type_t Disassembler::markPointer(address_t fromaddress, address_t address)
+type_t Disassembler::markPointer(address_t address, address_t fromaddress)
 {
     RDLocation loc = this->dereference(address);
-    if(!loc.valid) return this->markLocation(fromaddress, address);
+    if(!loc.valid) return this->markLocation(address, fromaddress);
 
     this->document()->pointer(address, SymbolType_Data, std::string());
 
@@ -159,7 +159,7 @@ type_t Disassembler::markPointer(address_t fromaddress, address_t address)
     return SymbolType_Data;
 }
 
-size_t Disassembler::markTable(address_t fromaddress, address_t startaddress, size_t count)
+size_t Disassembler::markTable(address_t startaddress, address_t fromaddress, size_t count)
 {
     rd_ctx->statusAddress("Checking address table", startaddress);
 
@@ -174,7 +174,7 @@ size_t Disassembler::markTable(address_t fromaddress, address_t startaddress, si
         RDLocation loc = this->dereference(address);
         if(!loc.valid) break;
 
-        type_t currsymboltype = this->markLocation(address, loc.address);
+        type_t currsymboltype = this->markLocation(loc.address, address);
         if(currsymboltype == SymbolType_None) break;
 
         this->pushReference(address, fromaddress);

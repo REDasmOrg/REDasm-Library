@@ -15,9 +15,9 @@ size_t RDDisassembler_GetReferencesCount(const RDDisassembler* d, address_t addr
 size_t RDDisassembler_GetTargetsCount(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->getTargetsCount(address); }
 size_t RDDisassembler_GetReferences(const RDDisassembler* d, address_t address, const address_t** references) { return CPTR(const Disassembler, d)->getReferences(address, references); }
 size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets) { return CPTR(const Disassembler, d)->getTargets(address, targets); }
-type_t RDDisassembler_MarkPointer(RDDisassembler* d, address_t fromaddress, address_t address) { return CPTR(Disassembler, d)->markPointer(fromaddress, address); }
-type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t fromaddress, address_t address) { return CPTR(Disassembler, d)->markLocation(fromaddress, address); }
-size_t RDDisassembler_MarkTable(RDDisassembler* d, address_t fromaddress, address_t startaddress, size_t count) { return CPTR(Disassembler, d)->markTable(fromaddress, startaddress, count); }
+type_t RDDisassembler_MarkPointer(RDDisassembler* d, address_t address, address_t fromaddress) { return CPTR(Disassembler, d)->markPointer(address, fromaddress); }
+type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t address, address_t fromaddress) { return CPTR(Disassembler, d)->markLocation(address, fromaddress); }
+size_t RDDisassembler_MarkTable(RDDisassembler* d, address_t startaddress, address_t fromaddress, size_t count) { return CPTR(Disassembler, d)->markTable(startaddress, fromaddress, count); }
 RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->getTarget(address); }
 RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->dereference(address); }
 bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction) { return CPTR(Disassembler, d)->decode(address, instruction); }

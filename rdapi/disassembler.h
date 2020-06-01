@@ -19,9 +19,9 @@ RD_API_EXPORT size_t RDDisassembler_GetReferencesCount(const RDDisassembler* d, 
 RD_API_EXPORT size_t RDDisassembler_GetTargetsCount(const RDDisassembler* d, address_t address);
 RD_API_EXPORT size_t RDDisassembler_GetReferences(const RDDisassembler* d, address_t address, const address_t** references);
 RD_API_EXPORT size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets);
-RD_API_EXPORT type_t RDDisassembler_MarkPointer(RDDisassembler* d, address_t fromaddress, address_t address);
-RD_API_EXPORT type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t fromaddress, address_t address);
-RD_API_EXPORT size_t RDDisassembler_MarkTable(RDDisassembler* d, address_t fromaddress, address_t startaddress, size_t count);
+RD_API_EXPORT type_t RDDisassembler_MarkPointer(RDDisassembler* d, address_t address, address_t fromaddress);
+RD_API_EXPORT type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t address, address_t fromaddress);
+RD_API_EXPORT size_t RDDisassembler_MarkTable(RDDisassembler* d, address_t startaddress, address_t fromaddress, size_t count);
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address);
 RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, register_id_t r);

@@ -61,9 +61,9 @@ class Disassembler: public Object
 
     public: // Symbols
         RDLocation dereference(address_t address) const;
-        type_t markLocation(address_t fromaddress, address_t address);
-        type_t markPointer(address_t fromaddress, address_t address);
-        size_t markTable(address_t fromaddress, address_t startaddress, size_t count);
+        type_t markLocation(address_t address, address_t fromaddress);
+        type_t markPointer(address_t address, address_t fromaddress);
+        size_t markTable(address_t startaddress, address_t fromaddress, size_t count);
 
     public:
         bool readAddress(address_t address, size_t size, u64 *value) const;

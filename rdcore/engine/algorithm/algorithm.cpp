@@ -234,10 +234,10 @@ void Algorithm::memoryState(const RDInstruction* instruction, address_t value)
    m_disassembler->pushReference(value, instruction->address);
 
    if(Sugar::isBranch(instruction)) this->branchMemoryState(instruction, value);
-   else m_disassembler->markPointer(instruction->address, value);
+   else m_disassembler->markPointer(value, instruction->address);
 }
 
-void Algorithm::immediateState(const RDInstruction* instruction, address_t value) { m_disassembler->markLocation(instruction->address, value); }
+void Algorithm::immediateState(const RDInstruction* instruction, address_t value) { m_disassembler->markLocation(value, instruction->address); }
 
 void Algorithm::constantState(const RDInstruction* instruction, address_t value)
 {

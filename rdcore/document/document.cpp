@@ -76,7 +76,7 @@ void Document::table(address_t address, size_t count)
     this->type(address, "Table with " + Utils::number(count) + " case(s)");
 }
 
-void Document::tableItem(address_t address, address_t startaddress, u64 idx)
+void Document::tableItem(address_t address, address_t startaddress, size_t idx)
 {
     this->block(address, rd_disasm->addressWidth(),
                 SymbolTable::name(startaddress, SymbolType_Data, SymbolFlags_TableItem) + "_" + Utils::number(idx),

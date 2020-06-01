@@ -45,7 +45,7 @@ class Document: public Object
         void wideString(address_t address, size_t size);
         void data(address_t address, size_t size, const std::string& name);
         void table(address_t address, size_t count);
-        void tableItem(address_t address, address_t startaddress, u64 idx);
+        void tableItem(address_t address, address_t startaddress, size_t idx);
         void pointer(address_t address, type_t type, const std::string& name);
         void function(address_t address, const std::string& name);
         void branch(address_t address, int direction);

@@ -26,9 +26,15 @@ void Algorithm::handleOperand(const RDInstruction* instruction, const RDOperand*
         case OperandType_Immediate: this->immediateState(instruction, operand->u_value); break;
 
         case OperandType_Displacement:
+        {
+            if(operand->scale > 1) {
+                if(m_disassembler->markTable(operand->displacement, instruction->address, RD_NPOS)) return;
+            }
+
             if(!Sugar::displacementCanBeAddress(operand)) return;
             this->memoryState(instruction, operand->displacement);
             break;
+        }
 
         default: break;
     }
@@ -177,49 +183,6 @@ void Algorithm::callState(const RDInstruction* instruction, address_t value)
 
     m_disassembler->pushTarget(value, instruction->address);
 }
-
-//void Algorithm::addressTableState(const State* state)
-//{
-    // const RDInstruction* instruction = state->instruction;
-    // size_t c = m_disassembler->markTable(instruction, state->address);
-    // if(c == RD_NPOS) return;
-
-    // if(c > 1)
-    // {
-    //     m_disassembler->pushReference(state->address, instruction->address);
-    //     state_t fwdstate = Algorithm::State_Branch;
-
-    //     switch(instruction->type)
-    //     {
-    //         case InstructionType_Call:
-    //             m_document->autoComment(instruction->address, "Call Table with " + Utils::number(c) + " cases(s)");
-    //             break;
-
-    //         case InstructionType_Jump:
-    //             m_document->autoComment(instruction->address, "Jump Table with " + Utils::number(c) + " cases(s)");
-    //             break;
-
-    //         default:
-    //             m_document->autoComment(instruction->address, "Address Table with " + Utils::number(c) + " cases(s)");
-    //             fwdstate = Algorithm::State_Memory;
-    //             break;
-    //     }
-
-    //     const address_t* targets = nullptr;
-    //     size_t c = m_disassembler->getTargets(instruction->address, &targets);
-    //     for(size_t i = 0; i < c; i++) FORWARD_STATE_VALUE(fwdstate, targets[i], state);
-    //     return;
-    // }
-
-    // const RDOperand* op = &instruction->operands[state->opindex];
-
-    // switch(op->type)
-    // {
-    //     case OperandType_Displacement: FORWARD_STATE(Algorithm::State_Pointer, state); break;
-    //     case OperandType_Memory: FORWARD_STATE(Algorithm::State_Memory, state); break;
-    //     default: FORWARD_STATE(Algorithm::State_Immediate, state); break;
-    // }
-//}
 
 void Algorithm::memoryState(const RDInstruction* instruction, address_t value)
 {

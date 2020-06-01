@@ -30,7 +30,6 @@ class Algorithm: public StateMachine
     private:
         void jumpState(const RDInstruction* instruction, address_t value);
         void callState(const RDInstruction* instruction, address_t value);
-        //void addressTableState(const State *state);
         void memoryState(const RDInstruction* instruction, address_t value);
         void immediateState(const RDInstruction* instruction, address_t value);
         void constantState(const RDInstruction* instruction, address_t value);

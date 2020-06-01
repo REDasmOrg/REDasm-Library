@@ -63,7 +63,7 @@ class Disassembler: public Object
         RDLocation dereference(address_t address) const;
         type_t markLocation(address_t fromaddress, address_t address);
         type_t markPointer(address_t fromaddress, address_t address);
-        size_t markTable(const RDInstruction* instruction, address_t startaddress);
+        size_t markTable(address_t fromaddress, address_t startaddress, size_t count);
 
     public:
         bool readAddress(address_t address, size_t size, u64 *value) const;

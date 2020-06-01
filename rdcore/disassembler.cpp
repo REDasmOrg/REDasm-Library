@@ -159,54 +159,47 @@ type_t Disassembler::markPointer(address_t fromaddress, address_t address)
     return SymbolType_Data;
 }
 
-size_t Disassembler::markTable(const RDInstruction* instruction, address_t startaddress)
+size_t Disassembler::markTable(address_t fromaddress, address_t startaddress, size_t count)
 {
+    rd_ctx->statusAddress("Checking address table", startaddress);
+
     RDSymbol symbol;
     if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
 
-    address_t target = 0, address = startaddress;
+    address_t address = startaddress;
+    std::deque<address_t> targets;
 
-    if(!this->readAddress(address, this->addressWidth(), &target))
+    for(size_t i = 0 ; i < count; i++, address += this->addressWidth())
+    {
+        RDLocation loc = this->dereference(address);
+        if(!loc.valid) break;
+
+        type_t currsymboltype = this->markLocation(address, loc.address);
+        if(currsymboltype == SymbolType_None) break;
+
+        this->pushReference(address, fromaddress);
+        targets.push_back(loc.address);
+    }
+
+    if(targets.size() > 1)
+    {
+        size_t i = 0;
+
+        for(address_t target : targets)
+        {
+            this->document()->tableItem(target, startaddress, i++);
+            this->pushReference(target, fromaddress);
+        }
+    }
+    else if(targets.size() == 1)
+    {
+        this->document()->pointer(targets.front(), SymbolType_Data, std::string());
+        this->pushReference(targets.front(), fromaddress);
+    }
+    else
         return 0;
 
-    rd_ctx->statusAddress("Checking address table", startaddress);
-    std::unordered_set<address_t> targets;
-
-    while(this->readAddress(address, this->addressWidth(), &target))
-    {
-        RDSegment segment;
-
-        if(!this->document()->segment(target, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) break;
-        targets.insert(target);
-
-        if(Sugar::isBranch(instruction)) this->pushTarget(target, instruction->address);
-        else this->markLocation(startaddress, target);
-
-        address += this->addressWidth();
-    }
-
-    if(targets.empty())
-    {
-        if(targets.size() > 1)
-        {
-            size_t i = 0;
-            address = startaddress;
-
-            for(auto it = targets.begin(); it != targets.end(); it++, address += this->addressWidth(), i++)
-            {
-                if(address == startaddress) this->document()->table(address, targets.size());
-                else this->document()->tableItem(address, startaddress, i);
-                this->pushReference(address, instruction->address);
-                address += this->addressWidth();
-            }
-        }
-        else
-        {
-            this->pushReference(startaddress, instruction->address);
-            this->document()->pointer(startaddress, SymbolType_Data, std::string());
-        }
-    }
-
+    this->document()->pointer(startaddress, SymbolType_Data, std::string());
     return targets.size();
 }
 

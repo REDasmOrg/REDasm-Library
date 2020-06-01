@@ -17,6 +17,7 @@ size_t RDDisassembler_GetReferences(const RDDisassembler* d, address_t address, 
 size_t RDDisassembler_GetTargets(const RDDisassembler* d, address_t address, const address_t** targets) { return CPTR(const Disassembler, d)->getTargets(address, targets); }
 type_t RDDisassembler_MarkPointer(RDDisassembler* d, address_t fromaddress, address_t address) { return CPTR(Disassembler, d)->markPointer(fromaddress, address); }
 type_t RDDisassembler_MarkLocation(RDDisassembler* d, address_t fromaddress, address_t address) { return CPTR(Disassembler, d)->markLocation(fromaddress, address); }
+size_t RDDisassembler_MarkTable(RDDisassembler* d, address_t fromaddress, address_t startaddress, size_t count) { return CPTR(Disassembler, d)->markTable(fromaddress, startaddress, count); }
 RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->getTarget(address); }
 RDLocation RDDisassembler_Dereference(const RDDisassembler* d, address_t address) { return CPTR(const Disassembler, d)->dereference(address); }
 bool RDDisassembler_Decode(RDDisassembler* d, address_t address, RDInstruction** instruction) { return CPTR(Disassembler, d)->decode(address, instruction); }

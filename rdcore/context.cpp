@@ -192,7 +192,7 @@ const char* Context::tempPath() const { return m_tmppath.c_str(); }
 void Context::status(const std::string& s) const { this->status(static_cast<const char*>(s.c_str())); }
 void Context::log(const std::string& s) const { this->log(s.c_str()); }
 void Context::getProblems(RD_ProblemCallback callback, void* userdata) const { for(const std::string& problem : m_problems) callback(problem.c_str(), userdata); }
-void Context::getPluginPaths(RD_PluginCallback callback, void* userdata) const { for(const std::string& problem : m_problems) callback(problem.c_str(), userdata); }
+void Context::getPluginPaths(RD_PluginCallback callback, void* userdata) const { for(const std::string& pluginpath : m_pluginpaths) callback(pluginpath.c_str(), userdata); }
 
 void Context::problem(const std::string& s)
 {

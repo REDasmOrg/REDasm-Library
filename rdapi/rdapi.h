@@ -14,3 +14,5 @@
 #include "plugin/assembler.h"
 #include "plugin/command.h"
 #include "document/cursor.h"
+#include "graph/functiongraph.h"
+#include "graph/graph.h"

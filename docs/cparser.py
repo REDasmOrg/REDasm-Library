@@ -18,12 +18,15 @@ class CParser:
             f = {"ret": m[1], "def": m[2],
                  "name": m[3], "args": []}
 
-            args = [arg.strip() for arg in m[4].split(",")]
+            if m[4] != "void":
+                args = [arg.strip() for arg in m[4].split(",")]
 
-            for a in args:
-                parts = a.split(" ")
-                arg = {"name": parts[-1], "type": " ".join(parts[:-1])}
-                f["args"].append(arg)
+                for a in args:
+                    parts = a.split(" ")
+                    arg = {"name": parts[-1], "type": " ".join(parts[:-1])}
+                    f["args"].append(arg)
+            else:
+                f["def"] = f["def"].replace("(void)", "()")
 
             self._functions.append(f)
 

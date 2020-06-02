@@ -24,6 +24,10 @@ def generate_json(outputdir):
         doc = {}
         doc["functions"] = [f for f in p.functions]
 
+        rpath = str(file)
+        i = rpath.index("rdapi/")
+        doc["path"] = rpath[i:]
+
         docjson["categories"][name] = doc
 
     pathout = Path(outputdir)

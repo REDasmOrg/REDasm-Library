@@ -15,7 +15,7 @@ class CParser:
 
     def __find_functions(self):
         for m in re.finditer(RDAPI_REGEX, self._content):
-            f = {"def": m[1], "ret": m[2],
+            f = {"ret": m[1], "def": m[2],
                  "name": m[3], "args": []}
 
             args = [arg.strip() for arg in m[4].split(",")]

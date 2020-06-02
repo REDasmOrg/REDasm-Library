@@ -4,6 +4,23 @@ project(LibREDasm)
 include(GNUInstallDirs)
 include(cmake/functions.cmake)
 
+option(RDAPI_DOC "Build API Documentation" ON)
+
+if(RDAPI_DOC)
+    find_package(Python)
+
+    if(Python_FOUND)
+        set(RDAPI_DOC_GEN ${CMAKE_CURRENT_SOURCE_DIR}/docs/gendoc.py)
+        set(RDAPI_DOC_IN  ${CMAKE_CURRENT_SOURCE_DIR}/rdapi)
+        set(RDAPI_DOC_OUT ${CMAKE_CURRENT_BINARY_DIR}/docs)
+        message("Generating documentation")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${RDAPI_DOC_OUT})
+        execute_process(COMMAND ${Python_EXECUTABLE} ${RDAPI_DOC_GEN} ${RDAPI_DOC_IN} ${RDAPI_DOC_OUT})
+    else(Python_FOUND)
+        message("Python not found, cannot generate documentation")
+    endif(Python_FOUND)
+endif(RDAPI_DOC)
+
 if(UNIX AND NOT APPLE)
    find_program(CCACHE_PROGRAM ccache)
    if(CCACHE_PROGRAM AND (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles"))

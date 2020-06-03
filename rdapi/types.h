@@ -64,7 +64,7 @@ enum RDSegmentFlags {
     SegmentFlags_Data = (1 << 1),
     SegmentFlags_Bss  = (1 << 2),
 
-    SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data
+    SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data,
 };
 
 #pragma pack(push, 1)
@@ -135,7 +135,7 @@ enum RDInstructionType {
     InstructionType_Pop,
     InstructionType_Compare,
     InstructionType_Load,
-    InstructionType_Store
+    InstructionType_Store,
 };
 
 enum RDInstructionFlags {

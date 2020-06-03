@@ -20,13 +20,13 @@ enum RDDocumentItemType {
     DocumentItemType_Separator,
 
     DocumentItemType_Length,
-    DocumentItemType_All
+    DocumentItemType_All,
 };
 
 enum RDDocumentAction {
     DocumentAction_ItemChanged,
     DocumentAction_ItemInserted,
-    DocumentAction_ItemRemoved
+    DocumentAction_ItemRemoved,
 };
 
 typedef struct RDDocumentItem {

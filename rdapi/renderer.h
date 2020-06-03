@@ -33,7 +33,7 @@ enum RDRendererFlags {
     RendererFlags_NoComments       = (1 << 6),
 
     RendererFlags_NoSegmentAndAddress = RendererFlags_NoSegment | RendererFlags_NoAddress,
-    RendererFlags_Simplified          = ~0
+    RendererFlags_Simplified          = ~0,
 };
 
 typedef struct RDRenderItemParams {

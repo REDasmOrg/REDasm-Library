@@ -11,7 +11,7 @@ enum RDLoaderFlags {
     LoaderFlags_CustomAddressing   = (1 << 1),
     LoaderFlags_SkipUnexploredCode = (1 << 2),
 
-    LoaderFlags_Binary             = -1
+    LoaderFlags_Binary             = -1,
 };
 
 typedef struct RDLoaderRequest {

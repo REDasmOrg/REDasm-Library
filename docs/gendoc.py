@@ -22,7 +22,9 @@ def generate_json(outputdir):
         p = CParser(file)
 
         doc = {}
-        doc["functions"] = [f for f in p.functions]
+        doc["handles"] = p.handles
+        doc["enums"] = p.enums
+        doc["functions"] = p.functions
 
         rpath = str(file)
         i = rpath.index("rdapi/")

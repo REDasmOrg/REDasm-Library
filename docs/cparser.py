@@ -31,8 +31,16 @@ class CParser:
             obj = {"name": m[1],
                    "states": []}
 
-            for s in re.finditer(rgxstate, m[2]):
-                obj["states"].append(s[1])
+            statelines = m[2].strip().splitlines(False)
+
+            for s in statelines:
+                if s.strip().startswith("//"):
+                    continue
+
+                m = re.search(r"\w+", s)
+
+                if m:
+                    obj["states"].append(m[0])
 
             self._enums.append(obj)
 

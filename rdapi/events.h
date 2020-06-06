@@ -57,7 +57,7 @@ typedef struct RDCursorEventArgs {
     const RDCursorPos* selection;
 } RDCursorEventArgs;
 
-typedef void(*Callback_Event)(const RDEventArgs* e);
+typedef void (*Callback_Event)(const RDEventArgs* e);
 
 RD_API_EXPORT void RDEvent_Subscribe(void* owner, Callback_Event eventcb, void* userdata);
 RD_API_EXPORT void RDEvent_Unsubscribe(void* owner);

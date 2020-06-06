@@ -41,8 +41,8 @@ typedef u16 flag_t;
 
 #define RD_USERDATA_FIELD \
     union { \
-        void* p_data; \
         void* userdata; \
+        void* p_data; \
         intptr_t i_data; \
         uintptr_t u_data; \
         const char* s_data; \
@@ -70,8 +70,10 @@ enum RDSegmentFlags {
 #pragma pack(push, 1)
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
-    offset_t offset, endoffset;
-    address_t address, endaddress;
+    offset_t offset;
+    offset_t endoffset;
+    address_t address;
+    address_t endaddress;
     flag_t flags;
     size_t coveragebytes;
     size_t itemscount;

@@ -51,7 +51,12 @@ class CParser:
 
     def __find_callbacks(self):
         for m in re.finditer(CALLBACK_REGEX, self._content):
-            self._callbacks[m[2]] = {"ret": m[1], "args": self.__split_args(m[3])}
+            obj = {"ret": m[1], "args": []}
+
+            if m[3] != "void":
+                obj["args"] = self.__split_args(m[3])
+
+            self._callbacks[m[2]] = obj
 
     def __find_structs(self):
         r = re.compile(STRUCT_REGEX, re.MULTILINE)
@@ -70,6 +75,12 @@ class CParser:
 
                 if f == "RD_USERDATA_FIELD":
                     self.__add_userdata_fields(obj)
+                    continue
+                elif f == "RD_PLUGIN_HEADER":
+                    self.__add_pluginheader_fields(obj)
+                    continue
+                elif f == "RD_EVENTARGS_BASE":
+                    self.__add_eventargs_fields(obj)
                     continue
 
                 fm = re.search(rgxfields, f)
@@ -107,6 +118,20 @@ class CParser:
         obj["fields"].append({"type": "intptr_t", "name": "i_data", "arraysize": None, "callback": False})
         obj["fields"].append({"type": "uintptr_t", "name": "u_data", "arraysize": None, "arraysize": None, "callback": False})
         obj["fields"].append({"type": "const char*", "name": "s_data", "arraysize": None, "callback": False})
+
+    def __add_pluginheader_fields(self, obj):
+        obj["fields"].append({"type": "apilevel_t", "name": "apilevel", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "u32", "name": "apibits", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "const char*", "name": "id", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "const char*", "name": "name", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "size_t", "name": "state", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "Callback_PluginInit", "name": "init", "arraysize": None, "callback": True})
+        obj["fields"].append({"type": "Callback_PluginFree", "name": "free", "arraysize": None, "callback": True})
+
+    def __add_eventargs_fields(self, obj):
+        obj["fields"].append({"type": "eventid_t", "name": "eventid", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "void*", "name": "sender", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "void*", "name": "owner", "arraysize": None, "callback": False})
 
     def __split_args(self, args):
         res = []

@@ -41,8 +41,8 @@ bool RD_InRange(address_t address, address_t start, address_t end) { return ((ad
 bool RD_InRangeSize(address_t address, address_t start, address_t size) { return ((address >= start) && (address < (start + size))); }
 const char* RD_Demangle(const char* name) { return name ? Demangler::demangled(name) : nullptr; }
 u16 RD_Swap16(u16 hostval) { return Endian::swap16(hostval); }
-u32 RD_Swap32(u16 hostval) { return Endian::swap32(hostval); }
-u64 RD_Swap64(u16 hostval) { return Endian::swap64(hostval); }
+u32 RD_Swap32(u32 hostval) { return Endian::swap32(hostval); }
+u64 RD_Swap64(u64 hostval) { return Endian::swap64(hostval); }
 u16 RD_FromLittleEndian16(u16 hostval) { return Endian::fromlittleendian16(hostval); }
 u32 RD_FromLittleEndian32(u32 hostval) { return Endian::fromlittleendian32(hostval); }
 u64 RD_FromLittleEndian64(u64 hostval) { return Endian::fromlittleendian64(hostval); }

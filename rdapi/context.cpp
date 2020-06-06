@@ -3,6 +3,7 @@
 #include <rdcore/context.h>
 
 RDContext* RD_GetContext(void) { return CPTR(RDContext, rd_ctx); }
+RDDisassembler* RD_GetDisassembler() { return CPTR(RDDisassembler, rd_ctx->disassembler()); }
 size_t RD_ProblemsCount(void) { return rd_ctx->problemsCount(); }
 void RD_InitContext(void) { rd_ctx->init(); }
 void RD_SetTempPath(const char* tmppath) { rd_ctx->setTempPath(tmppath); }

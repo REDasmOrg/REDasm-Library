@@ -35,8 +35,8 @@ RD_API_EXPORT void redasm_entry(void);
 typedef void (*Callback_ModuleEntry)(void);
 #endif
 
-typedef void (*Callback_PluginInit)(RDPluginHeader*);   // Plugin Initialization
-typedef void (*Callback_PluginFree)(RDPluginHeader*);   // Plugin Deinitialization
+typedef void (*Callback_PluginInit)(RDPluginHeader* plugin);   // Plugin Initialization
+typedef void (*Callback_PluginFree)(RDPluginHeader* plugin);   // Plugin Deinitialization
 
 enum PluginState: size_t {
     PluginState_Loaded,

@@ -11,25 +11,25 @@ enum RDEndianness {
 
 struct RDInstruction;
 
-RD_API_EXTERN_C const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix);
-RD_API_EXTERN_C const char* RD_ToHexAuto(size_t value);
-RD_API_EXTERN_C const char* RD_ToHex(size_t value);
-RD_API_EXTERN_C const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill);
-RD_API_EXTERN_C const char* RD_ToString(size_t value);
-RD_API_EXTERN_C const char* RD_Trampoline(const char* name);
-RD_API_EXTERN_C const char* RD_Demangle(const char* name);
-RD_API_EXTERN_C u8* RD_RelPointer(void* ptr, size_t offset);
-RD_API_EXTERN_C bool RD_InRange(address_t address, address_t start, address_t end);
-RD_API_EXTERN_C bool RD_InRangeSize(address_t address, address_t start, address_t size);
-RD_API_EXTERN_C u16 RD_Swap16(u16 hostval);
-RD_API_EXTERN_C u32 RD_Swap32(u32 hostval);
-RD_API_EXTERN_C u64 RD_Swap64(u64 hostval);
-RD_API_EXTERN_C u16 RD_FromLittleEndian16(u16 hostval);
-RD_API_EXTERN_C u32 RD_FromLittleEndian32(u32 hostval);
-RD_API_EXTERN_C u64 RD_FromLittleEndian64(u64 hostval);
-RD_API_EXTERN_C u16 RD_FromBigEndian16(u16 hostval);
-RD_API_EXTERN_C u32 RD_FromBigEndian32(u32 hostval);
-RD_API_EXTERN_C u64 RD_FromBigEndian64(u64 hostval);
+RD_API_EXPORT const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix);
+RD_API_EXPORT const char* RD_ToHexAuto(size_t value);
+RD_API_EXPORT const char* RD_ToHex(size_t value);
+RD_API_EXPORT const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill);
+RD_API_EXPORT const char* RD_ToString(size_t value);
+RD_API_EXPORT const char* RD_Trampoline(const char* name);
+RD_API_EXPORT const char* RD_Demangle(const char* name);
+RD_API_EXPORT u8* RD_RelPointer(void* ptr, size_t offset);
+RD_API_EXPORT bool RD_InRange(address_t address, address_t start, address_t end);
+RD_API_EXPORT bool RD_InRangeSize(address_t address, address_t start, address_t size);
+RD_API_EXPORT u16 RD_Swap16(u16 hostval);
+RD_API_EXPORT u32 RD_Swap32(u32 hostval);
+RD_API_EXPORT u64 RD_Swap64(u64 hostval);
+RD_API_EXPORT u16 RD_FromLittleEndian16(u16 hostval);
+RD_API_EXPORT u32 RD_FromLittleEndian32(u32 hostval);
+RD_API_EXPORT u64 RD_FromLittleEndian64(u64 hostval);
+RD_API_EXPORT u16 RD_FromBigEndian16(u16 hostval);
+RD_API_EXPORT u32 RD_FromBigEndian32(u32 hostval);
+RD_API_EXPORT u64 RD_FromBigEndian64(u64 hostval);
 
 // Some function aliases for endianness conversion
 inline u16 RD_ToLittleEndian16(u16 hostval) { return RD_FromLittleEndian16(hostval); }

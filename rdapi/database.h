@@ -26,6 +26,6 @@ typedef struct RDDatabaseItem {
 
 DECLARE_HANDLE(RDDatabase);
 
-RD_API_EXTERN_C RDDatabase* RDDatabase_Open(const char* dbname);
-RD_API_EXTERN_C bool RDDatabase_Select(RDDatabase* db, const char* obj);
-RD_API_EXTERN_C bool RDDatabase_Find(const RDDatabase* db, const char* key, RDDatabaseItem* item);
+RD_API_EXPORT RDDatabase* RDDatabase_Open(const char* dbname);
+RD_API_EXPORT bool RDDatabase_Select(RDDatabase* db, const char* obj);
+RD_API_EXPORT bool RDDatabase_Find(const RDDatabase* db, const char* key, RDDatabaseItem* item);

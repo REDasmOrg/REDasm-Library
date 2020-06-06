@@ -24,6 +24,8 @@ def generate_json(outputdir):
         doc = {}
         doc["handles"] = p.handles
         doc["enums"] = p.enums
+        doc["callbacks"] = p.callbacks
+        doc["structs"] = p.structs
         doc["functions"] = p.functions
 
         rpath = str(file)

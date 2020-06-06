@@ -3,13 +3,16 @@ import re
 
 HANDLE_REGEX = r"DECLARE_HANDLE\((.+)\)"
 ENUM_REGEX = r"enum (\w+) \{([\s\S]*?)\};"
+STRUCT_REGEX = r"typedef struct \w+ \{([\s\S]*?)\} (\w+);"
 FUNCTION_REGEX = r"RD_API_EXPORT (.+) ((RD\w+)\((.+)\));"
-
+CALLBACK_REGEX = r"typedef (.+) \(\*(Callback_.+)\)\((.+)\);"
 
 class CParser:
     def __init__(self, filepath):
         self._handles = []
         self._enums = []
+        self._callbacks = {}
+        self._structs = []
         self._functions = []
 
         with open(filepath, "r") as f:
@@ -17,6 +20,8 @@ class CParser:
 
         self.__find_handles()
         self.__find_enums()
+        self.__find_callbacks()
+        self.__find_structs()
         self.__find_functions()
 
     def __find_handles(self):
@@ -25,7 +30,6 @@ class CParser:
 
     def __find_enums(self):
         r = re.compile(ENUM_REGEX, re.MULTILINE)
-        rgxstate = re.compile(r"([A-Za-z_]\w+)(?=[ ]+=|,)")
 
         for m in re.finditer(r, self._content):
             obj = {"name": m[1],
@@ -34,7 +38,8 @@ class CParser:
             statelines = m[2].strip().splitlines(False)
 
             for s in statelines:
-                if s.strip().startswith("//"):
+                s = s.strip()
+                if s.startswith("//"):
                     continue
 
                 m = re.search(r"\w+", s)
@@ -44,22 +49,75 @@ class CParser:
 
             self._enums.append(obj)
 
+    def __find_callbacks(self):
+        for m in re.finditer(CALLBACK_REGEX, self._content):
+            self._callbacks[m[2]] = {"ret": m[1], "args": self.__split_args(m[3])}
+
+    def __find_structs(self):
+        r = re.compile(STRUCT_REGEX, re.MULTILINE)
+        rgxfields = re.compile(r"(\w+)[ ]+(\w+)(\[([^\]]+)\])?;")
+
+        for m in re.finditer(r, self._content):
+            obj = {"name": m[2],
+                   "fields": []}
+
+            fieldlines = m[1].strip().splitlines(False)
+
+            for f in fieldlines:
+                f = f.strip()
+                if f.startswith("//"):
+                    continue
+
+                if f == "RD_USERDATA_FIELD":
+                    self.__add_userdata_fields(obj)
+                    continue
+
+                fm = re.search(rgxfields, f)
+
+                if not fm:
+                    continue
+
+                fieldobj = {"type": fm[1],
+                            "name": fm[2],
+                            "arraysize": None,
+                            "callback": fm[1].startswith("Callback_")}
+
+                if fm[4]:
+                    fieldobj["arraysize"] = fm[4]
+
+                obj["fields"].append(fieldobj)
+
+            self._structs.append(obj)
+
     def __find_functions(self):
         for m in re.finditer(FUNCTION_REGEX, self._content):
             f = {"ret": m[1], "def": m[2],
                  "name": m[3], "args": []}
 
             if m[4] != "void":
-                args = [arg.strip() for arg in m[4].split(",")]
-
-                for a in args:
-                    parts = a.split(" ")
-                    arg = {"name": parts[-1], "type": " ".join(parts[:-1])}
-                    f["args"].append(arg)
+                f["args"] = self.__split_args(m[4])
             else:
                 f["def"] = f["def"].replace("(void)", "()")
 
             self._functions.append(f)
+
+    def __add_userdata_fields(self, obj):
+        obj["fields"].append({"type": "void*", "name": "userdata", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "void*", "name": "p_data", "arraysize": None, "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "intptr_t", "name": "i_data", "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "uintptr_t", "name": "u_data", "arraysize": None, "arraysize": None, "callback": False})
+        obj["fields"].append({"type": "const char*", "name": "s_data", "arraysize": None, "callback": False})
+
+    def __split_args(self, args):
+        res = []
+        arglist = [arg.strip() for arg in args.split(",")]
+
+        for a in arglist:
+            parts = a.split(" ")
+            arg = {"name": parts[-1], "type": " ".join(parts[:-1])}
+            res.append(arg)
+
+        return res
 
     @property
     def handles(self):
@@ -68,6 +126,14 @@ class CParser:
     @property
     def enums(self):
         return self._enums
+
+    @property
+    def callbacks(self):
+        return self._callbacks
+
+    @property
+    def structs(self):
+        return self._structs
 
     @property
     def functions(self):

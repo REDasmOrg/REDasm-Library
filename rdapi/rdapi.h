@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "database.h"
 #include "disassembler.h"
+#include "ui.h"
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
 #include "plugin/command.h"

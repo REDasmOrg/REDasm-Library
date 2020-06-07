@@ -6,6 +6,7 @@
 #include <mutex>
 #include <list>
 #include <rdapi/context.h>
+#include <rdapi/ui.h>
 #include <rdapi/plugin/loader.h>
 #include <rdapi/plugin/assembler.h>
 #include <rdapi/plugin/command.h>
@@ -64,6 +65,8 @@ class Context: public Object
         static void freePlugin(RDPluginHeader* plugin);
 
     public:
+        void setUI(const RDUI* rdui);
+        const RDUI* ui() const;
         void setFlags(flag_t flag);
         flag_t flags() const;
         bool hasProblems() const;
@@ -99,8 +102,10 @@ class Context: public Object
         std::string m_rntpath, m_tmppath;
         mutable std::mutex m_mutex;
         bool m_ignoreproblems{false};
+        const RDUI* m_ui{nullptr};
 };
 
 #define rd_ctx    Context::instance()
 #define rd_pm     rd_ctx->pluginManager()
 #define rd_disasm rd_ctx->disassembler()
+#define rd_ui     rd_ctx->ui()

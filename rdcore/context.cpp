@@ -224,6 +224,9 @@ void Context::freePlugin(RDPluginHeader* plugin)
     plugin->state = PluginState_Loaded;
 }
 
+void Context::setUI(const RDUI* rdui) { m_ui = rdui; }
+const RDUI* Context::ui() const { return m_ui; }
+
 bool Context::registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap)
 {
     if(!plugin->name || !std::strlen(plugin->name))

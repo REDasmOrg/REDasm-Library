@@ -38,8 +38,8 @@ size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsC
 void RDDocument_SetEntry(RDDocument* d, address_t address) { docptr(d)->entry(address); }
 void RDDocument_Comment(RDDocument* d, address_t address, const char* comment) { docptr(d)->comment(address, comment); }
 void RDDocument_AddAutoComment(RDDocument* d, address_t address, const char* comment) { docptr(d)->autoComment(address, comment); }
-void RDDocument_AddSegmentSize(RDDocument* d, const char* name, offset_t offset, address_t address, u64 psize, u64 vsize, type_t type) { docptr(d)->segment(name, offset, address, psize, vsize, type); }
-void RDDocument_AddSegment(RDDocument* d, const char* name, offset_t offset, address_t address, u64 size, type_t type) { docptr(d)->segment(name, offset, address, size, size, type); }
+void RDDocument_AddSegmentSize(RDDocument* d, const char* name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags) { docptr(d)->segment(name, offset, address, psize, vsize, flags); }
+void RDDocument_AddSegment(RDDocument* d, const char* name, offset_t offset, address_t address, u64 size, flag_t flags) { docptr(d)->segment(name, offset, address, size, size, flags); }
 void RDDocument_AddImported(RDDocument* d, address_t address, size_t size, const char* name) { docptr(d)->imported(address, size, name ? name : std::string()); }
 void RDDocument_AddExported(RDDocument* d, address_t address, const char* name) { docptr(d)->exported(address, name ? name : std::string()); }
 void RDDocument_AddExportedFunction(RDDocument* d, address_t address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }

@@ -21,6 +21,7 @@ RD_API_EXPORT const char* RD_Demangle(const char* name);
 RD_API_EXPORT u8* RD_RelPointer(void* ptr, size_t offset);
 RD_API_EXPORT bool RD_InRange(address_t address, address_t start, address_t end);
 RD_API_EXPORT bool RD_InRangeSize(address_t address, address_t start, address_t size);
+RD_API_EXPORT intptr_t RD_SignExt(uintptr_t val, int bits);
 RD_API_EXPORT u16 RD_Swap16(u16 hostval);
 RD_API_EXPORT u32 RD_Swap32(u32 hostval);
 RD_API_EXPORT u64 RD_Swap64(u64 hostval);

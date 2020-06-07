@@ -35,7 +35,16 @@ class Utils
         template<typename Container> static std::string join(const Container& c, const char* sep);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
+        template<typename T> static typename std::make_signed<T>::type signext(T t, int bits);
 };
+
+template<typename T>
+typename std::make_signed<T>::type Utils::signext(T t, int bits)
+{
+    T m = 1;
+    m <<= bits - 1;
+    return static_cast<typename std::make_signed<T>::type>((t ^ m) - m);
+}
 
 template<typename Container>
 std::string Utils::join(const Container& c, const char* sep)

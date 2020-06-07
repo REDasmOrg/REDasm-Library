@@ -40,6 +40,7 @@ u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offs
 bool RD_InRange(address_t address, address_t start, address_t end) { return ((address >= start) && (address < end));  }
 bool RD_InRangeSize(address_t address, address_t start, address_t size) { return ((address >= start) && (address < (start + size))); }
 const char* RD_Demangle(const char* name) { return name ? Demangler::demangled(name) : nullptr; }
+intptr_t RD_SignExt(uintptr_t val, int bits) { return Utils::signext(val, bits); }
 u16 RD_Swap16(u16 hostval) { return Endian::swap16(hostval); }
 u32 RD_Swap32(u32 hostval) { return Endian::swap32(hostval); }
 u64 RD_Swap64(u64 hostval) { return Endian::swap64(hostval); }

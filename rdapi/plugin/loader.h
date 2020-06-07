@@ -30,8 +30,8 @@ DECLARE_HANDLE(RDLoader);
 struct RDLoaderPlugin;
 
 typedef const char* (*Callback_LoaderTest)(const struct RDLoaderPlugin* plugin, const RDLoaderRequest* request);
-typedef void (*Callback_LoaderLoad)(struct RDLoaderPlugin* ploader, RDLoader* loader);
-typedef void (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoaderBuildRequest* req);
+typedef bool (*Callback_LoaderLoad)(struct RDLoaderPlugin* ploader, RDLoader* loader);
+typedef bool (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoaderBuildRequest* req);
 typedef void (*Callback_LoaderAnalyze)(struct RDLoaderPlugin* ploader, RDDisassembler* disassembler);
 
 typedef struct RDLoaderPlugin {
@@ -53,8 +53,8 @@ RD_API_EXPORT flag_t RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);
 RD_API_EXPORT RDBuffer* RDLoader_GetBuffer(RDLoader* ldr);
 RD_API_EXPORT u8* RDLoader_GetData(RDLoader* ldr);
-RD_API_EXPORT void RDLoader_Build(RDLoader* ldr, const RDLoaderBuildRequest* req);
-RD_API_EXPORT void RDLoader_Load(RDLoader* ldr);
+RD_API_EXPORT bool RDLoader_Build(RDLoader* ldr, const RDLoaderBuildRequest* req);
+RD_API_EXPORT bool RDLoader_Load(RDLoader* ldr);
 
 RD_API_EXPORT void RD_GetLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
 RD_API_EXPORT u8* RD_AddrPointer(const RDLoader* ldr, address_t address);

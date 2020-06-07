@@ -13,8 +13,8 @@ class Loader: public Object
     public:
         Loader(const RDLoaderRequest* req, RDLoaderPlugin* ploader);
         ~Loader();
-        void load();
-        void build(const RDLoaderBuildRequest* req);
+        bool load();
+        bool build(const RDLoaderBuildRequest* req);
         bool analyze(Disassembler* disassembler);
         BufferView* view(address_t address) const;
         BufferView* view(address_t address, size_t size) const;

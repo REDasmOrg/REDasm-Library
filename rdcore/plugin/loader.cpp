@@ -10,8 +10,18 @@ Loader::Loader(const RDLoaderRequest* req, RDLoaderPlugin* ploader): m_ploader(p
 }
 
 Loader::~Loader() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(&m_ploader)); }
-void Loader::load() { if(m_ploader->load) m_ploader->load(m_ploader, CPTR(RDLoader, this)); }
-void Loader::build(const RDLoaderBuildRequest* req) { if(m_ploader->build) m_ploader->build(m_ploader, req); }
+
+bool Loader::load()
+{
+    if(!m_ploader->load) return false;
+    return m_ploader->load(m_ploader, CPTR(RDLoader, this));
+}
+
+bool Loader::build(const RDLoaderBuildRequest* req)
+{
+    if(!m_ploader->build) return false;
+    return m_ploader->build(m_ploader, req);
+}
 
 bool Loader::analyze(Disassembler* disassembler)
 {

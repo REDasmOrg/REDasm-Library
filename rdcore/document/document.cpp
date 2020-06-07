@@ -43,8 +43,18 @@ void Document::segment(const std::string& name, offset_t offset, address_t addre
     size_t len = std::min<size_t>(name.size(), DEFAULT_NAME_SIZE);
 
     RDSegment segment{ };
-    segment.offset = offset;
-    segment.endoffset = offset + psize;
+
+    if(flags & SegmentFlags_Bss)
+    {
+        segment.offset = 0;
+        segment.endoffset = 0;
+    }
+    else
+    {
+        segment.offset = offset;
+        segment.endoffset = offset + psize;
+    }
+
     segment.address = address;
     segment.endaddress = address + vsize;
     segment.flags = flags;

@@ -15,4 +15,4 @@ bool RDUI_GetChecked(const char* title, const char* text, RDUIOptions* options, 
 bool RDUI_GetText(const char* title, const char* text, char* outchar, size_t* size) { RET_CALL_RDUI(gettext, title, text, outchar, size); }
 bool RDUI_GetDouble(const char* title, const char* text, double* outval) { RET_CALL_RDUI(getdouble, title, text, outval); }
 bool RDUI_GetSigned(const char* title, const char* text, intptr_t* outval) { RET_CALL_RDUI(getsigned, title, text, outval); }
-bool RDUI_GetUnsigned(const char* title, const char* text, intptr_t* outval) { RET_CALL_RDUI(getunsigned, title, text, outval); }
+bool RDUI_GetUnsigned(const char* title, const char* text, uintptr_t* outval) { RET_CALL_RDUI(getunsigned, title, text, outval); }

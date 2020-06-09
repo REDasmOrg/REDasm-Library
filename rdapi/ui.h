@@ -15,7 +15,7 @@ typedef bool (*Callback_GetChecked)(const char* title, const char* text, RDUIOpt
 typedef bool (*Callback_GetText)(const char* title, const char* text, char* outchar, size_t* size);
 typedef bool (*Callback_GetDouble)(const char* title, const char* text, double* outval);
 typedef bool (*Callback_GetSigned)(const char* title, const char* text, intptr_t* outval);
-typedef bool (*Callback_GetUnsigned)(const char* title, const char* text, intptr_t* outval);
+typedef bool (*Callback_GetUnsigned)(const char* title, const char* text, uintptr_t* outval);
 
 typedef struct RDUI {
     Callback_Message message;
@@ -36,4 +36,4 @@ RD_API_EXPORT bool RDUI_GetChecked(const char* title, const char* text, RDUIOpti
 RD_API_EXPORT bool RDUI_GetText(const char* title, const char* text, char* outchar, size_t* size);
 RD_API_EXPORT bool RDUI_GetDouble(const char* title, const char* text, double* outval);
 RD_API_EXPORT bool RDUI_GetSigned(const char* title, const char* text, intptr_t* outval);
-RD_API_EXPORT bool RDUI_GetUnsigned(const char* title, const char* text, intptr_t* outval);
+RD_API_EXPORT bool RDUI_GetUnsigned(const char* title, const char* text, uintptr_t* outval);

@@ -30,7 +30,7 @@ void Analyzer::checkFunctions()
     }
 }
 
-bool Analyzer::findNullSubs(x_lock_document& lock, address_t address)
+bool Analyzer::findNullSubs(x_lock_document& lock, rd_address address)
 {
     RDInstruction* instruction = nullptr;
     if(!lock->lockInstruction(address, &instruction)) return true; // Don't execute trampoline analysis
@@ -41,7 +41,7 @@ bool Analyzer::findNullSubs(x_lock_document& lock, address_t address)
     return isnullsub;
 }
 
-void Analyzer::findTrampoline(x_lock_document& lock, address_t address)
+void Analyzer::findTrampoline(x_lock_document& lock, rd_address address)
 {
     if(lock->entry()->address == address) return; // Don't rename EP, if any
 

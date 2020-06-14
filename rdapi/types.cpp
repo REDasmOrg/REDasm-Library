@@ -13,15 +13,20 @@ void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic)
     std::copy_n(mnemonic, std::min<size_t>(std::strlen(mnemonic), sizeof(instruction->mnemonic)), instruction->mnemonic);
 }
 
-address_t RDInstruction_NextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
+rd_address RDInstruction_NextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
 
-RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type)
+RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type)
 {
     if(!instruction || (instruction->operandscount >= DEFAULT_CONTAINER_SIZE)) return nullptr;
 
     RDOperand op{ };
     op.type = type;
     op.pos = instruction->operandscount++;
+
+    // Invalidate registers
+    op.base = RD_NPOS;
+    op.index = RD_NPOS;
+
     instruction->operands[op.pos] = op;
     return &instruction->operands[op.pos];
 }
@@ -52,4 +57,16 @@ void RDInstruction_ClearOperands(RDInstruction* instruction)
 {
     std::fill_n(std::begin(instruction->operands), instruction->operandscount, RDOperand{ });
     instruction->operandscount = 0;
+}
+
+RDOperand* RDInstruction_FirstOperand(RDInstruction* instruction)
+{
+    if(!instruction->operandscount) return nullptr;
+    return &instruction->operands[0];
+}
+
+RDOperand* RDInstruction_LastOperand(RDInstruction* instruction)
+{
+    if(!instruction->operandscount) return nullptr;
+    return &instruction->operands[instruction->operandscount - 1];
 }

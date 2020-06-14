@@ -17,7 +17,7 @@ enum RDEncodeFlags {
 
 typedef struct RDEncodedInstruction {
     const char* decoded;
-    flag_t flags;
+    rd_flag flags;
     size_t count;
     u8 encoded[ENCODE_BUFFER_SIZE];
 } RDEncodedInstruction;
@@ -25,7 +25,7 @@ typedef struct RDEncodedInstruction {
 RD_API_EXPORT void RDEncodedInstruction_Init(RDEncodedInstruction* encoded);
 RD_API_EXPORT bool RDEncodedInstruction_Set(RDEncodedInstruction* encoded, u8* encdata, size_t count);
 
-typedef const char* (*Callback_AssemblerRegName)(struct RDAssemblerPlugin* plugin, const RDInstruction* instruction, register_id_t r);
+typedef const char* (*Callback_AssemblerRegName)(struct RDAssemblerPlugin* plugin, const RDInstruction* instruction, rd_register_id r);
 typedef size_t (*Callback_AssemblerEncode)(const struct RDAssemblerPlugin* plugin, RDEncodedInstruction* encoded);
 typedef bool (*Callback_AssemblerDecode)(const struct RDAssemblerPlugin* plugin, RDBufferView* view, RDInstruction* instruction);
 typedef void (*Callback_AssemblerEmulate)(const struct RDAssemblerPlugin* plugin, RDDisassembler* disassembler, const RDInstruction* instruction);

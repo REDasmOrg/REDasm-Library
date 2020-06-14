@@ -45,7 +45,7 @@ typedef struct RDErrorEventArgs {
 typedef struct RDDocumentEventArgs {
     RD_EVENTARGS_BASE
 
-    type_t action;
+    rd_type action;
     size_t index;
     RDDocumentItem item;
 } RDDocumentEventArgs;

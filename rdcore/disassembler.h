@@ -22,23 +22,24 @@ class Disassembler: public Object
         MemoryBuffer* buffer() const;
         bool needsWeak() const;
         bool busy() const;
-        void disassembleAddress(address_t address);
+        void disassembleAddress(rd_address address);
         void disassemble();
         void stop();
 
     public:
-        const char* getFunctionHexDump(address_t address, RDSymbol* symbol) const;
-        const char* getHexDump(address_t address, size_t size) const;
-        const char16_t* readWString(address_t address, size_t* len) const;
-        const char* readString(address_t address, size_t* len) const;
-        std::string readWString(address_t address, size_t len = RD_NPOS) const; // Internal C++ Helper
-        std::string readString(address_t address, size_t len = RD_NPOS) const;  // Internal C++ Helper
+        const char* getFunctionHexDump(rd_address address, RDSymbol* symbol) const;
+        const char* getHexDump(rd_address address, size_t size) const;
+        const char16_t* readWString(rd_address address, size_t* len) const;
+        const char* readString(rd_address address, size_t* len) const;
+        std::string readWString(rd_address address, size_t len = RD_NPOS) const; // Internal C++ Helper
+        std::string readString(rd_address address, size_t len = RD_NPOS) const;  // Internal C++ Helper
 
     public: // Engine/Algorithm
-        bool decode(address_t address, RDInstruction** instruction);
-        void handleOperand(const RDInstruction* instruction, const RDOperand* op);
-        void enqueueAddress(const RDInstruction* instruction, address_t address);
-        void enqueue(address_t address);
+        bool decode(rd_address address, RDInstruction** instruction);
+        void checkOperands(const RDInstruction* instruction);
+        void checkOperand(const RDInstruction* instruction, const RDOperand* op);
+        void enqueueAddress(const RDInstruction* instruction, rd_address address);
+        void enqueue(rd_address address);
 
     public: // Assembler
         std::string registerName(const RDInstruction* instruction, register_t r) const;
@@ -49,28 +50,28 @@ class Disassembler: public Object
         size_t bits() const;
 
     public: // References
-        size_t getReferences(address_t address, const address_t** references) const;
-        size_t getTargets(address_t address, const address_t** targets) const;
-        RDLocation getTarget(address_t address) const;
-        size_t getTargetsCount(address_t address) const;
-        size_t getReferencesCount(address_t address) const;
-        void pushReference(address_t address, address_t refby);
-        void popReference(address_t address, address_t refby);
-        void pushTarget(address_t address, address_t refby);
-        void popTarget(address_t address, address_t refby);
+        size_t getReferences(rd_address address, const rd_address** references) const;
+        size_t getTargets(rd_address address, const rd_address** targets) const;
+        RDLocation getTarget(rd_address address) const;
+        size_t getTargetsCount(rd_address address) const;
+        size_t getReferencesCount(rd_address address) const;
+        void pushReference(rd_address address, rd_address refby);
+        void popReference(rd_address address, rd_address refby);
+        void pushTarget(rd_address address, rd_address refby);
+        void popTarget(rd_address address, rd_address refby);
 
     public: // Symbols
-        RDLocation dereference(address_t address) const;
-        type_t markLocation(address_t address, address_t fromaddress);
-        type_t markPointer(address_t address, address_t fromaddress);
-        size_t markTable(address_t startaddress, address_t fromaddress, size_t count);
+        RDLocation dereference(rd_address address) const;
+        rd_type markLocation(rd_address address, rd_address fromaddress);
+        rd_type markPointer(rd_address address, rd_address fromaddress);
+        size_t markTable(rd_address startaddress, rd_address fromaddress, size_t count);
 
     public:
-        bool readAddress(address_t address, size_t size, u64 *value) const;
+        bool readAddress(rd_address address, size_t size, u64 *value) const;
 
     private:
-        BufferView* getFunctionBytes(address_t& address) const;
-        template<typename T> const T* readStringT(address_t address, size_t* len) const;
+        BufferView* getFunctionBytes(rd_address& address) const;
+        template<typename T> const T* readStringT(rd_address address, size_t* len) const;
 
     private:
         std::unique_ptr<Engine> m_engine;
@@ -81,7 +82,7 @@ class Disassembler: public Object
 };
 
 template<typename T>
-const T* Disassembler::readStringT(address_t address, size_t* len) const
+const T* Disassembler::readStringT(rd_address address, size_t* len) const
 {
     size_t clen = 0, maxlen = RD_NPOS;
     if(len && *len) maxlen = *len;

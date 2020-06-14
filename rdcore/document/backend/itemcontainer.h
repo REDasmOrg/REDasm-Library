@@ -28,8 +28,8 @@ class ItemContainer: public SortedContainer<RDDocumentItem, DocumentItemSorter, 
 {
     public:
         ItemContainer() = default;
-        size_t instructionIndex(address_t address) const;
-        size_t functionIndex(address_t address) const;
-        size_t symbolIndex(address_t address) const;
+        size_t instructionIndex(rd_address address) const;
+        size_t functionIndex(rd_address address) const;
+        size_t symbolIndex(rd_address address) const;
 };
 

@@ -37,7 +37,7 @@ enum RDRendererFlags {
 };
 
 typedef struct RDRenderItemParams {
-    type_t type;
+    rd_type type;
 
     const RDRenderer* renderer;
     const RDDisassembler* disassembler;
@@ -57,14 +57,14 @@ typedef struct RDRendererFormat {
 typedef void (*Callback_Render)(const RDRendererItem* ritem, size_t index, void* userdata);
 
 // RDRenderer
-RD_API_EXPORT RDRenderer* RDRenderer_Create(RDDisassembler* d, const RDCursor* cursor, flag_t flags);
+RD_API_EXPORT RDRenderer* RDRenderer_Create(RDDisassembler* d, const RDCursor* cursor, rd_flag flags);
 RD_API_EXPORT RDRendererItem* RDRender_CreateItem();
 RD_API_EXPORT size_t RDRenderer_GetLastColumn(const RDRenderer* r, size_t index);
-RD_API_EXPORT flag_t RDRenderer_Flags(const RDRenderer* r);
+RD_API_EXPORT rd_flag RDRenderer_Flags(const RDRenderer* r);
 RD_API_EXPORT const char* RDRenderer_GetWordFromPosition(const RDRenderer* r, const RDCursorPos* pos, RDCursorRange* range);
 RD_API_EXPORT const char* RDRenderer_GetCurrentWord(const RDRenderer* r);
 RD_API_EXPORT const char* RDRenderer_GetSelectedText(const RDRenderer* r);
-RD_API_EXPORT const char* RDRenderer_GetInstruction(const RDRenderer* r, address_t address);
+RD_API_EXPORT const char* RDRenderer_GetInstruction(const RDRenderer* r, rd_address address);
 RD_API_EXPORT bool RDRenderer_GetSelectedSymbol(const RDRenderer* r, RDSymbol* symbol);
 RD_API_EXPORT bool RDRenderer_GetItem(const RDRenderer* r, size_t index, RDRendererItem* ritem);
 RD_API_EXPORT void RDRenderer_GetItems(const RDRenderer* r, size_t index, size_t count, Callback_Render render, void* userdata);
@@ -79,7 +79,9 @@ RD_API_EXPORT void RDRendererItem_Push(RDRendererItem* ritem, const char* s, con
 RD_API_EXPORT void RDRenderer_Prologue(RDRenderItemParams* rip);
 RD_API_EXPORT void RDRenderer_Address(RDRenderItemParams* rip);
 RD_API_EXPORT void RDRenderer_AddressIndent(RDRenderItemParams* rip);
-RD_API_EXPORT void RDRenderer_Immediate(RDRenderItemParams* rip);
-RD_API_EXPORT void RDRenderer_Register(RDRenderItemParams* rip, register_id_t r);
+RD_API_EXPORT void RDRenderer_Constant(RDRenderItemParams* rip, u64 c);
+RD_API_EXPORT void RDRenderer_Immediate(RDRenderItemParams* rip, u64 imm);
+RD_API_EXPORT void RDRenderer_Register(RDRenderItemParams* rip, rd_register_id r);
 RD_API_EXPORT void RDRenderer_Mnemonic(RDRenderItemParams* rip);
+RD_API_EXPORT void RDRenderer_Operand(RDRenderItemParams* rip, const RDOperand* op);
 RD_API_EXPORT void RDRenderer_Indent(RDRenderItemParams* rip, size_t n);

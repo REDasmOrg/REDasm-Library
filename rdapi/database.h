@@ -13,7 +13,7 @@ enum RDDatabaseItemType {
 };
 
 typedef struct RDDatabaseItem {
-    type_t type;
+    rd_type type;
 
     union {
         const char* s_value;

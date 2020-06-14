@@ -11,24 +11,24 @@ class SymbolTable: public Object
     public:
         SymbolTable() = default;
         size_t size() const;
-        const char* getName(address_t address) const;
-        bool get(address_t address, RDSymbol* symbol) const;
+        const char* getName(rd_address address) const;
+        bool get(rd_address address, RDSymbol* symbol) const;
         bool get(const char* name, RDSymbol* symbol) const;
-        void remove(address_t address);
+        void remove(rd_address address);
 
    public:
-        void create(address_t address, const std::string& name, type_t type, flag_t flags);
-        bool rename(address_t address, const std::string& newname);
-        static std::string name(address_t address, const char* s, type_t type, flag_t flags);
-        static std::string name(address_t address, type_t type, flag_t flags);
+        void create(rd_address address, const std::string& name, rd_type type, rd_flag flags);
+        bool rename(rd_address address, const std::string& newname);
+        static std::string name(rd_address address, const char* s, rd_type type, rd_flag flags);
+        static std::string name(rd_address address, rd_type type, rd_flag flags);
 
    private:
-        static std::string name(const char* s, address_t address);
-        static std::string prefix(type_t type, flag_t flags);
+        static std::string name(const char* s, rd_address address);
+        static std::string prefix(rd_type type, rd_flag flags);
 
     private:
-        std::unordered_map<address_t, RDSymbol> m_byaddress;      // address   -> RDSymbol
-        std::unordered_map<std::string, address_t> m_byname;      // sym_xyz   -> address
-        std::unordered_map<address_t, std::string> m_stringtable; // address_t -> sym_xyz
+        std::unordered_map<rd_address, RDSymbol> m_byaddress;      // address   -> RDSymbol
+        std::unordered_map<std::string, rd_address> m_byname;      // sym_xyz   -> address
+        std::unordered_map<rd_address, std::string> m_stringtable; // address_t -> sym_xyz
 };
 

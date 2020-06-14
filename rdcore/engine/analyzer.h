@@ -12,8 +12,8 @@ class Analyzer
     private:
         void analyzeDefault();
         void checkFunctions();
-        bool findNullSubs(x_lock_document& lock, address_t address);
-        void findTrampoline(x_lock_document& lock, address_t address);
+        bool findNullSubs(x_lock_document& lock, rd_address address);
+        void findTrampoline(x_lock_document& lock, rd_address address);
 
     private:
         Disassembler* m_disassembler;

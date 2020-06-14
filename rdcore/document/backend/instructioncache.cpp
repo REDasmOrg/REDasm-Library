@@ -18,9 +18,9 @@ InstructionCache::~InstructionCache()
     std::remove(m_filepath.c_str());
 }
 
-bool InstructionCache::contains(address_t address) const { return m_cache.find(address) != m_cache.end(); }
+bool InstructionCache::contains(rd_address address) const { return m_cache.find(address) != m_cache.end(); }
 
-bool InstructionCache::lock(address_t address, RDInstruction** instruction) const
+bool InstructionCache::lock(rd_address address, RDInstruction** instruction) const
 {
     if(!instruction || (m_cache.find(address) == m_cache.end()))
         return false;
@@ -66,7 +66,7 @@ bool InstructionCache::unlock(const RDInstruction* instruction) const
     return true;
 }
 
-void InstructionCache::erase(address_t address) { m_cache.erase(address); }
+void InstructionCache::erase(rd_address address) { m_cache.erase(address); }
 
 bool InstructionCache::write(const RDInstruction* instruction) const
 {

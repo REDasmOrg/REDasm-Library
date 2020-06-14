@@ -37,13 +37,19 @@ const char* RD_Trampoline(const char* name)
 
 const char* RD_ToString(size_t value) { return RD_ToStringBase(value, 10, 0, '0'); }
 u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offset); }
-bool RD_InRange(address_t address, address_t start, address_t end) { return ((address >= start) && (address < end));  }
-bool RD_InRangeSize(address_t address, address_t start, address_t size) { return ((address >= start) && (address < (start + size))); }
+bool RD_InRange(rd_address address, rd_address start, rd_address end) { return ((address >= start) && (address < end));  }
+bool RD_InRangeSize(rd_address address, rd_address start, rd_address size) { return ((address >= start) && (address < (start + size))); }
 const char* RD_Demangle(const char* name) { return name ? Demangler::demangled(name) : nullptr; }
-intptr_t RD_SignExt(uintptr_t val, int bits) { return Utils::signext(val, bits); }
+intptr_t RD_SignExt(uintptr_t val, int valbits) { return Utils::signext(val, valbits); }
 u16 RD_Swap16(u16 hostval) { return Endian::swap16(hostval); }
 u32 RD_Swap32(u32 hostval) { return Endian::swap32(hostval); }
 u64 RD_Swap64(u64 hostval) { return Endian::swap64(hostval); }
+u16 RD_Rol16(u16 val, u16 amt) { return Utils::rol(val, amt); }
+u32 RD_Rol32(u32 val, u32 amt) { return Utils::rol(val, amt); }
+u64 RD_Rol64(u64 val, u64 amt) { return Utils::rol(val, amt); }
+u16 RD_Ror16(u16 val, u16 amt) { return Utils::ror(val, amt); }
+u32 RD_Ror32(u32 val, u32 amt) { return Utils::ror(val, amt); }
+u64 RD_Ror64(u64 val, u64 amt) { return Utils::ror(val, amt); }
 u16 RD_FromLittleEndian16(u16 hostval) { return Endian::fromlittleendian16(hostval); }
 u32 RD_FromLittleEndian32(u32 hostval) { return Endian::fromlittleendian32(hostval); }
 u64 RD_FromLittleEndian64(u64 hostval) { return Endian::fromlittleendian64(hostval); }

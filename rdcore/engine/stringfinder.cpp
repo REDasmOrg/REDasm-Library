@@ -52,7 +52,7 @@ bool StringFinder::step(BufferView* view)
     rd_ctx->status("Searching strings @ " + std::string(m_segment.name) + " in " + Utils::hex(loc.value));
 
     size_t totalsize = 0;
-    flag_t flags = this->categorize(view, &totalsize);
+    rd_flag flags = this->categorize(view, &totalsize);
 
     if(flags & SymbolFlags_AsciiString) m_disassembler->document()->asciiString(loc.value, totalsize);
     else if(flags & SymbolFlags_WideString) m_disassembler->document()->wideString(loc.value, totalsize);
@@ -62,7 +62,7 @@ bool StringFinder::step(BufferView* view)
     return true;
 }
 
-flag_t StringFinder::categorize(const BufferView* view, size_t* totalsize) const
+rd_flag StringFinder::categorize(const BufferView* view, size_t* totalsize) const
 {
     if(view->size() < (sizeof(char) * 2)) return SymbolFlags_None;
 

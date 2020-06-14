@@ -4,13 +4,13 @@
 #include <iterator>
 #include <cctype>
 
-int Sugar::branchDirection(const RDInstruction* instruction, address_t address)
+int Sugar::branchDirection(const RDInstruction* instruction, rd_address address)
 {
     return static_cast<int>(static_cast<std::make_signed<decltype(address)>::type>(address) -
                             static_cast<std::make_signed<decltype(instruction->address)>::type>(instruction->address));
 }
 
-address_t Sugar::nextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
+rd_address Sugar::nextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
 bool Sugar::isBranch(const RDInstruction* instruction) { return IS_TYPE(instruction, InstructionType_Call) || IS_TYPE(instruction, InstructionType_Jump); }
 
 bool Sugar::isUnconditionalJump(const RDInstruction* instruction)
@@ -38,7 +38,7 @@ bool Sugar::isNumeric(const RDOperand* operand)
     return false;
 }
 
-bool Sugar::isCharacter(address_t value) { return (value <= 0xFF) && ::isprint(static_cast<u8>(value)); }
+bool Sugar::isCharacter(rd_address value) { return (value <= 0xFF) && ::isprint(static_cast<u8>(value)); }
 
 bool Sugar::displacementCanBeAddress(const RDOperand* operand)
 {

@@ -2,11 +2,13 @@
 
 #include <type_traits>
 #include <functional>
+#include <climits>
 #include <sstream>
 #include <iomanip>
 #include <string>
 #include <deque>
 #include <rdapi/types.h>
+#include "../support/error.h"
 
 #define DEFAULT_SLEEP_TIME std::chrono::milliseconds(5)
 
@@ -35,15 +37,45 @@ class Utils
         template<typename Container> static std::string join(const Container& c, const char* sep);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
-        template<typename T> static typename std::make_signed<T>::type signext(T t, int bits);
+        template<typename T> static typename std::make_signed<T>::type signext(T val, int valbits);
+        template<typename T> static T rol(T val, T amt);
+        template<typename T> static T ror(T val, T amt);
 };
 
 template<typename T>
-typename std::make_signed<T>::type Utils::signext(T t, int bits)
+T Utils::ror(T val, T amt)
+{
+    static const T BITS_COUNT = sizeof(T) * CHAR_BIT;
+
+    if(amt < BITS_COUNT) {
+        if(!amt) return val;
+        return (val >> amt) | (val << (BITS_COUNT - amt));
+    }
+
+    REDasmError("Invalid ror operation");
+    return RD_NPOS;
+}
+
+template<typename T>
+T Utils::rol(T val, T amt)
+{
+    static const T BITS_COUNT = sizeof(T) * CHAR_BIT;
+
+    if(amt < BITS_COUNT) {
+        if(!amt) return val;
+        return (val << amt) | (val >> (BITS_COUNT - amt));
+    }
+
+    REDasmError("Invalid rol operation");
+    return RD_NPOS;
+}
+
+template<typename T>
+typename std::make_signed<T>::type Utils::signext(T val, int valbits)
 {
     T m = 1;
-    m <<= bits - 1;
-    return static_cast<typename std::make_signed<T>::type>((t ^ m) - m);
+    m <<= valbits - 1;
+    return static_cast<typename std::make_signed<T>::type>((val ^ m) - m);
 }
 
 template<typename Container>

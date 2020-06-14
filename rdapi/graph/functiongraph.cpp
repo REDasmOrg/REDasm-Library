@@ -15,7 +15,7 @@ bool RDFunctionGraph_GetBasicBlock(const RDGraph* graph, RDGraphNode n, const RD
 }
 
 
-bool RDFunctionGraph_Contains(const RDGraph* graph, address_t address)
+bool RDFunctionGraph_Contains(const RDGraph* graph, rd_address address)
 {
     const Graph* g = CPTR(const Graph, graph);
     const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
@@ -26,8 +26,8 @@ const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGra
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startIndex(); }
 size_t RDFunctionBasicBlock_GetEndIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endIndex(); }
-address_t RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startaddress; }
-address_t RDFunctionBasicBlock_GetEndAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endaddress; }
+rd_address RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startaddress; }
+rd_address RDFunctionBasicBlock_GetEndAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endaddress; }
 bool RDFunctionBasicBlock_GetStartItem(const RDFunctionBasicBlock* fbb, RDDocumentItem* item) { return CPTR(const FunctionBasicBlock, fbb)->getStartItem(item); }
 bool RDFunctionBasicBlock_GetEndItem(const RDFunctionBasicBlock* fbb, RDDocumentItem* item) { return CPTR(const FunctionBasicBlock, fbb)->getEndItem(item); }
-bool RDFunctionBasicBlock_Contains(const RDFunctionBasicBlock* fbb, address_t address) { return CPTR(const FunctionBasicBlock, fbb)->contains(address); }
+bool RDFunctionBasicBlock_Contains(const RDFunctionBasicBlock* fbb, rd_address address) { return CPTR(const FunctionBasicBlock, fbb)->contains(address); }

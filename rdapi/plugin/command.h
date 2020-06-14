@@ -15,7 +15,7 @@ enum RDArgumentType {
 };
 
 typedef struct RDArgument {
-    type_t type;
+    rd_type type;
     RD_USERDATA_FIELD
 } RDArgument;
 

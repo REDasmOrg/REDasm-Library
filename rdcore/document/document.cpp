@@ -27,12 +27,12 @@ Document::Document()
     m_blocks->blockRemoved = std::bind(&Document::onBlockRemoved, this, std::placeholders::_1);
 }
 
-bool Document::isInstructionCached(address_t address) const { return m_instructions->contains(address); }
+bool Document::isInstructionCached(rd_address address) const { return m_instructions->contains(address); }
 const SymbolTable* Document::symbols() const { return m_symbols.get(); }
 const BlockContainer* Document::blocks() const { return m_blocks.get(); }
 const RDSymbol* Document::entry() const { return &m_entry; }
 
-void Document::segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags)
+void Document::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
 {
     if((!(flags & SegmentFlags_Bss) && !psize) || !vsize)
     {
@@ -66,9 +66,9 @@ void Document::segment(const std::string& name, offset_t offset, address_t addre
     this->insert(address, DocumentItemType_Segment);
 }
 
-void Document::imported(address_t address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
-void Document::exported(address_t address, const std::string& name) { this->symbol(address, name, SymbolType_Data, SymbolFlags_Export); }
-void Document::exportedFunction(address_t address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
+void Document::imported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
+void Document::exported(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Data, SymbolFlags_Export); }
+void Document::exportedFunction(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
 
 void Document::instruction(const RDInstruction* instruction)
 {
@@ -76,27 +76,27 @@ void Document::instruction(const RDInstruction* instruction)
     m_blocks->codeSize(instruction->address, instruction->size);
 }
 
-void Document::asciiString(address_t address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_AsciiString); }
-void Document::wideString(address_t address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_WideString); }
-void Document::data(address_t address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
+void Document::asciiString(rd_address address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_AsciiString); }
+void Document::wideString(rd_address address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_WideString); }
+void Document::data(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
 
-void Document::table(address_t address, size_t count)
+void Document::table(rd_address address, size_t count)
 {
     this->tableItem(address, address, 0);
     this->type(address, "Table with " + Utils::number(count) + " case(s)");
 }
 
-void Document::tableItem(address_t address, address_t startaddress, size_t idx)
+void Document::tableItem(rd_address address, rd_address startaddress, size_t idx)
 {
     this->block(address, rd_disasm->addressWidth(),
                 SymbolTable::name(startaddress, SymbolType_Data, SymbolFlags_TableItem) + "_" + Utils::number(idx),
                 SymbolType_Data, SymbolFlags_TableItem | SymbolFlags_Pointer);
 }
 
-void Document::pointer(address_t address, type_t type, const std::string& name) { this->block(address, rd_disasm->addressWidth(), name, type, SymbolFlags_Pointer); }
-void Document::function(address_t address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
+void Document::pointer(rd_address address, rd_type type, const std::string& name) { this->block(address, rd_disasm->addressWidth(), name, type, SymbolFlags_Pointer); }
+void Document::function(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
 
-void Document::branch(address_t address, int direction)
+void Document::branch(rd_address address, int direction)
 {
     std::string name = Utils::hex(address);
 
@@ -106,7 +106,7 @@ void Document::branch(address_t address, int direction)
     this->symbol(address, name, SymbolType_Label, SymbolType_None);
 }
 
-void Document::type(address_t address, const std::string& s)
+void Document::type(rd_address address, const std::string& s)
 {
     if(m_itemdata[address].type == s) return;
 
@@ -114,15 +114,15 @@ void Document::type(address_t address, const std::string& s)
     this->replace(address, DocumentItemType_Type);
 }
 
-void Document::separator(address_t address)
+void Document::separator(rd_address address)
 {
     if(m_separators.find(address) != m_separators.end()) return;
     this->insert(address, DocumentItemType_Separator);
 }
 
-void Document::label(address_t address) { this->symbol(address, std::string(), SymbolType_Label, SymbolFlags_None); }
+void Document::label(rd_address address) { this->symbol(address, std::string(), SymbolType_Label, SymbolFlags_None); }
 
-void Document::entry(address_t address)
+void Document::entry(rd_address address)
 {
     const char* name = m_symbols->getName(address);
 
@@ -131,7 +131,7 @@ void Document::entry(address_t address)
     m_symbols->get(address, &m_entry);
 }
 
-void Document::empty(address_t address) { this->insert(address, DocumentItemType_Empty); }
+void Document::empty(rd_address address) { this->insert(address, DocumentItemType_Empty); }
 size_t Document::blocksCount() const { return m_blocks->size(); }
 size_t Document::itemsCount() const { return m_items->size(); }
 size_t Document::segmentsCount() const { return m_segments->size(); }
@@ -139,7 +139,7 @@ size_t Document::functionsCount() const { return m_functions->size(); }
 size_t Document::symbolsCount() const { return m_symbols->size(); }
 bool Document::empty() const { return m_items->empty(); }
 
-std::string Document::comment(address_t address, bool skipauto, const char* separator) const
+std::string Document::comment(rd_address address, bool skipauto, const char* separator) const
 {
     auto it = m_itemdata.find(address);
     if(it == m_itemdata.end()) return std::string();
@@ -152,7 +152,7 @@ std::string Document::comment(address_t address, bool skipauto, const char* sepa
     return Utils::join(comments, separator);
 }
 
-void Document::autoComment(address_t address, const std::string& s)
+void Document::autoComment(rd_address address, const std::string& s)
 {
     if(s.empty()) return;
 
@@ -164,7 +164,7 @@ void Document::autoComment(address_t address, const std::string& s)
     this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
 }
 
-void Document::comment(address_t address, const std::string& s)
+void Document::comment(rd_address address, const std::string& s)
 {
     m_itemdata[address].comments.clear();
     if(s.empty()) return;
@@ -177,7 +177,7 @@ void Document::comment(address_t address, const std::string& s)
     this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
 }
 
-bool Document::rename(address_t address, const std::string& newname)
+bool Document::rename(rd_address address, const std::string& newname)
 {
     if(!m_symbols->rename(address, newname)) return false;
     this->notify(m_items->symbolIndex(address), DocumentAction_ItemChanged);
@@ -216,7 +216,7 @@ RDLocation Document::entryPoint() const
 }
 
 bool Document::unlockInstruction(const RDInstruction* instruction) const { return m_instructions->unlock(instruction); }
-bool Document::lockInstruction(address_t address, RDInstruction** instruction) const { return m_instructions->lock(address, instruction); }
+bool Document::lockInstruction(rd_address address, RDInstruction** instruction) const { return m_instructions->lock(address, instruction); }
 
 bool Document::prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const
 {
@@ -229,11 +229,11 @@ bool Document::prevInstruction(const RDInstruction* instruction, RDInstruction**
 }
 
 bool Document::symbol(const char* name, RDSymbol* symbol) const { return m_symbols->get(name, symbol); }
-bool Document::symbol(address_t address, RDSymbol* symbol) const { return m_symbols->get(address, symbol); }
-bool Document::block(address_t address, RDBlock* block) const { return m_blocks->find(address, block); }
-bool Document::segment(address_t address, RDSegment* segment) const { return m_segments->find(address, segment); }
-bool Document::segmentOffset(offset_t offset, RDSegment* segment) const { return m_segments->findOffset(offset, segment); }
-const char* Document::name(address_t address) const { return m_symbols->getName(address); }
+bool Document::symbol(rd_address address, RDSymbol* symbol) const { return m_symbols->get(address, symbol); }
+bool Document::block(rd_address address, RDBlock* block) const { return m_blocks->find(address, block); }
+bool Document::segment(rd_address address, RDSegment* segment) const { return m_segments->find(address, segment); }
+bool Document::segmentOffset(rd_offset offset, RDSegment* segment) const { return m_segments->findOffset(offset, segment); }
+const char* Document::name(rd_address address) const { return m_symbols->getName(address); }
 
 size_t Document::itemIndex(const RDDocumentItem* item) const
 {
@@ -241,25 +241,25 @@ size_t Document::itemIndex(const RDDocumentItem* item) const
     return m_items->indexOf(*item);
 }
 
-size_t Document::functionIndex(address_t address) const { return m_items->functionIndex(address); }
-size_t Document::instructionIndex(address_t address) const { return m_items->instructionIndex(address); }
-size_t Document::symbolIndex(address_t address) const { return m_items->symbolIndex(address); }
+size_t Document::functionIndex(rd_address address) const { return m_items->functionIndex(address); }
+size_t Document::instructionIndex(rd_address address) const { return m_items->instructionIndex(address); }
+size_t Document::symbolIndex(rd_address address) const { return m_items->symbolIndex(address); }
 
-bool Document::functionItem(address_t address, RDDocumentItem* item) const
+bool Document::functionItem(rd_address address, RDDocumentItem* item) const
 {
     size_t idx = this->functionIndex(address);
     if(idx == RD_NPOS) return false;
     return m_items->get(idx, item);
 }
 
-bool Document::instructionItem(address_t address, RDDocumentItem* item) const
+bool Document::instructionItem(rd_address address, RDDocumentItem* item) const
 {
     size_t idx = this->instructionIndex(address);
     if(idx == RD_NPOS) return false;
     return m_items->get(idx, item);
 }
 
-bool Document::symbolItem(address_t address, RDDocumentItem* item) const
+bool Document::symbolItem(rd_address address, RDDocumentItem* item) const
 {
     size_t idx = this->symbolIndex(address);
     if(idx == RD_NPOS) return false;
@@ -273,10 +273,10 @@ void Document::invalidateGraphs()
 }
 
 void Document::graph(FunctionGraph* g) { m_functions->graph(g); }
-FunctionGraph* Document::graph(address_t address) const { return m_functions->findGraph(address); }
-RDLocation Document::functionStart(address_t address) const { return m_functions->findFunction(address); }
+FunctionGraph* Document::graph(rd_address address) const { return m_functions->findGraph(address); }
+RDLocation Document::functionStart(rd_address address) const { return m_functions->findFunction(address); }
 
-void Document::block(address_t address, size_t size, const std::string& name, type_t type, flag_t flags)
+void Document::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
 {
     if(!this->canSymbolizeAddress(address, flags)) return;
 
@@ -290,7 +290,7 @@ void Document::block(address_t address, size_t size, const std::string& name, ty
     this->symbol(address, name, type, flags);
 }
 
-void Document::symbol(address_t address, const std::string& name, type_t type, flag_t flags)
+void Document::symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags)
 {
     if(!this->canSymbolizeAddress(address, flags)) return;
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
@@ -318,7 +318,7 @@ void Document::symbol(address_t address, const std::string& name, type_t type, f
     this->insert(address, (type == SymbolType_Function) ? DocumentItemType_Function : DocumentItemType_Symbol);
 }
 
-const RDDocumentItem& Document::insert(address_t address, type_t type, u16 index)
+const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 index)
 {
     switch(type)
     {
@@ -333,19 +333,19 @@ const RDDocumentItem& Document::insert(address_t address, type_t type, u16 index
     return m_items->at(idx);
 }
 
-void Document::notify(size_t idx, type_t action)
+void Document::notify(size_t idx, rd_type action)
 {
     if(idx >= m_items->size()) return;
     EventDispatcher::enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, action, idx, m_items->at(idx));
 }
 
-void Document::replace(address_t address, type_t type)
+void Document::replace(rd_address address, rd_type type)
 {
     this->remove(address, type);
     this->insert(address, type);
 }
 
-void Document::remove(address_t address, type_t type)
+void Document::remove(rd_address address, rd_type type)
 {
     size_t idx = m_items->indexOf({ address, type, 0 });
     if(idx == RD_NPOS) return;
@@ -382,7 +382,7 @@ void Document::removeAt(size_t idx)
     }
 }
 
-bool Document::canSymbolizeAddress(address_t address, flag_t flags) const
+bool Document::canSymbolizeAddress(rd_address address, rd_flag flags) const
 {
     if(!m_segments->find(address, nullptr)) return false; // Ignore out of segment addresses
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;

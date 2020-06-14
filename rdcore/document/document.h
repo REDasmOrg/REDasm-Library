@@ -30,30 +30,30 @@ class Document: public Object
     public:
         Document();
         virtual ~Document() = default;
-        bool isInstructionCached(address_t address) const;
+        bool isInstructionCached(rd_address address) const;
         const SymbolTable* symbols() const;
         const BlockContainer* blocks() const;
         const RDSymbol* entry() const;
 
     public: // Insertion
-        void segment(const std::string& name, offset_t offset, address_t address, u64 psize, u64 vsize, flag_t flags);
-        void imported(address_t address, size_t size, const std::string& name);
-        void exported(address_t address, const std::string& name);
-        void exportedFunction(address_t address, const std::string& name);
+        void segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
+        void imported(rd_address address, size_t size, const std::string& name);
+        void exported(rd_address address, const std::string& name);
+        void exportedFunction(rd_address address, const std::string& name);
         void instruction(const RDInstruction* instruction);
-        void asciiString(address_t address, size_t size);
-        void wideString(address_t address, size_t size);
-        void data(address_t address, size_t size, const std::string& name);
-        void table(address_t address, size_t count);
-        void tableItem(address_t address, address_t startaddress, size_t idx);
-        void pointer(address_t address, type_t type, const std::string& name);
-        void function(address_t address, const std::string& name);
-        void branch(address_t address, int direction);
-        void type(address_t address, const std::string& s);
-        void separator(address_t address);
-        void label(address_t address);
-        void entry(address_t address);
-        void empty(address_t address);
+        void asciiString(rd_address address, size_t size);
+        void wideString(rd_address address, size_t size);
+        void data(rd_address address, size_t size, const std::string& name);
+        void table(rd_address address, size_t count);
+        void tableItem(rd_address address, rd_address startaddress, size_t idx);
+        void pointer(rd_address address, rd_type type, const std::string& name);
+        void function(rd_address address, const std::string& name);
+        void branch(rd_address address, int direction);
+        void type(rd_address address, const std::string& s);
+        void separator(rd_address address);
+        void label(rd_address address);
+        void entry(rd_address address);
+        void empty(rd_address address);
 
     public: // Count
         size_t blocksCount() const;
@@ -64,10 +64,10 @@ class Document: public Object
         bool empty() const;
 
     public: // Data
-        std::string comment(address_t address, bool skipauto, const char* separator) const;
-        void autoComment(address_t address, const std::string& s);
-        void comment(address_t address, const std::string& s);
-        bool rename(address_t address, const std::string& newname);
+        std::string comment(rd_address address, bool skipauto, const char* separator) const;
+        void autoComment(rd_address address, const std::string& s);
+        void comment(rd_address address, const std::string& s);
+        bool rename(rd_address address, const std::string& newname);
 
     public: // Get-i
         size_t itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const;
@@ -79,50 +79,50 @@ class Document: public Object
     public: // Get
         RDLocation entryPoint() const;
         bool prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const;
-        bool lockInstruction(address_t address, RDInstruction** instruction) const;
+        bool lockInstruction(rd_address address, RDInstruction** instruction) const;
         bool unlockInstruction(const RDInstruction* instruction) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
-        bool symbol(address_t address, RDSymbol* symbol) const;
-        bool block(address_t address, RDBlock* block) const;
-        bool segment(address_t address, RDSegment* segment) const;
-        bool segmentOffset(offset_t offset, RDSegment* segment) const;
-        const char* name(address_t address) const;
+        bool symbol(rd_address address, RDSymbol* symbol) const;
+        bool block(rd_address address, RDBlock* block) const;
+        bool segment(rd_address address, RDSegment* segment) const;
+        bool segmentOffset(rd_offset offset, RDSegment* segment) const;
+        const char* name(rd_address address) const;
 
     public: // Index
         size_t itemIndex(const RDDocumentItem* item) const;
-        size_t functionIndex(address_t address) const;
-        size_t instructionIndex(address_t address) const;
-        size_t symbolIndex(address_t address) const;
+        size_t functionIndex(rd_address address) const;
+        size_t instructionIndex(rd_address address) const;
+        size_t symbolIndex(rd_address address) const;
 
     public: // Item
-        bool functionItem(address_t address, RDDocumentItem* item) const;
-        bool instructionItem(address_t address, RDDocumentItem* item) const;
-        bool symbolItem(address_t address, RDDocumentItem* item) const;
+        bool functionItem(rd_address address, RDDocumentItem* item) const;
+        bool instructionItem(rd_address address, RDDocumentItem* item) const;
+        bool symbolItem(rd_address address, RDDocumentItem* item) const;
 
     public: // Graph
         void invalidateGraphs();
         void graph(FunctionGraph* g);
-        FunctionGraph* graph(address_t address) const;
-        RDLocation functionStart(address_t address) const;
+        FunctionGraph* graph(rd_address address) const;
+        RDLocation functionStart(rd_address address) const;
 
     private:
-        void block(address_t address, size_t size, const std::string& name, type_t type, flag_t flags);
-        void symbol(address_t address, const std::string& name, type_t type, flag_t flags);
+        void block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags);
+        void symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);
 
     private:
-        const RDDocumentItem& insert(address_t address, type_t type, u16 index = 0);
-        void notify(size_t idx, type_t action);
-        void replace(address_t address, type_t type);
-        void remove(address_t address, type_t type);
+        const RDDocumentItem& insert(rd_address address, rd_type type, u16 index = 0);
+        void notify(size_t idx, rd_type action);
+        void replace(rd_address address, rd_type type);
+        void remove(rd_address address, rd_type type);
         void removeAt(size_t idx);
-        bool canSymbolizeAddress(address_t address, flag_t flags) const;
+        bool canSymbolizeAddress(rd_address address, rd_flag flags) const;
         void onBlockInserted(const RDBlock& b);
         void onBlockRemoved(const RDBlock& b);
 
     private:
         RDSymbol m_entry{ };
-        std::unordered_map<address_t, ItemData> m_itemdata;
-        std::unordered_set<address_t> m_separators;
+        std::unordered_map<rd_address, ItemData> m_itemdata;
+        std::unordered_set<rd_address> m_separators;
         std::unique_ptr<InstructionCache> m_instructions;
         std::unique_ptr<SegmentContainer> m_segments;
         std::unique_ptr<FunctionContainer> m_functions;

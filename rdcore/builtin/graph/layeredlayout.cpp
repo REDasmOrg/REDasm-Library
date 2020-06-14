@@ -7,7 +7,7 @@
 #define LLAYOUT_PADDING_DIV4 (LLAYOUT_PADDING / 4)
 #define LLAYOUT_NODE_PADDING (2 * LLAYOUT_PADDING)
 
-LayeredLayout::LayeredLayout(StyledGraph* graph, type_t type): m_graph(graph), m_layouttype(type) { }
+LayeredLayout::LayeredLayout(StyledGraph* graph, rd_type type): m_graph(graph), m_layouttype(type) { }
 
 bool LayeredLayout::execute()
 {

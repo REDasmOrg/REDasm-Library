@@ -5,7 +5,7 @@
 MemoryBuffer::MemoryBuffer(size_t size) { this->resize(size); }
 void MemoryBuffer::resize(size_t size) { m_data.resize(size); }
 
-BufferView* MemoryBuffer::view(offset_t offset, size_t size)
+BufferView* MemoryBuffer::view(rd_offset offset, size_t size)
 {
     if(offset >= this->size()) return nullptr;
     size = std::min(size, this->size());

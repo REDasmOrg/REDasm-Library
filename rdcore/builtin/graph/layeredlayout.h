@@ -52,7 +52,7 @@ class LayeredLayout
         using EdgesVector = Matrix< std::deque<bool> >;
 
     public:
-        LayeredLayout(StyledGraph* graph, type_t type);
+        LayeredLayout(StyledGraph* graph, rd_type type);
         bool execute();
 
     private: // Refactored functions
@@ -81,7 +81,7 @@ class LayeredLayout
 
     private:
         StyledGraph* m_graph;
-        type_t m_layouttype;
+        rd_type m_layouttype;
 
     private: // Layout fields
         std::unordered_map<RDGraphNode, LLBlock> m_blocks;

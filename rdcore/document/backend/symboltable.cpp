@@ -6,13 +6,13 @@
 
 size_t SymbolTable::size() const { return m_byaddress.size(); }
 
-const char* SymbolTable::getName(address_t address) const
+const char* SymbolTable::getName(rd_address address) const
 {
     auto it = m_stringtable.find(address);
     return (it != m_stringtable.end()) ? it->second.c_str() : nullptr;
 }
 
-bool SymbolTable::get(address_t address, RDSymbol* symbol) const
+bool SymbolTable::get(rd_address address, RDSymbol* symbol) const
 {
     auto it = m_byaddress.find(address);
     if(it == m_byaddress.end()) return false;
@@ -28,7 +28,7 @@ bool SymbolTable::get(const char* name, RDSymbol* symbol) const
     return this->get(it->second, symbol);
 }
 
-void SymbolTable::remove(address_t address)
+void SymbolTable::remove(rd_address address)
 {
     auto it = m_stringtable.find(address);
     if(it == m_stringtable.end()) return;
@@ -38,7 +38,7 @@ void SymbolTable::remove(address_t address)
     m_byaddress.erase(address);
 }
 
-void SymbolTable::create(address_t address, const std::string& name, type_t type, flag_t flags)
+void SymbolTable::create(rd_address address, const std::string& name, rd_type type, rd_flag flags)
 {
     std::string symbolname = name;
     if(symbolname.empty()) symbolname = SymbolTable::name(address, type, flags);
@@ -48,7 +48,7 @@ void SymbolTable::create(address_t address, const std::string& name, type_t type
     m_stringtable[address] = symbolname;
 }
 
-bool SymbolTable::rename(address_t address, const std::string& newname)
+bool SymbolTable::rename(rd_address address, const std::string& newname)
 {
     if(newname.empty()) return false;
 
@@ -68,14 +68,14 @@ bool SymbolTable::rename(address_t address, const std::string& newname)
     return true;
 }
 
-std::string SymbolTable::name(address_t address, type_t type, flag_t flags)
+std::string SymbolTable::name(rd_address address, rd_type type, rd_flag flags)
 {
     std::stringstream ss;
     ss << SymbolTable::prefix(type, flags).c_str() << "_" << std::hex << address;
     return ss.str();
 }
 
-std::string SymbolTable::name(address_t address, const char* s, type_t type, flag_t flags)
+std::string SymbolTable::name(rd_address address, const char* s, rd_type type, rd_flag flags)
 {
     if(!s || !std::strlen(s))
         return SymbolTable::name(address, type, flags);
@@ -85,12 +85,12 @@ std::string SymbolTable::name(address_t address, const char* s, type_t type, fla
     return ss.str();
 }
 
-std::string SymbolTable::name(const char* s, address_t address)
+std::string SymbolTable::name(const char* s, rd_address address)
 {
     return std::string(s) + "_" + Utils::hex(address);
 }
 
-std::string SymbolTable::prefix(type_t type, flag_t flags)
+std::string SymbolTable::prefix(rd_type type, rd_flag flags)
 {
     switch(type)
     {

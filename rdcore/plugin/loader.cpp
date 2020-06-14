@@ -30,9 +30,9 @@ bool Loader::analyze(Disassembler* disassembler)
     return true;
 }
 
-BufferView* Loader::view(address_t address) const { return this->view(address, RD_NPOS); }
+BufferView* Loader::view(rd_address address) const { return this->view(address, RD_NPOS); }
 
-BufferView* Loader::view(address_t address, size_t size) const
+BufferView* Loader::view(rd_address address, size_t size) const
 {
     RDLocation loc = this->offset(address);
     return loc.valid ? m_buffer->view(loc.value, size) : nullptr;
@@ -44,11 +44,11 @@ BufferView* Loader::view(const RDSegment& segment) const
     return m_buffer->view(segment.offset, SegmentContainer::offsetSize(segment));
 }
 
-flag_t Loader::flags() const { return m_ploader->flags; }
+rd_flag Loader::flags() const { return m_ploader->flags; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
 
-RDLocation Loader::offset(address_t address) const
+RDLocation Loader::offset(rd_address address) const
 {
     RDSegment segment;
     if(!m_document->segment(address, &segment)|| HAS_FLAG(&segment, SegmentFlags_Bss)) return { {0}, false };
@@ -58,7 +58,7 @@ RDLocation Loader::offset(address_t address) const
     return { {address}, true };
 }
 
-RDLocation Loader::address(offset_t offset) const
+RDLocation Loader::address(rd_offset offset) const
 {
     RDSegment segment;
     if(!m_document->segmentOffset(offset, &segment)) return { {0}, false };
@@ -79,16 +79,16 @@ RDLocation Loader::addressof(const void* ptr) const
 RDLocation Loader::fileoffset(const void* ptr) const
 {
     if(!m_buffer->contains(reinterpret_cast<const u8*>(ptr))) return { {0}, false };
-    return { {static_cast<location_t>(reinterpret_cast<const u8*>(ptr) - m_buffer->data())}, true };
+    return { {static_cast<rd_location>(reinterpret_cast<const u8*>(ptr) - m_buffer->data())}, true };
 }
 
-u8* Loader::addrpointer(address_t address) const
+u8* Loader::addrpointer(rd_address address) const
 {
   RDLocation loc = this->offset(address);
   return loc.valid ? Utils::relpointer(m_buffer->data(), loc.value) : nullptr;
 }
 
-u8* Loader::pointer(offset_t offset) const
+u8* Loader::pointer(rd_offset offset) const
 {
     if(offset >= m_buffer->size()) return nullptr;
     return Utils::relpointer(m_buffer->data(), offset);

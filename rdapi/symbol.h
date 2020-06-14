@@ -24,9 +24,9 @@ enum RDSymbolFlags {
 };
 
 typedef struct RDSymbol {
-    address_t address;
-    type_t type;
-    flag_t flags;
+    rd_address address;
+    rd_type type;
+    rd_flag flags;
 } RDSymbol;
 
-RD_API_EXPORT const char* RDSymbol_NameHint(address_t address, const char* s, type_t type, flag_t flags);
+RD_API_EXPORT const char* RDSymbol_NameHint(rd_address address, const char* s, rd_type type, rd_flag flags);

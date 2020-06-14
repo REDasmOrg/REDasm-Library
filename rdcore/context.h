@@ -45,7 +45,7 @@ class Context: public Object
 
     public:
         void statusProgress(const char* s, size_t progress) const;
-        void statusAddress(const char* s, address_t address) const;
+        void statusAddress(const char* s, rd_address address) const;
         void status(const char* s) const;
         void log(const char* s) const;
 
@@ -67,8 +67,8 @@ class Context: public Object
     public:
         void setUI(const RDUI* rdui);
         const RDUI* ui() const;
-        void setFlags(flag_t flag);
-        flag_t flags() const;
+        void setFlags(rd_flag flag);
+        rd_flag flags() const;
         bool hasProblems() const;
         size_t problemsCount() const;
         PluginManager* pluginManager();
@@ -89,7 +89,7 @@ class Context: public Object
 
     private:
         Disassembler* m_disassembler{nullptr};
-        flag_t m_flags{ContextFlag_None};
+        rd_flag m_flags{ContextFlag_None};
         PluginManager m_pluginmanager;
         PluginMap m_loaders, m_assemblers, m_commands;
         LoaderToAssemblerMap m_loadertoassembler;

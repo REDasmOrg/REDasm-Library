@@ -16,20 +16,20 @@ class Loader: public Object
         bool load();
         bool build(const RDLoaderBuildRequest* req);
         bool analyze(Disassembler* disassembler);
-        BufferView* view(address_t address) const;
-        BufferView* view(address_t address, size_t size) const;
+        BufferView* view(rd_address address) const;
+        BufferView* view(rd_address address, size_t size) const;
         BufferView* view(const RDSegment& segment) const;
-        flag_t flags() const;
+        rd_flag flags() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
 
     public:
-        RDLocation offset(address_t address) const;
-        RDLocation address(offset_t offset) const;
+        RDLocation offset(rd_address address) const;
+        RDLocation address(rd_offset offset) const;
         RDLocation addressof(const void* ptr) const;
         RDLocation fileoffset(const void* ptr) const;
-        u8* addrpointer(address_t address) const;
-        u8* pointer(offset_t offset) const;
+        u8* addrpointer(rd_address address) const;
+        u8* pointer(rd_offset offset) const;
 
     private:
         RDLoaderPlugin* m_ploader;

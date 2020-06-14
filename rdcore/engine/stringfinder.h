@@ -20,7 +20,7 @@ class StringFinder
         static bool toAscii(char16_t inch, char* outch);
 
     private:
-        flag_t categorize(const BufferView* view, size_t* totalsize) const;
+        rd_flag categorize(const BufferView* view, size_t* totalsize) const;
         bool validateString(const char* s, size_t size) const;
         bool checkFormats(const std::string& s) const;
         bool step(BufferView* view);

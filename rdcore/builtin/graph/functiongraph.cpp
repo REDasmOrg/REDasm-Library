@@ -7,8 +7,8 @@
 #include <unordered_set>
 #include <stack>
 
-FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, address_t address): node(n), startaddress(address), endaddress(address), m_document(document) { }
-bool FunctionBasicBlock::contains(address_t address) const { return ((address >= startaddress) && (address <= endaddress)); }
+FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address address): node(n), startaddress(address), endaddress(address), m_document(document) { }
+bool FunctionBasicBlock::contains(rd_address address) const { return ((address >= startaddress) && (address <= endaddress)); }
 
 bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
 {
@@ -53,9 +53,9 @@ void FunctionBasicBlock::bFalse(RDGraphNode n) { m_styles[n] = "graph_edge_false
 void FunctionBasicBlock::bTrue(RDGraphNode n) { m_styles[n] = "graph_edge_true"; }
 
 FunctionGraph::FunctionGraph(Disassembler* disassembler): StyledGraph(), m_disassembler(disassembler), m_document(disassembler->document()) { }
-const FunctionBasicBlock* FunctionGraph::basicBlock(address_t address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
+const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
 
-FunctionBasicBlock* FunctionGraph::basicBlock(address_t address)
+FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
 {
     for(FunctionBasicBlock& fbb : m_basicblocks)
     {
@@ -66,7 +66,7 @@ FunctionBasicBlock* FunctionGraph::basicBlock(address_t address)
     return nullptr;
 }
 
-address_t FunctionGraph::startAddress() const { return m_graphstart.start; }
+rd_address FunctionGraph::startAddress() const { return m_graphstart.start; }
 
 size_t FunctionGraph::bytesCount() const
 {
@@ -97,7 +97,7 @@ size_t FunctionGraph::bytesCount() const
     return c;
 }
 
-bool FunctionGraph::contains(address_t address) const
+bool FunctionGraph::contains(rd_address address) const
 {
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
@@ -108,7 +108,7 @@ bool FunctionGraph::contains(address_t address) const
     return false;
 }
 
-bool FunctionGraph::build(address_t address)
+bool FunctionGraph::build(rd_address address)
 {
     if(!m_document->block(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
         return false;
@@ -125,7 +125,7 @@ bool FunctionGraph::build(address_t address)
 
 bool FunctionGraph::complete() const { return m_complete; }
 
-FunctionBasicBlock* FunctionGraph::requestBasicBlock(address_t startaddress)
+FunctionBasicBlock* FunctionGraph::requestBasicBlock(rd_address startaddress)
 {
     FunctionBasicBlock* fbb = this->basicBlock(startaddress);
 
@@ -177,7 +177,7 @@ void FunctionGraph::buildBasicBlocks()
         if(idx == RD_NPOS) REDasmError("Invalid index for block", block.address);
 
         FunctionBasicBlock* fbb = this->requestBasicBlock(block.start);
-        address_t endaddress = block.start;
+        rd_address endaddress = block.start;
 
         for(size_t i = idx; i < blockcontainer->size(); i++)
         {
@@ -198,12 +198,12 @@ void FunctionGraph::buildBasicBlocks()
                 continue;
             }
 
-            const address_t* targets = nullptr;
+            const rd_address* targets = nullptr;
             size_t c = m_disassembler->getTargets(instruction->address, &targets);
 
             for(size_t i = 0; i < c; i++)
             {
-                address_t target = targets[i];
+                rd_address target = targets[i];
 
                 RDSymbol symbol;
                 if(m_document->symbol(target, &symbol) && IS_TYPE(&symbol, SymbolType_Import)) continue;
@@ -219,7 +219,7 @@ void FunctionGraph::buildBasicBlocks()
 
             if(HAS_FLAG(*instruction, InstructionFlags_Conditional))
             {
-                address_t nextaddress = Sugar::nextAddress(*instruction);
+                rd_address nextaddress = Sugar::nextAddress(*instruction);
 
                 FunctionBasicBlock* nextfbb = this->requestBasicBlock(nextaddress);
                 fbb->bFalse(nextfbb->node);

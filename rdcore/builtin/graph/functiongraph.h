@@ -10,8 +10,8 @@ class Disassembler;
 
 struct FunctionBasicBlock
 {
-    FunctionBasicBlock(SafeDocument& document, RDGraphNode n, address_t startaddress);
-    bool contains(address_t address) const;
+    FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address startaddress);
+    bool contains(rd_address address) const;
     bool getStartItem(RDDocumentItem* item) const;
     bool getEndItem(RDDocumentItem* item) const;
     size_t startIndex() const;
@@ -22,7 +22,7 @@ struct FunctionBasicBlock
     void bTrue(RDGraphNode n);
 
     RDGraphNode node{0};
-    address_t startaddress, endaddress; // [startaddress, endaddress]
+    rd_address startaddress, endaddress; // [startaddress, endaddress]
 
     private:
         std::unordered_map<RDGraphNode, std::string> m_styles;
@@ -33,16 +33,16 @@ class FunctionGraph: public StyledGraph
 {
     public:
         FunctionGraph(Disassembler* disassembler);
-        const FunctionBasicBlock* basicBlock(address_t address) const;
-        FunctionBasicBlock* basicBlock(address_t address);
-        address_t startAddress() const;
+        const FunctionBasicBlock* basicBlock(rd_address address) const;
+        FunctionBasicBlock* basicBlock(rd_address address);
+        rd_address startAddress() const;
         size_t bytesCount() const;
-        bool contains(address_t address) const;
-        bool build(address_t address);
+        bool contains(rd_address address) const;
+        bool build(rd_address address);
         bool complete() const;
 
     private:
-        FunctionBasicBlock* requestBasicBlock(address_t startaddress);
+        FunctionBasicBlock* requestBasicBlock(rd_address startaddress);
         bool build(RDDocumentItem* item);
         void buildBasicBlocks();
 

@@ -20,9 +20,9 @@ typedef struct RDLoaderRequest {
 } RDLoaderRequest;
 
 typedef struct RDLoaderBuildRequest {
-    offset_t offset;
-    address_t baseaddress;
-    address_t entrypoint;
+    rd_offset offset;
+    rd_address baseaddress;
+    rd_address entrypoint;
 } RDLoaderBuildRequest;
 
 DECLARE_HANDLE(RDLoader);
@@ -36,7 +36,7 @@ typedef void (*Callback_LoaderAnalyze)(struct RDLoaderPlugin* ploader, RDDisasse
 
 typedef struct RDLoaderPlugin {
     RD_PLUGIN_HEADER
-    flag_t flags;
+    rd_flag flags;
 
     Callback_LoaderTest test;
     Callback_LoaderLoad load;
@@ -49,7 +49,7 @@ typedef void (*Callback_LoaderPlugin)(RDLoaderPlugin* ploader, void* userdata);
 RD_API_EXPORT bool RDLoader_Register(RDLoaderPlugin* ploader);
 RD_API_EXPORT const char* RDLoader_GetAssemblerId(const RDLoaderPlugin* ploader);
 RD_API_EXPORT RDAssemblerPlugin* RDLoader_GetAssembler(const RDLoaderPlugin* ploader);
-RD_API_EXPORT flag_t RDLoader_GetFlags(const RDLoader* ldr);
+RD_API_EXPORT rd_flag RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);
 RD_API_EXPORT RDBuffer* RDLoader_GetBuffer(RDLoader* ldr);
 RD_API_EXPORT u8* RDLoader_GetData(RDLoader* ldr);
@@ -57,9 +57,9 @@ RD_API_EXPORT bool RDLoader_Build(RDLoader* ldr, const RDLoaderBuildRequest* req
 RD_API_EXPORT bool RDLoader_Load(RDLoader* ldr);
 
 RD_API_EXPORT void RD_GetLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
-RD_API_EXPORT u8* RD_AddrPointer(const RDLoader* ldr, address_t address);
-RD_API_EXPORT u8* RD_Pointer(const RDLoader* ldr, offset_t offset);
+RD_API_EXPORT u8* RD_AddrPointer(const RDLoader* ldr, rd_address address);
+RD_API_EXPORT u8* RD_Pointer(const RDLoader* ldr, rd_offset offset);
 RD_API_EXPORT RDLocation RD_FileOffset(const RDLoader* ldr, const void* ptr);
 RD_API_EXPORT RDLocation RD_AddressOf(const RDLoader* ldr, const void* ptr);
-RD_API_EXPORT RDLocation RD_Offset(const RDLoader* ldr, address_t address);
-RD_API_EXPORT RDLocation RD_Address(const RDLoader* ldr, offset_t offset);
+RD_API_EXPORT RDLocation RD_Offset(const RDLoader* ldr, rd_address address);
+RD_API_EXPORT RDLocation RD_Address(const RDLoader* ldr, rd_offset offset);

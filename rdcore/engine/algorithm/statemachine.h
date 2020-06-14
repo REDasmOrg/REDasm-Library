@@ -13,19 +13,19 @@ class StateMachine
         virtual ~StateMachine() = default;
         size_t pending() const;
         bool hasNext() const;
-        void enqueue(address_t address);
-        void schedule(address_t address);
+        void enqueue(rd_address address);
+        void schedule(rd_address address);
         void next();
 
     private:
-        virtual void decodeAddress(address_t address) = 0;
-        bool getNext(address_t* address);
+        virtual void decodeAddress(rd_address address) = 0;
+        bool getNext(rd_address* address);
 
     protected:
         Disassembler* m_disassembler;
         SafeDocument& m_document;
 
     private:
-        std::deque<address_t> m_pending;
+        std::deque<rd_address> m_pending;
 };
 

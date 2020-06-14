@@ -16,21 +16,21 @@ class InstructionCache
         ~InstructionCache();
 
     public:
-        bool lock(address_t address, RDInstruction** instruction) const;
+        bool lock(rd_address address, RDInstruction** instruction) const;
         bool unlock(const RDInstruction* instruction) const;
 
     public:
-        bool contains(address_t address) const;
+        bool contains(rd_address address) const;
         void cache(const RDInstruction* instruction);
-        void erase(address_t address);
+        void erase(rd_address address);
 
     private:
         bool write(const RDInstruction* instruction) const;
         static std::string generateFilePath();
 
     private:
-        mutable std::unordered_map<address_t, CachedInstruction> m_loaded;
-        std::unordered_set<address_t> m_cache;
+        mutable std::unordered_map<rd_address, CachedInstruction> m_loaded;
+        std::unordered_set<rd_address> m_cache;
         std::string m_filepath;
         bool m_lockserialization{false};
         LMDB m_lmdb;

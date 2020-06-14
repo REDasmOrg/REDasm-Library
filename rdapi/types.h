@@ -6,7 +6,7 @@
 
 #define DEFAULT_SYMBOL_NAME_SIZE 32
 #define DEFAULT_NAME_SIZE        32
-#define DEFAULT_CONTAINER_SIZE   10
+#define DEFAULT_CONTAINER_SIZE   32
 
 typedef uint8_t  u8;
 typedef uint16_t u16;
@@ -17,15 +17,15 @@ typedef int16_t  s16;
 typedef int32_t  s32;
 typedef int64_t  s64;
 
-typedef u64 location_t;
-typedef location_t address_t;
-typedef location_t offset_t;
+typedef u64 rd_location;
+typedef rd_location rd_address;
+typedef rd_location rd_offset;
 
-typedef u64 instruction_id_t;
-typedef s64 register_id_t;
+typedef u64 rd_instruction_id;
+typedef u64 rd_register_id;
 
-typedef u16 type_t;
-typedef u16 flag_t;
+typedef u16 rd_type;
+typedef u16 rd_flag;
 
 #ifdef __cplusplus
     #define RD_NPOS static_cast<size_t>(-1)
@@ -34,9 +34,9 @@ typedef u16 flag_t;
 #endif
 
 #ifdef __cplusplus
-    #define RD_NREG static_cast<register_id_t>(-1)
+    #define RD_NREG static_cast<rd_register_id>(-1)
 #else
-    #define RD_NREG (register_id_t)(-1)
+    #define RD_NREG (rd_register_id)(-1)
 #endif
 
 #define RD_USERDATA_FIELD \
@@ -50,9 +50,9 @@ typedef u16 flag_t;
 
 typedef struct RDLocation {
     union {
-        location_t value;
-        offset_t offset;
-        address_t address;
+        rd_location value;
+        rd_offset offset;
+        rd_address address;
     };
 
     bool valid;
@@ -70,11 +70,11 @@ enum RDSegmentFlags {
 #pragma pack(push, 1)
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
-    offset_t offset;
-    offset_t endoffset;
-    address_t address;
-    address_t endaddress;
-    flag_t flags;
+    rd_offset offset;
+    rd_offset endoffset;
+    rd_address address;
+    rd_address endaddress;
+    rd_flag flags;
     size_t coveragebytes;
     size_t itemscount;
 } RDSegment;
@@ -91,15 +91,20 @@ enum RDOperandType {
 
 #pragma pack(push, 1)
 typedef struct RDOperand {
-    type_t type;
+    rd_type type;
     u32 pos;
 
     union {
-        register_id_t reg;
-        register_id_t base;
+        rd_register_id reg;
+        rd_register_id reg1;
+        rd_register_id base;
     };
 
-    register_id_t index;
+    union {
+        rd_register_id index;
+        rd_register_id reg2;
+    };
+
     s64 scale;
 
     union {
@@ -107,8 +112,8 @@ typedef struct RDOperand {
         s64 displacement;
 
         u64 u_value;
-        address_t address;
-        offset_t offset;
+        rd_address address;
+        rd_offset offset;
     };
 
     RD_USERDATA_FIELD
@@ -150,12 +155,12 @@ enum RDInstructionFlags {
 
 #pragma pack(push, 1)
 typedef struct RDInstruction {
-    instruction_id_t id;  // Implementation Specific
+    rd_instruction_id id;  // Implementation Specific
 
-    address_t address;
+    rd_address address;
     char mnemonic[DEFAULT_NAME_SIZE];
-    type_t type;
-    flag_t flags;
+    rd_type type;
+    rd_flag flags;
     u32 size;
     u32 operandscount;
     RDOperand operands[DEFAULT_CONTAINER_SIZE];
@@ -166,8 +171,10 @@ typedef struct RDInstruction {
 
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);
-RD_API_EXPORT address_t RDInstruction_NextAddress(const RDInstruction* instruction);
-RD_API_EXPORT RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, type_t type);
+RD_API_EXPORT rd_address RDInstruction_NextAddress(const RDInstruction* instruction);
+RD_API_EXPORT RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type);
+RD_API_EXPORT RDOperand* RDInstruction_FirstOperand(RDInstruction* instruction);
+RD_API_EXPORT RDOperand* RDInstruction_LastOperand(RDInstruction* instruction);
 RD_API_EXPORT void RDInstruction_ClearOperands(RDInstruction* instruction);
 RD_API_EXPORT void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx);
 RD_API_EXPORT void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic);

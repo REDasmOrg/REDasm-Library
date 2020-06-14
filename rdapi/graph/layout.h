@@ -6,4 +6,4 @@ enum RDLayeredLayoutType {
     LayeredLayoutType_Medium, LayeredLayoutType_Narrow, LayeredLayoutType_Wide
 };
 
-RD_API_EXPORT bool RDGraphLayout_Layered(RDGraph* graph, type_t type);
+RD_API_EXPORT bool RDGraphLayout_Layered(RDGraph* graph, rd_type type);

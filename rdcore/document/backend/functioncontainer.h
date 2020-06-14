@@ -6,22 +6,22 @@
 #include "../../containers.h"
 #include "../../builtin/graph/functiongraph.h"
 
-class FunctionContainer: public SortedContainer<address_t, std::less<address_t>, std::equal_to<address_t>, true>
+class FunctionContainer: public SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true>
 {
     private:
-        typedef SortedContainer<address_t, std::less<address_t>, std::equal_to<address_t>, true> Type;
+        typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> Type;
         typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
 
     public:
         FunctionContainer() = default;
-        void remove(address_t address); // Hides base class method
-        RDLocation findFunction(address_t address) const;
-        const FunctionBasicBlock* findBasicBlock(address_t address) const;
-        FunctionGraph* findGraph(address_t address) const;
+        void remove(rd_address address); // Hides base class method
+        RDLocation findFunction(rd_address address) const;
+        const FunctionBasicBlock* findBasicBlock(rd_address address) const;
+        FunctionGraph* findGraph(rd_address address) const;
         void graph(FunctionGraph* g);
         void clearGraphs();
 
     private:
-        std::unordered_map<address_t, FunctionGraphPtr> m_graphs;
+        std::unordered_map<rd_address, FunctionGraphPtr> m_graphs;
 };
 

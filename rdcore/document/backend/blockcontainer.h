@@ -20,16 +20,16 @@ class BlockContainer: public Object
     public:
         BlockContainer() = default;
         void unexplored(const RDBlock* blockitem);
-        void unexplored(address_t start);
-        void unexplored(address_t start, address_t end);
-        void data(address_t start, address_t end);
-        void code(address_t start, address_t end);
-        void unexploredSize(address_t start, size_t size);
-        void dataSize(address_t start, size_t size);
-        void codeSize(address_t start, size_t size);
+        void unexplored(rd_address start);
+        void unexplored(rd_address start, rd_address end);
+        void data(rd_address start, rd_address end);
+        void code(rd_address start, rd_address end);
+        void unexploredSize(rd_address start, size_t size);
+        void dataSize(rd_address start, size_t size);
+        void codeSize(rd_address start, size_t size);
 
     public:
-        bool find(address_t address, RDBlock* block) const;
+        bool find(rd_address address, RDBlock* block) const;
         bool get(size_t idx, RDBlock* block) const;
         const RDBlock& at(size_t idx) const;
         size_t indexOf(const RDBlock* b) const;
@@ -37,16 +37,16 @@ class BlockContainer: public Object
 
     public:
         static size_t size(const RDBlock* b);
-        static bool contains(const RDBlock* b, address_t address);
+        static bool contains(const RDBlock* b, rd_address address);
         static bool empty(const RDBlock* b);
 
     private:
-        void mark(address_t start, address_t end, type_t type);
-        void markSize(address_t start, size_t size, type_t type);
-        void insert(address_t start, address_t end, type_t type);
-        void remove(address_t start, address_t end);
-        template<typename Iterator> Iterator findOverlap(Iterator first, Iterator last, address_t address) const;
-        template<typename Iterator> Iterator insertionPoint(Iterator first, Iterator last, address_t address) const;
+        void mark(rd_address start, rd_address end, rd_type type);
+        void markSize(rd_address start, size_t size, rd_type type);
+        void insert(rd_address start, rd_address end, rd_type type);
+        void remove(rd_address start, rd_address end);
+        template<typename Iterator> Iterator findOverlap(Iterator first, Iterator last, rd_address address) const;
+        template<typename Iterator> Iterator insertionPoint(Iterator first, Iterator last, rd_address address) const;
         template<typename Iterator> Iterator eraseRange(Iterator startit, Iterator endit);
         template<typename Iterator> Iterator eraseBlock(Iterator it);
         template<typename Iterator> Iterator insertBlock(Iterator it, const RDBlock& bi);
@@ -84,7 +84,7 @@ Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
 }
 
 template<typename Iterator>
-Iterator BlockContainer::findOverlap(Iterator first, Iterator last, address_t address) const
+Iterator BlockContainer::findOverlap(Iterator first, Iterator last, rd_address address) const
 {
     typename Iterator::difference_type count = std::distance(first, last), step;
     Iterator it;
@@ -111,7 +111,7 @@ Iterator BlockContainer::findOverlap(Iterator first, Iterator last, address_t ad
 }
 
 template<typename Iterator>
-Iterator BlockContainer::insertionPoint(Iterator first, Iterator last, address_t address) const
+Iterator BlockContainer::insertionPoint(Iterator first, Iterator last, rd_address address) const
 {
     auto count = std::distance(first, last);
 

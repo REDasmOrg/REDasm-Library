@@ -16,14 +16,14 @@ void RD_AddDatabasePath(const char* dbpath) { rd_ctx->addDatabasePath(dbpath); }
 void RD_GetProblems(RD_ProblemCallback callback, void* userdata) { rd_ctx->getProblems(callback, userdata); }
 void RD_GetPluginPaths(RD_PluginCallback callback, void* userdata) { rd_ctx->getPluginPaths(callback, userdata); }
 void RD_Log(const char* s) { rd_ctx->log(s); }
-void RD_StatusAddress(const char* s, address_t address) { rd_ctx->statusAddress(s, address); }
+void RD_StatusAddress(const char* s, rd_address address) { rd_ctx->statusAddress(s, address); }
 void RD_Status(const char* s) { rd_ctx->status(s); }
 void RD_Problem(const char* s) { rd_ctx->problem(s); }
 void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }
 bool RD_HasProblems(void) { return rd_ctx->hasProblems(); }
 bool RD_IsBusy(void) { return rd_disasm->busy(); }
 
-void RD_SetContextFlags(flag_t flags) { rd_ctx->setFlags(flags); }
-flag_t RD_GetContextFlags(void) { return rd_ctx->flags(); }
+void RD_SetContextFlags(rd_flag flags) { rd_ctx->setFlags(flags); }
+rd_flag RD_GetContextFlags(void) { return rd_ctx->flags(); }
 const char* RD_RuntimePath(void) { return rd_ctx->runtimePath(); }
 const char* RD_TempPath(void) { return rd_ctx->tempPath(); }

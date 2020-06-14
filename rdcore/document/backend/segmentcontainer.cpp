@@ -1,7 +1,7 @@
 #include "segmentcontainer.h"
 #include <algorithm>
 
-void SegmentContainer::removeAddress(address_t address)
+void SegmentContainer::removeAddress(rd_address address)
 {
     auto it = std::find_if(m_container.begin(), m_container.end(), [address](const RDSegment& segment) {
         return SegmentContainer::containsAddress(&segment, address);
@@ -11,7 +11,7 @@ void SegmentContainer::removeAddress(address_t address)
         m_container.erase(it);
 }
 
-bool SegmentContainer::find(address_t address, RDSegment* segment) const
+bool SegmentContainer::find(rd_address address, RDSegment* segment) const
 {
     auto it = std::find_if(m_container.begin(), m_container.end(), [address](const RDSegment& segment) {
         return SegmentContainer::containsAddress(&segment, address);
@@ -22,7 +22,7 @@ bool SegmentContainer::find(address_t address, RDSegment* segment) const
     return true;
 }
 
-bool SegmentContainer::findOffset(offset_t address, RDSegment* segment) const
+bool SegmentContainer::findOffset(rd_offset address, RDSegment* segment) const
 {
     auto it = std::find_if(m_container.begin(), m_container.end(), [address](const RDSegment& segment) {
         return SegmentContainer::containsOffset(&segment, address);
@@ -44,12 +44,12 @@ size_t SegmentContainer::offsetSize(const RDSegment& segment)
     return (segment.offset > segment.endoffset) ? 0 : (segment.endoffset - segment.offset);
 }
 
-bool SegmentContainer::containsAddress(const RDSegment* segment, address_t address)
+bool SegmentContainer::containsAddress(const RDSegment* segment, rd_address address)
 {
     return (address >= segment->address) && (address < segment->endaddress);
 }
 
-bool SegmentContainer::containsOffset(const RDSegment* segment, offset_t offset)
+bool SegmentContainer::containsOffset(const RDSegment* segment, rd_offset offset)
 {
     if(HAS_FLAG(segment, SegmentFlags_Bss)) return false;
     return (offset >= segment->offset) && (offset < segment->endoffset);

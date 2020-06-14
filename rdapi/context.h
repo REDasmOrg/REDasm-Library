@@ -39,7 +39,7 @@ RD_API_EXPORT void RD_AddPluginPath(const char* pluginpath);
 RD_API_EXPORT void RD_AddDatabasePath(const char* dbpath);
 RD_API_EXPORT void RD_GetProblems(RD_ProblemCallback callback, void* userdata);
 RD_API_EXPORT void RD_GetPluginPaths(RD_PluginCallback callback, void* userdata);
-RD_API_EXPORT void RD_StatusAddress(const char* s, address_t address);
+RD_API_EXPORT void RD_StatusAddress(const char* s, rd_address address);
 RD_API_EXPORT void RD_Status(const char* s);
 RD_API_EXPORT void RD_Log(const char* s);
 RD_API_EXPORT void RD_Problem(const char* s);
@@ -48,8 +48,8 @@ RD_API_EXPORT bool RD_HasProblems(void);
 RD_API_EXPORT bool RD_IsBusy(void);
 
 // Context
-RD_API_EXPORT void RD_SetContextFlags(flag_t flags);
-RD_API_EXPORT flag_t RD_GetContextFlags(void);
+RD_API_EXPORT void RD_SetContextFlags(rd_flag flags);
+RD_API_EXPORT rd_flag RD_GetContextFlags(void);
 RD_API_EXPORT const char* RD_RuntimePath(void);
 RD_API_EXPORT const char* RD_TempPath(void);
 

@@ -9,13 +9,19 @@
 
 Algorithm::Algorithm(Disassembler* disassembler): StateMachine(disassembler) { }
 
-bool Algorithm::decodeInstruction(address_t address, RDInstruction** instruction)
+bool Algorithm::decodeInstruction(rd_address address, RDInstruction** instruction)
 {
     if(!m_document->isInstructionCached(address)) this->decodeAddress(address);
     return m_document->lockInstruction(address, instruction);
 }
 
-void Algorithm::handleOperand(const RDInstruction* instruction, const RDOperand* operand)
+void Algorithm::checkOperands(const RDInstruction* instruction)
+{
+    for(size_t i = 0; i < instruction->operandscount; i++)
+        this->checkOperand(instruction, &instruction->operands[i]);
+}
+
+void Algorithm::checkOperand(const RDInstruction* instruction, const RDOperand* operand)
 {
     switch(operand->type)
     {
@@ -40,7 +46,7 @@ void Algorithm::handleOperand(const RDInstruction* instruction, const RDOperand*
     }
 }
 
-void Algorithm::enqueueAddress(const RDInstruction* instruction, address_t address)
+void Algorithm::enqueueAddress(const RDInstruction* instruction, rd_address address)
 {
     switch(instruction->type)
     {
@@ -52,7 +58,7 @@ void Algorithm::enqueueAddress(const RDInstruction* instruction, address_t addre
     this->schedule(address);
 }
 
-size_t Algorithm::decode(address_t address, RDInstruction* instruction, RDBlock* block)
+size_t Algorithm::decode(rd_address address, RDInstruction* instruction, RDBlock* block)
 {
     if(!this->canBeDisassembled(address, block)) return Algorithm::SKIP;
 
@@ -64,7 +70,7 @@ size_t Algorithm::decode(address_t address, RDInstruction* instruction, RDBlock*
     return m_disassembler->decode(view.get(), instruction) ? Algorithm::OK : Algorithm::FAIL;
 }
 
-bool Algorithm::canBeDisassembled(address_t address, RDBlock* block) const
+bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
 {
     if(m_document->isInstructionCached(address)) return false;
 
@@ -94,7 +100,7 @@ bool Algorithm::canBeDisassembled(address_t address, RDBlock* block) const
     return true;
 }
 
-void Algorithm::decodeAddress(address_t address)
+void Algorithm::decodeAddress(rd_address address)
 {
     rd_ctx->status("Decoding @ " + Utils::hex(address));
 
@@ -135,7 +141,7 @@ void Algorithm::decodeFailed(RDInstruction* instruction)
     this->enqueue(Sugar::nextAddress(instruction));
 }
 
-void Algorithm::branchMemoryState(const RDInstruction* instruction, address_t value)
+void Algorithm::branchMemoryState(const RDInstruction* instruction, rd_address value)
 {
     m_disassembler->pushTarget(value, instruction->address);
 
@@ -164,7 +170,7 @@ void Algorithm::invalidInstruction(RDInstruction* instruction) const
     instruction->mnemonic[2] = '\0';
 }
 
-void Algorithm::jumpState(const RDInstruction* instruction, address_t value)
+void Algorithm::jumpState(const RDInstruction* instruction, rd_address value)
 {
     int dir = Sugar::branchDirection(instruction, value);
     if(!dir) m_document->autoComment(instruction->address, "Infinite loop");
@@ -173,7 +179,7 @@ void Algorithm::jumpState(const RDInstruction* instruction, address_t value)
     m_disassembler->pushTarget(value, instruction->address);
 }
 
-void Algorithm::callState(const RDInstruction* instruction, address_t value)
+void Algorithm::callState(const RDInstruction* instruction, rd_address value)
 {
     RDSegment segment;
     if(!m_document->segment(value, &segment)) return;
@@ -184,7 +190,7 @@ void Algorithm::callState(const RDInstruction* instruction, address_t value)
     m_disassembler->pushTarget(value, instruction->address);
 }
 
-void Algorithm::memoryState(const RDInstruction* instruction, address_t value)
+void Algorithm::memoryState(const RDInstruction* instruction, rd_address value)
 {
    RDLocation loc = m_disassembler->dereference(value);
 
@@ -200,9 +206,9 @@ void Algorithm::memoryState(const RDInstruction* instruction, address_t value)
    else m_disassembler->markPointer(value, instruction->address);
 }
 
-void Algorithm::immediateState(const RDInstruction* instruction, address_t value) { m_disassembler->markLocation(value, instruction->address); }
+void Algorithm::immediateState(const RDInstruction* instruction, rd_address value) { m_disassembler->markLocation(value, instruction->address); }
 
-void Algorithm::constantState(const RDInstruction* instruction, address_t value)
+void Algorithm::constantState(const RDInstruction* instruction, rd_address value)
 {
     if(!Sugar::isCharacter(value)) return;
     std::string charinfo = Utils::hex(value, 8, true) + "=" + Utils::quotedSingle(std::string(1, static_cast<char>(value)));

@@ -1,7 +1,7 @@
 #include "command.h"
 #include <rdcore/context.h>
 
-static RDArgument* RDArguments_Push(RDArguments* arguments, type_t type)
+static RDArgument* RDArguments_Push(RDArguments* arguments, rd_type type)
 {
     if(arguments->count >= RD_ARGUMENTS_SIZE) return nullptr;
 

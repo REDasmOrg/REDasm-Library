@@ -22,7 +22,7 @@ SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 
-void Disassembler::disassembleAddress(address_t address)
+void Disassembler::disassembleAddress(rd_address address)
 {
     m_algorithm->enqueue(address);
     if(!m_engine->busy()) m_engine->execute(Engine::EngineState_Algorithm);
@@ -43,7 +43,7 @@ void Disassembler::disassemble()
 
 void Disassembler::stop() { if(m_engine) m_engine->stop(); }
 
-const char* Disassembler::getFunctionHexDump(address_t address, RDSymbol* symbol) const
+const char* Disassembler::getFunctionHexDump(rd_address address, RDSymbol* symbol) const
 {
     static std::string hexdump;
 
@@ -56,7 +56,7 @@ const char* Disassembler::getFunctionHexDump(address_t address, RDSymbol* symbol
     return hexdump.c_str();
 }
 
-const char* Disassembler::getHexDump(address_t address, size_t size) const
+const char* Disassembler::getHexDump(rd_address address, size_t size) const
 {
     static std::string hexdump;
 
@@ -67,48 +67,49 @@ const char* Disassembler::getHexDump(address_t address, size_t size) const
     return hexdump.c_str();
 }
 
-const char16_t* Disassembler::readWString(address_t address, size_t* len) const { return this->readStringT<char16_t>(address, len); }
-const char* Disassembler::readString(address_t address, size_t* len) const { return this->readStringT<char>(address, len); }
+const char16_t* Disassembler::readWString(rd_address address, size_t* len) const { return this->readStringT<char16_t>(address, len); }
+const char* Disassembler::readString(rd_address address, size_t* len) const { return this->readStringT<char>(address, len); }
 
-std::string Disassembler::readWString(address_t address, size_t len) const
+std::string Disassembler::readWString(rd_address address, size_t len) const
 {
     const char16_t* s = this->readWString(address, &len);
     return s ? Utils::toString(std::u16string(s, len)) : std::string();
 }
 
-std::string Disassembler::readString(address_t address, size_t len) const
+std::string Disassembler::readString(rd_address address, size_t len) const
 {
     const char* s = this->readString(address, &len);
     return s ? std::string(s, len) : std::string();
 }
 
-bool Disassembler::decode(address_t address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction);  }
-void Disassembler::handleOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->handleOperand(instruction, op); }
-void Disassembler::enqueueAddress(const RDInstruction* instruction, address_t address) { m_algorithm->enqueueAddress(instruction, address);  }
-void Disassembler::enqueue(address_t address) { m_algorithm->enqueue(address); }
-size_t Disassembler::getReferences(address_t address, const address_t** references) const { return m_references.references(address, references); }
-size_t Disassembler::getTargets(address_t address, const address_t** targets) const { return m_references.targets(address, targets); }
-RDLocation Disassembler::getTarget(address_t address) const { return m_references.target(address); }
-size_t Disassembler::getTargetsCount(address_t address) const { return m_references.targetsCount(address); }
-size_t Disassembler::getReferencesCount(address_t address) const { return m_references.referencesCount(address); }
-void Disassembler::pushReference(address_t address, address_t refby) { m_references.pushReference(address, refby); }
-void Disassembler::popReference(address_t address, address_t refby) { m_references.popReference(address, refby); }
-void Disassembler::pushTarget(address_t address, address_t refby) { m_references.pushTarget(address, refby); }
-void Disassembler::popTarget(address_t address, address_t refby) { m_references.popTarget(address, refby); }
+bool Disassembler::decode(rd_address address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction);  }
+void Disassembler::checkOperands(const RDInstruction* instruction) { m_algorithm->checkOperands(instruction); }
+void Disassembler::checkOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->checkOperand(instruction, op); }
+void Disassembler::enqueueAddress(const RDInstruction* instruction, rd_address address) { m_algorithm->enqueueAddress(instruction, address);  }
+void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
+size_t Disassembler::getReferences(rd_address address, const rd_address** references) const { return m_references.references(address, references); }
+size_t Disassembler::getTargets(rd_address address, const rd_address** targets) const { return m_references.targets(address, targets); }
+RDLocation Disassembler::getTarget(rd_address address) const { return m_references.target(address); }
+size_t Disassembler::getTargetsCount(rd_address address) const { return m_references.targetsCount(address); }
+size_t Disassembler::getReferencesCount(rd_address address) const { return m_references.referencesCount(address); }
+void Disassembler::pushReference(rd_address address, rd_address refby) { m_references.pushReference(address, refby); }
+void Disassembler::popReference(rd_address address, rd_address refby) { m_references.popReference(address, refby); }
+void Disassembler::pushTarget(rd_address address, rd_address refby) { m_references.pushTarget(address, refby); }
+void Disassembler::popTarget(rd_address address, rd_address refby) { m_references.popTarget(address, refby); }
 
-RDLocation Disassembler::dereference(address_t address) const
+RDLocation Disassembler::dereference(rd_address address) const
 {
     RDLocation loc;
     loc.valid = this->readAddress(address, this->addressWidth(), &loc.value);
     return loc;
 }
 
-type_t Disassembler::markLocation(address_t address, address_t fromaddress)
+rd_type Disassembler::markLocation(rd_address address, rd_address fromaddress)
 {
     if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
     RDSymbol symbol;
-    type_t type = SymbolType_Data;
+    rd_type type = SymbolType_Data;
 
     if(this->document()->symbol(address, &symbol) && IS_TYPE(&symbol, SymbolType_String))
     {
@@ -130,7 +131,7 @@ type_t Disassembler::markLocation(address_t address, address_t fromaddress)
     return type;
 }
 
-type_t Disassembler::markPointer(address_t address, address_t fromaddress)
+rd_type Disassembler::markPointer(rd_address address, rd_address fromaddress)
 {
     RDLocation loc = this->dereference(address);
     if(!loc.valid) return this->markLocation(address, fromaddress);
@@ -159,22 +160,22 @@ type_t Disassembler::markPointer(address_t address, address_t fromaddress)
     return SymbolType_Data;
 }
 
-size_t Disassembler::markTable(address_t startaddress, address_t fromaddress, size_t count)
+size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, size_t count)
 {
     rd_ctx->statusAddress("Checking address table", startaddress);
 
     RDSymbol symbol;
     if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
 
-    address_t address = startaddress;
-    std::deque<address_t> targets;
+    rd_address address = startaddress;
+    std::deque<rd_address> targets;
 
     for(size_t i = 0 ; i < count; i++, address += this->addressWidth())
     {
         RDLocation loc = this->dereference(address);
         if(!loc.valid) break;
 
-        type_t currsymboltype = this->markLocation(loc.address, address);
+        rd_type currsymboltype = this->markLocation(loc.address, address);
         if(currsymboltype == SymbolType_None) break;
 
         this->pushReference(address, fromaddress);
@@ -185,7 +186,7 @@ size_t Disassembler::markTable(address_t startaddress, address_t fromaddress, si
     {
         size_t i = 0;
 
-        for(address_t target : targets)
+        for(rd_address target : targets)
         {
             this->document()->tableItem(target, startaddress, i++);
             this->pushReference(target, fromaddress);
@@ -235,7 +236,7 @@ bool Disassembler::encode(RDEncodedInstruction* encoded) const
     return m_passembler->encode(m_passembler, encoded);
 }
 
-bool Disassembler::readAddress(address_t address, size_t size, u64* value) const
+bool Disassembler::readAddress(rd_address address, size_t size, u64* value) const
 {
     std::unique_ptr<BufferView> view(m_loader->view(address));
     if(!view) return false;
@@ -252,7 +253,7 @@ bool Disassembler::readAddress(address_t address, size_t size, u64* value) const
     return true;
 }
 
-BufferView* Disassembler::getFunctionBytes(address_t& address) const
+BufferView* Disassembler::getFunctionBytes(rd_address& address) const
 {
     RDLocation loc = this->document()->functionStart(address);
     if(!loc.valid) return nullptr;

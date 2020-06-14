@@ -53,7 +53,7 @@ void Context::statusProgress(const char* s, size_t progress) const
         m_progresscallback.callback(progress, m_progresscallback.userdata);
 }
 
-void Context::statusAddress(const char* s, address_t address) const
+void Context::statusAddress(const char* s, rd_address address) const
 {
     log_lock lock(m_mutex);
     CONTEXT_DEBOUNCE_CHECK
@@ -180,8 +180,8 @@ void Context::setRuntimePath(const char* rntpath) { m_rntpath = rntpath; }
 void Context::setTempPath(const char* tmppath) { m_tmppath = tmppath; }
 void Context::setIgnoreProblems(bool ignore) { m_ignoreproblems = ignore; }
 Context* Context::instance() { static Context context; return &context; }
-void Context::setFlags(flag_t flag) { m_flags = flag; }
-flag_t Context::flags() const { return m_flags; }
+void Context::setFlags(rd_flag flag) { m_flags = flag; }
+rd_flag Context::flags() const { return m_flags; }
 bool Context::hasProblems() const { return !m_problems.empty(); }
 size_t Context::problemsCount() const { return m_problems.size(); }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }

@@ -84,4 +84,5 @@ RD_API_EXPORT void RDRenderer_Immediate(RDRenderItemParams* rip, u64 imm);
 RD_API_EXPORT void RDRenderer_Register(RDRenderItemParams* rip, rd_register_id r);
 RD_API_EXPORT void RDRenderer_Mnemonic(RDRenderItemParams* rip);
 RD_API_EXPORT void RDRenderer_Operand(RDRenderItemParams* rip, const RDOperand* op);
+RD_API_EXPORT void RDRenderer_Text(RDRenderItemParams* rip, const char* s);
 RD_API_EXPORT void RDRenderer_Indent(RDRenderItemParams* rip, size_t n);

@@ -82,11 +82,12 @@ typedef struct RDSegment {
 
 enum RDOperandType {
     OperandType_Void,
-    OperandType_Constant,     // Simple constant
-    OperandType_Register,     // Register
-    OperandType_Immediate,    // Immediate Value
-    OperandType_Memory,       // Direct Memory Pointer
-    OperandType_Displacement, // Indirect Memory Pointer
+    OperandType_Constant,               // Simple constant
+    OperandType_Register,               // Register
+    OperandType_Immediate,              // Immediate Value
+    OperandType_Memory,                 // Direct Memory Pointer
+    OperandType_Displacement,           // Indirect Memory Pointer
+    OperandType_Custom        = 0x1000, // Custom Operand
 };
 
 #pragma pack(push, 1)
@@ -105,7 +106,10 @@ typedef struct RDOperand {
         rd_register_id reg2;
     };
 
-    s64 scale;
+    union {
+        s64 scale;
+        rd_register_id reg3;
+    };
 
     union {
         s64 s_value;
@@ -114,6 +118,7 @@ typedef struct RDOperand {
         u64 u_value;
         rd_address address;
         rd_offset offset;
+        rd_register_id reg4;
     };
 
     RD_USERDATA_FIELD

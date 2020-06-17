@@ -72,6 +72,12 @@ void Renderer::renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags)
     renderer->renderIndent(ri, n, ignoreflags);
 }
 
+void Renderer::renderText(RDRenderItemParams* rip, const char* s)
+{
+    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    ri->push(s);
+}
+
 bool Renderer::renderConstant(RDRenderItemParams* rip, u64 c)
 {
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
@@ -489,6 +495,13 @@ bool Renderer::renderInstruction(RDRenderItemParams* rip)
 
 bool Renderer::renderOperand(RDRenderItemParams* rip) { return Renderer::renderOperand(rip, rip->operand); }
 
+bool Renderer::renderCustomOperand(RDRenderItemParams* rip)
+{
+    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    ri->push("Operand#" + Utils::hex(rip->operand->type));
+    return true;
+}
+
 bool Renderer::renderSymbol(RDRenderItemParams* rip)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
@@ -735,5 +748,6 @@ bool Renderer::renderOperand(RDRenderItemParams* rip, const RDOperand* op)
         default: break;
     }
 
+    if(op->type >= OperandType_Custom) return Renderer::renderCustomOperand(rip);
     return false;
 }

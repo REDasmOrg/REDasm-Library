@@ -38,6 +38,7 @@ class Renderer: public Object
         static void renderAddress(RDRenderItemParams* rip);
         static void renderAddressIndent(RDRenderItemParams* rip);
         static void renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags = false);
+        static void renderText(RDRenderItemParams* rip, const char* s);
         static bool renderRegister(RDRenderItemParams* rip, register_t r);
         static bool renderOperand(RDRenderItemParams* rip, const RDOperand* op);
         static bool renderConstant(RDRenderItemParams* rip, u64 c);
@@ -53,6 +54,7 @@ class Renderer: public Object
         static bool renderFunction(RDRenderItemParams* rip);
         static bool renderInstruction(RDRenderItemParams* rip);
         static bool renderOperand(RDRenderItemParams* rip);
+        static bool renderCustomOperand(RDRenderItemParams* rip);
         static bool renderSymbol(RDRenderItemParams* rip);
 
     private:

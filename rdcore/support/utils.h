@@ -53,7 +53,7 @@ T Utils::ror(T val, T amt)
     }
 
     REDasmError("Invalid ror operation");
-    return RD_NPOS;
+    return -1;
 }
 
 template<typename T>
@@ -67,7 +67,7 @@ T Utils::rol(T val, T amt)
     }
 
     REDasmError("Invalid rol operation");
-    return RD_NPOS;
+    return -1;
 }
 
 template<typename T>

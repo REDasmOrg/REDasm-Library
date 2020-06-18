@@ -43,31 +43,19 @@ class Utils
 };
 
 template<typename T>
-T Utils::ror(T val, T amt)
-{
-    static const T BITS_COUNT = sizeof(T) * CHAR_BIT;
-
-    if(amt < BITS_COUNT) {
-        if(!amt) return val;
-        return (val >> amt) | (val << (BITS_COUNT - amt));
-    }
-
-    REDasmError("Invalid ror operation");
-    return -1;
-}
-
-template<typename T>
 T Utils::rol(T val, T amt)
 {
     static const T BITS_COUNT = sizeof(T) * CHAR_BIT;
+    if(!amt) return val;
+    return (val << amt) | (val >> (BITS_COUNT - amt));
+}
 
-    if(amt < BITS_COUNT) {
-        if(!amt) return val;
-        return (val << amt) | (val >> (BITS_COUNT - amt));
-    }
-
-    REDasmError("Invalid rol operation");
-    return -1;
+template<typename T>
+T Utils::ror(T val, T amt)
+{
+    static const T BITS_COUNT = sizeof(T) * CHAR_BIT;
+    if(!amt) return val;
+    return (val >> amt) | (val << (BITS_COUNT - amt));
 }
 
 template<typename T>

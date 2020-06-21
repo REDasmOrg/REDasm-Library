@@ -78,7 +78,25 @@ Iterator BlockContainer::eraseBlock(Iterator it)
 template<typename Iterator>
 Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
 {
-    auto resit = m_blocks.insert(it, bi);
+    auto resit = it;
+
+    if((it != m_blocks.end()) && ((it->type == bi.type) && IS_TYPE(&bi, BlockType_Unexplored)))
+    {
+        if((it->start - bi.end) == 1)
+        {
+            if(blockRemoved) blockRemoved(*it);
+            it->start = bi.start;
+        }
+        else if((bi.start - it->end) == 1)
+        {
+            if(blockRemoved) blockRemoved(*it);
+            it->end = bi.end;
+        }
+        else resit = m_blocks.insert(it, bi);
+    }
+    else
+        resit = m_blocks.insert(it, bi);
+
     if(blockInserted) blockInserted(*resit);
     return resit;
 }

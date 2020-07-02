@@ -2,12 +2,19 @@
 #include <type_traits>
 #include <algorithm>
 #include <iterator>
+#include <cstring>
 #include <cctype>
 
 int Sugar::branchDirection(const RDInstruction* instruction, rd_address address)
 {
     return static_cast<int>(static_cast<std::make_signed<decltype(address)>::type>(address) -
                             static_cast<std::make_signed<decltype(instruction->address)>::type>(instruction->address));
+}
+
+void Sugar::setMnemonic(RDInstruction* instruction, const char* mnemonic)
+{
+    if(!mnemonic) return;
+    std::copy_n(mnemonic, std::min<size_t>(std::strlen(mnemonic), sizeof(instruction->mnemonic)), instruction->mnemonic);
 }
 
 rd_address Sugar::nextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }

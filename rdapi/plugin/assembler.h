@@ -28,6 +28,7 @@ RD_API_EXPORT bool RDEncodedInstruction_Set(RDEncodedInstruction* encoded, u8* e
 typedef const char* (*Callback_AssemblerRegName)(struct RDAssemblerPlugin* plugin, const RDInstruction* instruction, rd_register_id r);
 typedef size_t (*Callback_AssemblerEncode)(const struct RDAssemblerPlugin* plugin, RDEncodedInstruction* encoded);
 typedef bool (*Callback_AssemblerDecode)(const struct RDAssemblerPlugin* plugin, RDBufferView* view, RDInstruction* instruction);
+typedef void (*Callback_AssemblerRDIL)(const struct RDAssemblerPlugin* plugin, const RDInstruction* instruction, RDInstruction** rdil);
 typedef void (*Callback_AssemblerEmulate)(const struct RDAssemblerPlugin* plugin, RDDisassembler* disassembler, const RDInstruction* instruction);
 typedef void (*Callback_AssemblerPlugin)(struct RDAssemblerPlugin* plugin, void* userdata);
 typedef bool (*Callback_AssemblerRender)(const RDAssemblerPlugin* plugin, RDRenderItemParams* rip);
@@ -42,6 +43,7 @@ typedef struct RDAssemblerPlugin {
     Callback_AssemblerDecode decode;
     Callback_AssemblerEmulate emulate;
     Callback_AssemblerRender render;
+    Callback_AssemblerRDIL rdil;
 } RDAssemblerPlugin;
 
 RD_API_EXPORT void RD_GetAssemblers(Callback_AssemblerPlugin callback, void* userdata);

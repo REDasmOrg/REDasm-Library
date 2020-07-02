@@ -6,14 +6,8 @@
 
 size_t RDSegment_RawSize(const RDSegment* s) { return SegmentContainer::offsetSize(*s); }
 size_t RDSegment_Size(const RDSegment* s) { return SegmentContainer::addressSize(*s); }
-
-void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic)
-{
-    if(!mnemonic) return;
-    std::copy_n(mnemonic, std::min<size_t>(std::strlen(mnemonic), sizeof(instruction->mnemonic)), instruction->mnemonic);
-}
-
 rd_address RDInstruction_NextAddress(const RDInstruction* instruction) { return instruction->address + instruction->size; }
+void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic) { Sugar::setMnemonic(instruction, mnemonic); }
 
 RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type)
 {
@@ -21,14 +15,14 @@ RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type)
 
     RDOperand op{ };
     op.type = type;
-    op.pos = instruction->operandscount++;
 
     // Invalidate registers
     op.base = RD_NPOS;
     op.index = RD_NPOS;
 
-    instruction->operands[op.pos] = op;
-    return &instruction->operands[op.pos];
+    size_t pos = instruction->operandscount++;
+    instruction->operands[pos] = op;
+    return &instruction->operands[pos];
 }
 
 bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic)
@@ -41,16 +35,11 @@ void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx)
 {
     if(!instruction || (idx >= instruction->operandscount)) return;
 
-    auto endit = std::remove_if(std::begin(instruction->operands),
-                                std::end(instruction->operands),
-                                [idx](const RDOperand& op) { return op.pos == idx; });
+    for(size_t i = idx; i < instruction->operandscount; i++)
+        instruction->operands[i] = instruction->operands[i + 1];
 
-    std::for_each(endit, std::end(instruction->operands), [](RDOperand& op) { op = { }; });
     instruction->operandscount--;
-
-    // Recalculate positions
-    for(size_t i = 0; i < instruction->operandscount; i++)
-        instruction->operands[i].pos = i;
+    instruction->operands[instruction->operandscount - 1] = { };
 }
 
 void RDInstruction_ClearOperands(RDInstruction* instruction)

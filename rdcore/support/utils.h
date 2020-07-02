@@ -116,5 +116,5 @@ std::string Utils::hex(T value, size_t bits, bool withprefix)
     if(std::is_signed<T>::value && value < 0) ss << "-" << (~value) + 1;
     else ss << value;
 
-    return ss.str().c_str();
+    return ss.str();
 }

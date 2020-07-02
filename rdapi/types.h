@@ -5,6 +5,7 @@
 #include "macros.h"
 
 #define DEFAULT_SYMBOL_NAME_SIZE 32
+#define DEFAULT_FULL_NAME_SIZE   64
 #define DEFAULT_NAME_SIZE        32
 #define DEFAULT_CONTAINER_SIZE   32
 
@@ -90,10 +91,15 @@ enum RDOperandType {
     OperandType_Custom        = 0x1000, // Custom Operand
 };
 
+enum RDOperandFlags {
+    OperandFlags_None    = 0,
+    OperandFlags_Virtual = (1 << 0)
+};
+
 #pragma pack(push, 1)
 typedef struct RDOperand {
     rd_type type;
-    u32 pos;
+    rd_flag flags;
 
     union {
         rd_register_id reg;

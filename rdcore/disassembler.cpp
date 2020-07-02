@@ -82,6 +82,54 @@ std::string Disassembler::readString(rd_address address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
+void Disassembler::disassembleRDIL(rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata)
+{
+    if(!m_passembler->rdil) return;
+
+    auto graph = this->document()->graph(startaddress);
+    if(!graph) return;
+
+    const RDGraphNode* nodes = nullptr;
+    size_t c = graph->nodes(&nodes);
+
+    for(size_t i = 0; i < c; i++)
+    {
+        const auto* fbb = reinterpret_cast<const FunctionBasicBlock*>(graph->data(nodes[i])->p_data);
+        if(!fbb) return;
+
+        for(rd_address address = fbb->startaddress; address <= fbb->endaddress; )
+        {
+            RDInstruction* instruction;
+
+            if(!this->document()->lockInstruction(address, &instruction)) return;
+
+            std::vector<RDInstruction> rdil(RDIL_INSTRUCTION_COUNT);
+            ILCPU::init(&rdil.front());
+
+            RDInstruction* rdilend = rdil.data();
+            m_passembler->rdil(m_passembler, instruction, &rdilend);
+            size_t j = 0;
+
+            for(RDInstruction* ri = rdil.data(); ri <= rdilend; ri++, j++)
+            {
+                RDILDisassembled rdildisasm{ };
+
+                std::string s = ILCPU::disasm(this, ri, instruction);
+                std::copy_n(s.begin(), std::min<size_t>(DEFAULT_FULL_NAME_SIZE, s.size()), rdildisasm.result);
+
+                rdildisasm.rdil = *ri;
+                rdildisasm.address = instruction->address;
+                rdildisasm.index = j;
+
+                cbrdil(&rdildisasm, userdata);
+            }
+
+            address += instruction->size;
+            this->document()->unlockInstruction(instruction);
+        }
+    }
+}
+
 bool Disassembler::decode(rd_address address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction);  }
 void Disassembler::checkOperands(const RDInstruction* instruction) { m_algorithm->checkOperands(instruction); }
 void Disassembler::checkOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->checkOperand(instruction, op); }
@@ -204,7 +252,7 @@ size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, 
     return targets.size();
 }
 
-size_t Disassembler::addressWidth() const { return m_passembler->bits / CHAR_BIT;  }
+size_t Disassembler::addressWidth() const { return m_passembler->bits / CHAR_BIT; }
 size_t Disassembler::bits() const { return m_passembler->bits; }
 
 bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const
@@ -217,6 +265,14 @@ void Disassembler::emulate(const RDInstruction* instruction)
 {
     if(!m_passembler->emulate) return;
     m_passembler->emulate(m_passembler, CPTR(RDDisassembler, this), instruction);
+}
+
+void Disassembler::rdil(const RDInstruction* instruction)
+{
+    if(!m_passembler->rdil) return;
+
+    //RDInstruction rdil;
+    //if(!m_passembler->rdil(m_passembler, instruction, &rdil)) return;
 }
 
 std::string Disassembler::registerName(const RDInstruction* instruction, register_t r) const

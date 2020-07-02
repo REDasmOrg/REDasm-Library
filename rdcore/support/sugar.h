@@ -8,6 +8,7 @@ class Sugar
     public:
         Sugar() = delete;
         static rd_address nextAddress(const RDInstruction* instruction);
+        static void setMnemonic(RDInstruction* instruction, const char* mnemonic);
         static int branchDirection(const RDInstruction* instruction, rd_address address);
         static bool displacementCanBeAddress(const RDOperand* operand);
         static bool isBranch(const RDInstruction* instruction);

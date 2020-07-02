@@ -1,9 +1,11 @@
 #pragma once
 
+#include <rdapi/disassembler.h>
 #include <memory>
 #include "object.h"
 #include "plugin/loader.h"
 #include "engine/engine.h"
+#include "rdil/ilcpu.h"
 #include "engine/referencetable.h"
 #include "engine/stringfinder.h"
 #include "engine/algorithm/algorithm.h"
@@ -33,6 +35,7 @@ class Disassembler: public Object
         const char* readString(rd_address address, size_t* len) const;
         std::string readWString(rd_address address, size_t len = RD_NPOS) const; // Internal C++ Helper
         std::string readString(rd_address address, size_t len = RD_NPOS) const;  // Internal C++ Helper
+        void disassembleRDIL(rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata);
 
     public: // Engine/Algorithm
         bool decode(rd_address address, RDInstruction** instruction);
@@ -46,6 +49,7 @@ class Disassembler: public Object
         bool decode(BufferView* view, RDInstruction* instruction) const;
         bool encode(RDEncodedInstruction* encoded) const;
         void emulate(const RDInstruction* instruction);
+        void rdil(const RDInstruction* instruction);
         size_t addressWidth() const;
         size_t bits() const;
 
@@ -79,6 +83,7 @@ class Disassembler: public Object
         RDAssemblerPlugin* m_passembler;
         ReferenceTable m_references;
         SafeAlgorithm m_algorithm;
+        ILCPU m_vcpu;
 };
 
 template<typename T>

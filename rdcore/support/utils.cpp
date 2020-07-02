@@ -1,7 +1,19 @@
 #include "utils.h"
 #include <algorithm>
 #include <codecvt>
+#include <cstring>
 #include "../buffer/view.h"
+
+const u8* Utils::findBytes(const u8* bytes, size_t bytesize, const u8* data, size_t datasize)
+{
+    for(const u8* p = bytes; bytesize; bytesize--, p++)
+    {
+        if(bytesize < datasize) return nullptr;
+        if(!std::memcmp(p, data, datasize)) return p;
+    }
+
+    return nullptr;
+}
 
 std::string Utils::hexString(BufferView* view)
 {

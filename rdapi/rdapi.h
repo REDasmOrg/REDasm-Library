@@ -11,6 +11,7 @@
 #include "database.h"
 #include "disassembler.h"
 #include "rdil.h"
+#include "utils.h"
 #include "ui.h"
 #include "plugin/loader.h"
 #include "plugin/assembler.h"

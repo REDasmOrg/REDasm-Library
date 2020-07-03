@@ -275,11 +275,11 @@ void Disassembler::rdil(const RDInstruction* instruction)
     //if(!m_passembler->rdil(m_passembler, instruction, &rdil)) return;
 }
 
-std::string Disassembler::registerName(const RDInstruction* instruction, register_t r) const
+std::string Disassembler::registerName(const RDInstruction* instruction, const RDOperand* op, register_t r) const
 {
     if(m_passembler->regname)
     {
-        const char* rn = m_passembler->regname(m_passembler, instruction, r);
+        const char* rn = m_passembler->regname(m_passembler, instruction, op, r);
         if(rn) return rn;
     }
 

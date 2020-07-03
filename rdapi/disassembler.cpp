@@ -31,10 +31,10 @@ void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInstruction* instr
 void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction) { CPTR(Disassembler, d)->enqueue(Sugar::nextAddress(instruction)); }
 const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, rd_address address, RDSymbol* symbol) { return CPTR(const Disassembler, d)->getFunctionHexDump(address, symbol);  }
 
-const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, rd_register_id r)
+const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op, rd_register_id r)
 {
     static std::string s;
-    s = CPTR(Disassembler, d)->registerName(instruction, r);
+    s = CPTR(Disassembler, d)->registerName(instruction, op, r);
     return s.c_str();
 }
 

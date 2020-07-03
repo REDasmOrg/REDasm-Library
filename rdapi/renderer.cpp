@@ -21,8 +21,9 @@ void RDRenderer_Address(RDRenderItemParams* rip) { Renderer::renderAddress(rip);
 void RDRenderer_AddressIndent(RDRenderItemParams* rip) { Renderer::renderAddressIndent(rip); }
 void RDRenderer_Constant(RDRenderItemParams* rip, u64 c) { Renderer::renderConstant(rip, c); }
 void RDRenderer_Immediate(RDRenderItemParams* rip, u64 imm) { Renderer::renderImmediate(rip, imm); }
-void RDRenderer_Register(RDRenderItemParams* rip, rd_register_id r) { Renderer::renderRegister(rip, r); }
+void RDRenderer_Register(RDRenderItemParams* rip, const RDOperand* op, rd_register_id r) { Renderer::renderRegister(rip, op, r); }
 void RDRenderer_Mnemonic(RDRenderItemParams* rip) { Renderer::renderMnemonic(rip); }
 void RDRenderer_Operand(RDRenderItemParams* rip, const RDOperand* op) { Renderer::renderOperand(rip, op); }
 void RDRenderer_Text(RDRenderItemParams* rip, const char* s) { Renderer::renderText(rip, s); }
 void RDRenderer_Indent(RDRenderItemParams* rip, size_t n) { Renderer::renderIndent(rip, n); }
+

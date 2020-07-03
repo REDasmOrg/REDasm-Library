@@ -52,7 +52,7 @@ void RDIL::darg(std::stringstream& ss, const RDOperand& op, const RDInstruction*
                 if(op.reg < RDILRegisters.size()) ss << RDILRegisters[op.reg];
                 else ss << "$" << op.reg;
             }
-            else ss << disassembler->registerName(instruction, op.reg);
+            else ss << disassembler->registerName(instruction, &op, op.reg);
             break;
 
         case OperandType_Constant:
@@ -65,10 +65,10 @@ void RDIL::darg(std::stringstream& ss, const RDOperand& op, const RDInstruction*
             break;
 
         case OperandType_Displacement:
-            ss << "[" << disassembler->registerName(instruction, op.base);
+            ss << "[" << disassembler->registerName(instruction, &op, op.base);
 
             if(op.index != RD_NREG) {
-                ss << "+" << disassembler->registerName(instruction, op.index);
+                ss << "+" << disassembler->registerName(instruction, &op, op.index);
                 if(op.scale > 1) ss << "*" << op.scale;
             }
 

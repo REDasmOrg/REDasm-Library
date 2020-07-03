@@ -110,14 +110,14 @@ bool Renderer::renderDisplacement(RDRenderItemParams* rip)
     size_t prevsize = ri->size();
     ri->push("[");
 
-    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand->base);
+    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand, rip->operand->base);
 
     if(Sugar::isIndexValid(rip->operand))
     {
         if(prevsize != ri->size()) ri->push("+");
         prevsize++;
 
-        Renderer::renderRegister(rip, rip->operand->index);
+        Renderer::renderRegister(rip, rip->operand, rip->operand->index);
         if(rip->operand->scale > 1) ri->push("*").push(Utils::hex(rip->operand->scale), "immediate_fg");
     }
 
@@ -725,11 +725,11 @@ void Renderer::renderSymbol(RDRenderItemParams* rip, rd_address address)
     }
 }
 
-bool Renderer::renderRegister(RDRenderItemParams* rip, register_t r)
+bool Renderer::renderRegister(RDRenderItemParams* rip, const RDOperand* op, register_t r)
 {
     const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(d->registerName(rip->instruction, r), "register_fg");
+    ri->push(d->registerName(rip->instruction, op, r), "register_fg");
     return true;
 }
 
@@ -744,7 +744,7 @@ bool Renderer::renderOperand(RDRenderItemParams* rip, const RDOperand* op)
         case OperandType_Immediate:    return Renderer::renderImmediate(rip, op->u_value);
         case OperandType_Memory:       return Renderer::renderMemory(rip, op->address);
         case OperandType_Displacement: return Renderer::renderDisplacement(rip);
-        case OperandType_Register:     return Renderer::renderRegister(rip, op->reg);
+        case OperandType_Register:     return Renderer::renderRegister(rip, op, op->reg);
         default: break;
     }
 

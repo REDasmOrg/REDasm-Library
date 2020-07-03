@@ -39,7 +39,7 @@ class Renderer: public Object
         static void renderAddressIndent(RDRenderItemParams* rip);
         static void renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags = false);
         static void renderText(RDRenderItemParams* rip, const char* s);
-        static bool renderRegister(RDRenderItemParams* rip, register_t r);
+        static bool renderRegister(RDRenderItemParams* rip, const RDOperand* op, register_t r);
         static bool renderOperand(RDRenderItemParams* rip, const RDOperand* op);
         static bool renderConstant(RDRenderItemParams* rip, u64 c);
         static bool renderImmediate(RDRenderItemParams* rip, u64 imm);

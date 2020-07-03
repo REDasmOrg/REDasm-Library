@@ -24,7 +24,7 @@ RD_API_EXPORT rd_type RDDisassembler_MarkLocation(RDDisassembler* d, rd_address 
 RD_API_EXPORT size_t RDDisassembler_MarkTable(RDDisassembler* d, rd_address startaddress, rd_address fromaddress, size_t count);
 RD_API_EXPORT RDLocation RDDisassembler_GetTarget(const RDDisassembler* d, rd_address address);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address);
-RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, rd_register_id r);
+RD_API_EXPORT const char* RDDisassembler_RegisterName(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op, rd_register_id r);
 RD_API_EXPORT const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDisassembler_Decode(RDDisassembler* d, rd_address address, RDInstruction** instruction);
 RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);

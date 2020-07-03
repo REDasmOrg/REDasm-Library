@@ -1,5 +1,7 @@
 #include "abstract.h"
 #include "../support/error.h"
+#include "../support/utils.h"
+#include "../support/hash.h"
 #include <algorithm>
 
 u8 AbstractBuffer::at(size_t offset) const
@@ -10,6 +12,7 @@ u8 AbstractBuffer::at(size_t offset) const
 
 const u8* AbstractBuffer::data() const { return const_cast<AbstractBuffer*>(this)->data(); }
 const u8* AbstractBuffer::endData() const { return this->data() ? (this->data() + this->size()) : nullptr; }
+rd_offset AbstractBuffer::find(const u8* data, size_t size) const { return Utils::findIn(this->data(), this->size(), data, size); }
 
 bool AbstractBuffer::contains(const u8* ptr) const
 {
@@ -19,3 +22,15 @@ bool AbstractBuffer::contains(const u8* ptr) const
 
 bool AbstractBuffer::empty() const { return !this->data() || !this->size(); }
 void AbstractBuffer::fill(u8 val) { std::fill_n(this->data(), this->size(), val); }
+
+u16 AbstractBuffer::crc16(rd_offset offset, size_t size) const
+{
+    if((offset + size) > this->size()) return 0;
+    return Hash::crc16(this->data() + offset, size);
+}
+
+u32 AbstractBuffer::crc32(rd_offset offset, size_t size) const
+{
+    if((offset + size) > this->size()) return 0;
+    return Hash::crc32(this->data() + offset, size);
+}

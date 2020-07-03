@@ -4,15 +4,17 @@
 #include <cstring>
 #include "../buffer/view.h"
 
-const u8* Utils::findBytes(const u8* bytes, size_t bytesize, const u8* data, size_t datasize)
+rd_offset Utils::findIn(const u8* buffer, size_t buffersize, const u8* data, size_t datasize)
 {
-    for(const u8* p = bytes; bytesize; bytesize--, p++)
+    if(datasize > buffersize) return RD_NPOS;
+
+    for(const u8* p = buffer; buffersize; buffersize--, p++)
     {
-        if(bytesize < datasize) return nullptr;
-        if(!std::memcmp(p, data, datasize)) return p;
+        if(buffersize < datasize) return RD_NPOS;
+        if(!std::memcmp(p, data, datasize)) return p - buffer;
     }
 
-    return nullptr;
+    return RD_NPOS;
 }
 
 std::string Utils::hexString(BufferView* view)

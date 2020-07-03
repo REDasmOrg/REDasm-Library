@@ -36,7 +36,6 @@ const char* RD_Trampoline(const char* name)
     return s.c_str();
 }
 
-const u8* RD_FindBytes(const u8* bytes, size_t bytesize, const u8* data, size_t datasize) { return Utils::findBytes(bytes, bytesize, data, datasize); }
 const char* RD_ToString(size_t value) { return RD_ToStringBase(value, 10, 0, '0'); }
 u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offset); }
 bool RD_InRange(rd_address address, rd_address start, rd_address end) { return ((address >= start) && (address < end));  }

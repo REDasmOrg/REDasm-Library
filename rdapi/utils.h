@@ -18,7 +18,6 @@ RD_API_EXPORT const char* RD_ToStringBase(size_t value, size_t base, size_t widt
 RD_API_EXPORT const char* RD_ToString(size_t value);
 RD_API_EXPORT const char* RD_Trampoline(const char* name);
 RD_API_EXPORT const char* RD_Demangle(const char* name);
-RD_API_EXPORT const u8* RD_FindBytes(const u8* bytes, size_t bytesize, const u8* data, size_t datasize);
 RD_API_EXPORT u8* RD_RelPointer(void* ptr, size_t offset);
 RD_API_EXPORT bool RD_InRange(rd_address address, rd_address start, rd_address end);
 RD_API_EXPORT bool RD_InRangeSize(rd_address address, rd_address start, rd_address size);

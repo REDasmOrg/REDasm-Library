@@ -4,34 +4,34 @@
 #include <vector>
 #include <string>
 #include <rdapi/types.h>
-#include "../libs/lmdb/lmdb.h"
+#include "../libs/mdbx/mdbx.h"
 
-typedef std::vector<u8> LMDBBuffer;
+typedef std::vector<u8> MDBXBuffer;
 
-class LMDBTransaction
+class MDBXTransaction
 {
     private:
-        LMDBTransaction(MDB_env* env, unsigned int dbflags);
+        MDBXTransaction(MDBX_env* env, unsigned int dbflags);
 
     public:
-        ~LMDBTransaction();
+        ~MDBXTransaction();
 
     public: // Disable copy and assignment
-        LMDBTransaction(const LMDBTransaction&) = delete;
-        LMDBTransaction& operator=(const LMDBTransaction&) = delete;
+        MDBXTransaction(const MDBXTransaction&) = delete;
+        MDBXTransaction& operator=(const MDBXTransaction&) = delete;
         void commit();
         void abort();
 
     public: // Put
         void puts(const std::string& key, const std::string& val);
         template<typename T> void put(const std::string& key, const T& val);
-        template<typename K> void putb(const K& key, const LMDBBuffer& buffer);
+        template<typename K> void putb(const K& key, const MDBXBuffer& buffer);
         template<typename K, typename V> void putr(const K& key, const V* val);
         template<typename K, typename V> void put(const K& key, const V& val);
 
     public: // Get
         std::string gets(const std::string& key) const;
-        template<typename B, typename K> LMDBBuffer get(const K& key) const;
+        template<typename B, typename K> MDBXBuffer get(const K& key) const;
         template<typename T, typename K> const T* get(const K& key) const;
         template<typename T> const T* get(const std::string& k) const;
         template<typename T, typename K> void get(const K& key, T* t) const;
@@ -42,24 +42,24 @@ class LMDBTransaction
         void doPut(void* keydata, size_t keysize, void* valuedata, size_t valuesize);
 
     private:
-        MDB_env* m_env{nullptr};
-        MDB_txn* m_txn{nullptr};
-        MDB_dbi m_dbi;
+        MDBX_env* m_env{nullptr};
+        MDBX_txn* m_txn{nullptr};
+        MDBX_dbi m_dbi;
 
-        friend class LMDB;
+        friend class MDBX;
 };
 
 template<typename K, typename V>
-void LMDBTransaction::putr(const K& key, const V* val)
+void MDBXTransaction::putr(const K& key, const V* val)
 {
     this->doPut(const_cast<K*>(&key), sizeof(K),
                 reinterpret_cast<void*>(const_cast<V*>(val)), sizeof(V));
 }
 
 template<typename B, typename K>
-LMDBBuffer LMDBTransaction::get(const K& key) const
+MDBXBuffer MDBXTransaction::get(const K& key) const
 {
-    LMDBBuffer b;
+    MDBXBuffer b;
     u8* data = nullptr;
     size_t size = 0;
 
@@ -72,14 +72,14 @@ LMDBBuffer LMDBTransaction::get(const K& key) const
 }
 
 template<typename K>
-void LMDBTransaction::putb(const K& key, const LMDBBuffer& buffer)
+void MDBXTransaction::putb(const K& key, const MDBXBuffer& buffer)
 {
     this->doPut(reinterpret_cast<void*>(const_cast<K*>(&key)), key.size(),
                 reinterpret_cast<void*>(const_cast<u8*>(buffer.data())), buffer.size());
 }
 
 template<typename T>
-void LMDBTransaction::get(const std::string& key, T* t) const
+void MDBXTransaction::get(const std::string& key, T* t) const
 {
     T* res = nullptr;
     this->doGet(const_cast<char*>(key.c_str()), key.size(), reinterpret_cast<void**>(&res), nullptr);
@@ -87,7 +87,7 @@ void LMDBTransaction::get(const std::string& key, T* t) const
 }
 
 template<typename T, typename K>
-void LMDBTransaction::get(const K& key, T* t) const
+void MDBXTransaction::get(const K& key, T* t) const
 {
     T* res = nullptr;
     this->doGet(reinterpret_cast<void*>(const_cast<K*>(&key)), sizeof(K),
@@ -96,21 +96,21 @@ void LMDBTransaction::get(const K& key, T* t) const
 }
 
 template<typename K, typename V>
-void LMDBTransaction::put(const K& key, const V& val)
+void MDBXTransaction::put(const K& key, const V& val)
 {
     this->doPut(reinterpret_cast<void*>(const_cast<K*>(&key)), sizeof(K),
                 reinterpret_cast<void*>(const_cast<V*>(&val)), sizeof(V));
 }
 
 template<typename T>
-void LMDBTransaction::put(const std::string& key, const T& val)
+void MDBXTransaction::put(const std::string& key, const T& val)
 {
     this->doPut(const_cast<char*>(key.c_str()), key.size(),
                 reinterpret_cast<void*>(const_cast<T*>(&val)), sizeof(val));
 }
 
 template<typename T>
-const T* LMDBTransaction::get(const std::string& k) const
+const T* MDBXTransaction::get(const std::string& k) const
 {
     T* t = nullptr;
     this->doGet(const_cast<char*>(k.c_str()), k.size(), reinterpret_cast<void**>(&t), nullptr);
@@ -118,7 +118,7 @@ const T* LMDBTransaction::get(const std::string& k) const
 }
 
 template<typename T, typename K>
-const T* LMDBTransaction::get(const K& key) const
+const T* MDBXTransaction::get(const K& key) const
 {
     T* t = nullptr;
     this->doGet(reinterpret_cast<void*>(const_cast<K*>(&key)), sizeof(K),
@@ -126,4 +126,4 @@ const T* LMDBTransaction::get(const K& key) const
     return t;
 }
 
-typedef std::unique_ptr<LMDBTransaction> LMDBTransactionPtr;
+typedef std::unique_ptr<MDBXTransaction> MDBXTransactionPtr;

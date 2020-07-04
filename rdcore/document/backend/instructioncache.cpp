@@ -1,13 +1,13 @@
 #include "instructioncache.h"
-#include "../../lmdb/lmdbexception.h"
-#include "../../lmdb/lmdb.h"
+#include "../../mdbx/mdbxexception.h"
+#include "../../mdbx/mdbx.h"
 #include "../../support/utils.h"
 #include "../../context.h"
 #include <filesystem>
 
 #define CACHE_FILE_NAME(x) ("redasm_cache_" + Utils::number(x) + ".tmp")
 
-InstructionCache::InstructionCache(): m_filepath(generateFilePath()) { m_lmdb.open(m_filepath, MDB_INTEGERKEY | MDB_CREATE); }
+InstructionCache::InstructionCache(): m_filepath(generateFilePath()) { m_lmdb.open(m_filepath, MDBX_INTEGERKEY | MDBX_CREATE); }
 
 InstructionCache::~InstructionCache()
 {
@@ -36,7 +36,7 @@ bool InstructionCache::lock(rd_address address, RDInstruction** instruction) con
             t->get(address, &ci);
             t->commit();
         }
-        catch(const LMDBException& e) {
+        catch(const MDBXException& e) {
             rd_ctx->problem(std::string(e.what()) + " @ " + Utils::hex(address));
             t->abort();
             return false;

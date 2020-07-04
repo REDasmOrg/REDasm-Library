@@ -3,6 +3,7 @@
 #include <memory>
 #include <rdapi/plugin/loader.h>
 #include "../document/document.h"
+#include "../database/database.h"
 #include "../buffer/buffer.h"
 #include "../object.h"
 
@@ -19,6 +20,7 @@ class Loader: public Object
         BufferView* view(rd_address address) const;
         BufferView* view(rd_address address, size_t size) const;
         BufferView* view(const RDSegment& segment) const;
+        Database* database(const std::string& dbname);
         rd_flag flags() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
@@ -34,6 +36,7 @@ class Loader: public Object
     private:
         RDLoaderPlugin* m_ploader;
         std::unique_ptr<MemoryBuffer> m_buffer;
+        std::unordered_map<std::string, std::unique_ptr<Database>> m_database;
         SafeDocument m_document;
         std::string m_filepath;
 };

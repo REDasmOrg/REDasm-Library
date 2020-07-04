@@ -1,11 +1,43 @@
 #include "database.h"
-#include "context.h"
+#include "../context.h"
 #include <fstream>
 
-#define DATABASE_FOLDER_NAME "database"
-#define NS_SUFFIX            ".json"
+#define DATABASE_NAME_FIELD    "@name"
+#define DATABASE_PAYLOAD_FIELD "@payload"
 
-Database::Database(const std::string& dbname) { m_db.assign(this->find(dbname)); }
+#define DATABASE_FOLDER_NAME "database"
+#define JSON_EXTENSION       ".json"
+
+namespace fs = std::filesystem;
+
+Database::Database(const std::string& dbname): DatabaseItem(this), m_dbname(dbname)
+{
+    //m_db.assign(this->find(dbname));
+}
+
+bool Database::save(const std::string& filepath)
+{
+    nlohmann::json obj = nlohmann::json::object();
+    obj[DATABASE_NAME_FIELD] = m_dbname;
+    obj[DATABASE_PAYLOAD_FIELD] = this->serialize();
+
+    auto path = fs::path(filepath);
+
+    if(path.extension() != JSON_EXTENSION)
+        path.replace_extension(JSON_EXTENSION);
+
+    std::ofstream ofs(path);
+    if(!ofs.is_open()) return false;
+
+    ofs << obj;
+    return true;
+}
+
+Database* Database::load(const std::string& dbname)
+{
+    std::string path = Database::find(dbname);
+    return path.empty() ? nullptr : new Database(path);
+}
 
 bool Database::select(const std::string& obj)
 {
@@ -17,7 +49,7 @@ bool Database::select(const std::string& obj)
         return true;
     }
 
-    std::filesystem::directory_entry entry(std::filesystem::path(m_db).append(obj + NS_SUFFIX));
+    std::filesystem::directory_entry entry(std::filesystem::path(m_db).append(obj + JSON_EXTENSION));
     if(!entry.is_regular_file()) return false;
 
     std::ifstream ifs(entry.path(), std::ios::binary);
@@ -45,7 +77,10 @@ bool Database::find(const std::string& key, RDDatabaseItem* item) const
     return item ? this->writeItem(*it, item) : true;
 }
 
-bool Database::exists(const std::string& dbname) { return !Database::find(dbname).empty(); }
+bool Database::exists(const std::string& dbname)
+{
+    return !Database::find(dbname).empty();
+}
 
 bool Database::writeItem(const nlohmann::json& value, RDDatabaseItem* item) const
 {

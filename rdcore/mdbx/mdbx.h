@@ -1,23 +1,23 @@
 #pragma once
 
-#include "../libs/lmdb/lmdb.h"
-#include "lmdbtransaction.h"
+#include "../libs/mdbx/mdbx.h"
+#include "mdbxtransaction.h"
 
-class LMDB
+class MDBX
 {
     public:
-        LMDB() = default;
-        ~LMDB();
+        MDBX() = default;
+        ~MDBX();
 
     public:
         operator bool() const;
         void open(const std::string& filepath, unsigned int dbflags = 0, unsigned int flags = 0u);
-        LMDBTransactionPtr transaction() const;
+        MDBXTransactionPtr transaction() const;
         void close();
 
     private:
         unsigned int m_dbflags{0};
-        MDB_env* m_env{nullptr};
-        MDB_dbi m_dbi;
+        MDBX_env* m_env{nullptr};
+        MDBX_dbi m_dbi;
 };
 

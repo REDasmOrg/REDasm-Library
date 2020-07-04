@@ -4,7 +4,7 @@
 #include <unordered_set>
 #include <string>
 #include <rdapi/types.h>
-#include "../../lmdb/lmdb.h"
+#include "../../mdbx/mdbx.h"
 
 class InstructionCache
 {
@@ -33,5 +33,5 @@ class InstructionCache
         std::unordered_set<rd_address> m_cache;
         std::string m_filepath;
         bool m_lockserialization{false};
-        LMDB m_lmdb;
+        MDBX m_lmdb;
 };

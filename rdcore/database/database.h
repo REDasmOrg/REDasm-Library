@@ -4,14 +4,23 @@
 #include <filesystem>
 #include <unordered_map>
 #include <optional>
-#include <rdapi/database.h>
-#include "libs/json/json.hpp"
-#include "object.h"
+#include <rdapi/database/database.h>
+#include "../libs/json/json.hpp"
+#include "databaseitem.h"
 
-class Database: public Object
+class Database: public DatabaseItem
 {
     public:
         Database(const std::string& dbname);
+        bool save(const std::string& filepath);
+        static Database* load(const std::string& dbname);
+
+    private:
+        std::string m_dbname;
+        nlohmann::json m_database;
+
+
+    public: // vvv OLD vvv
         bool select(const std::string& obj);
         bool find(const std::string& key, RDDatabaseItem* item) const;
         static bool exists(const std::string& dbname);

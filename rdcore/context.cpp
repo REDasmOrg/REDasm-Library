@@ -117,7 +117,7 @@ bool Context::commandExecute(const char* command, const RDArguments* arguments)
 void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata)
 {
     m_loadertoassembler.clear();
-    if(!callback) return;
+    if(!callback || !loadrequest->filepath || !loadrequest->buffer) return;
 
     for(const auto& item : m_loaders)
     {
@@ -161,6 +161,7 @@ RDAssemblerPlugin* Context::getAssembler(const RDLoaderPlugin* ploader) const
 
     RDAssemblerPlugin* passembler = this->findAssembler(it->second);
     if(!passembler) this->log("Cannot find assembler '" + std::string(it->second) + "'");
+    Context::initPlugin(reinterpret_cast<RDPluginHeader*>(passembler));
     return passembler;
 }
 

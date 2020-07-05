@@ -5,6 +5,11 @@ include(GNUInstallDirs)
 include(cmake/functions.cmake)
 
 option(RDAPI_DOC "Build API Documentation" ON)
+option(ENABLE_TESTS "Enable Unit Testing" ON)
+
+if(ENABLE_TESTS)
+    add_subdirectory(tests)
+endif(ENABLE_TESTS)
 
 if(RDAPI_DOC)
     find_package(Python)
@@ -86,6 +91,10 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread dl)
+
+    # if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    #     target_link_libraries(${PROJECT_NAME} tbb)
+    # endif()
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

@@ -156,24 +156,44 @@ rd_type Disassembler::markLocation(rd_address address, rd_address fromaddress)
 {
     if(!this->document()->segment(address, nullptr)) return SymbolType_None;
 
-    RDSymbol symbol;
     rd_type type = SymbolType_Data;
+    RDSymbol symbol;
 
-    if(this->document()->symbol(address, &symbol) && IS_TYPE(&symbol, SymbolType_String))
+    if(!this->document()->symbol(address, &symbol))
     {
-        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
-        else this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
-        type = symbol.type;
+        std::unique_ptr<BufferView> view(m_loader->view(address));
+        if(!view) return SymbolType_None;
+
+        size_t totalsize = 0;
+        rd_flag flags = StringFinder::categorize(view.get(), &totalsize);
+
+        if(StringFinder::checkAndMark(this, address, flags, totalsize))
+        {
+            if(flags & SymbolFlags_AsciiString)
+            {
+                this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+                type = SymbolType_String;
+            }
+            else if(flags & SymbolFlags_WideString)
+            {
+                this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+                type = SymbolType_String;
+            }
+            else
+                REDasmError("Unhandled String symbol", address);
+        }
+        else
+        {
+            RDLocation loc = this->dereference(address);
+
+            if(loc.valid && this->document()->symbol(loc.address, nullptr))
+                this->markPointer(address, fromaddress); // It points to another symbol
+            else
+                this->document()->data(address, this->addressWidth(), std::string());
+        }
     }
     else
-    {
-        RDLocation loc = this->dereference(address);
-
-        if(loc.valid && this->document()->symbol(loc.address, nullptr))
-            this->markPointer(address, fromaddress); // It points to another symbol
-        else
-            this->document()->data(address, this->addressWidth(), std::string());
-    }
+        type = symbol.type;
 
     this->pushReference(address, fromaddress);
     return type;

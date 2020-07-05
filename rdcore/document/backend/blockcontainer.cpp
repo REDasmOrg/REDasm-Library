@@ -33,7 +33,10 @@ bool BlockContainer::get(size_t idx, RDBlock* block) const
     return true;
 }
 
+const RDBlock& BlockContainer::front() const { return m_blocks.front(); }
+const RDBlock& BlockContainer::back() const { return m_blocks.back(); }
 const RDBlock& BlockContainer::at(size_t idx) const { return m_blocks[idx]; }
+
 size_t BlockContainer::indexOf(const RDBlock* b) const
 {
     auto it = this->findOverlap(m_blocks.begin(), m_blocks.end(), b->start);

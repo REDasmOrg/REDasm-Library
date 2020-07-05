@@ -8,10 +8,7 @@
 #include "stringfinder.h"
 #include "analyzer.h"
 #include <rdapi/disassembler.h>
-#include <future>
 #include <vector>
-
-#include <iostream>
 
 Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm())
 {
@@ -50,10 +47,10 @@ void Engine::execute(size_t step)
     switch(step)
     {
         case Engine::EngineState_None:       return;
-        case Engine::EngineState_Strings:    this->stringsStep();    break;
         case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
-        case Engine::EngineState_Unexplored: this->unexploredStep(); break;
         case Engine::EngineState_Analyze:    this->analyzeStep();    break;
+        //case Engine::EngineState_Strings:    this->stringsStep();    break;
+        case Engine::EngineState_Unexplored: this->unexploredStep(); break;
         case Engine::EngineState_CFG:        this->cfgStep();        break;
         case Engine::EngineState_Signature:  this->signatureStep();  break;
         default:                             rd_ctx->log("Unknown step: " + Utils::number(step)); return;
@@ -65,6 +62,7 @@ bool Engine::needsWeak() const
     switch(m_currentstep)
     {
         case Engine::EngineState_Algorithm:
+        //case Engine::EngineState_Strings:
         case Engine::EngineState_Unexplored:
             return true;
 
@@ -77,26 +75,42 @@ bool Engine::needsWeak() const
 bool Engine::busy() const { return m_busy; }
 void Engine::stop() { this->notify(false); }
 
-void Engine::stringsStep()
-{
-    this->notify(true);
-    int maxworkers = std::max<int>(1, std::thread::hardware_concurrency() - 1); // n_cores (-1 -> we are inside another thread)
-    std::vector<std::future<void>> f(maxworkers);
-
-    for(size_t segidx = 0; segidx < m_disassembler->document()->segmentsCount(); )
-    {
-        for(int i = 0; i < maxworkers; i++, segidx++)
-            f[i] = std::async(std::bind(&Engine::findStringsAt, this, segidx));
-
-        std::for_each(f.begin(), f.end(), [](auto& f) { f.get(); });
-    }
-
-    this->execute();
-}
+// void Engine::stringsStep()
+// {
+//     if(m_stepsdone.find(m_currentstep) != m_stepsdone.end())
+//     {
+//         this->execute();
+//         return;
+//     }
+//
+//     RDSegment segment;
+//     const BlockContainer* bc = m_disassembler->document()->blocks();
+//     std::deque<RDBlock> pendingblocks;
+//
+//     for(size_t i = 0; i < bc->size(); i++)
+//     {
+//         const RDBlock& block = bc->at(i);
+//         rd_ctx->status("Searching strings @ " + Utils::hex(block.address, m_disassembler->bits()));
+//
+//         if(!IS_TYPE(&block, BlockType_Unexplored)) continue;
+//         if(!m_disassembler->document()->segment(block.address, &segment)) continue;
+//         if(HAS_FLAG(&segment, SegmentFlags_Bss)) continue;
+//
+//         pendingblocks.push_back(block);
+//     }
+//
+//     std::for_each(std::execution::par_unseq, pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
+//         std::unique_ptr<BufferView> view(m_disassembler->loader()->view(b.address));
+//         StringFinder::find(m_disassembler, view.get());
+//     });
+//
+//     this->execute();
+// }
 
 void Engine::algorithmStep()
 {
     //m_signatures = r_ldr->signatures(); // Preload signatures
+    this->notify(true);
 
     while(m_algorithm->hasNext())
     {
@@ -124,13 +138,13 @@ void Engine::analyzeStep()
 
 void Engine::unexploredStep()
 {
-    if(m_unexploreddone || (rd_ctx->flags() & ContextFlag_DisableUnexplored))
+    if((m_stepsdone.find(m_currentstep) != m_stepsdone.end()) || (rd_ctx->flags() & ContextFlag_DisableUnexplored))
     {
         this->execute();
         return;
     }
 
-    m_unexploreddone = true; // Run this step once
+    m_stepsdone.insert(m_currentstep); // Run this step once
 
     RDSegment segment;
     const BlockContainer* bc = m_disassembler->document()->blocks();
@@ -209,19 +223,6 @@ void Engine::generateCfg(size_t funcindex)
     }
     else
         rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));
-}
-
-void Engine::findStringsAt(size_t index) const
-{
-    if(index >= m_disassembler->document()->segmentsCount()) return;
-
-    RDSegment segment;
-    m_disassembler->document()->segmentAt(index, &segment);
-
-    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return;
-
-    StringFinder sf(m_disassembler, segment);
-    sf.find();
 }
 
 void Engine::notify(bool busy)

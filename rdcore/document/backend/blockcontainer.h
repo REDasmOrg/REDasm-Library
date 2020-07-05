@@ -31,6 +31,8 @@ class BlockContainer: public Object
     public:
         bool find(rd_address address, RDBlock* block) const;
         bool get(size_t idx, RDBlock* block) const;
+        const RDBlock& front() const;
+        const RDBlock& back() const;
         const RDBlock& at(size_t idx) const;
         size_t indexOf(const RDBlock* b) const;
         size_t size() const;
@@ -45,8 +47,8 @@ class BlockContainer: public Object
         void markSize(rd_address start, size_t size, rd_type type);
         void insert(rd_address start, rd_address end, rd_type type);
         void remove(rd_address start, rd_address end);
-        template<typename Iterator> Iterator findOverlap(Iterator first, Iterator last, rd_address address) const;
-        template<typename Iterator> Iterator insertionPoint(Iterator first, Iterator last, rd_address address) const;
+        template<typename Iterator> Iterator findOverlap(Iterator front, Iterator back, rd_address address) const;
+        template<typename Iterator> Iterator insertionPoint(Iterator front, Iterator back, rd_address address) const;
         template<typename Iterator> Iterator eraseRange(Iterator startit, Iterator endit);
         template<typename Iterator> Iterator eraseBlock(Iterator it);
         template<typename Iterator> Iterator insertBlock(Iterator it, const RDBlock& bi);

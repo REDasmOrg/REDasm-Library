@@ -91,9 +91,11 @@ bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
         {
             case SymbolType_Label:
             case SymbolType_Function: return true;
+
             default: break;
         }
 
+        if(m_disassembler->getReferencesCount(block->address)) return false;
         return HAS_FLAG(&symbol, SymbolFlags_Weak);
     }
 

@@ -12,8 +12,6 @@
 #include "../disassembler.h"
 #include "../context.h"
 
-#define REDASM_ENTRY_FUNCTION "__redasm_entry__"
-
 Document::Document()
 {
     m_instructions = std::make_unique<InstructionCache>();
@@ -127,7 +125,7 @@ void Document::entry(rd_address address)
     const char* name = m_symbols->getName(address);
 
     if(name) this->symbol(address, name, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint); // Don't override symbol name, if exists
-    else this->symbol(address, REDASM_ENTRY_FUNCTION, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint);
+    else this->symbol(address, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint);
     m_symbols->get(address, &m_entry);
 }
 

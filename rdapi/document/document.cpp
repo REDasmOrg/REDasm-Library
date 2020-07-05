@@ -65,3 +65,9 @@ const char* RDDocument_GetComments(const RDDocument* d, rd_address address, cons
     s = docptr(d)->comment(address, true, separator);
     return s.c_str();
 }
+
+void RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags)
+{
+    size_t range = endaddress - startaddress;
+    docptr(d)->segment(name, offset, startaddress, range, range, flags);
+}

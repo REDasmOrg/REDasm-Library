@@ -572,7 +572,36 @@ bool Renderer::renderSymbol(RDRenderItemParams* rip)
         }
     }
 
-    ri->push(Utils::hex(loc.address, d->bits()), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
+    RDBlock b;
+
+    if(!d->document()->block(rip->documentitem->address, &b))
+        REDasmError("Invalid Block", rip->documentitem->address);
+
+    size_t blocksize = BlockContainer::size(&b);
+
+    switch(blocksize)
+    {
+        case 1:
+            ri->push(Utils::hex(static_cast<u8>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
+            break;
+
+        case 2:
+            ri->push(Utils::hex(static_cast<u16>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
+            break;
+
+        case 4:
+            ri->push(Utils::hex(static_cast<u32>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
+            break;
+
+        case 8:
+            ri->push(Utils::hex(static_cast<u64>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
+            break;
+
+        default:
+            ri->push("(").push(Utils::hex(blocksize), "immediate_fg").push(")");
+            break;
+    }
+
     return true;
 }
 

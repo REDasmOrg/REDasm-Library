@@ -80,7 +80,7 @@ RD_API_EXPORT void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd
 RD_API_EXPORT void RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags);
 RD_API_EXPORT void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags);
 RD_API_EXPORT void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name);
-RD_API_EXPORT void RDDocument_AddExported(RDDocument* d, rd_address address, const char* name);
+RD_API_EXPORT void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name);
 RD_API_EXPORT void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction);
 RD_API_EXPORT void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size);

@@ -41,7 +41,7 @@ void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* co
 void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { docptr(d)->segment(name, offset, address, psize, vsize, flags); }
 void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { docptr(d)->segment(name, offset, address, size, size, flags); }
 void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->imported(address, size, name ? name : std::string()); }
-void RDDocument_AddExported(RDDocument* d, rd_address address, const char* name) { docptr(d)->exported(address, name ? name : std::string()); }
+void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->exported(address, size, name ? name : std::string()); }
 void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }
 void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction) { docptr(d)->instruction(instruction); }
 void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size) { docptr(d)->asciiString(address, size); }

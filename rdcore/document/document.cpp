@@ -65,7 +65,7 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
 }
 
 void Document::imported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
-void Document::exported(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Data, SymbolFlags_Export); }
+void Document::exported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_Export); }
 void Document::exportedFunction(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
 
 void Document::instruction(const RDInstruction* instruction)

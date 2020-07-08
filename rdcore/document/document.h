@@ -38,7 +38,7 @@ class Document: public Object
     public: // Insertion
         void segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
         void imported(rd_address address, size_t size, const std::string& name);
-        void exported(rd_address address, const std::string& name);
+        void exported(rd_address address, size_t size, const std::string& name);
         void exportedFunction(rd_address address, const std::string& name);
         void instruction(const RDInstruction* instruction);
         void asciiString(rd_address address, size_t size);

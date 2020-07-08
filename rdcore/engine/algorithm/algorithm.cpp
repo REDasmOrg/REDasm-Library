@@ -25,8 +25,6 @@ void Algorithm::checkOperand(const RDInstruction* instruction, const RDOperand* 
 {
     switch(operand->type)
     {
-        case OperandType_Void: break;
-        case OperandType_Register: break;
         case OperandType_Memory: this->memoryState(instruction, operand->address); break;
         case OperandType_Constant: this->constantState(instruction, operand->u_value); break;
         case OperandType_Immediate: this->immediateState(instruction, operand->u_value); break;

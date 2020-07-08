@@ -24,13 +24,13 @@ class Graph: public Object
         size_t edges(const RDGraphEdge** edges) const;
         RDGraphNode root() const;
 
-    private:
+    protected:
+        void removeOutgoingEdges(RDGraphNode n);
+        void removeIncomingEdges(RDGraphNode n);
         void removeEdges(RDGraphNode n);
 
-    private:
-        mutable std::vector<RDGraphEdge> m_incomings, m_outgoings;
-
     protected:
+        mutable std::vector<RDGraphEdge> m_incomings, m_outgoings;
         std::vector<RDGraphEdge> m_edges;
         std::vector<RDGraphNode> m_nodes;
         size_t m_nodeid{0};

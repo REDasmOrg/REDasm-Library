@@ -78,6 +78,23 @@ size_t Graph::incoming(RDGraphNode n, const RDGraphEdge** edges) const
 size_t Graph::nodes(const RDGraphNode** nodes) const { if(nodes) *nodes = m_nodes.data(); return m_nodes.size(); }
 size_t Graph::edges(const RDGraphEdge** edges) const { if(edges) *edges = m_edges.data(); return m_edges.size(); }
 RDGraphNode Graph::root() const { return m_root; }
+
+void Graph::removeOutgoingEdges(RDGraphNode n)
+{
+    this->outgoing(n, nullptr);
+
+    for(const RDGraphEdge& e : m_outgoings)
+        this->removeEdge(&e);
+}
+
+void Graph::removeIncomingEdges(RDGraphNode n)
+{
+    this->incoming(n, nullptr);
+
+    for(const RDGraphEdge& e : m_incomings)
+        this->removeEdge(&e);
+}
+
 RDGraphNode Graph::pushNode() { RDGraphNode n = ++m_nodeid; m_nodes.push_back(n); return n; }
 
 void Graph::removeEdges(RDGraphNode n)

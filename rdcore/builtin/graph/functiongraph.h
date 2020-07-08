@@ -1,8 +1,9 @@
 #pragma once
 
 #include <unordered_map>
-#include <list>
 #include <string>
+#include <list>
+#include <map>
 #include "../../document/document_fwd.h"
 #include "../../graph/styledgraph.h"
 
@@ -31,6 +32,9 @@ struct FunctionBasicBlock
 
 class FunctionGraph: public StyledGraph
 {
+    private:
+        typedef std::map<rd_address, FunctionBasicBlock*> BasicBlocks;
+
     public:
         FunctionGraph(Disassembler* disassembler);
         const FunctionBasicBlock* basicBlock(rd_address address) const;
@@ -42,8 +46,8 @@ class FunctionGraph: public StyledGraph
         bool complete() const;
 
     private:
-        FunctionBasicBlock* requestBasicBlock(rd_address startaddress);
-        bool build(RDDocumentItem* item);
+        FunctionBasicBlock* createBasicBlock(rd_address startaddress);
+        void buildBasicBlocks(BasicBlocks& basicblocks);
         void buildBasicBlocks();
 
     private:

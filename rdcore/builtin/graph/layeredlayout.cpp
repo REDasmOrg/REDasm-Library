@@ -94,7 +94,7 @@ void LayeredLayout::makeAcyclic()
             for(size_t i = 0; i < c; i++)
             {
                 const RDGraphEdge& e = edges[i];
-                if(visited.count(e.target)) return;
+                if(visited.count(e.target)) continue;
 
                 //If node has no more unseen incoming edges, add it to the graph layout now
                 if(m_blocks[e.target].incoming.size() == 1)
@@ -124,7 +124,7 @@ void LayeredLayout::makeAcyclic()
             for(size_t i = 0; i < c; i++)
             {
                 const RDGraphEdge& e = edges[i];
-                if(visited.count(e.target)) return;
+                if(visited.count(e.target)) continue;
 
                 if(!best || (m_blocks[e.target].incoming.size() < bestedges) || ((m_blocks[e.target].incoming.size() == bestedges) && (e.target < best))) {
                     best = e.target;

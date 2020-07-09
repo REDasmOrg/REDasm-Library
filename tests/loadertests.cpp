@@ -1,5 +1,6 @@
 #include "loadertests.h"
 #include "doctest.h"
+#include "graphtests.h"
 #include <algorithm>
 #include <cstring>
 
@@ -7,6 +8,7 @@ void LoaderTests::testCavia(RDDisassembler*, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401000, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_EntryPoint);
     LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function, SymbolFlags_None);
+    GraphTests::testCavia(doc);
 }
 
 void LoaderTests::testCM01(RDDisassembler* d, RDDocument* doc)
@@ -26,6 +28,7 @@ void LoaderTests::testCM01(RDDisassembler* d, RDDocument* doc)
     };
 
     LoaderTests::checkSymbolsAndRefs(d, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
+    GraphTests::testCM01(doc);
 }
 
 void LoaderTests::testVB5CrackMe(RDDisassembler*, RDDocument* doc)
@@ -39,7 +42,6 @@ void LoaderTests::testVB5CrackMe(RDDisassembler*, RDDocument* doc)
 void LoaderTests::testTN_11(RDDisassembler* d, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function, SymbolFlags_None);
-    //CHECK_EQ(RDDisassembler_GetTargetsCount(d, 0x00401197), 5);
 }
 
 void LoaderTests::testSCrack(RDDisassembler* d, RDDocument* doc)

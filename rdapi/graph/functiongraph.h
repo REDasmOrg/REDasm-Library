@@ -9,6 +9,7 @@ struct RDDocumentItem;
 // RDFunctionGraph
 RD_API_EXPORT bool RDFunctionGraph_GetBasicBlock(const RDGraph* graph, RDGraphNode n, const RDFunctionBasicBlock** fbb);
 RD_API_EXPORT bool RDFunctionGraph_Contains(const RDGraph* graph, rd_address address);
+RD_API_EXPORT rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph);
 
 // RDFunctionBasicBlock
 RD_API_EXPORT const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGraphNode node);

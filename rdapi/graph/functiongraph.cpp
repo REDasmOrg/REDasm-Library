@@ -22,6 +22,13 @@ bool RDFunctionGraph_Contains(const RDGraph* graph, rd_address address)
     return fg ? (fg->basicBlock(address) != nullptr) : false;
 }
 
+rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph)
+{
+    const Graph* g = CPTR(const Graph, graph);
+    const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
+    return fg ? fg->startAddress() : 0;
+}
+
 const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getStyle(node); }
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startIndex(); }

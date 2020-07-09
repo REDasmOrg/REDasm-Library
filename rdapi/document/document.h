@@ -83,8 +83,8 @@ RD_API_EXPORT void RDDocument_AddImported(RDDocument* d, rd_address address, siz
 RD_API_EXPORT void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name);
 RD_API_EXPORT void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction);
-RD_API_EXPORT void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size);
-RD_API_EXPORT void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size);
+RD_API_EXPORT void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name);
+RD_API_EXPORT void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name);
 RD_API_EXPORT void RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name);

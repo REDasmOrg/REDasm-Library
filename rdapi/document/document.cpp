@@ -44,8 +44,8 @@ void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, cons
 void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->exported(address, size, name ? name : std::string()); }
 void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }
 void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction) { docptr(d)->instruction(instruction); }
-void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size) { docptr(d)->asciiString(address, size); }
-void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size) { docptr(d)->wideString(address, size); }
+void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->asciiString(address, size, name ? name : std::string()); }
+void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->wideString(address, size, name ? name : std::string() ); }
 void RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name) { docptr(d)->pointer(address, type, name ? name : std::string()); }
 void RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->data(address, size, name ? name : std::string()); }
 void RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->function(address, name ? name : std::string() ); }

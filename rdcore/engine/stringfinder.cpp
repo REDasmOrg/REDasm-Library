@@ -121,13 +121,13 @@ bool StringFinder::checkAndMark(Disassembler* disassembler, rd_address address, 
 {
     if(flags & SymbolFlags_AsciiString)
     {
-        disassembler->document()->asciiString(address, totalsize);
+        disassembler->document()->asciiString(address, totalsize, std::string());
         return true;
     }
 
     if(flags & SymbolFlags_WideString)
     {
-        disassembler->document()->wideString(address, totalsize);
+        disassembler->document()->wideString(address, totalsize, std::string());
         return true;
     }
 

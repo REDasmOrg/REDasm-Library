@@ -41,8 +41,8 @@ class Document: public Object
         void exported(rd_address address, size_t size, const std::string& name);
         void exportedFunction(rd_address address, const std::string& name);
         void instruction(const RDInstruction* instruction);
-        void asciiString(rd_address address, size_t size);
-        void wideString(rd_address address, size_t size);
+        void asciiString(rd_address address, size_t size, const std::string& name);
+        void wideString(rd_address address, size_t size, const std::string& name);
         void data(rd_address address, size_t size, const std::string& name);
         void table(rd_address address, size_t count);
         void tableItem(rd_address address, rd_address startaddress, size_t idx);

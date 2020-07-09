@@ -74,8 +74,8 @@ void Document::instruction(const RDInstruction* instruction)
     m_blocks->codeSize(instruction->address, instruction->size);
 }
 
-void Document::asciiString(rd_address address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_AsciiString); }
-void Document::wideString(rd_address address, size_t size) { this->block(address, size, std::string(), SymbolType_String, SymbolFlags_WideString); }
+void Document::asciiString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
+void Document::wideString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
 void Document::data(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
 
 void Document::table(rd_address address, size_t count)

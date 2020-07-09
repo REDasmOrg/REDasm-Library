@@ -15,6 +15,14 @@ void RDGraph_PushEdge(RDGraph* graph, RDGraphNode source, RDGraphNode target) { 
 void RDGraph_SetRoot(RDGraph* graph, RDGraphNode n) { CPTR(Graph, graph)->setRoot(n); }
 void RDGraph_RemoveEdge(RDGraph* graph, const RDGraphEdge* e) { CPTR(Graph, graph)->removeEdge(e); }
 void RDGraph_RemoveNode(RDGraph* graph, RDGraphNode n) { CPTR(Graph, graph)->removeNode(n); }
+u32 RDGraph_Hash(const RDGraph* graph) { return CPTR(const Graph, graph)->hash(); }
+
+const char* RDGraph_GenerateDOT(const RDGraph* graph)
+{
+    static std::string s;
+    s = CPTR(const Graph, graph)->generateDOT();
+    return s.c_str();
+}
 
 const RDGraphData* RDGraph_GetData(const RDGraph* graph, RDGraphNode n) { return CPTR(const DataGraph, graph)->data(n); }
 void RDGraph_SetDataUInt(RDGraph* graph, RDGraphNode n, uintptr_t val) { CPTR(DataGraph, graph)->setData(n, val); }

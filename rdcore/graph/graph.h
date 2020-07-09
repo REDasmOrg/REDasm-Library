@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rdapi/graph/graph.h>
+#include <string>
 #include <vector>
 #include "../object.h"
 
@@ -13,6 +14,8 @@ class Graph: public Object
         void removeNode(RDGraphNode n);
         void pushEdge(RDGraphNode source, RDGraphNode target);
         RDGraphNode pushNode();
+        std::string generateDOT() const;
+        u32 hash() const;
 
     public:
         bool empty() const;
@@ -25,6 +28,7 @@ class Graph: public Object
         RDGraphNode root() const;
 
     protected:
+        virtual std::string nodeLabel(RDGraphNode n) const;
         void removeOutgoingEdges(RDGraphNode n);
         void removeIncomingEdges(RDGraphNode n);
         void removeEdges(RDGraphNode n);

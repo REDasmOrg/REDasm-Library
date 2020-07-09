@@ -45,6 +45,9 @@ class FunctionGraph: public StyledGraph
         bool build(rd_address address);
         bool complete() const;
 
+    protected:
+        std::string nodeLabel(RDGraphNode n) const override;
+
     private:
         FunctionBasicBlock* createBasicBlock(rd_address startaddress);
         void buildBasicBlocks(BasicBlocks& basicblocks);

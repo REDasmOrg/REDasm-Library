@@ -125,6 +125,13 @@ bool FunctionGraph::build(rd_address address)
 
 bool FunctionGraph::complete() const { return m_complete; }
 
+std::string FunctionGraph::nodeLabel(RDGraphNode n) const
+{
+    auto* fbb = reinterpret_cast<FunctionBasicBlock*>(this->data(n)->p_data);
+    if(fbb) return Utils::hex(fbb->startaddress);
+    return Graph::nodeLabel(n);
+}
+
 FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 {
     FunctionBasicBlock& newfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);

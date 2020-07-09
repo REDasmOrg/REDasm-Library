@@ -37,6 +37,8 @@ RD_API_EXPORT void RDGraph_PushEdge(RDGraph* graph, RDGraphNode source, RDGraphN
 RD_API_EXPORT void RDGraph_SetRoot(RDGraph* graph, RDGraphNode n);
 RD_API_EXPORT void RDGraph_RemoveEdge(RDGraph* graph, const RDGraphEdge* e);
 RD_API_EXPORT void RDGraph_RemoveNode(RDGraph* graph, RDGraphNode n);
+RD_API_EXPORT u32 RDGraph_Hash(const RDGraph* graph);
+RD_API_EXPORT const char* RDGraph_GenerateDOT(const RDGraph* graph);
 
 // Data
 RD_API_EXPORT const RDGraphData* RDGraph_GetData(const RDGraph* graph, RDGraphNode n);

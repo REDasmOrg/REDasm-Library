@@ -1,6 +1,7 @@
 #include "graph.h"
+#include "../support/hash.h"
 #include <algorithm>
-#include <tuple>
+#include <sstream>
 
 bool Graph::empty() const { return m_nodes.empty(); }
 void Graph::setRoot(RDGraphNode n) { m_root = n; }
@@ -78,6 +79,7 @@ size_t Graph::incoming(RDGraphNode n, const RDGraphEdge** edges) const
 size_t Graph::nodes(const RDGraphNode** nodes) const { if(nodes) *nodes = m_nodes.data(); return m_nodes.size(); }
 size_t Graph::edges(const RDGraphEdge** edges) const { if(edges) *edges = m_edges.data(); return m_edges.size(); }
 RDGraphNode Graph::root() const { return m_root; }
+std::string Graph::nodeLabel(RDGraphNode n) const { return "#" + std::to_string(n); }
 
 void Graph::removeOutgoingEdges(RDGraphNode n)
 {
@@ -96,6 +98,36 @@ void Graph::removeIncomingEdges(RDGraphNode n)
 }
 
 RDGraphNode Graph::pushNode() { RDGraphNode n = ++m_nodeid; m_nodes.push_back(n); return n; }
+
+std::string Graph::generateDOT() const
+{
+    std::stringstream ss;
+    ss << "digraph G{\n";
+
+    for(RDGraphNode n : m_nodes)
+    {
+        const RDGraphEdge* edges = nullptr;
+        size_t oc = this->outgoing(n, &edges);
+
+        for(size_t i = 0; i < oc; i++)
+        {
+            ss << "\t"   <<
+                  "\""   << this->nodeLabel(edges[i].source) << "\"" <<
+                  " -> " <<
+                  "\""   << this->nodeLabel(edges[i].target) << "\";" <<
+                  "\n";
+        }
+    }
+
+    ss << "}";
+    return ss.str();
+}
+
+u32 Graph::hash() const
+{
+    std::string g = this->generateDOT();
+    return Hash::crc32(reinterpret_cast<const u8*>(g.data()), g.size());
+}
 
 void Graph::removeEdges(RDGraphNode n)
 {

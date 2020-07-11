@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rdapi/document/document.h>
-#include "../../containers.h"
+#include "../../containers/sortedcontainer.h"
 #include <set>
 
 struct SegmentSorter

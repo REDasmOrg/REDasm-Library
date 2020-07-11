@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <memory>
 #include <rdapi/types.h>
-#include "../../containers.h"
+#include "../../containers/sortedcontainer.h"
 #include "../../builtin/graph/functiongraph.h"
 
 class FunctionContainer: public SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true>

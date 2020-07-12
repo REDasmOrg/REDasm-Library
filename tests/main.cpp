@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 #include "../rdapi/rdapi.h"
+#include "containertests.h"
 #include "loadertests.h"
 #include "doctest.h"
 
@@ -34,6 +35,11 @@ void initializeContext()
 }
 
 static RDLoaderPlugin* g_currloader = nullptr;
+
+TEST_CASE("Containers")
+{
+    SUBCASE("Block Container") { ContainerTests::testBlockContainer(); }
+}
 
 TEST_CASE("Executables")
 {

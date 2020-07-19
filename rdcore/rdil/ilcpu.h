@@ -18,6 +18,7 @@ class ILCPU: public RDIL
 
     public:
         bool reg(rd_register_id r, u64* value) const;
+        void exec(const RDInstruction* rdil, size_t len);
         void exec(const RDInstruction* rdil);
         void reset();
 

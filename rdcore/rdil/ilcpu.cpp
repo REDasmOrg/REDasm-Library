@@ -74,6 +74,12 @@ bool ILCPU::reg(rd_register_id r, u64* value) const
     return true;
 }
 
+void ILCPU::exec(const RDInstruction* rdil, size_t len)
+{
+    for(size_t i = 0; i < len; i++)
+        this->exec(&rdil[i]);
+}
+
 void ILCPU::exec(const RDInstruction* rdil)
 {
     const RDOperand& opdst = rdil->operands[0];
@@ -130,6 +136,11 @@ void ILCPU::exec(const RDInstruction* rdil)
         case RDIL_Undef:
             if(!this->expect(rdil, opdst, OperandType_Register)) return;
             m_gpr.erase(opdst.reg);
+            break;
+
+        case RDIL_Copy:
+            if(!this->expect(rdil, opdst, OperandType_Register)) return;
+            this->exec(opdst, opsrc1, [](u64 src1) { return src1; });
             break;
 
         case RDIL_Unknown:

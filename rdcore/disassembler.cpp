@@ -82,10 +82,22 @@ std::string Disassembler::readString(rd_address address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
+RDInstruction* Disassembler::emitRDIL(const RDInstruction* instruction, size_t* len)
+{
+    static std::array<RDInstruction, RDIL_INSTRUCTION_COUNT> rdilres;
+
+    ILCPU::init(rdilres.data());
+    RDInstruction* rdilend = rdilres.data();
+
+    if(m_passembler->rdil)
+        m_passembler->rdil(m_passembler, instruction, &rdilend);
+
+    if(len) *len = std::max<size_t>(1, rdilend - rdilres.data());
+    return rdilres.data();
+}
+
 void Disassembler::disassembleRDIL(rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata)
 {
-    if(!m_passembler->rdil) return;
-
     auto graph = this->document()->graph(startaddress);
     if(!graph) return;
 
@@ -103,21 +115,17 @@ void Disassembler::disassembleRDIL(rd_address startaddress, Callback_Disassemble
 
             if(!this->document()->lockInstruction(address, &instruction)) return;
 
-            std::vector<RDInstruction> rdil(RDIL_INSTRUCTION_COUNT);
-            ILCPU::init(&rdil.front());
+            size_t len = 0;
+            RDInstruction* rdil = this->emitRDIL(instruction, &len);
 
-            RDInstruction* rdilend = rdil.data();
-            m_passembler->rdil(m_passembler, instruction, &rdilend);
-            size_t j = 0;
-
-            for(RDInstruction* ri = rdil.data(); ri <= rdilend; ri++, j++)
+            for(size_t j = 0; j <= len; j++)
             {
                 RDILDisassembled rdildisasm{ };
 
-                std::string s = ILCPU::disasm(this, ri, instruction);
+                std::string s = ILCPU::disasm(this, &rdil[j], instruction);
                 std::copy_n(s.begin(), std::min<size_t>(DEFAULT_FULL_NAME_SIZE, s.size()), rdildisasm.result);
 
-                rdildisasm.rdil = *ri;
+                rdildisasm.rdil = rdil[j];
                 rdildisasm.address = instruction->address;
                 rdildisasm.index = j;
 

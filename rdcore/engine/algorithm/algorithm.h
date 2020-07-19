@@ -2,6 +2,7 @@
 
 #include <rdapi/disassembler.h>
 #include "../../support/safe_ptr.h"
+#include "../../rdil/ilcpu.h"
 #include "statemachine.h"
 
 class Algorithm: public StateMachine
@@ -37,6 +38,7 @@ class Algorithm: public StateMachine
 
     private:
         mutable RDSegment m_currentsegment{ };
+        ILCPU m_vcpu;
 };
 
 typedef safe_ptr<Algorithm> SafeAlgorithm;

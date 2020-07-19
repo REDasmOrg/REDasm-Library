@@ -111,11 +111,16 @@ void Algorithm::decodeAddress(rd_address address)
     if(instruction.size > BlockContainer::size(&block)) // Check block/instruction boundaries
         return;
 
+    size_t len = 0;
+    RDInstruction* rdil = nullptr;
+
     switch(result)
     {
         case Algorithm::OK:
             m_document->instruction(&instruction);
             m_disassembler->emulate(&instruction);
+            rdil = m_disassembler->emitRDIL(&instruction, &len);
+            m_vcpu.exec(rdil, len);
             break;
 
         case Algorithm::FAIL:

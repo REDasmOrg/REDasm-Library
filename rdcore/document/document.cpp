@@ -15,19 +15,18 @@
 Document::Document()
 {
     m_instructions = std::make_unique<InstructionCache>();
-    m_segments     = std::make_unique<SegmentContainer>();
     m_functions    = std::make_unique<FunctionContainer>();
     m_items        = std::make_unique<ItemContainer>();
     m_symbols      = std::make_unique<SymbolTable>();
 
-    m_blocks = std::make_unique<BlockContainer>();
-    m_blocks->blockInserted = std::bind(&Document::onBlockInserted, this, std::placeholders::_1);
-    m_blocks->blockRemoved = std::bind(&Document::onBlockRemoved, this, std::placeholders::_1);
+    m_segments = std::make_unique<SegmentContainer>();
+    m_segments->whenInsert(std::bind(&Document::onBlockInserted, this, std::placeholders::_1));
+    m_segments->whenRemove(std::bind(&Document::onBlockRemoved, this, std::placeholders::_1));
 }
 
 bool Document::isInstructionCached(rd_address address) const { return m_instructions->contains(address); }
 const SymbolTable* Document::symbols() const { return m_symbols.get(); }
-const BlockContainer* Document::blocks() const { return m_blocks.get(); }
+const BlockContainer* Document::blocks(rd_address address) const { return m_segments->findBlocks(address); }
 const RDSymbol* Document::entry() const { return &m_entry; }
 
 void Document::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
@@ -59,8 +58,7 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
     segment.coveragebytes = RD_NPOS;
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
 
-    m_segments->insert(segment);
-    m_blocks->unexploredSize(address, vsize);
+    if(m_segments->insert(segment) == RD_NPOS) return;
     this->insert(address, DocumentItemType_Segment);
 }
 
@@ -70,8 +68,8 @@ void Document::exportedFunction(rd_address address, const std::string& name) { t
 
 void Document::instruction(const RDInstruction* instruction)
 {
-    m_instructions->cache(instruction);
-    m_blocks->codeSize(instruction->address, instruction->size);
+    if(m_segments->markCode(instruction->address, instruction->size))
+        m_instructions->cache(instruction);
 }
 
 void Document::asciiString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
@@ -130,7 +128,6 @@ void Document::entry(rd_address address)
 }
 
 void Document::empty(rd_address address) { this->insert(address, DocumentItemType_Empty); }
-size_t Document::blocksCount() const { return m_blocks->size(); }
 size_t Document::itemsCount() const { return m_items->size(); }
 size_t Document::segmentsCount() const { return m_segments->size(); }
 size_t Document::functionsCount() const { return m_functions->size(); }
@@ -198,7 +195,6 @@ size_t Document::itemsAt(size_t startidx, size_t count, RDDocumentItem* item) co
 }
 
 bool Document::itemAt(size_t idx, RDDocumentItem* item) const { return m_items->get(idx, item); }
-bool Document::blockAt(size_t idx, RDBlock* block) const { return m_blocks->get(idx, block); }
 bool Document::segmentAt(size_t idx, RDSegment* segment) const { return m_segments->get(idx, segment); }
 
 RDLocation Document::functionAt(size_t idx) const
@@ -218,17 +214,20 @@ bool Document::lockInstruction(rd_address address, RDInstruction** instruction) 
 
 bool Document::prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const
 {
-    RDBlock block;
-    if(!m_blocks->find(instruction->address, &block)) return false;
+    auto* blocks = m_segments->findBlocks(instruction->address);
+    if(!blocks) return false;
 
-    size_t idx = m_blocks->indexOf(&block);
-    if(!m_blocks->get(--idx, &block)) return false;
+    RDBlock block;
+    if(!blocks->find(instruction->address, &block)) return false;
+
+    size_t idx = blocks->indexOf(&block);
+    if(!blocks->get(--idx, &block)) return false;
     return this->lockInstruction(block.address, previnstruction);
 }
 
 bool Document::symbol(const char* name, RDSymbol* symbol) const { return m_symbols->get(name, symbol); }
 bool Document::symbol(rd_address address, RDSymbol* symbol) const { return m_symbols->get(address, symbol); }
-bool Document::block(rd_address address, RDBlock* block) const { return m_blocks->find(address, block); }
+bool Document::block(rd_address address, RDBlock* block) const { return m_segments->findBlock(address, block); }
 bool Document::segment(rd_address address, RDSegment* segment) const { return m_segments->find(address, segment); }
 bool Document::segmentOffset(rd_offset offset, RDSegment* segment) const { return m_segments->findOffset(offset, segment); }
 const char* Document::name(rd_address address) const { return m_symbols->getName(address); }
@@ -284,8 +283,8 @@ void Document::block(rd_address address, size_t size, const std::string& name, r
         return;
     }
 
-    m_blocks->dataSize(address, size);
-    this->symbol(address, name, type, flags);
+    if(m_segments->markData(address, size))
+        this->symbol(address, name, type, flags);
 }
 
 void Document::symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags)
@@ -386,7 +385,7 @@ bool Document::canSymbolizeAddress(rd_address address, rd_flag flags) const
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDBlock block;
-    if(!m_blocks->find(address, &block)) return false;
+    if(!m_segments->findBlock(address, &block)) return false;
 
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;

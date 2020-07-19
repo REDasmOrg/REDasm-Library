@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "../rdcore/containers/blockcontainer.h"
 #include "doctest.h"
 

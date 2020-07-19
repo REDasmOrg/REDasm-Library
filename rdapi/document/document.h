@@ -46,7 +46,6 @@ RD_API_EXPORT bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address 
 RD_API_EXPORT bool RDDocument_GetSegmentOffset(const RDDocument* d, rd_offset offset, RDSegment* segment);
 RD_API_EXPORT bool RDDocument_GetSegmentAt(const RDDocument* d, size_t index, RDSegment* segment);
 RD_API_EXPORT bool RDDocument_GetBlock(const RDDocument* d, rd_address address, RDBlock* block);
-RD_API_EXPORT bool RDDocument_GetBlockAt(const RDDocument* d, size_t index, RDBlock* block);
 RD_API_EXPORT bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item);
 RD_API_EXPORT bool RDDocument_GetFunctionItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
 RD_API_EXPORT bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
@@ -60,6 +59,7 @@ RD_API_EXPORT bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstructi
 RD_API_EXPORT bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address);
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address, const char* separator);
+RD_API_EXPORT const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index);
 RD_API_EXPORT RDLocation RDDocument_EntryPoint(const RDDocument* d);
 RD_API_EXPORT RDLocation RDDocument_FunctionStart(const RDDocument* d, rd_address address);
@@ -68,7 +68,6 @@ RD_API_EXPORT size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address ad
 RD_API_EXPORT size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_SymbolIndex(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_GetItemList(const RDDocument* d, size_t startindex, size_t count, RDDocumentItem* items);
-RD_API_EXPORT size_t RDDocument_BlockCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_ItemsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_SegmentsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FunctionsCount(const RDDocument* d);

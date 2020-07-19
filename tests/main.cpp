@@ -36,10 +36,10 @@ void initializeContext()
 
 static RDLoaderPlugin* g_currloader = nullptr;
 
-TEST_CASE("Containers")
-{
-    SUBCASE("Block Container") { ContainerTests::testBlockContainer(); }
-}
+// TEST_CASE("Containers")
+// {
+//     SUBCASE("Block Container") { ContainerTests::testBlockContainer(); }
+// }
 
 TEST_CASE("Executables")
 {

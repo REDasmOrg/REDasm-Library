@@ -10,15 +10,18 @@
 class BlockContainer: public Object
 {
     private:
+        enum class FindMode { Contains, LowerBound };
+
+    private:
         typedef std::vector<RDBlock> Container;
+
+    public:
         typedef std::function<void(const RDBlock&)> Callback;
 
     public:
-        Callback blockInserted;
-        Callback blockRemoved;
-
-    public:
-        BlockContainer() = default;
+        BlockContainer();
+        void whenInsert(const Callback& cb);
+        void whenRemove(const Callback& cb);
         void unexplored(const RDBlock* blockitem);
         void unexplored(rd_address start);
         void unexplored(rd_address start, rd_address end);
@@ -29,6 +32,7 @@ class BlockContainer: public Object
         void codeSize(rd_address start, size_t size);
 
     public:
+        bool contains(rd_address address) const;
         bool find(rd_address address, RDBlock* block) const;
         bool get(size_t idx, RDBlock* block) const;
         const RDBlock& front() const;
@@ -47,21 +51,21 @@ class BlockContainer: public Object
         void markSize(rd_address start, size_t size, rd_type type);
         void insert(rd_address start, rd_address end, rd_type type);
         void remove(rd_address start, rd_address end);
-        template<typename Iterator> Iterator findOverlap(Iterator front, Iterator back, rd_address address) const;
-        template<typename Iterator> Iterator insertionPoint(Iterator front, Iterator back, rd_address address) const;
-        template<typename Iterator> Iterator eraseRange(Iterator startit, Iterator endit);
-        template<typename Iterator> Iterator eraseBlock(Iterator it);
-        template<typename Iterator> Iterator insertBlock(Iterator it, const RDBlock& bi);
+        template<FindMode mode = FindMode::Contains, typename Iterator> Iterator find(Iterator front, Iterator back, rd_address address) const;
+        template<typename Iterator> Iterator doInsert(Iterator it, const RDBlock& bi);
+        template<typename Iterator> Iterator doRemove(Iterator startit, Iterator endit);
+        template<typename Iterator> Iterator doRemove(Iterator it);
 
     private:
         Container m_blocks;
+        Callback m_oninsert, m_onremove;
 };
 
 template<typename Iterator>
-Iterator BlockContainer::eraseRange(Iterator startit, Iterator endit)
+Iterator BlockContainer::doRemove(Iterator startit, Iterator endit)
 {
     auto it = std::remove_if(startit, endit, [&](RDBlock& b) -> bool {
-              if(blockRemoved) blockRemoved(b);
+              m_onremove(b);
               return true;
     });
 
@@ -69,16 +73,14 @@ Iterator BlockContainer::eraseRange(Iterator startit, Iterator endit)
 }
 
 template<typename Iterator>
-Iterator BlockContainer::eraseBlock(Iterator it)
+Iterator BlockContainer::doRemove(Iterator it)
 {
-    RDBlock b = *it;
-    it = m_blocks.erase(it);
-    if(blockRemoved) blockRemoved(b);
-    return it;
+    m_onremove(*it);
+    return m_blocks.erase(it);
 }
 
 template<typename Iterator>
-Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
+Iterator BlockContainer::doInsert(Iterator it, const RDBlock& bi)
 {
     auto resit = it;
 
@@ -86,12 +88,12 @@ Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
     {
         if((it->start - bi.end) == 1)
         {
-            if(blockRemoved) blockRemoved(*it);
+            m_onremove(*it);
             it->start = bi.start;
         }
         else if((bi.start - it->end) == 1)
         {
-            if(blockRemoved) blockRemoved(*it);
+            m_onremove(*it);
             it->end = bi.end;
         }
         else resit = m_blocks.insert(it, bi);
@@ -99,12 +101,12 @@ Iterator BlockContainer::insertBlock(Iterator it, const RDBlock& bi)
     else
         resit = m_blocks.insert(it, bi);
 
-    if(blockInserted) blockInserted(*resit);
+    m_oninsert(*resit);
     return resit;
 }
 
-template<typename Iterator>
-Iterator BlockContainer::findOverlap(Iterator first, Iterator last, rd_address address) const
+template<BlockContainer::FindMode mode, typename Iterator>
+Iterator BlockContainer::find(Iterator first, Iterator last, rd_address address) const
 {
     typename Iterator::difference_type count = std::distance(first, last), step;
     Iterator it;
@@ -127,30 +129,8 @@ Iterator BlockContainer::findOverlap(Iterator first, Iterator last, rd_address a
             count = step;
     }
 
-    return last;
-}
-
-template<typename Iterator>
-Iterator BlockContainer::insertionPoint(Iterator first, Iterator last, rd_address address) const
-{
-    auto count = std::distance(first, last);
-
-    while(count > 0)
-    {
-        Iterator it = first;
-        auto step = count / 2;
-        std::advance(it, step);
-
-        if(it->start < address)
-        {
-            first = ++it;
-            count -= step + 1;
-        }
-        else
-            count = step;
-    }
-
-    return first;
+    if constexpr(mode == FindMode::Contains) return last;
+    else return first;
 }
 
 namespace std {

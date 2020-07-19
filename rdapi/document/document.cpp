@@ -10,7 +10,6 @@ bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address address, RDSeg
 bool RDDocument_GetSegmentOffset(const RDDocument* d, rd_offset offset, RDSegment* segment) { return docptr(d)->segmentOffset(offset, segment); }
 bool RDDocument_GetSegmentAt(const RDDocument* d, size_t index, RDSegment* segment) { return docptr(d)->segmentAt(index, segment); }
 bool RDDocument_GetBlock(const RDDocument* d, rd_address address, RDBlock* block) { return docptr(d)->block(address, block); }
-bool RDDocument_GetBlockAt(const RDDocument* d, size_t index, RDBlock* block) { return docptr(d)->blockAt(index, block); }
 bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item) { return docptr(d)->itemAt(index, item); }
 bool RDDocument_GetFunctionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->functionItem(address, item); }
 bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->instructionItem(address, item); }
@@ -22,6 +21,7 @@ bool RDDocument_LockInstruction(const RDDocument* d, rd_address address, RDInstr
 bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction) { return docptr(d)->unlockInstruction(instruction);  }
 bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname) { return docptr(d)->rename(address, newname ? newname : std::string()); }
 const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { return docptr(d)->symbols()->getName(address); }
+const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
 RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index) { return docptr(d)->functionAt(index); }
 RDLocation RDDocument_EntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
 RDLocation RDDocument_FunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
@@ -32,7 +32,6 @@ size_t RDDocument_SymbolIndex(const RDDocument* d, rd_address address) { return 
 size_t RDDocument_GetItemList(const RDDocument* d, size_t startindex, size_t count, RDDocumentItem* items) { return docptr(d)->itemsAt(startindex, count, items); }
 size_t RDDocument_ItemsCount(const RDDocument* d) { return docptr(d)->itemsCount(); }
 size_t RDDocument_SegmentsCount(const RDDocument* d) { return docptr(d)->segmentsCount(); }
-size_t RDDocument_BlockCount(const RDDocument* d) { return docptr(d)->blocksCount(); }
 size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
 size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsCount(); }
 void RDDocument_SetEntry(RDDocument* d, rd_address address) { docptr(d)->entry(address); }

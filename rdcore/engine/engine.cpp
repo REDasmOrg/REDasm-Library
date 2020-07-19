@@ -146,18 +146,19 @@ void Engine::unexploredStep()
 
     m_stepsdone.insert(m_currentstep); // Run this step once
 
-    RDSegment segment;
-    const BlockContainer* bc = m_disassembler->document()->blocks();
-
-    for(size_t i = 0; i < bc->size(); i++)
+    for(size_t i = 0; i < m_disassembler->document()->segmentsCount(); i++)
     {
-        const RDBlock& block = bc->at(i);
-        rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->bits()));
+        RDSegment segment;
+        if(!m_disassembler->document()->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
 
-        if(!IS_TYPE(&block, BlockType_Unexplored)) continue;
-        if(!m_disassembler->document()->segment(block.address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
+        const BlockContainer* bc = m_disassembler->document()->blocks(segment.address);
 
-        m_algorithm->enqueue(block.address);
+        for(size_t i = 0; i < bc->size(); i++)
+        {
+            const RDBlock& block = bc->at(i);
+            rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->bits()));
+            if(IS_TYPE(&block, BlockType_Unexplored)) m_algorithm->enqueue(block.address);
+        }
     }
 
     if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm

@@ -2,11 +2,19 @@
 #include "../../support/error.h"
 #include "../../support/utils.h"
 
+BlockContainer::BlockContainer()
+{
+    m_oninsert = [](const RDBlock&) { };
+    m_onremove = [](const RDBlock&) { };
+}
+
+void BlockContainer::whenInsert(const BlockContainer::Callback& cb) { m_oninsert = cb; }
+void BlockContainer::whenRemove(const BlockContainer::Callback& cb) { m_onremove = cb; }
 void BlockContainer::unexplored(const RDBlock* blockitem) { this->unexplored(blockitem->start, blockitem->end); }
 
 void BlockContainer::unexplored(rd_address start)
 {
-    auto it = this->findOverlap(m_blocks.begin(), m_blocks.end(), start);
+    auto it = this->find(m_blocks.begin(), m_blocks.end(), start);
     if(it != m_blocks.end()) this->unexplored(it->start, it->end);
 }
 
@@ -17,10 +25,19 @@ void BlockContainer::unexploredSize(rd_address start, size_t size) { this->markS
 void BlockContainer::dataSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Data); }
 void BlockContainer::codeSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Code); }
 
+bool BlockContainer::contains(rd_address address) const
+{
+    if(m_blocks.empty()) return false;
+
+    const auto& f = m_blocks.front();
+    const auto& b = m_blocks.back();
+    return (address >= f.start) >= (address <= b.end);
+}
+
 bool BlockContainer::find(rd_address address, RDBlock* block) const
 {
     if(!block) return false;
-    auto it = this->findOverlap(m_blocks.begin(), m_blocks.end(), address);
+    auto it = this->find(m_blocks.begin(), m_blocks.end(), address);
     if(it == m_blocks.end()) return false;
     *block = *it;
     return true;
@@ -39,7 +56,7 @@ const RDBlock& BlockContainer::at(size_t idx) const { return m_blocks[idx]; }
 
 size_t BlockContainer::indexOf(const RDBlock* b) const
 {
-    auto it = this->findOverlap(m_blocks.begin(), m_blocks.end(), b->start);
+    auto it = this->find(m_blocks.begin(), m_blocks.end(), b->start);
     return (it != m_blocks.end()) ? std::distance(m_blocks.begin(), it) : RD_NPOS;
 }
 
@@ -64,8 +81,8 @@ void BlockContainer::markSize(rd_address start, size_t size, rd_type type) { thi
 
 void BlockContainer::remove(rd_address start, rd_address end)
 {
-    auto begit = this->findOverlap(m_blocks.begin(), m_blocks.end(), start);
-    auto endit = this->findOverlap(m_blocks.begin(), m_blocks.end(), end);
+    auto begit = this->find(m_blocks.begin(), m_blocks.end(), start);
+    auto endit = this->find(m_blocks.begin(), m_blocks.end(), end);
 
     if((begit == m_blocks.end()) && (endit == m_blocks.end()))
         return;
@@ -86,28 +103,28 @@ void BlockContainer::remove(rd_address start, rd_address end)
 
     auto it = m_blocks.end();
 
-    if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = this->eraseRange(begit, endit + 1);
-    else if(begit != m_blocks.end()) it = this->eraseBlock(begit);
-    else if(endit != m_blocks.end()) it = this->eraseBlock(endit);
+    if((begit != m_blocks.end()) && (endit != m_blocks.end())) it = this->doRemove(begit, endit + 1);
+    else if(begit != m_blocks.end()) it = this->doRemove(begit);
+    else if(endit != m_blocks.end()) it = this->doRemove(endit);
     else REDasmError("BlockContainer: remove failed");
 
     if(!BlockContainer::empty(&begbl))
     {
         begbl.type = BlockType_Unexplored; // Demote to "Unexplored"
-        it = this->insertBlock(it, begbl);
+        it = this->doInsert(it, begbl);
         it++;
     }
 
     if(!BlockContainer::empty(&endbl))
     {
         endbl.type = BlockType_Unexplored; // Demote to "Unexplored"
-        this->insertBlock(it, endbl);
+        this->doInsert(it, endbl);
     }
 }
 
 void BlockContainer::insert(rd_address start, rd_address end, rd_type type)
 {
     this->remove(start, end);
-    auto it = this->insertionPoint(m_blocks.begin(), m_blocks.end(), start);
-    this->insertBlock(it, { {start}, end, type });
+    auto it = this->find<FindMode::LowerBound>(m_blocks.begin(), m_blocks.end(), start);
+    this->doInsert(it, { {start}, end, type });
 }

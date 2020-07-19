@@ -71,13 +71,14 @@ rd_address FunctionGraph::startAddress() const { return m_graphstart.start; }
 size_t FunctionGraph::bytesCount() const
 {
     size_t c = 0;
-    const BlockContainer* blocks = m_document->blocks();
 
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
         RDBlock startb, endb;
         if(!m_document->block(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
         if(!m_document->block(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
+
+        const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
 
         for(size_t i = blocks->indexOf(&startb); i <= blocks->indexOf(&endb); i++)
         {
@@ -141,14 +142,13 @@ FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 
 void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
 {
-    const BlockContainer* blockcontainer = m_document->blocks();
-
     std::stack<rd_address> pending;
     pending.push(m_graphstart.address);
 
     while(!pending.empty()) // Prepare blocks
     {
         rd_address address = pending.top();
+        const BlockContainer* blockcontainer = m_document->blocks(address);
 
         RDBlock block;
         if(!blockcontainer->find(address, &block))
@@ -200,10 +200,9 @@ void FunctionGraph::buildBasicBlocks()
     std::map<rd_address, FunctionBasicBlock*> basicblocks;
     this->buildBasicBlocks(basicblocks);
 
-    const BlockContainer* blockcontainer = m_document->blocks();
-
     for(auto& [address, basicblock] : basicblocks)
     {
+        const BlockContainer* blockcontainer = m_document->blocks(address);
         RDBlock block;
 
         if(!blockcontainer->find(address, &block))

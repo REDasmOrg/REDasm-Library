@@ -8,7 +8,6 @@
 #include "../document/backend/segmentcontainer.h"
 #include "../document/backend/functioncontainer.h"
 #include "../document/backend/instructioncache.h"
-#include "../document/backend/blockcontainer.h"
 #include "../document/backend/itemcontainer.h"
 #include "../document/backend/symboltable.h"
 #include "../object.h"
@@ -31,8 +30,8 @@ class Document: public Object
         Document();
         virtual ~Document() = default;
         bool isInstructionCached(rd_address address) const;
+        const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
-        const BlockContainer* blocks() const;
         const RDSymbol* entry() const;
 
     public: // Insertion
@@ -56,7 +55,6 @@ class Document: public Object
         void empty(rd_address address);
 
     public: // Count
-        size_t blocksCount() const;
         size_t itemsCount() const;
         size_t segmentsCount() const;
         size_t functionsCount() const;
@@ -72,7 +70,6 @@ class Document: public Object
     public: // Get-i
         size_t itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const;
         bool itemAt(size_t idx, RDDocumentItem* item) const;
-        bool blockAt(size_t idx, RDBlock* block) const;
         bool segmentAt(size_t idx, RDSegment* segment) const;
         RDLocation functionAt(size_t idx) const;
 
@@ -126,7 +123,6 @@ class Document: public Object
         std::unique_ptr<InstructionCache> m_instructions;
         std::unique_ptr<SegmentContainer> m_segments;
         std::unique_ptr<FunctionContainer> m_functions;
-        std::unique_ptr<BlockContainer> m_blocks;
         std::unique_ptr<ItemContainer> m_items;
         std::unique_ptr<SymbolTable> m_symbols;
 };

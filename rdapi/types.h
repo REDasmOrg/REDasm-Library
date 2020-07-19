@@ -18,7 +18,8 @@ typedef int16_t  s16;
 typedef int32_t  s32;
 typedef int64_t  s64;
 
-typedef u64 rd_location;
+typedef u64 rd_size;
+typedef rd_size rd_location;
 typedef rd_location rd_address;
 typedef rd_location rd_offset;
 

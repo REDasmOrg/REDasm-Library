@@ -11,7 +11,7 @@ const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix)
     // Fixed internal storage
     static std::string s;
 
-    if(bits == RD_NPOS) bits = rd_ctx->disassembler()->assembler()->bits;
+    if(bits == RD_NPOS) bits = rd_ctx->disassembler()->assembler()->bits();
 
     s = Utils::hex(value, bits, withprefix);
     return s.c_str();

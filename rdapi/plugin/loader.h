@@ -49,7 +49,7 @@ typedef void (*Callback_LoaderPlugin)(RDLoaderPlugin* ploader, void* userdata);
 
 RD_API_EXPORT bool RDLoader_Register(RDLoaderPlugin* ploader);
 RD_API_EXPORT const char* RDLoader_GetAssemblerId(const RDLoaderPlugin* ploader);
-RD_API_EXPORT RDAssemblerPlugin* RDLoader_GetAssembler(const RDLoaderPlugin* ploader);
+RD_API_EXPORT RDAssemblerPlugin* RDLoader_GetAssemblerPlugin(const RDLoaderPlugin* ploader);
 RD_API_EXPORT rd_flag RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);
 RD_API_EXPORT RDDatabase* RDLoader_GetDatabase(RDLoader* ldr);

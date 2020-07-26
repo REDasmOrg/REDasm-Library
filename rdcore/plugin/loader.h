@@ -12,7 +12,7 @@ class Disassembler;
 class Loader: public Object
 {
     public:
-        Loader(const RDLoaderRequest* req, RDLoaderPlugin* ploader);
+        Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req);
         ~Loader();
         bool load();
         bool build(const RDLoaderBuildRequest* req);
@@ -22,6 +22,7 @@ class Loader: public Object
         BufferView* view(const RDSegment& segment) const;
         Database* database(const std::string& dbname);
         rd_flag flags() const;
+        const char* id() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
 

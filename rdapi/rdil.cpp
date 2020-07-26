@@ -2,6 +2,8 @@
 #include <rdcore/rdil/ilcpu.h>
 #include <rdcore/disassembler.h>
 
+bool RDILCPU_Read(const RDILCPU* cpu, const RDOperand* op, u64* val) { return CPTR(const ILCPU, cpu)->read(op, val); }
+
 void RDIL_Disassemble(RDDisassembler* d, rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata) { CPTR(Disassembler, d)->disassembleRDIL(startaddress, cbrdil, userdata); }
 
 void RDIL_SetILRegister(RDInstruction* rdil, size_t idx, rd_register_id r)

@@ -64,6 +64,8 @@ enum RDILOpcodes {
     RDIL_Count,
 };
 
+DECLARE_HANDLE(RDILCPU);
+
 typedef struct RDILDisassembled {
     char result[DEFAULT_FULL_NAME_SIZE];
     RDInstruction rdil;
@@ -75,6 +77,9 @@ typedef void (*Callback_DisassembleRDIL)(const RDILDisassembled* d, void* userda
 
 struct RDDisassembler;
 
+RD_API_EXPORT bool RDILCPU_Read(const RDILCPU* cpu, const RDOperand* op, u64* val);
+
+// Extra RDIL Functions
 RD_API_EXPORT void RDIL_Disassemble(RDDisassembler* d, rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata);
 
 RD_API_EXPORT void RDIL_SetOperand(RDInstruction* rdil, size_t idx, const RDOperand* op);

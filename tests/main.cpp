@@ -62,7 +62,7 @@ TEST_CASE("Executables")
 
             REQUIRE(g_currloader);
 
-            RDAssemblerPlugin* assembler = RDLoader_GetAssembler(g_currloader);
+            RDAssemblerPlugin* assembler = RDLoader_GetAssemblerPlugin(g_currloader);
             REQUIRE(assembler);
 
             RDDisassembler* disassembler = RDDisassembler_Create(&req, g_currloader, assembler);

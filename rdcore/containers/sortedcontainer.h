@@ -7,6 +7,9 @@
 template<typename T, typename Sorter = std::less<T>, typename Comparator = std::equal_to<T>, bool unique = false>
 class SortedContainer: public AbstractContainer<T>
 {
+    private:
+        typedef std::vector<T> ContainerType;
+
     public:
         SortedContainer() = default;
         size_t data(const T** t) const;
@@ -23,12 +26,18 @@ class SortedContainer: public AbstractContainer<T>
         void removeAt(size_t idx) override;
 
     public:
+        typename ContainerType::iterator begin() { return m_container.begin(); }
+        typename ContainerType::iterator end() { return m_container.end(); }
+        typename ContainerType::const_iterator begin() const { return m_container.begin(); }
+        typename ContainerType::const_iterator end() const { return m_container.end(); }
+
+    public:
         using AbstractContainer<T>::front;
         using AbstractContainer<T>::back;
         using AbstractContainer<T>::at;
 
     protected:
-        std::vector<T> m_container;
+        ContainerType m_container;
 };
 
 template<typename T, typename Sorter, typename Comparator, bool unique>

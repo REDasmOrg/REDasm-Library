@@ -6,17 +6,18 @@
 #include "context.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
-#include <climits>
+#include "rdil/ilcpu.h"
 
-Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler): m_passembler(passembler)
+Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler)
 {
     rd_ctx->setDisassembler(this);
-    m_loader = std::make_unique<Loader>(request, ploader);
+    m_loader = std::make_unique<Loader>(ploader, request);
+    m_assembler = std::make_unique<Assembler>(passembler, this);
     m_algorithm = SafeAlgorithm(new Algorithm(this));
 }
 
 Disassembler::~Disassembler() { EventDispatcher::unsubscribeAll(); }
-RDAssemblerPlugin* Disassembler::assembler() const { return m_passembler; }
+Assembler* Disassembler::assembler() const { return m_assembler.get(); }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
@@ -82,19 +83,7 @@ std::string Disassembler::readString(rd_address address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
-RDInstruction* Disassembler::emitRDIL(const RDInstruction* instruction, size_t* len)
-{
-    static std::array<RDInstruction, RDIL_INSTRUCTION_COUNT> rdilres;
-
-    ILCPU::init(rdilres.data());
-    RDInstruction* rdilend = rdilres.data();
-
-    if(m_passembler->rdil)
-        m_passembler->rdil(m_passembler, instruction, &rdilend);
-
-    if(len) *len = std::max<size_t>(1, rdilend - rdilres.data());
-    return rdilres.data();
-}
+RDInstruction* Disassembler::emitRDIL(const RDInstruction* instruction, size_t* len) { return m_assembler->emitRDIL(instruction, len); }
 
 void Disassembler::disassembleRDIL(rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata)
 {
@@ -116,12 +105,11 @@ void Disassembler::disassembleRDIL(rd_address startaddress, Callback_Disassemble
             if(!this->document()->lockInstruction(address, &instruction)) return;
 
             size_t len = 0;
-            RDInstruction* rdil = this->emitRDIL(instruction, &len);
+            RDInstruction* rdil = m_assembler->emitRDIL(instruction, &len);
 
             for(size_t j = 0; j <= len; j++)
             {
                 RDILDisassembled rdildisasm{ };
-
                 std::string s = ILCPU::disasm(this, &rdil[j], instruction);
                 std::copy_n(s.begin(), std::min<size_t>(DEFAULT_FULL_NAME_SIZE, s.size()), rdildisasm.result);
 
@@ -138,11 +126,45 @@ void Disassembler::disassembleRDIL(rd_address startaddress, Callback_Disassemble
     }
 }
 
-bool Disassembler::decode(rd_address address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction);  }
+const ILCPU* Disassembler::ilcpu() const { return m_algorithm->ilcpu(); }
+bool Disassembler::decode(rd_address address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction); }
 void Disassembler::checkOperands(const RDInstruction* instruction) { m_algorithm->checkOperands(instruction); }
 void Disassembler::checkOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->checkOperand(instruction, op); }
-void Disassembler::enqueueAddress(const RDInstruction* instruction, rd_address address) { m_algorithm->enqueueAddress(instruction, address);  }
-void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
+
+void Disassembler::enqueueAddress(rd_address address, const RDInstruction* instruction)
+{
+    if(!instruction) return;
+
+    if(m_algorithm->enqueueAddress(instruction, address))
+        m_net.linkNext(instruction->address, address);
+}
+
+void Disassembler::forkBranch(rd_address address, const RDInstruction* instruction)
+{
+    if(!instruction) return;
+
+    if(m_algorithm->enqueueAddress(instruction, address))
+        this->pushTarget(address, instruction->address, instruction->type, true);
+}
+
+void Disassembler::forkContinue(rd_address address, const RDInstruction* frominstruction)
+{
+    m_algorithm->enqueue(address);
+
+    if(!frominstruction) return;
+    if(IS_TYPE(frominstruction, InstructionType_Jump)) m_net.linkJump(frominstruction->address, address, false);
+    else if(IS_TYPE(frominstruction, InstructionType_Call)) m_net.linkCall(frominstruction->address, address);
+}
+
+void Disassembler::next(const RDInstruction* frominstruction)
+{
+    rd_address address = Sugar::nextAddress(frominstruction);
+    m_algorithm->enqueue(address);
+
+    if(frominstruction)
+        m_net.linkNext(frominstruction->address, address);
+}
+
 size_t Disassembler::getReferences(rd_address address, const rd_address** references) const { return m_references.references(address, references); }
 size_t Disassembler::getTargets(rd_address address, const rd_address** targets) const { return m_references.targets(address, targets); }
 RDLocation Disassembler::getTarget(rd_address address) const { return m_references.target(address); }
@@ -150,13 +172,27 @@ size_t Disassembler::getTargetsCount(rd_address address) const { return m_refere
 size_t Disassembler::getReferencesCount(rd_address address) const { return m_references.referencesCount(address); }
 void Disassembler::pushReference(rd_address address, rd_address refby) { m_references.pushReference(address, refby); }
 void Disassembler::popReference(rd_address address, rd_address refby) { m_references.popReference(address, refby); }
-void Disassembler::pushTarget(rd_address address, rd_address refby) { m_references.pushTarget(address, refby); }
-void Disassembler::popTarget(rd_address address, rd_address refby) { m_references.popTarget(address, refby); }
+
+void Disassembler::pushTarget(rd_address address, rd_address refby, rd_type type, bool condition)
+{
+    m_references.pushTarget(address, refby);
+
+    if(type == InstructionType_Jump) m_net.linkJump(refby, address, condition);
+    else if(type == InstructionType_Call) m_net.linkCall(refby, address);
+}
+
+void Disassembler::popTarget(rd_address address, rd_address refby, rd_type type)
+{
+    m_references.popTarget(address, refby);
+
+    if(type == InstructionType_Jump) m_net.unlinkJump(refby, address);
+    else if(type == InstructionType_Call) m_net.unlinkCall(refby, address);
+}
 
 RDLocation Disassembler::dereference(rd_address address) const
 {
     RDLocation loc;
-    loc.valid = this->readAddress(address, this->addressWidth(), &loc.value);
+    loc.valid = this->readAddress(address, m_assembler->addressWidth(), &loc.value);
     return loc;
 }
 
@@ -197,7 +233,7 @@ rd_type Disassembler::markLocation(rd_address address, rd_address fromaddress)
             if(loc.valid && this->document()->symbol(loc.address, nullptr))
                 this->markPointer(address, fromaddress); // It points to another symbol
             else
-                this->document()->data(address, this->addressWidth(), std::string());
+                this->document()->data(address, m_assembler->addressWidth(), std::string());
         }
     }
     else
@@ -246,7 +282,7 @@ size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, 
     rd_address address = startaddress;
     std::deque<rd_address> targets;
 
-    for(size_t i = 0 ; i < count; i++, address += this->addressWidth())
+    for(size_t i = 0 ; i < count; i++, address += m_assembler->addressWidth())
     {
         RDLocation loc = this->dereference(address);
         if(!loc.valid) break;
@@ -280,45 +316,12 @@ size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, 
     return targets.size();
 }
 
-size_t Disassembler::addressWidth() const { return m_passembler->bits / CHAR_BIT; }
-size_t Disassembler::bits() const { return m_passembler->bits; }
-
-bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const
-{
-    if(!m_passembler->decode) return false;
-    return m_passembler->decode(m_passembler, CPTR(RDBufferView, view), instruction);
-}
-
-void Disassembler::emulate(const RDInstruction* instruction)
-{
-    if(!m_passembler->emulate) return;
-    m_passembler->emulate(m_passembler, CPTR(RDDisassembler, this), instruction);
-}
-
-void Disassembler::rdil(const RDInstruction* instruction)
-{
-    if(!m_passembler->rdil) return;
-
-    //RDInstruction rdil;
-    //if(!m_passembler->rdil(m_passembler, instruction, &rdil)) return;
-}
-
-std::string Disassembler::registerName(const RDInstruction* instruction, const RDOperand* op, register_t r) const
-{
-    if(m_passembler->regname)
-    {
-        const char* rn = m_passembler->regname(m_passembler, instruction, op, r);
-        if(rn) return rn;
-    }
-
-    return "$" + Utils::number(r);
-}
-
-bool Disassembler::encode(RDEncodedInstruction* encoded) const
-{
-    if(!encoded->decoded || !m_passembler->encode) return false;
-    return m_passembler->encode(m_passembler, encoded);
-}
+void Disassembler::unlinkNext(rd_address address) { m_net.unlinkNext(address); }
+bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const { return m_assembler->decode(view, instruction); }
+void Disassembler::emulate(const RDInstruction* instruction) { m_assembler->emulate(instruction); }
+void Disassembler::rdil(const RDInstruction* instruction) { m_assembler->rdil(instruction); }
+std::string Disassembler::registerName(const RDInstruction* instruction, const RDOperand* op, rd_register_id r) const { return m_assembler->registerName(instruction, op, r); }
+bool Disassembler::encode(RDEncodedInstruction* encoded) const { return m_assembler->encode(encoded); }
 
 bool Disassembler::readAddress(rd_address address, size_t size, u64* value) const
 {
@@ -373,4 +376,5 @@ BufferView* Disassembler::getFunctionBytes(rd_address& address) const
 }
 
 SafeDocument& Disassembler::document() const { return m_loader->document(); }
+const DocumentNet* Disassembler::net() const { return &m_net; }
 MemoryBuffer* Disassembler::buffer() const { return m_loader->buffer(); }

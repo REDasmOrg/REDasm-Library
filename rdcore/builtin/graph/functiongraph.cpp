@@ -133,6 +133,14 @@ std::string FunctionGraph::nodeLabel(RDGraphNode n) const
     return Graph::nodeLabel(n);
 }
 
+bool FunctionGraph::isCode(rd_address address) const
+{
+    RDSegment segment;
+    if(!m_document->segment(address, &segment)) return false;
+    if(!HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+    return true;
+}
+
 FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 {
     FunctionBasicBlock& newfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
@@ -142,124 +150,83 @@ FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 
 void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
 {
+    const DocumentNet* net = m_disassembler->net();
     std::stack<rd_address> pending;
     pending.push(m_graphstart.address);
 
     while(!pending.empty()) // Prepare blocks
     {
         rd_address address = pending.top();
-        const BlockContainer* blockcontainer = m_document->blocks(address);
-
-        RDBlock block;
-        if(!blockcontainer->find(address, &block))
-           REDasmError("Invalid address for block", pending.top());
-
         pending.pop();
-        if(basicblocks.count(address)) continue;
 
-        size_t idx = blockcontainer->indexOf(&block);
-        if(idx == RD_NPOS) REDasmError("Invalid index for block", pending.top());
+        if(!this->isCode(address) || basicblocks.count(address)) continue;
 
-        basicblocks[block.address] = this->createBasicBlock(block.address);
+        const auto* link = net->findNode(address);
+        if(!link) continue;
 
-        for( ; idx < blockcontainer->size(); idx++)
+        basicblocks[address] = this->createBasicBlock(address);
+
+        while(link)
         {
-            const RDBlock& b = blockcontainer->at(idx);
-            if(!IS_TYPE(&b, BlockType_Code)) break;
+            std::for_each(link->truejumps.begin(), link->truejumps.end(), [&](rd_address jump) {
+                if(this->isCode(jump)) pending.push(jump);
+            });
 
-            InstructionLock instruction(CPTR(RDDocument, &m_document), b.start);
+            std::for_each(link->falsejumps.begin(), link->falsejumps.end(), [&](rd_address jump) {
+                if(this->isCode(jump)) pending.push(jump);
+            });
 
-            if(!instruction || HAS_FLAG(*instruction, InstructionFlags_Stop))
-                break;
-
-            if(!IS_TYPE(*instruction, InstructionType_Jump)) continue;
-
-            const rd_address* targets = nullptr;
-            size_t c = m_disassembler->getTargets(instruction->address, &targets);
-
-            for(size_t i = 0; i < c; i++)
-            {
-                rd_address target = targets[i];
-
-                RDSymbol symbol;
-                if(!m_document->symbol(target, &symbol)) continue;
-                if(IS_TYPE(&symbol, SymbolType_Import)) continue;
-                if(!basicblocks.count(target)) pending.push(target);
-            }
-
-            if(!HAS_FLAG(*instruction, InstructionFlags_Conditional)) break;
-
-            rd_address nextaddress = Sugar::nextAddress(*instruction);
-            if(!basicblocks.count(nextaddress)) pending.push(nextaddress);
+            address = link->next;
+            link = net->findNode(address);
         }
     }
 }
 
 void FunctionGraph::buildBasicBlocks()
 {
+    const DocumentNet* net = m_disassembler->net();
     std::map<rd_address, FunctionBasicBlock*> basicblocks;
     this->buildBasicBlocks(basicblocks);
 
-    for(auto& [address, basicblock] : basicblocks)
+    for(auto& [bbaddress, basicblock] : basicblocks)
     {
-        const BlockContainer* blockcontainer = m_document->blocks(address);
-        RDBlock block;
+        rd_address address = bbaddress;
+        auto* link = net->findNode(address);
+        if(!link) continue;
 
-        if(!blockcontainer->find(address, &block))
-            REDasmError("Invalid block address", block.address);
-
-        size_t idx = blockcontainer->indexOf(&block);
-        if(idx == RD_NPOS) REDasmError("Invalid index for block", block.address);
-
-        for( ; idx < blockcontainer->size(); idx++)
+        while(link && this->isCode(address))
         {
-            const RDBlock& b = blockcontainer->at(idx);
-            if(!IS_TYPE(&b, BlockType_Code)) break;
+            basicblock->endaddress = address;
+            auto it = basicblocks.end();
 
-            if(address != b.address)
+            for(rd_address jmpaddress : link->truejumps)
             {
-                auto it = basicblocks.find(b.address);
-
-                if(it != basicblocks.end())
-                {
-                    it = basicblocks.find(b.address);
-                    this->pushEdge(basicblock->node, it->second->node);
-                    break;
-                }
-            }
-
-            InstructionLock instruction(CPTR(RDDocument, &m_document), b.address);
-            if(!instruction) break;
-
-            basicblock->endaddress = b.address;
-
-            if(HAS_FLAG(instruction, InstructionFlags_Stop)) break;
-            if(!IS_TYPE(instruction, InstructionType_Jump)) continue;
-
-            const rd_address* targets = nullptr;
-            size_t c = m_disassembler->getTargets(instruction->address, &targets);
-
-            for(size_t i = 0; i < c; i++)
-            {
-                auto it = basicblocks.find(targets[i]);
+                it = basicblocks.find(jmpaddress);
                 if(it == basicblocks.end()) continue;
-
-                if(HAS_FLAG(instruction, InstructionFlags_Conditional))
-                    basicblock->bTrue(it->second->node);
 
                 this->pushEdge(basicblock->node, it->second->node);
+                basicblock->bTrue(it->second->node);
             }
 
-            if(HAS_FLAG(instruction, InstructionFlags_Conditional))
+            for(rd_address jmpaddress : link->falsejumps)
             {
-                auto it = basicblocks.find(Sugar::nextAddress(*instruction));
+                it = basicblocks.find(jmpaddress);
                 if(it == basicblocks.end()) continue;
 
+                this->pushEdge(basicblock->node, it->second->node);
                 basicblock->bFalse(it->second->node);
-                this->pushEdge(basicblock->node, it->second->node);
             }
 
-            break;
+            it = basicblocks.find(link->next);
+
+            if(it != basicblocks.end()) // Connect the block only
+            {
+                this->pushEdge(basicblock->node, it->second->node);
+                break;
+            }
+
+            address = link->next;
+            link = net->findNode(address);
         }
     }
 }

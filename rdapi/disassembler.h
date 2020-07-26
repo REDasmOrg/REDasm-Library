@@ -7,11 +7,22 @@
 
 DECLARE_HANDLE(RDDisassembler);
 
+enum RDForkCondition {
+    ForkCondition_None,
+    ForkCondition_True,
+    ForkCondition_False,
+};
+
+struct RDILCPU;
+
 RD_API_EXPORT RDDisassembler* RDDisassembler_Create(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
-RD_API_EXPORT RDAssemblerPlugin* RDDisassembler_GetAssembler(const RDDisassembler* d);
+RD_API_EXPORT RDAssembler* RDDisassembler_GetAssembler(const RDDisassembler* d);
 RD_API_EXPORT RDLoader* RDDisassembler_GetLoader(const RDDisassembler* d);
+RD_API_EXPORT const char* RDDisassembler_GetAssemblerId(const RDDisassembler* d);
+RD_API_EXPORT const char* RDDisassembler_GetLoaderId(const RDDisassembler* d);
 RD_API_EXPORT RDDocument* RDDisassembler_GetDocument(const RDDisassembler* d);
 RD_API_EXPORT RDBuffer* RDDisassembler_GetBuffer(const RDDisassembler* d);
+RD_API_EXPORT const RDILCPU* RDDisassembler_GetILCPU(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_Bits(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_AddressWidth(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_GetReferencesCount(const RDDisassembler* d, rd_address address);
@@ -32,8 +43,11 @@ RD_API_EXPORT void RDDisassembler_PopReference(RDDisassembler* d, rd_address add
 RD_API_EXPORT void RDDisassembler_CheckOperands(RDDisassembler* d, const RDInstruction* instruction);
 RD_API_EXPORT void RDDisassembler_CheckOperand(RDDisassembler* d, const RDInstruction* instruction, const RDOperand* op);
 RD_API_EXPORT void RDDisassembler_Enqueue(RDDisassembler* d, rd_address address);
-RD_API_EXPORT void RDDisassembler_EnqueueAddress(RDDisassembler* d, const RDInstruction* instruction, rd_address address);
-RD_API_EXPORT void RDDisassembler_EnqueueNext(RDDisassembler* d, const RDInstruction* instruction);
+RD_API_EXPORT void RDDisassembler_EnqueueAddress(RDDisassembler* d, rd_address address, const RDInstruction* instruction);
+RD_API_EXPORT void RDDisassembler_Next(RDDisassembler* d, const RDInstruction* instruction);
+RD_API_EXPORT void RDDisassembler_Continue(RDDisassembler* d, rd_address address, const RDInstruction* instruction);
+RD_API_EXPORT void RDDisassembler_Branch(RDDisassembler* d, rd_address address, const RDInstruction* instruction);
+RD_API_EXPORT void RDDisassembler_UnlinkNext(RDDisassembler* d, rd_address address);
 
 // Extra Functions
 RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, rd_address address, size_t size);

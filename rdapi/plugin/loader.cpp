@@ -4,7 +4,7 @@
 
 bool RDLoader_Register(RDLoaderPlugin* ploader) { return rd_ctx->registerPlugin(ploader); }
 const char* RDLoader_GetAssemblerId(const RDLoaderPlugin* ploader) { return rd_ctx->getAssemblerId(ploader); }
-RDAssemblerPlugin* RDLoader_GetAssembler(const RDLoaderPlugin* ploader) { return rd_ctx->getAssembler(ploader); }
+RDAssemblerPlugin* RDLoader_GetAssemblerPlugin(const RDLoaderPlugin* ploader) { return rd_ctx->getAssembler(ploader); }
 RDDocument* RDLoader_GetDocument(RDLoader* ldr) { return CPTR(RDDocument, std::addressof(CPTR(Loader, ldr)->document())); }
 RDDatabase* RDLoader_GetDatabase(RDLoader* ldr, const char* dbname) { return CPTR(RDDatabase, CPTR(Loader, ldr)->database(dbname)); }
 RDBuffer* RDLoader_GetBuffer(RDLoader* ldr) { return CPTR(RDBuffer, CPTR(Loader, ldr)->buffer()); }

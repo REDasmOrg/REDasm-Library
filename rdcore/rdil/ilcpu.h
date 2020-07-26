@@ -17,6 +17,7 @@ class ILCPU: public RDIL
         static void init(RDInstruction* instruction);
 
     public:
+        bool read(const RDOperand* op, u64* val) const;
         bool reg(rd_register_id r, u64* value) const;
         void exec(const RDInstruction* rdil, size_t len);
         void exec(const RDInstruction* rdil);

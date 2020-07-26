@@ -2,7 +2,7 @@
 #include "../support/utils.h"
 #include "../context.h"
 
-Loader::Loader(const RDLoaderRequest* req, RDLoaderPlugin* ploader): m_ploader(ploader)
+Loader::Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req): m_ploader(ploader)
 {
     m_document = SafeDocument(new Document());
     m_buffer.reset(reinterpret_cast<MemoryBuffer*>(req->buffer));
@@ -57,6 +57,7 @@ Database* Loader::database(const std::string& dbname)
 }
 
 rd_flag Loader::flags() const { return m_ploader->flags; }
+const char* Loader::id() const { return m_ploader->id; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
 

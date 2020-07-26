@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include "../../document/document_fwd.h"
+#include "../../document/documentnet.h"
 #include "../../graph/styledgraph.h"
 
 class Disassembler;
@@ -49,6 +50,7 @@ class FunctionGraph: public StyledGraph
         std::string nodeLabel(RDGraphNode n) const override;
 
     private:
+        bool isCode(rd_address address) const;
         FunctionBasicBlock* createBasicBlock(rd_address startaddress);
         void buildBasicBlocks(BasicBlocks& basicblocks);
         void buildBasicBlocks();

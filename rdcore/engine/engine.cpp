@@ -22,40 +22,39 @@ void Engine::reset() { m_currentstep = Engine::EngineState_None; }
 
 void Engine::execute()
 {
-    if(m_currentstep == Engine::EngineState_None) m_sigcount = 0;
-    size_t newstep = ++m_currentstep;
-
-    if(newstep >= Engine::EngineState_Last)
+    while(m_currentstep < EngineState_Last)
     {
-        if(!m_algorithm->hasNext())
+        switch(m_currentstep)
         {
-            this->notify(false);
-            rd_ctx->log("Analysis completed");
-            rd_ctx->status("Ready");
+            case Engine::EngineState_None:       m_sigcount = 0; m_currentstep++; break;
+            case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
+            case Engine::EngineState_Analyze:    this->analyzeStep();    break;
+          //case Engine::EngineState_Strings:    this->stringsStep();    break;
+            case Engine::EngineState_RDIL:       this->rdilStep();       break;
+            case Engine::EngineState_Unexplored: this->unexploredStep(); break;
+            case Engine::EngineState_CFG:        this->cfgStep();        break;
+            case Engine::EngineState_Signature:  this->signatureStep();  break;
+            default:                             rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
         }
-        else // More addresses pending: run Algorithm again
-            this->execute(Engine::EngineState_Algorithm);
     }
-    else
-        this->execute(newstep);
+
+    if(!m_algorithm->hasNext())
+    {
+        this->notify(false);
+        rd_ctx->log("Analysis completed");
+        rd_ctx->status("Ready");
+    }
+    else // More addresses pending: run Algorithm again
+        this->execute(Engine::EngineState_Algorithm);
 }
 
 void Engine::execute(size_t step)
 {
-    m_currentstep = step;
-
-    switch(step)
-    {
-        case Engine::EngineState_None:       return;
-        case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
-        case Engine::EngineState_Analyze:    this->analyzeStep();    break;
-        //case Engine::EngineState_Strings:    this->stringsStep();    break;
-        case Engine::EngineState_Unexplored: this->unexploredStep(); break;
-        case Engine::EngineState_CFG:        this->cfgStep();        break;
-        case Engine::EngineState_Signature:  this->signatureStep();  break;
-        default:                             rd_ctx->log("Unknown step: " + Utils::number(step)); return;
-    }
+    this->setStep(step);
+    this->execute();
 }
+
+void Engine::setStep(size_t step) { m_currentstep = step; }
 
 bool Engine::needsWeak() const
 {
@@ -64,6 +63,7 @@ bool Engine::needsWeak() const
         case Engine::EngineState_Algorithm:
         //case Engine::EngineState_Strings:
         case Engine::EngineState_Unexplored:
+        case Engine::EngineState_RDIL:
             return true;
 
         default: break;
@@ -79,7 +79,7 @@ void Engine::stop() { this->notify(false); }
 // {
 //     if(m_stepsdone.find(m_currentstep) != m_stepsdone.end())
 //     {
-//         this->execute();
+//         this->nextStep();
 //         return;
 //     }
 //
@@ -104,7 +104,7 @@ void Engine::stop() { this->notify(false); }
 //         StringFinder::find(m_disassembler, view.get());
 //     });
 //
-//     this->execute();
+//     this->nextStep();
 // }
 
 void Engine::algorithmStep()
@@ -118,29 +118,34 @@ void Engine::algorithmStep()
         std::this_thread::yield();
     }
 
-    this->execute();
+    this->nextStep();
 }
 
 void Engine::analyzeStep()
 {
     if(rd_ctx->flags() & ContextFlag_DisableAnalyzer)
     {
-        this->execute();
+        this->nextStep();
         return;
     }
 
     rd_ctx->status("Analyzing...");
     m_analyzer->analyze();
 
-    if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
-    else this->execute();
+    if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
+    else this->nextStep();
+}
+
+void Engine::rdilStep()
+{
+    this->nextStep();
 }
 
 void Engine::unexploredStep()
 {
     if((m_stepsdone.find(m_currentstep) != m_stepsdone.end()) || (rd_ctx->flags() & ContextFlag_DisableUnexplored))
     {
-        this->execute();
+        this->nextStep();
         return;
     }
 
@@ -156,20 +161,20 @@ void Engine::unexploredStep()
         for(size_t i = 0; i < bc->size(); i++)
         {
             const RDBlock& block = bc->at(i);
-            rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->bits()));
+            rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->assembler()->bits()));
             if(IS_TYPE(&block, BlockType_Unexplored)) m_algorithm->enqueue(block.address);
         }
     }
 
-    if(m_algorithm->hasNext()) this->execute(EngineState_Algorithm); // Repeat algorithm
-    else this->execute();
+    if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
+    else this->nextStep();
 }
 
 void Engine::cfgStep()
 {
     if(rd_ctx->flags() & ContextFlag_DisableCFG)
     {
-        this->execute();
+        this->nextStep();
         return;
     }
 
@@ -182,13 +187,13 @@ void Engine::cfgStep()
     for(size_t i = 0; i < m_disassembler->document()->functionsCount(); i++)
         this->generateCfg(i);
 
-    this->execute();
+    this->nextStep();
 }
 
 void Engine::signatureStep()
 {
     //TODO: Stub
-    this->execute();
+    this->nextStep();
 }
 
 void Engine::generateCfg(size_t funcindex)
@@ -231,3 +236,5 @@ void Engine::notify(bool busy)
     m_busy = busy;
     EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }
+
+void Engine::nextStep() { m_currentstep++; }

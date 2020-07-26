@@ -13,7 +13,7 @@ class Engine
 {
     public:
         enum { EngineState_None, EngineState_Algorithm,  EngineState_Analyze,
-               /* EngineState_Strings, */ EngineState_Unexplored,
+               /* EngineState_Strings, */ EngineState_RDIL, EngineState_Unexplored,
                EngineState_CFG, EngineState_Signature, EngineState_Last };
 
     public:
@@ -33,6 +33,7 @@ class Engine
         //void stringsStep();
         void algorithmStep();
         void analyzeStep();
+        void rdilStep();
         void unexploredStep();
         void cfgStep();
         void signatureStep();
@@ -40,6 +41,8 @@ class Engine
     private:
         void generateCfg(size_t funcindex);
         void notify(bool busy);
+        void setStep(size_t step);
+        void nextStep();
 
     private:
         bool m_busy{false};

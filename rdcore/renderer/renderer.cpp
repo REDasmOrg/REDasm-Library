@@ -415,7 +415,7 @@ bool Renderer::renderSymbolPointer(RDRenderItemParams* rip)
     RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
     u64 value = 0;
 
-    if(!d->readAddress(rip->documentitem->address, d->addressWidth(), &value)) return false;
+    if(!d->readAddress(rip->documentitem->address, d->assembler()->addressWidth(), &value)) return false;
 
     RDSymbol ptrsymbol;
     if(!d->document()->symbol(value, &ptrsymbol)) return false;
@@ -436,13 +436,13 @@ bool Renderer::renderSegment(RDRenderItemParams* rip)
     if(d->document()->segment(rip->documentitem->address, &segment))
     {
         seg += Utils::quoted(segment.name);
-        seg += " START: " + Utils::hex(segment.address, d->assembler()->bits);
-        seg += " END: " + Utils::hex(segment.endaddress, d->assembler()->bits);
+        seg += " START: " + Utils::hex(segment.address, d->assembler()->bits());
+        seg += " END: " + Utils::hex(segment.endaddress, d->assembler()->bits());
     }
     else
     {
         seg += "???";
-        seg += " START: " + Utils::hex(rip->documentitem->address, d->assembler()->bits);
+        seg += " START: " + Utils::hex(rip->documentitem->address, d->assembler()->bits());
         seg += " END: ???" ;
     }
 
@@ -616,15 +616,15 @@ void Renderer::renderAddress(const RDDocumentItem* item, RendererItem* ritem) co
     else ritem->push("???", "address_fg");
 
     ritem->push(":", "address_fg");
-    ritem->push(Utils::hex(item->address, m_disassembler->bits()), "address_fg");
+    ritem->push(Utils::hex(item->address, m_disassembler->assembler()->bits()), "address_fg");
 }
 
 bool Renderer::renderParams(RDRenderItemParams* rip) const
 {
     if(rip->type >= m_slots.size()) return false;
 
-    RDAssemblerPlugin* aplugin = m_disassembler->assembler();
-    if(aplugin->render && aplugin->render(aplugin, rip)) return true;
+    Assembler* assembler = m_disassembler->assembler();
+    if(assembler->render(rip)) return true;
 
     auto slot = m_slots[rip->type];
     if(!slot) return false;
@@ -710,7 +710,7 @@ void Renderer::renderAddressIndent(const RDDocumentItem* item, RendererItem* rit
 {
     if((m_flags & RendererFlags_NoAddress) || (m_flags & RendererFlags_NoIndent)) return;
 
-    size_t c = m_disassembler->bits() / 4;
+    size_t c = m_disassembler->assembler()->bits() / 4;
     const auto& doc = m_disassembler->document();
 
     RDSegment s;
@@ -733,7 +733,7 @@ void Renderer::renderSymbol(RDRenderItemParams* rip, rd_address address)
 
     if(!name || !d->document()->symbol(address, &symbol))
     {
-        ri->push(Utils::hex(address, d->bits()), "immediate_fg");
+        ri->push(Utils::hex(address, d->assembler()->bits()), "immediate_fg");
         return;
     }
 

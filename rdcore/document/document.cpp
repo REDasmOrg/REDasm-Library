@@ -84,12 +84,12 @@ void Document::table(rd_address address, size_t count)
 
 void Document::tableItem(rd_address address, rd_address startaddress, size_t idx)
 {
-    this->block(address, rd_disasm->addressWidth(),
+    this->block(address, rd_disasm->assembler()->addressWidth(),
                 SymbolTable::name(startaddress, SymbolType_Data, SymbolFlags_TableItem) + "_" + Utils::number(idx),
                 SymbolType_Data, SymbolFlags_TableItem | SymbolFlags_Pointer);
 }
 
-void Document::pointer(rd_address address, rd_type type, const std::string& name) { this->block(address, rd_disasm->addressWidth(), name, type, SymbolFlags_Pointer); }
+void Document::pointer(rd_address address, rd_type type, const std::string& name) { this->block(address, rd_disasm->assembler()->addressWidth(), name, type, SymbolFlags_Pointer); }
 void Document::function(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
 
 void Document::branch(rd_address address, int direction)

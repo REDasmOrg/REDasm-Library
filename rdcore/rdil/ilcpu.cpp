@@ -66,6 +66,15 @@ void ILCPU::init(RDInstruction* instruction)
     instruction->id = RDIL_Unknown;
 }
 
+bool ILCPU::read(const RDOperand* op, u64* val) const
+{
+    auto res = this->readop(*op);
+    if(!res) return false;
+
+    *val = *res;
+    return true;
+}
+
 bool ILCPU::reg(rd_register_id r, u64* value) const
 {
     auto it = m_gpr.find(r);
@@ -82,6 +91,8 @@ void ILCPU::exec(const RDInstruction* rdil, size_t len)
 
 void ILCPU::exec(const RDInstruction* rdil)
 {
+    if(m_failed) return;
+
     const RDOperand& opdst = rdil->operands[0];
     const RDOperand& opsrc1 = rdil->operands[1];
     const RDOperand& opsrc2 = rdil->operands[2];
@@ -141,6 +152,11 @@ void ILCPU::exec(const RDInstruction* rdil)
         case RDIL_Copy:
             if(!this->expect(rdil, opdst, OperandType_Register)) return;
             this->exec(opdst, opsrc1, [](u64 src1) { return src1; });
+            break;
+
+        case RDIL_Jz:
+        case RDIL_Jmp:
+        case RDIL_Jnz:
             break;
 
         case RDIL_Unknown:

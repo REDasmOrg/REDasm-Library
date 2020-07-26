@@ -14,7 +14,6 @@ bool RDFunctionGraph_GetBasicBlock(const RDGraph* graph, RDGraphNode n, const RD
     return true;
 }
 
-
 bool RDFunctionGraph_Contains(const RDGraph* graph, rd_address address)
 {
     const Graph* g = CPTR(const Graph, graph);

@@ -44,17 +44,30 @@ void Algorithm::checkOperand(const RDInstruction* instruction, const RDOperand* 
     }
 }
 
-void Algorithm::enqueueAddress(const RDInstruction* instruction, rd_address address)
+bool Algorithm::enqueueAddress(const RDInstruction* instruction, rd_address address)
 {
-    switch(instruction->type)
+    RDSegment segment;
+    if(!m_document->segment(address, &segment)) return false;
+
+    if(instruction->type == InstructionType_Call)
     {
-        case InstructionType_Call: this->callState(instruction, address); break;
-        case InstructionType_Jump: this->jumpState(instruction, address); break;
-        default: m_disassembler->pushReference(address, instruction->address); break;
+        if(!HAS_FLAG(&segment, SegmentFlags_Code)) m_document->label(address);
+        else m_document->function(address, std::string());
     }
+    else if(instruction->type == InstructionType_Jump)
+    {
+        int dir = Sugar::branchDirection(instruction, address);
+        if(!dir) m_document->autoComment(instruction->address, "Infinite loop");
+        m_document->branch(address, dir);
+    }
+    else
+        m_disassembler->pushReference(address, instruction->address);
 
     this->schedule(address);
+    return true;
 }
+
+const ILCPU* Algorithm::ilcpu() const { return &m_ilcpu; }
 
 size_t Algorithm::decode(rd_address address, RDInstruction* instruction, RDBlock* block)
 {
@@ -120,7 +133,7 @@ void Algorithm::decodeAddress(rd_address address)
             m_document->instruction(&instruction);
             m_disassembler->emulate(&instruction);
             rdil = m_disassembler->emitRDIL(&instruction, &len);
-            m_vcpu.exec(rdil, len);
+            m_ilcpu.exec(rdil, len);
             break;
 
         case Algorithm::FAIL:
@@ -148,7 +161,7 @@ void Algorithm::decodeFailed(RDInstruction* instruction)
 
 void Algorithm::branchMemoryState(const RDInstruction* instruction, rd_address value)
 {
-    m_disassembler->pushTarget(value, instruction->address);
+    //FIXME: m_disassembler->pushTarget(value, instruction->address, instruction->type);
 
     RDSymbol symbol;
     if(m_document->symbol(value, &symbol) && IS_TYPE(&symbol, SymbolType_Import)) return; // Don't dereference imports
@@ -173,26 +186,6 @@ void Algorithm::invalidInstruction(RDInstruction* instruction) const
     instruction->mnemonic[0] = 'd';
     instruction->mnemonic[1] = 'b';
     instruction->mnemonic[2] = '\0';
-}
-
-void Algorithm::jumpState(const RDInstruction* instruction, rd_address value)
-{
-    int dir = Sugar::branchDirection(instruction, value);
-    if(!dir) m_document->autoComment(instruction->address, "Infinite loop");
-
-    m_document->branch(value, dir);
-    m_disassembler->pushTarget(value, instruction->address);
-}
-
-void Algorithm::callState(const RDInstruction* instruction, rd_address value)
-{
-    RDSegment segment;
-    if(!m_document->segment(value, &segment)) return;
-
-    if(!HAS_FLAG(&segment, SegmentFlags_Code)) m_document->label(value);
-    else m_document->function(value, std::string());
-
-    m_disassembler->pushTarget(value, instruction->address);
 }
 
 void Algorithm::memoryState(const RDInstruction* instruction, rd_address value)

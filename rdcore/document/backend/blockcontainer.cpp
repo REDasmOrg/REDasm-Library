@@ -31,7 +31,7 @@ bool BlockContainer::contains(rd_address address) const
 
     const auto& f = m_blocks.front();
     const auto& b = m_blocks.back();
-    return (address >= f.start) >= (address <= b.end);
+    return (address >= f.start) && (address <= b.end);
 }
 
 bool BlockContainer::find(rd_address address, RDBlock* block) const

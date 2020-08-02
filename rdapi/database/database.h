@@ -4,24 +4,21 @@
 #include "../types.h"
 #include "types.h"
 
-
 enum RDDatabaseItemTypes {
     DatabaseItemType_Null = 0,
+
+    DatabaseItemType_String,
+    DatabaseItemType_Float,
+    DatabaseItemType_UInt,
+    DatabaseItemType_Int,
+    DatabaseItemType_Bool,
+
     DatabaseItemType_Category,
     DatabaseItemType_Enum,
     DatabaseItemType_Union,
     DatabaseItemType_Struct,
     DatabaseItemType_Typedef,
     DatabaseItemType_Function,
-};
-
-enum RDDatabaseItemType {
-    DatabaseItemType_None,
-    DatabaseItemType_String,
-    DatabaseItemType_Float,
-    DatabaseItemType_UInt,
-    DatabaseItemType_Int,
-    DatabaseItemType_Bool,
 };
 
 typedef struct RDDatabaseItem {
@@ -45,6 +42,7 @@ RD_API_EXPORT bool RDDatabase_Find(const RDDatabase* db, const char* key, RDData
 
 RD_API_EXPORT RDDatabase* RDDatabase_Create(const char* dbname);
 RD_API_EXPORT RDDatabase* RDDatabase_Load(const char* dbname);
+RD_API_EXPORT bool RDDatabase_Save(const RDDatabase* db, const char* filepath);
 RD_API_EXPORT RDDatabaseItemNew* RDDatabase_Set(RDDatabase* db, const char* name, rd_type type);
 RD_API_EXPORT RDDatabaseItemNew* RDDatabase_Get(const RDDatabase* db, const char* name);
 

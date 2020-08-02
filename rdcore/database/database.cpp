@@ -15,7 +15,7 @@ Database::Database(const std::string& dbname): DatabaseItem(this), m_dbname(dbna
     //m_db.assign(this->find(dbname));
 }
 
-bool Database::save(const std::string& filepath)
+bool Database::save(const std::string& filepath) const
 {
     nlohmann::json obj = nlohmann::json::object();
     obj[DATABASE_NAME_FIELD] = m_dbname;
@@ -28,8 +28,7 @@ bool Database::save(const std::string& filepath)
 
     std::ofstream ofs(path);
     if(!ofs.is_open()) return false;
-
-    ofs << obj;
+    ofs << obj.dump(2);
     return true;
 }
 

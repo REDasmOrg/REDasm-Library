@@ -12,6 +12,7 @@ bool RDDatabase_Find(const RDDatabase* db, const char* key, RDDatabaseItem* item
 
 RDDatabase* RDDatabase_Create(const char* dbname) { return CPTR(RDDatabase, new Database(dbname)); }
 RDDatabase* RDDatabase_Load(const char* dbname) { return CPTR(RDDatabase, Database::load(dbname)); }
+bool RDDatabase_Save(const RDDatabase* db, const char* filepath) { return CPTR(const Database, db)->save(filepath); }
 RDDatabaseItemNew* RDDatabase_Set(RDDatabase* db, const char* name, rd_type type) { return CPTR(RDDatabaseItemNew, CPTR(Database, db)->set(name, type)); }
 RDDatabaseItemNew* RDDatabase_Get(const RDDatabase* db, const char* name) { return CPTR(RDDatabaseItemNew, CPTR(const Database, db)->get(name)); }
 
@@ -19,4 +20,3 @@ RDDatabaseItemNew* RDDatabaseItem_Set(RDDatabaseItemNew* dbitem, const char* nam
 RDDatabaseItemNew* RDDatabaseItem_Get(const RDDatabaseItemNew* dbitem, const char* name) { return CPTR(RDDatabaseItemNew, CPTR(const DatabaseItem, dbitem)->get(name)); }
 RDDatabaseItemNew* RDDatabaseItem_GetParent(const RDDatabaseItemNew* dbitem) { return CPTR(RDDatabaseItemNew, CPTR(const DatabaseItem, dbitem)->parent()); }
 RDDatabase* RDDatabaseItem_GetDatabase(const RDDatabaseItemNew* dbitem) { return CPTR(RDDatabase, CPTR(const DatabaseItem, dbitem)->database()); }
-

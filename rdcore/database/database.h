@@ -12,13 +12,12 @@ class Database: public DatabaseItem
 {
     public:
         Database(const std::string& dbname);
-        bool save(const std::string& filepath);
+        bool save(const std::string& filepath) const;
         static Database* load(const std::string& dbname);
 
     private:
         std::string m_dbname;
         nlohmann::json m_database;
-
 
     public: // vvv OLD vvv
         bool select(const std::string& obj);

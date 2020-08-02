@@ -4,6 +4,7 @@
 #include "../object.h"
 #include <rdapi/database/database.h>
 #include <unordered_map>
+#include <variant>
 #include <memory>
 #include <string>
 
@@ -12,6 +13,7 @@ class Database;
 class DatabaseItem: public Object
 {
     private:
+        typedef std::variant<u64, std::string> DatabaseItemKey;
         typedef std::unique_ptr<DatabaseItem> DatabaseItemPtr;
 
     public:
@@ -27,9 +29,9 @@ class DatabaseItem: public Object
         nlohmann::json serialize() const;
 
     private:
-        std::unordered_map<std::string, DatabaseItemPtr> m_items;
+        std::unordered_map<DatabaseItemKey, DatabaseItemPtr> m_children;
         std::string m_name;
-        rd_type m_type{DatabaseItemType_None};
+        rd_type m_type{DatabaseItemType_Null};
         DatabaseItem* m_parent{nullptr};
         Database* m_database{nullptr};
 };

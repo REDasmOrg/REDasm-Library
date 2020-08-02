@@ -13,7 +13,7 @@ RDInstruction* Assembler::emitRDIL(const RDInstruction* instruction, size_t* len
     if(m_passembler->rdil)
         m_passembler->rdil(m_passembler, instruction, &rdilend);
 
-    if(len) *len = std::max<size_t>(1, rdilend - m_rdilres.data());
+    if(len) *len = std::max<size_t>(1, (rdilend - m_rdilres.data()) + 1);
     return m_rdilres.data();
 }
 

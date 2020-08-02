@@ -87,7 +87,7 @@ void BlockContainer::remove(rd_address start, rd_address end)
     if((begit == m_blocks.end()) && (endit == m_blocks.end()))
         return;
 
-    RDBlock begbl, endbl;
+    RDBlock begbl{}, endbl{};
 
     if(begit != m_blocks.end())
     {

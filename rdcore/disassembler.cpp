@@ -107,7 +107,7 @@ void Disassembler::disassembleRDIL(rd_address startaddress, Callback_Disassemble
             size_t len = 0;
             RDInstruction* rdil = m_assembler->emitRDIL(instruction, &len);
 
-            for(size_t j = 0; j <= len; j++)
+            for(size_t j = 0; j < len; j++)
             {
                 RDILDisassembled rdildisasm{ };
                 std::string s = ILCPU::disasm(this, &rdil[j], instruction);

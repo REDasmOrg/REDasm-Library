@@ -102,6 +102,9 @@ class Document: public Object
         FunctionGraph* graph(rd_address address) const;
         RDLocation functionStart(rd_address address) const;
 
+    public: // UserData
+        bool setSegmentUserData(rd_address address, uintptr_t userdata);
+
     private:
         void block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags);
         void symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);

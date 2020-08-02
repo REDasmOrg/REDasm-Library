@@ -34,6 +34,7 @@ class SegmentContainer: public SortedContainer<RDSegment, SegmentSorter, Segment
         bool find(rd_address address, RDSegment* segment) const;
         bool findOffset(rd_offset offset, RDSegment* segment) const;
         bool findBlock(rd_address address, RDBlock* block) const;
+        bool setUserData(rd_address address, uintptr_t userdata);
         size_t insert(const RDSegment& segment) override;
         BlockContainer* findBlocks(rd_address address) const;
         BlockContainer* findBlocks(rd_address address);

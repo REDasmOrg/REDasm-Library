@@ -11,8 +11,8 @@ enum RDDocumentItemType {
     DocumentItemType_None,
 
     DocumentItemType_First,
-    DocumentItemType_Segment = DocumentItemType_First,
-    DocumentItemType_Empty,
+    DocumentItemType_Empty = DocumentItemType_First,
+    DocumentItemType_Segment,
     DocumentItemType_Function,
     DocumentItemType_Type,
     DocumentItemType_Symbol,
@@ -72,12 +72,12 @@ RD_API_EXPORT size_t RDDocument_ItemsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_SegmentsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FunctionsCount(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_SymbolsCount(const RDDocument* d);
-RD_API_EXPORT void RDDocument_SetEntry(RDDocument* d, rd_address address);
-RD_API_EXPORT void RDDocument_Comment(RDDocument* d, rd_address address, const char* comment);
-RD_API_EXPORT void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* comment);
 RD_API_EXPORT void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
 RD_API_EXPORT void RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags);
 RD_API_EXPORT void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags);
+RD_API_EXPORT void RDDocument_SetEntry(RDDocument* d, rd_address address);
+RD_API_EXPORT void RDDocument_Comment(RDDocument* d, rd_address address, const char* comment);
+RD_API_EXPORT void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* comment);
 RD_API_EXPORT void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name);
@@ -89,3 +89,6 @@ RD_API_EXPORT void RDDocument_AddData(RDDocument* d, rd_address address, size_t 
 RD_API_EXPORT void RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name);
 RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
+
+// UserData
+RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

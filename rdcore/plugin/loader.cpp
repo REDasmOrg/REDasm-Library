@@ -86,7 +86,7 @@ RDLocation Loader::addressof(const void* ptr) const
     if(!m_buffer->contains(reinterpret_cast<const u8*>(ptr))) return { {0}, false };
     RDLocation loc = this->fileoffset(ptr);
     if(!loc.valid) return { {0}, false };
-    return this->address(loc.value);
+    return this->address(loc.offset);
 }
 
 RDLocation Loader::fileoffset(const void* ptr) const

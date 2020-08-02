@@ -59,3 +59,6 @@ RDOperand* RDInstruction_LastOperand(RDInstruction* instruction)
     if(!instruction->operandscount) return nullptr;
     return &instruction->operands[instruction->operandscount - 1];
 }
+
+bool RDSegment_ContainsAddress(const RDSegment* s, rd_address address) { return SegmentContainer::containsAddress(s, address); }
+bool RDSegment_ContainsOffset(const RDSegment* s, rd_offset offset) { return SegmentContainer::containsOffset(s, offset); }

@@ -78,7 +78,8 @@ typedef struct RDSegment {
     rd_address endaddress;
     rd_flag flags;
     size_t coveragebytes;
-    size_t itemscount;
+
+    RD_USERDATA_FIELD
 } RDSegment;
 #pragma pack(pop)
 
@@ -183,6 +184,8 @@ typedef struct RDInstruction {
 
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);
+RD_API_EXPORT bool RDSegment_ContainsAddress(const RDSegment* s, rd_address address);
+RD_API_EXPORT bool RDSegment_ContainsOffset(const RDSegment* s, rd_offset offset);
 RD_API_EXPORT rd_address RDInstruction_NextAddress(const RDInstruction* instruction);
 RD_API_EXPORT RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type);
 RD_API_EXPORT RDOperand* RDInstruction_FirstOperand(RDInstruction* instruction);

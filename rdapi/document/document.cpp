@@ -34,11 +34,11 @@ size_t RDDocument_ItemsCount(const RDDocument* d) { return docptr(d)->itemsCount
 size_t RDDocument_SegmentsCount(const RDDocument* d) { return docptr(d)->segmentsCount(); }
 size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
 size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsCount(); }
+void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
+void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
 void RDDocument_SetEntry(RDDocument* d, rd_address address) { docptr(d)->entry(address); }
 void RDDocument_Comment(RDDocument* d, rd_address address, const char* comment) { docptr(d)->comment(address, comment); }
 void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* comment) { docptr(d)->autoComment(address, comment); }
-void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { docptr(d)->segment(name, offset, address, psize, vsize, flags); }
-void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { docptr(d)->segment(name, offset, address, size, size, flags); }
 void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->imported(address, size, name ? name : std::string()); }
 void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->exported(address, size, name ? name : std::string()); }
 void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }
@@ -70,3 +70,5 @@ void RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offse
     size_t range = endaddress - startaddress;
     docptr(d)->segment(name, offset, startaddress, range, range, flags);
 }
+
+bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata) { return docptr(d)->setSegmentUserData(address, userdata); }

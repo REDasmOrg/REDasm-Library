@@ -56,9 +56,14 @@ bool Algorithm::enqueueAddress(const RDInstruction* instruction, rd_address addr
     }
     else if(instruction->type == InstructionType_Jump)
     {
-        int dir = Sugar::branchDirection(instruction, address);
-        if(!dir) m_document->autoComment(instruction->address, "Infinite loop");
-        m_document->branch(address, dir);
+        if(HAS_FLAG(&segment, SegmentFlags_Code))
+        {
+            int dir = Sugar::branchDirection(instruction, address);
+            if(!dir) m_document->autoComment(instruction->address, "Infinite loop");
+            m_document->branch(address, dir);
+        }
+        else
+            m_document->data(address, m_disassembler->assembler()->addressWidth(), std::string());
     }
     else
         m_disassembler->pushReference(address, instruction->address);

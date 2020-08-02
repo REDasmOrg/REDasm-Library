@@ -68,6 +68,17 @@ bool SegmentContainer::findBlock(rd_address address, RDBlock* block) const
     return blocks->find(address, block);
 }
 
+bool SegmentContainer::setUserData(rd_address address, uintptr_t userdata)
+{
+    auto it = std::find_if(m_container.begin(), m_container.end(), [address](const RDSegment& segment) {
+        return SegmentContainer::containsAddress(&segment, address);
+    });
+
+    if(it == m_container.end()) return false;
+    it->u_data = userdata;
+    return true;
+}
+
 size_t SegmentContainer::insert(const RDSegment& segment)
 {
     RDSegment s;

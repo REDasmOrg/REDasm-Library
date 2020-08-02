@@ -50,6 +50,7 @@ typedef struct RDAssemblerPlugin {
     Callback_AssemblerIsStop isstop;
 } RDAssemblerPlugin;
 
+RD_API_EXPORT const char* RDAssembler_RegisterName(const RDAssembler* assembler, const RDInstruction* instruction, const RDOperand* op, rd_register_id r);
 RD_API_EXPORT const char* RDAssembler_GetId(const RDAssembler* assembler);
 
 // Extra Functions

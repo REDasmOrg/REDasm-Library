@@ -58,7 +58,9 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
     segment.coveragebytes = RD_NPOS;
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
 
-    if(m_segments->insert(segment) == RD_NPOS) return;
+    size_t idx = m_segments->insert(segment);
+    if(idx == RD_NPOS) return;
+    if(idx) this->insert(address, DocumentItemType_Empty);
     this->insert(address, DocumentItemType_Segment);
 }
 
@@ -272,6 +274,7 @@ void Document::invalidateGraphs()
 void Document::graph(FunctionGraph* g) { m_functions->graph(g); }
 FunctionGraph* Document::graph(rd_address address) const { return m_functions->findGraph(address); }
 RDLocation Document::functionStart(rd_address address) const { return m_functions->findFunction(address); }
+bool Document::setSegmentUserData(rd_address address, uintptr_t userdata) { return m_segments->setUserData(address, userdata); }
 
 void Document::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
 {
@@ -319,8 +322,8 @@ const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 ind
 {
     switch(type)
     {
-        case DocumentItemType_Function: m_functions->insert(address); this->insert(address, DocumentItemType_Empty); break;
-        case DocumentItemType_Type: this->insert(address, DocumentItemType_Empty); break;
+        case DocumentItemType_Function: m_functions->insert(address); break;
+        case DocumentItemType_Type: this->empty(address); break;
         case DocumentItemType_Separator: m_separators.insert(address); break;
         default: break;
     }
@@ -368,7 +371,6 @@ void Document::removeAt(size_t idx)
         case DocumentItemType_Function:
             m_functions->remove(item.address);
             m_symbols->remove(item.address);
-            this->remove(item.address, DocumentItemType_Empty);
             break;
 
         case DocumentItemType_Type:

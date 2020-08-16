@@ -5,11 +5,12 @@
 MemoryBuffer::MemoryBuffer(size_t size) { this->resize(size); }
 void MemoryBuffer::resize(size_t size) { m_data.resize(size); }
 
-BufferView* MemoryBuffer::view(rd_offset offset, size_t size)
+bool MemoryBuffer::view(rd_offset offset, size_t size, RDBufferView* view)
 {
-    if(offset >= this->size()) return nullptr;
+    if(offset >= this->size()) { };
     size = std::min(size, this->size());
-    return new BufferView(this->data() + offset, size);
+    *view = { this->data() + offset, size };
+    return !BufferView::empty(view);
 }
 
 size_t MemoryBuffer::size() const { return m_data.size(); }

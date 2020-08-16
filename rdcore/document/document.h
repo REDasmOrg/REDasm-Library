@@ -7,7 +7,6 @@
 #include <rdapi/events.h>
 #include "../document/backend/segmentcontainer.h"
 #include "../document/backend/functioncontainer.h"
-#include "../document/backend/instructioncache.h"
 #include "../document/backend/itemcontainer.h"
 #include "../document/backend/symboltable.h"
 #include "../object.h"
@@ -29,7 +28,6 @@ class Document: public Object
     public:
         Document();
         virtual ~Document() = default;
-        bool isInstructionCached(rd_address address) const;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
         const RDSymbol* entry() const;
@@ -39,7 +37,7 @@ class Document: public Object
         void imported(rd_address address, size_t size, const std::string& name);
         void exported(rd_address address, size_t size, const std::string& name);
         void exportedFunction(rd_address address, const std::string& name);
-        void instruction(const RDInstruction* instruction);
+        void instruction(rd_address address, size_t size);
         void asciiString(rd_address address, size_t size, const std::string& name);
         void wideString(rd_address address, size_t size, const std::string& name);
         void data(rd_address address, size_t size, const std::string& name);
@@ -75,9 +73,6 @@ class Document: public Object
 
     public: // Get
         RDLocation entryPoint() const;
-        bool prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const;
-        bool lockInstruction(rd_address address, RDInstruction** instruction) const;
-        bool unlockInstruction(const RDInstruction* instruction) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
         bool symbol(rd_address address, RDSymbol* symbol) const;
         bool block(rd_address address, RDBlock* block) const;
@@ -123,7 +118,6 @@ class Document: public Object
         RDSymbol m_entry{ };
         std::unordered_map<rd_address, ItemData> m_itemdata;
         std::unordered_set<rd_address> m_separators;
-        std::unique_ptr<InstructionCache> m_instructions;
         std::unique_ptr<SegmentContainer> m_segments;
         std::unique_ptr<FunctionContainer> m_functions;
         std::unique_ptr<ItemContainer> m_items;

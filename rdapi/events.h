@@ -19,6 +19,9 @@ enum RDEvents {
     Event_BusyChanged,
     Event_Error,
 
+    // Context Events
+    Event_ContextFlagsChanged,
+
     // Document Events
     Event_DocumentChanged,
 

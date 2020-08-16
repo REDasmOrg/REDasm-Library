@@ -13,6 +13,7 @@ enum RDContextFlags {
     ContextFlag_DisableAnalyzer   = (1 << 1),
     ContextFlag_DisableSignature  = (1 << 2),
     ContextFlag_DisableCFG        = (1 << 3),
+    ContextFlag_ShowRDIL          = (1 << 4),
 };
 
 struct RDDisassembler;
@@ -48,8 +49,10 @@ RD_API_EXPORT bool RD_HasProblems(void);
 RD_API_EXPORT bool RD_IsBusy(void);
 
 // Context
-RD_API_EXPORT void RD_SetContextFlags(rd_flag flags);
+RD_API_EXPORT void RD_InitContextFlags(rd_flag flags);
+RD_API_EXPORT void RD_SetContextFlags(rd_flag flags, bool set);
 RD_API_EXPORT rd_flag RD_GetContextFlags(void);
+RD_API_EXPORT bool RD_ContextHasFlags(rd_flag flags);
 RD_API_EXPORT const char* RD_RuntimePath(void);
 RD_API_EXPORT const char* RD_TempPath(void);
 

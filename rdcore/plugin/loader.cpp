@@ -30,18 +30,19 @@ bool Loader::analyze(Disassembler* disassembler)
     return true;
 }
 
-BufferView* Loader::view(rd_address address) const { return this->view(address, RD_NPOS); }
+bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NPOS, view); }
 
-BufferView* Loader::view(rd_address address, size_t size) const
+bool Loader::view(rd_address address, size_t size, RDBufferView* view) const
 {
     RDLocation loc = this->offset(address);
-    return loc.valid ? m_buffer->view(loc.value, size) : nullptr;
+    if(loc.valid) return m_buffer->view(loc.value, size, view);
+    return { };
 }
 
-BufferView* Loader::view(const RDSegment& segment) const
+bool Loader::view(const RDSegment& segment, RDBufferView* view) const
 {
-    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return nullptr;
-    return m_buffer->view(segment.offset, SegmentContainer::offsetSize(segment));
+    if(HAS_FLAG(&segment, SegmentFlags_Bss)) return { };
+    return m_buffer->view(segment.offset, SegmentContainer::offsetSize(segment), view);
 }
 
 Database* Loader::database(const std::string& dbname)
@@ -68,7 +69,7 @@ RDLocation Loader::offset(rd_address address) const
 
     address -= segment.address;
     address += segment.offset;
-    return { {address}, true };
+    return { {address}, address < segment.endoffset };
 }
 
 RDLocation Loader::address(rd_offset offset) const
@@ -78,7 +79,7 @@ RDLocation Loader::address(rd_offset offset) const
 
     offset -= segment.offset;
     offset += segment.address;
-    return { {offset}, true };
+    return { {offset}, offset < segment.endaddress };
 }
 
 RDLocation Loader::addressof(const void* ptr) const

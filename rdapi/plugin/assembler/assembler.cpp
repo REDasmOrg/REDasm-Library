@@ -18,10 +18,3 @@ bool RDEncodedInstruction_Set(RDEncodedInstruction* encoded, u8* encdata, size_t
     encoded->count = count;
     return true;
 }
-
-const char* RDAssembler_RegisterName(const RDAssembler* assembler, const RDInstruction* instruction, const RDOperand* op, rd_register_id r)
-{
-    static std::string regname;
-    regname = CPTR(const Assembler, assembler)->registerName(instruction, op, r);
-    return regname.c_str();
-}

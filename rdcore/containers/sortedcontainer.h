@@ -59,7 +59,7 @@ void SortedContainer<T, Sorter, Comparator, unique>::remove(const T& t)
 template<typename T, typename Sorter, typename Comparator, bool unique>
 size_t SortedContainer<T, Sorter, Comparator, unique>::data(const T** t) const
 {
-    *t = m_container.data();
+    if(t) *t = m_container.data();
     return m_container.size();
 }
 

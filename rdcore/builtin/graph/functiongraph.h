@@ -19,7 +19,7 @@ struct FunctionBasicBlock
     size_t startIndex() const;
     size_t endIndex() const;
     size_t itemsCount() const;
-    const char* getStyle(RDGraphNode n) const;
+    rd_type getTheme(RDGraphNode n) const;
     void bFalse(RDGraphNode n);
     void bTrue(RDGraphNode n);
 
@@ -27,7 +27,7 @@ struct FunctionBasicBlock
     rd_address startaddress, endaddress; // [startaddress, endaddress]
 
     private:
-        std::unordered_map<RDGraphNode, std::string> m_styles;
+        std::unordered_map<RDGraphNode, rd_type> m_themes;
         SafeDocument& m_document;
 };
 

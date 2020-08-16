@@ -32,34 +32,35 @@ void Analyzer::checkFunctions()
 
 bool Analyzer::findNullSubs(x_lock_document& lock, rd_address address)
 {
-    RDInstruction* instruction = nullptr;
-    if(!lock->lockInstruction(address, &instruction)) return true; // Don't execute trampoline analysis
+    // RDInstruction* instruction = nullptr;
+    // if(!lock->lockInstruction(address, &instruction)) return true; // Don't execute trampoline analysis
 
-    bool isnullsub = HAS_FLAG(instruction, InstructionFlags_Stop);
-    if(isnullsub) lock->rename(address, "nullsub_" + Utils::hex(address));
-    lock->unlockInstruction(instruction);
-    return isnullsub;
+    // bool isnullsub = HAS_FLAG(instruction, InstructionFlags_Stop);
+    // if(isnullsub) lock->rename(address, "nullsub_" + Utils::hex(address));
+    // lock->unlockInstruction(instruction);
+    // return isnullsub;
+    return false;
 }
 
 void Analyzer::findTrampoline(x_lock_document& lock, rd_address address)
 {
-    if(lock->entry()->address == address) return; // Don't rename EP, if any
+    // if(lock->entry()->address == address) return; // Don't rename EP, if any
 
-    RDLocation loc{ };
-    RDSymbol symbol{ };
-    RDInstruction* instruction = nullptr;
-    const char* name = nullptr;
+    // RDLocation loc{ };
+    // RDSymbol symbol{ };
+    // RDInstruction* instruction = nullptr;
+    // const char* name = nullptr;
 
-    if(!lock->lockInstruction(address, &instruction)) return;
-    if(!Sugar::isUnconditionalJump(instruction)) goto cleanup;
+    // if(!lock->lockInstruction(address, &instruction)) return;
+    // if(!Sugar::isUnconditionalJump(instruction)) goto cleanup;
 
-    loc = m_disassembler->getTarget(address);
-    if(!loc.valid || !lock->symbol(loc.value, &symbol)) goto cleanup;
-    if(!(name = lock->name(symbol.address))) goto cleanup;
+    // loc = m_disassembler->getTarget(address);
+    // if(!loc.valid || !lock->symbol(loc.value, &symbol)) goto cleanup;
+    // if(!(name = lock->name(symbol.address))) goto cleanup;
 
-    if(IS_TYPE(&symbol, SymbolType_Import)) lock->rename(address, Utils::trampoline(name));
-    else lock->rename(address, "jmp_to_" + std::string(name));
+    // if(IS_TYPE(&symbol, SymbolType_Import)) lock->rename(address, Utils::trampoline(name));
+    // else lock->rename(address, "jmp_to_" + std::string(name));
 
-cleanup:
-    lock->unlockInstruction(instruction);
+//cleanup:
+    //lock->unlockInstruction(instruction);
 }

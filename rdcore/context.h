@@ -8,7 +8,7 @@
 #include <rdapi/context.h>
 #include <rdapi/ui.h>
 #include <rdapi/plugin/loader.h>
-#include <rdapi/plugin/assembler.h>
+#include <rdapi/plugin/assembler/assembler.h>
 #include <rdapi/plugin/command.h>
 #include "plugin/interface/pluginmanager.h"
 #include "object.h"
@@ -18,6 +18,18 @@ struct CallbackStruct
 {
     Callback callback{nullptr};
     void* userdata{nullptr};
+};
+
+struct ThemeColors {
+    std::string fg{"#000000"}, bg{"#ffffff"}, seek, comment, meta;
+    std::string highlightfg, highlightbg;
+    std::string selectionfg, selectionbg;
+    std::string cursorfg, cursorbg;
+    std::string segment, function, type;
+    std::string address, constant, reg;
+    std::string string, symbol, data, imported;
+    std::string nop, ret, call, jump, jumpcond;
+    std::string graphbg, graphedge, graphedgetrue, graphedgefalse, graphedgeloop, graphedgeloopcond;
 };
 
 class Disassembler;
@@ -42,6 +54,8 @@ class Context: public Object
         void setLogCallback(RD_LogCallback callback, void* userdata);
         void setStatusCallback(RD_StatusCallback callback, void* userdata);
         void setProgressCallback(RD_ProgressCallback callback, void* userdata);
+        void setTheme(rd_type theme, const char* color);
+        const char* getTheme(rd_type theme) const;
 
     public:
         void statusProgress(const char* s, size_t progress) const;
@@ -67,8 +81,10 @@ class Context: public Object
     public:
         void setUI(const RDUI* rdui);
         const RDUI* ui() const;
-        void setFlags(rd_flag flag);
+        void initFlags(rd_flag flags);
+        void setFlags(rd_flag flags, bool set);
         rd_flag flags() const;
+        bool hasFlags(rd_flag flags) const;
         bool hasProblems() const;
         size_t problemsCount() const;
         PluginManager* pluginManager();
@@ -84,6 +100,7 @@ class Context: public Object
         void init();
 
     private:
+        static const char* themeAlt(const std::string& color, const std::string& altcolor);
         static void initPlugin(RDPluginHeader* plugin);
         bool registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap);
 
@@ -100,6 +117,7 @@ class Context: public Object
         mutable std::chrono::steady_clock::time_point m_laststatusreport;
         std::chrono::milliseconds m_debouncetimeout;
         std::string m_rntpath, m_tmppath;
+        ThemeColors m_themecolors;
         mutable std::mutex m_mutex;
         bool m_ignoreproblems{false};
         const RDUI* m_ui{nullptr};

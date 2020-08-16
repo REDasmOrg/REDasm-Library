@@ -3,7 +3,6 @@
 #include <cstring>
 #include "backend/segmentcontainer.h"
 #include "backend/functioncontainer.h"
-#include "backend/instructioncache.h"
 #include "backend/blockcontainer.h"
 #include "backend/itemcontainer.h"
 #include "backend/symboltable.h"
@@ -14,7 +13,6 @@
 
 Document::Document()
 {
-    m_instructions = std::make_unique<InstructionCache>();
     m_functions    = std::make_unique<FunctionContainer>();
     m_items        = std::make_unique<ItemContainer>();
     m_symbols      = std::make_unique<SymbolTable>();
@@ -24,7 +22,6 @@ Document::Document()
     m_segments->whenRemove(std::bind(&Document::onBlockRemoved, this, std::placeholders::_1));
 }
 
-bool Document::isInstructionCached(rd_address address) const { return m_instructions->contains(address); }
 const SymbolTable* Document::symbols() const { return m_symbols.get(); }
 const BlockContainer* Document::blocks(rd_address address) const { return m_segments->findBlocks(address); }
 const RDSymbol* Document::entry() const { return &m_entry; }
@@ -67,13 +64,7 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
 void Document::imported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
 void Document::exported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_Export); }
 void Document::exportedFunction(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
-
-void Document::instruction(const RDInstruction* instruction)
-{
-    if(m_segments->markCode(instruction->address, instruction->size))
-        m_instructions->cache(instruction);
-}
-
+void Document::instruction(rd_address address, size_t size) { m_segments->markCode(address, size); }
 void Document::asciiString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
 void Document::wideString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
 void Document::data(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
@@ -211,22 +202,6 @@ RDLocation Document::entryPoint() const
     return { {m_entry.address}, true };
 }
 
-bool Document::unlockInstruction(const RDInstruction* instruction) const { return m_instructions->unlock(instruction); }
-bool Document::lockInstruction(rd_address address, RDInstruction** instruction) const { return m_instructions->lock(address, instruction); }
-
-bool Document::prevInstruction(const RDInstruction* instruction, RDInstruction** previnstruction) const
-{
-    auto* blocks = m_segments->findBlocks(instruction->address);
-    if(!blocks) return false;
-
-    RDBlock block;
-    if(!blocks->find(instruction->address, &block)) return false;
-
-    size_t idx = blocks->indexOf(&block);
-    if(!blocks->get(--idx, &block)) return false;
-    return this->lockInstruction(block.address, previnstruction);
-}
-
 bool Document::symbol(const char* name, RDSymbol* symbol) const { return m_symbols->get(name, symbol); }
 bool Document::symbol(rd_address address, RDSymbol* symbol) const { return m_symbols->get(address, symbol); }
 bool Document::block(rd_address address, RDBlock* block) const { return m_segments->findBlock(address, block); }
@@ -360,7 +335,6 @@ void Document::removeAt(size_t idx)
 
     switch(item.type)
     {
-        case DocumentItemType_Instruction: m_instructions->erase(item.address); break;
         case DocumentItemType_Segment: m_segments->removeAt(item.address); break;
         case DocumentItemType_Separator: m_separators.erase(item.address); break;
 

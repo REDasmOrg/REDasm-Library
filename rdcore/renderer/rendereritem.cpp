@@ -1,25 +1,25 @@
 #include "rendereritem.h"
 #include <algorithm>
 
-RendererItem& RendererItem::push(const std::string& text, const std::string& fgstyle, const std::string& bgstyle)
+void RendererItem::setDocumentIndex(size_t index) { m_docindex = index; }
+const std::string& RendererItem::text() const { return m_text; }
+size_t RendererItem::size() const { return m_formats.size(); }
+std::string RendererItem::formatText(const RDRendererFormat* format) const { return m_text.substr(format->start, (format->end - format->start) + 1); }
+
+RendererItem& RendererItem::push(const std::string& text, rd_type fgtheme, rd_type bgtheme)
 {
     size_t start = m_text.size();
 
     RDRendererFormat f{ };
     f.start = static_cast<s32>(start);
     f.end = static_cast<s32>(start + text.size() - 1);
-    std::copy_n(fgstyle.data(), std::min<size_t>(fgstyle.size(), DEFAULT_NAME_SIZE), f.fgstyle);
-    std::copy_n(bgstyle.data(), std::min<size_t>(bgstyle.size(), DEFAULT_NAME_SIZE), f.bgstyle);
+    f.fgtheme = fgtheme;
+    f.bgtheme = bgtheme;
 
     m_formats.push_back(f);
     m_text += text;
     return *this;
 }
-
-void RendererItem::setDocumentIndex(size_t index) { m_docindex = index; }
-const std::string& RendererItem::text() const { return m_text; }
-size_t RendererItem::size() const { return m_formats.size(); }
-std::string RendererItem::formatText(const RDRendererFormat* format) const { return m_text.substr(format->start, (format->end - format->start) + 1); }
 
 RendererItem::FormatsIterator RendererItem::unformat(s32 start, s32 end)
 {
@@ -48,7 +48,7 @@ RendererItem::FormatsIterator RendererItem::unformat(s32 start, s32 end)
 
 const RDRendererFormat& RendererItem::format(size_t idx) const { return m_formats[idx]; }
 
-RendererItem& RendererItem::format(s32 start, s32 end, const std::string& fgstyle, const std::string& bgstyle)
+RendererItem& RendererItem::format(s32 start, s32 end, rd_type fgtheme, rd_type bgtheme)
 {
     if(m_text.empty() || (start >= m_text.size()))
         return *this;
@@ -58,8 +58,8 @@ RendererItem& RendererItem::format(s32 start, s32 end, const std::string& fgstyl
     RDRendererFormat f{ };
     f.start = start;
     f.end = end;
-    std::copy_n(fgstyle.data(), std::min<size_t>(fgstyle.size(), DEFAULT_NAME_SIZE), f.fgstyle);
-    std::copy_n(bgstyle.data(), std::min<size_t>(bgstyle.size(), DEFAULT_NAME_SIZE), f.bgstyle);
+    f.fgtheme = fgtheme;
+    f.bgtheme = bgtheme;
 
     auto it = this->unformat(start, end);
     m_formats.insert(it, f);

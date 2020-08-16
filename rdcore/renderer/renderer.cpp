@@ -1,17 +1,14 @@
 #include "renderer.h"
 #include "../document/backend/blockcontainer.h"
-#include "../support/sugar.h"
+#include "../rdil/ilfunction.h"
+#include "../rdil/rdil.h"
 #include "../disassembler.h"
 #include <rdcore/support/utils.h>
 #include <rdcore/document/document.h>
 #include <rdcore/document/cursor.h>
 #include <rdcore/context.h>
-#include <algorithm>
-#include <cstring>
-#include <climits>
 #include <cmath>
 #include <regex>
-#include <list>
 
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT      10
@@ -21,16 +18,7 @@
 #define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
 #define COMMENT_SEPARATOR   " | "
 
-std::array<Renderer::Renderer_Callback, DocumentItemType_Length> Renderer::m_slots{ };
-
-Renderer::Renderer(Disassembler* disassembler, const Cursor* cursor, rd_flag flags): m_disassembler(disassembler), m_cursor(cursor), m_flags(flags)
-{
-    m_slots[RendererItemType_Segment]     = &Renderer::renderSegment;
-    m_slots[RendererItemType_Function]    = &Renderer::renderFunction;
-    m_slots[RendererItemType_Instruction] = &Renderer::renderInstruction;
-    m_slots[RendererItemType_Symbol]      = &Renderer::renderSymbol;
-    m_slots[RendererItemType_Operand]     = &Renderer::renderOperand;
-}
+Renderer::Renderer(Disassembler* disassembler, const Cursor* cursor, rd_flag flags): m_disassembler(disassembler), m_cursor(cursor), m_flags(flags) { }
 
 void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void* userdata) const
 {
@@ -41,7 +29,7 @@ void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void
     for(size_t docindex = index, i = 0; (docindex < doc->itemsCount()) && (i < count); docindex++, i++)
     {
         RendererItem ritem;
-        if(!this->renderItem(docindex, CPTR(RDRendererItem, &ritem))) continue;
+        if(!this->renderItem(docindex, &ritem)) continue;
 
         if(m_cursor && m_cursor->isLineSelected(docindex)) this->highlightSelection(&ritem);
         else if(m_cursor) this->highlightWords(&ritem);
@@ -51,159 +39,68 @@ void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void
     }
 }
 
-void Renderer::renderAddress(RDRenderItemParams* rip)
+void Renderer::renderAddress(RendererItem* ritem, rd_address address) const
 {
-    const Renderer* renderer = CPTR(const Renderer, rip->renderer);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    renderer->renderAddress(rip->documentitem, ri);
+    const char* name = m_disassembler->document()->name(address);
+    if(name) ritem->push(name, Theme_Symbol);
+    else ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Constant);
 }
 
-void Renderer::renderAddressIndent(RDRenderItemParams* rip)
+void Renderer::renderMnemonic(RendererItem* ritem, const std::string& s, rd_type theme) const { if(!s.empty()) ritem->push(s, theme); }
+void Renderer::renderConstant(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Constant); }
+void Renderer::renderRegister(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Reg); }
+void Renderer::renderText(RendererItem* ritem, const std::string& s, rd_type theme) const { ritem->push(s, theme); }
+
+void Renderer::renderIndent(RendererItem* ritem, size_t n, bool ignoreflags) const
 {
-    const Renderer* renderer = CPTR(const Renderer, rip->renderer);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    renderer->renderAddressIndent(rip->documentitem, ri);
+    if(!ignoreflags && (m_flags & RendererFlags_NoIndent)) return;
+    ritem->push(std::string(n * INDENT_WIDTH, ' '));
 }
 
-void Renderer::renderIndent(RDRenderItemParams* rip, size_t n, bool ignoreflags)
+void Renderer::renderAssemblerInstruction(rd_address address, RendererItem* ritem) const
 {
-    const Renderer* renderer = CPTR(const Renderer, rip->renderer);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    renderer->renderIndent(ri, n, ignoreflags);
+    RDRenderItemParams rip;
+    this->compileParams(address, ritem, &rip);
+
+    if(!m_disassembler->assembler()->renderInstruction(&rip))
+        ritem->push("???");
 }
 
-void Renderer::renderText(RDRenderItemParams* rip, const char* s)
+void Renderer::renderRDIL(rd_address address, RendererItem* ritem) const
 {
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(s);
-}
+    RDRenderItemParams rip;
+    this->compileParams(address, ritem, &rip);
 
-bool Renderer::renderConstant(RDRenderItemParams* rip, u64 c)
-{
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(Utils::hex(c), "immediate_fg");
-    return true;
-}
+    ILFunction il(m_disassembler);
+    m_disassembler->assembler()->lift(rip.address, &rip.view, &il);
 
-bool Renderer::renderImmediate(RDRenderItemParams* rip, u64 imm)
-{
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-
-    std::string value;
-    const char* name = d->document()->name(imm);
-
-    if(name) value = name;
-    else value = Utils::hex(imm);
-
-    if(IS_TYPE(rip->operand, OperandType_Memory)) ri->push("[").push(value, "memory_fg").push("]");
-    else ri->push(value, "immediate_fg");
-    return true;
-}
-
-bool Renderer::renderMemory(RDRenderItemParams* rip, rd_address address) { return Renderer::renderImmediate(rip, address); }
-
-bool Renderer::renderDisplacement(RDRenderItemParams* rip)
-{
-    if(!rip->instruction) return false;
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    size_t prevsize = ri->size();
-    ri->push("[");
-
-    if(Sugar::isBaseValid(rip->operand)) Renderer::renderRegister(rip, rip->operand, rip->operand->base);
-
-    if(Sugar::isIndexValid(rip->operand))
+    for(size_t i = 0; i < il.size(); i++)
     {
-        if(prevsize != ri->size()) ri->push("+");
-        prevsize++;
-
-        Renderer::renderRegister(rip, rip->operand, rip->operand->index);
-        if(rip->operand->scale > 1) ri->push("*").push(Utils::hex(rip->operand->scale), "immediate_fg");
+        if(i) ritem->push("; "); // Attach more statements, if needed
+        RDIL::render(il.expression(i), this, ritem, address);
     }
-
-    if(rip->operand->displacement > 0)
-    {
-        if(prevsize != ri->size()) ri->push("+");
-        Renderer::renderSymbol(rip, rip->operand->address);
-    }
-    else if(rip->operand->displacement < 0)
-        ri->push("-").push(Utils::hex(std::abs(rip->operand->displacement)), "immediate_fg");
-
-    ri->push("]");
-    return true;
 }
 
-bool Renderer::renderMnemonic(RDRenderItemParams* rip)
+bool Renderer::renderItem(size_t index, RendererItem* ritem) const
 {
-    if(!rip->instruction || !std::strlen(rip->instruction->mnemonic)) return false;
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-
-    switch(rip->instruction->type)
-    {
-        case InstructionType_Invalid: ri->push(rip->instruction->mnemonic, "instruction_invalid"); break;
-        case InstructionType_Ret:     ri->push(rip->instruction->mnemonic, "instruction_ret");    break;
-        case InstructionType_Nop:     ri->push(rip->instruction->mnemonic, "instruction_nop");     break;
-        case InstructionType_Call:    ri->push(rip->instruction->mnemonic, "instruction_call");    break;
-        case InstructionType_Compare: ri->push(rip->instruction->mnemonic, "instruction_compare"); break;
-
-        case InstructionType_Jump:
-            ri->push(rip->instruction->mnemonic, HAS_FLAG(rip->instruction, InstructionFlags_Conditional) ? "instruction_jmp_c" : "instruction_jmp");
-            break;
-
-        default: ri->push(rip->instruction->mnemonic); break;
-    }
-
-    if(rip->instruction->operandscount) ri->push(" ");
-    return true;
-}
-
-bool Renderer::renderItem(size_t index, RDRendererItem* ritem) const
-{
-    reinterpret_cast<RendererItem*>(ritem)->setDocumentIndex(index);
+    ritem->setDocumentIndex(index);
 
     RDDocumentItem item;
-    if(!m_disassembler->document()->itemAt(index, &item) || (item.type >= m_slots.size())) return false;
-
-    rd_type slottype;
-    RDSymbol symbol{ };
-    RDInstruction* instruction = nullptr;
+    if(!m_disassembler->document()->itemAt(index, &item)) return false;
 
     switch(item.type)
     {
-        case DocumentItemType_Segment:  slottype = RendererItemType_Segment;  break;
-        case DocumentItemType_Function: slottype = RendererItemType_Function; break;
-
-        case DocumentItemType_Instruction:
-            slottype = RendererItemType_Instruction;
-            m_disassembler->document()->lockInstruction(item.address, &instruction);
-            break;
-
-        case DocumentItemType_Symbol:
-            slottype = RendererItemType_Symbol;
-            m_disassembler->document()->symbol(item.address, &symbol);
-            break;
-
-        case DocumentItemType_Unexplored: return this->renderUnexplored(&item, ritem);
-        case DocumentItemType_Separator:  return this->renderSeparator(&item, ritem);
-        case DocumentItemType_Empty:      return true;
-        default:                          return false;
+        case DocumentItemType_Segment:     this->renderSegment(item.address, ritem);     break;
+        case DocumentItemType_Function:    this->renderFunction(item.address, ritem);    break;
+        case DocumentItemType_Instruction: this->renderInstruction(item.address, ritem); break;
+        case DocumentItemType_Symbol:      this->renderSymbol(item.address, ritem);      break;
+        case DocumentItemType_Unexplored:  this->renderUnexplored(item.address, ritem);  break;
+        case DocumentItemType_Separator:   this->renderSeparator(item.address, ritem);   break;
+        case DocumentItemType_Empty:       return true;
+        default:                           return false;
     }
 
-    RDRenderItemParams rip = { slottype,
-                               CPTR(const RDRenderer, this), CPTR(RDDisassembler, m_disassembler),
-                               &item, ritem, &symbol, instruction, nullptr };
-
-    bool res = this->renderParams(&rip);
-
-    // Post rendering code
-    switch(item.type)
-    {
-        case DocumentItemType_Instruction: Renderer::renderComments(&rip); break;
-        default: break;
-    }
-
-    if(instruction) m_disassembler->document()->unlockInstruction(instruction);
-    return res;
+    return true;
 }
 
 bool Renderer::selectedSymbol(RDSymbol* symbol) const
@@ -214,28 +111,15 @@ bool Renderer::selectedSymbol(RDSymbol* symbol) const
     return m_disassembler->document()->symbol(word.c_str(), symbol);
 }
 
-const std::string& Renderer::getInstruction(rd_address address) const
+const std::string& Renderer::getInstructionText(rd_address address) const
 {
     m_instructionstr.clear();
     size_t idx = m_disassembler->document()->instructionIndex(address);
     if(idx == RD_NPOS) return m_instructionstr;
 
-    RDDocumentItem item;
-    if(!m_disassembler->document()->itemAt(idx, &item)) return m_instructionstr;
-
-    RDInstruction* instruction = nullptr;
-    if(!m_disassembler->document()->lockInstruction(address, &instruction)) return m_instructionstr;
-
     RendererItem ritem;
+    if(this->renderItem(idx, &ritem)) m_instructionstr = ritem.text();
 
-    RDRenderItemParams rip = { RendererItemType_Instruction,
-                               CPTR(const RDRenderer, this), CPTR(RDDisassembler, m_disassembler),
-                               &item, CPTR(RDRendererItem, &ritem), nullptr, instruction, nullptr };
-
-    if(this->renderParams(&rip))
-        m_instructionstr = ritem.text();
-
-    m_disassembler->document()->unlockInstruction(instruction);
     return m_instructionstr;
 }
 
@@ -254,7 +138,7 @@ const std::string& Renderer::getSelectedText() const
         while(line <= endpos->line)
         {
             RendererItem ritem;
-            this->renderItem(line, CPTR(RDRendererItem, &ritem));
+            this->renderItem(line, &ritem);
 
             if(line == startpos->line) m_selectedtext += ritem.text().substr(startpos->column);
             else if(line == endpos->line) m_selectedtext += ritem.text().substr(0, endpos->column + 1);
@@ -267,7 +151,7 @@ const std::string& Renderer::getSelectedText() const
     else
     {
         RendererItem ritem;
-        this->renderItem(startpos->line, CPTR(RDRendererItem, &ritem));
+        this->renderItem(startpos->line, &ritem);
         if(startpos->column >= ritem.text().size()) m_selectedtext.clear();
         else m_selectedtext = ritem.text().substr(startpos->column, endpos->column - startpos->column + 1);
     }
@@ -284,7 +168,7 @@ const std::string& Renderer::getCurrentWord() const
 size_t Renderer::getLastColumn(size_t index) const
 {
     RendererItem ritem;
-    if(!this->renderItem(index, CPTR(RDRendererItem, &ritem))) return 0;
+    if(!this->renderItem(index, &ritem)) return 0;
     if(ritem.text().empty()) return 0;
     return ritem.text().size() - 1;
 }
@@ -296,8 +180,8 @@ const std::string& Renderer::getWordFromPosition(const RDCursorPos* pos, RDCurso
     m_lastword.clear();
     if(!m_cursor || !pos) return m_lastword;
 
-    RendererItem ritem{ };
-    if(!this->renderItem(pos->line, CPTR(RDRendererItem, &ritem))) return m_lastword;
+    RendererItem ritem;
+    if(!this->renderItem(pos->line, &ritem)) return m_lastword;
 
     if(!m_cursor->hasSelection())
     {
@@ -354,16 +238,16 @@ void Renderer::highlightSelection(RendererItem* ritem) const
     {
         size_t start = (ritem->documentIndex() == startsel->line) ? startsel->column : 0;
         size_t end = (ritem->documentIndex() == endsel->line) ? endsel->column : (ritem->text().size() - 1);
-        ritem->format(start, end, "selection_fg", "selection_bg");
+        ritem->format(start, end, Theme_SelectionFg, Theme_SelectionBg);
     }
     else
-        ritem->format(startsel->column, endsel->column, "selection_fg", "selection_bg");
+        ritem->format(startsel->column, endsel->column, Theme_SelectionFg, Theme_SelectionBg);
 }
 
 void Renderer::highlightCursor(RendererItem* ritem) const
 {
     if((m_flags & RendererFlags_NoCursor) ||  !m_cursor || !m_cursor->active()) return;
-    ritem->format(m_cursor->currentColumn(), m_cursor->currentColumn(), "cursor_fg", "cursor_bg");
+    ritem->format(m_cursor->currentColumn(), m_cursor->currentColumn(), Theme_CursorFg, Theme_CursorBg);
 }
 
 void Renderer::highlightWords(RendererItem* ritem) const
@@ -383,330 +267,198 @@ void Renderer::highlightWords(RendererItem* ritem) const
     }
 
     for(size_t loc : locations)
-        ritem->format(loc, loc + word.size() - 1, "highlight_fg", "highlight_bg");
+        ritem->format(loc, loc + word.size() - 1, Theme_HighlightFg, Theme_HighlightBg);
 }
 
-void Renderer::renderPrologue(RDRenderItemParams* rip)
+void Renderer::renderHexDump(RendererItem* ritem, const RDBufferView* view, size_t size) const
 {
-    const Renderer* r = CPTR(const Renderer, rip->renderer);
+    if(!view) return;
 
-    if(!(r->m_flags & RendererFlags_NoSegmentAndAddress))
-    {
-        Renderer::renderAddress(rip);
-        Renderer::renderIndent(rip, 3);
-    }
-    else
-        Renderer::renderIndent(rip, 1);
+    ritem->push(Utils::hexString(view, size), Theme_Constant);
+    this->renderIndent(ritem, 1);
 }
 
-void Renderer::renderSymbolPrologue(RDRenderItemParams* rip)
+bool Renderer::renderSymbolPointer(const RDSymbol* symbol, RendererItem* ritem) const
 {
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-
-    Renderer::renderPrologue(rip);
-    ri->push(d->document()->name(rip->documentitem->address), "label_fg");
-    Renderer::renderIndent(rip, 1);
-}
-
-bool Renderer::renderSymbolPointer(RDRenderItemParams* rip)
-{
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
     u64 value = 0;
 
-    if(!d->readAddress(rip->documentitem->address, d->assembler()->addressWidth(), &value)) return false;
+    if(!m_disassembler->readAddress(symbol->address, m_disassembler->assembler()->addressWidth(), &value)) return false;
 
     RDSymbol ptrsymbol;
-    if(!d->document()->symbol(value, &ptrsymbol)) return false;
+    if(!m_disassembler->document()->symbol(value, &ptrsymbol)) return false;
 
-    ri->push(d->document()->name(ptrsymbol.address), "label_fg");
+    ritem->push(m_disassembler->document()->name(ptrsymbol.address), Theme_Symbol);
     return true;
 }
 
-bool Renderer::renderSegment(RDRenderItemParams* rip)
+void Renderer::renderSegment(rd_address address, RendererItem* ritem) const
 {
-    static std::string eq = std::string(HEADER_SYMBOL_COUNT * 2, '=');
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
+    static std::string eq = std::string(HEADER_SYMBOL_COUNT * 2, '-');
 
     std::string seg = "SEGMENT ";
     RDSegment segment;
 
-    if(d->document()->segment(rip->documentitem->address, &segment))
+    if(m_disassembler->document()->segment(address, &segment))
     {
         seg += Utils::quoted(segment.name);
-        seg += " START: " + Utils::hex(segment.address, d->assembler()->bits());
-        seg += " END: " + Utils::hex(segment.endaddress, d->assembler()->bits());
+        seg += " START: " + Utils::hex(segment.address, m_disassembler->assembler()->bits());
+        seg += " END: " + Utils::hex(segment.endaddress, m_disassembler->assembler()->bits());
     }
     else
     {
         seg += "???";
-        seg += " START: " + Utils::hex(rip->documentitem->address, d->assembler()->bits());
+        seg += " START: " + Utils::hex(address, m_disassembler->assembler()->bits());
         seg += " END: ???" ;
     }
 
-    ri->push(eq + " " + seg + " " + eq, "segment_fg");
-    return true;
+    ritem->push(eq + "< " + seg + " >" + eq, Theme_Segment);
 }
 
-bool Renderer::renderFunction(RDRenderItemParams* rip)
+void Renderer::renderFunction(rd_address address, RendererItem* ritem) const
 {
-    static std::string eq = std::string(HEADER_SYMBOL_COUNT, '=');
+    if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address, ritem);
 
-    const Renderer* r = CPTR(const Renderer, rip->renderer);
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    const char* name = d->document()->name(rip->documentitem->address);
-
-    if(!(r->m_flags & RendererFlags_NoSegmentAndAddress))
-        Renderer::renderAddressIndent(rip);
-
-    if(name) ri->push(eq + " FUNCTION " + name + " " + eq, "function_fg");
-    else ri->push(eq + " FUNCTION ??? " + eq, "function_fg");
-    return true;
+    const char* name = m_disassembler->document()->name(address);
+    if(name) ritem->push("function " + std::string(name) + "()", Theme_Function);
+    else ritem->push("function \?\?\?()", Theme_Function);
 }
 
-bool Renderer::renderInstruction(RDRenderItemParams* rip)
+void Renderer::renderInstruction(rd_address address, RendererItem* ritem) const
 {
-    const Renderer* r = CPTR(const Renderer, rip->renderer);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    Renderer::renderPrologue(rip);
+    this->renderPrologue(address, ritem);
 
-    if(rip->instruction)
-    {
-        Renderer::renderMnemonic(rip);
-        if(!rip->instruction->operandscount) return true;
-        rip->type = RendererItemType_Operand;
+    if(rd_ctx->flags() & ContextFlag_ShowRDIL) this->renderRDIL(address, ritem);
+    else this->renderAssemblerInstruction(address, ritem);
 
-        for(size_t i = 0; i < rip->instruction->operandscount; i++)
-        {
-            rip->operand = &rip->instruction->operands[i];
-
-            if(i) ri->push(", ");
-            r->renderParams(rip);
-        }
-    }
-    else
-        ri->push("???", "instruction_invalid");
-
-    return true;
+    this->renderComments(address, ritem);
 }
 
-bool Renderer::renderOperand(RDRenderItemParams* rip) { return Renderer::renderOperand(rip, rip->operand); }
-
-bool Renderer::renderCustomOperand(RDRenderItemParams* rip)
+void Renderer::renderSymbol(rd_address address, RendererItem* ritem) const
 {
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push("Operand#" + Utils::hex(rip->operand->type));
-    return true;
-}
+    this->renderPrologue(address, ritem);
 
-bool Renderer::renderSymbol(RDRenderItemParams* rip)
-{
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-
+    const char* name = m_disassembler->document()->name(address);
     RDSymbol symbol;
 
-    if(!d->document()->symbol(rip->documentitem->address, &symbol))
+    if(!name || !m_disassembler->document()->symbol(address, &symbol))
     {
-        Renderer::renderPrologue(rip);
-        ri->push("Unknown Symbol");
-        return true;
+        ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Constant);
+        return;
     }
-
-    RDSegment segment;
-
-    if(d->document()->segment(symbol.address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
-    {
-        Renderer::renderSymbolPrologue(rip);
-
-        if(IS_TYPE(&symbol, SymbolType_Label)) ri->push(" <").push("dynamic branch", "label_fg").push(">");
-        else ri->push("???", "data_fg");
-        return true;
-    }
-
-    bool prologuedone = false;
 
     if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
-        Renderer::renderSymbolPrologue(rip);
-        prologuedone = true;
-        if(Renderer::renderSymbolPointer(rip)) return true;
+        ritem->push(name, Theme_Pointer);
+        return;
     }
 
     switch(symbol.type)
     {
-        case SymbolType_Import:
-            if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-            ri->push("<").push("import", "import_fg").push(">");
-            return true;
+        case SymbolType_Data: ritem->push(name, Theme_Data); break;
+        case SymbolType_String: ritem->push(name, Theme_String); break;
+        case SymbolType_Import: ritem->push(name, Theme_Imported); break;
+        case SymbolType_Label:    ritem->push(name, Theme_Symbol).push(":"); return;
+        case SymbolType_Function: ritem->push(name, Theme_Function);         return;
+        default: ritem->push(name); return;
+    }
+
+    this->renderIndent(ritem, 1);
+    this->renderSymbolValue(&symbol, ritem);
+}
+
+void Renderer::renderSymbolValue(const RDSymbol* symbol, RendererItem* ritem) const
+{
+    RDSegment segment;
+
+    if(m_disassembler->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
+    {
+        if(IS_TYPE(symbol, SymbolType_Label)) ritem->push("<").push("dynamic branch", Theme_Symbol).push(">");
+        else ritem->push("???", Theme_Data);
+        return;
+    }
+
+    if(HAS_FLAG(symbol, SymbolFlags_Pointer) && this->renderSymbolPointer(symbol, ritem)) return;
+
+    switch(symbol->type)
+    {
+        case SymbolType_Import: ritem->push("<").push("import", Theme_Symbol).push(">"); return;
 
         case SymbolType_String:
-            if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-            if(HAS_FLAG(&symbol, SymbolFlags_WideString)) ri->push(Utils::quoted(Utils::simplified(d->readWString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
-            else ri->push(Utils::quoted(Utils::simplified(d->readString(rip->documentitem->address, STRING_THRESHOLD))), "string_fg");
-            return true;
-
-        case SymbolType_Label:
-            Renderer::renderAddressIndent(rip);
-            ri->push(d->document()->name(rip->documentitem->address), "label_fg").push(":");
-            return true;
+             if(HAS_FLAG(symbol, SymbolFlags_WideString)) ritem->push(Utils::quoted(Utils::simplified(m_disassembler->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             else ritem->push(Utils::quoted(Utils::simplified(m_disassembler->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             return;
 
         default: break;
     }
 
-    if(!prologuedone) Renderer::renderSymbolPrologue(rip);
-
-    RDLocation loc = d->dereference(rip->documentitem->address);
+    RDLocation loc = m_disassembler->dereference(symbol->address);
 
     if(loc.valid)
     {
-        const char* symbolname = d->document()->name(loc.address);
+        const char* symbolname = m_disassembler->document()->name(loc.address);
 
         if(symbolname)
         {
-            ri->push(symbolname, "label_fg");
-            return true;
+            ritem->push(symbolname, Theme_Symbol);
+            return;
         }
     }
 
-    RDBlock b;
-
-    if(!d->document()->block(rip->documentitem->address, &b))
-        REDasmError("Invalid Block", rip->documentitem->address);
-
-    size_t blocksize = BlockContainer::size(&b);
-
-    switch(blocksize)
-    {
-        case 1:
-            ri->push(Utils::hex(static_cast<u8>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
-            break;
-
-        case 2:
-            ri->push(Utils::hex(static_cast<u16>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
-            break;
-
-        case 4:
-            ri->push(Utils::hex(static_cast<u32>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
-            break;
-
-        case 8:
-            ri->push(Utils::hex(static_cast<u64>(loc.address), blocksize * CHAR_BIT), d->document()->segment(loc.address, nullptr) ? "pointer_fg" : "data_fg");
-            break;
-
-        default:
-            ri->push("(").push(Utils::hex(blocksize), "immediate_fg").push(")");
-            break;
-    }
-
-    return true;
+    this->renderBlock(symbol->address, ritem);
 }
 
-void Renderer::renderAddress(const RDDocumentItem* item, RendererItem* ritem) const
+void Renderer::compileParams(rd_address address, RendererItem* ritem, RDRenderItemParams* rip) const
 {
-    if(m_flags & RendererFlags_NoAddress) return;
+    *rip = { address,
+             { },
+             CPTR(const RDRenderer, this),
+             CPTR(RDDisassembler, m_disassembler),
+             CPTR(RDRendererItem, ritem) };
 
-    RDSegment s;
-    auto& doc = m_disassembler->document();
-
-    if(doc->segment(item->address, &s)) ritem->push(s.name, "address_fg");
-    else ritem->push("???", "address_fg");
-
-    ritem->push(":", "address_fg");
-    ritem->push(Utils::hex(item->address, m_disassembler->assembler()->bits()), "address_fg");
+    m_disassembler->view(address, RD_NPOS, &rip->view);
 }
 
-bool Renderer::renderParams(RDRenderItemParams* rip) const
+void Renderer::renderComments(rd_address address, RendererItem* ritem) const
 {
-    if(rip->type >= m_slots.size()) return false;
+    if(m_flags & RendererFlags_NoComments) return;
 
-    Assembler* assembler = m_disassembler->assembler();
-    if(assembler->render(rip)) return true;
+    m_commentcolumn = std::max<size_t>(m_commentcolumn, ritem->text().size()); // Recalculate comment column
 
-    auto slot = m_slots[rip->type];
-    if(!slot) return false;
-    return slot(rip);
-}
-
-void Renderer::renderComments(RDRenderItemParams* rip)
-{
-    const Renderer* r = CPTR(const Renderer, rip->renderer);
-    if(r->flags() & RendererFlags_NoComments) return;
-
-    // Recalculate comment column
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    r->m_commentcolumn = std::max<size_t>(r->m_commentcolumn, ri->text().size());
-
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    std::string comment = d->document()->comment(rip->documentitem->address, false, COMMENT_SEPARATOR);
+    std::string comment = m_disassembler->document()->comment(address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
-    ri->push(std::string((r->m_commentcolumn - ri->text().size()) + INDENT_COMMENT, ' '));
-    ri->push("# " + Utils::simplified(comment), "comment_fg");
+    ritem->push(std::string((m_commentcolumn - ritem->text().size()) + INDENT_COMMENT, ' '));
+    ritem->push("# " + Utils::simplified(comment), Theme_Comment);
 }
 
-bool Renderer::renderSeparator(const RDDocumentItem* item, RDRendererItem* ritem) const
+void Renderer::renderBlock(rd_address address, RendererItem* ritem) const
 {
-    if(m_flags & RendererFlags_NoSeparators) return true;
-
-    RendererItem* ri = CPTR(RendererItem, ritem);
-    if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(item, ri);
-
-    ri->push(std::string(SEPARATOR_LENGTH, '-'), "separator");
-    return true;
-}
-
-bool Renderer::renderUnexplored(const RDDocumentItem* item, RDRendererItem* ritem) const
-{
-    RendererItem* ri = CPTR(RendererItem, ritem);
-    this->renderAddress(item, ri);
-    this->renderIndent(ri, 3);
-
     RDBlock block;
-    m_disassembler->document()->block(item->address, &block);
+    if(!m_disassembler->document()->block(address, &block)) REDasmError("Invalid Block", address);
 
-    size_t size = BlockContainer::size(&block);
+    size_t blocksize = BlockContainer::size(&block);
+    RDBufferView view;
 
-    switch(size)
-    {
-        case 2:  ri->push("dw "); break;
-        case 4:  ri->push("dw "); break;
-        case 8:  ri->push("dq "); break;
-        default: ri->push("db "); break;
-    }
-
-    if(size > 8)
-        ri->push(Utils::hex(size), "immediate_fg");
-    else if(!(size & 2) || (size == 1))
-    {
-        u64 value = 0;
-        bool ok = m_disassembler->readAddress(block.start, size, &value);
-        ri->push(ok ? Utils::hex(value, size * CHAR_BIT) : "??", "immediate_fg");
-    }
-    else
-    {
-        rd_address address = block.start;
-        ri->push("[");
-
-        for(size_t i = 0; i < size; i++, address++)
-        {
-            u64 value = 0;
-            bool ok = m_disassembler->readAddress(address, 1, &value);
-
-            if(i) ri->push(", ");
-            ri->push(ok ? Utils::hex(value, 8) : "??", "immediate_fg");
-        }
-
-        ri->push("]");
-    }
-
-    return true;
+    if((blocksize <= sizeof(rd_address)) && m_disassembler->view(block.address, blocksize, &view)) this->renderHexDump(ritem, &view, RD_NPOS);
+    else ritem->push("(").push(Utils::hex(blocksize), Theme_Constant).push(")");
 }
 
-void Renderer::renderAddressIndent(const RDDocumentItem* item, RendererItem* ritem) const
+void Renderer::renderSeparator(rd_address address, RendererItem* ritem) const
+{
+    if(m_flags & RendererFlags_NoSeparators) return;
+    if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address, ritem);
+
+    ritem->push(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
+}
+
+void Renderer::renderUnexplored(rd_address address, RendererItem* ritem) const
+{
+    this->renderPrologue(address, ritem);
+    ritem->push("db ");
+    this->renderBlock(address, ritem);
+}
+
+void Renderer::renderAddressIndent(rd_address address, RendererItem* ritem) const
 {
     if((m_flags & RendererFlags_NoAddress) || (m_flags & RendererFlags_NoIndent)) return;
 
@@ -714,69 +466,27 @@ void Renderer::renderAddressIndent(const RDDocumentItem* item, RendererItem* rit
     const auto& doc = m_disassembler->document();
 
     RDSegment s;
-    if(doc->segment(item->address, &s)) c += std::strlen(s.name);
+    if(doc->segment(address, &s)) c += std::strlen(s.name);
     ritem->push(std::string(c + INDENT_WIDTH, ' '));
 }
 
-void Renderer::renderIndent(RendererItem* ritem, size_t n, bool ignoreflags) const
+void Renderer::renderPrologue(rd_address address, RendererItem* ritem) const
 {
-    if(!ignoreflags && (m_flags & RendererFlags_NoIndent)) return;
-    ritem->push(std::string(n * INDENT_WIDTH, ' '));
-}
-
-void Renderer::renderSymbol(RDRenderItemParams* rip, rd_address address)
-{
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    const char* name = d->document()->name(address);
-    RDSymbol symbol;
-
-    if(!name || !d->document()->symbol(address, &symbol))
+    if(!(m_flags & RendererFlags_NoSegmentAndAddress))
     {
-        ri->push(Utils::hex(address, d->assembler()->bits()), "immediate_fg");
-        return;
+        if(!(m_flags & RendererFlags_NoSegment))
+        {
+            RDSegment s;
+            auto& doc = m_disassembler->document();
+
+            if(doc->segment(address, &s)) ritem->push(s.name, Theme_Address);
+            else ritem->push("???", Theme_Address);
+            ritem->push(":", Theme_Address);
+        }
+
+        if(!(m_flags & RendererFlags_NoAddress))
+            ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Address);
     }
 
-    if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
-    {
-        ri->push(name, "pointer_fg");
-        return;
-    }
-
-    switch(symbol.type)
-    {
-        case SymbolType_Data:     ri->push(name, "data_fg"); break;
-        case SymbolType_String:   ri->push(name, "string_fg"); break;
-        case SymbolType_Label:    ri->push(name, "label_fg"); break;
-        case SymbolType_Function: ri->push(name, "function_fg"); break;
-        case SymbolType_Import:   ri->push(name, "import_fg"); break;
-        default: ri->push(name); break;
-    }
-}
-
-bool Renderer::renderRegister(RDRenderItemParams* rip, const RDOperand* op, register_t r)
-{
-    const Disassembler* d = CPTR(const Disassembler, rip->disassembler);
-    RendererItem* ri = CPTR(RendererItem, rip->rendereritem);
-    ri->push(d->registerName(rip->instruction, op, r), "register_fg");
-    return true;
-}
-
-bool Renderer::renderOperand(RDRenderItemParams* rip, const RDOperand* op)
-{
-    if(!op) return false;
-    rip->operand = op; // Assign for other callbacks
-
-    switch(op->type)
-    {
-        case OperandType_Constant:     return Renderer::renderConstant(rip, op->u_value);
-        case OperandType_Immediate:    return Renderer::renderImmediate(rip, op->u_value);
-        case OperandType_Memory:       return Renderer::renderMemory(rip, op->address);
-        case OperandType_Displacement: return Renderer::renderDisplacement(rip);
-        case OperandType_Register:     return Renderer::renderRegister(rip, op, op->reg);
-        default: break;
-    }
-
-    if(op->type >= OperandType_Custom) return Renderer::renderCustomOperand(rip);
-    return false;
+    this->renderIndent(ritem, 1);
 }

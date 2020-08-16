@@ -16,9 +16,6 @@ bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDo
 bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->symbolItem(address, item); }
 bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol) { return docptr(d)->symbol(address, symbol); }
 bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol) { return docptr(d)->symbol(name, symbol); }
-bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction) { return docptr(d)->prevInstruction(instruction, previnstruction); }
-bool RDDocument_LockInstruction(const RDDocument* d, rd_address address, RDInstruction** instruction) { return docptr(d)->lockInstruction(address, instruction); }
-bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction) { return docptr(d)->unlockInstruction(instruction);  }
 bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname) { return docptr(d)->rename(address, newname ? newname : std::string()); }
 const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { return docptr(d)->symbols()->getName(address); }
 const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
@@ -42,7 +39,6 @@ void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* co
 void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->imported(address, size, name ? name : std::string()); }
 void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->exported(address, size, name ? name : std::string()); }
 void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }
-void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction) { docptr(d)->instruction(instruction); }
 void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->asciiString(address, size, name ? name : std::string()); }
 void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->wideString(address, size, name ? name : std::string() ); }
 void RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name) { docptr(d)->pointer(address, type, name ? name : std::string()); }

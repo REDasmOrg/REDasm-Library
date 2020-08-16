@@ -17,9 +17,9 @@ class Loader: public Object
         bool load();
         bool build(const RDLoaderBuildRequest* req);
         bool analyze(Disassembler* disassembler);
-        BufferView* view(rd_address address) const;
-        BufferView* view(rd_address address, size_t size) const;
-        BufferView* view(const RDSegment& segment) const;
+        bool view(rd_address address, RDBufferView* view) const;
+        bool view(rd_address address, size_t size, RDBufferView* view) const;
+        bool view(const RDSegment& segment, RDBufferView* view) const;
         Database* database(const std::string& dbname);
         rd_flag flags() const;
         const char* id() const;

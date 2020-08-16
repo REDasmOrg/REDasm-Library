@@ -4,7 +4,7 @@
 #include "../document/document.h"
 #include "../plugin.h"
 #include "../buffer.h"
-#include "assembler.h"
+#include "assembler/assembler.h"
 
 enum RDLoaderFlags {
     LoaderFlags_None               = 0,

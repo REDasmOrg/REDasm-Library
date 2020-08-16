@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <rdapi/renderer.h>
+#include <rdapi/theme.h>
 #include "../object.h"
 
 class RendererItem: public Object
@@ -19,8 +20,8 @@ class RendererItem: public Object
         std::string formatText(const RDRendererFormat* format) const;
         FormatsIterator unformat(s32 start, s32 end);
         const RDRendererFormat& format(size_t idx) const;
-        RendererItem& format(s32 start, s32 end, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string());
-        RendererItem& push(const std::string& text, const std::string& fgstyle = std::string(), const std::string& bgstyle = std::string());
+        RendererItem& format(s32 start, s32 end, rd_type fgtheme = Theme_Default, rd_type bgtheme = Theme_Default);
+        RendererItem& push(const std::string& text, rd_type fgstyle = Theme_Default, rd_type bgstyle = Theme_Default);
         size_t formats(const RDRendererFormat** formats) const;
         size_t documentIndex() const;
 

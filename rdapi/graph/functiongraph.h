@@ -12,7 +12,7 @@ RD_API_EXPORT bool RDFunctionGraph_Contains(const RDGraph* graph, rd_address add
 RD_API_EXPORT rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph);
 
 // RDFunctionBasicBlock
-RD_API_EXPORT const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGraphNode node);
+RD_API_EXPORT rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node);
 RD_API_EXPORT size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb);
 RD_API_EXPORT size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb);
 RD_API_EXPORT size_t RDFunctionBasicBlock_GetEndIndex(const RDFunctionBasicBlock* fbb);

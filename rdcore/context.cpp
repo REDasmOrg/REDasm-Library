@@ -1,6 +1,7 @@
 #include "context.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
+#include <rdapi/theme.h>
 #include <filesystem>
 #include <iostream>
 #include <sstream>
@@ -34,6 +35,88 @@ void Context::setProgressCallback(RD_ProgressCallback callback, void* userdata)
 {
     m_progresscallback.callback = callback;
     m_progresscallback.userdata = userdata;
+}
+
+void Context::setTheme(rd_type theme, const char* color)
+{
+    switch(theme)
+    {
+        case Theme_Foreground:        m_themecolors.fg = color; break;
+        case Theme_Background:        m_themecolors.bg = color; break;
+        case Theme_Seek:              m_themecolors.seek = color; break;
+        case Theme_Comment:           m_themecolors.comment = color; break;
+        case Theme_Meta:              m_themecolors.meta = color; break;
+        case Theme_HighlightFg:       m_themecolors.highlightfg = color; break;
+        case Theme_HighlightBg:       m_themecolors.highlightbg = color; break;
+        case Theme_SelectionFg:       m_themecolors.selectionfg = color; break;
+        case Theme_SelectionBg:       m_themecolors.selectionbg = color; break;
+        case Theme_CursorFg:          m_themecolors.cursorfg = color; break;
+        case Theme_CursorBg:          m_themecolors.cursorbg = color; break;
+        case Theme_Segment:           m_themecolors.segment = color; break;
+        case Theme_Function:          m_themecolors.function = color; break;
+        case Theme_Type:              m_themecolors.type = color; break;
+        case Theme_Address:           m_themecolors.address = color; break;
+        case Theme_Constant:          m_themecolors.constant = color; break;
+        case Theme_Reg:               m_themecolors.reg = color; break;
+        case Theme_String:            m_themecolors.string = color; break;
+        case Theme_Symbol:            m_themecolors.symbol = color; break;
+        case Theme_Data:              m_themecolors.data = color; break;
+        case Theme_Imported:          m_themecolors.imported = color; break;
+        case Theme_Nop:               m_themecolors.nop = color; break;
+        case Theme_Ret:               m_themecolors.ret = color; break;
+        case Theme_Call:              m_themecolors.call = color; break;
+        case Theme_Jump:              m_themecolors.jump = color; break;
+        case Theme_JumpCond:          m_themecolors.jumpcond = color; break;
+        case Theme_GraphBg:           m_themecolors.graphbg = color; break;
+        case Theme_GraphEdge:         m_themecolors.graphedge = color; break;
+        case Theme_GraphEdgeTrue:     m_themecolors.graphedgetrue = color; break;
+        case Theme_GraphEdgeFalse:    m_themecolors.graphedgefalse = color; break;
+        case Theme_GraphEdgeLoop:     m_themecolors.graphedgeloop = color; break;
+        case Theme_GraphEdgeLoopCond: m_themecolors.graphedgeloopcond = color; break;
+        default: break;
+    }
+}
+
+const char* Context::getTheme(rd_type theme) const
+{
+    switch(theme)
+    {
+        case Theme_Foreground:        return m_themecolors.fg.c_str();
+        case Theme_Background:        return m_themecolors.bg.c_str();
+        case Theme_Seek:              return Context::themeAlt(m_themecolors.seek, m_themecolors.bg);
+        case Theme_Comment:           return Context::themeAlt(m_themecolors.comment, m_themecolors.fg);
+        case Theme_Meta:              return Context::themeAlt(m_themecolors.meta, m_themecolors.fg);
+        case Theme_HighlightFg:       return Context::themeAlt(m_themecolors.highlightfg, m_themecolors.fg);
+        case Theme_HighlightBg:       return Context::themeAlt(m_themecolors.highlightbg, m_themecolors.bg);
+        case Theme_SelectionFg:       return Context::themeAlt(m_themecolors.selectionfg, m_themecolors.fg);
+        case Theme_SelectionBg:       return Context::themeAlt(m_themecolors.selectionbg, m_themecolors.bg);
+        case Theme_CursorFg:          return Context::themeAlt(m_themecolors.cursorfg, m_themecolors.fg);
+        case Theme_CursorBg:          return Context::themeAlt(m_themecolors.cursorbg, m_themecolors.bg);
+        case Theme_Segment:           return Context::themeAlt(m_themecolors.segment, m_themecolors.fg);
+        case Theme_Function:          return Context::themeAlt(m_themecolors.function, m_themecolors.fg);
+        case Theme_Type:              return Context::themeAlt(m_themecolors.type, m_themecolors.fg);
+        case Theme_Address:           return Context::themeAlt(m_themecolors.address, m_themecolors.fg);
+        case Theme_String:            return Context::themeAlt(m_themecolors.string, m_themecolors.fg);
+        case Theme_Symbol:            return Context::themeAlt(m_themecolors.symbol, m_themecolors.fg);
+        case Theme_Data:              return Context::themeAlt(m_themecolors.data, m_themecolors.fg);
+        case Theme_Imported:          return Context::themeAlt(m_themecolors.imported, m_themecolors.fg);
+        case Theme_Constant:          return Context::themeAlt(m_themecolors.constant, m_themecolors.fg);
+        case Theme_Reg:               return Context::themeAlt(m_themecolors.reg, m_themecolors.fg);
+        case Theme_Nop:               return Context::themeAlt(m_themecolors.nop, m_themecolors.fg);
+        case Theme_Ret:               return Context::themeAlt(m_themecolors.ret, m_themecolors.fg);
+        case Theme_Call:              return Context::themeAlt(m_themecolors.call, m_themecolors.fg);
+        case Theme_Jump:              return Context::themeAlt(m_themecolors.jump, m_themecolors.fg);
+        case Theme_JumpCond:          return Context::themeAlt(m_themecolors.jumpcond, m_themecolors.fg);
+        case Theme_GraphBg:           return Context::themeAlt(m_themecolors.graphbg, m_themecolors.bg);
+        case Theme_GraphEdge:         return Context::themeAlt(m_themecolors.graphedge, m_themecolors.fg);
+        case Theme_GraphEdgeTrue:     return Context::themeAlt(m_themecolors.graphedgetrue, m_themecolors.fg);
+        case Theme_GraphEdgeFalse:    return Context::themeAlt(m_themecolors.graphedgefalse, m_themecolors.fg);
+        case Theme_GraphEdgeLoop:     return Context::themeAlt(m_themecolors.graphedgeloop, m_themecolors.fg);
+        case Theme_GraphEdgeLoopCond: return Context::themeAlt(m_themecolors.graphedgeloopcond, m_themecolors.fg);
+        default: break;
+    }
+
+    return nullptr;
 }
 
 void Context::statusProgress(const char* s, size_t progress) const
@@ -181,8 +264,20 @@ void Context::setRuntimePath(const char* rntpath) { m_rntpath = rntpath; }
 void Context::setTempPath(const char* tmppath) { m_tmppath = tmppath; }
 void Context::setIgnoreProblems(bool ignore) { m_ignoreproblems = ignore; }
 Context* Context::instance() { static Context context; return &context; }
-void Context::setFlags(rd_flag flag) { m_flags = flag; }
+
+void Context::setFlags(rd_flag flags, bool set)
+{
+    rd_flag oldflags = m_flags;
+
+    if(set) m_flags |= flags;
+    else m_flags &= ~flags;
+
+    if(m_flags != oldflags)
+        EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_ContextFlagsChanged, this);
+}
+
 rd_flag Context::flags() const { return m_flags; }
+bool Context::hasFlags(rd_flag flags) const { return m_flags & flags; }
 bool Context::hasProblems() const { return !m_problems.empty(); }
 size_t Context::problemsCount() const { return m_problems.size(); }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }
@@ -209,6 +304,8 @@ void Context::init()
         m_pluginmanager.loadAll(pluginpath);
 }
 
+const char* Context::themeAlt(const std::string& color, const std::string& altcolor) { return color.empty() ? altcolor.c_str() : color.c_str(); }
+
 void Context::initPlugin(RDPluginHeader* plugin)
 {
     if(plugin->state == PluginState_Initialized) Context::freePlugin(plugin);
@@ -227,6 +324,7 @@ void Context::freePlugin(RDPluginHeader* plugin)
 
 void Context::setUI(const RDUI* rdui) { m_ui = rdui; }
 const RDUI* Context::ui() const { return m_ui; }
+void Context::initFlags(rd_flag flags) { m_flags = flags; }
 
 bool Context::registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap)
 {

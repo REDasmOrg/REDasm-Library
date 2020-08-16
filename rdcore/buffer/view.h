@@ -1,22 +1,15 @@
 #pragma once
 
-#include "abstract.h"
+#include <rdapi/buffer.h>
 
-class BufferView: public AbstractBuffer
+class BufferView
 {
     public:
-        BufferView();
-        BufferView(u8* data, size_t size);
-        size_t size() const override;
-        u8* data() override;
-        BufferView& advance(size_t offset);
-        void copyTo(BufferView* dest) const;
-
-    public:
-        using AbstractBuffer::data;
-
-    private:
-        u8* m_data;
-        size_t m_size;
+        BufferView() = delete;
+        static bool empty(const RDBufferView* view);
+        static void advance(RDBufferView* view, size_t offset);
+        static u16 crc16(const RDBufferView* view, rd_offset offset, size_t size);
+        static u32 crc32(const RDBufferView* view, rd_offset offset, size_t size);
+        static rd_offset find(const RDBufferView* view, const u8* finddata, size_t findsize);
 };
 

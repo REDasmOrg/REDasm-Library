@@ -2,32 +2,48 @@
 
 #include <unordered_map>
 #include <rdapi/types.h>
+#include "../engine/algorithm/emulateresult.h"
 #include "../containers/sortedcontainer.h"
+#include "../object.h"
 
 typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> AddressContainer;
 
-struct InstructionNetNode {
+struct DocumentNetNode {
     AddressContainer prev;
     rd_address next{RD_NPOS};
 
+    u64 syscall{0};
+    rd_type branchtype{EmulateResult::None};
+
     AddressContainer from;
-    AddressContainer truejumps, falsejumps;
+    AddressContainer branchestrue, branchesfalse;
     AddressContainer calls;
 };
 
-class DocumentNet
+class DocumentNet: public Object
 {
+    private:
+        typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> References;
+        typedef std::unordered_map<rd_address, References> ReferencesMap;
+
     public:
         DocumentNet() = default;
+        void linkSysCall(rd_address address, u64 syscall);
+        void linkBranchIndirect(rd_address address);
+        void linkBranchUnresolved(rd_address address);
         void linkNext(rd_address fromaddress, rd_address toaddress);
-        void unlinkNext(rd_address fromaddress);
-        void linkJump(rd_address fromddress, rd_address toaddress, bool condition);
-        void unlinkJump(rd_address fromaddress, rd_address toaddress);
+        void linkBranch(rd_address fromaddress, rd_address toaddress, rd_type type);
         void linkCall(rd_address fromaddress, rd_address toaddress);
+        void addRef(rd_address fromaddress, rd_address toaddress);
+        void unlinkNext(rd_address fromaddress);
+        void unlinkBranch(rd_address fromaddress, rd_address toaddress);
         void unlinkCall(rd_address fromaddress, rd_address toaddress);
-        const InstructionNetNode* findNode(rd_address address) const;
+        void removeRef(rd_address fromaddress, rd_address toaddress);
+        const DocumentNetNode* findNode(rd_address address) const;
+        size_t getRefs(rd_address address, const rd_address** refs) const;
 
     private:
-        std::unordered_map<rd_address, InstructionNetNode> m_netnodes;
+        std::unordered_map<rd_address, DocumentNetNode> m_netnodes;
+        ReferencesMap m_refs;
 };
 

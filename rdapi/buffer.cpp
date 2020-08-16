@@ -12,8 +12,6 @@ void RDBuffer_Resize(RDBuffer* buffer, size_t size) { CPTR(MemoryBuffer, buffer)
 u16 RDBuffer_CRC16(const RDBuffer* buffer, rd_offset offset, size_t size) { return CPTR(const MemoryBuffer, buffer)->crc16(offset, size); }
 u32 RDBuffer_CRC32(const RDBuffer* buffer, rd_offset offset, size_t size) { return CPTR(const MemoryBuffer, buffer)->crc32(offset, size); }
 
-u8* RDBufferView_Data(RDBufferView* view) { return CPTR(BufferView, view)->data(); }
-size_t RDBufferView_Size(const RDBufferView* view) { return CPTR(const BufferView, view)->size(); }
-rd_offset RDBufferView_Find(const RDBufferView* view, const u8* data, size_t size) { return CPTR(const BufferView, view)->find(data, size); }
-u16 RDBufferView_CRC16(const RDBufferView* view, rd_offset offset, size_t size) { return CPTR(const BufferView, view)->crc16(offset, size); }
-u32 RDBufferView_CRC32(const RDBufferView* view, rd_offset offset, size_t size) { return CPTR(const BufferView, view)->crc32(offset, size); }
+rd_offset RDBufferView_Find(const RDBufferView* view, const u8* data, size_t size) { return BufferView::find(view, data, size); }
+u16 RDBufferView_CRC16(const RDBufferView* view, rd_offset offset, size_t size) { return BufferView::crc16(view, offset, size); }
+u32 RDBufferView_CRC32(const RDBufferView* view, rd_offset offset, size_t size) { return BufferView::crc32(view, offset, size); }

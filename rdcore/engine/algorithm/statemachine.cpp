@@ -13,7 +13,7 @@ void StateMachine::next()
 {
     rd_address address;
     if(!this->getNext(&address)) return;
-    this->decodeAddress(address);
+    this->nextAddress(address);
 }
 
 void StateMachine::enqueue(rd_address address) { m_pending.emplace_front(address); }

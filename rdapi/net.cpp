@@ -1,0 +1,14 @@
+#include "net.h"
+#include <rdcore/document/documentnet.h>
+
+const RDNetNode* RDNet_FindNode(const RDNet* net, rd_address address) { return CPTR(const RDNetNode, CPTR(const DocumentNet, net)->findNode(address)); }
+size_t RDNet_GetRefs(const RDNet* net, rd_address address, const rd_address** refs) { return CPTR(const DocumentNet, net)->getRefs(address, refs); }
+
+rd_address RDNetNode_GetNext(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->next; }
+rd_type RDNetNode_GetBranchType(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->branchtype; }
+u64 RDNetNode_GetSysCall(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->syscall; }
+size_t RDNetNode_GetFrom(const RDNetNode* netnode, const rd_address** from) { return CPTR(const DocumentNetNode, netnode)->from.data(from); }
+size_t RDNetNode_GetPrev(const RDNetNode* netnode, const rd_address** prev) { return CPTR(const DocumentNetNode, netnode)->prev.data(prev); }
+size_t RDNetNode_GetBranchesTrue(const RDNetNode* netnode, const rd_address** branches) { return CPTR(const DocumentNetNode, netnode)->branchestrue.data(branches); }
+size_t RDNetNode_GetBranchesFalse(const RDNetNode* netnode, const rd_address** branches) { return CPTR(const DocumentNetNode, netnode)->branchesfalse.data(branches); }
+size_t RDNetNode_GetCalls(const RDNetNode* netnode, const rd_address** calls) { return CPTR(const DocumentNetNode, netnode)->calls.data(calls); }

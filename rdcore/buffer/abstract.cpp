@@ -22,15 +22,7 @@ bool AbstractBuffer::contains(const u8* ptr) const
 
 bool AbstractBuffer::empty() const { return !this->data() || !this->size(); }
 void AbstractBuffer::fill(u8 val) { std::fill_n(this->data(), this->size(), val); }
+AbstractBuffer::operator bool() const { return !this->empty(); }
 
-u16 AbstractBuffer::crc16(rd_offset offset, size_t size) const
-{
-    if((offset + size) > this->size()) return 0;
-    return Hash::crc16(this->data() + offset, size);
-}
-
-u32 AbstractBuffer::crc32(rd_offset offset, size_t size) const
-{
-    if((offset + size) > this->size()) return 0;
-    return Hash::crc32(this->data() + offset, size);
-}
+u16 AbstractBuffer::crc16(rd_offset offset, size_t size) const { return Utils::crc16(this->data(), this->size(), offset, size); }
+u32 AbstractBuffer::crc32(rd_offset offset, size_t size) const { return Utils::crc32(this->data(), this->size(), offset, size); }

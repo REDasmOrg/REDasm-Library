@@ -23,7 +23,9 @@ void RD_SetIgnoreProblems(bool ignore) { rd_ctx->setIgnoreProblems(ignore);  }
 bool RD_HasProblems(void) { return rd_ctx->hasProblems(); }
 bool RD_IsBusy(void) { return rd_disasm->busy(); }
 
-void RD_SetContextFlags(rd_flag flags) { rd_ctx->setFlags(flags); }
+void RD_InitContextFlags(rd_flag flags) { rd_ctx->initFlags(flags); }
+void RD_SetContextFlags(rd_flag flags, bool set) { rd_ctx->setFlags(flags, set); }
+bool RD_ContextHasFlags(rd_flag flags) { return rd_ctx->hasFlags(flags); }
 rd_flag RD_GetContextFlags(void) { return rd_ctx->flags(); }
 const char* RD_RuntimePath(void) { return rd_ctx->runtimePath(); }
 const char* RD_TempPath(void) { return rd_ctx->tempPath(); }

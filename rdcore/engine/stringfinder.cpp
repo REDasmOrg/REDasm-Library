@@ -10,10 +10,9 @@
 #include <cctype>
 #include <cuchar>
 
-void StringFinder::find(Disassembler* disassembler, const BufferView* inview)
+void StringFinder::find(Disassembler* disassembler, const RDBufferView* inview)
 {
-    BufferView view;
-    inview->copyTo(&view);
+    RDBufferView view = *inview;
     bool hasnext = true;
 
     while(hasnext)
@@ -41,10 +40,10 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
     return res;
 }
 
-bool StringFinder::step(Disassembler* disassembler, BufferView* view)
+bool StringFinder::step(Disassembler* disassembler, RDBufferView* view)
 {
-    if(view->empty()) return false;
-    RDLocation loc = disassembler->loader()->addressof(view->data());
+    if(BufferView::empty(view)) return false;
+    RDLocation loc = disassembler->loader()->addressof(view->data);
     if(!loc.valid) return false;
 
     rd_ctx->status("Searching strings @ " + Utils::hex(loc.value));
@@ -53,31 +52,30 @@ bool StringFinder::step(Disassembler* disassembler, BufferView* view)
     rd_flag flags = StringFinder::categorize(view, &totalsize);
 
     if(StringFinder::checkAndMark(disassembler, loc.address, flags, totalsize))
-        view->advance(totalsize);
+        BufferView::advance(view, totalsize);
     else
-        view->advance(1);
+        BufferView::advance(view, 1);
 
     return true;
 }
 
-rd_flag StringFinder::categorize(const BufferView* view, size_t* totalsize)
+rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
 {
-    if(view->size() < (sizeof(char) * 2)) return SymbolFlags_None;
+    if(view->size < (sizeof(char) * 2)) return SymbolFlags_None;
 
-    char c1 = static_cast<char>(view->at(0));
-    char c2 = static_cast<char>(view->at(1));
+    char c1 = static_cast<char>(view->data[0]);
+    char c2 = static_cast<char>(view->data[1]);
 
     if(StringFinder::isAscii(c1) && !c2)
     {
         std::vector<char> ts;
-        BufferView v;
-        view->copyTo(&v);
-        char16_t wc = *reinterpret_cast<const char16_t*>(v.data());
+        RDBufferView v = *view;
+        char16_t wc = *reinterpret_cast<const char16_t*>(v.data);
         char ch = 0;
 
-        for(size_t i = 0; !v.empty() && wc; i++, v.advance(sizeof(char16_t)))
+        for(size_t i = 0; !BufferView::empty(&v) && wc; i++, BufferView::advance(&v, sizeof(char16_t)))
         {
-            wc = *reinterpret_cast<const char16_t*>(v.data());
+            wc = *reinterpret_cast<const char16_t*>(v.data);
 
             if(StringFinder::toAscii(wc, &ch))
             {
@@ -98,13 +96,13 @@ rd_flag StringFinder::categorize(const BufferView* view, size_t* totalsize)
         }
     }
 
-    for(size_t i = 0; i < view->size(); i++)
+    for(size_t i = 0; i < view->size; i++)
     {
-        if(StringFinder::isAscii(view->at(i))) continue;
+        if(StringFinder::isAscii(view->data[i])) continue;
 
         if(i >= MIN_STRING)
         {
-            if(!StringFinder::validateString(reinterpret_cast<const char*>(view->data()), i - 1))
+            if(!StringFinder::validateString(reinterpret_cast<const char*>(view->data), i - 1))
                 return SymbolFlags_None;
 
             if(totalsize) *totalsize = i;

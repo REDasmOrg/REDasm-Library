@@ -12,7 +12,7 @@
 
 #define DEFAULT_SLEEP_TIME std::chrono::milliseconds(5)
 
-class BufferView;
+struct RDBufferView;
 
 class Utils
 {
@@ -22,9 +22,11 @@ class Utils
     public:
         Utils() = delete;
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
-        static rd_offset findIn(const u8* buffer, size_t buffersize, const u8* data, size_t datasize);
+        static rd_offset findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize);
+        static u16 crc16(const u8* data, size_t datasize, rd_offset offset, size_t size);
+        static u32 crc32(const u8* data, size_t datasize, rd_offset offset, size_t size);
         static inline std::string trampoline(const std::string& s) { return "_" + s; }
-        static std::string hexString(BufferView* view);
+        static std::string hexString(const RDBufferView* view, size_t size = RD_NPOS);
         static std::string toString(const std::u16string& s);
         static std::string quoted(const std::u16string& s);
         static std::string quoted(const std::string& s);

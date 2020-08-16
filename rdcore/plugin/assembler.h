@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rdapi/plugin/assembler.h>
+#include <rdapi/plugin/assembler/assembler.h>
 #include <rdapi/types.h>
 #include <rdapi/rdil.h>
 #include <string>
@@ -9,19 +9,17 @@
 #include "../object.h"
 
 class Disassembler;
+class EmulateResult;
+class ILFunction;
 
 class Assembler: public Object
 {
     public:
         Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler);
-        RDInstruction* emitRDIL(const RDInstruction* instruction, size_t* len);
-        std::string registerName(const RDInstruction* instruction, const RDOperand* op, rd_register_id r) const;
-        bool isStop(const RDInstruction* instruction) const;
-        bool decode(BufferView* view, RDInstruction* instruction) const;
+        void lift(rd_address address, const RDBufferView* view, ILFunction* il) const;
+        bool renderInstruction(RDRenderItemParams* rip);
         bool encode(RDEncodedInstruction* encoded) const;
-        bool render(RDRenderItemParams* rip) const;
-        void emulate(const RDInstruction* instruction);
-        void rdil(const RDInstruction* instruction);
+        void emulate(EmulateResult* result) const;
 
     public:
         const char* id() const;
@@ -29,7 +27,6 @@ class Assembler: public Object
         size_t bits() const;
 
     private:
-        std::array<RDInstruction, RDIL_INSTRUCTION_COUNT> m_rdilres;
         RDAssemblerPlugin* m_passembler;
         Disassembler* m_disassembler;
 };

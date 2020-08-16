@@ -1,9 +1,12 @@
 #pragma once
 
 #include <rdapi/disassembler.h>
+#include <optional>
 #include "../../support/safe_ptr.h"
-#include "../../rdil/ilcpu.h"
 #include "statemachine.h"
+
+class DocumentNet;
+class EmulateResult;
 
 class Algorithm: public StateMachine
 {
@@ -12,32 +15,19 @@ class Algorithm: public StateMachine
 
     public:
         Algorithm(Disassembler* disassembler);
-        bool decodeInstruction(rd_address address, RDInstruction** instruction);
-        void checkOperands(const RDInstruction* instruction);
-        void checkOperand(const RDInstruction* instruction, const RDOperand* operand);
-        bool enqueueAddress(const RDInstruction* instruction, rd_address address);
-        const ILCPU* ilcpu() const;
 
     protected:
-        void decodeAddress(rd_address address) override;
+        void nextAddress(rd_address address) override;
 
     private:
-        size_t decode(rd_address address, RDInstruction* instruction, RDBlock* block);
+        std::optional<rd_address> decodeAddress(rd_address address);
         bool canBeDisassembled(rd_address address, RDBlock* block) const;
-        void decodeFailed(RDInstruction* instruction);
-        void invalidInstruction(RDInstruction* instruction) const;
-
-    private: // Private States
-        void branchMemoryState(const RDInstruction* instruction, rd_address value);
-
-    private:
-        void memoryState(const RDInstruction* instruction, rd_address value);
-        void immediateState(const RDInstruction* instruction, rd_address value);
-        void constantState(const RDInstruction* instruction, rd_address value);
+        rd_address processDelaySlots(rd_address address, size_t ds);
+        void processResult(EmulateResult* result);
+        void processBranches(DocumentNet* net, rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment);
 
     private:
         mutable RDSegment m_currentsegment{ };
-        ILCPU m_ilcpu;
 };
 
 typedef safe_ptr<Algorithm> SafeAlgorithm;

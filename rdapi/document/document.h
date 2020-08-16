@@ -37,7 +37,6 @@ typedef struct RDDocumentItem {
     u16 index;
 } RDDocumentItem;
 
-struct RDInstruction;
 struct RDGraph;
 
 DECLARE_HANDLE(RDDocument);
@@ -53,9 +52,6 @@ RD_API_EXPORT bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address addr
 RD_API_EXPORT bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetFunctionGraph(const RDDocument* d, rd_address address, RDGraph** item);
-RD_API_EXPORT bool RDDocument_PrevInstruction(const RDDocument* d, const RDInstruction* instruction, RDInstruction** previnstruction);
-RD_API_EXPORT bool RDDocument_LockInstruction(const RDDocument* d, rd_address address, RDInstruction** instruction);
-RD_API_EXPORT bool RDDocument_UnlockInstruction(const RDDocument* d, RDInstruction* instruction);
 RD_API_EXPORT bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address);
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address, const char* separator);
@@ -81,7 +77,6 @@ RD_API_EXPORT void RDDocument_AddAutoComment(RDDocument* d, rd_address address, 
 RD_API_EXPORT void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name);
-RD_API_EXPORT void RDDocument_AddInstruction(RDDocument* d, const RDInstruction* instruction);
 RD_API_EXPORT void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT void RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name);

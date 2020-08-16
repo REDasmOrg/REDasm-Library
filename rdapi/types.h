@@ -18,13 +18,9 @@ typedef int16_t  s16;
 typedef int32_t  s32;
 typedef int64_t  s64;
 
-typedef u64 rd_size;
-typedef rd_size rd_location;
+typedef u64 rd_location;
 typedef rd_location rd_address;
 typedef rd_location rd_offset;
-
-typedef u64 rd_instruction_id;
-typedef u64 rd_register_id;
 
 typedef u16 rd_type;
 typedef u16 rd_flag;
@@ -83,114 +79,7 @@ typedef struct RDSegment {
 } RDSegment;
 #pragma pack(pop)
 
-enum RDOperandType {
-    OperandType_Void,
-    OperandType_Constant,               // Simple constant
-    OperandType_Register,               // Register
-    OperandType_Immediate,              // Immediate Value
-    OperandType_Memory,                 // Direct Memory Pointer
-    OperandType_Displacement,           // Indirect Memory Pointer
-    OperandType_Custom        = 0x1000, // Custom Operand
-};
-
-enum RDOperandFlags {
-    OperandFlags_None    = 0,
-    OperandFlags_Virtual = (1 << 0)
-};
-
-#pragma pack(push, 1)
-typedef struct RDOperand {
-    rd_type type;
-    rd_flag flags;
-
-    union {
-        rd_register_id reg;
-        rd_register_id reg1;
-        rd_register_id base;
-    };
-
-    union {
-        rd_register_id index;
-        rd_register_id reg2;
-    };
-
-    union {
-        s64 scale;
-        rd_register_id reg3;
-    };
-
-    union {
-        s64 s_value;
-        s64 displacement;
-
-        u64 u_value;
-        rd_address address;
-        rd_offset offset;
-        rd_register_id reg4;
-    };
-
-    RD_USERDATA_FIELD
-} RDOperand;
-#pragma pack(pop)
-
-enum RDInstructionType {
-    InstructionType_None,
-    InstructionType_Invalid,
-    InstructionType_Ret,
-    InstructionType_Nop,
-    InstructionType_Jump,
-    InstructionType_Call,
-    InstructionType_Add,
-    InstructionType_Sub,
-    InstructionType_Mul,
-    InstructionType_Div,
-    InstructionType_Mod,
-    InstructionType_Lsh,
-    InstructionType_Rsh,
-    InstructionType_And,
-    InstructionType_Or,
-    InstructionType_Xor,
-    InstructionType_Not,
-    InstructionType_Push,
-    InstructionType_Pop,
-    InstructionType_Compare,
-    InstructionType_Load,
-    InstructionType_Store,
-};
-
-enum RDInstructionFlags {
-    InstructionFlags_None,
-    InstructionFlags_Weak        = (1 << 1),
-    InstructionFlags_Conditional = (1 << 2),
-    InstructionFlags_Privileged  = (1 << 3),
-    InstructionFlags_Stop        = (1 << 4),
-};
-
-#pragma pack(push, 1)
-typedef struct RDInstruction {
-    rd_instruction_id id;  // Implementation Specific
-
-    rd_address address;
-    char mnemonic[DEFAULT_NAME_SIZE];
-    rd_type type;
-    rd_flag flags;
-    u32 size;
-    u32 operandscount;
-    RDOperand operands[DEFAULT_CONTAINER_SIZE];
-
-    RD_USERDATA_FIELD
-} RDInstruction;
-#pragma pack(pop)
-
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);
 RD_API_EXPORT bool RDSegment_ContainsAddress(const RDSegment* s, rd_address address);
 RD_API_EXPORT bool RDSegment_ContainsOffset(const RDSegment* s, rd_offset offset);
-RD_API_EXPORT rd_address RDInstruction_NextAddress(const RDInstruction* instruction);
-RD_API_EXPORT RDOperand* RDInstruction_PushOperand(RDInstruction* instruction, rd_type type);
-RD_API_EXPORT RDOperand* RDInstruction_FirstOperand(RDInstruction* instruction);
-RD_API_EXPORT RDOperand* RDInstruction_LastOperand(RDInstruction* instruction);
-RD_API_EXPORT void RDInstruction_ClearOperands(RDInstruction* instruction);
-RD_API_EXPORT void RDInstruction_PopOperand(RDInstruction* instruction, size_t idx);
-RD_API_EXPORT void RDInstruction_SetMnemonic(RDInstruction* instruction, const char* mnemonic);
-RD_API_EXPORT bool RDInstruction_MnemonicIs(const RDInstruction* instruction, const char* mnemonic);

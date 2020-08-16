@@ -1,66 +1,46 @@
 #include "rdil.h"
-#include <rdcore/rdil/ilcpu.h>
+#include <rdcore/builtin/graph/rdilgraph.h>
+#include <rdcore/rdil/ilfunction.h>
 #include <rdcore/disassembler.h>
 
-bool RDILCPU_Read(const RDILCPU* cpu, const RDOperand* op, u64* val) { return CPTR(const ILCPU, cpu)->read(op, val); }
-
-void RDIL_Disassemble(RDDisassembler* d, rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata) { CPTR(Disassembler, d)->disassembleRDIL(startaddress, cbrdil, userdata); }
-
-void RDIL_SetILRegister(RDInstruction* rdil, size_t idx, rd_register_id r)
+RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_address address)
 {
-    if(idx >= DEFAULT_CONTAINER_SIZE) return;
-
-    rdil->operands[idx].type = OperandType_Register;
-    rdil->operands[idx].flags = OperandFlags_Virtual;
-    rdil->operands[idx].reg = r;
+    auto* g = new RDILGraph(CPTR(const Disassembler, disassembler));
+    g->build(address);
+    return CPTR(RDGraph, g);
 }
 
-void RDIL_SetRegister(RDInstruction* rdil, size_t idx, rd_register_id r)
-{
-    if(idx >= DEFAULT_CONTAINER_SIZE) return;
-
-    rdil->operands[idx].type = OperandType_Register;
-    rdil->operands[idx].flags = OperandFlags_None;
-    rdil->operands[idx].reg = r;
-}
-
-void RDIL_SetValue(RDInstruction* rdil, size_t idx, u64 v)
-{
-    if(idx >= DEFAULT_CONTAINER_SIZE) return;
-
-    rdil->operands[idx].type = OperandType_Constant;
-    rdil->operands[idx].flags = OperandFlags_None;
-    rdil->operands[idx].u_value = v;
-}
-
-void RDIL_SetOperand(RDInstruction* rdil, size_t idx, const RDOperand* op)
-{
-    if(idx >= DEFAULT_CONTAINER_SIZE) return;
-
-    rdil->operands[idx] = *op;
-}
-
-void RDIL_EmitUNKNOWN(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Unknown); }
-void RDIL_EmitUNDEF(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Undef); }
-void RDIL_EmitNOP(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Nop); }
-void RDIL_EmitADD(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Add); }
-void RDIL_EmitSUB(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Sub); }
-void RDIL_EmitMUL(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Mul); }
-void RDIL_EmitDIV(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Div); }
-void RDIL_EmitMOD(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Mod); }
-void RDIL_EmitAND(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_And); }
-void RDIL_EmitOR(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Or); }
-void RDIL_EmitXOR(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Xor); }
-void RDIL_EmitNOT(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Not); }
-void RDIL_EmitBSH(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Bsh); }
-void Rdil_EmitBISZ(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Bisz); }
-void RDIL_EmitJMP(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Jmp); }
-void RDIL_EmitJMPZ(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Jz); }
-void RDIL_EmitJMPNZ(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Jnz); }
-void RDIL_EmitCALL(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Call); }
-void RDIL_EmitCALLZ(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Cz); }
-void RDIL_EmitCALLNZ(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Cnz); }
-void RDIL_EmitRET(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Ret); }
-void RDIL_EmitCOPY(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Copy); }
-void RDIL_EmitLOAD(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Load); }
-void RDIL_EmitSTORE(RDInstruction* rdil) { RDIL::emitRDIL(rdil, RDIL_Store); }
+const RDExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx) { return CPTR(const RDExpression, CPTR(const ILFunction, rdilfunction)->expression(idx)); }
+const RDExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction) { return CPTR(const RDExpression, CPTR(const ILFunction, rdilfunction)->first()); }
+const RDExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction) { return CPTR(const RDExpression, CPTR(const ILFunction, rdilfunction)->last()); }
+size_t RDILFunction_Size(const RDILFunction* rdilfunction) { return CPTR(const ILFunction, rdilfunction)->size(); }
+void RDILFunction_Insert(RDILFunction* rdilfunction, size_t idx, RDExpression* expression) { CPTR(ILFunction, rdilfunction)->insert(idx, CPTR(RDILExpression, expression)); }
+void RDILFunction_Append(RDILFunction* rdilfunction, RDExpression* expression) { CPTR(ILFunction, rdilfunction)->append(CPTR(RDILExpression, expression)); }
+RDExpression* RDILFunction_UNKNOWN(const RDILFunction* rdilfunction) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprUNKNOWN()); }
+RDExpression* RDILFunction_NOP(const RDILFunction* rdilfunction) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprNOP());  }
+RDExpression* RDILFunction_POP(const RDILFunction* rdilfunction, RDExpression* e) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprPOP(CPTR(RDILExpression, e))); }
+RDExpression* RDILFunction_PUSH(const RDILFunction* rdilfunction, RDExpression* e) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprPUSH(CPTR(RDILExpression, e))); }
+RDExpression* RDILFunction_VAR(const RDILFunction* rdilfunction, size_t size, const char* name) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprVAR(size, name)); }
+RDExpression* RDILFunction_REG(const RDILFunction* rdilfunction, size_t size, const char* reg) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprREG(size, reg)); }
+RDExpression* RDILFunction_CNST(const RDILFunction* rdilfunction, size_t size, u64 value) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprCNST(size, value)); }
+RDExpression* RDILFunction_ADDR(const RDILFunction* rdilfunction, rd_address address) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprADDR(address)); }
+RDExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprADD(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprSUB(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprMUL(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_DIV(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprDIV(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprAND(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprOR(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprXOR(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_LOAD(const RDILFunction* rdilfunction, RDExpression* memloc) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprLOAD(CPTR(RDILExpression, memloc))); }
+RDExpression* RDILFunction_STORE(const RDILFunction* rdilfunction, RDExpression* dst, RDExpression* src) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprSTORE(CPTR(RDILExpression, dst), CPTR(RDILExpression, src))); }
+RDExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDExpression* dst, RDExpression* src) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprCOPY(CPTR(RDILExpression, dst), CPTR(RDILExpression, src))); }
+RDExpression* RDILFunction_GOTO(const RDILFunction* rdilfunction, RDExpression* e) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprJUMP(CPTR(RDILExpression, e))); }
+RDExpression* RDILFunction_CALL(const RDILFunction* rdilfunction, RDExpression* e) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprCALL(CPTR(RDILExpression, e))); }
+RDExpression* RDILFunction_RET(const RDILFunction* rdilfunction, RDExpression* e) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprRET(CPTR(RDILExpression, e))); }
+RDExpression* RDILFunction_IF(const RDILFunction* rdilfunction, RDExpression* cond, RDExpression* t, RDExpression* f) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprIF(CPTR(RDILExpression, cond), CPTR(RDILExpression, t), CPTR(RDILExpression, f))); }
+RDExpression* RDILFunction_EQ(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprEQ(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_NE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprNE(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_LT(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprLT(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_LE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprLE(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_GT(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprGT(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }
+RDExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r) { return CPTR(RDExpression, CPTR(const ILFunction, rdilfunction)->exprGE(CPTR(RDILExpression, l), CPTR(RDILExpression, r))); }

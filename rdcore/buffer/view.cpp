@@ -1,19 +1,14 @@
 #include "view.h"
+#include <rdcore/support/utils.h>
 
-BufferView::BufferView(): m_data(nullptr), m_size(0) { }
-BufferView::BufferView(u8* data, size_t size): m_data(data), m_size(size) { }
-size_t BufferView::size() const { return m_size; }
-u8* BufferView::data() { return m_data; }
+bool BufferView::empty(const RDBufferView* view) { return !view->data || !view->size; }
 
-BufferView& BufferView::advance(size_t offset)
+void BufferView::advance(RDBufferView* view, size_t offset)
 {
-    m_data += offset;
-    m_size -= offset;
-    return *this;
+    view->data += offset;
+    view->size -= offset;
 }
 
-void BufferView::copyTo(BufferView* dest) const
-{
-    dest->m_data = m_data;
-    dest->m_size = m_size;
-}
+u16 BufferView::crc16(const RDBufferView* view, rd_offset offset, size_t size) { return Utils::crc16(view->data, view->size, offset, size); }
+u32 BufferView::crc32(const RDBufferView* view, rd_offset offset, size_t size) { return Utils::crc32(view->data, view->size, offset, size); }
+rd_offset BufferView::find(const RDBufferView* view, const u8* finddata, size_t findsize) { return Utils::findIn(view->data, view->size, finddata, findsize);  }

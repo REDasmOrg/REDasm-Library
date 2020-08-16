@@ -9,8 +9,6 @@ enum RDEndianness {
     Endianness_Big,
 };
 
-struct RDInstruction;
-
 RD_API_EXPORT const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix);
 RD_API_EXPORT const char* RD_ToHexAuto(size_t value);
 RD_API_EXPORT const char* RD_ToHex(size_t value);

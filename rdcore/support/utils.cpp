@@ -3,29 +3,42 @@
 #include <codecvt>
 #include <cstring>
 #include "../buffer/view.h"
+#include "../support/hash.h"
 
-rd_offset Utils::findIn(const u8* buffer, size_t buffersize, const u8* data, size_t datasize)
+rd_offset Utils::findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize)
 {
-    if(datasize > buffersize) return RD_NPOS;
+    if(finddatasize > datasize) return RD_NPOS;
 
-    for(const u8* p = buffer; buffersize; buffersize--, p++)
+    for(const u8* p = data; datasize; datasize--, p++)
     {
-        if(buffersize < datasize) return RD_NPOS;
-        if(!std::memcmp(p, data, datasize)) return p - buffer;
+        if(datasize < finddatasize) return RD_NPOS;
+        if(!std::memcmp(p, finddata, finddatasize)) return p - data;
     }
 
     return RD_NPOS;
 }
 
-std::string Utils::hexString(BufferView* view)
+u16 Utils::crc16(const u8* data, size_t datasize, rd_offset offset, size_t size)
+{
+    if((offset + size) > datasize) return 0;
+    return Hash::crc16(data + offset, size);
+}
+
+u32 Utils::crc32(const u8* data, size_t datasize, rd_offset offset, size_t size)
+{
+    if((offset + size) > datasize) return 0;
+    return Hash::crc32(data + offset, size);
+}
+
+std::string Utils::hexString(const RDBufferView* view, size_t size)
 {
     std::stringstream ss;
 
-    for(size_t i = 0; i < view->size(); i++)
+    for(size_t i = 0; i < std::min<size_t>(view->size, size); i++)
     {
         ss << std::uppercase << std::setfill('0') <<
               std::setw(2) << std::hex <<
-              static_cast<size_t>(view->at(i));
+              static_cast<size_t>(view->data[i]);
     }
 
     return ss.str();

@@ -149,25 +149,26 @@ void Engine::unexploredStep()
         return;
     }
 
-    m_stepsdone.insert(m_currentstep); // Run this step once
+    this->nextStep();
+    // m_stepsdone.insert(m_currentstep); // Run this step once
 
-    for(size_t i = 0; i < m_disassembler->document()->segmentsCount(); i++)
-    {
-        RDSegment segment;
-        if(!m_disassembler->document()->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
+    // for(size_t i = 0; i < m_disassembler->document()->segmentsCount(); i++)
+    // {
+    //     RDSegment segment;
+    //     if(!m_disassembler->document()->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
 
-        const BlockContainer* bc = m_disassembler->document()->blocks(segment.address);
+    //     const BlockContainer* bc = m_disassembler->document()->blocks(segment.address);
 
-        for(size_t i = 0; i < bc->size(); i++)
-        {
-            const RDBlock& block = bc->at(i);
-            rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->assembler()->bits()));
-            if(IS_TYPE(&block, BlockType_Unexplored)) m_algorithm->enqueue(block.address);
-        }
-    }
+    //     for(size_t i = 0; i < bc->size(); i++)
+    //     {
+    //         const RDBlock& block = bc->at(i);
+    //         rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->assembler()->bits()));
+    //         if(IS_TYPE(&block, BlockType_Unexplored)) m_algorithm->enqueue(block.address);
+    //     }
+    // }
 
-    if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
-    else this->nextStep();
+    // if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
+    // else this->nextStep();
 }
 
 void Engine::cfgStep()

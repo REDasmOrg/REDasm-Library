@@ -18,7 +18,7 @@ class StateMachine
         void next();
 
     private:
-        virtual void decodeAddress(rd_address address) = 0;
+        virtual void nextAddress(rd_address address) = 0;
         bool getNext(rd_address* address);
 
     protected:

@@ -8,22 +8,19 @@ rd_flag RDRenderer_Flags(const RDRenderer* r) { return CPTR(const Renderer, r)->
 const char* RDRenderer_GetWordFromPosition(const RDRenderer* r, const RDCursorPos* pos, RDCursorRange* range) { return CPTR(const Renderer, r)->getWordFromPosition(pos, range).c_str(); }
 const char* RDRenderer_GetCurrentWord(const RDRenderer* r) { return CPTR(const Renderer, r)->getCurrentWord().c_str(); }
 const char* RDRenderer_GetSelectedText(const RDRenderer* r) { return CPTR(const Renderer, r)->getSelectedText().c_str(); }
-const char* RDRenderer_GetInstruction(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getInstruction(address).c_str(); }
+const char* RDRenderer_GetInstructionText(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getInstructionText(address).c_str(); }
 bool RDRenderer_GetSelectedSymbol(const RDRenderer* r, RDSymbol* symbol) { return CPTR(const Renderer, r)->selectedSymbol(symbol); }
-bool RDRenderer_GetItem(const RDRenderer* r, size_t index, RDRendererItem* ritem) { return CPTR(const Renderer, r)->renderItem(index, ritem); }
-void RDRenderer_GetItems(const RDRenderer* r, size_t index, size_t count, Callback_Render render, void* userdata) { return CPTR(const Renderer, r)->render(index, count, render, userdata); }
+bool RDRenderer_GetItem(const RDRenderer* r, size_t index, RDRendererItem* ritem) { return CPTR(const Renderer, r)->renderItem(index, CPTR(RendererItem, ritem)); }
+void RDRenderer_GetItems(const RDRenderer* r, size_t index, size_t count, Callback_Render render, void* userdata) { CPTR(const Renderer, r)->render(index, count, render, userdata); }
 size_t RDRendererItem_GetItemFormats(const RDRendererItem* ritem, const RDRendererFormat** formats) { return CPTR(const RendererItem, ritem)->formats(formats); }
 size_t RDRendererItem_GetDocumentIndex(const RDRendererItem* ritem) { return CPTR(const RendererItem, ritem)->documentIndex(); }
 const char* RDRendererItem_GetItemText(const RDRendererItem* ritem) { return CPTR(const RendererItem, ritem)->text().c_str(); }
-void RDRendererItem_Push(RDRendererItem* ritem, const char* s, const char* fgstyle, const char* bgstyle) { CPTR(RendererItem, ritem)->push(s, fgstyle ? fgstyle : std::string(), bgstyle ? bgstyle : std::string()); }
-void RDRenderer_Prologue(RDRenderItemParams* rip) { Renderer::renderPrologue(rip); }
-void RDRenderer_Address(RDRenderItemParams* rip) { Renderer::renderAddress(rip); }
-void RDRenderer_AddressIndent(RDRenderItemParams* rip) { Renderer::renderAddressIndent(rip); }
-void RDRenderer_Constant(RDRenderItemParams* rip, u64 c) { Renderer::renderConstant(rip, c); }
-void RDRenderer_Immediate(RDRenderItemParams* rip, u64 imm) { Renderer::renderImmediate(rip, imm); }
-void RDRenderer_Register(RDRenderItemParams* rip, const RDOperand* op, rd_register_id r) { Renderer::renderRegister(rip, op, r); }
-void RDRenderer_Mnemonic(RDRenderItemParams* rip) { Renderer::renderMnemonic(rip); }
-void RDRenderer_Operand(RDRenderItemParams* rip, const RDOperand* op) { Renderer::renderOperand(rip, op); }
-void RDRenderer_Text(RDRenderItemParams* rip, const char* s) { Renderer::renderText(rip, s); }
-void RDRenderer_Indent(RDRenderItemParams* rip, size_t n) { Renderer::renderIndent(rip, n); }
+
+void RDRenderer_Indent(const RDRenderItemParams* rip, size_t n) { CPTR(const Renderer, rip->renderer)->renderIndent(CPTR(RendererItem, rip->rendereritem), n); }
+void RDRenderer_HexDump(const RDRenderItemParams* rip, const RDBufferView* view, size_t size) { CPTR(const Renderer, rip->renderer)->renderHexDump(CPTR(RendererItem, rip->rendereritem), view, size); }
+void RDRenderer_Address(const RDRenderItemParams* rip, rd_address address) { CPTR(const Renderer, rip->renderer)->renderAddress(CPTR(RendererItem, rip->rendereritem), address); }
+void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderConstant(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
+void RDRenderer_Mnemonic(const RDRenderItemParams* rip, const char* s, rd_type theme) { CPTR(const Renderer, rip->renderer)->renderMnemonic(CPTR(RendererItem, rip->rendereritem), s ? s : std::string(), theme); }
+void RDRenderer_Register(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderRegister(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
+void RDRenderer_Text(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderText(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
 

@@ -4,6 +4,7 @@
 #include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
+#include <rdapi/theme.h>
 #include <unordered_set>
 #include <stack>
 
@@ -43,14 +44,14 @@ size_t FunctionBasicBlock::itemsCount() const
     return (endidx - startidx) + 1;
 }
 
-const char* FunctionBasicBlock::getStyle(RDGraphNode n) const
+rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
 {
-    auto it = m_styles.find(n);
-    return (it != m_styles.end()) ? it->second.c_str() : nullptr;
+    auto it = m_themes.find(n);
+    return (it != m_themes.end()) ? it->second : Theme_Default;
 }
 
-void FunctionBasicBlock::bFalse(RDGraphNode n) { m_styles[n] = "graph_edge_false"; }
-void FunctionBasicBlock::bTrue(RDGraphNode n) { m_styles[n] = "graph_edge_true"; }
+void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeFalse; }
+void FunctionBasicBlock::bTrue(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeTrue; }
 
 FunctionGraph::FunctionGraph(Disassembler* disassembler): StyledGraph(), m_disassembler(disassembler), m_document(disassembler->document()) { }
 const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
@@ -83,15 +84,7 @@ size_t FunctionGraph::bytesCount() const
         for(size_t i = blocks->indexOf(&startb); i <= blocks->indexOf(&endb); i++)
         {
             const RDBlock& b = blocks->at(i);
-            InstructionLock instruction(CPTR(RDDocument, &m_document), b.start);
-
-            if(!instruction)
-            {
-                rd_ctx->problem("Cannot find intruction @ " + Utils::hex(b.start));
-                continue;
-            }
-
-            c += instruction->size;
+            c += BlockContainer::size(&b);
         }
     }
 
@@ -168,11 +161,11 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
 
         while(link)
         {
-            std::for_each(link->truejumps.begin(), link->truejumps.end(), [&](rd_address jump) {
+            std::for_each(link->branchestrue.begin(), link->branchestrue.end(), [&](rd_address jump) {
                 if(this->isCode(jump)) pending.push(jump);
             });
 
-            std::for_each(link->falsejumps.begin(), link->falsejumps.end(), [&](rd_address jump) {
+            std::for_each(link->branchesfalse.begin(), link->branchesfalse.end(), [&](rd_address jump) {
                 if(this->isCode(jump)) pending.push(jump);
             });
 
@@ -199,7 +192,7 @@ void FunctionGraph::buildBasicBlocks()
             basicblock->endaddress = address;
             auto it = basicblocks.end();
 
-            for(rd_address jmpaddress : link->truejumps)
+            for(rd_address jmpaddress : link->branchestrue)
             {
                 it = basicblocks.find(jmpaddress);
                 if(it == basicblocks.end()) continue;
@@ -208,7 +201,7 @@ void FunctionGraph::buildBasicBlocks()
                 basicblock->bTrue(it->second->node);
             }
 
-            for(rd_address jmpaddress : link->falsejumps)
+            for(rd_address jmpaddress : link->branchesfalse)
             {
                 it = basicblocks.find(jmpaddress);
                 if(it == basicblocks.end()) continue;

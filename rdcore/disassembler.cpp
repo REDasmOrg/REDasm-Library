@@ -6,7 +6,6 @@
 #include "context.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
-#include "rdil/ilcpu.h"
 
 Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler)
 {
@@ -48,12 +47,11 @@ const char* Disassembler::getFunctionHexDump(rd_address address, RDSymbol* symbo
 {
     static std::string hexdump;
 
-    std::unique_ptr<BufferView> view(this->getFunctionBytes(address));
-    if(!view) return nullptr;
-
+    RDBufferView view;
+    if(!this->getFunctionBytes(address, &view)) return nullptr;
     if(symbol && !this->document()->symbol(address, symbol)) return nullptr;
 
-    hexdump = Utils::hexString(view.get());
+    hexdump = Utils::hexString(&view);
     return hexdump.c_str();
 }
 
@@ -61,10 +59,10 @@ const char* Disassembler::getHexDump(rd_address address, size_t size) const
 {
     static std::string hexdump;
 
-    std::unique_ptr<BufferView> view(m_loader->view(address, size));
-    if(!view) return nullptr;
+    RDBufferView view;
+    if(!m_loader->view(address, size, &view)) return nullptr;
 
-    hexdump = Utils::hexString(view.get());
+    hexdump = Utils::hexString(&view);
     return hexdump.c_str();
 }
 
@@ -83,111 +81,11 @@ std::string Disassembler::readString(rd_address address, size_t len) const
     return s ? std::string(s, len) : std::string();
 }
 
-RDInstruction* Disassembler::emitRDIL(const RDInstruction* instruction, size_t* len) { return m_assembler->emitRDIL(instruction, len); }
-
-void Disassembler::disassembleRDIL(rd_address startaddress, Callback_DisassembleRDIL cbrdil, void* userdata)
-{
-    auto graph = this->document()->graph(startaddress);
-    if(!graph) return;
-
-    const RDGraphNode* nodes = nullptr;
-    size_t c = graph->nodes(&nodes);
-
-    for(size_t i = 0; i < c; i++)
-    {
-        const auto* fbb = reinterpret_cast<const FunctionBasicBlock*>(graph->data(nodes[i])->p_data);
-        if(!fbb) return;
-
-        for(rd_address address = fbb->startaddress; address <= fbb->endaddress; )
-        {
-            RDInstruction* instruction;
-
-            if(!this->document()->lockInstruction(address, &instruction)) return;
-
-            size_t len = 0;
-            RDInstruction* rdil = m_assembler->emitRDIL(instruction, &len);
-
-            for(size_t j = 0; j < len; j++)
-            {
-                RDILDisassembled rdildisasm{ };
-                std::string s = ILCPU::disasm(this, &rdil[j], instruction);
-                std::copy_n(s.begin(), std::min<size_t>(DEFAULT_FULL_NAME_SIZE, s.size()), rdildisasm.result);
-
-                rdildisasm.rdil = rdil[j];
-                rdildisasm.address = instruction->address;
-                rdildisasm.index = j;
-
-                cbrdil(&rdildisasm, userdata);
-            }
-
-            address += instruction->size;
-            this->document()->unlockInstruction(instruction);
-        }
-    }
-}
-
-const ILCPU* Disassembler::ilcpu() const { return m_algorithm->ilcpu(); }
-bool Disassembler::decode(rd_address address, RDInstruction** instruction) { return m_algorithm->decodeInstruction(address, instruction); }
-void Disassembler::checkOperands(const RDInstruction* instruction) { m_algorithm->checkOperands(instruction); }
-void Disassembler::checkOperand(const RDInstruction* instruction, const RDOperand* op) { m_algorithm->checkOperand(instruction, op); }
-
-void Disassembler::enqueueAddress(rd_address address, const RDInstruction* instruction)
-{
-    if(!instruction) return;
-
-    if(m_algorithm->enqueueAddress(instruction, address))
-        m_net.linkNext(instruction->address, address);
-}
-
-void Disassembler::forkBranch(rd_address address, const RDInstruction* instruction)
-{
-    if(!instruction) return;
-
-    if(m_algorithm->enqueueAddress(instruction, address))
-        this->pushTarget(address, instruction->address, instruction->type, true);
-}
-
-void Disassembler::forkContinue(rd_address address, const RDInstruction* frominstruction)
-{
-    m_algorithm->enqueue(address);
-
-    if(!frominstruction) return;
-    if(IS_TYPE(frominstruction, InstructionType_Jump)) m_net.linkJump(frominstruction->address, address, false);
-    else if(IS_TYPE(frominstruction, InstructionType_Call)) m_net.linkCall(frominstruction->address, address);
-}
-
-void Disassembler::next(const RDInstruction* frominstruction)
-{
-    rd_address address = Sugar::nextAddress(frominstruction);
-    m_algorithm->enqueue(address);
-
-    if(frominstruction)
-        m_net.linkNext(frominstruction->address, address);
-}
-
 size_t Disassembler::getReferences(rd_address address, const rd_address** references) const { return m_references.references(address, references); }
 size_t Disassembler::getTargets(rd_address address, const rd_address** targets) const { return m_references.targets(address, targets); }
 RDLocation Disassembler::getTarget(rd_address address) const { return m_references.target(address); }
 size_t Disassembler::getTargetsCount(rd_address address) const { return m_references.targetsCount(address); }
 size_t Disassembler::getReferencesCount(rd_address address) const { return m_references.referencesCount(address); }
-void Disassembler::pushReference(rd_address address, rd_address refby) { m_references.pushReference(address, refby); }
-void Disassembler::popReference(rd_address address, rd_address refby) { m_references.popReference(address, refby); }
-
-void Disassembler::pushTarget(rd_address address, rd_address refby, rd_type type, bool condition)
-{
-    m_references.pushTarget(address, refby);
-
-    if(type == InstructionType_Jump) m_net.linkJump(refby, address, condition);
-    else if(type == InstructionType_Call) m_net.linkCall(refby, address);
-}
-
-void Disassembler::popTarget(rd_address address, rd_address refby, rd_type type)
-{
-    m_references.popTarget(address, refby);
-
-    if(type == InstructionType_Jump) m_net.unlinkJump(refby, address);
-    else if(type == InstructionType_Call) m_net.unlinkCall(refby, address);
-}
 
 RDLocation Disassembler::dereference(rd_address address) const
 {
@@ -196,157 +94,142 @@ RDLocation Disassembler::dereference(rd_address address) const
     return loc;
 }
 
-rd_type Disassembler::markLocation(rd_address address, rd_address fromaddress)
+void Disassembler::markLocation(rd_address fromaddress, rd_address address)
 {
-    if(!this->document()->segment(address, nullptr)) return SymbolType_None;
+    if(!this->document()->segment(address, nullptr)) return;
 
-    rd_type type = SymbolType_Data;
-    RDSymbol symbol;
-
-    if(!this->document()->symbol(address, &symbol))
+    if(this->document()->symbol(address, nullptr))
     {
-        std::unique_ptr<BufferView> view(m_loader->view(address));
-        if(!view) return SymbolType_None;
+        m_net.addRef(fromaddress, address); // Just add the reference
+        return;
+    }
 
+    RDBufferView view;
+
+    if(m_loader->view(address, &view))
+    {
         size_t totalsize = 0;
-        rd_flag flags = StringFinder::categorize(view.get(), &totalsize);
+        rd_flag flags = StringFinder::categorize(&view, &totalsize);
 
         if(StringFinder::checkAndMark(this, address, flags, totalsize))
         {
-            if(flags & SymbolFlags_AsciiString)
-            {
-                this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
-                type = SymbolType_String;
-            }
-            else if(flags & SymbolFlags_WideString)
-            {
-                this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
-                type = SymbolType_String;
-            }
-            else
-                REDasmError("Unhandled String symbol", address);
+            if(flags & SymbolFlags_AsciiString) this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+            else if(flags & SymbolFlags_WideString) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+            else REDasmError("Unhandled String symbol", address);
         }
         else
         {
             RDLocation loc = this->dereference(address);
-
-            if(loc.valid && this->document()->symbol(loc.address, nullptr))
-                this->markPointer(address, fromaddress); // It points to another symbol
-            else
-                this->document()->data(address, m_assembler->addressWidth(), std::string());
+            if(loc.valid && this->document()->symbol(loc.address, nullptr)) this->markPointer(address, fromaddress); // It points to another symbol
+            else this->document()->data(address, m_assembler->addressWidth(), std::string());
         }
     }
-    else
-        type = symbol.type;
+    else // This address belongs to a memory mapped only area
+        this->document()->data(address, m_assembler->addressWidth(), std::string());
 
-    this->pushReference(address, fromaddress);
-    return type;
+    m_net.addRef(fromaddress, address);
 }
 
 rd_type Disassembler::markPointer(rd_address address, rd_address fromaddress)
 {
-    RDLocation loc = this->dereference(address);
-    if(!loc.valid) return this->markLocation(address, fromaddress);
+    // RDLocation loc = this->dereference(address);
+    // if(!loc.valid) return this->markLocation(address, fromaddress);
 
-    this->document()->pointer(address, SymbolType_Data, std::string());
+    // this->document()->pointer(address, SymbolType_Data, std::string());
 
-    RDSymbol symbol;
-    if(!this->document()->symbol(loc.address, &symbol)) return SymbolType_None;
+    // RDSymbol symbol;
+    // if(!this->document()->symbol(loc.address, &symbol)) return SymbolType_None;
 
-    const char* symbolname = this->document()->name(symbol.address);
-    if(!symbolname) return SymbolType_None;
+    // const char* symbolname = this->document()->name(symbol.address);
+    // if(!symbolname) return SymbolType_None;
 
-    if(IS_TYPE(&symbol, SymbolType_String))
-    {
-        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
-        else this->document()->autoComment(fromaddress, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
-    }
-    else if(HAS_FLAG(&symbol, SymbolType_Import))
-        this->document()->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
-    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
-        this->document()->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
-    else
-        return SymbolType_None;
+    // if(IS_TYPE(&symbol, SymbolType_String))
+    // {
+    //     if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
+    //     else this->document()->autoComment(fromaddress, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
+    // }
+    // else if(HAS_FLAG(&symbol, SymbolType_Import))
+    //     this->document()->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
+    // else if(HAS_FLAG(&symbol, SymbolFlags_Export))
+    //     this->document()->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
+    // else
+    //     return SymbolType_None;
 
-    this->pushReference(loc.address, fromaddress);
+    // this->pushReference(loc.address, fromaddress);
     return SymbolType_Data;
 }
 
 size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, size_t count)
 {
-    rd_ctx->statusAddress("Checking address table", startaddress);
+    return 0;
+    // rd_ctx->statusAddress("Checking address table", startaddress);
 
-    RDSymbol symbol;
-    if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
+    // RDSymbol symbol;
+    // if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
 
-    rd_address address = startaddress;
-    std::deque<rd_address> targets;
+    // rd_address address = startaddress;
+    // std::deque<rd_address> targets;
 
-    for(size_t i = 0 ; i < count; i++, address += m_assembler->addressWidth())
-    {
-        RDLocation loc = this->dereference(address);
-        if(!loc.valid) break;
+    // for(size_t i = 0 ; i < count; i++, address += m_assembler->addressWidth())
+    // {
+    //     RDLocation loc = this->dereference(address);
+    //     if(!loc.valid) break;
 
-        rd_type currsymboltype = this->markLocation(loc.address, address);
-        if(currsymboltype == SymbolType_None) break;
+    //     rd_type currsymboltype = this->markLocation(loc.address, address);
+    //     if(currsymboltype == SymbolType_None) break;
 
-        this->pushReference(address, fromaddress);
-        targets.push_back(loc.address);
-    }
+    //     this->pushReference(address, fromaddress);
+    //     targets.push_back(loc.address);
+    // }
 
-    if(targets.size() > 1)
-    {
-        size_t i = 0;
+    // if(targets.size() > 1)
+    // {
+    //     size_t i = 0;
 
-        for(rd_address target : targets)
-        {
-            this->document()->tableItem(target, startaddress, i++);
-            this->pushReference(target, fromaddress);
-        }
-    }
-    else if(targets.size() == 1)
-    {
-        this->document()->pointer(targets.front(), SymbolType_Data, std::string());
-        this->pushReference(targets.front(), fromaddress);
-    }
-    else
-        return 0;
+    //     for(rd_address target : targets)
+    //     {
+    //         this->document()->tableItem(target, startaddress, i++);
+    //         this->pushReference(target, fromaddress);
+    //     }
+    // }
+    // else if(targets.size() == 1)
+    // {
+    //     this->document()->pointer(targets.front(), SymbolType_Data, std::string());
+    //     this->pushReference(targets.front(), fromaddress);
+    // }
+    // else
+    //     return 0;
 
-    this->document()->pointer(startaddress, SymbolType_Data, std::string());
-    return targets.size();
+    // this->document()->pointer(startaddress, SymbolType_Data, std::string());
+    // return targets.size();
 }
 
-void Disassembler::unlinkNext(rd_address address) { m_net.unlinkNext(address); }
-bool Disassembler::decode(BufferView* view, RDInstruction* instruction) const { return m_assembler->decode(view, instruction); }
-void Disassembler::emulate(const RDInstruction* instruction) { m_assembler->emulate(instruction); }
-void Disassembler::rdil(const RDInstruction* instruction) { m_assembler->rdil(instruction); }
-std::string Disassembler::registerName(const RDInstruction* instruction, const RDOperand* op, rd_register_id r) const { return m_assembler->registerName(instruction, op, r); }
 bool Disassembler::encode(RDEncodedInstruction* encoded) const { return m_assembler->encode(encoded); }
 
 bool Disassembler::readAddress(rd_address address, size_t size, u64* value) const
 {
-    std::unique_ptr<BufferView> view(m_loader->view(address));
-    if(!view) return false;
+    RDBufferView view;
+    if(!m_loader->view(address, &view)) return false;
 
     switch(size)
     {
-        case 1:  if(value) *value = *reinterpret_cast<u8*>(view->data());  break;
-        case 2:  if(value) *value = *reinterpret_cast<u16*>(view->data()); break;
-        case 4:  if(value) *value = *reinterpret_cast<u32*>(view->data()); break;
-        case 8:  if(value) *value = *reinterpret_cast<u64*>(view->data()); break;
+        case 1:  if(value) *value = *reinterpret_cast<u8*>(view.data);  break;
+        case 2:  if(value) *value = *reinterpret_cast<u16*>(view.data); break;
+        case 4:  if(value) *value = *reinterpret_cast<u32*>(view.data); break;
+        case 8:  if(value) *value = *reinterpret_cast<u64*>(view.data); break;
         default: rd_ctx->problem("Invalid size: " + Utils::number(size)); return false;
     }
 
     return true;
 }
 
-BufferView* Disassembler::getFunctionBytes(rd_address& address) const
+bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const
 {
     RDLocation loc = this->document()->functionStart(address);
-    if(!loc.valid) return nullptr;
+    if(!loc.valid) return { };
 
     const auto* graph = this->document()->graph(loc.address);
-    if(!graph) return nullptr;
+    if(!graph) return { };
 
     const RDGraphNode* nodes = nullptr;
     size_t c = graph->nodes(&nodes);
@@ -356,7 +239,7 @@ BufferView* Disassembler::getFunctionBytes(rd_address& address) const
     for(size_t i = 0; i < c; i++)
     {
         const auto* fbb = reinterpret_cast<const FunctionBasicBlock*>(graph->data(nodes[i])->p_data);
-        if(!fbb) return nullptr;
+        if(!fbb) return { };
 
         if(IS_TYPE(&startitem, DocumentItemType_None) || (startitem.address > fbb->startaddress))
         {
@@ -369,12 +252,14 @@ BufferView* Disassembler::getFunctionBytes(rd_address& address) const
         }
     }
 
-    if(IS_TYPE(&startitem, DocumentItemType_None) || IS_TYPE(&enditem, DocumentItemType_None)) return nullptr;
+    if(IS_TYPE(&startitem, DocumentItemType_None) || IS_TYPE(&enditem, DocumentItemType_None)) return { };
 
     address = loc.address;
-    return this->loader()->view(startitem.address, (enditem.address - startitem.address) + 1);
+    return this->loader()->view(startitem.address, (enditem.address - startitem.address) + 1, view);
 }
 
 SafeDocument& Disassembler::document() const { return m_loader->document(); }
 const DocumentNet* Disassembler::net() const { return &m_net; }
+DocumentNet* Disassembler::net() { return &m_net; }
 MemoryBuffer* Disassembler::buffer() const { return m_loader->buffer(); }
+bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return m_loader->view(address, size, view); }

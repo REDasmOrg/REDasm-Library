@@ -1,84 +1,168 @@
 #include "rdil.h"
-#include "../support/utils.h"
-#include "../support/sugar.h"
-#include "../disassembler.h"
-#include "isa.h"
+#include "../renderer/renderer.h"
+#include "../context.h"
+#include <unordered_map>
 
-std::string RDIL::disasm(const Disassembler* disassembler, const RDInstruction* rdil, const RDInstruction* instruction)
+#define RDIL_N(x) {x, #x}
+
+const char* RDIL::getOpName(rd_type t)
 {
-    if(rdil->id >= RDILOpcodes.size()) return std::string();
+    static std::unordered_map<rd_type, const char*> NAMES = {
+        RDIL_N(RDIL_Unknown), RDIL_N(RDIL_Nop),
+        RDIL_N(RDIL_Reg), RDIL_N(RDIL_Cnst), RDIL_N(RDIL_Addr), RDIL_N(RDIL_Var),
+        RDIL_N(RDIL_Add), RDIL_N(RDIL_Sub), RDIL_N(RDIL_Mul), RDIL_N(RDIL_Div),
+        RDIL_N(RDIL_And), RDIL_N(RDIL_Or), RDIL_N(RDIL_Xor), RDIL_N(RDIL_Not),
+        RDIL_N(RDIL_Load), RDIL_N(RDIL_Store), RDIL_N(RDIL_Copy),
+        RDIL_N(RDIL_Goto), RDIL_N(RDIL_Call), RDIL_N(RDIL_Ret),
+        RDIL_N(RDIL_If), RDIL_N(RDIL_Eq), RDIL_N(RDIL_Ne),
+        RDIL_N(RDIL_Push), RDIL_N(RDIL_Pop)
+    };
 
-    auto& opcode = RDILOpcodes[rdil->id];
-
-    std::stringstream ss;
-    ss << opcode.mnemonic << " ";
-
-    for(size_t i = 0; i < opcode.operandscount; i++)
-        RDIL::darg(ss, rdil->operands[i], instruction, disassembler, i);
-
-    return ss.str();
+    auto it = NAMES.find(t);
+    return (it != NAMES.end()) ? it->second : "???";
 }
 
-void RDIL::emitRDIL(RDInstruction* rdil, rd_instruction_id id)
+void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
 {
-    auto& opcode = RDILOpcodes[id];
-
-    rdil->operandscount = opcode.operandscount;
-    rdil->id = id;
-    rdil->type = opcode.type;
-    rdil->flags = opcode.flags;
-
-    for(size_t i = 0; i < opcode.operandscount; i++)
+    switch(e->rdil)
     {
-        auto& optype = opcode.operands[i];
-        rdil->operands[i].type = optype;
+        case RDIL_Copy:
+            RDIL::render(e->dst, renderer, ritem, address);
+            renderer->renderText(ritem, " = ");
+            RDIL::render(e->src, renderer, ritem, address);
+            break;
 
-        if(optype == OperandType_Register)
-            rdil->operands[i].reg = RD_NREG;
+        case RDIL_Call:
+            RDIL::render(e->e, renderer, ritem, address);
+            renderer->renderText(ritem, "()");
+            break;
+
+        case RDIL_Goto:
+            renderer->renderMnemonic(ritem, "goto ", Theme_Jump);
+            RDIL::render(e->e, renderer, ritem, address);
+            break;
+
+        case RDIL_Load:
+            renderer->renderText(ritem, "[");
+            RDIL::render(e->e, renderer, ritem, address);
+            renderer->renderText(ritem, "]");
+            break;
+
+        case RDIL_Push:
+            renderer->renderMnemonic(ritem, "push", Theme_Default);
+            renderer->renderText(ritem, "(");
+            RDIL::render(e->e, renderer, ritem, address);
+            renderer->renderText(ritem, ")");
+            break;
+
+        case RDIL_Pop:
+            RDIL::render(e->e, renderer, ritem, address);
+            renderer->renderText(ritem, " = ");
+            renderer->renderMnemonic(ritem, "pop()", Theme_Default);
+            break;
+
+        case RDIL_Add:
+        case RDIL_Sub:
+        case RDIL_Mul:
+        case RDIL_Div:
+        case RDIL_And:
+        case RDIL_Or:
+        case RDIL_Xor:
+        case RDIL_Eq:
+        case RDIL_Ne:
+        case RDIL_Lt:
+        case RDIL_Le:
+        case RDIL_Gt:
+        case RDIL_Ge:
+            RDIL::wrap(e->left, renderer, ritem, address);
+            renderer->renderText(ritem, RDIL::textOp(e));
+            RDIL::render(e->right, renderer, ritem, address);
+            break;
+
+        case RDIL_If:
+            renderer->renderMnemonic(ritem, "if", Theme_Default);
+            renderer->renderText(ritem, "(");
+            RDIL::render(e->cond, renderer, ritem, address);
+            renderer->renderText(ritem, ") ");
+            RDIL::render(e->t, renderer, ritem, address);
+            renderer->renderText(ritem, " else ");
+            RDIL::render(e->f, renderer, ritem, address);
+            break;
+
+        case RDIL_Ret:
+            renderer->renderMnemonic(ritem, "ret", Theme_Ret);
+            renderer->renderText(ritem, "(");
+            RDIL::render(e->cond, renderer, ritem, address);
+            renderer->renderText(ritem, ")");
+            break;
+
+        case RDIL_Cnst:
+            renderer->renderConstant(ritem, Utils::hex(e->u_value, e->size * CHAR_BIT));
+            break;
+
+        case RDIL_Unknown:
+            renderer->renderMnemonic(ritem, "unknown ", Theme_Default);
+            renderer->renderText(ritem, "{");
+            renderer->renderAssemblerInstruction(address, ritem);
+            renderer->renderText(ritem, "}");
+            break;
+
+        case RDIL_Addr: renderer->renderAddress(ritem, e->u_value); break;
+        case RDIL_Var: renderer->renderText(ritem, e->var, Theme_Symbol); break;
+        case RDIL_Reg: renderer->renderRegister(ritem, e->reg); break;
+        case RDIL_Nop: renderer->renderMnemonic(ritem, "nop ", Theme_Nop); break;
+        default: renderer->renderText(ritem, "???"); break;
     }
-
-    Sugar::setMnemonic(rdil, opcode.mnemonic);
 }
 
-void RDIL::darg(std::stringstream& ss, const RDOperand& op, const RDInstruction* instruction, const Disassembler* disassembler, size_t idx)
+std::string RDIL::textOp(const RDILExpression* e)
 {
-    if(IS_TYPE(&op, OperandType_Void)) return;
-    if(idx) ss << ", ";
-
-    switch(op.type)
+    switch(e->rdil)
     {
-        case OperandType_Register:
-            if(HAS_FLAG(&op, OperandFlags_Virtual)) {
-                if(op.reg < RDILRegisters.size()) ss << RDILRegisters[op.reg];
-                else ss << "$" << op.reg;
-            }
-            else ss << disassembler->registerName(instruction, &op, op.reg);
-            break;
-
-        case OperandType_Constant:
-        case OperandType_Immediate:
-            ss << Utils::hex(op.u_value);
-            break;
-
-        case OperandType_Memory:
-            ss << "[" <<  Utils::hex(op.u_value) << "]";
-            break;
-
-        case OperandType_Displacement:
-            ss << "[" << disassembler->registerName(instruction, &op, op.base);
-
-            if(op.index != RD_NREG) {
-                ss << "+" << disassembler->registerName(instruction, &op, op.index);
-                if(op.scale > 1) ss << "*" << op.scale;
-            }
-
-            if(op.displacement < 0)  ss << "-" << Utils::hex(op.displacement);
-            else if(op.displacement > 0) ss << "+" << Utils::hex(op.displacement);
-            ss << "]";
-            break;
-
-        default:
-            ss << "???";
-            break;
+        case RDIL_Add: return " + ";
+        case RDIL_Sub: return " - ";
+        case RDIL_Mul: return " * ";
+        case RDIL_Div: return " / ";
+        case RDIL_And: return " & ";
+        case RDIL_Or:  return " | ";
+        case RDIL_Xor: return " ^ ";
+        case RDIL_Eq:  return " == ";
+        case RDIL_Ne:  return " != ";
+        case RDIL_Lt:  return " < ";
+        case RDIL_Le:  return " <= ";
+        case RDIL_Gt:  return " > ";
+        case RDIL_Ge:  return " >= ";
+        default: break;
     }
+
+    return "???";
+}
+
+bool RDIL::isLeaf(const RDILExpression* e)
+{
+    switch(e->rdil)
+    {
+        case RDIL_Var:
+        case RDIL_Reg:
+        case RDIL_Cnst:
+        case RDIL_Addr:
+            return true;
+
+        default: break;
+    }
+
+    return false;
+}
+
+void RDIL::wrap(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
+{
+    if(RDIL::isLeaf(e))
+    {
+        RDIL::render(e, renderer, ritem, address);
+        return;
+    }
+
+    renderer->renderText(ritem, "(");
+    RDIL::render(e, renderer, ritem, address);
+    renderer->renderText(ritem, ")");
 }

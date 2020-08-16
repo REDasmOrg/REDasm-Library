@@ -1,20 +1,25 @@
 #pragma once
 
 #include <rdapi/rdil.h>
-#include <sstream>
+#include <functional>
 #include <string>
+#include "expressions.h"
 
-class Disassembler;
+class RendererItem;
+class Renderer;
 
 class RDIL
 {
+    private:
+        typedef std::function<void(const RDILExpression*)> WalkCallback;
+
     public:
-        RDIL() = default;
-        static const char* mnemonic(rd_instruction_id id);
-        static std::string disasm(const Disassembler* disassembler, const RDInstruction* rdil, const RDInstruction* instruction);
-        static void emitRDIL(RDInstruction* rdil, rd_instruction_id id);
+        RDIL() = delete;
+        static const char* getOpName(rd_type t);
+        static void render(const RDILExpression* expr, const Renderer* renderer, RendererItem* ritem, rd_address address);
+        static bool isLeaf(const RDILExpression* e);
 
     private:
-        static void darg(std::stringstream& ss, const RDOperand& op, const RDInstruction* instruction, const Disassembler* disassembler, size_t idx);
+        static std::string textOp(const RDILExpression* e);
+        static void wrap(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address);
 };
-

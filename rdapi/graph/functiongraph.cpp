@@ -28,7 +28,7 @@ rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph)
     return fg ? fg->startAddress() : 0;
 }
 
-const char* RDFunctionBasicBlock_GetStyle(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getStyle(node); }
+rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getTheme(node); }
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startIndex(); }
 size_t RDFunctionBasicBlock_GetEndIndex(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endIndex(); }

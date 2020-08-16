@@ -14,6 +14,7 @@ class AbstractBuffer: public Object
         bool contains(const u8* ptr) const;
         bool empty() const;
         void fill(u8 val);
+        operator bool() const;
 
     public: // Hashing
         u16 crc16(rd_offset offset, size_t size) const;

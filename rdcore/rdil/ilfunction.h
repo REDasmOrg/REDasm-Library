@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rdapi/types.h>
+#include <forward_list>
 #include <vector>
 #include "expressions.h"
 
@@ -52,6 +53,7 @@ class ILFunction
         RDILExpression* exprGE(RDILExpression* l, RDILExpression* r) const;
 
     private:
+        RDILExpression* check(RDILExpression* e) const;
         RDILExpression* exprVALUE_P(rd_type rdil, size_t size, uintptr_t value) const;
         RDILExpression* exprVALUE(rd_type rdil, size_t size, u64 value) const;
         RDILExpression* exprLR(rd_type rdil, size_t size, RDILExpression* l, RDILExpression* r) const;
@@ -61,6 +63,7 @@ class ILFunction
         RDILExpression* expr(rd_type rdil) const;
 
     private:
-        std::vector<RDILExpressionPtr> m_expressions;
+        std::vector<RDILExpression*> m_expressions;
+        mutable std::forward_list<RDILExpressionPtr> m_pool;
         const Disassembler* m_disassembler;
 };

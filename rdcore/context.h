@@ -8,9 +8,11 @@
 #include <rdapi/context.h>
 #include <rdapi/ui.h>
 #include <rdapi/plugin/loader.h>
-#include <rdapi/plugin/assembler/assembler.h>
+#include <rdapi/plugin/analyzer.h>
 #include <rdapi/plugin/command.h>
+#include <rdapi/plugin/assembler/assembler.h>
 #include "plugin/interface/pluginmanager.h"
+#include "containers/sortedcontainer.h"
 #include "object.h"
 
 template<typename Callback>
@@ -19,6 +21,9 @@ struct CallbackStruct
     Callback callback{nullptr};
     void* userdata{nullptr};
 };
+
+struct AnalyzerSorter { bool operator ()(const RDAnalyzerPlugin* a1, const RDAnalyzerPlugin* a2) const { return a1->priority > a2->priority; } };
+struct AnalyzerEquals { bool operator ()(const RDAnalyzerPlugin* a1, const RDAnalyzerPlugin* a2) const { return a1->execute == a2->execute; } };
 
 struct ThemeColors {
     std::string fg{"#000000"}, bg{"#ffffff"}, seek, comment, meta;
@@ -40,6 +45,7 @@ class Context: public Object
         typedef std::unordered_set<std::string> StringSet;
         typedef std::unordered_map<const RDLoaderPlugin*, const char*> LoaderToAssemblerMap;
         typedef std::unordered_map<std::string, RDPluginHeader*> PluginMap;
+        typedef SortedContainer<RDAnalyzerPlugin*, AnalyzerSorter, AnalyzerEquals, true> AnalyzerList;
         using log_lock = std::scoped_lock<std::mutex>;
 
     public:
@@ -56,6 +62,7 @@ class Context: public Object
         void setProgressCallback(RD_ProgressCallback callback, void* userdata);
         void setTheme(rd_type theme, const char* color);
         const char* getTheme(rd_type theme) const;
+        const AnalyzerList& selectedAnalyzers() const;
 
     public:
         void statusProgress(const char* s, size_t progress) const;
@@ -66,13 +73,16 @@ class Context: public Object
     public: // Plugin
         bool registerPlugin(RDLoaderPlugin* ploader);
         bool registerPlugin(RDAssemblerPlugin* passembler);
+        bool registerPlugin(RDAnalyzerPlugin* panalyzer);
         bool registerPlugin(RDCommandPlugin* pcommand);
         bool commandExecute(const char* command, const RDArguments* arguments);
+        void getAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler, Callback_AnalyzerPlugin callback, void* userdata);
         void getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
         void getAssemblers(Callback_AssemblerPlugin callback, void* userdata);
         const char* getAssemblerId(const RDLoaderPlugin* ploader) const;
         RDAssemblerPlugin* getAssembler(const RDLoaderPlugin* ploader) const;
         RDAssemblerPlugin* findAssembler(const char* id) const;
+        void selectAnalyzer(RDAnalyzerPlugin* panalyzer, bool selected);
 
     public:
         static Context* instance();
@@ -103,13 +113,15 @@ class Context: public Object
         static const char* themeAlt(const std::string& color, const std::string& altcolor);
         static void initPlugin(RDPluginHeader* plugin);
         bool registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap);
+        void initBuiltins();
 
     private:
         Disassembler* m_disassembler{nullptr};
         rd_flag m_flags{ContextFlag_None};
         PluginManager m_pluginmanager;
-        PluginMap m_loaders, m_assemblers, m_commands;
+        PluginMap m_loaders, m_assemblers, m_analyzers, m_commands;
         LoaderToAssemblerMap m_loadertoassembler;
+        AnalyzerList m_selectedanalyzers;
         CallbackStruct<RD_LogCallback> m_logcallback;
         CallbackStruct<RD_StatusCallback> m_statuscallback;
         CallbackStruct<RD_ProgressCallback> m_progresscallback;

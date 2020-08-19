@@ -37,7 +37,7 @@ void RDILGraph::generate(const ILFunction* il)
 RDGraphNode RDILGraph::generate(const RDILExpression* e, RDGraphNode parentnode)
 {
     RDGraphNode n = this->pushNode();
-    this->setData(n, RDIL::getOpName(e->rdil));
+    this->setData(n, RDIL::getOpName(e->type));
     if(parentnode != RD_NPOS) this->pushEdge(parentnode, n);
 
     if(RDIL::isLeaf(e))
@@ -45,7 +45,7 @@ RDGraphNode RDILGraph::generate(const RDILExpression* e, RDGraphNode parentnode)
         RDGraphNode l = this->pushNode();
         this->pushEdge(n, l);
 
-        switch(e->rdil)
+        switch(e->type)
         {
             case RDIL_Cnst:
                 m_strings.push_back(Utils::hex(e->u_value));

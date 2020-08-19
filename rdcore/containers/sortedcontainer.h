@@ -24,6 +24,7 @@ class SortedContainer: public AbstractContainer<T>
         void reserve(size_t n) { m_container.reserve(n); }
         void remove(const T& t) override;
         void removeAt(size_t idx) override;
+        void clear() override;
 
     public:
         typename ContainerType::iterator begin() { return m_container.begin(); }
@@ -80,4 +81,10 @@ void SortedContainer<T, Sorter, Comparator, unique>::removeAt(size_t idx)
 {
     if(idx >= m_container.size()) return;
     m_container.erase(std::next(m_container.begin(), idx));
+}
+
+template<typename T, typename Sorter, typename Comparator, bool unique>
+void SortedContainer<T, Sorter, Comparator, unique>::clear()
+{
+    m_container.clear();
 }

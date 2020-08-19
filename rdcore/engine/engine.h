@@ -1,20 +1,21 @@
 #pragma once
 
 #include <unordered_set>
+#include <unordered_map>
 #include <atomic>
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
 #include "../support/safe_ptr.h"
 
+struct RDAnalyzerPlugin;
 class Disassembler;
-class Analyzer;
 
 class Engine
 {
     public:
         enum { EngineState_None, EngineState_Algorithm,  EngineState_Analyze,
-               /* EngineState_Strings, */ EngineState_RDIL, EngineState_Unexplored,
-               EngineState_CFG, EngineState_Signature, EngineState_Last };
+               EngineState_Unexplored, EngineState_CFG, EngineState_Signature,
+               EngineState_Last };
 
     public:
         Engine(Disassembler* disassembler);
@@ -30,10 +31,8 @@ class Engine
         void stop();
 
     private:
-        //void stringsStep();
         void algorithmStep();
         void analyzeStep();
-        void rdilStep();
         void unexploredStep();
         void cfgStep();
         void signatureStep();
@@ -47,8 +46,8 @@ class Engine
     private:
         bool m_busy{false};
         std::unordered_set<size_t> m_stepsdone;
+        std::unordered_map<const RDAnalyzerPlugin*, size_t> m_analyzecount;
         std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
-        std::unique_ptr<Analyzer> m_analyzer;
         //SignatureScanner m_sigscanner;
         //SignatureIdentifiers m_signatures;
         size_t m_currentstep{Engine::EngineState_None};

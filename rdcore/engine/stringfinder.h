@@ -14,7 +14,7 @@ class StringFinder
         StringFinder() = delete;
         static rd_flag categorize(const RDBufferView* view, size_t* totalsize);
         static bool checkAndMark(Disassembler* disassembler, rd_address address, rd_flag flags, size_t totalsize);
-        static void find(Disassembler* disassembler, const RDBufferView* inview);
+        static void find(Disassembler* disassembler, const RDBufferView& inview);
 
     public:
         template<typename T> static bool inline isAscii(T c) { return (c >= 0x09 && c <= 0x0D) || (c >= 0x20 && c <= 0x7E); }

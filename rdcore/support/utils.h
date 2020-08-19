@@ -21,6 +21,7 @@ class Utils
 
     public:
         Utils() = delete;
+        static int branchDirection(rd_address fromaddress, rd_address address);
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
         static rd_offset findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize);
         static u16 crc16(const u8* data, size_t datasize, rd_offset offset, size_t size);

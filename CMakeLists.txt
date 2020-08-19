@@ -92,9 +92,9 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} pthread dl)
 
-    # if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    #     target_link_libraries(${PROJECT_NAME} tbb)
-    # endif()
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_link_libraries(${PROJECT_NAME} tbb)
+    endif()
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

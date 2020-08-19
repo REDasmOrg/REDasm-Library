@@ -24,7 +24,7 @@ const char* RDIL::getOpName(rd_type t)
 
 void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
 {
-    switch(e->rdil)
+    switch(e->type)
     {
         case RDIL_Copy:
             RDIL::render(e->dst, renderer, ritem, address);
@@ -117,7 +117,7 @@ void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererIte
 
 std::string RDIL::textOp(const RDILExpression* e)
 {
-    switch(e->rdil)
+    switch(e->type)
     {
         case RDIL_Add: return " + ";
         case RDIL_Sub: return " - ";
@@ -140,7 +140,7 @@ std::string RDIL::textOp(const RDILExpression* e)
 
 bool RDIL::isLeaf(const RDILExpression* e)
 {
-    switch(e->rdil)
+    switch(e->type)
     {
         case RDIL_Var:
         case RDIL_Reg:

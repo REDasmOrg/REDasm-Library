@@ -16,7 +16,6 @@ class Loader: public Object
         ~Loader();
         bool load();
         bool build(const RDLoaderBuildRequest* req);
-        bool analyze(Disassembler* disassembler);
         bool view(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;

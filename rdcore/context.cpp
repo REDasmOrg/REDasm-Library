@@ -1,6 +1,8 @@
 #include "context.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
+#include "builtin/analyzer/functionanalyzer.h"
+#include "builtin/analyzer/stringsanalyzer.h"
 #include <rdapi/theme.h>
 #include <filesystem>
 #include <iostream>
@@ -119,6 +121,8 @@ const char* Context::getTheme(rd_type theme) const
     return nullptr;
 }
 
+const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
+
 void Context::statusProgress(const char* s, size_t progress) const
 {
     log_lock lock(m_mutex);
@@ -174,6 +178,18 @@ void Context::log(const char* s) const
 
 bool Context::registerPlugin(RDLoaderPlugin* ploader) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(ploader), m_loaders); }
 bool Context::registerPlugin(RDAssemblerPlugin* passembler) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(passembler), m_assemblers); }
+
+bool Context::registerPlugin(RDAnalyzerPlugin* panalyzer)
+{
+    if(!panalyzer->isenabled || !panalyzer->execute)
+    {
+        this->log("Invalid analyzer");
+        return false;
+    }
+
+    return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(panalyzer), m_analyzers);
+}
+
 bool Context::registerPlugin(RDCommandPlugin* pcommand) { return this->registerPlugin(reinterpret_cast<RDPluginHeader*>(pcommand), m_commands);  }
 
 bool Context::commandExecute(const char* command, const RDArguments* arguments)
@@ -197,14 +213,32 @@ bool Context::commandExecute(const char* command, const RDArguments* arguments)
     return true;
 }
 
+void Context::getAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler, Callback_AnalyzerPlugin callback, void* userdata)
+{
+    m_selectedanalyzers.clear();
+    if(!loader || !assembler || !callback) return;
+
+    for(auto& [id, plugin] : m_analyzers)
+    {
+        RDAnalyzerPlugin* panalyzer = reinterpret_cast<RDAnalyzerPlugin*>(plugin);
+        Context::initPlugin(reinterpret_cast<RDPluginHeader*>(panalyzer));
+        if(!panalyzer->isenabled(panalyzer, loader, assembler)) continue;
+        m_selectedanalyzers.insert(panalyzer);
+    }
+
+    std::for_each(m_selectedanalyzers.begin(), m_selectedanalyzers.end(), [&](const RDAnalyzerPlugin* panalyzer) {
+        callback(panalyzer, userdata);
+    });
+}
+
 void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata)
 {
     m_loadertoassembler.clear();
     if(!callback || !loadrequest->filepath || !loadrequest->buffer) return;
 
-    for(const auto& item : m_loaders)
+    for(auto& [id, plugin] : m_loaders)
     {
-        RDLoaderPlugin* ploader = reinterpret_cast<RDLoaderPlugin*>(item.second);
+        RDLoaderPlugin* ploader = reinterpret_cast<RDLoaderPlugin*>(plugin);
 
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(ploader));
         const char* assemblerid = ploader->test(ploader, loadrequest);
@@ -224,10 +258,10 @@ void Context::getAssemblers(Callback_AssemblerPlugin callback, void* userdata)
 {
     if(!callback) return;
 
-    for(const auto& item : m_assemblers)
+    for(auto& [id, plugin] : m_assemblers)
     {
-        Context::initPlugin(item.second);
-        callback(reinterpret_cast<RDAssemblerPlugin*>(item.second), userdata);
+        Context::initPlugin(plugin);
+        callback(reinterpret_cast<RDAssemblerPlugin*>(plugin), userdata);
     }
 }
 
@@ -252,6 +286,12 @@ RDAssemblerPlugin* Context::findAssembler(const char* id) const
 {
     auto it = m_assemblers.find(id);
     return (it != m_assemblers.end()) ? reinterpret_cast<RDAssemblerPlugin*>(it->second) : nullptr;
+}
+
+void Context::selectAnalyzer(RDAnalyzerPlugin* panalyzer, bool selected)
+{
+    if(selected) m_selectedanalyzers.insert(panalyzer);
+    else m_selectedanalyzers.remove(panalyzer);
 }
 
 void Context::setDisassembler(Disassembler* disassembler)
@@ -300,6 +340,9 @@ void Context::problem(const std::string& s)
 
 void Context::init()
 {
+    m_analyzers.clear();
+    this->initBuiltins();
+
     for(const std::string& pluginpath : m_pluginpaths)
         m_pluginmanager.loadAll(pluginpath);
 }
@@ -344,4 +387,10 @@ bool Context::registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap)
 
     pluginmap[plugin->id] = plugin;
     return true;
+}
+
+void Context::initBuiltins()
+{
+    m_analyzers[analyzer_Function.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Function);
+    m_analyzers[analyzer_Strings.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Strings);
 }

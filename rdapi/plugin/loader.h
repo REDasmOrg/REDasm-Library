@@ -33,7 +33,6 @@ struct RDLoaderPlugin;
 typedef const char* (*Callback_LoaderTest)(const struct RDLoaderPlugin* plugin, const RDLoaderRequest* request);
 typedef bool (*Callback_LoaderLoad)(struct RDLoaderPlugin* ploader, RDLoader* loader);
 typedef bool (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoaderBuildRequest* req);
-typedef void (*Callback_LoaderAnalyze)(struct RDLoaderPlugin* ploader, RDDisassembler* disassembler);
 
 typedef struct RDLoaderPlugin {
     RD_PLUGIN_HEADER
@@ -42,7 +41,6 @@ typedef struct RDLoaderPlugin {
     Callback_LoaderTest test;
     Callback_LoaderLoad load;
     Callback_LoaderBuild build;
-    Callback_LoaderAnalyze analyze;
 } RDLoaderPlugin;
 
 typedef void (*Callback_LoaderPlugin)(RDLoaderPlugin* ploader, void* userdata);

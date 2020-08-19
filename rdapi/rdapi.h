@@ -17,6 +17,7 @@
 #include "plugin/loader.h"
 #include "plugin/assembler/emulate.h"
 #include "plugin/assembler/assembler.h"
+#include "plugin/analyzer.h"
 #include "plugin/command.h"
 #include "document/cursor.h"
 #include "database/database.h"

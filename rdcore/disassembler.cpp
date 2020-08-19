@@ -1,6 +1,5 @@
 #include "disassembler.h"
 #include "support/error.h"
-#include "support/sugar.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
 #include "context.h"

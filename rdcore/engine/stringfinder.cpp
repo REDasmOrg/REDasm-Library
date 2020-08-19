@@ -10,9 +10,9 @@
 #include <cctype>
 #include <cuchar>
 
-void StringFinder::find(Disassembler* disassembler, const RDBufferView* inview)
+void StringFinder::find(Disassembler* disassembler, const RDBufferView& inview)
 {
-    RDBufferView view = *inview;
+    RDBufferView view = inview;
     bool hasnext = true;
 
     while(hasnext)

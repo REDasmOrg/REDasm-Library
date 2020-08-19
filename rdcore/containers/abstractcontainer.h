@@ -16,6 +16,7 @@ template<typename T> class AbstractContainer
         virtual bool empty() const = 0;
         virtual void remove(const T& t) = 0;
         virtual void removeAt(size_t idx) = 0;
+        virtual void clear() = 0;
 
     public:
         const T& front() const { return const_cast<AbstractContainer*>(this)->front(); }

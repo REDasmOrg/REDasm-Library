@@ -13,7 +13,7 @@ void ILFunction::insert(size_t idx, RDILExpression* e)
 const RDILExpression* ILFunction::expression(size_t idx) const
 {
     if(idx >= m_expressions.size()) return nullptr;
-    return m_expressions[idx].get();
+    return m_expressions[idx];
 }
 
 bool ILFunction::empty() const { return m_expressions.empty(); }
@@ -40,12 +40,12 @@ bool ILFunction::generate(const Disassembler* disassembler, rd_address address, 
         node = net->findNode(node->next);
     }
 
-    return true;
+    return !il->empty();
 }
 
-void ILFunction::append(RDILExpression* e) { if(e) m_expressions.emplace_back(e); }
-const RDILExpression* ILFunction::first() const { return !m_expressions.empty() ? m_expressions.front().get() : nullptr; }
-const RDILExpression* ILFunction::last() const { return !m_expressions.empty() ? m_expressions.back().get() : nullptr; }
+void ILFunction::append(RDILExpression* e) { m_expressions.push_back(this->check(e)); }
+const RDILExpression* ILFunction::first() const { return !m_expressions.empty() ? m_expressions.front() : nullptr; }
+const RDILExpression* ILFunction::last() const { return !m_expressions.empty() ? m_expressions.back() : nullptr; }
 RDILExpression* ILFunction::exprUNKNOWN() const { return this->expr(RDIL_Unknown); }
 RDILExpression* ILFunction::exprNOP() const { return this->expr(RDIL_Nop); }
 RDILExpression* ILFunction::exprPOP(RDILExpression* e) const { return this->exprU(RDIL_Pop, 0, e); }
@@ -73,16 +73,14 @@ RDILExpression* ILFunction::exprLT(RDILExpression* l, RDILExpression* r) const {
 RDILExpression* ILFunction::exprLE(RDILExpression* l, RDILExpression* r) const { return this->exprLR(RDIL_Le, 0, l, r); }
 RDILExpression* ILFunction::exprGT(RDILExpression* l, RDILExpression* r) const { return this->exprLR(RDIL_Gt, 0, l, r); }
 RDILExpression* ILFunction::exprGE(RDILExpression* l, RDILExpression* r) const { return this->exprLR(RDIL_Ge, 0, l, r); }
+RDILExpression* ILFunction::check(RDILExpression* e) const { return e ? e : this->exprUNKNOWN(); }
 
 RDILExpression* ILFunction::exprIF(RDILExpression* cond, RDILExpression* t, RDILExpression* f) const
 {
     auto* expr = this->expr(RDIL_If, 0);
-    cond->parent = expr;
-    t->parent = expr;
-    f->parent = expr;
     expr->cond = cond;
-    expr->t = t;
-    expr->f = f;
+    expr->t = this->check(t);
+    expr->f = this->check(f);
     return expr;
 }
 
@@ -103,37 +101,32 @@ RDILExpression* ILFunction::exprVALUE(rd_type rdil, size_t size, u64 value) cons
 RDILExpression* ILFunction::exprLR(rd_type rdil, size_t size, RDILExpression* l, RDILExpression* r) const
 {
     auto* expr = this->expr(rdil, size);
-    l->parent = expr;
-    r->parent = expr;
-    expr->left = l;
-    expr->right = r;
+    expr->left = this->check(l);
+    expr->right = this->check(r);
     return expr;
 }
 
 RDILExpression* ILFunction::exprDS(rd_type rdil, size_t size, RDILExpression* dst, RDILExpression* src) const
 {
     auto* expr = this->expr(rdil, size);
-    dst->parent = expr;
-    src->parent = expr;
-    expr->dst = dst;
-    expr->src = src;
+    expr->dst = this->check(dst);
+    expr->src = this->check(src);
     return expr;
 }
 
 RDILExpression* ILFunction::exprU(rd_type rdil, size_t size, RDILExpression* e) const
 {
     auto* expr = this->expr(rdil, size);
-    e->parent = expr;
-    expr->e = e;
+    expr->e = this->check(e);
     return expr;
 }
 
 RDILExpression* ILFunction::expr(rd_type rdil, size_t size) const
 {
-    RDILExpression* expr = new RDILExpression();
-    expr->rdil = rdil;
+    auto& expr = m_pool.emplace_front(new RDILExpression());
+    expr->type = rdil;
     expr->size = size;
-    return expr;
+    return expr.get();
 }
 
 RDILExpression* ILFunction::expr(rd_type rdil) const { return this->expr(rdil, 0); }

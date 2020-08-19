@@ -23,13 +23,6 @@ bool Loader::build(const RDLoaderBuildRequest* req)
     return m_ploader->build(m_ploader, req);
 }
 
-bool Loader::analyze(Disassembler* disassembler)
-{
-    if(!m_ploader->analyze) return false;
-    m_ploader->analyze(m_ploader, CPTR(RDDisassembler, disassembler));
-    return true;
-}
-
 bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NPOS, view); }
 
 bool Loader::view(rd_address address, size_t size, RDBufferView* view) const

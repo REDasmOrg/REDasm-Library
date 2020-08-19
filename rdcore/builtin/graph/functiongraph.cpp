@@ -1,7 +1,6 @@
 #include "functiongraph.h"
 #include "../../document/backend/blockcontainer.h"
 #include "../../support/error.h"
-#include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
 #include <rdapi/theme.h>

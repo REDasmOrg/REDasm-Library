@@ -2,7 +2,6 @@
 #include "../../document/document.h"
 #include "../../support/error.h"
 #include "../../support/utils.h"
-#include "../../support/sugar.h"
 #include "../../disassembler.h"
 #include "../../context.h"
 #include "emulateresult.h"
@@ -114,7 +113,7 @@ void Algorithm::processBranches(DocumentNet* net, rd_type forktype, rd_address f
 
     if(HAS_FLAG(segment, SegmentFlags_Code))
     {
-        int dir = Sugar::branchDirection(fromaddress, address);
+        int dir = Utils::branchDirection(fromaddress, address);
         if(!dir) m_document->autoComment(fromaddress, "Infinite loop");
         m_document->branch(address, dir);
         this->schedule(address);

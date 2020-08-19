@@ -4,8 +4,8 @@
 #include "../../disassembler.h"
 #include "../builtin.h"
 
-RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(funcanalyzer, "Function Analyzer", static_cast<u64>(-1),
-                                                       "Discover Nullsubs and Thunks", AnalyzerFlags_Selected,
+RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(funcanalyzer, "Discover Functions", static_cast<u64>(-1),
+                                                       "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
                                                        [](const RDAnalyzerPlugin*, const RDLoaderPlugin*, const RDAssemblerPlugin*) -> bool { return true; },
                                                        [](const RDAnalyzerPlugin*, RDDisassembler* d) { FunctionAnalyzer::analyze(CPTR(Disassembler, d)); });
 

@@ -66,7 +66,7 @@ void Renderer::renderAssemblerInstruction(rd_address address, RendererItem* rite
         ritem->push("???");
 }
 
-void Renderer::renderRDIL(rd_address address, RendererItem* ritem) const
+void Renderer::renderRDILInstruction(rd_address address, RendererItem* ritem) const
 {
     RDRenderItemParams rip;
     this->compileParams(address, ritem, &rip);
@@ -121,6 +121,26 @@ const std::string& Renderer::getInstructionText(rd_address address) const
     if(this->renderItem(idx, &ritem)) m_instructionstr = ritem.text();
 
     return m_instructionstr;
+}
+
+const std::string& Renderer::getAssemblerInstruction(rd_address address) const
+{
+    m_asmstr.clear();
+
+    RendererItem ritem;
+    this->renderAssemblerInstruction(address, &ritem);
+    m_asmstr = ritem.text();
+    return m_asmstr;
+}
+
+const std::string& Renderer::getRDILInstruction(rd_address address) const
+{
+    m_rdilstr.clear();
+
+    RendererItem ritem;
+    this->renderRDILInstruction(address, &ritem);
+    m_rdilstr = ritem.text();
+    return m_rdilstr;
 }
 
 const std::string& Renderer::getSelectedText() const
@@ -327,7 +347,7 @@ void Renderer::renderInstruction(rd_address address, RendererItem* ritem) const
 {
     this->renderPrologue(address, ritem);
 
-    if(rd_ctx->flags() & ContextFlag_ShowRDIL) this->renderRDIL(address, ritem);
+    if(rd_ctx->flags() & ContextFlag_ShowRDIL) this->renderRDILInstruction(address, ritem);
     else this->renderAssemblerInstruction(address, ritem);
 
     this->renderComments(address, ritem);

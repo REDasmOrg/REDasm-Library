@@ -8,7 +8,9 @@ rd_flag RDRenderer_Flags(const RDRenderer* r) { return CPTR(const Renderer, r)->
 const char* RDRenderer_GetWordFromPosition(const RDRenderer* r, const RDCursorPos* pos, RDCursorRange* range) { return CPTR(const Renderer, r)->getWordFromPosition(pos, range).c_str(); }
 const char* RDRenderer_GetCurrentWord(const RDRenderer* r) { return CPTR(const Renderer, r)->getCurrentWord().c_str(); }
 const char* RDRenderer_GetSelectedText(const RDRenderer* r) { return CPTR(const Renderer, r)->getSelectedText().c_str(); }
-const char* RDRenderer_GetInstructionText(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getInstructionText(address).c_str(); }
+const char* RDRenderer_GetInstruction(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getInstructionText(address).c_str(); }
+const char* RDRenderer_GetAssemblerInstruction(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getAssemblerInstruction(address).c_str(); }
+const char* RDRenderer_GetRDILInstruction(const RDRenderer* r, rd_address address) { return CPTR(const Renderer, r)->getRDILInstruction(address).c_str(); }
 bool RDRenderer_GetSelectedSymbol(const RDRenderer* r, RDSymbol* symbol) { return CPTR(const Renderer, r)->selectedSymbol(symbol); }
 bool RDRenderer_GetItem(const RDRenderer* r, size_t index, RDRendererItem* ritem) { return CPTR(const Renderer, r)->renderItem(index, CPTR(RendererItem, ritem)); }
 void RDRenderer_GetItems(const RDRenderer* r, size_t index, size_t count, Callback_Render render, void* userdata) { CPTR(const Renderer, r)->render(index, count, render, userdata); }
@@ -23,4 +25,3 @@ void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s) { CPTR(co
 void RDRenderer_Mnemonic(const RDRenderItemParams* rip, const char* s, rd_type theme) { CPTR(const Renderer, rip->renderer)->renderMnemonic(CPTR(RendererItem, rip->rendereritem), s ? s : std::string(), theme); }
 void RDRenderer_Register(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderRegister(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
 void RDRenderer_Text(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderText(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
-

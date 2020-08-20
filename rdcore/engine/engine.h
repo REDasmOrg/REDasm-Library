@@ -14,7 +14,7 @@ class Engine
 {
     public:
         enum { EngineState_None, EngineState_Algorithm,  EngineState_Analyze,
-               EngineState_Unexplored, EngineState_CFG, EngineState_Signature,
+               EngineState_CFG, EngineState_Signature,
                EngineState_Last };
 
     public:
@@ -33,7 +33,6 @@ class Engine
     private:
         void algorithmStep();
         void analyzeStep();
-        void unexploredStep();
         void cfgStep();
         void signatureStep();
 

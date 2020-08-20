@@ -6,11 +6,12 @@
 class Disassembler;
 class ILFunction;
 
-extern RDAnalyzerPlugin analyzer_Strings;
+extern RDAnalyzerPlugin analyzer_Unexplored;
 
-class StringsAnalyzer
+class UnexploredAnalyzer
 {
     public:
-        StringsAnalyzer() = delete;
+        UnexploredAnalyzer() = delete;
         static void analyze(Disassembler* disassembler);
 };
+

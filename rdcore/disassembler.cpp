@@ -20,6 +20,7 @@ Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
+void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 
 void Disassembler::disassembleAddress(rd_address address)
 {
@@ -29,8 +30,15 @@ void Disassembler::disassembleAddress(rd_address address)
 
 void Disassembler::disassemble()
 {
-    m_engine.reset(new Engine(this));
+    if(m_engine) // Just wake up the engine, if not busy
+    {
+        if(!m_engine->busy())
+            m_engine->execute(Engine::EngineState_Algorithm);
 
+        return;
+    }
+
+    m_engine.reset(new Engine(this));
     if(!this->document()->segmentsCount()) return;
 
     // Preload functions for analysis

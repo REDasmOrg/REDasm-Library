@@ -1,6 +1,7 @@
 #include "context.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
+#include "builtin/analyzer/unexploredanalyzer.h"
 #include "builtin/analyzer/functionanalyzer.h"
 #include "builtin/analyzer/stringsanalyzer.h"
 #include <rdapi/theme.h>
@@ -391,6 +392,7 @@ bool Context::registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap)
 
 void Context::initBuiltins()
 {
+    m_analyzers[analyzer_Unexplored.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Unexplored);
     m_analyzers[analyzer_Function.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Function);
     m_analyzers[analyzer_Strings.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Strings);
 }

@@ -28,11 +28,11 @@ const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)
     return s.c_str();
 }
 
-const char* RD_Trampoline(const char* name)
+const char* RD_Thunk(const char* name)
 {
     // Fixed internal storage
     static std::string s;
-    s = Utils::trampoline(name);
+    s = Utils::thunk(name);
     return s.c_str();
 }
 

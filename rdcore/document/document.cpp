@@ -278,7 +278,8 @@ void Document::symbol(rd_address address, const std::string& name, rd_type type,
         {
             if(type == SymbolType_Function) // Overwrite symbol only
             {
-                m_symbols->create(address, name, type, flags);
+                const char* n = m_symbols->getName(address); // Try to preserve old name, if any
+                m_symbols->create(address, (n && name.empty()) ? n : name, type, flags);
                 this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
                 return;
             }

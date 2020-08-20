@@ -23,7 +23,6 @@ void Engine::execute()
             case Engine::EngineState_None:       m_sigcount = 0; m_currentstep++; break;
             case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
             case Engine::EngineState_Analyze:    this->analyzeStep();    break;
-            case Engine::EngineState_Unexplored: this->unexploredStep(); break;
             case Engine::EngineState_CFG:        this->cfgStep();        break;
             case Engine::EngineState_Signature:  this->signatureStep();  break;
             default:                             rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
@@ -52,11 +51,7 @@ bool Engine::needsWeak() const
 {
     switch(m_currentstep)
     {
-        case Engine::EngineState_Algorithm:
-        //case Engine::EngineState_Strings:
-        case Engine::EngineState_Unexplored:
-            return true;
-
+        case Engine::EngineState_Algorithm: return true;
         default: break;
     }
 
@@ -69,6 +64,8 @@ void Engine::stop() { this->notify(false); }
 void Engine::algorithmStep()
 {
     //m_signatures = r_ldr->signatures(); // Preload signatures
+
+    if(!m_algorithm->hasNext()) return; // Ignore spurious disassemble requests
     this->notify(true);
 
     while(m_algorithm->hasNext())
@@ -100,36 +97,6 @@ void Engine::analyzeStep()
 
     if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
     else this->nextStep();
-}
-
-void Engine::unexploredStep()
-{
-    //if((m_stepsdone.find(m_currentstep) != m_stepsdone.end()) || (rd_ctx->flags() & ContextFlag_DisableUnexplored))
-    //{
-        //this->nextStep();
-        //return;
-    //}
-
-    this->nextStep();
-    // m_stepsdone.insert(m_currentstep); // Run this step once
-
-    // for(size_t i = 0; i < m_disassembler->document()->segmentsCount(); i++)
-    // {
-    //     RDSegment segment;
-    //     if(!m_disassembler->document()->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
-
-    //     const BlockContainer* bc = m_disassembler->document()->blocks(segment.address);
-
-    //     for(size_t i = 0; i < bc->size(); i++)
-    //     {
-    //         const RDBlock& block = bc->at(i);
-    //         rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, m_disassembler->assembler()->bits()));
-    //         if(IS_TYPE(&block, BlockType_Unexplored)) m_algorithm->enqueue(block.address);
-    //     }
-    // }
-
-    // if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
-    // else this->nextStep();
 }
 
 void Engine::cfgStep()

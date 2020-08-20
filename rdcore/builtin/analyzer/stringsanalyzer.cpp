@@ -6,7 +6,7 @@
 #include <execution>
 #include <deque>
 
-RDAnalyzerPlugin analyzer_Strings = RD_BUILTIN_PLUGIN(stringsanalyzer, "Find All Strings", 0,
+RDAnalyzerPlugin analyzer_Strings = RD_BUILTIN_PLUGIN(analyzerstring_builtin, "Find All Strings", 1,
                                                       "Mark strings in all segments", AnalyzerFlags_RunOnce,
                                                       [](const RDAnalyzerPlugin*, const RDLoaderPlugin*, const RDAssemblerPlugin*) -> bool { return true; },
                                                       [](const RDAnalyzerPlugin*, RDDisassembler* d) { StringsAnalyzer::analyze(CPTR(Disassembler, d)); });

@@ -25,11 +25,6 @@ class Disassembler: public Object
         DocumentNet* net();
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
-        bool needsWeak() const;
-        bool busy() const;
-        void disassembleAddress(rd_address address);
-        void disassemble();
-        void stop();
 
     public:
         const char* getFunctionHexDump(rd_address address, RDSymbol* symbol) const;
@@ -38,6 +33,15 @@ class Disassembler: public Object
         const char* readString(rd_address address, size_t* len) const;
         std::string readWString(rd_address address, size_t len = RD_NPOS) const; // Internal C++ Helper
         std::string readString(rd_address address, size_t len = RD_NPOS) const;  // Internal C++ Helper
+
+    public: // Engine/Algorithm
+        bool needsWeak() const;
+        bool busy() const;
+        void enqueue(rd_address address);
+        void disassembleAddress(rd_address address);
+        void disassemble();
+        void stop();
+
 
     public: // Assembler
         bool encode(RDEncodedInstruction* encoded) const;
@@ -54,9 +58,6 @@ class Disassembler: public Object
         void markLocation(rd_address fromaddress, rd_address address);
         rd_type markPointer(rd_address address, rd_address fromaddress);
         size_t markTable(rd_address startaddress, rd_address fromaddress, size_t count);
-
-    public: /* *** NEW *** */
-        void unlinkNext(rd_address address);
 
     public:
         bool readAddress(rd_address address, size_t size, u64 *value) const;

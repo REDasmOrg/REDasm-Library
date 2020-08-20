@@ -4,7 +4,7 @@
 #include "../../disassembler.h"
 #include "../builtin.h"
 
-RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(funcanalyzer, "Discover Functions", static_cast<u64>(-1),
+RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(analyzerfunction_builtin, "Discover Functions", static_cast<u64>(-1),
                                                        "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
                                                        [](const RDAnalyzerPlugin*, const RDLoaderPlugin*, const RDAssemblerPlugin*) -> bool { return true; },
                                                        [](const RDAnalyzerPlugin*, RDDisassembler* d) { FunctionAnalyzer::analyze(CPTR(Disassembler, d)); });
@@ -33,13 +33,18 @@ void FunctionAnalyzer::analyze(Disassembler* disassembler)
 
 bool FunctionAnalyzer::findNullSubs(Disassembler* disassembler, const ILFunction* il, rd_address address)
 {
+    const auto* expr = il->first();
+
+    if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop))
+        return disassembler->document()->rename(address, "nullsub_" + Utils::hex(address));
+
     return false;
 }
 
 void FunctionAnalyzer::findThunk(Disassembler* disassembler, const ILFunction* il, rd_address address)
 {
     const auto* expr = il->first();
-    if((expr->type != RDIL_Goto)) return;
+    if(expr->type != RDIL_Goto) return;
 
     const char* name = nullptr;
 
@@ -48,6 +53,5 @@ void FunctionAnalyzer::findThunk(Disassembler* disassembler, const ILFunction* i
     else if(expr->e->type == RDIL_Addr)
         name = disassembler->document()->name(expr->e->address);
 
-    if(!name) return;
-    disassembler->document()->rename(address, "thunk_" + std::string(name));
+    if(name) disassembler->document()->rename(address, Utils::thunk(name));
 }

@@ -14,7 +14,7 @@ RD_API_EXPORT const char* RD_ToHexAuto(size_t value);
 RD_API_EXPORT const char* RD_ToHex(size_t value);
 RD_API_EXPORT const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill);
 RD_API_EXPORT const char* RD_ToString(size_t value);
-RD_API_EXPORT const char* RD_Trampoline(const char* name);
+RD_API_EXPORT const char* RD_Thunk(const char* name);
 RD_API_EXPORT const char* RD_Demangle(const char* name);
 RD_API_EXPORT u8* RD_RelPointer(void* ptr, size_t offset);
 RD_API_EXPORT bool RD_InRange(rd_address address, rd_address start, rd_address end);

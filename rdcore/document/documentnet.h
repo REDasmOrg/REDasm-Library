@@ -42,6 +42,11 @@ class DocumentNet: public Object
         const DocumentNetNode* findNode(rd_address address) const;
         size_t getRefs(rd_address address, const rd_address** refs) const;
 
+    public:
+        static bool isConditional(const DocumentNetNode* n);
+        static bool isBranch(const DocumentNetNode* n);
+        static bool isCall(const DocumentNetNode* n);
+
     private:
         std::unordered_map<rd_address, DocumentNetNode> m_netnodes;
         ReferencesMap m_refs;

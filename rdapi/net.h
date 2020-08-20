@@ -17,3 +17,6 @@ RD_API_EXPORT size_t RDNetNode_GetFrom(const RDNetNode* netnode, const rd_addres
 RD_API_EXPORT size_t RDNetNode_GetBranchesTrue(const RDNetNode* netnode, const rd_address** branches);
 RD_API_EXPORT size_t RDNetNode_GetBranchesFalse(const RDNetNode* netnode, const rd_address** branches);
 RD_API_EXPORT size_t RDNetNode_GetCalls(const RDNetNode* netnode, const rd_address** calls);
+RD_API_EXPORT bool RDNetNode_IsConditional(const RDNetNode* netnode);
+RD_API_EXPORT bool RDNetNode_IsBranch(const RDNetNode* netnode);
+RD_API_EXPORT bool RDNetNode_IsCall(const RDNetNode* netnode);

@@ -88,3 +88,24 @@ size_t DocumentNet::getRefs(rd_address address, const rd_address** refs) const
     if(it == m_refs.end()) return 0;
     return it->second.data(refs);
 }
+
+bool DocumentNet::isConditional(const DocumentNetNode* n) { return DocumentNet::isBranch(n) && (!n->branchestrue.empty() && !n->branchesfalse.empty()); }
+
+bool DocumentNet::isBranch(const DocumentNetNode* n)
+{
+    switch(n->branchtype)
+    {
+        case EmulateResult::Branch:
+        case EmulateResult::BranchTrue:
+        case EmulateResult::BranchFalse:
+        case EmulateResult::BranchIndirect:
+        case EmulateResult::BranchUnresolved:
+            return true;
+
+        default: break;
+    }
+
+    return false;
+}
+
+bool DocumentNet::isCall(const DocumentNetNode* n) { return !n->calls.empty(); }

@@ -12,3 +12,6 @@ size_t RDNetNode_GetPrev(const RDNetNode* netnode, const rd_address** prev) { re
 size_t RDNetNode_GetBranchesTrue(const RDNetNode* netnode, const rd_address** branches) { return CPTR(const DocumentNetNode, netnode)->branchestrue.data(branches); }
 size_t RDNetNode_GetBranchesFalse(const RDNetNode* netnode, const rd_address** branches) { return CPTR(const DocumentNetNode, netnode)->branchesfalse.data(branches); }
 size_t RDNetNode_GetCalls(const RDNetNode* netnode, const rd_address** calls) { return CPTR(const DocumentNetNode, netnode)->calls.data(calls); }
+bool RDNetNode_IsConditional(const RDNetNode* netnode) { return DocumentNet::isConditional(CPTR(const DocumentNetNode, netnode)); }
+bool RDNetNode_IsBranch(const RDNetNode* netnode) { return DocumentNet::isBranch(CPTR(const DocumentNetNode, netnode)); }
+bool RDNetNode_IsCall(const RDNetNode* netnode) { return DocumentNet::isCall(CPTR(const DocumentNetNode, netnode)); }

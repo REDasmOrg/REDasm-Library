@@ -34,6 +34,7 @@ struct ThemeColors {
     std::string address, constant, reg;
     std::string string, symbol, data, imported;
     std::string nop, ret, call, jump, jumpcond;
+    std::string entryfg, entrybg;
     std::string graphbg, graphedge, graphedgetrue, graphedgefalse, graphedgeloop, graphedgeloopcond;
 };
 

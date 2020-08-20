@@ -70,6 +70,8 @@ void Context::setTheme(rd_type theme, const char* color)
         case Theme_Call:              m_themecolors.call = color; break;
         case Theme_Jump:              m_themecolors.jump = color; break;
         case Theme_JumpCond:          m_themecolors.jumpcond = color; break;
+        case Theme_EntryFg:           m_themecolors.entryfg = color; break;
+        case Theme_EntryBg:           m_themecolors.entrybg = color; break;
         case Theme_GraphBg:           m_themecolors.graphbg = color; break;
         case Theme_GraphEdge:         m_themecolors.graphedge = color; break;
         case Theme_GraphEdgeTrue:     m_themecolors.graphedgetrue = color; break;
@@ -110,6 +112,8 @@ const char* Context::getTheme(rd_type theme) const
         case Theme_Call:              return Context::themeAlt(m_themecolors.call, m_themecolors.fg);
         case Theme_Jump:              return Context::themeAlt(m_themecolors.jump, m_themecolors.fg);
         case Theme_JumpCond:          return Context::themeAlt(m_themecolors.jumpcond, m_themecolors.fg);
+        case Theme_EntryFg:           return Context::themeAlt(m_themecolors.entryfg, m_themecolors.fg);
+        case Theme_EntryBg:           return Context::themeAlt(m_themecolors.entrybg, m_themecolors.bg);
         case Theme_GraphBg:           return Context::themeAlt(m_themecolors.graphbg, m_themecolors.bg);
         case Theme_GraphEdge:         return Context::themeAlt(m_themecolors.graphedge, m_themecolors.fg);
         case Theme_GraphEdgeTrue:     return Context::themeAlt(m_themecolors.graphedgetrue, m_themecolors.fg);

@@ -79,12 +79,6 @@ void Engine::algorithmStep()
 
 void Engine::analyzeStep()
 {
-    if(rd_ctx->flags() & ContextFlag_DisableAnalyzer)
-    {
-        this->nextStep();
-        return;
-    }
-
     rd_ctx->status("Analyzing...");
 
     for(const RDAnalyzerPlugin* p : rd_ctx->selectedAnalyzers())
@@ -101,12 +95,6 @@ void Engine::analyzeStep()
 
 void Engine::cfgStep()
 {
-    if(rd_ctx->flags() & ContextFlag_DisableCFG)
-    {
-        this->nextStep();
-        return;
-    }
-
     m_disassembler->document()->invalidateGraphs();
     rd_ctx->status("Generating CFG...");
 

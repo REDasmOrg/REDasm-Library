@@ -8,12 +8,8 @@
 DECLARE_HANDLE(RDContext);
 
 enum RDContextFlags {
-    ContextFlag_None              = 0,
-    ContextFlag_DisableUnexplored = (1 << 0),
-    ContextFlag_DisableAnalyzer   = (1 << 1),
-    ContextFlag_DisableSignature  = (1 << 2),
-    ContextFlag_DisableCFG        = (1 << 3),
-    ContextFlag_ShowRDIL          = (1 << 4),
+    ContextFlag_None     = 0,
+    ContextFlag_ShowRDIL = (1 << 0),
 };
 
 struct RDDisassembler;

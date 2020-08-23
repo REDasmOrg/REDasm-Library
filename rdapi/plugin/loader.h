@@ -10,9 +10,6 @@ enum RDLoaderFlags {
     LoaderFlags_None               = 0,
     LoaderFlags_CustomAssembler    = (1 << 0),
     LoaderFlags_CustomAddressing   = (1 << 1),
-    LoaderFlags_SkipUnexploredCode = (1 << 2),
-
-    LoaderFlags_Binary             = -1,
 };
 
 typedef struct RDLoaderRequest {
@@ -32,7 +29,7 @@ struct RDLoaderPlugin;
 
 typedef const char* (*Callback_LoaderTest)(const struct RDLoaderPlugin* plugin, const RDLoaderRequest* request);
 typedef bool (*Callback_LoaderLoad)(struct RDLoaderPlugin* ploader, RDLoader* loader);
-typedef bool (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, const RDLoaderBuildRequest* req);
+typedef bool (*Callback_LoaderBuild)(struct RDLoaderPlugin* ploader, RDLoader* loader, const RDLoaderBuildRequest* req);
 
 typedef struct RDLoaderPlugin {
     RD_PLUGIN_HEADER

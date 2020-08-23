@@ -20,7 +20,7 @@ bool Loader::load()
 bool Loader::build(const RDLoaderBuildRequest* req)
 {
     if(!m_ploader->build) return false;
-    return m_ploader->build(m_ploader, req);
+    return m_ploader->build(m_ploader, CPTR(RDLoader, this), req);
 }
 
 bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NPOS, view); }

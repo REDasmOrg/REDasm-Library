@@ -24,7 +24,7 @@ void FunctionAnalyzer::analyze(Disassembler* disassembler)
         if(!disassembler->view(loc.address, RD_NPOS, &view)) continue;
 
         ILFunction il(disassembler);
-        if(!ILFunction::generate(disassembler, loc.address, &il) || (il.size() > 1)) continue;
+        if(!ILFunction::generate(loc.address, &il) || (il.size() > 1)) continue;
 
         if(FunctionAnalyzer::findNullSubs(disassembler, &il, loc.address)) continue;
         FunctionAnalyzer::findThunk(disassembler, &il, loc.address);

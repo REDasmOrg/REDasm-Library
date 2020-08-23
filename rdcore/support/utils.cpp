@@ -4,6 +4,15 @@
 #include <cstring>
 #include "../buffer/view.h"
 #include "../support/hash.h"
+#include "../document/document.h"
+
+bool Utils::isCode(const SafeDocument& doc, rd_address address)
+{
+    RDSegment segment;
+    if(!doc->segment(address, &segment)) return false;
+    if(!HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+    return true;
+}
 
 int Utils::branchDirection(rd_address fromaddress, rd_address address)
 {

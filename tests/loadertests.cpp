@@ -73,10 +73,12 @@ void LoaderTests::testSCrack(RDDisassembler* d, RDDocument* doc)
 
 void LoaderTests::checkSymbolsAndRefs(RDDisassembler* d, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags)
 {
+    const RDNet* net = RDDisassembler_GetNet(d);
+
     for(const auto& [address, refs] : symbols)
     {
         LoaderTests::checkSymbol(doc, address, nullptr, type, flags);
-        REQUIRE_EQ(RDDisassembler_GetReferencesCount(d, address), refs);
+        REQUIRE_EQ(RDNet_GetReferences(net, address, nullptr), refs);
     }
 }
 

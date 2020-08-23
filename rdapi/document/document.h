@@ -57,8 +57,8 @@ RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, rd_addre
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address, const char* separator);
 RD_API_EXPORT const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index);
-RD_API_EXPORT RDLocation RDDocument_EntryPoint(const RDDocument* d);
-RD_API_EXPORT RDLocation RDDocument_FunctionStart(const RDDocument* d, rd_address address);
+RD_API_EXPORT RDLocation RDDocument_GetEntryPoint(const RDDocument* d);
+RD_API_EXPORT RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item);
 RD_API_EXPORT size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address);

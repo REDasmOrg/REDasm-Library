@@ -2,7 +2,7 @@
 #include <rdcore/document/documentnet.h>
 
 const RDNetNode* RDNet_FindNode(const RDNet* net, rd_address address) { return CPTR(const RDNetNode, CPTR(const DocumentNet, net)->findNode(address)); }
-size_t RDNet_GetRefs(const RDNet* net, rd_address address, const rd_address** refs) { return CPTR(const DocumentNet, net)->getRefs(address, refs); }
+size_t RDNet_GetReferences(const RDNet* net, rd_address address, const rd_address** refs) { return CPTR(const DocumentNet, net)->getReferences(address, refs); }
 
 rd_address RDNetNode_GetNext(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->next; }
 rd_type RDNetNode_GetBranchType(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->branchtype; }

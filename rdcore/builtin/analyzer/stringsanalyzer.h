@@ -4,7 +4,6 @@
 #include <rdapi/plugin/analyzer.h>
 
 class Disassembler;
-class ILFunction;
 
 extern RDAnalyzerPlugin analyzer_Strings;
 

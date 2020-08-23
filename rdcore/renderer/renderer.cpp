@@ -39,16 +39,22 @@ void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void
     }
 }
 
-void Renderer::renderAddress(RendererItem* ritem, rd_address address) const
+void Renderer::renderSigned(RendererItem* ritem, s64 value) const
 {
-    const char* name = m_disassembler->document()->name(address);
+    if(value < 0) ritem->push("-");
+    ritem->push(Utils::hex(value), Theme_Constant);
+}
+
+void Renderer::renderUnsigned(RendererItem* ritem, u64 value) const
+{
+    const char* name = m_disassembler->document()->name(static_cast<rd_address>(value));
     if(name) ritem->push(name, Theme_Symbol);
-    else ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Constant);
+    else ritem->push(Utils::hex(value), Theme_Constant);
 }
 
 void Renderer::renderMnemonic(RendererItem* ritem, const std::string& s, rd_type theme) const { if(!s.empty()) ritem->push(s, theme); }
-void Renderer::renderConstant(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Constant); }
 void Renderer::renderRegister(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Reg); }
+void Renderer::renderConstant(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Constant); }
 void Renderer::renderText(RendererItem* ritem, const std::string& s, rd_type theme) const { ritem->push(s, theme); }
 
 void Renderer::renderIndent(RendererItem* ritem, size_t n, bool ignoreflags) const

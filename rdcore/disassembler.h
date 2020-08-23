@@ -6,7 +6,6 @@
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
 #include "engine/engine.h"
-#include "engine/referencetable.h"
 #include "engine/stringfinder.h"
 #include "engine/algorithm/algorithm.h"
 #include "document/documentnet.h"
@@ -38,6 +37,7 @@ class Disassembler: public Object
         bool needsWeak() const;
         bool busy() const;
         void enqueue(rd_address address);
+        void schedule(rd_address address);
         void disassembleAddress(rd_address address);
         void disassemble();
         void stop();
@@ -45,13 +45,6 @@ class Disassembler: public Object
 
     public: // Assembler
         bool encode(RDEncodedInstruction* encoded) const;
-
-    public: // References
-        size_t getReferences(rd_address address, const rd_address** references) const;
-        size_t getTargets(rd_address address, const rd_address** targets) const;
-        RDLocation getTarget(rd_address address) const;
-        size_t getTargetsCount(rd_address address) const;
-        size_t getReferencesCount(rd_address address) const;
 
     public: // Symbols
         RDLocation dereference(rd_address address) const;
@@ -70,7 +63,6 @@ class Disassembler: public Object
         std::unique_ptr<Engine> m_engine;
         std::unique_ptr<Loader> m_loader;
         std::unique_ptr<Assembler> m_assembler;
-        ReferenceTable m_references;
         SafeAlgorithm m_algorithm;
         DocumentNet m_net;
 };

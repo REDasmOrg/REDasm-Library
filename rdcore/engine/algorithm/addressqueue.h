@@ -6,15 +6,15 @@
 
 class Disassembler;
 
-class StateMachine
+class AddressQueue
 {
     public:
-        StateMachine(Disassembler* disassembler);
-        virtual ~StateMachine() = default;
+        AddressQueue(Disassembler* disassembler);
+        virtual ~AddressQueue() = default;
         size_t pending() const;
         bool hasNext() const;
-        void enqueue(rd_address address);
-        void schedule(rd_address address);
+        virtual void enqueue(rd_address address);
+        virtual void schedule(rd_address address);
         void next();
 
     private:

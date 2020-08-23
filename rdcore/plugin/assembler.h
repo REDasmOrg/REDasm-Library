@@ -22,6 +22,7 @@ class Assembler: public Object
         void emulate(EmulateResult* result) const;
 
     public:
+        bool getUserData(RDUserData* userdata) const;
         const char* id() const;
         size_t addressWidth() const;
         size_t bits() const;

@@ -13,9 +13,9 @@ class Disassembler;
 class Engine
 {
     public:
-        enum { EngineState_None, EngineState_Algorithm,  EngineState_Analyze,
-               EngineState_CFG, EngineState_Signature,
-               EngineState_Last };
+        enum { EngineState_None, EngineState_Algorithm,
+               EngineState_CFG, EngineState_Analyze,
+               EngineState_Signature, EngineState_Last };
 
     public:
         Engine(Disassembler* disassembler);

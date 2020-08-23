@@ -13,7 +13,7 @@ class RDILGraph: public StyledGraph
         void build(rd_address address);
 
     private:
-        RDGraphNode generate(const RDILExpression* e, RDGraphNode parentnode);
+        RDGraphNode generate(const ILExpression* e, RDGraphNode parentnode);
         void generate(const ILFunction* il);
 
     private:

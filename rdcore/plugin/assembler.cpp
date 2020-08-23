@@ -7,6 +7,7 @@ Assembler::Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler):
 
 void Assembler::lift(rd_address address, const RDBufferView* view, ILFunction* il) const
 {
+    il->setCurrentAddress(address); // Keep address <-> RDIL reference
     if(m_passembler->lift) m_passembler->lift(m_passembler, address, view, CPTR(RDILFunction, il));
     else il->append(il->exprUNKNOWN());
 }
@@ -21,6 +22,13 @@ void Assembler::emulate(EmulateResult* result) const
 {
     if(!m_passembler->emulate) return;
     m_passembler->emulate(m_passembler, CPTR(RDEmulateResult, result));
+}
+
+bool Assembler::getUserData(RDUserData* userdata) const
+{
+    if(!userdata) return false;
+    userdata->userdata = m_passembler->userdata;
+    return true;
 }
 
 bool Assembler::renderInstruction(RDRenderItemParams* rip)

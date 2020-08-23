@@ -125,14 +125,6 @@ std::string FunctionGraph::nodeLabel(RDGraphNode n) const
     return Graph::nodeLabel(n);
 }
 
-bool FunctionGraph::isCode(rd_address address) const
-{
-    RDSegment segment;
-    if(!m_document->segment(address, &segment)) return false;
-    if(!HAS_FLAG(&segment, SegmentFlags_Code)) return false;
-    return true;
-}
-
 FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 {
     FunctionBasicBlock& newfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
@@ -151,7 +143,7 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
         rd_address address = pending.top();
         pending.pop();
 
-        if(!this->isCode(address) || basicblocks.count(address)) continue;
+        if(!Utils::isCode(m_document, address) || basicblocks.count(address)) continue;
 
         const auto* link = net->findNode(address);
         if(!link) continue;
@@ -161,11 +153,11 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
         while(link)
         {
             std::for_each(link->branchestrue.begin(), link->branchestrue.end(), [&](rd_address jump) {
-                if(this->isCode(jump)) pending.push(jump);
+                if(Utils::isCode(m_document, jump)) pending.push(jump);
             });
 
             std::for_each(link->branchesfalse.begin(), link->branchesfalse.end(), [&](rd_address jump) {
-                if(this->isCode(jump)) pending.push(jump);
+                if(Utils::isCode(m_document, jump)) pending.push(jump);
             });
 
             address = link->next;
@@ -186,7 +178,7 @@ void FunctionGraph::buildBasicBlocks()
         auto* link = net->findNode(address);
         if(!link) continue;
 
-        while(link && this->isCode(address))
+        while(link && Utils::isCode(m_document, address))
         {
             basicblock->endaddress = address;
             auto it = basicblocks.end();

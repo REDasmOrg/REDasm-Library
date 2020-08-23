@@ -58,3 +58,4 @@ typedef struct RDPluginHeader {
 } RDPluginHeader;
 
 RD_API_EXPORT void RDPlugin_Free(RDPluginHeader* plugin);
+RD_API_EXPORT bool RDPlugin_GetUserData(const RDPluginHeader* ldr, RDUserData* userdata);

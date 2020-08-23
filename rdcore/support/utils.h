@@ -9,6 +9,7 @@
 #include <deque>
 #include <rdapi/types.h>
 #include "../support/error.h"
+#include "../document/document_fwd.h"
 
 #define DEFAULT_SLEEP_TIME std::chrono::milliseconds(5)
 
@@ -21,6 +22,7 @@ class Utils
 
     public:
         Utils() = delete;
+        static bool isCode(const SafeDocument& doc, rd_address address);
         static int branchDirection(rd_address fromaddress, rd_address address);
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
         static rd_offset findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize);

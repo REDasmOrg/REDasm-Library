@@ -19,54 +19,71 @@ enum RDILTypes
     RDIL_Push, RDIL_Pop                                   // Stack
 };
 
-/* *** Tested ***
- * --------------
- * Unknown
- * Nop
- * Reg, Cnst
- * Call
- * Jump
- * Load, Copy
- * Push, Pop
- * Add, Sub, Mul, Div, And, Or, Xor
- */
+#define PRIVATE_RDIL_VALUE_FIELDS \
+    uintptr_t value; \
+    rd_address address; \
+    rd_offset offset; \
+    rd_location location; \
+    u64 u_value; \
+    s64 s_value; \
+    const char* reg; \
+    const char* var; \
+
+typedef union RDILValue { PRIVATE_RDIL_VALUE_FIELDS } RDILValue;
 
 DECLARE_HANDLE(RDILFunction);
-DECLARE_HANDLE(RDExpression);
+DECLARE_HANDLE(RDILExpression);
 
 RD_API_EXPORT RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_address address);
 
-RD_API_EXPORT const RDExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);
-RD_API_EXPORT const RDExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction);
-RD_API_EXPORT const RDExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction);
-RD_API_EXPORT void RDILFunction_Insert(RDILFunction* rdilfunction, size_t idx, RDExpression* expression);
-RD_API_EXPORT void RDILFunction_Append(RDILFunction* rdilfunction, RDExpression* expression);
+RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
+RD_API_EXPORT size_t RDILExpression_Size(const RDILExpression* e);
+RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetN1(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetN2(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetN3(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetE(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetCond(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetDst(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetLeft(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetT(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetSrc(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetRight(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetF(const RDILExpression* e);
+
+RD_API_EXPORT RDILFunction* RDILFunction_Generate(const RDDisassembler* disassembler, rd_address address);
+RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);
+RD_API_EXPORT const RDILExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction);
+RD_API_EXPORT const RDILExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction);
+RD_API_EXPORT bool RDILFunction_GetAddress(const RDILFunction* rdilfunction, const RDILExpression* e, rd_address* address);
+RD_API_EXPORT void RDILFunction_Insert(RDILFunction* rdilfunction, size_t idx, RDILExpression* expression);
+RD_API_EXPORT void RDILFunction_Append(RDILFunction* rdilfunction, RDILExpression* expression);
 RD_API_EXPORT size_t RDILFunction_Size(const RDILFunction* rdilfunction);
-RD_API_EXPORT RDExpression* RDILFunction_UNKNOWN(const RDILFunction* rdilfunction);
-RD_API_EXPORT RDExpression* RDILFunction_NOP(const RDILFunction* rdilfunction);
-RD_API_EXPORT RDExpression* RDILFunction_VAR(const RDILFunction* rdilfunction, size_t size, const char* name);
-RD_API_EXPORT RDExpression* RDILFunction_REG(const RDILFunction* rdilfunction, size_t size, const char* reg);
-RD_API_EXPORT RDExpression* RDILFunction_CNST(const RDILFunction* rdilfunction, size_t size, u64 value);
-RD_API_EXPORT RDExpression* RDILFunction_ADDR(const RDILFunction* rdilfunction, rd_address address);
-RD_API_EXPORT RDExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_DIV(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_LOAD(const RDILFunction* rdilfunction, RDExpression* memloc);
-RD_API_EXPORT RDExpression* RDILFunction_STORE(const RDILFunction* rdilfunction, RDExpression* dst, RDExpression* src);
-RD_API_EXPORT RDExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDExpression* dst, RDExpression* src);
-RD_API_EXPORT RDExpression* RDILFunction_GOTO(const RDILFunction* rdilfunction, RDExpression* e);
-RD_API_EXPORT RDExpression* RDILFunction_CALL(const RDILFunction* rdilfunction, RDExpression* e);
-RD_API_EXPORT RDExpression* RDILFunction_RET(const RDILFunction* rdilfunction, RDExpression* e);
-RD_API_EXPORT RDExpression* RDILFunction_IF(const RDILFunction* rdilfunction, RDExpression* cond, RDExpression* t, RDExpression* f);
-RD_API_EXPORT RDExpression* RDILFunction_EQ(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_NE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_LT(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_LE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_GT(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDExpression* l, RDExpression* r);
-RD_API_EXPORT RDExpression* RDILFunction_PUSH(const RDILFunction* rdilfunction, RDExpression* e);
-RD_API_EXPORT RDExpression* RDILFunction_POP(const RDILFunction* rdilfunction, RDExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_UNKNOWN(const RDILFunction* rdilfunction);
+RD_API_EXPORT RDILExpression* RDILFunction_NOP(const RDILFunction* rdilfunction);
+RD_API_EXPORT RDILExpression* RDILFunction_VAR(const RDILFunction* rdilfunction, size_t size, const char* name);
+RD_API_EXPORT RDILExpression* RDILFunction_REG(const RDILFunction* rdilfunction, size_t size, const char* reg);
+RD_API_EXPORT RDILExpression* RDILFunction_CNST(const RDILFunction* rdilfunction, size_t size, u64 value);
+RD_API_EXPORT RDILExpression* RDILFunction_ADDR(const RDILFunction* rdilfunction, rd_address address);
+RD_API_EXPORT RDILExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_DIV(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_LOAD(const RDILFunction* rdilfunction, RDILExpression* memloc);
+RD_API_EXPORT RDILExpression* RDILFunction_STORE(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);
+RD_API_EXPORT RDILExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);
+RD_API_EXPORT RDILExpression* RDILFunction_GOTO(const RDILFunction* rdilfunction, RDILExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_CALL(const RDILFunction* rdilfunction, RDILExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_RET(const RDILFunction* rdilfunction, RDILExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_IF(const RDILFunction* rdilfunction, RDILExpression* cond, RDILExpression* t, RDILExpression* f);
+RD_API_EXPORT RDILExpression* RDILFunction_EQ(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_NE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_LT(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_LE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_GT(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_PUSH(const RDILFunction* rdilfunction, RDILExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_POP(const RDILFunction* rdilfunction, RDILExpression* e);

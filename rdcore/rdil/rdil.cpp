@@ -22,7 +22,7 @@ const char* RDIL::getOpName(rd_type t)
     return (it != NAMES.end()) ? it->second : "???";
 }
 
-void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
+void RDIL::render(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
 {
     switch(e->type)
     {
@@ -96,9 +96,6 @@ void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererIte
             renderer->renderText(ritem, ")");
             break;
 
-        case RDIL_Cnst:
-            renderer->renderConstant(ritem, Utils::hex(e->u_value, e->size * CHAR_BIT));
-            break;
 
         case RDIL_Unknown:
             renderer->renderMnemonic(ritem, "unknown ", Theme_Default);
@@ -107,7 +104,8 @@ void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererIte
             renderer->renderText(ritem, "}");
             break;
 
-        case RDIL_Addr: renderer->renderAddress(ritem, e->u_value); break;
+        case RDIL_Cnst: renderer->renderUnsigned(ritem, e->u_value); break;
+        case RDIL_Addr: renderer->renderUnsigned(ritem, e->u_value); break;
         case RDIL_Var: renderer->renderText(ritem, e->var, Theme_Symbol); break;
         case RDIL_Reg: renderer->renderRegister(ritem, e->reg); break;
         case RDIL_Nop: renderer->renderMnemonic(ritem, "nop ", Theme_Nop); break;
@@ -115,7 +113,7 @@ void RDIL::render(const RDILExpression* e, const Renderer* renderer, RendererIte
     }
 }
 
-std::string RDIL::textOp(const RDILExpression* e)
+std::string RDIL::textOp(const ILExpression* e)
 {
     switch(e->type)
     {
@@ -138,7 +136,7 @@ std::string RDIL::textOp(const RDILExpression* e)
     return "???";
 }
 
-bool RDIL::isLeaf(const RDILExpression* e)
+bool RDIL::hasValue(const ILExpression* e)
 {
     switch(e->type)
     {
@@ -154,9 +152,9 @@ bool RDIL::isLeaf(const RDILExpression* e)
     return false;
 }
 
-void RDIL::wrap(const RDILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
+void RDIL::wrap(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
 {
-    if(RDIL::isLeaf(e))
+    if(RDIL::hasValue(e))
     {
         RDIL::render(e, renderer, ritem, address);
         return;

@@ -21,6 +21,7 @@ SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
+void Disassembler::schedule(rd_address address) { m_algorithm->schedule(address); }
 
 void Disassembler::disassembleAddress(rd_address address)
 {
@@ -87,12 +88,6 @@ std::string Disassembler::readString(rd_address address, size_t len) const
     const char* s = this->readString(address, &len);
     return s ? std::string(s, len) : std::string();
 }
-
-size_t Disassembler::getReferences(rd_address address, const rd_address** references) const { return m_references.references(address, references); }
-size_t Disassembler::getTargets(rd_address address, const rd_address** targets) const { return m_references.targets(address, targets); }
-RDLocation Disassembler::getTarget(rd_address address) const { return m_references.target(address); }
-size_t Disassembler::getTargetsCount(rd_address address) const { return m_references.targetsCount(address); }
-size_t Disassembler::getReferencesCount(rd_address address) const { return m_references.referencesCount(address); }
 
 RDLocation Disassembler::dereference(rd_address address) const
 {

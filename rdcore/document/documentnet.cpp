@@ -82,7 +82,7 @@ const DocumentNetNode* DocumentNet::findNode(rd_address address) const
     return (it != m_netnodes.end()) ? std::addressof(it->second) : nullptr;
 }
 
-size_t DocumentNet::getRefs(rd_address address, const rd_address** refs) const
+size_t DocumentNet::getReferences(rd_address address, const rd_address** refs) const
 {
     auto it = m_refs.find(address);
     if(it == m_refs.end()) return 0;

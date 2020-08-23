@@ -20,8 +20,8 @@ bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname) {
 const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { return docptr(d)->symbols()->getName(address); }
 const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
 RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index) { return docptr(d)->functionAt(index); }
-RDLocation RDDocument_EntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
-RDLocation RDDocument_FunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
+RDLocation RDDocument_GetEntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
+RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
 size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item) { return docptr(d)->itemIndex(item); }
 size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address address) { return docptr(d)->functionIndex(address); }
 size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address) { return docptr(d)->instructionIndex(address); }

@@ -13,4 +13,4 @@ void RDEmulateResult_AddBranchIndirect(RDEmulateResult* res) { CPTR(EmulateResul
 void RDEmulateResult_AddBranchTrue(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addBranchTrue(address); }
 void RDEmulateResult_AddBranchFalse(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addBranchFalse(address); }
 void RDEmulateResult_AddCall(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addCall(address); }
-void RDEmulateResult_AddRef(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addRef(address); }
+void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }

@@ -24,6 +24,7 @@ class Loader: public Object
         const char* id() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
+        bool getUserData(RDUserData* userdata) const;
 
     public:
         RDLocation offset(rd_address address) const;

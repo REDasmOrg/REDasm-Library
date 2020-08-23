@@ -78,8 +78,9 @@ RD_API_EXPORT size_t RDRendererItem_GetDocumentIndex(const RDRendererItem* ritem
 // Rendering Utilities
 RD_API_EXPORT void RDRenderer_Indent(const RDRenderItemParams* rip, size_t n);
 RD_API_EXPORT void RDRenderer_HexDump(const RDRenderItemParams* rip, const RDBufferView* view, size_t size);
-RD_API_EXPORT void RDRenderer_Address(const RDRenderItemParams* rip, rd_address address);
-RD_API_EXPORT void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s);
+RD_API_EXPORT void RDRenderer_Signed(const RDRenderItemParams* rip, s64 val);
+RD_API_EXPORT void RDRenderer_Unsigned(const RDRenderItemParams* rip, u64 val);
 RD_API_EXPORT void RDRenderer_Mnemonic(const RDRenderItemParams* rip, const char* s, rd_type theme);
 RD_API_EXPORT void RDRenderer_Register(const RDRenderItemParams* rip, const char* s);
+RD_API_EXPORT void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s);
 RD_API_EXPORT void RDRenderer_Text(const RDRenderItemParams* rip, const char* s);

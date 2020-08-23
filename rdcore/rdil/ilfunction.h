@@ -2,68 +2,80 @@
 
 #include <rdapi/types.h>
 #include <forward_list>
+#include <unordered_map>
 #include <vector>
 #include "expressions.h"
+#include "../object.h"
+#include <set>
 
 class Disassembler;
 
-class ILFunction
+class ILFunction: public Object
 {
     public:
         ILFunction(const Disassembler* disassembler);
-        void insert(size_t idx, RDILExpression* e);
-        void append(RDILExpression* e);
-        const RDILExpression* first() const;
-        const RDILExpression* last() const;
-        const RDILExpression* expression(size_t idx) const;
+        void insert(size_t idx, ILExpression* e);
+        void append(ILExpression* e);
+        void setCurrentAddress(rd_address address);
+        bool getAddress(const ILExpression* e, rd_address* address) const;
+        const ILExpression* first() const;
+        const ILExpression* last() const;
+        const ILExpression* expression(size_t idx) const;
+        const Disassembler* disassembler() const;
         bool empty() const;
         size_t size() const;
 
     public:
-        static bool generate(const Disassembler* disassembler, rd_address address, ILFunction* il);
+        static bool generate(rd_address address, ILFunction* il);
 
     public:
-        RDILExpression* exprUNKNOWN() const;
-        RDILExpression* exprNOP() const;
-        RDILExpression* exprPOP(RDILExpression* e) const;
-        RDILExpression* exprPUSH(RDILExpression* e) const;
-        RDILExpression* exprREG(size_t size, const char* reg) const;
-        RDILExpression* exprCNST(size_t size, u64 value) const;
-        RDILExpression* exprVAR(size_t size, const char* name) const;
-        RDILExpression* exprADDR(rd_address addr) const;
-        RDILExpression* exprJUMP(RDILExpression* e) const;
-        RDILExpression* exprCALL(RDILExpression* e) const;
-        RDILExpression* exprRET(RDILExpression* e) const;
-        RDILExpression* exprLOAD(RDILExpression* memloc) const;
-        RDILExpression* exprSTORE( RDILExpression* dst, RDILExpression* src) const;
-        RDILExpression* exprADD(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprSUB(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprMUL(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprDIV(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprAND(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprOR(RDILExpression* l, RDILExpression* r)  const;
-        RDILExpression* exprXOR(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprCOPY(RDILExpression* dst, RDILExpression* src) const;
-        RDILExpression* exprIF(RDILExpression* cond, RDILExpression* t, RDILExpression* f) const;
-        RDILExpression* exprEQ(RDILExpression* l, RDILExpression* r)  const;
-        RDILExpression* exprNE(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprLT(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprLE(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprGT(RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprGE(RDILExpression* l, RDILExpression* r) const;
+        ILExpression* exprUNKNOWN() const;
+        ILExpression* exprNOP() const;
+        ILExpression* exprPOP(ILExpression* e) const;
+        ILExpression* exprPUSH(ILExpression* e) const;
+        ILExpression* exprREG(size_t size, const char* reg) const;
+        ILExpression* exprCNST(size_t size, u64 value) const;
+        ILExpression* exprVAR(size_t size, const char* name) const;
+        ILExpression* exprADDR(rd_address addr) const;
+        ILExpression* exprJUMP(ILExpression* e) const;
+        ILExpression* exprCALL(ILExpression* e) const;
+        ILExpression* exprRET(ILExpression* e) const;
+        ILExpression* exprLOAD(ILExpression* memloc) const;
+        ILExpression* exprSTORE( ILExpression* dst, ILExpression* src) const;
+        ILExpression* exprADD(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprSUB(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprMUL(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprDIV(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprAND(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprOR(ILExpression* l, ILExpression* r)  const;
+        ILExpression* exprXOR(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprCOPY(ILExpression* dst, ILExpression* src) const;
+        ILExpression* exprIF(ILExpression* cond, ILExpression* t, ILExpression* f) const;
+        ILExpression* exprEQ(ILExpression* l, ILExpression* r)  const;
+        ILExpression* exprNE(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprLT(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprLE(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprGT(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprGE(ILExpression* l, ILExpression* r) const;
 
     private:
-        RDILExpression* check(RDILExpression* e) const;
-        RDILExpression* exprVALUE_P(rd_type rdil, size_t size, uintptr_t value) const;
-        RDILExpression* exprVALUE(rd_type rdil, size_t size, u64 value) const;
-        RDILExpression* exprLR(rd_type rdil, size_t size, RDILExpression* l, RDILExpression* r) const;
-        RDILExpression* exprDS(rd_type rdil, size_t size, RDILExpression* dst, RDILExpression* src) const;
-        RDILExpression* exprU(rd_type rdil, size_t size, RDILExpression* e) const;
-        RDILExpression* expr(rd_type rdil, size_t size) const;
-        RDILExpression* expr(rd_type rdil) const;
+        ILExpression* check(ILExpression* e) const;
+        ILExpression* exprVALUE_P(rd_type rdil, size_t size, uintptr_t value) const;
+        ILExpression* exprVALUE(rd_type rdil, size_t size, u64 value) const;
+        ILExpression* exprLR(rd_type rdil, size_t size, ILExpression* l, ILExpression* r) const;
+        ILExpression* exprDS(rd_type rdil, size_t size, ILExpression* dst, ILExpression* src) const;
+        ILExpression* exprU(rd_type rdil, size_t size, ILExpression* e) const;
+        ILExpression* expr(rd_type rdil, size_t size) const;
+        ILExpression* expr(rd_type rdil) const;
 
     private:
-        std::vector<RDILExpression*> m_expressions;
-        mutable std::forward_list<RDILExpressionPtr> m_pool;
+        static bool generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path);
+        static void generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path);
+
+    private:
+        rd_address m_currentaddress{RD_NPOS};
+        std::vector<ILExpression*> m_expressions;
+        std::unordered_map<const ILExpression*, rd_address> m_addresses;
+        mutable std::forward_list<ILExpressionPtr> m_pool;
         const Disassembler* m_disassembler;
 };

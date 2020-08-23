@@ -37,14 +37,15 @@ typedef u16 rd_flag;
     #define RD_NREG (rd_register_id)(-1)
 #endif
 
-#define RD_USERDATA_FIELD \
-    union { \
-        void* userdata; \
-        void* p_data; \
-        intptr_t i_data; \
-        uintptr_t u_data; \
-        const char* s_data; \
-    };
+#define PRIVATE_RD_USERDATA_FIELDS \
+    void* userdata; \
+    void* p_data; \
+    intptr_t i_data; \
+    uintptr_t u_data; \
+    const char* s_data;
+
+#define RD_USERDATA_FIELD union { PRIVATE_RD_USERDATA_FIELDS };
+typedef union RDUserData { PRIVATE_RD_USERDATA_FIELDS } RDUserData;
 
 typedef struct RDLocation {
     union {

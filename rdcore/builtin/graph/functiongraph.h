@@ -50,7 +50,6 @@ class FunctionGraph: public StyledGraph
         std::string nodeLabel(RDGraphNode n) const override;
 
     private:
-        bool isCode(rd_address address) const;
         FunctionBasicBlock* createBasicBlock(rd_address startaddress);
         void buildBasicBlocks(BasicBlocks& basicblocks);
         void buildBasicBlocks();

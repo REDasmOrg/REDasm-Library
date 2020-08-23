@@ -31,10 +31,11 @@ class Renderer: public Object
 
     public:
         void renderHexDump(RendererItem* ritem, const RDBufferView* view, size_t size) const;
-        void renderAddress(RendererItem* ritem, rd_address address) const;
+        void renderSigned(RendererItem* ritem, s64 value) const;
+        void renderUnsigned(RendererItem* ritem, u64 value) const;
         void renderMnemonic(RendererItem* ritem, const std::string& s, rd_type theme) const;
-        void renderConstant(RendererItem* ritem, const std::string& s) const;
         void renderRegister(RendererItem* ritem, const std::string& s) const;
+        void renderConstant(RendererItem* ritem, const std::string& s) const;
         void renderText(RendererItem* ritem, const std::string& s, rd_type theme = Theme_Default) const;
         void renderIndent(RendererItem* ritem, size_t n, bool ignoreflags = false) const;
         void renderAssemblerInstruction(rd_address address, RendererItem* ritem) const;

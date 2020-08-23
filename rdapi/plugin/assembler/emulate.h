@@ -20,4 +20,4 @@ RD_API_EXPORT void RDEmulateResult_AddBranchIndirect(RDEmulateResult* res);
 RD_API_EXPORT void RDEmulateResult_AddBranchTrue(RDEmulateResult* res, rd_address address);
 RD_API_EXPORT void RDEmulateResult_AddBranchFalse(RDEmulateResult* res, rd_address address);
 RD_API_EXPORT void RDEmulateResult_AddCall(RDEmulateResult* res, rd_address address);
-RD_API_EXPORT void RDEmulateResult_AddRef(RDEmulateResult* res, rd_address address);
+RD_API_EXPORT void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address);

@@ -42,7 +42,7 @@ class EmulateResult: public Object
         void addBranchFalse(rd_address address);
         void addSysCall(u64 n);
         void addCall(rd_address address);
-        void addRef(rd_address address);
+        void addReference(rd_address address);
 
     private:
         bool m_canflow{true};

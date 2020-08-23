@@ -55,6 +55,13 @@ const char* Loader::id() const { return m_ploader->id; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
 
+bool Loader::getUserData(RDUserData* userdata) const
+{
+    if(!userdata) return false;
+    userdata->userdata = m_ploader->userdata;
+    return true;
+}
+
 RDLocation Loader::offset(rd_address address) const
 {
     RDSegment segment;

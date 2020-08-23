@@ -7,7 +7,7 @@ DECLARE_HANDLE(RDNet);
 DECLARE_HANDLE(RDNetNode);
 
 RD_API_EXPORT const RDNetNode* RDNet_FindNode(const RDNet* net, rd_address address);
-RD_API_EXPORT size_t RDNet_GetRefs(const RDNet* net, rd_address address, const rd_address** refs);
+RD_API_EXPORT size_t RDNet_GetReferences(const RDNet* net, rd_address address, const rd_address** refs);
 
 RD_API_EXPORT rd_address RDNetNode_GetNext(const RDNetNode* netnode);
 RD_API_EXPORT rd_type RDNetNode_GetBranchType(const RDNetNode* netnode);

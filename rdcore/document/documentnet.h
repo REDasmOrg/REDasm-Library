@@ -40,7 +40,7 @@ class DocumentNet: public Object
         void unlinkCall(rd_address fromaddress, rd_address toaddress);
         void removeRef(rd_address fromaddress, rd_address toaddress);
         const DocumentNetNode* findNode(rd_address address) const;
-        size_t getRefs(rd_address address, const rd_address** refs) const;
+        size_t getReferences(rd_address address, const rd_address** refs) const;
 
     public:
         static bool isConditional(const DocumentNetNode* n);

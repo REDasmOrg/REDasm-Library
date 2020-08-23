@@ -22,8 +22,8 @@ void Engine::execute()
         {
             case Engine::EngineState_None:       m_sigcount = 0; m_currentstep++; break;
             case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
-            case Engine::EngineState_Analyze:    this->analyzeStep();    break;
             case Engine::EngineState_CFG:        this->cfgStep();        break;
+            case Engine::EngineState_Analyze:    this->analyzeStep();    break;
             case Engine::EngineState_Signature:  this->signatureStep();  break;
             default:                             rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
         }
@@ -92,7 +92,7 @@ void Engine::analyzeStep()
         if(HAS_FLAG(p, AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
 
         m_analyzecount[p]++;
-        p->execute(p, CPTR(RDDisassembler, m_disassembler));
+        if(p->execute) p->execute(p, CPTR(RDDisassembler, m_disassembler));
     }
 
     if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm

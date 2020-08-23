@@ -20,8 +20,9 @@ const char* RDRendererItem_GetItemText(const RDRendererItem* ritem) { return CPT
 
 void RDRenderer_Indent(const RDRenderItemParams* rip, size_t n) { CPTR(const Renderer, rip->renderer)->renderIndent(CPTR(RendererItem, rip->rendereritem), n); }
 void RDRenderer_HexDump(const RDRenderItemParams* rip, const RDBufferView* view, size_t size) { CPTR(const Renderer, rip->renderer)->renderHexDump(CPTR(RendererItem, rip->rendereritem), view, size); }
-void RDRenderer_Address(const RDRenderItemParams* rip, rd_address address) { CPTR(const Renderer, rip->renderer)->renderAddress(CPTR(RendererItem, rip->rendereritem), address); }
-void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderConstant(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
+void RDRenderer_Signed(const RDRenderItemParams* rip, s64 val) { CPTR(const Renderer, rip->renderer)->renderSigned(CPTR(RendererItem, rip->rendereritem), val); }
+void RDRenderer_Unsigned(const RDRenderItemParams* rip, u64 val) { CPTR(const Renderer, rip->renderer)->renderUnsigned(CPTR(RendererItem, rip->rendereritem), val); }
 void RDRenderer_Mnemonic(const RDRenderItemParams* rip, const char* s, rd_type theme) { CPTR(const Renderer, rip->renderer)->renderMnemonic(CPTR(RendererItem, rip->rendereritem), s ? s : std::string(), theme); }
 void RDRenderer_Register(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderRegister(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
+void RDRenderer_Constant(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderConstant(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }
 void RDRenderer_Text(const RDRenderItemParams* rip, const char* s) { CPTR(const Renderer, rip->renderer)->renderText(CPTR(RendererItem, rip->rendereritem), s ? s : std::string()); }

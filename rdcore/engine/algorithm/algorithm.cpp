@@ -7,26 +7,24 @@
 #include "emulateresult.h"
 #include <rdapi/disassembler.h>
 
-Algorithm::Algorithm(Disassembler* disassembler): StateMachine(disassembler) { }
+Algorithm::Algorithm(Disassembler* disassembler): AddressQueue(disassembler) { }
+void Algorithm::enqueue(rd_address address) { if(this->isAddressValid(address)) AddressQueue::enqueue(address); }
+void Algorithm::schedule(rd_address address) { if(this->isAddressValid(address)) AddressQueue::schedule(address); }
 
-bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
+bool Algorithm::canBeDisassembled(rd_address address) const
 {
-    auto loc = m_disassembler->loader()->offset(address);
-    if(!loc.valid) return false;
+    if(!this->isAddressValid(address)) return false;
 
-    if(m_document->instructionItem(address, nullptr)) return false;
+    RDBlock block;
 
-    if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code))
-        return false;
+    if(!m_document->block(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
 
-    if(!m_document->block(address, block) || IS_TYPE(block, BlockType_Code)) return false;
-
-    if(IS_TYPE(block, BlockType_Data))
+    if(IS_TYPE(&block, BlockType_Data))
     {
         RDSymbol symbol;
 
-        if(!m_document->symbol(block->address, &symbol))
-            REDasmError("Invalid symbol", block->address);
+        if(!m_document->symbol(block.address, &symbol))
+            REDasmError("Invalid symbol", block.address);
 
         switch(symbol.type)
         {
@@ -36,7 +34,8 @@ bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
             default: break;
         }
 
-        if(m_disassembler->getReferencesCount(block->address)) return false;
+        auto* net = m_disassembler->net();
+        if(net->getReferences(block.address, nullptr)) return false;
         return HAS_FLAG(&symbol, SymbolFlags_Weak);
     }
 
@@ -135,17 +134,14 @@ void Algorithm::nextAddress(rd_address address)
 std::optional<rd_address> Algorithm::decodeAddress(rd_address address)
 {
     rd_ctx->status("Decoding @ " + Utils::hex(address));
-
-    RDBlock block;
-    if(!this->canBeDisassembled(address, &block)) return std::nullopt;
-    block.address = address; // Adjust to address for size calculation
+    if(!this->canBeDisassembled(address)) return std::nullopt;
 
     RDBufferView view;
-    if(!m_disassembler->view(address, BlockContainer::size(&block), &view)) return std::nullopt;
+    if(!m_disassembler->view(address, SegmentContainer::offsetSize(m_currentsegment), &view)) return std::nullopt;
 
     EmulateResult result(address, &view, m_disassembler);
     m_disassembler->assembler()->emulate(&result);
-    if(!result.size() || (result.size() > BlockContainer::size(&block))) return std::nullopt;
+    if(!result.size() || (result.size() > view.size)) return std::nullopt;
 
     m_disassembler->document()->instruction(address, result.size());
     rd_address nextaddress = address + result.size();
@@ -158,4 +154,14 @@ std::optional<rd_address> Algorithm::decodeAddress(rd_address address)
 
     this->processResult(&result);
     return result.canFlow() ? std::make_optional(nextaddress) : std::nullopt;
+}
+
+bool Algorithm::isAddressValid(rd_address address) const
+{
+    auto loc = m_disassembler->loader()->offset(address);
+    if(!loc.valid) return false;
+
+    if(m_document->instructionItem(address, nullptr)) return false;
+    if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code)) return false;
+    return true;
 }

@@ -118,7 +118,7 @@ class Context: public Object
 
     private:
         Disassembler* m_disassembler{nullptr};
-        rd_flag m_flags{ContextFlag_None};
+        rd_flag m_flags{ContextFlags_None};
         PluginManager m_pluginmanager;
         PluginMap m_loaders, m_assemblers, m_analyzers, m_commands;
         LoaderToAssemblerMap m_loadertoassembler;

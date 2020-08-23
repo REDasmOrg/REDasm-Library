@@ -353,7 +353,7 @@ void Renderer::renderInstruction(rd_address address, RendererItem* ritem) const
 {
     this->renderPrologue(address, ritem);
 
-    if(rd_ctx->flags() & ContextFlag_ShowRDIL) this->renderRDILInstruction(address, ritem);
+    if(rd_ctx->flags() & ContextFlags_ShowRDIL) this->renderRDILInstruction(address, ritem);
     else this->renderAssemblerInstruction(address, ritem);
 
     this->renderComments(address, ritem);

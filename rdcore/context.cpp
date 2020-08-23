@@ -4,6 +4,7 @@
 #include "builtin/analyzer/unexploredanalyzer.h"
 #include "builtin/analyzer/functionanalyzer.h"
 #include "builtin/analyzer/stringsanalyzer.h"
+#include "builtin/loader/binary.h"
 #include <rdapi/theme.h>
 #include <filesystem>
 #include <iostream>
@@ -244,7 +245,6 @@ void Context::getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlug
     for(auto& [id, plugin] : m_loaders)
     {
         RDLoaderPlugin* ploader = reinterpret_cast<RDLoaderPlugin*>(plugin);
-
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(ploader));
         const char* assemblerid = ploader->test(ploader, loadrequest);
 
@@ -282,8 +282,12 @@ RDAssemblerPlugin* Context::getAssembler(const RDLoaderPlugin* ploader) const
     if(it == m_loadertoassembler.end()) return nullptr;
 
     RDAssemblerPlugin* passembler = this->findAssembler(it->second);
-    if(!passembler) this->log("Cannot find assembler '" + std::string(it->second) + "'");
-    Context::initPlugin(reinterpret_cast<RDPluginHeader*>(passembler));
+
+    if(!passembler || (passembler && !HAS_FLAG(ploader, LoaderFlags_CustomAssembler)))
+        this->log("Cannot find assembler '" + std::string(it->second) + "'");
+    else
+        Context::initPlugin(reinterpret_cast<RDPluginHeader*>(passembler));
+
     return passembler;
 }
 
@@ -396,6 +400,8 @@ bool Context::registerPlugin(RDPluginHeader* plugin, PluginMap& pluginmap)
 
 void Context::initBuiltins()
 {
+    m_loaders[loader_Binary.id] = reinterpret_cast<RDPluginHeader*>(&loader_Binary);
+
     m_analyzers[analyzer_Unexplored.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Unexplored);
     m_analyzers[analyzer_Function.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Function);
     m_analyzers[analyzer_Strings.id] = reinterpret_cast<RDPluginHeader*>(&analyzer_Strings);

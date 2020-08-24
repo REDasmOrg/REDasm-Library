@@ -1,6 +1,7 @@
 #include "blockcontainer.h"
 #include "../../support/error.h"
 #include "../../support/utils.h"
+#include <optional>
 
 BlockContainer::BlockContainer()
 {
@@ -87,18 +88,18 @@ void BlockContainer::remove(rd_address start, rd_address end)
     if((begit == m_blocks.end()) && (endit == m_blocks.end()))
         return;
 
-    RDBlock begbl{}, endbl{};
+    std::optional<RDBlock> begbl, endbl;
 
     if(begit != m_blocks.end())
     {
         begbl = *begit;
-        begbl.end = start - 1; // Shrink first part
+        begbl->end = start - 1; // Shrink first part
     }
 
     if(endit != m_blocks.end())
     {
         endbl = *endit;
-        endbl.start = end + 1; // Shrink last part
+        endbl->start = end + 1; // Shrink last part
     }
 
     auto it = m_blocks.end();
@@ -108,17 +109,17 @@ void BlockContainer::remove(rd_address start, rd_address end)
     else if(endit != m_blocks.end()) it = this->doRemove(endit);
     else REDasmError("BlockContainer: remove failed");
 
-    if(!BlockContainer::empty(&begbl))
+    if(begbl && !BlockContainer::empty(std::addressof(*begbl)))
     {
-        begbl.type = BlockType_Unexplored; // Demote to "Unexplored"
-        it = this->doInsert(it, begbl);
+        begbl->type = BlockType_Unexplored; // Demote to "Unexplored"
+        it = this->doInsert(it, *begbl);
         it++;
     }
 
-    if(!BlockContainer::empty(&endbl))
+    if(endbl && !BlockContainer::empty(std::addressof(*endbl)))
     {
-        endbl.type = BlockType_Unexplored; // Demote to "Unexplored"
-        this->doInsert(it, endbl);
+        endbl->type = BlockType_Unexplored; // Demote to "Unexplored"
+        this->doInsert(it, *endbl);
     }
 }
 

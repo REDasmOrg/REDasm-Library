@@ -224,15 +224,18 @@ void Context::getAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin
     m_selectedanalyzers.clear();
     if(!loader || !assembler || !callback) return;
 
+    AnalyzerList analyzers;
+
     for(auto& [id, plugin] : m_analyzers)
     {
         RDAnalyzerPlugin* panalyzer = reinterpret_cast<RDAnalyzerPlugin*>(plugin);
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(panalyzer));
         if(!panalyzer->isenabled(panalyzer, loader, assembler)) continue;
-        m_selectedanalyzers.insert(panalyzer);
+        if(HAS_FLAG(panalyzer, AnalyzerFlags_Selected)) m_selectedanalyzers.insert(panalyzer);
+        analyzers.insert(panalyzer);
     }
 
-    std::for_each(m_selectedanalyzers.begin(), m_selectedanalyzers.end(), [&](const RDAnalyzerPlugin* panalyzer) {
+    std::for_each(analyzers.begin(), analyzers.end(), [&](const RDAnalyzerPlugin* panalyzer) {
         callback(panalyzer, userdata);
     });
 }

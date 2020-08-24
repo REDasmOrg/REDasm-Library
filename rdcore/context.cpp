@@ -283,9 +283,9 @@ RDAssemblerPlugin* Context::getAssembler(const RDLoaderPlugin* ploader) const
 
     RDAssemblerPlugin* passembler = this->findAssembler(it->second);
 
-    if(!passembler || (passembler && !HAS_FLAG(ploader, LoaderFlags_CustomAssembler)))
+    if(!passembler && !HAS_FLAG(ploader, LoaderFlags_CustomAssembler))
         this->log("Cannot find assembler '" + std::string(it->second) + "'");
-    else
+    else if(passembler)
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(passembler));
 
     return passembler;

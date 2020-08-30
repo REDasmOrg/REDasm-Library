@@ -1,36 +1,44 @@
 #pragma once
 
 #include <string>
-#include <filesystem>
-#include <unordered_map>
-#include <optional>
 #include <rdapi/database/database.h>
 #include "../libs/json/json.hpp"
-#include "databaseitem.h"
+#include "../object.h"
 
-class Database: public DatabaseItem
+class Database: public Object
 {
     public:
-        Database(const std::string& dbname);
-        bool save(const std::string& filepath) const;
-        static Database* load(const std::string& dbname);
+        typedef std::vector<u8> DatabaseData;
+        typedef DatabaseData DecompiledData;
+        typedef DatabaseData CompiledData;
 
     private:
-        std::string m_dbname;
-        nlohmann::json m_database;
+        Database(const std::string& dbpath, const nlohmann::json& db);
+        void writeValue(const nlohmann::json& value, RDDatabaseValue* dbvalue) const;
 
-    public: // vvv OLD vvv
-        bool select(const std::string& obj);
-        bool find(const std::string& key, RDDatabaseItem* item) const;
-        static bool exists(const std::string& dbname);
+    public:
+        bool query(std::string q, RDDatabaseValue* dbvalue) const;
+        const std::string& name() const;
+
+    public:
+        static bool compileFile(const std::string& filepath, CompiledData& compiled);
+        static bool decompileFile(const std::string& filepath, DecompiledData& decompiled);
+        static bool compile(const DecompiledData& decompiled, CompiledData& compiled);
+        static bool decompile(const CompiledData& compiled, DecompiledData& decompiled);
+        static Database* create(const std::string& dbpath);
+        static Database* open(const std::string& dbpath);
 
     private:
-        bool writeItem(const nlohmann::json& value, RDDatabaseItem* item) const;
-        static std::string find(const std::string& dbname);
+        static void read(const std::string& filepath, DatabaseData& data);
+        static bool parseDecompiledFile(const std::string& filepath, nlohmann::json& j);
+        static bool parseCompiledFile(const std::string& filepath, nlohmann::json& j);
+        static bool parseDecompiled(const DecompiledData& decompiled, nlohmann::json& j);
+        static bool parseCompiled(const CompiledData& compiled, nlohmann::json& j);
+        static std::string locate(std::string dbname);
         static std::string dbpath(const std::string& dbname);
 
     private:
-        std::optional<nlohmann::json> m_currobj;
-        std::unordered_map<std::string, nlohmann::json> m_objects;
-        std::filesystem::path m_db;
+        mutable std::unordered_map<nlohmann::json::value_t, std::string> m_valuecache;
+        std::string m_dbpath, m_dbname;
+        nlohmann::json m_db;
 };

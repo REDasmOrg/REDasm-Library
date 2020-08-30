@@ -3,20 +3,35 @@
 
 RDDatabase* RDDatabase_Open(const char* dbname)
 {
-    if(!Database::exists(dbname)) return nullptr;
-    return CPTR(RDDatabase, new Database(dbname));
+    if(!dbname) return nullptr;
+    return CPTR(RDDatabase, Database::open(dbname));
 }
 
-bool RDDatabase_Select(RDDatabase* db, const char* obj) { return CPTR(Database, db)->select(obj); }
-bool RDDatabase_Find(const RDDatabase* db, const char* key, RDDatabaseItem* item) { return CPTR(const Database, db)->find(key, item); }
+RDDatabase* RDDatabase_Create(const char* dbname)
+{
+    if(!dbname) return nullptr;
+    return CPTR(RDDatabase, Database::create(dbname));
+}
 
-RDDatabase* RDDatabase_Create(const char* dbname) { return CPTR(RDDatabase, new Database(dbname)); }
-RDDatabase* RDDatabase_Load(const char* dbname) { return CPTR(RDDatabase, Database::load(dbname)); }
-bool RDDatabase_Save(const RDDatabase* db, const char* filepath) { return CPTR(const Database, db)->save(filepath); }
-RDDatabaseItemNew* RDDatabase_Set(RDDatabase* db, const char* name, rd_type type) { return CPTR(RDDatabaseItemNew, CPTR(Database, db)->set(name, type)); }
-RDDatabaseItemNew* RDDatabase_Get(const RDDatabase* db, const char* name) { return CPTR(RDDatabaseItemNew, CPTR(const Database, db)->get(name)); }
+size_t RDDatabase_CompileFile(const char* filepath, const u8** compiled)
+{
+    static Database::CompiledData data;
 
-RDDatabaseItemNew* RDDatabaseItem_Set(RDDatabaseItemNew* dbitem, const char* name, rd_type type) { return CPTR(RDDatabaseItemNew, CPTR(DatabaseItem, dbitem)->set(name, type)); }
-RDDatabaseItemNew* RDDatabaseItem_Get(const RDDatabaseItemNew* dbitem, const char* name) { return CPTR(RDDatabaseItemNew, CPTR(const DatabaseItem, dbitem)->get(name)); }
-RDDatabaseItemNew* RDDatabaseItem_GetParent(const RDDatabaseItemNew* dbitem) { return CPTR(RDDatabaseItemNew, CPTR(const DatabaseItem, dbitem)->parent()); }
-RDDatabase* RDDatabaseItem_GetDatabase(const RDDatabaseItemNew* dbitem) { return CPTR(RDDatabase, CPTR(const DatabaseItem, dbitem)->database()); }
+    if(!filepath) return 0;
+    if(!Database::compileFile(filepath, data)) return 0;
+    *compiled = data.data();
+    return data.size();
+}
+
+size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled)
+{
+    static Database::DecompiledData data;
+
+    if(!filepath) return 0;
+    if(!Database::decompileFile(filepath, data)) return 0;
+    *decompiled = data.data();
+    return data.size();
+}
+
+const char* RDDatabase_GetName(const RDDatabase* db) { return CPTR(const Database, db)->name().c_str(); }
+bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue) { return q ? CPTR(const Database, db)->query(q, dbvalue) : false; }

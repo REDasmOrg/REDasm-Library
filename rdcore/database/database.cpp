@@ -1,139 +1,209 @@
 #include "database.h"
 #include "../context.h"
+#include "../support/utils.h"
+#include "../support/compression.h"
+#include <filesystem>
 #include <fstream>
 
-#define DATABASE_NAME_FIELD    "@name"
-#define DATABASE_PAYLOAD_FIELD "@payload"
-
 #define DATABASE_FOLDER_NAME "database"
-#define JSON_EXTENSION       ".json"
+#define RDB_EXTENSION       ".rdb"
 
 namespace fs = std::filesystem;
 
-Database::Database(const std::string& dbname): DatabaseItem(this), m_dbname(dbname)
+Database::Database(const std::string& dbpath, const nlohmann::json& db): Object(), m_dbpath(dbpath), m_dbname(fs::path(dbpath).stem()), m_db(db) { }
+
+bool Database::compileFile(const std::string& filepath, CompiledData& compiled)
 {
-    //m_db.assign(this->find(dbname));
+    DecompiledData decompiled;
+    Database::read(filepath, decompiled);
+    return Database::compile(decompiled, compiled);
 }
 
-bool Database::save(const std::string& filepath) const
+bool Database::decompileFile(const std::string& filepath, DecompiledData& decompiled)
 {
-    nlohmann::json obj = nlohmann::json::object();
-    obj[DATABASE_NAME_FIELD] = m_dbname;
-    obj[DATABASE_PAYLOAD_FIELD] = this->serialize();
-
-    auto path = fs::path(filepath);
-
-    if(path.extension() != JSON_EXTENSION)
-        path.replace_extension(JSON_EXTENSION);
-
-    std::ofstream ofs(path);
-    if(!ofs.is_open()) return false;
-    ofs << obj.dump(2);
-    return true;
+    CompiledData compiled;
+    Database::read(filepath, compiled);
+    return Database::decompile(compiled, decompiled);
 }
 
-Database* Database::load(const std::string& dbname)
+bool Database::compile(const DecompiledData& decompiled, Database::CompiledData& compiled)
 {
-    std::string path = Database::find(dbname);
-    return path.empty() ? nullptr : new Database(path);
+    nlohmann::json compiledb;
+    if(!Database::parseDecompiled(decompiled, compiledb)) return false;
+    auto tempdata = nlohmann::json::to_msgpack(compiledb);
+    if(!Compression::compress(tempdata, compiled)) return false;
+    return !compiled.empty();
 }
 
-bool Database::select(const std::string& obj)
+bool Database::decompile(const CompiledData& compiled, Database::DecompiledData& decompiled)
 {
-    auto it = m_objects.find(obj);
+    CompiledData tempdata;
+    if(!Compression::decompress(compiled, tempdata)) return false;
 
-    if(it != m_objects.end())
+    nlohmann::json decompiledb;
+    if(!Database::parseDecompiled(tempdata, decompiledb)) return false;
+    auto d = decompiledb.dump(2);
+    decompiled = DecompiledData(d.begin(), d.end());
+    return !decompiled.empty();
+}
+
+const std::string& Database::name() const { return m_dbname; }
+
+void Database::writeValue(const nlohmann::json& value, RDDatabaseValue* dbvalue) const
+{
+    switch(value.type())
     {
-        m_currobj = it->second;
-        return true;
+        case nlohmann::detail::value_t::string:
+            dbvalue->type = DatabaseValueType_String;
+            dbvalue->s = value.get_ptr<const nlohmann::json::string_t*>()->c_str();
+            break;
+
+        case nlohmann::detail::value_t::number_float:
+            dbvalue->type = DatabaseValueType_Float;
+            dbvalue->f = value;
+            break;
+
+        case nlohmann::detail::value_t::number_integer:
+            dbvalue->type = DatabaseValueType_Int;
+            dbvalue->i = value;
+            break;
+
+        case nlohmann::detail::value_t::number_unsigned:
+            dbvalue->type = DatabaseValueType_UInt;
+            dbvalue->u = value;
+            break;
+
+        case nlohmann::detail::value_t::boolean:
+            dbvalue->type = DatabaseValueType_Bool;
+            dbvalue->b = value;
+            break;
+
+        case nlohmann::detail::value_t::array:
+        {
+            auto it = m_valuecache.insert_or_assign(value.type(), value.dump());
+            dbvalue->type = DatabaseValueType_Array;
+            dbvalue->arr = it.first->second.c_str();
+            break;
+        }
+
+        case nlohmann::detail::value_t::object:
+        {
+            auto it = m_valuecache.insert_or_assign(value.type(), value.dump());
+            dbvalue->type = DatabaseValueType_Object;
+            dbvalue->obj = it.first->second.c_str();
+            break;
+        }
+
+        default:
+            REDasmError("Unhandled Type: " + std::string(value.type_name()));
+            break;
     }
+}
 
-    std::filesystem::directory_entry entry(std::filesystem::path(m_db).append(obj + JSON_EXTENSION));
-    if(!entry.is_regular_file()) return false;
-
-    std::ifstream ifs(entry.path(), std::ios::binary);
-    if(!ifs.is_open()) return false;
+bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
+{
+    if(q.empty()) return false;
+    if(q[0] != '/') q = "/" + q;
 
     try {
-        nlohmann::json data = nlohmann::json::parse(ifs);
-        if(!data.is_object()) return false;
-
-        m_objects[obj] = data;
-        m_currobj = m_objects[obj];
-    } catch(nlohmann::json::parse_error) {
+        nlohmann::json::json_pointer p(q);
+        auto value = m_db[p];
+        if(value.is_null()) return false;
+        if(dbvalue) Database::writeValue(value, dbvalue);
+    }
+    catch(nlohmann::json::parse_error& e) {
+        rd_ctx->log(e.what());
         return false;
     }
 
     return true;
 }
 
-bool Database::find(const std::string& key, RDDatabaseItem* item) const
-{
-    if(!m_currobj) return false;
+Database* Database::create(const std::string& dbpath) { return new Database(dbpath, nlohmann::json::object()); }
 
-    auto it = m_currobj->find(key);
-    if(it == m_currobj->end()) return false;
-    return item ? this->writeItem(*it, item) : true;
+Database* Database::open(const std::string& dbpath)
+{
+    std::string path = Database::locate(dbpath);
+    if(path.empty()) return nullptr;
+
+    nlohmann::json db;
+    if(!Database::parseCompiledFile(path, db)) return nullptr;
+    return new Database(path, db);
 }
 
-bool Database::exists(const std::string& dbname)
+void Database::read(const std::string& filepath, Database::DatabaseData& data)
 {
-    return !Database::find(dbname).empty();
+    std::ifstream stream(filepath, std::ios::in | std::ios::binary | std::ios::ate);
+    if(!stream.is_open()) return;
+
+    std::streamsize size = stream.tellg();
+    stream.seekg(0, std::ios::beg);
+
+    data.resize(size);
+    stream.read(reinterpret_cast<char*>(data.data()), size);
 }
 
-bool Database::writeItem(const nlohmann::json& value, RDDatabaseItem* item) const
+bool Database::parseDecompiledFile(const std::string& filepath, nlohmann::json& j)
 {
-    switch(value.type())
-    {
-        case nlohmann::detail::value_t::string:
-            item->type = DatabaseItemType_String;
-            item->s_value = value.get_ptr<const nlohmann::json::string_t*>()->c_str();
-            break;
+    DecompiledData decompiled;
+    Database::read(filepath, decompiled);
+    return Database::parseDecompiled(decompiled, j);
+}
 
-        case nlohmann::detail::value_t::number_float:
-            item->type = DatabaseItemType_Bool;
-            item->f_value = value;
-            break;
+bool Database::parseCompiledFile(const std::string& filepath, nlohmann::json& j)
+{
+    CompiledData compiled;
+    Database::read(filepath, compiled);
+    return Database::parseCompiled(compiled, j);
+}
 
-        case nlohmann::detail::value_t::number_integer:
-            item->type = DatabaseItemType_Int;
-            item->i_value = value;
-            break;
-
-        case nlohmann::detail::value_t::number_unsigned:
-            item->type = DatabaseItemType_UInt;
-            item->u_value = value;
-            break;
-
-        case nlohmann::detail::value_t::boolean:
-            item->type = DatabaseItemType_Bool;
-            item->b_value = value;
-            break;
-
-        default: return false;
+bool Database::parseDecompiled(const Database::DecompiledData& decompiled, nlohmann::json& j)
+{
+    try {
+        j = nlohmann::json::parse(decompiled);
+    }  catch (nlohmann::json::parse_error& e) {
+        rd_ctx->log(e.what());
+        return false;
     }
 
     return true;
 }
 
-std::string Database::find(const std::string& dbname)
+bool Database::parseCompiled(const CompiledData& compiled, nlohmann::json& j)
 {
+    try {
+        CompiledData tempdata;
+        Compression::decompress(compiled, tempdata);
+        j = nlohmann::json::from_msgpack(tempdata);
+    }  catch (nlohmann::json::parse_error& e) {
+        rd_ctx->log(e.what());
+        return false;
+    }
+
+    return true;
+}
+
+std::string Database::locate(std::string dbname)
+{
+    if(fs::path(dbname).extension() != RDB_EXTENSION) dbname += RDB_EXTENSION;
+    if(fs::exists(dbname)) return dbname;
+
     // Try with runtime path
-    std::filesystem::directory_entry dbentry(std::filesystem::path(rd_ctx->runtimePath()).append(dbname).make_preferred());
-    if(dbentry.is_directory()) return dbentry.path();
+    fs::directory_entry dbentry((fs::path(rd_ctx->runtimePath()) / dbname).make_preferred());
+    if(dbentry.is_regular_file()) return dbentry.path();
 
     // Try with runtime path + "database"
-    dbentry.assign(std::filesystem::path(rd_ctx->runtimePath()).append(DATABASE_FOLDER_NAME).append(dbname).make_preferred());
-    if(dbentry.is_directory()) return dbentry.path();
+    dbentry.assign((fs::path(rd_ctx->runtimePath()) / DATABASE_FOLDER_NAME / dbname).make_preferred());
+    if(dbentry.is_regular_file()) return dbentry.path();
 
     // Search everywhere
     for(const std::string& searchpath : rd_ctx->databasePaths())
     {
-        dbentry.assign(std::filesystem::path(searchpath).append(dbname).make_preferred());
-        if(dbentry.is_directory()) return dbentry.path();
+        dbentry.assign((fs::path(searchpath) / dbname).make_preferred());
+        if(dbentry.is_regular_file()) return dbentry.path();
 
-        dbentry.assign(std::filesystem::path(searchpath).append(DATABASE_FOLDER_NAME).append(dbname).make_preferred());
-        if(dbentry.is_directory()) return dbentry.path();
+        dbentry.assign((fs::path(searchpath) / DATABASE_FOLDER_NAME / dbname).make_preferred());
+        if(dbentry.is_regular_file()) return dbentry.path();
     }
 
     return std::string();

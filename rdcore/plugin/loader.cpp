@@ -43,7 +43,7 @@ Database* Loader::database(const std::string& dbname)
     auto it = m_database.find(dbname);
     if(it != m_database.end()) return it->second.get();
 
-    auto* db = Database::load(dbname);
+    auto* db = Database::open(dbname);
     if(!db) return nullptr;
 
     auto iit = m_database.emplace(dbname, db);

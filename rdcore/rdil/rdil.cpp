@@ -154,7 +154,7 @@ bool RDIL::hasValue(const ILExpression* e)
 
 void RDIL::wrap(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
 {
-    if(RDIL::hasValue(e))
+    if(RDIL::hasValue(e) || IS_TYPE(e, RDIL_Load))
     {
         RDIL::render(e, renderer, ritem, address);
         return;

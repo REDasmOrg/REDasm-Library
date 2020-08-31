@@ -12,20 +12,20 @@
 Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm()) { GibberishDetector::initialize(); }
 Engine::~Engine() { this->stop(); }
 size_t Engine::currentStep() const { return m_currentstep; }
-void Engine::reset() { m_currentstep = Engine::EngineState_None; }
+void Engine::reset() { m_currentstep = Engine::State_None; }
 
 void Engine::execute()
 {
-    while(m_currentstep < EngineState_Last)
+    while(m_currentstep < State_Last)
     {
         switch(m_currentstep)
         {
-            case Engine::EngineState_None:       m_sigcount = 0; m_currentstep++; break;
-            case Engine::EngineState_Algorithm:  this->algorithmStep();  break;
-            case Engine::EngineState_CFG:        this->cfgStep();        break;
-            case Engine::EngineState_Analyze:    this->analyzeStep();    break;
-            case Engine::EngineState_Signature:  this->signatureStep();  break;
-            default:                             rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
+            case Engine::State_None:      m_sigcount = 0; m_currentstep++; break;
+            case Engine::State_Algorithm: this->algorithmStep();  break;
+            case Engine::State_CFG:       this->cfgStep();        break;
+            case Engine::State_Analyze:   this->analyzeStep();    break;
+            case Engine::State_Signature: this->signatureStep();  break;
+            default:                      rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
         }
     }
 
@@ -36,7 +36,7 @@ void Engine::execute()
         rd_ctx->status("Ready");
     }
     else // More addresses pending: run Algorithm again
-        this->execute(Engine::EngineState_Algorithm);
+        this->execute(Engine::State_Algorithm);
 }
 
 void Engine::execute(size_t step)
@@ -51,7 +51,7 @@ bool Engine::needsWeak() const
 {
     switch(m_currentstep)
     {
-        case Engine::EngineState_Algorithm: return true;
+        case Engine::State_Algorithm: return true;
         default: break;
     }
 
@@ -89,7 +89,7 @@ void Engine::analyzeStep()
         if(p->execute) p->execute(p, CPTR(RDDisassembler, m_disassembler));
     }
 
-    if(m_algorithm->hasNext()) this->setStep(EngineState_Algorithm); // Repeat algorithm
+    if(m_algorithm->hasNext()) this->setStep(State_Algorithm); // Repeat algorithm
     else this->nextStep();
 }
 

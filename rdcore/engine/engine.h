@@ -13,9 +13,9 @@ class Disassembler;
 class Engine
 {
     public:
-        enum { EngineState_None, EngineState_Algorithm,
-               EngineState_CFG, EngineState_Analyze,
-               EngineState_Signature, EngineState_Last };
+        enum { State_None, State_Algorithm,
+               State_CFG, State_Analyze,
+               State_Signature, State_Last };
 
     public:
         Engine(Disassembler* disassembler);
@@ -49,7 +49,7 @@ class Engine
         std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
         //SignatureScanner m_sigscanner;
         //SignatureIdentifiers m_signatures;
-        size_t m_currentstep{Engine::EngineState_None};
+        size_t m_currentstep{Engine::State_None};
         Disassembler* m_disassembler;
         SafeAlgorithm& m_algorithm;
 };

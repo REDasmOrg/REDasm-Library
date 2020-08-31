@@ -23,19 +23,19 @@ bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 void Disassembler::schedule(rd_address address) { m_algorithm->schedule(address); }
 
-void Disassembler::disassembleAddress(rd_address address)
+void Disassembler::disassembleAt(rd_address address)
 {
     m_algorithm->enqueue(address);
-    if(!m_engine->busy()) m_engine->execute(Engine::EngineState_Algorithm);
+
+    if(!m_engine->busy() || (m_engine->currentStep() == Engine::State_Analyze))
+        m_engine->execute(Engine::State_Algorithm);
 }
 
 void Disassembler::disassemble()
 {
     if(m_engine) // Just wake up the engine, if not busy
     {
-        if(!m_engine->busy())
-            m_engine->execute(Engine::EngineState_Algorithm);
-
+        if(!m_engine->busy()) m_engine->execute(Engine::State_Algorithm);
         return;
     }
 

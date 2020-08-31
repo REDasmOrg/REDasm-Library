@@ -31,5 +31,5 @@ RD_API_EXPORT void RDDisassembler_Schedule(RDDisassembler* d, rd_address address
 RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, rd_address address, size_t size);
 RD_API_EXPORT const char* RD_ReadString(const RDDisassembler* d, rd_address address, size_t* len);
 RD_API_EXPORT const char16_t* RD_ReadWString(const RDDisassembler* d, rd_address address, size_t* len);
-RD_API_EXPORT void RD_DisassembleAddress(RDDisassembler* d, rd_address address);
+RD_API_EXPORT void RD_DisassembleAt(RDDisassembler* d, rd_address address);
 RD_API_EXPORT void RD_Disassemble(RDDisassembler* d);

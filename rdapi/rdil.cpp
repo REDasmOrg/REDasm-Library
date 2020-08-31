@@ -26,9 +26,9 @@ const RDILExpression* RDILExpression_GetF(const RDILExpression* e) { return CPTR
 
 RDILFunction* RDILFunction_Generate(const RDDisassembler* disassembler, rd_address address)
 {
-    auto* il = new ILFunction(CPTR(const Disassembler, disassembler));
-    if(!ILFunction::generate(address, il)) return nullptr;
-    return CPTR(RDILFunction, il);
+    std::unique_ptr<ILFunction> il = std::make_unique<ILFunction>(CPTR(const Disassembler, disassembler));
+    if(!ILFunction::generate(address, il.get())) return nullptr;
+    return CPTR(RDILFunction, il.release());
 }
 
 const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx) { return CPTR(const RDILExpression, CPTR(const ILFunction, rdilfunction)->expression(idx)); }

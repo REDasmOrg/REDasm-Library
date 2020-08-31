@@ -176,7 +176,12 @@ void ILFunction::generateBasicBlock(rd_address address, ILFunction* il, std::set
 bool ILFunction::generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {
     auto* g = il->disassembler()->document()->graph(address);
-    if(!g) return false;
+
+    if(!g)
+    {
+        ILFunction::generateBasicBlock(address, il, path); // It's not a function: try to generate a basic block
+        return !path.empty();
+    }
 
     const RDGraphNode* nodes = nullptr;
     size_t c = g->nodes(&nodes);

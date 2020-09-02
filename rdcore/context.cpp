@@ -18,7 +18,9 @@
     if((now - m_laststatusreport) < m_debouncetimeout) return; \
     m_laststatusreport = now;
 
-Context::Context(): m_rntpath(std::filesystem::current_path()), m_tmppath(std::filesystem::temp_directory_path()) { EventDispatcher::initialize(); }
+namespace fs = std::filesystem;
+
+Context::Context(): m_rntpath(fs::current_path()), m_tmppath(fs::temp_directory_path()) { EventDispatcher::initialize(); }
 Context::~Context() { EventDispatcher::deinitialize(); }
 void Context::addPluginPath(const char* pluginpath) { m_pluginpaths.insert(pluginpath); }
 void Context::addDatabasePath(const char* dbpath) { m_dbpaths.insert(dbpath);  }
@@ -335,12 +337,14 @@ size_t Context::problemsCount() const { return m_problems.size(); }
 PluginManager* Context::pluginManager() { return &m_pluginmanager; }
 Disassembler* Context::disassembler() const { return m_disassembler; }
 const Context::StringSet& Context::databasePaths() const { return m_dbpaths; }
+const Context::StringSet& Context::pluginPaths() const { return m_pluginpaths; }
 const char* Context::runtimePath() const { return m_rntpath.c_str(); }
 const char* Context::tempPath() const { return m_tmppath.c_str(); }
 void Context::status(const std::string& s) const { this->status(static_cast<const char*>(s.c_str())); }
 void Context::log(const std::string& s) const { this->log(s.c_str()); }
 void Context::getProblems(RD_ProblemCallback callback, void* userdata) const { for(const std::string& problem : m_problems) callback(problem.c_str(), userdata); }
-void Context::getPluginPaths(RD_PluginCallback callback, void* userdata) const { for(const std::string& pluginpath : m_pluginpaths) callback(pluginpath.c_str(), userdata); }
+void Context::getDatabasePaths(RD_PathCallback callback, void* userdata) const { for(const std::string& dbpath : m_dbpaths) callback(dbpath.c_str(), userdata); }
+void Context::getPluginPaths(RD_PathCallback callback, void* userdata) const { for(const std::string& pluginpath : m_pluginpaths) callback(pluginpath.c_str(), userdata); }
 
 void Context::problem(const std::string& s)
 {
@@ -352,6 +356,10 @@ void Context::problem(const std::string& s)
 
 void Context::init()
 {
+    m_dbpaths.clear();
+    m_dbpaths.insert(fs::path(rd_ctx->runtimePath()) / DATABASE_FOLDER_NAME);
+
+    m_problems.clear();
     m_analyzers.clear();
     this->initBuiltins();
 

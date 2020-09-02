@@ -15,6 +15,8 @@
 #include "containers/sortedcontainer.h"
 #include "object.h"
 
+#define DATABASE_FOLDER_NAME "database"
+
 template<typename Callback>
 struct CallbackStruct
 {
@@ -101,12 +103,14 @@ class Context: public Object
         PluginManager* pluginManager();
         Disassembler* disassembler() const;
         const StringSet& databasePaths() const;
+        const StringSet& pluginPaths() const;
         const char* runtimePath() const;
         const char* tempPath() const;
         void status(const std::string& s) const;
         void log(const std::string& s) const;
         void getProblems(RD_ProblemCallback callback, void* userdata) const;
-        void getPluginPaths(RD_PluginCallback callback, void* userdata) const;
+        void getDatabasePaths(RD_PathCallback callback, void* userdata) const;
+        void getPluginPaths(RD_PathCallback callback, void* userdata) const;
         void problem(const std::string& s);
         void init();
 

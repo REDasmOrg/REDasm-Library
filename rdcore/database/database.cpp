@@ -5,12 +5,9 @@
 #include <filesystem>
 #include <fstream>
 
-#define DATABASE_FOLDER_NAME "database"
-#define RDB_EXTENSION       ".rdb"
-
 namespace fs = std::filesystem;
 
-Database::Database(const std::string& dbpath, const nlohmann::json& db): Object(), m_dbpath(dbpath), m_dbname(fs::path(dbpath).stem()), m_db(db) { }
+Database::Database(const std::string& dbpath, const nlohmann::json& db): Object(), m_dbfilepath(dbpath), m_dbname(fs::path(dbpath).stem()), m_db(db) { }
 
 bool Database::compileFile(const std::string& filepath, CompiledData& compiled)
 {
@@ -37,11 +34,8 @@ bool Database::compile(const DecompiledData& decompiled, Database::CompiledData&
 
 bool Database::decompile(const CompiledData& compiled, Database::DecompiledData& decompiled)
 {
-    CompiledData tempdata;
-    if(!Compression::decompress(compiled, tempdata)) return false;
-
     nlohmann::json decompiledb;
-    if(!Database::parseDecompiled(tempdata, decompiledb)) return false;
+    if(!Database::parseCompiled(compiled, decompiledb)) return false;
     auto d = decompiledb.dump(2);
     decompiled = DecompiledData(d.begin(), d.end());
     return !decompiled.empty();
@@ -106,8 +100,16 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
     if(q[0] != '/') q = "/" + q;
 
     try {
-        nlohmann::json::json_pointer p(q);
-        auto value = m_db[p];
+        nlohmann::json value;
+
+        if(q != "/")
+        {
+            nlohmann::json::json_pointer p(q);
+            value = m_db[p];
+        }
+        else
+            value = m_db;
+
         if(value.is_null()) return false;
         if(dbvalue) Database::writeValue(value, dbvalue);
     }
@@ -119,6 +121,7 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
     return true;
 }
 
+const std::string& Database::filePath() const { return m_dbfilepath; }
 Database* Database::create(const std::string& dbpath) { return new Database(dbpath, nlohmann::json::object()); }
 
 Database* Database::open(const std::string& dbpath)
@@ -185,16 +188,10 @@ bool Database::parseCompiled(const CompiledData& compiled, nlohmann::json& j)
 
 std::string Database::locate(std::string dbname)
 {
-    if(fs::path(dbname).extension() != RDB_EXTENSION) dbname += RDB_EXTENSION;
+    if(fs::path(dbname).extension() != DATABASE_RDB_EXT) dbname += DATABASE_RDB_EXT;
     if(fs::exists(dbname)) return dbname;
 
-    // Try with runtime path
-    fs::directory_entry dbentry((fs::path(rd_ctx->runtimePath()) / dbname).make_preferred());
-    if(dbentry.is_regular_file()) return dbentry.path();
-
-    // Try with runtime path + "database"
-    dbentry.assign((fs::path(rd_ctx->runtimePath()) / DATABASE_FOLDER_NAME / dbname).make_preferred());
-    if(dbentry.is_regular_file()) return dbentry.path();
+    fs::directory_entry dbentry;
 
     // Search everywhere
     for(const std::string& searchpath : rd_ctx->databasePaths())

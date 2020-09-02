@@ -4,6 +4,8 @@
 #include "../types.h"
 #include "types.h"
 
+#define DATABASE_RDB_EXT ".rdb"
+
 enum RDDatabaseValueTypes {
     DatabaseValueType_Null = 0,
     DatabaseValueType_UInt,
@@ -37,4 +39,5 @@ RD_API_EXPORT size_t RDDatabase_DecompileFile(const char* filepath, const u8** d
 RD_API_EXPORT RDDatabase* RDDatabase_Open(const char* dbname);
 RD_API_EXPORT RDDatabase* RDDatabase_Create(const char* dbname);
 RD_API_EXPORT const char* RDDatabase_GetName(const RDDatabase* db);
+RD_API_EXPORT const char* RDDatabase_GetFilePath(const RDDatabase* db);
 RD_API_EXPORT bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue);

@@ -34,4 +34,5 @@ size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled)
 }
 
 const char* RDDatabase_GetName(const RDDatabase* db) { return CPTR(const Database, db)->name().c_str(); }
+const char* RDDatabase_GetFilePath(const RDDatabase* db) { return CPTR(const Database, db)->filePath().c_str(); }
 bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue) { return q ? CPTR(const Database, db)->query(q, dbvalue) : false; }

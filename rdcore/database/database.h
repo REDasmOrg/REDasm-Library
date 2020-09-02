@@ -18,6 +18,7 @@ class Database: public Object
 
     public:
         bool query(std::string q, RDDatabaseValue* dbvalue) const;
+        const std::string& filePath() const;
         const std::string& name() const;
 
     public:
@@ -39,6 +40,6 @@ class Database: public Object
 
     private:
         mutable std::unordered_map<nlohmann::json::value_t, std::string> m_valuecache;
-        std::string m_dbpath, m_dbname;
+        std::string m_dbfilepath, m_dbname;
         nlohmann::json m_db;
 };

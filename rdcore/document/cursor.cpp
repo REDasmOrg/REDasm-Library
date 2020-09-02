@@ -13,7 +13,6 @@ void Cursor::goBack()
 
     RDCursorPos pos = m_backstack.top();
     m_backstack.pop();
-
     m_forwardstack.push(m_position);
     this->moveTo(pos.line, pos.column, false);
     EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
@@ -25,7 +24,6 @@ void Cursor::goForward()
 
     RDCursorPos pos = m_forwardstack.top();
     m_forwardstack.pop();
-
     m_backstack.push(m_position);
     this->moveTo(pos.line, pos.column, false);
     EventDispatcher::enqueue<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);

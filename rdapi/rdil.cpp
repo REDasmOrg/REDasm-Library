@@ -11,7 +11,8 @@ RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_address address
     return CPTR(RDGraph, g);
 }
 
-rd_type RDILExpression_Type(const RDILExpression* e) { return CPTR(const ILExpression, e)->type; }
+rd_type RDILExpression_Type(const RDILExpression* e) { return e ? CPTR(const ILExpression, e)->type : RDIL_Unknown; }
+bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
 const RDILExpression* RDILExpression_GetN1(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n1); }
 const RDILExpression* RDILExpression_GetN2(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n2); }
 const RDILExpression* RDILExpression_GetN3(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n3); }
@@ -23,6 +24,15 @@ const RDILExpression* RDILExpression_GetT(const RDILExpression* e) { return CPTR
 const RDILExpression* RDILExpression_GetSrc(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->src); }
 const RDILExpression* RDILExpression_GetRight(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->right); }
 const RDILExpression* RDILExpression_GetF(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->f); }
+
+bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
+{
+    const ILExpression* expr = CPTR(const ILExpression, e);
+    if(!expr || !RDIL::hasValue(expr)) return false;
+
+    if(value) value->value = expr->value;
+    return true;
+}
 
 RDILFunction* RDILFunction_Generate(const RDDisassembler* disassembler, rd_address address)
 {
@@ -45,7 +55,6 @@ RDILExpression* RDILFunction_PUSH(const RDILFunction* rdilfunction, RDILExpressi
 RDILExpression* RDILFunction_VAR(const RDILFunction* rdilfunction, size_t size, const char* name) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprVAR(size, name)); }
 RDILExpression* RDILFunction_REG(const RDILFunction* rdilfunction, size_t size, const char* reg) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprREG(size, reg)); }
 RDILExpression* RDILFunction_CNST(const RDILFunction* rdilfunction, size_t size, u64 value) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprCNST(size, value)); }
-RDILExpression* RDILFunction_ADDR(const RDILFunction* rdilfunction, rd_address address) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprADDR(address)); }
 RDILExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprADD(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprSUB(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprMUL(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
@@ -66,12 +75,3 @@ RDILExpression* RDILFunction_LT(const RDILFunction* rdilfunction, RDILExpression
 RDILExpression* RDILFunction_LE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprLE(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_GT(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprGT(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprGE(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
-
-bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
-{
-    const ILExpression* expr = CPTR(const ILExpression, e);
-    if(!expr || !RDIL::hasValue(expr)) return false;
-
-    if(value) value->value = expr->value;
-    return true;
-}

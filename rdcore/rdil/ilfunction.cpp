@@ -81,7 +81,6 @@ ILExpression* ILFunction::exprPUSH(ILExpression* e) const { return this->exprU(R
 ILExpression* ILFunction::exprVAR(size_t size, const char* name) const { return this->exprVALUE_P(RDIL_Var, size, reinterpret_cast<uintptr_t>(name)); }
 ILExpression* ILFunction::exprREG(size_t size, const char* reg) const { return this->exprVALUE_P(RDIL_Reg, size, reinterpret_cast<uintptr_t>(reg)); }
 ILExpression* ILFunction::exprCNST(size_t size, u64 value) const { return this->exprVALUE(RDIL_Cnst, size, value); }
-ILExpression* ILFunction::exprADDR(rd_address addr) const { return this->exprVALUE(RDIL_Addr, m_disassembler->assembler()->bits() / CHAR_BIT, addr);  }
 ILExpression* ILFunction::exprJUMP(ILExpression* e) const { return this->exprU(RDIL_Goto, 0, e); }
 ILExpression* ILFunction::exprCALL(ILExpression* e) const { return this->exprU(RDIL_Call, 0, e); }
 ILExpression* ILFunction::exprRET(ILExpression* e) const { return this->exprU(RDIL_Ret, 0, e); }

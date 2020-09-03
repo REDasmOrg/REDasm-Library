@@ -1,5 +1,6 @@
 #include "functionanalyzer.h"
 #include "../../rdil/ilfunction.h"
+#include "../../rdil/rdil.h"
 #include "../../document/document.h"
 #include "../../disassembler.h"
 #include "../builtin.h"
@@ -44,14 +45,9 @@ bool FunctionAnalyzer::findNullSubs(Disassembler* disassembler, const ILFunction
 void FunctionAnalyzer::findThunk(Disassembler* disassembler, const ILFunction* il, rd_address address)
 {
     const auto* expr = il->first();
-    if(expr->type != RDIL_Goto) return;
-
     const char* name = nullptr;
 
-    if((expr->e->type == RDIL_Load) && (expr->e->e->type == RDIL_Addr))
-        name = disassembler->document()->name(expr->e->e->address);
-    else if(expr->e->type == RDIL_Addr)
-        name = disassembler->document()->name(expr->e->address);
-
+    if(RDIL::match(expr, "goto [c]")) name = disassembler->document()->name(expr->e->e->address);
+    else if(RDIL::match(expr, "goto c")) name = disassembler->document()->name(expr->e->address);
     if(name) disassembler->document()->rename(address, Utils::thunk(name));
 }

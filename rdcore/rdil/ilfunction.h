@@ -36,7 +36,6 @@ class ILFunction: public Object
         ILExpression* exprREG(size_t size, const char* reg) const;
         ILExpression* exprCNST(size_t size, u64 value) const;
         ILExpression* exprVAR(size_t size, const char* name) const;
-        ILExpression* exprADDR(rd_address addr) const;
         ILExpression* exprJUMP(ILExpression* e) const;
         ILExpression* exprCALL(ILExpression* e) const;
         ILExpression* exprRET(ILExpression* e) const;

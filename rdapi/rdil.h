@@ -10,7 +10,7 @@ enum RDILTypes
 {
     RDIL_Unknown,                                         // Special
     RDIL_Nop,                                             // Other
-    RDIL_Reg, RDIL_Cnst, RDIL_Addr, RDIL_Var,             // Value
+    RDIL_Reg, RDIL_Cnst, RDIL_Var,                        // Value
     RDIL_Add, RDIL_Sub, RDIL_Mul, RDIL_Div,               // Math
     RDIL_And, RDIL_Or, RDIL_Xor, RDIL_Not,                // Logic
     RDIL_Load, RDIL_Store, RDIL_Copy,                     // Memory
@@ -38,6 +38,7 @@ RD_API_EXPORT RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_a
 
 RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
 RD_API_EXPORT size_t RDILExpression_Size(const RDILExpression* e);
+RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN1(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN2(const RDILExpression* e);
@@ -64,7 +65,6 @@ RD_API_EXPORT RDILExpression* RDILFunction_NOP(const RDILFunction* rdilfunction)
 RD_API_EXPORT RDILExpression* RDILFunction_VAR(const RDILFunction* rdilfunction, size_t size, const char* name);
 RD_API_EXPORT RDILExpression* RDILFunction_REG(const RDILFunction* rdilfunction, size_t size, const char* reg);
 RD_API_EXPORT RDILExpression* RDILFunction_CNST(const RDILFunction* rdilfunction, size_t size, u64 value);
-RD_API_EXPORT RDILExpression* RDILFunction_ADDR(const RDILFunction* rdilfunction, rd_address address);
 RD_API_EXPORT RDILExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);

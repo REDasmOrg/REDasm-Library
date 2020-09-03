@@ -52,11 +52,6 @@ RDGraphNode RDILGraph::generate(const ILExpression* e, RDGraphNode parentnode)
                 this->setData(l, m_strings.back().c_str());
                 break;
 
-            case RDIL_Addr:
-                m_strings.push_back(Utils::hex(e->address));
-                this->setData(l, m_strings.back().c_str());
-                break;
-
             case RDIL_Var: this->setData(l, e->var); break;
             case RDIL_Reg: this->setData(l, e->reg); break;
             default: this->setData(l, "???"); break;

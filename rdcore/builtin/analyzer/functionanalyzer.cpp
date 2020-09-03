@@ -47,7 +47,7 @@ void FunctionAnalyzer::findThunk(Disassembler* disassembler, const ILFunction* i
     const auto* expr = il->first();
     const char* name = nullptr;
 
-    if(RDIL::match(expr, "goto [c]")) name = disassembler->document()->name(expr->e->e->address);
-    else if(RDIL::match(expr, "goto c")) name = disassembler->document()->name(expr->e->address);
+    if(RDIL::match(expr, "goto [c]")) name = disassembler->document()->name(expr->u->u->address);
+    else if(RDIL::match(expr, "goto c")) name = disassembler->document()->name(expr->u->address);
     if(name) disassembler->document()->rename(address, Utils::thunk(name));
 }

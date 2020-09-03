@@ -144,7 +144,7 @@ ILExpression* ILFunction::exprDS(rd_type rdil, size_t size, ILExpression* dst, I
 ILExpression* ILFunction::exprU(rd_type rdil, size_t size, ILExpression* e) const
 {
     auto* expr = this->expr(rdil, size);
-    expr->e = this->check(e);
+    expr->u = this->check(e);
     return expr;
 }
 

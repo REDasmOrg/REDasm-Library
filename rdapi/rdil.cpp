@@ -16,7 +16,7 @@ bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e ? R
 const RDILExpression* RDILExpression_GetN1(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n1); }
 const RDILExpression* RDILExpression_GetN2(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n2); }
 const RDILExpression* RDILExpression_GetN3(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n3); }
-const RDILExpression* RDILExpression_GetE(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->e); }
+const RDILExpression* RDILExpression_GetU(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->u); }
 const RDILExpression* RDILExpression_GetCond(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->cond); }
 const RDILExpression* RDILExpression_GetDst(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->dst); }
 const RDILExpression* RDILExpression_GetLeft(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->left); }

@@ -17,12 +17,12 @@ class RDIL
         RDIL() = delete;
         static const char* getOpName(rd_type t);
         static void render(const ILExpression* expr, const Renderer* renderer, RendererItem* ritem, rd_address address);
-        static bool hasValue(const ILExpression* e);
         static bool match(const ILExpression* e, const char* m);
+        static bool hasValue(const ILExpression* e);
 
     private:
         static bool match(const ILExpression* e, std::string& res);
-        static std::string textOp(const ILExpression* e);
         static void wrap(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address);
         static void wrapMatch(const ILExpression* e, std::string& res);
+        static std::string textOp(const ILExpression* e);
 };

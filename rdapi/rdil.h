@@ -43,7 +43,7 @@ RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* v
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN1(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN2(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN3(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetE(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_GetU(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetCond(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetDst(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetLeft(const RDILExpression* e);

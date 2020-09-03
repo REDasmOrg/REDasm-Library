@@ -34,30 +34,30 @@ void RDIL::render(const ILExpression* e, const Renderer* renderer, RendererItem*
             break;
 
         case RDIL_Call:
-            RDIL::render(e->e, renderer, ritem, address);
+            RDIL::render(e->u, renderer, ritem, address);
             renderer->renderText(ritem, "()");
             break;
 
         case RDIL_Goto:
             renderer->renderMnemonic(ritem, "goto ", Theme_Jump);
-            RDIL::render(e->e, renderer, ritem, address);
+            RDIL::render(e->u, renderer, ritem, address);
             break;
 
         case RDIL_Load:
             renderer->renderText(ritem, "[");
-            RDIL::render(e->e, renderer, ritem, address);
+            RDIL::render(e->u, renderer, ritem, address);
             renderer->renderText(ritem, "]");
             break;
 
         case RDIL_Push:
             renderer->renderMnemonic(ritem, "push", Theme_Default);
             renderer->renderText(ritem, "(");
-            RDIL::render(e->e, renderer, ritem, address);
+            RDIL::render(e->u, renderer, ritem, address);
             renderer->renderText(ritem, ")");
             break;
 
         case RDIL_Pop:
-            RDIL::render(e->e, renderer, ritem, address);
+            RDIL::render(e->u, renderer, ritem, address);
             renderer->renderText(ritem, " = ");
             renderer->renderMnemonic(ritem, "pop()", Theme_Default);
             break;
@@ -215,11 +215,11 @@ bool RDIL::match(const ILExpression* e, std::string& res)
             break;
 
         case RDIL_Copy:    RDIL::match(e->dst, res); res += " = "; RDIL::match(e->src, res); break;
-        case RDIL_Call:    RDIL::match(e->e, res); res += "()"; break;
-        case RDIL_Goto:    res += "goto "; RDIL::match(e->e, res); break;
-        case RDIL_Load:    res += "["; RDIL::match(e->e, res); res += "]"; break;
-        case RDIL_Push:    res += "push("; RDIL::match(e->e, res); res += ")"; break;
-        case RDIL_Pop:     RDIL::match(e->e, res); res += " = pop()"; break;
+        case RDIL_Call:    RDIL::match(e->u, res); res += "()"; break;
+        case RDIL_Goto:    res += "goto "; RDIL::match(e->u, res); break;
+        case RDIL_Load:    res += "["; RDIL::match(e->u, res); res += "]"; break;
+        case RDIL_Push:    res += "push("; RDIL::match(e->u, res); res += ")"; break;
+        case RDIL_Pop:     RDIL::match(e->u, res); res += " = pop()"; break;
         case RDIL_Ret:     res += "ret("; RDIL::match(e->cond, res); res += ")"; break;
         case RDIL_Unknown: res += "unknown "; break;
         case RDIL_Nop:     res += "nop "; break;

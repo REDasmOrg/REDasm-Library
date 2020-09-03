@@ -1,7 +1,7 @@
 #pragma once
 
-#include "macros.h"
-#include "types.h"
+#include "../macros.h"
+#include "../types.h"
 
 enum RDEndianness {
     Endianness_Invalid,

@@ -1,55 +1,9 @@
 #pragma once
 
-#include <rdapi/types.h>
+#include <rdapi/support/lexer.h>
+#include  "../object.h"
 
-enum RDTokenType {
-    TokenType_End,
-    TokenType_Unexpected,
-    TokenType_Identifier,
-    TokenType_Number,
-    TokenType_NumberHex,
-    TokenType_NumberReal,
-    TokenType_OpenRound,
-    TokenType_CloseRound,
-    TokenType_OpenSquare,
-    TokenType_CloseSquare,
-    TokenType_OpenCurly,
-    TokenType_CloseCurly,
-    TokenType_LessThan,
-    TokenType_GreaterThan,
-    TokenType_Equal,
-    TokenType_Exclamation,
-    TokenType_Question,
-    TokenType_Dollar,
-    TokenType_Percent,
-    TokenType_Ampersand,
-    TokenType_Plus,
-    TokenType_Minus,
-    TokenType_Asterisk,
-    TokenType_BackSlash,
-    TokenType_Slash,
-    TokenType_Hash,
-    TokenType_Dot,
-    TokenType_Comma,
-    TokenType_Colon,
-    TokenType_Semicolon,
-    TokenType_Underscore,
-    TokenType_Circumflex,
-    TokenType_Pipe,
-    TokenType_Tilde,
-    TokenType_SingleQuote,
-    TokenType_DoubleQuote,
-    TokenType_BackQuote,
-    TokenType_At,
-};
-
-typedef struct RDToken {
-    rd_type type;
-    const char* value;
-    size_t length, line, col, pos;
-} RDToken;
-
-class Lexer
+class Lexer: public Object
 {
     private:
         typedef bool (*AcceptCharacter)(char c, RDToken* t);

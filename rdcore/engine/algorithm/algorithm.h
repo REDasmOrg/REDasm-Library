@@ -17,6 +17,7 @@ class Algorithm: public AddressQueue
         Algorithm(Disassembler* disassembler);
         void enqueue(rd_address address) override;
         void schedule(rd_address address) override;
+        void disassemble();
 
     protected:
         void nextAddress(rd_address address) override;

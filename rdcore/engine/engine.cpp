@@ -67,13 +67,7 @@ void Engine::algorithmStep()
 
     if(!m_algorithm->hasNext()) return; // Ignore spurious disassemble requests
     this->notify(true);
-
-    while(m_algorithm->hasNext())
-    {
-        m_algorithm->next();
-        std::this_thread::yield();
-    }
-
+    m_algorithm->disassemble();
     this->nextStep();
 }
 

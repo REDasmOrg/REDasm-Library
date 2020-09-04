@@ -6,10 +6,20 @@
 #include "../../context.h"
 #include "emulateresult.h"
 #include <rdapi/disassembler.h>
+#include <thread>
 
 Algorithm::Algorithm(Disassembler* disassembler): AddressQueue(disassembler) { }
 void Algorithm::enqueue(rd_address address) { if(this->isAddressValid(address)) AddressQueue::enqueue(address); }
 void Algorithm::schedule(rd_address address) { if(this->isAddressValid(address)) AddressQueue::schedule(address); }
+
+void Algorithm::disassemble()
+{
+    while(this->hasNext())
+    {
+        this->next();
+        std::this_thread::yield();
+    }
+}
 
 bool Algorithm::canBeDisassembled(rd_address address) const
 {

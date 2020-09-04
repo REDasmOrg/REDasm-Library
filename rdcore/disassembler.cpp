@@ -26,9 +26,7 @@ void Disassembler::schedule(rd_address address) { m_algorithm->schedule(address)
 void Disassembler::disassembleAt(rd_address address)
 {
     m_algorithm->enqueue(address);
-
-    if(!m_engine->busy() || (m_engine->currentStep() == Engine::State_Analyze))
-        m_engine->execute(Engine::State_Algorithm);
+    m_algorithm->disassemble();
 }
 
 void Disassembler::disassemble()

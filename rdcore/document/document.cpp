@@ -52,7 +52,6 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
     segment.address = address;
     segment.endaddress = address + vsize;
     segment.flags = flags;
-    segment.coveragebytes = RD_NPOS;
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
 
     size_t idx = m_segments->insert(segment);

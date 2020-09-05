@@ -97,7 +97,7 @@ class Document: public Object
         FunctionGraph* graph(rd_address address) const;
         RDLocation functionStart(rd_address address) const;
 
-    public: // UserData
+    public: // Segment
         bool setSegmentUserData(rd_address address, uintptr_t userdata);
 
     private:

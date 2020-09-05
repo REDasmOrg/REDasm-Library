@@ -74,7 +74,6 @@ typedef struct RDSegment {
     rd_address address;
     rd_address endaddress;
     rd_flag flags;
-    size_t coveragebytes;
 
     RD_USERDATA_FIELD
 } RDSegment;

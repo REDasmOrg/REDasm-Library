@@ -83,17 +83,20 @@ void Engine::analyzeStep()
         if(p->execute) p->execute(p, CPTR(RDDisassembler, m_disassembler));
     }
 
-    if(m_algorithm->hasNext()) this->setStep(State_Algorithm); // Repeat algorithm
-    else this->nextStep();
+    if(!m_algorithm->hasNext())
+    {
+        this->cfgStep(); // Run CFG again
+        this->nextStep();
+        return;
+    }
+
+    this->setStep(State_Algorithm); // Repeat algorithm
 }
 
 void Engine::cfgStep()
 {
-    m_disassembler->document()->invalidateGraphs();
     rd_ctx->status("Generating CFG...");
-
-    //for(size_t i = 0; i < r_doc->segmentsCount(); i++)
-        //r_doc->segmentCoverageAt(i, REDasm::npos);
+    m_disassembler->document()->invalidateGraphs();
 
     for(size_t i = 0; i < m_disassembler->document()->functionsCount(); i++)
         this->generateCfg(i);
@@ -119,8 +122,6 @@ void Engine::generateCfg(size_t funcindex)
 
     if(cfgdone) // Apply CFG
     {
-        //lock->segmentCoverage(address, g->bytesCount());
-
         const RDGraphNode* nodes = nullptr;
         size_t c = g->nodes(&nodes);
 

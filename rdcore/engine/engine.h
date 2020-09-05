@@ -24,8 +24,7 @@ class Engine
         void reset();
         void execute();
         void execute(size_t step);
-
-    public:
+        bool cfg(rd_address address);
         bool needsWeak() const;
         bool busy() const;
         void stop();

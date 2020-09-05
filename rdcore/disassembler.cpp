@@ -263,3 +263,26 @@ const DocumentNet* Disassembler::net() const { return &m_net; }
 DocumentNet* Disassembler::net() { return &m_net; }
 MemoryBuffer* Disassembler::buffer() const { return m_loader->buffer(); }
 bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return m_loader->view(address, size, view); }
+
+bool Disassembler::scheduleFunction(rd_address address, const char* name)
+{
+    if(!this->document()->function(address, name ? name : std::string())) return false;
+    m_algorithm->enqueue(address);
+    return true;
+}
+
+bool Disassembler::createFunction(rd_address address, const char* name)
+{
+    if(!this->document()->function(address, name ? name : std::string())) return false;
+
+    if(m_engine->currentStep() != Engine::State_Analyze)
+    {
+        m_algorithm->enqueue(address);
+        m_engine->execute(Engine::State_Algorithm);
+        return true;
+    }
+
+    // Disassemble only
+    this->disassembleAt(address);
+    return m_engine->cfg(address);
+}

@@ -41,8 +41,19 @@ void Engine::execute()
 
 void Engine::execute(size_t step)
 {
+    if(step == m_currentstep) return;
+
     this->setStep(step);
     this->execute();
+}
+
+bool Engine::cfg(rd_address address)
+{
+    size_t idx = m_disassembler->document()->functionIndex(address);
+    if(idx == RD_NPOS) return false;
+
+    this->generateCfg(idx);
+    return true;
 }
 
 void Engine::setStep(size_t step) { m_currentstep = step; }

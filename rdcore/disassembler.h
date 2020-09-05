@@ -26,6 +26,8 @@ class Disassembler: public Object
         bool view(rd_address address, size_t size, RDBufferView* view) const;
 
     public:
+        bool scheduleFunction(rd_address address, const char* name);
+        bool createFunction(rd_address address, const char* name);
         const char* getFunctionHexDump(rd_address address, RDSymbol* symbol) const;
         const char* getHexDump(rd_address address, size_t size) const;
         const char16_t* readWString(rd_address address, size_t* len) const;

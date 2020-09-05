@@ -23,6 +23,8 @@ RD_API_EXPORT size_t RDDisassembler_Bits(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_AddressWidth(const RDDisassembler* d);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address);
 RD_API_EXPORT const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT bool RDDisassembler_CreateFunction(RDDisassembler* d, rd_address address, const char* name);
+RD_API_EXPORT bool RDDisassembler_ScheduleFunction(RDDisassembler* d, rd_address address, const char* name);
 RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);
 RD_API_EXPORT void RDDisassembler_Enqueue(RDDisassembler* d, rd_address address);
 RD_API_EXPORT void RDDisassembler_Schedule(RDDisassembler* d, rd_address address);

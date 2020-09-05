@@ -26,12 +26,12 @@ const SymbolTable* Document::symbols() const { return m_symbols.get(); }
 const BlockContainer* Document::blocks(rd_address address) const { return m_segments->findBlocks(address); }
 const RDSymbol* Document::entry() const { return &m_entry; }
 
-void Document::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
+bool Document::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
 {
     if((!(flags & SegmentFlags_Bss) && !psize) || !vsize)
     {
         rd_ctx->log("Segment '" + name + "' is empty, skipping");
-        return;
+        return false;
     }
 
     size_t len = std::min<size_t>(name.size(), DEFAULT_NAME_SIZE);
@@ -55,18 +55,19 @@ void Document::segment(const std::string& name, rd_offset offset, rd_address add
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
 
     size_t idx = m_segments->insert(segment);
-    if(idx == RD_NPOS) return;
+    if(idx == RD_NPOS) return false;
     if(idx) this->insert(address, DocumentItemType_Empty);
     this->insert(address, DocumentItemType_Segment);
+    return true;
 }
 
-void Document::imported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
-void Document::exported(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_Export); }
-void Document::exportedFunction(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
-void Document::instruction(rd_address address, size_t size) { m_segments->markCode(address, size); }
-void Document::asciiString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
-void Document::wideString(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
-void Document::data(rd_address address, size_t size, const std::string& name) { this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
+bool Document::imported(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Import, SymbolFlags_None); }
+bool Document::exported(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_Export); }
+bool Document::exportedFunction(rd_address address, const std::string& name) { return this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
+bool Document::instruction(rd_address address, size_t size) { return m_segments->markCode(address, size); }
+bool Document::asciiString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
+bool Document::wideString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
+bool Document::data(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
 
 void Document::table(rd_address address, size_t count)
 {
@@ -81,17 +82,17 @@ void Document::tableItem(rd_address address, rd_address startaddress, size_t idx
                 SymbolType_Data, SymbolFlags_TableItem | SymbolFlags_Pointer);
 }
 
-void Document::pointer(rd_address address, rd_type type, const std::string& name) { this->block(address, rd_disasm->assembler()->addressWidth(), name, type, SymbolFlags_Pointer); }
-void Document::function(rd_address address, const std::string& name) { this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
+bool Document::pointer(rd_address address, rd_type type, const std::string& name) { return this->block(address, rd_disasm->assembler()->addressWidth(), name, type, SymbolFlags_Pointer); }
+bool Document::function(rd_address address, const std::string& name) { return this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
 
-void Document::branch(rd_address address, int direction)
+bool Document::branch(rd_address address, int direction)
 {
     std::string name = Utils::hex(address);
 
     if(!direction) name = "infinite_loop_" + name;
     else name = "loc_" + name;
 
-    this->symbol(address, name, SymbolType_Label, SymbolType_None);
+    return this->symbol(address, name, SymbolType_Label, SymbolType_None);
 }
 
 void Document::type(rd_address address, const std::string& s)
@@ -108,15 +109,17 @@ void Document::separator(rd_address address)
     this->insert(address, DocumentItemType_Separator);
 }
 
-void Document::label(rd_address address) { this->symbol(address, std::string(), SymbolType_Label, SymbolFlags_None); }
+bool Document::label(rd_address address) { return this->symbol(address, std::string(), SymbolType_Label, SymbolFlags_None); }
 
-void Document::entry(rd_address address)
+bool Document::entry(rd_address address)
 {
     const char* name = m_symbols->getName(address);
+    bool res = false;
 
-    if(name) this->symbol(address, name, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint); // Don't override symbol name, if exists
-    else this->symbol(address, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint);
+    if(name) res = this->symbol(address, name, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint); // Don't override symbol name, if exists
+    else res = this->symbol(address, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint);
     m_symbols->get(address, &m_entry);
+    return res;
 }
 
 void Document::empty(rd_address address) { this->insert(address, DocumentItemType_Empty); }
@@ -250,23 +253,25 @@ FunctionGraph* Document::graph(rd_address address) const { return m_functions->f
 RDLocation Document::functionStart(rd_address address) const { return m_functions->findFunction(address); }
 bool Document::setSegmentUserData(rd_address address, uintptr_t userdata) { return m_segments->setUserData(address, userdata); }
 
-void Document::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
+bool Document::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
 {
-    if(!this->canSymbolizeAddress(address, flags)) return;
+    if(!this->canSymbolizeAddress(address, flags)) return false;
 
     if(!size)
     {
         rd_ctx->problem("Invalid block size @ " + Utils::hex(address));
-        return;
+        return false;
     }
 
     if(m_segments->markData(address, size))
-        this->symbol(address, name, type, flags);
+        return this->symbol(address, name, type, flags);
+
+    return false;
 }
 
-void Document::symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags)
+bool Document::symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags)
 {
-    if(!this->canSymbolizeAddress(address, flags)) return;
+    if(!this->canSymbolizeAddress(address, flags)) return false;
     if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDSymbol symbol;
@@ -280,7 +285,7 @@ void Document::symbol(rd_address address, const std::string& name, rd_type type,
                 const char* n = m_symbols->getName(address); // Try to preserve old name, if any
                 m_symbols->create(address, (n && name.empty()) ? n : name, type, flags);
                 this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
-                return;
+                return true;
             }
 
             this->remove(address, DocumentItemType_Function);
@@ -291,6 +296,7 @@ void Document::symbol(rd_address address, const std::string& name, rd_type type,
 
     m_symbols->create(address, name, type, flags);
     this->insert(address, (type == SymbolType_Function) ? DocumentItemType_Function : DocumentItemType_Symbol);
+    return true;
 }
 
 const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 index)

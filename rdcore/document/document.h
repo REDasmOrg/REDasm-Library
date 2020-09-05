@@ -33,23 +33,23 @@ class Document: public Object
         const RDSymbol* entry() const;
 
     public: // Insertion
-        void segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
-        void imported(rd_address address, size_t size, const std::string& name);
-        void exported(rd_address address, size_t size, const std::string& name);
-        void exportedFunction(rd_address address, const std::string& name);
-        void instruction(rd_address address, size_t size);
-        void asciiString(rd_address address, size_t size, const std::string& name);
-        void wideString(rd_address address, size_t size, const std::string& name);
-        void data(rd_address address, size_t size, const std::string& name);
+        bool segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
+        bool imported(rd_address address, size_t size, const std::string& name);
+        bool exported(rd_address address, size_t size, const std::string& name);
+        bool exportedFunction(rd_address address, const std::string& name);
+        bool instruction(rd_address address, size_t size);
+        bool asciiString(rd_address address, size_t size, const std::string& name);
+        bool wideString(rd_address address, size_t size, const std::string& name);
+        bool data(rd_address address, size_t size, const std::string& name);
         void table(rd_address address, size_t count);
         void tableItem(rd_address address, rd_address startaddress, size_t idx);
-        void pointer(rd_address address, rd_type type, const std::string& name);
-        void function(rd_address address, const std::string& name);
-        void branch(rd_address address, int direction);
+        bool pointer(rd_address address, rd_type type, const std::string& name);
+        bool function(rd_address address, const std::string& name);
+        bool branch(rd_address address, int direction);
         void type(rd_address address, const std::string& s);
         void separator(rd_address address);
-        void label(rd_address address);
-        void entry(rd_address address);
+        bool label(rd_address address);
+        bool entry(rd_address address);
         void empty(rd_address address);
 
     public: // Count
@@ -101,8 +101,8 @@ class Document: public Object
         bool setSegmentUserData(rd_address address, uintptr_t userdata);
 
     private:
-        void block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags);
-        void symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);
+        bool block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags);
+        bool symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);
 
     private:
         const RDDocumentItem& insert(rd_address address, rd_type type, u16 index = 0);

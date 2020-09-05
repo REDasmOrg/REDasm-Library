@@ -31,21 +31,21 @@ size_t RDDocument_ItemsCount(const RDDocument* d) { return docptr(d)->itemsCount
 size_t RDDocument_SegmentsCount(const RDDocument* d) { return docptr(d)->segmentsCount(); }
 size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
 size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsCount(); }
-void RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
-void RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
-void RDDocument_SetEntry(RDDocument* d, rd_address address) { docptr(d)->entry(address); }
-void RDDocument_Comment(RDDocument* d, rd_address address, const char* comment) { docptr(d)->comment(address, comment); }
-void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* comment) { docptr(d)->autoComment(address, comment); }
-void RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->imported(address, size, name ? name : std::string()); }
-void RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->exported(address, size, name ? name : std::string()); }
-void RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->exportedFunction(address, name ? name : std::string()); }
-void RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->asciiString(address, size, name ? name : std::string()); }
-void RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->wideString(address, size, name ? name : std::string() ); }
-void RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name) { docptr(d)->pointer(address, type, name ? name : std::string()); }
-void RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const char* name) { docptr(d)->data(address, size, name ? name : std::string()); }
-void RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name) { docptr(d)->function(address, name ? name : std::string() ); }
-void RDDocument_AddSeparator(RDDocument* d, rd_address address) { docptr(d)->separator(address); }
-void RDDocument_AddEmpty(RDDocument* d, rd_address address) { docptr(d)->empty(address); }
+bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
+bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
+bool RDDocument_SetEntry(RDDocument* d, rd_address address) { return docptr(d)->entry(address); }
+void RDDocument_Comment(RDDocument* d, rd_address address, const char* comment) { return docptr(d)->comment(address, comment); }
+void RDDocument_AddAutoComment(RDDocument* d, rd_address address, const char* comment) { return docptr(d)->autoComment(address, comment); }
+bool RDDocument_AddImported(RDDocument* d, rd_address address, size_t size, const char* name) { return docptr(d)->imported(address, size, name ? name : std::string()); }
+bool RDDocument_AddExported(RDDocument* d, rd_address address, size_t size, const char* name) { return docptr(d)->exported(address, size, name ? name : std::string()); }
+bool RDDocument_AddExportedFunction(RDDocument* d, rd_address address, const char* name) { return docptr(d)->exportedFunction(address, name ? name : std::string()); }
+bool RDDocument_AddAsciiString(RDDocument* d, rd_address address, size_t size, const char* name) { return docptr(d)->asciiString(address, size, name ? name : std::string()); }
+bool RDDocument_AddWideString(RDDocument* d, rd_address address, size_t size, const char* name) { return docptr(d)->wideString(address, size, name ? name : std::string() ); }
+bool RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name) { return docptr(d)->pointer(address, type, name ? name : std::string()); }
+bool RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const char* name) { return docptr(d)->data(address, size, name ? name : std::string()); }
+bool RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name) { return docptr(d)->function(address, name ? name : std::string() ); }
+void RDDocument_AddSeparator(RDDocument* d, rd_address address) { return docptr(d)->separator(address); }
+void RDDocument_AddEmpty(RDDocument* d, rd_address address) { return docptr(d)->empty(address); }
 
 bool RDDocument_GetFunctionGraph(const RDDocument* d, rd_address address, RDGraph** item)
 {
@@ -61,10 +61,10 @@ const char* RDDocument_GetComments(const RDDocument* d, rd_address address, cons
     return s.c_str();
 }
 
-void RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags)
+bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags)
 {
     size_t range = endaddress - startaddress;
-    docptr(d)->segment(name, offset, startaddress, range, range, flags);
+    return docptr(d)->segment(name, offset, startaddress, range, range, flags);
 }
 
 bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata) { return docptr(d)->setSegmentUserData(address, userdata); }

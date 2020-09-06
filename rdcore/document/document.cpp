@@ -150,8 +150,8 @@ void Document::autoComment(rd_address address, const std::string& s)
     if(!it.second) return;
 
     size_t idx = m_items->instructionIndex(address);
-    if(idx == RD_NPOS) return;
-    this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
+    if(idx == RD_NPOS) idx = m_items->symbolIndex(address);
+    if(idx != RD_NPOS) this->notify(idx, DocumentAction_ItemChanged);
 }
 
 void Document::comment(rd_address address, const std::string& s)
@@ -163,14 +163,17 @@ void Document::comment(rd_address address, const std::string& s)
     for(const std::string& part : parts) m_itemdata[address].comments.insert(part);
 
     size_t idx = m_items->instructionIndex(address);
-    if(idx == RD_NPOS) return;
-    this->notify(m_items->functionIndex(address), DocumentAction_ItemChanged);
+    if(idx != RD_NPOS) this->notify(idx, DocumentAction_ItemChanged);
 }
 
 bool Document::rename(rd_address address, const std::string& newname)
 {
     if(!m_symbols->rename(address, newname)) return false;
-    this->notify(m_items->symbolIndex(address), DocumentAction_ItemChanged);
+
+    size_t idx = m_items->symbolIndex(address);
+    if(idx == RD_NPOS) return false;
+
+    this->notify(idx, DocumentAction_ItemChanged);
     return true;
 }
 
@@ -191,6 +194,7 @@ size_t Document::itemsAt(size_t startidx, size_t count, RDDocumentItem* item) co
 
 bool Document::itemAt(size_t idx, RDDocumentItem* item) const { return m_items->get(idx, item); }
 bool Document::segmentAt(size_t idx, RDSegment* segment) const { return m_segments->get(idx, segment); }
+bool Document::symbolAt(size_t idx, RDSymbol* symbol) const { return m_symbols->at(idx, symbol); }
 
 RDLocation Document::functionAt(size_t idx) const
 {

@@ -69,6 +69,7 @@ class Document: public Object
         size_t itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const;
         bool itemAt(size_t idx, RDDocumentItem* item) const;
         bool segmentAt(size_t idx, RDSegment* segment) const;
+        bool symbolAt(size_t idx, RDSymbol* symbol) const;
         RDLocation functionAt(size_t idx) const;
 
     public: // Get

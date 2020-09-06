@@ -28,11 +28,18 @@ bool SymbolTable::get(const char* name, RDSymbol* symbol) const
     return this->get(it->second, symbol);
 }
 
+bool SymbolTable::at(size_t idx, RDSymbol* symbol) const
+{
+    if(idx >= m_addresses.size()) return false;
+    return this->get(m_addresses.at(idx), symbol);
+}
+
 void SymbolTable::remove(rd_address address)
 {
     auto it = m_stringtable.find(address);
     if(it == m_stringtable.end()) return;
 
+    m_addresses.remove(address);
     m_byname.erase(it->second);
     m_stringtable.erase(it);
     m_byaddress.erase(address);
@@ -43,6 +50,7 @@ void SymbolTable::create(rd_address address, const std::string& name, rd_type ty
     std::string symbolname = name;
     if(symbolname.empty()) symbolname = SymbolTable::name(address, type, flags);
 
+    m_addresses.insert(address);
     m_byaddress[address] = { address, type, flags };
     m_byname[symbolname] = address;
     m_stringtable[address] = symbolname;

@@ -49,6 +49,7 @@ RD_API_EXPORT bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDoc
 RD_API_EXPORT bool RDDocument_GetFunctionItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
 RD_API_EXPORT bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
 RD_API_EXPORT bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
+RD_API_EXPORT bool RDDocument_GetSymbolByIndex(const RDDocument* d, size_t index, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetFunctionGraph(const RDDocument* d, rd_address address, RDGraph** item);

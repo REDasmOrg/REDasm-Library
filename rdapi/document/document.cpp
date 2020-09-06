@@ -14,6 +14,7 @@ bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* ite
 bool RDDocument_GetFunctionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->functionItem(address, item); }
 bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->instructionItem(address, item); }
 bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->symbolItem(address, item); }
+bool RDDocument_GetSymbolByIndex(const RDDocument* d, size_t index, RDSymbol* symbol) { return docptr(d)->symbolAt(index, symbol); }
 bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol) { return docptr(d)->symbol(address, symbol); }
 bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol) { return docptr(d)->symbol(name, symbol); }
 bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname) { return docptr(d)->rename(address, newname ? newname : std::string()); }

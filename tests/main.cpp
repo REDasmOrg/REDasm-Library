@@ -4,7 +4,6 @@
 #include <functional>
 #include <list>
 #include "../rdapi/rdapi.h"
-#include "containertests.h"
 #include "loadertests.h"
 #include "doctest.h"
 
@@ -36,11 +35,6 @@ void initializeContext()
 
 static RDLoaderPlugin* g_currloader = nullptr;
 
-// TEST_CASE("Containers")
-// {
-//     SUBCASE("Block Container") { ContainerTests::testBlockContainer(); }
-// }
-
 TEST_CASE("Executables")
 {
     initializeContext();
@@ -68,7 +62,8 @@ TEST_CASE("Executables")
             RDDisassembler* disassembler = RDDisassembler_Create(&req, g_currloader, assembler);
             RDLoader* loader = RDDisassembler_GetLoader(disassembler);
             REQUIRE(loader);
-            REQUIRE(RDLoader_Load(loader));
+            REQUIRE(RDDisassembler_Load(disassembler, nullptr));
+
             RD_Disassemble(disassembler);
             test(disassembler, RDDisassembler_GetDocument(disassembler));
             RD_Free(disassembler);

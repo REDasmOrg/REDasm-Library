@@ -306,12 +306,11 @@ void Renderer::renderHexDump(RendererItem* ritem, const RDBufferView* view, size
 
 bool Renderer::renderSymbolPointer(const RDSymbol* symbol, RendererItem* ritem) const
 {
-    u64 value = 0;
-
-    if(!m_disassembler->readAddress(symbol->address, m_disassembler->assembler()->addressWidth(), &value)) return false;
+    auto loc = m_disassembler->dereference(symbol->address);
+    if(!loc.valid) return false;
 
     RDSymbol ptrsymbol;
-    if(!m_disassembler->document()->symbol(value, &ptrsymbol)) return false;
+    if(!m_disassembler->document()->symbol(loc.address, &ptrsymbol)) return false;
 
     ritem->push(m_disassembler->document()->name(ptrsymbol.address), Theme_Symbol);
     return true;
@@ -373,23 +372,23 @@ void Renderer::renderSymbol(rd_address address, RendererItem* ritem) const
     }
 
     if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
-    {
         ritem->push(name, Theme_Pointer);
-        return;
-    }
-
-    switch(symbol.type)
+    else
     {
-        case SymbolType_Data: ritem->push(name, Theme_Data); break;
-        case SymbolType_String: ritem->push(name, Theme_String); break;
-        case SymbolType_Import: ritem->push(name, Theme_Imported); break;
-        case SymbolType_Label:    ritem->push(name, Theme_Symbol).push(":"); return;
-        case SymbolType_Function: ritem->push(name, Theme_Function);         return;
-        default: ritem->push(name); return;
+        switch(symbol.type)
+        {
+            case SymbolType_Data: ritem->push(name, Theme_Data); break;
+            case SymbolType_String: ritem->push(name, Theme_String); break;
+            case SymbolType_Import: ritem->push(name, Theme_Imported); break;
+            case SymbolType_Label: ritem->push(name, Theme_Symbol).push(":"); return;
+            case SymbolType_Function: ritem->push(name, Theme_Function); return;
+            default: ritem->push(name); return;
+        }
     }
 
     this->renderIndent(ritem, 1);
     this->renderSymbolValue(&symbol, ritem);
+    this->renderComments(address, ritem);
 }
 
 void Renderer::renderSymbolValue(const RDSymbol* symbol, RendererItem* ritem) const

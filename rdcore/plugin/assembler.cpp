@@ -24,6 +24,8 @@ void Assembler::emulate(EmulateResult* result) const
     m_passembler->emulate(m_passembler, CPTR(RDEmulateResult, result));
 }
 
+const RDAssemblerPlugin* Assembler::plugin() const { return m_passembler; }
+
 bool Assembler::getUserData(RDUserData* userdata) const
 {
     if(!userdata) return false;

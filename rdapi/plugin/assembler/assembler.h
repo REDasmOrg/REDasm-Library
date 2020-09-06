@@ -48,6 +48,7 @@ typedef struct RDAssemblerPlugin {
 } RDAssemblerPlugin;
 
 RD_API_EXPORT const char* RDAssembler_GetId(const RDAssembler* assembler);
+RD_API_EXPORT bool RDAssembler_GetUserData(const RDAssembler* assembler, RDUserData* userdata);
 
 // Extra Functions
 RD_API_EXPORT void RD_GetAssemblers(Callback_AssemblerPlugin callback, void* userdata);

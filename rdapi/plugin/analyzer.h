@@ -5,9 +5,9 @@
 #include "../plugin.h"
 
 struct RDAnalyzerPlugin;
-struct RDAssemblerPlugin;
-struct RDLoaderPlugin;
 struct RDDisassembler;
+struct RDAssembler;
+struct RDLoader;
 
 enum RDAnalyzerFlags {
     AnalyzerFlags_None         = 0,
@@ -17,7 +17,7 @@ enum RDAnalyzerFlags {
 };
 
 typedef void (*Callback_AnalyzerPlugin)(const struct RDAnalyzerPlugin* plugin, void* userdata);
-typedef bool (*Callback_AnalyzerIsEnabled)(const struct RDAnalyzerPlugin* plugin, const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler);
+typedef bool (*Callback_AnalyzerIsEnabled)(const struct RDAnalyzerPlugin* plugin, const RDLoader* loader, const RDAssembler* assembler);
 typedef void (*Callback_AnalyzerExecute)(const struct RDAnalyzerPlugin* plugin, RDDisassembler* disassembler);
 
 typedef struct RDAnalyzerPlugin {
@@ -30,6 +30,6 @@ typedef struct RDAnalyzerPlugin {
     Callback_AnalyzerExecute execute;
 } RDAnalyzerPlugin;
 
-RD_API_EXPORT void RD_GetAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler, Callback_AnalyzerPlugin callback, void* userdata);
+RD_API_EXPORT void RD_GetEnabledAnalyzers(Callback_AnalyzerPlugin callback, void* userdata);
 RD_API_EXPORT void RDAnalyzer_Select(const RDAnalyzerPlugin* panalyzer, bool selected);
 RD_API_EXPORT bool RDAnalyzer_Register(RDAnalyzerPlugin* plugin);

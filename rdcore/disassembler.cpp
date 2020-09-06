@@ -9,6 +9,7 @@
 Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler)
 {
     rd_ctx->setDisassembler(this);
+
     m_loader = std::make_unique<Loader>(ploader, request);
     m_assembler = std::make_unique<Assembler>(passembler, this);
     m_algorithm = SafeAlgorithm(new Algorithm(this));
@@ -37,14 +38,50 @@ void Disassembler::disassemble()
         return;
     }
 
+    auto& doc = this->document();
+
     m_engine.reset(new Engine(this));
-    if(!this->document()->segmentsCount()) return;
+    if(!doc->segmentsCount()) return;
+
+    // Check Exported Data
+    std::vector<rd_address> exporteddata;
+    exporteddata.reserve(doc->symbolsCount());
+
+    const SymbolTable* symboltable = doc->symbols();
+
+    for(size_t i = 0; i < doc->symbolsCount(); i++)
+    {
+        RDSymbol symbol;
+        if(!symboltable->at(i, &symbol)) continue;
+
+        if(IS_TYPE(&symbol, SymbolType_Data) && HAS_FLAG(&symbol, SymbolFlags_Export))
+            exporteddata.push_back(symbol.address);
+    }
+
+    std::for_each(exporteddata.begin(), exporteddata.end(), [&](rd_address address) {
+        this->markLocation(RD_NPOS, address);
+    });
 
     // Preload functions for analysis
-    for(size_t i = 0; i < this->document()->functionsCount(); i++)
-        m_algorithm->enqueue(this->document()->functionAt(i).address);
+    for(size_t i = 0; i < doc->functionsCount(); i++)
+        m_algorithm->enqueue(doc->functionAt(i).address);
 
     m_engine->execute();
+}
+
+bool Disassembler::load(const RDLoaderBuildRequest* buildreq)
+{
+    if(!m_loader) return false;
+
+    if(m_loader->flags() & LoaderFlags_CustomAddressing)
+    {
+        if(!buildreq || !m_loader->build(buildreq)) return false;
+    }
+    else if(!m_loader->load())
+        return false;
+
+    rd_ctx->loadAnalyzers(m_loader.get(), m_assembler.get());
+    return true;
 }
 
 void Disassembler::stop() { if(m_engine) m_engine->stop(); }
@@ -94,69 +131,49 @@ RDLocation Disassembler::dereference(rd_address address) const
     return loc;
 }
 
-void Disassembler::markLocation(rd_address fromaddress, rd_address address)
+void Disassembler::checkLocation(rd_address fromaddress, rd_address address)
 {
     if(!this->document()->segment(address, nullptr)) return;
 
     if(this->document()->symbol(address, nullptr))
     {
-        m_net.addRef(fromaddress, address); // Just add the reference
+        if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, address); // Just add the reference
         return;
     }
 
-    RDBufferView view;
-
-    if(m_loader->view(address, &view))
-    {
-        size_t totalsize = 0;
-        rd_flag flags = StringFinder::categorize(&view, &totalsize);
-
-        if(StringFinder::checkAndMark(this, address, flags, totalsize))
-        {
-            if(flags & SymbolFlags_AsciiString) this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
-            else if(flags & SymbolFlags_WideString) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
-            else REDasmError("Unhandled String symbol", address);
-        }
-        else
-        {
-            RDLocation loc = this->dereference(address);
-            if(loc.valid && this->document()->symbol(loc.address, nullptr)) this->markPointer(address, fromaddress); // It points to another symbol
-            else this->document()->data(address, m_assembler->addressWidth(), std::string());
-        }
-    }
-    else // This address belongs to a memory mapped only area
-        this->document()->data(address, m_assembler->addressWidth(), std::string());
-
-    m_net.addRef(fromaddress, address);
+    this->markLocation(fromaddress, address);
 }
 
-rd_type Disassembler::markPointer(rd_address address, rd_address fromaddress)
+void Disassembler::markPointer(rd_address fromaddress, rd_address address)
 {
-    // RDLocation loc = this->dereference(address);
-    // if(!loc.valid) return this->markLocation(address, fromaddress);
+    RDLocation loc = this->dereference(address);
+    if(!loc.valid) return;
 
-    // this->document()->pointer(address, SymbolType_Data, std::string());
+    this->document()->pointer(address, SymbolType_Data, std::string());
+    RDSymbol symbol;
 
-    // RDSymbol symbol;
-    // if(!this->document()->symbol(loc.address, &symbol)) return SymbolType_None;
+    if(!this->document()->symbol(loc.address, &symbol))
+    {
+        this->markLocation(RD_NPOS, loc.address); // Don't generate autocomments and xrefs automatically
+        if(!this->document()->symbol(loc.address, &symbol)) return;
+    }
 
-    // const char* symbolname = this->document()->name(symbol.address);
-    // if(!symbolname) return SymbolType_None;
+    const char* symbolname = this->document()->name(loc.address);
+    if(!symbolname) return;
 
-    // if(IS_TYPE(&symbol, SymbolType_String))
-    // {
-    //     if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(fromaddress, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
-    //     else this->document()->autoComment(fromaddress, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
-    // }
-    // else if(HAS_FLAG(&symbol, SymbolType_Import))
-    //     this->document()->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
-    // else if(HAS_FLAG(&symbol, SymbolFlags_Export))
-    //     this->document()->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
-    // else
-    //     return SymbolType_None;
+    m_net.addRef(address, loc.address);
 
-    // this->pushReference(loc.address, fromaddress);
-    return SymbolType_Data;
+    if(IS_TYPE(&symbol, SymbolType_String))
+    {
+        if(HAS_FLAG(&symbol, SymbolFlags_WideString)) this->document()->autoComment(address, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
+        else this->document()->autoComment(address, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
+    }
+    else if(IS_TYPE(&symbol, SymbolType_Import))
+        this->document()->autoComment(address, std::string("=> IMPORT: ") + symbolname);
+    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
+        this->document()->autoComment(address, std::string("=> EXPORT: ") + symbolname);
+
+    if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, loc.address);
 }
 
 size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, size_t count)
@@ -221,6 +238,46 @@ bool Disassembler::readAddress(rd_address address, size_t size, u64* value) cons
     }
 
     return true;
+}
+
+void Disassembler::markLocation(rd_address fromaddress, rd_address address)
+{
+    RDBufferView view;
+    rd_flag flags = SymbolFlags_None;
+
+    if(this->markString(address, &flags)) // Is it a string?
+    {
+        if(fromaddress == RD_NPOS) return;
+
+        if(flags & SymbolFlags_AsciiString) this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+        else if(flags & SymbolFlags_WideString) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+        else REDasmError("Unhandled String symbol", address);
+    }
+    else if(m_loader->view(address, &view)) // It belongs to a mapped area?
+    {
+        RDLocation loc = this->dereference(address);
+        if(loc.valid) this->markPointer(fromaddress, address);
+        else this->document()->data(address, m_assembler->addressWidth(), std::string());
+    }
+    else
+        return;
+
+    if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, address);
+}
+
+bool Disassembler::markString(rd_address address, rd_flag* resflags)
+{
+    RDBlock block;
+    if(!this->document()->block(address, &block)) return false;
+
+    RDBufferView view;
+    if(!m_loader->view(address, &view)) return false;
+    view.size = BlockContainer::size(&block); // Resize view to block size
+
+    size_t totalsize = 0;
+    rd_flag flags = StringFinder::categorize(&view, &totalsize);
+    if(resflags) *resflags = flags;
+    return StringFinder::checkAndMark(this, address, flags, totalsize);
 }
 
 bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const

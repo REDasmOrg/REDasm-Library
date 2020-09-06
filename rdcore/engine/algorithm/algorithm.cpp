@@ -78,7 +78,7 @@ void Algorithm::processResult(EmulateResult* result)
         switch(forktype)
         {
             case EmulateResult::Ref:
-                m_disassembler->markLocation(result->address(), res.address);
+                m_disassembler->checkLocation(result->address(), res.address);
                 break;
 
             case EmulateResult::Branch:

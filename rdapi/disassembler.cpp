@@ -13,6 +13,7 @@ const char* RDDisassembler_GetLoaderId(const RDDisassembler* d) { return CPTR(co
 RDDocument* RDDisassembler_GetDocument(const RDDisassembler* d) { return CPTR(RDDocument, std::addressof(CPTR(const Disassembler, d)->document())); }
 RDBuffer* RDDisassembler_GetBuffer(const RDDisassembler* d) { return CPTR(RDBuffer, CPTR(const Disassembler, d)->buffer()); }
 bool RDDisassembler_GetView(const RDDisassembler* d, rd_address address, size_t size, RDBufferView* view) { return CPTR(const Disassembler, d)->view(address, size, view); }
+bool RDDisassembler_Load(RDDisassembler* d, const RDLoaderBuildRequest* buildreq) { return CPTR(Disassembler, d)->load(buildreq); }
 size_t RDDisassembler_Bits(const RDDisassembler* d) { return CPTR(const Disassembler, d)->assembler()->bits(); }
 size_t RDDisassembler_AddressWidth(const RDDisassembler* d) { return CPTR(const Disassembler, d)->assembler()->addressWidth(); }
 RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address) { return CPTR(const Disassembler, d)->dereference(address); }
@@ -27,4 +28,3 @@ const char* RD_ReadString(const RDDisassembler* d, rd_address address, size_t* l
 const char16_t* RD_ReadWString(const RDDisassembler* d, rd_address address, size_t* len) { return CPTR(const Disassembler, d)->readWString(address, len); }
 void RD_DisassembleAt(RDDisassembler* d, rd_address address) { CPTR(Disassembler, d)->disassembleAt(address); }
 void RD_Disassemble(RDDisassembler* d) { CPTR(Disassembler, d)->disassemble(); }
-

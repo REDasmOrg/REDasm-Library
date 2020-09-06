@@ -7,7 +7,7 @@
 
 RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(analyzerfunction_builtin, "Discover Functions", static_cast<u64>(-1),
                                                        "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
-                                                       [](const RDAnalyzerPlugin*, const RDLoaderPlugin*, const RDAssemblerPlugin*) -> bool { return true; },
+                                                       [](const RDAnalyzerPlugin*, const RDLoader*, const RDAssembler*) -> bool { return true; },
                                                        [](const RDAnalyzerPlugin*, RDDisassembler* d) { FunctionAnalyzer::analyze(CPTR(Disassembler, d)); });
 
 void FunctionAnalyzer::analyze(Disassembler* disassembler)

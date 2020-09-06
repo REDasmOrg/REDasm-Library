@@ -54,6 +54,7 @@ rd_flag Loader::flags() const { return m_ploader->flags; }
 const char* Loader::id() const { return m_ploader->id; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
+const RDLoaderPlugin* Loader::plugin() const { return m_ploader; }
 
 bool Loader::getUserData(RDUserData* userdata) const
 {

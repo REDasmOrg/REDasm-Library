@@ -24,6 +24,7 @@ class Disassembler: public Object
         DocumentNet* net();
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
+        bool load(const RDLoaderBuildRequest* buildreq);
 
     public:
         bool scheduleFunction(rd_address address, const char* name);
@@ -44,20 +45,19 @@ class Disassembler: public Object
         void disassemble();
         void stop();
 
-
     public: // Assembler
         bool encode(RDEncodedInstruction* encoded) const;
 
     public: // Symbols
         RDLocation dereference(rd_address address) const;
-        void markLocation(rd_address fromaddress, rd_address address);
-        rd_type markPointer(rd_address address, rd_address fromaddress);
         size_t markTable(rd_address startaddress, rd_address fromaddress, size_t count);
-
-    public:
-        bool readAddress(rd_address address, size_t size, u64 *value) const;
+        void checkLocation(rd_address fromaddress, rd_address address);
 
     private:
+        void markPointer(rd_address fromaddress, rd_address address);
+        void markLocation(rd_address fromaddress, rd_address address);
+        bool markString(rd_address address, rd_flag* resflags);
+        bool readAddress(rd_address address, size_t size, u64 *value) const;
         bool getFunctionBytes(rd_address& address, RDBufferView* view) const;
         template<typename T> const T* readStringT(rd_address address, size_t* len) const;
 

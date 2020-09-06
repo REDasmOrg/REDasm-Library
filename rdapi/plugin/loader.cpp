@@ -10,8 +10,14 @@ RDDatabase* RDLoader_GetDatabase(RDLoader* ldr, const char* dbname) { return CPT
 RDBuffer* RDLoader_GetBuffer(RDLoader* ldr) { return CPTR(RDBuffer, CPTR(Loader, ldr)->buffer()); }
 rd_flag RDLoader_GetFlags(const RDLoader* ldr) { return CPTR(const Loader, ldr)->flags(); }
 u8* RDLoader_GetData(RDLoader* ldr) { return CPTR(Loader, ldr)->buffer()->data(); }
-bool RDLoader_Build(RDLoader* ldr, const RDLoaderBuildRequest* req) { return CPTR(Loader, ldr)->build(req); }
-bool RDLoader_Load(RDLoader* ldr) { return CPTR(Loader, ldr)->load(); }
+const char* RDLoader_GetId(const RDLoader* ldr) { return CPTR(const Loader, ldr)->id(); }
+
+bool RDLoader_GetUserData(const RDLoader* ldr, RDUserData* userdata)
+{
+    if(!userdata) return false;
+    userdata->userdata = CPTR(const Loader, ldr)->plugin()->userdata;
+    return true;
+}
 
 void RD_GetLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata) { rd_ctx->getLoaders(loadrequest, callback, userdata); }
 u8* RD_AddrPointer(const RDLoader* ldr, rd_address address) { return CPTR(const Loader, ldr)->addrpointer(address); }

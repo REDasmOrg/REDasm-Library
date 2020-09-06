@@ -9,7 +9,7 @@
 
 RDAnalyzerPlugin analyzer_Unexplored = RD_BUILTIN_PLUGIN(analyzerunexplored_builtin, "Aggressive Disassembly", 0,
                                                          "Disassemble unknown blocks", AnalyzerFlags_RunOnce | AnalyzerFlags_Experimental,
-                                                         [](const RDAnalyzerPlugin*, const RDLoaderPlugin*, const RDAssemblerPlugin*) -> bool { return true; },
+                                                         [](const RDAnalyzerPlugin*, const RDLoader*, const RDAssembler*) -> bool { return true; },
                                                          [](const RDAnalyzerPlugin*, RDDisassembler* d) { UnexploredAnalyzer::analyze(CPTR(Disassembler, d)); });
 
 void UnexploredAnalyzer::analyze(Disassembler* disassembler)

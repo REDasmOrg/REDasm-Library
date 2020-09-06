@@ -17,6 +17,9 @@
 
 #define DATABASE_FOLDER_NAME "database"
 
+class Assembler;
+class Loader;
+
 template<typename Callback>
 struct CallbackStruct
 {
@@ -34,7 +37,7 @@ struct ThemeColors {
     std::string cursorfg, cursorbg;
     std::string segment, function, type;
     std::string address, constant, reg;
-    std::string string, symbol, data, imported;
+    std::string string, symbol, data, pointer, imported;
     std::string nop, ret, call, jump, jumpcond;
     std::string entryfg, entrybg;
     std::string graphbg, graphedge, graphedgetrue, graphedgefalse, graphedgeloop, graphedgeloopcond;
@@ -48,7 +51,7 @@ class Context: public Object
         typedef std::unordered_set<std::string> StringSet;
         typedef std::unordered_map<const RDLoaderPlugin*, const char*> LoaderToAssemblerMap;
         typedef std::unordered_map<std::string, RDPluginHeader*> PluginMap;
-        typedef SortedContainer<RDAnalyzerPlugin*, AnalyzerSorter, AnalyzerEquals, true> AnalyzerList;
+        typedef SortedContainer<const RDAnalyzerPlugin*, AnalyzerSorter, AnalyzerEquals, true> AnalyzerList;
         using log_lock = std::scoped_lock<std::mutex>;
 
     public:
@@ -79,7 +82,8 @@ class Context: public Object
         bool registerPlugin(RDAnalyzerPlugin* panalyzer);
         bool registerPlugin(RDCommandPlugin* pcommand);
         bool commandExecute(const char* command, const RDArguments* arguments);
-        void getAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler, Callback_AnalyzerPlugin callback, void* userdata);
+        void loadAnalyzers(const Loader* loader, const Assembler* assembler);
+        void getEnabledAnalyzers(Callback_AnalyzerPlugin callback, void* userdata);
         void getLoaders(const RDLoaderRequest* loadrequest, Callback_LoaderPlugin callback, void* userdata);
         void getAssemblers(Callback_AssemblerPlugin callback, void* userdata);
         const char* getAssemblerId(const RDLoaderPlugin* ploader) const;
@@ -126,7 +130,7 @@ class Context: public Object
         PluginManager m_pluginmanager;
         PluginMap m_loaders, m_assemblers, m_analyzers, m_commands;
         LoaderToAssemblerMap m_loadertoassembler;
-        AnalyzerList m_selectedanalyzers;
+        AnalyzerList m_enabledanalyzers, m_selectedanalyzers;
         CallbackStruct<RD_LogCallback> m_logcallback;
         CallbackStruct<RD_StatusCallback> m_statuscallback;
         CallbackStruct<RD_ProgressCallback> m_progresscallback;

@@ -24,6 +24,7 @@ class Loader: public Object
         const char* id() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
+        const RDLoaderPlugin* plugin() const;
         bool getUserData(RDUserData* userdata) const;
 
     public:

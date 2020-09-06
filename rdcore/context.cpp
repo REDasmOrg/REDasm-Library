@@ -67,6 +67,7 @@ void Context::setTheme(rd_type theme, const char* color)
         case Theme_String:            m_themecolors.string = color; break;
         case Theme_Symbol:            m_themecolors.symbol = color; break;
         case Theme_Data:              m_themecolors.data = color; break;
+        case Theme_Pointer:           m_themecolors.pointer = color; break;
         case Theme_Imported:          m_themecolors.imported = color; break;
         case Theme_Nop:               m_themecolors.nop = color; break;
         case Theme_Ret:               m_themecolors.ret = color; break;
@@ -107,6 +108,7 @@ const char* Context::getTheme(rd_type theme) const
         case Theme_String:            return Context::themeAlt(m_themecolors.string, m_themecolors.fg);
         case Theme_Symbol:            return Context::themeAlt(m_themecolors.symbol, m_themecolors.fg);
         case Theme_Data:              return Context::themeAlt(m_themecolors.data, m_themecolors.fg);
+        case Theme_Pointer:           return Context::themeAlt(m_themecolors.pointer, m_themecolors.fg);
         case Theme_Imported:          return Context::themeAlt(m_themecolors.imported, m_themecolors.fg);
         case Theme_Constant:          return Context::themeAlt(m_themecolors.constant, m_themecolors.fg);
         case Theme_Reg:               return Context::themeAlt(m_themecolors.reg, m_themecolors.fg);
@@ -221,23 +223,27 @@ bool Context::commandExecute(const char* command, const RDArguments* arguments)
     return true;
 }
 
-void Context::getAnalyzers(const RDLoaderPlugin* loader, const RDAssemblerPlugin* assembler, Callback_AnalyzerPlugin callback, void* userdata)
+void Context::loadAnalyzers(const Loader* loader, const Assembler* assembler)
 {
+    m_enabledanalyzers.clear();
     m_selectedanalyzers.clear();
-    if(!loader || !assembler || !callback) return;
-
-    AnalyzerList analyzers;
+    if(!loader || !assembler) return;
 
     for(auto& [id, plugin] : m_analyzers)
     {
         RDAnalyzerPlugin* panalyzer = reinterpret_cast<RDAnalyzerPlugin*>(plugin);
         Context::initPlugin(reinterpret_cast<RDPluginHeader*>(panalyzer));
-        if(!panalyzer->isenabled(panalyzer, loader, assembler)) continue;
+        if(!panalyzer->isenabled(panalyzer, CPTR(const RDLoader, loader), CPTR(const RDAssembler, assembler))) continue;
         if(HAS_FLAG(panalyzer, AnalyzerFlags_Selected)) m_selectedanalyzers.insert(panalyzer);
-        analyzers.insert(panalyzer);
+        m_enabledanalyzers.insert(panalyzer);
     }
+}
 
-    std::for_each(analyzers.begin(), analyzers.end(), [&](const RDAnalyzerPlugin* panalyzer) {
+void Context::getEnabledAnalyzers(Callback_AnalyzerPlugin callback, void* userdata)
+{
+    if(!callback) return;
+
+    std::for_each(m_enabledanalyzers.begin(), m_enabledanalyzers.end(), [&](const RDAnalyzerPlugin* panalyzer) {
         callback(panalyzer, userdata);
     });
 }

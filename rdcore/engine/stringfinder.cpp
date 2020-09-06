@@ -117,18 +117,8 @@ rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
 
 bool StringFinder::checkAndMark(Disassembler* disassembler, rd_address address, rd_flag flags, size_t totalsize)
 {
-    if(flags & SymbolFlags_AsciiString)
-    {
-        disassembler->document()->asciiString(address, totalsize, std::string());
-        return true;
-    }
-
-    if(flags & SymbolFlags_WideString)
-    {
-        disassembler->document()->wideString(address, totalsize, std::string());
-        return true;
-    }
-
+    if(flags & SymbolFlags_AsciiString) return disassembler->document()->asciiString(address, totalsize, std::string());
+    if(flags & SymbolFlags_WideString) return disassembler->document()->wideString(address, totalsize, std::string());
     return false;
 }
 

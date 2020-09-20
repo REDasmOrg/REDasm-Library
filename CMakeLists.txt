@@ -83,18 +83,12 @@ else()
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/redasm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*")
 endif()
 
-if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") AND DEBUG_STL_ITERATORS)
-    target_compile_options(${PROJECT_NAME} PRIVATE -D_GLIBCXX_DEBUG)
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} pthread dl)
-
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        target_link_libraries(${PROJECT_NAME} tbb)
-    endif()
+    target_link_libraries(${PROJECT_NAME} pthread dl tbb)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

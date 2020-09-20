@@ -9,41 +9,45 @@
 #include <thread>
 #include <queue>
 #include <mutex>
+#include "object.h"
 
-class EventDispatcher
+struct RDEventDeleter { void operator()(RDEventArgs* e) const; }; // Cast back for deletion
+typedef std::unique_ptr<RDEventArgs, RDEventDeleter> EventPtr;
+
+class EventDispatcher: public Object
 {
     private:
-        typedef std::unique_lock<std::mutex> event_lock;
+        typedef std::unique_lock<std::mutex> EventLock;
         struct EventItem { Callback_Event listener; void* userdata; };
 
     public:
-        EventDispatcher() = delete;
-        template<typename EventArgs, typename ...Args> static void enqueue(event_id_t id, void* sender, Args... args);
-        static void initialize();
-        static void deinitialize();
-        static void subscribe(void* owner, Callback_Event listener, void* userdata);
-        static void unsubscribe(void* owner);
-        static void unsubscribeAll();
+        EventDispatcher();
+        virtual ~EventDispatcher();
+        template<typename EventArgs, typename ...Args> void enqueue(event_id_t id, void* sender, Args... args);
+        void subscribe(void* owner, Callback_Event listener, void* userdata);
+        void unsubscribe(void* owner);
+        void unsubscribeAll();
 
     private:
-        static void loop();
+        void loop();
 
     private:
-        static std::atomic_bool m_initialized;
-        static std::thread m_worker;
-        static std::condition_variable m_cv;
-        static std::queue<std::unique_ptr<RDEventArgs>> m_events;
-        static std::unordered_map<void*, EventItem> m_listeners;
-        static std::mutex m_mutex;
+        std::atomic_bool m_initialized{false};
+        std::thread m_worker;
+        std::condition_variable m_cv;
+        std::queue<EventPtr> m_events;
+        std::unordered_map<void*, EventItem> m_listeners;
+        std::mutex m_mutex;
 };
 
 template<typename EventArgs, typename ...Args>
 void EventDispatcher::enqueue(event_id_t id, void* sender, Args... args)
 {
-    event_lock lock(m_mutex);
+    EventLock lock(m_mutex);
+
     EventArgs* e = new EventArgs();
     *e = { id, sender, nullptr, { nullptr }, args... };
-    m_events.push(std::unique_ptr<RDEventArgs>(reinterpret_cast<RDEventArgs*>(e)));
+    m_events.push(EventPtr(reinterpret_cast<RDEventArgs*>(e)));
 
     // Manual unlocking is done before notifying, to avoid waking up
     // the waiting thread only to block again (see notify_one for details)

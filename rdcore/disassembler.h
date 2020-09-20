@@ -2,7 +2,7 @@
 
 #include <rdapi/disassembler.h>
 #include <memory>
-#include "object.h"
+#include "eventdispatcher.h"
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
 #include "engine/engine.h"
@@ -11,11 +11,11 @@
 #include "document/documentnet.h"
 #include "support/utils.h"
 
-class Disassembler: public Object
+class Disassembler: public EventDispatcher
 {
     public:
         Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
-        ~Disassembler();
+        virtual ~Disassembler();
         Assembler* assembler() const;
         Loader* loader() const;
         SafeAlgorithm& algorithm();

@@ -13,6 +13,7 @@
 #include "document_fwd.h"
 
 class FunctionGraph;
+class Disassembler;
 
 class Document: public Object
 {
@@ -26,7 +27,7 @@ class Document: public Object
         };
 
     public:
-        Document();
+        Document(Disassembler* disassembler);
         virtual ~Document() = default;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
@@ -116,6 +117,7 @@ class Document: public Object
         void onBlockRemoved(const RDBlock& b);
 
     private:
+        Disassembler* m_disassembler;
         RDSymbol m_entry{ };
         std::unordered_map<rd_address, ItemData> m_itemdata;
         std::unordered_set<rd_address> m_separators;

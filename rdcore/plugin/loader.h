@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <rdapi/plugin/loader.h>
-#include "../document/document.h"
+#include "../document/document_fwd.h"
 #include "../database/database.h"
 #include "../buffer/buffer.h"
 #include "../object.h"
@@ -12,8 +12,8 @@ class Disassembler;
 class Loader: public Object
 {
     public:
-        Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req);
-        ~Loader();
+        Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req, Disassembler* disassembler);
+        virtual ~Loader();
         bool load();
         bool build(const RDLoaderBuildRequest* req);
         bool view(rd_address address, RDBufferView* view) const;

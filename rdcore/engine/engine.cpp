@@ -2,6 +2,7 @@
 #include "../support/utils.h"
 #include "../eventdispatcher.h"
 #include "../disassembler.h"
+#include "../document/document.h"
 #include "../context.h"
 #include "../builtin/analyzer/functionanalyzer.h"
 #include "../builtin/graph/functiongraph.h"
@@ -157,7 +158,7 @@ void Engine::generateCfg(size_t funcindex)
 void Engine::notify(bool busy)
 {
     m_busy = busy;
-    EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    //m_disassembler->enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }
 
 void Engine::nextStep() { m_currentstep++; }

@@ -2,6 +2,7 @@
 
 #include "macros.h"
 #include "types.h"
+#include "events.h"
 #include "net.h"
 #include "plugin/loader.h"
 #include "plugin/assembler/assembler.h"
@@ -23,12 +24,15 @@ RD_API_EXPORT size_t RDDisassembler_Bits(const RDDisassembler* d);
 RD_API_EXPORT size_t RDDisassembler_AddressWidth(const RDDisassembler* d);
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address);
 RD_API_EXPORT const char* RDDisassembler_FunctionHexDump(RDDisassembler* d, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT bool RDDisassembler_IsBusy(const RDDisassembler* d);
 RD_API_EXPORT bool RDDisassembler_Load(RDDisassembler* d, const RDLoaderBuildRequest* buildreq);
 RD_API_EXPORT bool RDDisassembler_CreateFunction(RDDisassembler* d, rd_address address, const char* name);
 RD_API_EXPORT bool RDDisassembler_ScheduleFunction(RDDisassembler* d, rd_address address, const char* name);
 RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);
 RD_API_EXPORT void RDDisassembler_Enqueue(RDDisassembler* d, rd_address address);
 RD_API_EXPORT void RDDisassembler_Schedule(RDDisassembler* d, rd_address address);
+RD_API_EXPORT void RDDisassembler_Subscribe(RDDisassembler* d, void* owner, Callback_Event listener, void* userdata);
+RD_API_EXPORT void RDDisassembler_Unsubscribe(RDDisassembler* d, void* owner);
 
 // Extra Functions
 RD_API_EXPORT const char* RD_HexDump(const RDDisassembler* d, rd_address address, size_t size);

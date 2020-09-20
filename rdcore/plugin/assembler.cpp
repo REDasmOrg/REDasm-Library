@@ -4,6 +4,7 @@
 #include <climits>
 
 Assembler::Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler): m_passembler(passembler), m_disassembler(disassembler) { }
+Assembler::~Assembler() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(m_passembler)); }
 
 void Assembler::lift(rd_address address, const RDBufferView* view, ILFunction* il) const
 {

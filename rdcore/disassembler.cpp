@@ -3,19 +3,19 @@
 #include "support/utils.h"
 #include "eventdispatcher.h"
 #include "context.h"
+#include "document/document.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
 
-Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler)
+Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler): EventDispatcher()
 {
-    rd_ctx->setDisassembler(this);
-
-    m_loader = std::make_unique<Loader>(ploader, request);
+    //rd_ctx->setDisassembler(this);
+    m_loader = std::make_unique<Loader>(ploader, request, this);
     m_assembler = std::make_unique<Assembler>(passembler, this);
     m_algorithm = SafeAlgorithm(new Algorithm(this));
 }
 
-Disassembler::~Disassembler() { EventDispatcher::unsubscribeAll(); }
+Disassembler::~Disassembler() { }
 Assembler* Disassembler::assembler() const { return m_assembler.get(); }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }

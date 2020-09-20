@@ -6,6 +6,7 @@
 #include <string>
 #include <array>
 #include "../buffer/view.h"
+#include "../context.h"
 #include "../object.h"
 
 class Disassembler;
@@ -16,6 +17,7 @@ class Assembler: public Object
 {
     public:
         Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler);
+        virtual ~Assembler();
         void lift(rd_address address, const RDBufferView* view, ILFunction* il) const;
         bool renderInstruction(RDRenderItemParams* rip);
         bool encode(RDEncodedInstruction* encoded) const;

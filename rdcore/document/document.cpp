@@ -6,12 +6,13 @@
 #include "backend/blockcontainer.h"
 #include "backend/itemcontainer.h"
 #include "backend/symboltable.h"
+#include "../disassembler.h"
 #include "../support/utils.h"
 #include "../eventdispatcher.h"
 #include "../disassembler.h"
 #include "../context.h"
 
-Document::Document()
+Document::Document(Disassembler* disassembler): Object(disassembler), m_disassembler(disassembler)
 {
     m_functions    = std::make_unique<FunctionContainer>();
     m_items        = std::make_unique<ItemContainer>();
@@ -77,12 +78,12 @@ void Document::table(rd_address address, size_t count)
 
 void Document::tableItem(rd_address address, rd_address startaddress, size_t idx)
 {
-    this->block(address, rd_disasm->assembler()->addressWidth(),
+    this->block(address, m_disassembler->assembler()->addressWidth(),
                 SymbolTable::name(startaddress, SymbolType_Data, SymbolFlags_TableItem) + "_" + Utils::number(idx),
                 SymbolType_Data, SymbolFlags_TableItem | SymbolFlags_Pointer);
 }
 
-bool Document::pointer(rd_address address, rd_type type, const std::string& name) { return this->block(address, rd_disasm->assembler()->addressWidth(), name, type, SymbolFlags_Pointer); }
+bool Document::pointer(rd_address address, rd_type type, const std::string& name) { return this->block(address, m_disassembler->assembler()->addressWidth(), name, type, SymbolFlags_Pointer); }
 bool Document::function(rd_address address, const std::string& name) { return this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
 
 bool Document::branch(rd_address address, int direction)
@@ -276,7 +277,7 @@ bool Document::block(rd_address address, size_t size, const std::string& name, r
 bool Document::symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags)
 {
     if(!this->canSymbolizeAddress(address, flags)) return false;
-    if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
+    if(m_disassembler->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDSymbol symbol;
 
@@ -321,7 +322,7 @@ const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 ind
 void Document::notify(size_t idx, rd_type action)
 {
     if(idx >= m_items->size()) return;
-    EventDispatcher::enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, action, idx, m_items->at(idx));
+    this->dispatcher()->enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, action, idx, m_items->at(idx));
 }
 
 void Document::replace(rd_address address, rd_type type)
@@ -340,7 +341,7 @@ void Document::remove(rd_address address, rd_type type)
 void Document::removeAt(size_t idx)
 {
     RDDocumentItem item = m_items->at(idx);
-    EventDispatcher::enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, DocumentAction_ItemRemoved, idx, item);
+    this->dispatcher()->enqueue<RDDocumentEventArgs>(Event_DocumentChanged, this, DocumentAction_ItemRemoved, idx, item);
     m_items->removeAt(idx);
 
     switch(item.type)
@@ -368,7 +369,7 @@ void Document::removeAt(size_t idx)
 bool Document::canSymbolizeAddress(rd_address address, rd_flag flags) const
 {
     if(!m_segments->find(address, nullptr)) return false; // Ignore out of segment addresses
-    if(rd_disasm->needsWeak()) flags |= SymbolFlags_Weak;
+    if(m_disassembler->needsWeak()) flags |= SymbolFlags_Weak;
 
     RDBlock block;
     if(!m_segments->findBlock(address, &block)) return false;

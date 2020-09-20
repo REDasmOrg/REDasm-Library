@@ -14,6 +14,7 @@ RDDocument* RDDisassembler_GetDocument(const RDDisassembler* d) { return CPTR(RD
 RDBuffer* RDDisassembler_GetBuffer(const RDDisassembler* d) { return CPTR(RDBuffer, CPTR(const Disassembler, d)->buffer()); }
 bool RDDisassembler_GetView(const RDDisassembler* d, rd_address address, size_t size, RDBufferView* view) { return CPTR(const Disassembler, d)->view(address, size, view); }
 bool RDDisassembler_Load(RDDisassembler* d, const RDLoaderBuildRequest* buildreq) { return CPTR(Disassembler, d)->load(buildreq); }
+bool RDDisassembler_IsBusy(const RDDisassembler* d) { return CPTR(const Disassembler, d)->busy(); }
 size_t RDDisassembler_Bits(const RDDisassembler* d) { return CPTR(const Disassembler, d)->assembler()->bits(); }
 size_t RDDisassembler_AddressWidth(const RDDisassembler* d) { return CPTR(const Disassembler, d)->assembler()->addressWidth(); }
 RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address) { return CPTR(const Disassembler, d)->dereference(address); }
@@ -22,6 +23,8 @@ bool RDDisassembler_CreateFunction(RDDisassembler* d, rd_address address, const 
 bool RDDisassembler_ScheduleFunction(RDDisassembler* d, rd_address address, const char* name) { return CPTR(Disassembler, d)->scheduleFunction(address, name); }
 void RDDisassembler_Enqueue(RDDisassembler* d, rd_address address) { CPTR(Disassembler, d)->enqueue(address); }
 void RDDisassembler_Schedule(RDDisassembler* d, rd_address address) { CPTR(Disassembler, d)->schedule(address); }
+void RDDisassembler_Subscribe(RDDisassembler* d, void* owner, Callback_Event listener, void* userdata) { CPTR(Disassembler, d)->subscribe(owner, listener, userdata); }
+void RDDisassembler_Unsubscribe(RDDisassembler* d, void* owner) { CPTR(Disassembler, d)->unsubscribe(owner); }
 
 const char* RD_HexDump(const RDDisassembler* d, rd_address address, size_t size) { return CPTR(const Disassembler, d)->getHexDump(address, size); }
 const char* RD_ReadString(const RDDisassembler* d, rd_address address, size_t* len) { return CPTR(const Disassembler, d)->readString(address, len); }

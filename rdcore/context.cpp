@@ -20,8 +20,8 @@
 
 namespace fs = std::filesystem;
 
-Context::Context(): m_rntpath(fs::current_path()), m_tmppath(fs::temp_directory_path()) { EventDispatcher::initialize(); }
-Context::~Context() { EventDispatcher::deinitialize(); }
+Context::Context(): m_rntpath(fs::current_path()), m_tmppath(fs::temp_directory_path()) { }
+Context::~Context() { }
 void Context::addPluginPath(const char* pluginpath) { m_pluginpaths.insert(pluginpath); }
 void Context::addDatabasePath(const char* dbpath) { m_dbpaths.insert(dbpath);  }
 
@@ -316,8 +316,9 @@ void Context::selectAnalyzer(RDAnalyzerPlugin* panalyzer, bool selected)
 
 void Context::setDisassembler(Disassembler* disassembler)
 {
+    //EventDispatcher::unsubscribeAll(); // Flush event queue
     m_disassembler = disassembler;
-    m_problems.clear(); // New disassembler, New problems
+    m_problems.clear();                // New disassembler, New problems
 }
 
 void Context::setRuntimePath(const char* rntpath) { m_rntpath = rntpath; }
@@ -332,8 +333,8 @@ void Context::setFlags(rd_flag flags, bool set)
     if(set) m_flags |= flags;
     else m_flags &= ~flags;
 
-    if(m_flags != oldflags)
-        EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_ContextFlagsChanged, this);
+    //if(m_flags != oldflags)
+        //EventDispatcher::enqueue<RDEventArgs>(RDEvents::Event_ContextFlagsChanged, this);
 }
 
 rd_flag Context::flags() const { return m_flags; }

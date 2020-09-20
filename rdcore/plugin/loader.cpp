@@ -1,15 +1,16 @@
 #include "loader.h"
+#include "../document/document.h"
 #include "../support/utils.h"
 #include "../context.h"
 
-Loader::Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req): m_ploader(ploader)
+Loader::Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req, Disassembler* disassembler): Object(), m_ploader(ploader)
 {
-    m_document = SafeDocument(new Document());
+    m_document = SafeDocument(new Document(disassembler));
     m_buffer.reset(reinterpret_cast<MemoryBuffer*>(req->buffer));
     m_filepath = req->filepath;
 }
 
-Loader::~Loader() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(&m_ploader)); }
+Loader::~Loader() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(m_ploader)); }
 
 bool Loader::load()
 {

@@ -3,14 +3,14 @@
 #include <rdapi/types.h>
 #include <rdapi/plugin/analyzer.h>
 
-class Disassembler;
+class Context;
 
-extern RDAnalyzerPlugin analyzer_Unexplored;
+extern RDEntryAnalyzer analyzerEntry_Unexplored;
 
 class UnexploredAnalyzer
 {
     public:
         UnexploredAnalyzer() = delete;
-        static void analyze(Disassembler* disassembler);
+        static void analyze(Context* ctx);
 };
 

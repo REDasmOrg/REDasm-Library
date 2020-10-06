@@ -1,20 +1,11 @@
 #include "assembler.h"
 #include <rdcore/plugin/assembler.h>
-#include <rdcore/context.h>
+#include <rdcore/plugin/interface/pluginmodule.h>
 #include <algorithm>
 
+bool RDAssembler_Register(RDPluginModule* m, const RDEntryAssembler* entry) { return CPTR(PluginModule, m)->registerEntry(entry); }
 const char* RDAssembler_GetId(const RDAssembler* assembler) { return CPTR(const Assembler, assembler)->id(); }
-
-bool RDAssembler_GetUserData(const RDAssembler* assembler, RDUserData* userdata)
-{
-    if(!userdata) return false;
-    userdata->userdata = CPTR(const Assembler, assembler)->plugin()->userdata;
-    return true;
-}
-
-bool RDAssembler_Register(RDAssemblerPlugin* plugin) { return rd_ctx->registerPlugin(plugin); }
-void RD_GetAssemblers(Callback_AssemblerPlugin callback, void* userdata) { return rd_ctx->getAssemblers(callback, userdata); }
-RDAssemblerPlugin* RDAssembler_Find(const char* id) { return rd_ctx->findAssembler(id); }
+const char* RDAssembler_GetName(const RDAssembler* assembler) { return CPTR(const Assembler, assembler)->name(); }
 
 void RDEncodedInstruction_Init(RDEncodedInstruction* encoded) { *encoded = { }; }
 

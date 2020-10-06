@@ -1,23 +1,24 @@
 #include "stringfinder.h"
 #include "gibberish/gibberishdetector.h"
+#include "../plugin/loader.h"
 #include "../document/document.h"
 #include "../support/utils.h"
-#include "../disassembler.h"
 #include "../context.h"
+#include "../config.h"
 #include <rdapi/symbol.h>
 #include <thread>
 #include <vector>
 #include <cctype>
 #include <cuchar>
 
-void StringFinder::find(Disassembler* disassembler, const RDBufferView& inview)
+void StringFinder::find(Context* ctx, const RDBufferView& inview)
 {
     RDBufferView view = inview;
     bool hasnext = true;
 
     while(hasnext)
     {
-        hasnext = StringFinder::step(disassembler, &view);
+        hasnext = StringFinder::step(ctx, &view);
         std::this_thread::yield();
     }
 }
@@ -40,18 +41,18 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
     return res;
 }
 
-bool StringFinder::step(Disassembler* disassembler, RDBufferView* view)
+bool StringFinder::step(Context* ctx, RDBufferView* view)
 {
     if(BufferView::empty(view)) return false;
-    RDLocation loc = disassembler->loader()->addressof(view->data);
+    RDLocation loc = ctx->loader()->addressof(view->data);
     if(!loc.valid) return false;
 
-    rd_ctx->status("Searching strings @ " + Utils::hex(loc.value));
+    rd_cfg->status("Searching strings @ " + Utils::hex(loc.value));
 
     size_t totalsize = 0;
     rd_flag flags = StringFinder::categorize(view, &totalsize);
 
-    if(StringFinder::checkAndMark(disassembler, loc.address, flags, totalsize))
+    if(StringFinder::checkAndMark(ctx, loc.address, flags, totalsize))
         BufferView::advance(view, totalsize);
     else
         BufferView::advance(view, 1);
@@ -115,10 +116,10 @@ rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
     return SymbolFlags_None;
 }
 
-bool StringFinder::checkAndMark(Disassembler* disassembler, rd_address address, rd_flag flags, size_t totalsize)
+bool StringFinder::checkAndMark(Context* ctx, rd_address address, rd_flag flags, size_t totalsize)
 {
-    if(flags & SymbolFlags_AsciiString) return disassembler->document()->asciiString(address, totalsize, std::string());
-    if(flags & SymbolFlags_WideString) return disassembler->document()->wideString(address, totalsize, std::string());
+    if(flags & SymbolFlags_AsciiString) return ctx->document()->asciiString(address, totalsize, std::string());
+    if(flags & SymbolFlags_WideString) return ctx->document()->wideString(address, totalsize, std::string());
     return false;
 }
 

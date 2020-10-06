@@ -1,7 +1,7 @@
 #include "eventdispatcher.h"
 #include <cassert>
 
-EventDispatcher::EventDispatcher()
+EventDispatcher::EventDispatcher(Context* ctx): Object(ctx)
 {
     m_initialized.store(true);
     m_worker = std::thread(&EventDispatcher::loop, this);

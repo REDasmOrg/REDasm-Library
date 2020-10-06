@@ -1,7 +1,7 @@
 #include "rdil.h"
 #include "../renderer/renderer.h"
 #include "../support/lexer.h"
-#include "../context.h"
+#include "../config.h"
 #include <unordered_map>
 
 #define RDIL_N(x) {x, #x}
@@ -167,7 +167,7 @@ bool RDIL::match(const ILExpression* e, const char* m)
         tokens.push_back(t);
         if(!IS_TYPE(&t, TokenType_Unexpected)) continue;
 
-        rd_ctx->log("Unexpected character '" + std::string(t.value, t.length) + "' @ position " + std::to_string(t.pos));
+        rd_cfg->log("Unexpected character '" + std::string(t.value, t.length) + "' @ position " + std::to_string(t.pos));
         return false;
     }
 

@@ -1,20 +1,22 @@
 #include "stringsanalyzer.h"
+#include "../../document/document.h"
 #include "../../disassembler.h"
+#include "../../context.h"
 #include "../../engine/stringfinder.h"
 #include "../builtin.h"
 #include <algorithm>
 #include <execution>
 #include <deque>
 
-RDAnalyzerPlugin analyzer_Strings = RD_BUILTIN_PLUGIN(analyzerstring_builtin, "Find All Strings", 1,
-                                                      "Mark strings in all segments", AnalyzerFlags_RunOnce,
-                                                      [](const RDAnalyzerPlugin*, const RDLoader*, const RDAssembler*) -> bool { return true; },
-                                                      [](const RDAnalyzerPlugin*, RDDisassembler* d) { StringsAnalyzer::analyze(CPTR(Disassembler, d)); });
+RDEntryAnalyzer analyzerEntry_Strings = RD_BUILTIN_ENTRY(analyzerstring_builtin, "Find All Strings", 1,
+                                                         "Mark strings in all segments", AnalyzerFlags_RunOnce,
+                                                         [](const RDContext*) -> bool { return true; },
+                                                         [](RDContext* ctx) { StringsAnalyzer::analyze(CPTR(Context, ctx)); });
 
-void StringsAnalyzer::analyze(Disassembler* disassembler)
+void StringsAnalyzer::analyze(Context* ctx)
 {
     std::deque<RDBlock> pendingblocks;
-    auto& doc = disassembler->document();
+    auto& doc = ctx->document();
 
     for(size_t i = 0; i < doc->segmentsCount(); i++)
     {
@@ -32,9 +34,11 @@ void StringsAnalyzer::analyze(Disassembler* disassembler)
         }
     }
 
+    Loader* loader = ctx->loader();
+
     std::for_each(std::execution::par_unseq, pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
         RDBufferView view;
-        if(!disassembler->view(b.address, BlockContainer::size(&b), &view)) return;
-        StringFinder::find(disassembler, view);
+        if(!loader->view(b.address, BlockContainer::size(&b), &view)) return;
+        StringFinder::find(ctx, view);
     });
 }

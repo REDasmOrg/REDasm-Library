@@ -13,7 +13,7 @@ class Disassembler;
 class ILFunction: public Object
 {
     public:
-        ILFunction(const Disassembler* disassembler);
+        ILFunction(Context* ctx);
         void insert(size_t idx, ILExpression* e);
         void append(ILExpression* e);
         void setCurrentAddress(rd_address address);
@@ -21,7 +21,6 @@ class ILFunction: public Object
         const ILExpression* first() const;
         const ILExpression* last() const;
         const ILExpression* expression(size_t idx) const;
-        const Disassembler* disassembler() const;
         bool empty() const;
         size_t size() const;
 

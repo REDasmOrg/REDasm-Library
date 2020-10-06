@@ -6,11 +6,12 @@
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
 #include "../support/safe_ptr.h"
+#include "../object.h"
 
-struct RDAnalyzerPlugin;
-class Disassembler;
+class Analyzer;
+class Context;
 
-class Engine
+class Engine: public Object
 {
     public:
         enum { State_None, State_Algorithm,
@@ -18,7 +19,7 @@ class Engine
                State_Signature, State_Last };
 
     public:
-        Engine(Disassembler* disassembler);
+        Engine(Context* ctx);
         ~Engine();
         size_t currentStep() const;
         void reset();
@@ -44,12 +45,11 @@ class Engine
     private:
         bool m_busy{false};
         std::unordered_set<size_t> m_stepsdone;
-        std::unordered_map<const RDAnalyzerPlugin*, size_t> m_analyzecount;
+        std::unordered_map<const Analyzer*, size_t> m_analyzecount;
         std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
         //SignatureScanner m_sigscanner;
         //SignatureIdentifiers m_signatures;
         size_t m_currentstep{Engine::State_None};
-        Disassembler* m_disassembler;
         SafeAlgorithm& m_algorithm;
 };
 

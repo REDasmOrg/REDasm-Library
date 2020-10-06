@@ -2,7 +2,7 @@
 
 #include "../macros.h"
 #include "../types.h"
-#include "../plugin.h"
+#include "entry.h"
 
 #define RD_ARGUMENTS_SIZE 10
 
@@ -30,16 +30,16 @@ RD_API_EXPORT bool RDArguments_PushUInt(RDArguments* arguments, uintptr_t v);
 RD_API_EXPORT bool RDArguments_PushString(RDArguments* arguments, const char* v);
 RD_API_EXPORT bool RDArguments_PushPointer(RDArguments* arguments, void* v);
 
-struct RDCommandPlugin;
+struct RDEntryCommand;
 struct RDDisassembler;
 
-typedef bool (*Callback_CommandExecute)(const struct RDCommandPlugin* plugin, const RDArguments* arguments);
+typedef bool (*Callback_CommandExecute)(const struct RDEntrycommand* plugin, const RDArguments* arguments);
 
-typedef struct RDCommandPlugin {
-    RD_PLUGIN_HEADER
+typedef struct RDEntryCommand {
+    RD_ENTRY_HEADER
 
     Callback_CommandExecute execute;
-} RDCommandPlugin;
+} RDEntryCommand;
 
-RD_API_EXPORT bool RDCommand_Register(RDCommandPlugin* plugin);
-RD_API_EXPORT bool RDCommand_Execute(const char* command, const RDArguments* arguments);
+RD_API_EXPORT bool RDCommand_Register(RDPluginModule* m, const RDEntryCommand* entry);
+RD_API_EXPORT bool RDCommand_Execute(RDContext* ctx, const char* command, const RDArguments* arguments);

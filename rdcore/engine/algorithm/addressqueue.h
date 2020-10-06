@@ -1,15 +1,15 @@
 #pragma once
 
 #include <deque>
-#include <rdapi/disassembler.h>
 #include "../../document/document_fwd.h"
+#include "../../object.h"
 
 class Disassembler;
 
-class AddressQueue
+class AddressQueue: public Object
 {
     public:
-        AddressQueue(Disassembler* disassembler);
+        AddressQueue(Context* ctx);
         virtual ~AddressQueue() = default;
         size_t pending() const;
         bool hasNext() const;

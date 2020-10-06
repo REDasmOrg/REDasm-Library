@@ -2,4 +2,4 @@
 
 #include <rdapi/plugin/loader.h>
 
-extern RDLoaderPlugin loader_Binary;
+extern RDEntryLoader loaderEntry_Binary;

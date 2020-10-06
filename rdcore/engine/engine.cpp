@@ -1,16 +1,18 @@
 #include "engine.h"
 #include "../support/utils.h"
 #include "../eventdispatcher.h"
+#include "../context.h"
 #include "../disassembler.h"
 #include "../document/document.h"
-#include "../context.h"
+#include "../config.h"
+#include "../plugin/analyzer.h"
 #include "../builtin/analyzer/functionanalyzer.h"
 #include "../builtin/graph/functiongraph.h"
 #include "gibberish/gibberishdetector.h"
 #include "stringfinder.h"
 #include <vector>
 
-Engine::Engine(Disassembler* disassembler): m_disassembler(disassembler), m_algorithm(disassembler->algorithm()) { GibberishDetector::initialize(); }
+Engine::Engine(Context* ctx): Object(ctx), m_algorithm(ctx->disassembler()->algorithm()) { GibberishDetector::initialize(); }
 Engine::~Engine() { this->stop(); }
 size_t Engine::currentStep() const { return m_currentstep; }
 void Engine::reset() { m_currentstep = Engine::State_None; }
@@ -26,15 +28,15 @@ void Engine::execute()
             case Engine::State_CFG:       this->cfgStep();        break;
             case Engine::State_Analyze:   this->analyzeStep();    break;
             case Engine::State_Signature: this->signatureStep();  break;
-            default:                      rd_ctx->log("Unknown step: " + Utils::number(m_currentstep)); return;
+            default:                      rd_cfg->log("Unknown step: " + Utils::number(m_currentstep)); return;
         }
     }
 
     if(!m_algorithm->hasNext())
     {
         this->notify(false);
-        rd_ctx->log("Analysis completed");
-        rd_ctx->status("Ready");
+        rd_cfg->log("Analysis completed");
+        rd_cfg->status("Ready");
     }
     else // More addresses pending: run Algorithm again
         this->execute(Engine::State_Algorithm);
@@ -50,7 +52,7 @@ void Engine::execute(size_t step)
 
 bool Engine::cfg(rd_address address)
 {
-    size_t idx = m_disassembler->document()->functionIndex(address);
+    size_t idx = this->context()->document()->functionIndex(address);
     if(idx == RD_NPOS) return false;
 
     this->generateCfg(idx);
@@ -85,14 +87,14 @@ void Engine::algorithmStep()
 
 void Engine::analyzeStep()
 {
-    rd_ctx->status("Analyzing...");
+    rd_cfg->status("Analyzing...");
 
-    for(const RDAnalyzerPlugin* p : rd_ctx->selectedAnalyzers())
+    for(const Analyzer* p : this->context()->selectedAnalyzers())
     {
-        if(HAS_FLAG(p, AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
+        if(HAS_FLAG(p->plugin(), AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
 
         m_analyzecount[p]++;
-        if(p->execute) p->execute(p, CPTR(RDDisassembler, m_disassembler));
+        p->execute();
     }
 
     if(!m_algorithm->hasNext())
@@ -107,10 +109,10 @@ void Engine::analyzeStep()
 
 void Engine::cfgStep()
 {
-    rd_ctx->status("Generating CFG...");
-    m_disassembler->document()->invalidateGraphs();
+    rd_cfg->status("Generating CFG...");
+    this->context()->document()->invalidateGraphs();
 
-    for(size_t i = 0; i < m_disassembler->document()->functionsCount(); i++)
+    for(size_t i = 0; i < this->context()->document()->functionsCount(); i++)
         this->generateCfg(i);
 
     this->nextStep();
@@ -124,9 +126,9 @@ void Engine::signatureStep()
 
 void Engine::generateCfg(size_t funcindex)
 {
-    RDLocation loc = m_disassembler->document()->functionAt(funcindex);
-    rd_ctx->status("Computing basic blocks @ " + Utils::hex(loc.address));
-    auto g = std::make_unique<FunctionGraph>(m_disassembler);
+    RDLocation loc = this->context()->document()->functionAt(funcindex);
+    rd_cfg->status("Computing basic blocks @ " + Utils::hex(loc.address));
+    auto g = std::make_unique<FunctionGraph>(this->context());
     bool cfgdone = false;
 
     // Build CFG
@@ -146,19 +148,19 @@ void Engine::generateCfg(size_t funcindex)
             RDDocumentItem item;
             if(!fbb->getEndItem(&item)) continue;
 
-            m_disassembler->document()->separator(item.address);
+            this->context()->document()->separator(item.address);
         }
 
-        m_disassembler->document()->graph(g.release());
+        this->context()->document()->graph(g.release());
     }
     else
-        rd_ctx->problem("Graph creation failed @ " + Utils::hex(loc.address));
+        this->context()->problem("Graph creation failed @ " + Utils::hex(loc.address));
 }
 
 void Engine::notify(bool busy)
 {
     m_busy = busy;
-    //m_disassembler->enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    this->context()->enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }
 
 void Engine::nextStep() { m_currentstep++; }

@@ -16,7 +16,7 @@ class Renderer: public Object
         typedef bool (*Renderer_Callback)(RDRenderItemParams* rip);
 
     public:
-        Renderer(Disassembler* disassembler, const Cursor* cursor, rd_flag flags);
+        Renderer(Context* ctx, const Cursor* cursor, rd_flag flags);
         void render(size_t index, size_t count, Callback_Render cbrender, void* userdata) const;
         bool renderItem(size_t index, RendererItem* ritem) const;
         bool selectedSymbol(RDSymbol* symbol) const;
@@ -64,7 +64,6 @@ class Renderer: public Object
     private:
         mutable std::string m_lastword, m_selectedtext, m_instructionstr, m_asmstr, m_rdilstr;
         mutable size_t m_commentcolumn{0}; // Make renderer update comment column dynamically
-        Disassembler* m_disassembler;
         const Cursor* m_cursor;
         rd_flag m_flags;
 };

@@ -2,8 +2,8 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "object.h"
-#include "macros.h"
+#include "events.h"
+#include "types.h"
 
 DECLARE_HANDLE(RDContext);
 
@@ -12,51 +12,54 @@ enum RDContextFlags {
     ContextFlags_ShowRDIL = (1 << 0),
 };
 
+struct RDLoaderRequest;
+struct RDEntryLoader;
+struct RDEntryAssembler;
 struct RDDisassembler;
+struct RDNet;
 struct RDDocument;
+struct RDAssembler;
 struct RDLoader;
+struct RDBuffer;
 
-typedef void (*RD_LogCallback)(const char* s, void* userdata);
-typedef void (*RD_StatusCallback)(const char* s, void* userdata);
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
-typedef void (*RD_PathCallback)(const char* s, void* userdata);
-typedef void (*RD_ProgressCallback)(size_t pending, void* userdata);
+typedef void (*Callback_AssemblerEntry)(const struct RDEntryAssembler* entry, void* userdata);
+typedef void (*Callback_LoaderEntry)(const struct RDEntryLoader* entry, void* userdata);
+typedef void (*Callback_Analyzer)(const struct RDAnalyzer* analyzer, void* userdata);
 
-// General
-RD_API_EXPORT RDContext* RD_GetContext(void);
-RD_API_EXPORT RDDisassembler* RD_GetDisassembler(void);
-RD_API_EXPORT size_t RD_ProblemsCount(void);
-RD_API_EXPORT void RD_InitContext(void);
-RD_API_EXPORT void RD_SetRuntimePath(const char* rntpath);
-RD_API_EXPORT void RD_SetTempPath(const char* rntpath);
-RD_API_EXPORT void RD_SetLogCallback(RD_LogCallback callback, void* userdata);
-RD_API_EXPORT void RD_SetStatusCallback(RD_StatusCallback callback, void* userdata);
-RD_API_EXPORT void RD_SetProgressCallback(RD_ProgressCallback callback, void* userdata);
-RD_API_EXPORT void RD_AddPluginPath(const char* pluginpath);
-RD_API_EXPORT void RD_AddDatabasePath(const char* dbpath);
-RD_API_EXPORT void RD_GetProblems(RD_ProblemCallback callback, void* userdata);
-RD_API_EXPORT void RD_GetDatabasePaths(RD_PathCallback callback, void* userdata);
-RD_API_EXPORT void RD_GetPluginPaths(RD_PathCallback callback, void* userdata);
-RD_API_EXPORT void RD_StatusAddress(const char* s, rd_address address);
-RD_API_EXPORT void RD_Status(const char* s);
-RD_API_EXPORT void RD_Log(const char* s);
-RD_API_EXPORT void RD_Problem(const char* s);
-RD_API_EXPORT void RD_SetIgnoreProblems(bool ignore);
-RD_API_EXPORT bool RD_HasProblems(void);
-RD_API_EXPORT bool RD_IsBusy(void);
+RD_API_EXPORT RDContext* RDContext_Create();
+RD_API_EXPORT const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader);
+RD_API_EXPORT RDDisassembler* RDContext_BuildDisassembler(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
+RD_API_EXPORT const RDNet* RDContext_GetNet(const RDContext* ctx);
+RD_API_EXPORT RDDocument* RDContext_GetDocument(const RDContext* ctx);
+RD_API_EXPORT RDDisassembler* RDContext_GetDisassembler(const RDContext* ctx);
+RD_API_EXPORT RDAssembler* RDContext_GetAssembler(const RDContext* ctx);
+RD_API_EXPORT RDLoader* RDContext_GetLoader(const RDContext* ctx);
+RD_API_EXPORT RDBuffer* RDContext_GetBuffer(const RDContext* ctx);
+RD_API_EXPORT size_t RDContext_GetBits(const RDContext* ctx);
+RD_API_EXPORT size_t RDContext_GetAddressWidth(const RDContext* ctx);
+RD_API_EXPORT void RDContext_SetUserData(RDContext* ctx, const char* s, uintptr_t userdata);
+RD_API_EXPORT uintptr_t RDContext_GetUserData(const RDContext* ctx, const char* s);
+RD_API_EXPORT bool RDContext_IsBusy(const RDContext* ctx);
+RD_API_EXPORT void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequest, Callback_LoaderEntry callback, void* userdata);
+RD_API_EXPORT void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata);
+RD_API_EXPORT void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata);
+RD_API_EXPORT void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select);
+RD_API_EXPORT void RDContext_Subscribe(RDContext* ctx, void* owner, Callback_Event listener, void* userdata);
+RD_API_EXPORT void RDContext_Unsubscribe(RDContext* ctx, void* owner);
+RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
+RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);
+RD_API_EXPORT void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata);
+RD_API_EXPORT void RDContext_AddProblem(RDContext* ctx, const char* s);
+RD_API_EXPORT void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore);
+RD_API_EXPORT bool RDContext_HasProblems(const RDContext* ctx);
 
-// Context
-RD_API_EXPORT void RD_InitContextFlags(rd_flag flags);
+// vvv OLD vvv
 RD_API_EXPORT void RD_SetContextFlags(rd_flag flags, bool set);
 RD_API_EXPORT rd_flag RD_GetContextFlags(void);
 RD_API_EXPORT bool RD_ContextHasFlags(rd_flag flags);
-RD_API_EXPORT const char* RD_RuntimePath(void);
-RD_API_EXPORT const char* RD_TempPath(void);
 
 #ifdef __cplusplus
   #include <string>
-  #define rd_log(s)                    RD_Log(std::string(s).c_str())
-  #define rd_problem(s)                RD_Problem(std::string(s).c_str())
-  #define rd_status(s)                 RD_Status(std::string(s).c_str())
-  #define rd_statusaddress(s, address) RD_StatusAddress(std::string(s).c_str(), address)
+  #define rdcontext_addproblem(ctx, s) RDContext_AddProblem(ctx, std::string(s).c_str())
 #endif

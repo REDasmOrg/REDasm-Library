@@ -4,9 +4,9 @@
 #include <rdcore/rdil/rdil.h>
 #include <rdcore/disassembler.h>
 
-RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_address address)
+RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
 {
-    auto* g = new RDILGraph(CPTR(const Disassembler, disassembler));
+    auto* g = new RDILGraph(CPTR(Context, ctx));
     g->build(address);
     return CPTR(RDGraph, g);
 }
@@ -34,9 +34,9 @@ bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
     return true;
 }
 
-RDILFunction* RDILFunction_Generate(const RDDisassembler* disassembler, rd_address address)
+RDILFunction* RDILFunction_Generate(RDContext* ctx, rd_address address)
 {
-    std::unique_ptr<ILFunction> il = std::make_unique<ILFunction>(CPTR(const Disassembler, disassembler));
+    std::unique_ptr<ILFunction> il = std::make_unique<ILFunction>(CPTR(Context, ctx));
     if(!ILFunction::generate(address, il.get())) return nullptr;
     return CPTR(RDILFunction, il.release());
 }

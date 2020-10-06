@@ -1,11 +1,12 @@
 #include "binary.h"
 #include "../../object.h"
 #include "../../plugin/loader.h"
+#include "../../document/document.h"
 #include "../builtin.h"
 
-static const char* test(const struct RDLoaderPlugin*, const RDLoaderRequest*) { return ""; /* Always valid */ }
+static const char* test(const RDLoaderRequest*) { return ""; /* Always valid */ }
 
-static bool build(RDLoaderPlugin*, RDLoader* ldr, const RDLoaderBuildRequest* req)
+static bool build(RDContext*, RDLoader* ldr, const RDLoaderBuildParams* req)
 {
     auto* loader = CPTR(Loader, ldr);
     auto& doc = loader->document();
@@ -16,6 +17,6 @@ static bool build(RDLoaderPlugin*, RDLoader* ldr, const RDLoaderBuildRequest* re
     return true;
 }
 
-RDLoaderPlugin loader_Binary = RD_BUILTIN_PLUGIN(binary_builtin, "Binary",
-                                                 LoaderFlags_CustomAssembler | LoaderFlags_CustomAddressing,
-                                                 &test, nullptr, &build);
+RDEntryLoader loaderEntry_Binary = RD_BUILTIN_ENTRY(binary_builtin, "Binary",
+                                                    LoaderFlags_CustomAssembler | LoaderFlags_CustomAddressing,
+                                                    &test, nullptr, &build);

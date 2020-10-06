@@ -2,20 +2,13 @@
 #include "support/error.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
-#include "context.h"
+#include "config.h"
 #include "document/document.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
+#include <iostream>
 
-Disassembler::Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler): EventDispatcher()
-{
-    //rd_ctx->setDisassembler(this);
-    m_loader = std::make_unique<Loader>(ploader, request, this);
-    m_assembler = std::make_unique<Assembler>(passembler, this);
-    m_algorithm = SafeAlgorithm(new Algorithm(this));
-}
-
-Disassembler::~Disassembler() { }
+Disassembler::Disassembler(Context* ctx): Object(ctx) { }
 Assembler* Disassembler::assembler() const { return m_assembler.get(); }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
@@ -40,7 +33,7 @@ void Disassembler::disassemble()
 
     auto& doc = this->document();
 
-    m_engine.reset(new Engine(this));
+    m_engine.reset(new Engine(this->context()));
     if(!doc->segmentsCount()) return;
 
     // Check Exported Data
@@ -69,18 +62,20 @@ void Disassembler::disassemble()
     m_engine->execute();
 }
 
-bool Disassembler::load(const RDLoaderBuildRequest* buildreq)
+bool Disassembler::load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
-    if(!m_loader) return false;
+    std::cout << std::hex << reinterpret_cast<uintptr_t>(entryloader) << std::endl;
+    m_loader = std::make_unique<Loader>(request, entryloader, this->context());
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)
     {
-        if(!buildreq || !m_loader->build(buildreq)) return false;
+        if(!m_loader->build()) return false;
     }
     else if(!m_loader->load())
         return false;
 
-    rd_ctx->loadAnalyzers(m_loader.get(), m_assembler.get());
+    m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
+    m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
     return true;
 }
 
@@ -179,7 +174,7 @@ void Disassembler::markPointer(rd_address fromaddress, rd_address address)
 size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, size_t count)
 {
     return 0;
-    // rd_ctx->statusAddress("Checking address table", startaddress);
+    // rd_cfg->statusAddress("Checking address table", startaddress);
 
     // RDSymbol symbol;
     // if(this->document()->symbol(startaddress, &symbol) && HAS_FLAG(&symbol, SymbolFlags_TableItem)) return RD_NPOS;
@@ -234,7 +229,7 @@ bool Disassembler::readAddress(rd_address address, size_t size, u64* value) cons
         case 2:  if(value) *value = *reinterpret_cast<u16*>(view.data); break;
         case 4:  if(value) *value = *reinterpret_cast<u32*>(view.data); break;
         case 8:  if(value) *value = *reinterpret_cast<u64*>(view.data); break;
-        default: rd_ctx->problem("Invalid size: " + Utils::number(size)); return false;
+        default: return false; //FIXME: rd_cfg->problem("Invalid size: " + Utils::number(size)); return false;
     }
 
     return true;
@@ -277,7 +272,7 @@ bool Disassembler::markString(rd_address address, rd_flag* resflags)
     size_t totalsize = 0;
     rd_flag flags = StringFinder::categorize(&view, &totalsize);
     if(resflags) *resflags = flags;
-    return StringFinder::checkAndMark(this, address, flags, totalsize);
+    return StringFinder::checkAndMark(this->context(), address, flags, totalsize);
 }
 
 bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const

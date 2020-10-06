@@ -1,27 +1,24 @@
 #include "loader.h"
 #include "../document/document.h"
 #include "../support/utils.h"
-#include "../context.h"
 
-Loader::Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req, Disassembler* disassembler): Object(), m_ploader(ploader)
+Loader::Loader(const RDLoaderRequest* req, const RDEntryLoader* entry, Context* ctx): Entry<RDEntryLoader>(entry, ctx)
 {
-    m_document = SafeDocument(new Document(disassembler));
-    m_buffer.reset(reinterpret_cast<MemoryBuffer*>(req->buffer));
+    m_document = SafeDocument(new Document(ctx));
+    m_buffer.reset(reinterpret_cast<MemoryBuffer*>(req->buffer)); // Take ownership
     m_filepath = req->filepath;
 }
 
-Loader::~Loader() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(m_ploader)); }
-
 bool Loader::load()
 {
-    if(!m_ploader->load) return false;
-    return m_ploader->load(m_ploader, CPTR(RDLoader, this));
+    if(!m_entry->load) return false;
+    return m_entry->load(CPTR(RDContext, this->context()), CPTR(RDLoader, this));
 }
 
-bool Loader::build(const RDLoaderBuildRequest* req)
+bool Loader::build()
 {
-    if(!m_ploader->build) return false;
-    return m_ploader->build(m_ploader, CPTR(RDLoader, this), req);
+    if(!m_entry->build) return false;
+    return m_entry->build(CPTR(RDContext, this->context()), CPTR(RDLoader, this), &m_buildparams);
 }
 
 bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NPOS, view); }
@@ -51,18 +48,9 @@ Database* Loader::database(const std::string& dbname)
     return iit.first->second.get();
 }
 
-rd_flag Loader::flags() const { return m_ploader->flags; }
-const char* Loader::id() const { return m_ploader->id; }
+rd_flag Loader::flags() const { return m_entry->flags; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
-const RDLoaderPlugin* Loader::plugin() const { return m_ploader; }
-
-bool Loader::getUserData(RDUserData* userdata) const
-{
-    if(!userdata) return false;
-    userdata->userdata = m_ploader->userdata;
-    return true;
-}
 
 RDLocation Loader::offset(rd_address address) const
 {
@@ -108,4 +96,10 @@ u8* Loader::pointer(rd_offset offset) const
 {
     if(offset >= m_buffer->size()) return nullptr;
     return Utils::relpointer(m_buffer->data(), offset);
+}
+
+const char* Loader::test(const RDEntryLoader* entry, const RDLoaderRequest* req)
+{
+    if(!entry->test) return nullptr;
+    return entry->test(req);
 }

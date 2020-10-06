@@ -18,7 +18,7 @@ class StyledGraph: public DataGraph
         };
 
     public:
-        StyledGraph() = default;
+        StyledGraph(Context* ctx);
 
     public: // Write
         void color(const RDGraphEdge* e, const std::string& s);

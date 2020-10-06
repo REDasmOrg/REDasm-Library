@@ -1,5 +1,5 @@
 #include "database.h"
-#include "../context.h"
+#include "../config.h"
 #include "../support/utils.h"
 #include "../support/compression.h"
 #include <filesystem>
@@ -114,7 +114,7 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
         if(dbvalue) Database::writeValue(value, dbvalue);
     }
     catch(nlohmann::json::parse_error& e) {
-        rd_ctx->log(e.what());
+        rd_cfg->log(e.what());
         return false;
     }
 
@@ -165,7 +165,7 @@ bool Database::parseDecompiled(const Database::DecompiledData& decompiled, nlohm
     try {
         j = nlohmann::json::parse(decompiled);
     }  catch (nlohmann::json::parse_error& e) {
-        rd_ctx->log(e.what());
+        rd_cfg->log(e.what());
         return false;
     }
 
@@ -179,7 +179,7 @@ bool Database::parseCompiled(const CompiledData& compiled, nlohmann::json& j)
         Compression::decompress(compiled, tempdata);
         j = nlohmann::json::from_msgpack(tempdata);
     }  catch (nlohmann::json::parse_error& e) {
-        rd_ctx->log(e.what());
+        rd_cfg->log(e.what());
         return false;
     }
 
@@ -194,7 +194,7 @@ std::string Database::locate(std::string dbname)
     fs::directory_entry dbentry;
 
     // Search everywhere
-    for(const std::string& searchpath : rd_ctx->databasePaths())
+    for(const std::string& searchpath : rd_cfg->databasePaths())
     {
         dbentry.assign((fs::path(searchpath) / dbname).make_preferred());
         if(dbentry.is_regular_file()) return dbentry.path();

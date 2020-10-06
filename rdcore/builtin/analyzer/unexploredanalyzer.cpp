@@ -1,21 +1,25 @@
 #include "unexploredanalyzer.h"
-#include "../../disassembler.h"
+#include "../../document/document.h"
 #include "../../engine/stringfinder.h"
+#include "../../plugin/assembler.h"
+#include "../../support/utils.h"
+#include "../../disassembler.h"
 #include "../../context.h"
+#include "../../config.h"
 #include "../builtin.h"
 #include <algorithm>
 #include <execution>
 #include <deque>
 
-RDAnalyzerPlugin analyzer_Unexplored = RD_BUILTIN_PLUGIN(analyzerunexplored_builtin, "Aggressive Disassembly", 0,
-                                                         "Disassemble unknown blocks", AnalyzerFlags_RunOnce | AnalyzerFlags_Experimental,
-                                                         [](const RDAnalyzerPlugin*, const RDLoader*, const RDAssembler*) -> bool { return true; },
-                                                         [](const RDAnalyzerPlugin*, RDDisassembler* d) { UnexploredAnalyzer::analyze(CPTR(Disassembler, d)); });
+RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Aggressive Disassembly", 0,
+                                                            "Disassemble unknown blocks", AnalyzerFlags_RunOnce | AnalyzerFlags_Experimental,
+                                                            [](const RDContext*) -> bool { return true; },
+                                                            [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
 
-void UnexploredAnalyzer::analyze(Disassembler* disassembler)
+void UnexploredAnalyzer::analyze(Context* ctx)
 {
-    auto& doc = disassembler->document();
-    size_t bits = disassembler->assembler()->bits();
+    auto& doc = ctx->document();
+    size_t bits = ctx->assembler()->bits();
 
     for(size_t i = 0; i < doc->segmentsCount(); i++)
     {
@@ -27,8 +31,8 @@ void UnexploredAnalyzer::analyze(Disassembler* disassembler)
         for(size_t j = 0; j < bc->size(); j++)
         {
             const RDBlock& block = bc->at(j);
-            rd_ctx->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
-            if(IS_TYPE(&block, BlockType_Unexplored)) disassembler->enqueue(block.address);
+            rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
+            if(IS_TYPE(&block, BlockType_Unexplored)) ctx->disassembler()->enqueue(block.address);
         }
     }
 }

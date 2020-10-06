@@ -21,7 +21,7 @@ class EventDispatcher: public Object
         struct EventItem { Callback_Event listener; void* userdata; };
 
     public:
-        EventDispatcher();
+        EventDispatcher(Context* ctx);
         virtual ~EventDispatcher();
         template<typename EventArgs, typename ...Args> void enqueue(event_id_t id, void* sender, Args... args);
         void subscribe(void* owner, Callback_Event listener, void* userdata);

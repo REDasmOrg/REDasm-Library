@@ -3,12 +3,12 @@
 #include "../../support/error.h"
 #include "../../support/utils.h"
 #include "../../disassembler.h"
-#include "../../context.h"
+#include "../../config.h"
 #include "emulateresult.h"
 #include <rdapi/disassembler.h>
 #include <thread>
 
-Algorithm::Algorithm(Disassembler* disassembler): AddressQueue(disassembler) { }
+Algorithm::Algorithm(Context* ctx): AddressQueue(ctx) { }
 void Algorithm::enqueue(rd_address address) { if(this->isAddressValid(address)) AddressQueue::enqueue(address); }
 void Algorithm::schedule(rd_address address) { if(this->isAddressValid(address)) AddressQueue::schedule(address); }
 
@@ -143,7 +143,7 @@ void Algorithm::nextAddress(rd_address address)
 
 std::optional<rd_address> Algorithm::decodeAddress(rd_address address)
 {
-    rd_ctx->status("Decoding @ " + Utils::hex(address));
+    this->status("Decoding @ " + Utils::hex(address));
     if(!this->canBeDisassembled(address)) return std::nullopt;
 
     RDBufferView view;

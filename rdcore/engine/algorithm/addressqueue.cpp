@@ -5,7 +5,7 @@
 #include "../../context.h"
 #include <rdapi/disassembler.h>
 
-AddressQueue::AddressQueue(Disassembler* disassembler): m_disassembler(disassembler), m_document(disassembler->document()) { }
+AddressQueue::AddressQueue(Context* ctx): m_disassembler(ctx->disassembler()), m_document(ctx->document()) { }
 size_t AddressQueue::pending() const { return m_pending.size(); }
 bool AddressQueue::hasNext() const { return !m_pending.empty(); }
 

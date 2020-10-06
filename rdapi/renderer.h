@@ -7,8 +7,8 @@
 DECLARE_HANDLE(RDRenderer);
 DECLARE_HANDLE(RDRendererItem);
 
+struct RDContext;
 struct RDBufferView;
-struct RDDisassembler;
 struct RDDocumentItem;
 struct RDCursorRange;
 struct RDCursorPos;
@@ -43,8 +43,8 @@ typedef struct RDRenderItemParams {
     rd_address address;
     RDBufferView view;
 
+    const RDContext* context;
     const RDRenderer* renderer;
-    const RDDisassembler* disassembler;
     RDRendererItem* rendereritem;
 } RDRenderItemParams;
 
@@ -56,7 +56,7 @@ typedef struct RDRendererFormat {
 typedef void (*Callback_Render)(const RDRendererItem* ritem, size_t index, void* userdata);
 
 // RDRenderer
-RD_API_EXPORT RDRenderer* RDRenderer_Create(RDDisassembler* d, const RDCursor* cursor, rd_flag flags);
+RD_API_EXPORT RDRenderer* RDRenderer_Create(RDContext* ctx, const RDCursor* cursor, rd_flag flags);
 RD_API_EXPORT RDRendererItem* RDRender_CreateItem();
 RD_API_EXPORT size_t RDRenderer_GetLastColumn(const RDRenderer* r, size_t index);
 RD_API_EXPORT rd_flag RDRenderer_Flags(const RDRenderer* r);

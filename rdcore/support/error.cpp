@@ -2,7 +2,6 @@
 #include "utils.h"
 #include <stdexcept>
 #include "../eventdispatcher.h"
-#include "../context.h"
 #include <rdapi/events.h>
 
 std::string REDasmError::m_message;
@@ -21,6 +20,6 @@ REDasmError::REDasmError(const std::string& msg)
 
 void REDasmError::notifyAndThrow()
 {
-    EventDispatcher::enqueue<RDErrorEventArgs>(Event_Error, Context::instance(), m_message.c_str());
+    //FIXME: EventDispatcher::enqueue<RDErrorEventArgs>(Event_Error, Context::instance(), m_message.c_str());
     throw std::runtime_error(m_message);
 }

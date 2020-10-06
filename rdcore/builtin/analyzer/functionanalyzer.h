@@ -3,19 +3,20 @@
 #include <rdapi/types.h>
 #include <rdapi/plugin/analyzer.h>
 
+class Context;
 class Disassembler;
 class ILFunction;
 
-extern RDAnalyzerPlugin analyzer_Function;
+extern RDEntryAnalyzer analyzerEntry_Function;
 
 class FunctionAnalyzer
 {
     public:
         FunctionAnalyzer() = delete;
-        static void analyze(Disassembler* disassembler);
+        static void analyze(Context* ctx);
 
     private:
-        static bool findNullSubs(Disassembler* disassembler, const ILFunction* il, rd_address address);
-        static void findThunk(Disassembler* disassembler, const ILFunction* il, rd_address address);
+        static bool findNullSubs(Context* ctx, const ILFunction* il, rd_address address);
+        static void findThunk(Context* ctx, const ILFunction* il, rd_address address);
 };
 

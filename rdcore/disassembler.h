@@ -2,7 +2,6 @@
 
 #include <rdapi/disassembler.h>
 #include <memory>
-#include "eventdispatcher.h"
 #include "plugin/loader.h"
 #include "plugin/assembler.h"
 #include "engine/engine.h"
@@ -11,11 +10,10 @@
 #include "document/documentnet.h"
 #include "support/utils.h"
 
-class Disassembler: public EventDispatcher
+class Disassembler: public Object
 {
     public:
-        Disassembler(const RDLoaderRequest* request, RDLoaderPlugin* ploader, RDAssemblerPlugin* passembler);
-        virtual ~Disassembler();
+        Disassembler(Context* ctx);
         Assembler* assembler() const;
         Loader* loader() const;
         SafeAlgorithm& algorithm();
@@ -24,7 +22,7 @@ class Disassembler: public EventDispatcher
         DocumentNet* net();
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
-        bool load(const RDLoaderBuildRequest* buildreq);
+        bool load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 
     public:
         bool scheduleFunction(rd_address address, const char* name);

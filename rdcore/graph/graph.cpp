@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
+Graph::Graph(Context* ctx): Object(ctx) { }
 bool Graph::empty() const { return m_nodes.empty(); }
 void Graph::setRoot(RDGraphNode n) { m_root = n; }
 

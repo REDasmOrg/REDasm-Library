@@ -1,5 +1,7 @@
 #include "datagraph.h"
 
+DataGraph::DataGraph(Context* ctx): Graph(ctx) { }
+
 const RDGraphData* DataGraph::data(RDGraphNode n) const
 {
     auto it = m_data.find(n);

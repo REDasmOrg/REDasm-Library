@@ -3,7 +3,7 @@
 #include "macros.h"
 #include "types.h"
 
-struct RDDisassembler;
+struct RDContext;
 struct RDGraph;
 
 enum RDILTypes
@@ -34,7 +34,7 @@ typedef union RDILValue { PRIVATE_RDIL_VALUE_FIELDS } RDILValue;
 DECLARE_HANDLE(RDILFunction);
 DECLARE_HANDLE(RDILExpression);
 
-RD_API_EXPORT RDGraph* RDILGraph_Create(const RDDisassembler* disassembler, rd_address address);
+RD_API_EXPORT RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address);
 
 RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
 RD_API_EXPORT size_t RDILExpression_Size(const RDILExpression* e);
@@ -52,7 +52,7 @@ RD_API_EXPORT const RDILExpression* RDILExpression_GetSrc(const RDILExpression* 
 RD_API_EXPORT const RDILExpression* RDILExpression_GetRight(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetF(const RDILExpression* e);
 
-RD_API_EXPORT RDILFunction* RDILFunction_Generate(const RDDisassembler* disassembler, rd_address address);
+RD_API_EXPORT RDILFunction* RDILFunction_Generate(RDContext* context, rd_address address);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction);

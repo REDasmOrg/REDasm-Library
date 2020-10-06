@@ -1,5 +1,5 @@
 #include "command.h"
-#include <rdcore/context.h>
+#include <rdcore/plugin/interface/pluginmodule.h>
 
 static RDArgument* RDArguments_Push(RDArguments* arguments, rd_type type)
 {
@@ -57,5 +57,5 @@ bool RDArguments_PushPointer(RDArguments* arguments, void* v)
     return false;
 }
 
-bool RDCommand_Register(RDCommandPlugin* plugin) { return rd_ctx->registerPlugin(plugin); }
-bool RDCommand_Execute(const char* command, const RDArguments* arguments) { return rd_ctx->commandExecute(command, arguments); }
+bool RDCommand_Register(RDPluginModule* m, const RDEntryCommand* entry) { return CPTR(PluginModule, m)->registerEntry(entry); }
+bool RDCommand_Execute(RDContext* ctx, const char* command, const RDArguments* arguments) { /* return CPTR(Context, ctx)->commandExecute(command, arguments); */ }

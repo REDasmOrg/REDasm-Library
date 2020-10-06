@@ -1,7 +1,7 @@
 #include "renderer.h"
 #include <rdcore/renderer/renderer.h>
 
-RDRenderer* RDRenderer_Create(RDDisassembler* d, const RDCursor* cursor, rd_flag flags) { return CPTR(RDRenderer, new Renderer(CPTR(Disassembler, d), CPTR(const Cursor, cursor), flags)); }
+RDRenderer* RDRenderer_Create(RDContext* ctx, const RDCursor* cursor, rd_flag flags) { return CPTR(RDRenderer, new Renderer(CPTR(Context, ctx), CPTR(const Cursor, cursor), flags)); }
 RDRendererItem* RDRender_CreateItem() { return CPTR(RDRendererItem, new RendererItem()); }
 size_t RDRenderer_GetLastColumn(const RDRenderer* r, size_t index) { return CPTR(const Renderer, r)->getLastColumn(index); }
 rd_flag RDRenderer_Flags(const RDRenderer* r) { return CPTR(const Renderer, r)->flags(); }

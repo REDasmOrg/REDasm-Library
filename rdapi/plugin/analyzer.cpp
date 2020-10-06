@@ -1,6 +1,9 @@
 #include "analyzer.h"
-#include <rdcore/context.h>
+#include <rdcore/plugin/interface/pluginmodule.h>
+#include <rdcore/plugin/analyzer.h>
 
-void RD_GetEnabledAnalyzers(Callback_AnalyzerPlugin callback, void* userdata) { rd_ctx->getEnabledAnalyzers(callback, userdata);  }
-void RDAnalyzer_Select(const RDAnalyzerPlugin* panalyzer, bool selected) { rd_ctx->selectAnalyzer(const_cast<RDAnalyzerPlugin*>(panalyzer), selected); }
-bool RDAnalyzer_Register(RDAnalyzerPlugin* plugin) { return rd_ctx->registerPlugin(plugin); }
+bool RDAnalyzer_Register(RDPluginModule* pm, const RDEntryAnalyzer* entry) { return CPTR(PluginModule, pm)->registerEntry(entry); }
+bool RDAnalyzer_IsSelected(const RDAnalyzer* analyzer) { return HAS_FLAG(CPTR(const Analyzer, analyzer)->plugin(), AnalyzerFlags_Selected); }
+bool RDAnalyzer_IsExperimental(const RDAnalyzer* analyzer) { return HAS_FLAG(CPTR(const Analyzer, analyzer)->plugin(), AnalyzerFlags_Experimental); }
+const char* RDAnalyzer_GetDescription(const RDAnalyzer* analyzer) { return CPTR(const Analyzer, analyzer)->plugin()->description; }
+const char* RDAnalyzer_GetName(const RDAnalyzer* analyzer) { return CPTR(const Analyzer, analyzer)->plugin()->name; }

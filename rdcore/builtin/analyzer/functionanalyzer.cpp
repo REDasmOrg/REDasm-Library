@@ -3,17 +3,19 @@
 #include "../../rdil/rdil.h"
 #include "../../document/document.h"
 #include "../../disassembler.h"
+#include "../../context.h"
 #include "../builtin.h"
 
-RDAnalyzerPlugin analyzer_Function = RD_BUILTIN_PLUGIN(analyzerfunction_builtin, "Discover Functions", static_cast<u64>(-1),
-                                                       "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
-                                                       [](const RDAnalyzerPlugin*, const RDLoader*, const RDAssembler*) -> bool { return true; },
-                                                       [](const RDAnalyzerPlugin*, RDDisassembler* d) { FunctionAnalyzer::analyze(CPTR(Disassembler, d)); });
+RDEntryAnalyzer analyzerEntry_Function = RD_BUILTIN_ENTRY(analyzerfunction_builtin, "Discover Functions", static_cast<u64>(-1),
+                                                          "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
+                                                          [](const RDContext*) -> bool { return true; },
+                                                          [](RDContext* ctx) { FunctionAnalyzer::analyze(CPTR(Context, ctx)); });
 
-void FunctionAnalyzer::analyze(Disassembler* disassembler)
+void FunctionAnalyzer::analyze(Context* ctx)
 {
-    auto& document = disassembler->document();
+    auto& document = ctx->document();
     const RDSymbol* entry = document->entry();
+    Loader* loader = ctx->loader();
 
     for(size_t i = 0; i < document->functionsCount(); i++)
     {
@@ -22,32 +24,32 @@ void FunctionAnalyzer::analyze(Disassembler* disassembler)
         if(entry && (entry->address == loc.address)) continue; // Don't rename EP, if any
 
         RDBufferView view;
-        if(!disassembler->view(loc.address, RD_NPOS, &view)) continue;
+        if(!loader->view(loc.address, RD_NPOS, &view)) continue;
 
-        ILFunction il(disassembler);
+        ILFunction il(ctx);
         if(!ILFunction::generate(loc.address, &il) || (il.size() > 1)) continue;
 
-        if(FunctionAnalyzer::findNullSubs(disassembler, &il, loc.address)) continue;
-        FunctionAnalyzer::findThunk(disassembler, &il, loc.address);
+        if(FunctionAnalyzer::findNullSubs(ctx, &il, loc.address)) continue;
+        FunctionAnalyzer::findThunk(ctx, &il, loc.address);
     }
 }
 
-bool FunctionAnalyzer::findNullSubs(Disassembler* disassembler, const ILFunction* il, rd_address address)
+bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILFunction* il, rd_address address)
 {
     const auto* expr = il->first();
 
     if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop))
-        return disassembler->document()->rename(address, "nullsub_" + Utils::hex(address));
+        return ctx->document()->rename(address, "nullsub_" + Utils::hex(address));
 
     return false;
 }
 
-void FunctionAnalyzer::findThunk(Disassembler* disassembler, const ILFunction* il, rd_address address)
+void FunctionAnalyzer::findThunk(Context* ctx, const ILFunction* il, rd_address address)
 {
     const auto* expr = il->first();
     const char* name = nullptr;
 
-    if(RDIL::match(expr, "goto [c]")) name = disassembler->document()->name(expr->u->u->address);
-    else if(RDIL::match(expr, "goto c")) name = disassembler->document()->name(expr->u->address);
-    if(name) disassembler->document()->rename(address, Utils::thunk(name));
+    if(RDIL::match(expr, "goto [c]")) name = ctx->document()->name(expr->u->u->address);
+    else if(RDIL::match(expr, "goto c")) name = ctx->document()->name(expr->u->address);
+    if(name) ctx->document()->rename(address, Utils::thunk(name));
 }

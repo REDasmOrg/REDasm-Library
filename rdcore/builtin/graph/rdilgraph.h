@@ -4,12 +4,10 @@
 #include "../../rdil/ilfunction.h"
 #include <deque>
 
-class Disassembler;
-
 class RDILGraph: public StyledGraph
 {
     public:
-        RDILGraph(const Disassembler* disassembler);
+        RDILGraph(Context* ctx);
         void build(rd_address address);
 
     private:
@@ -17,7 +15,6 @@ class RDILGraph: public StyledGraph
         void generate(const ILFunction* il);
 
     private:
-        const Disassembler* m_disassembler;
         std::deque<std::string> m_strings;
 };
 

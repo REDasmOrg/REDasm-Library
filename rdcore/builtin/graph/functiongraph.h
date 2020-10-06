@@ -37,7 +37,7 @@ class FunctionGraph: public StyledGraph
         typedef std::map<rd_address, FunctionBasicBlock*> BasicBlocks;
 
     public:
-        FunctionGraph(Disassembler* disassembler);
+        FunctionGraph(Context* ctx);
         const FunctionBasicBlock* basicBlock(rd_address address) const;
         FunctionBasicBlock* basicBlock(rd_address address);
         rd_address startAddress() const;

@@ -1,7 +1,7 @@
 #include "graph.h"
 #include <rdcore/graph/styledgraph.h>
 
-RDGraph* RDGraph_Create() { return CPTR(RDGraph, new StyledGraph()); }
+RDGraph* RDGraph_Create(RDContext* ctx) { return CPTR(RDGraph, new StyledGraph(CPTR(Context, ctx))); }
 const RDGraphEdge* RDGraph_GetEdge(const RDGraph* graph, RDGraphNode source, RDGraphNode target) { return CPTR(const Graph, graph)->edge(source, target); }
 RDGraphNode RDGraph_PushNode(RDGraph* graph) { return CPTR(Graph, graph)->pushNode(); }
 RDGraphNode RDGraph_GetRoot(const RDGraph* graph) { return CPTR(const Graph, graph)->root(); }

@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <rdapi/renderer.h>
-#include <rdapi/theme.h>
+#include <rdapi/config.h>
 #include "../object.h"
 
 class RendererItem: public Object

@@ -5,27 +5,23 @@
 #include "../document/document_fwd.h"
 #include "../database/database.h"
 #include "../buffer/buffer.h"
-#include "../object.h"
+#include "entry.h"
 
 class Disassembler;
 
-class Loader: public Object
+class Loader: public Entry<RDEntryLoader>
 {
     public:
-        Loader(RDLoaderPlugin* ploader, const RDLoaderRequest* req, Disassembler* disassembler);
-        virtual ~Loader();
+        Loader(const RDLoaderRequest* req, const RDEntryLoader* entry, Context* ctx);
         bool load();
-        bool build(const RDLoaderBuildRequest* req);
+        bool build();
         bool view(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;
         Database* database(const std::string& dbname);
         rd_flag flags() const;
-        const char* id() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
-        const RDLoaderPlugin* plugin() const;
-        bool getUserData(RDUserData* userdata) const;
 
     public:
         RDLocation offset(rd_address address) const;
@@ -35,8 +31,11 @@ class Loader: public Object
         u8* addrpointer(rd_address address) const;
         u8* pointer(rd_offset offset) const;
 
+    public:
+        static const char* test(const RDEntryLoader* entry, const RDLoaderRequest* req);
+
     private:
-        RDLoaderPlugin* m_ploader;
+        RDLoaderBuildParams m_buildparams{ };
         std::unique_ptr<MemoryBuffer> m_buffer;
         std::unordered_map<std::string, std::unique_ptr<Database>> m_database;
         SafeDocument m_document;

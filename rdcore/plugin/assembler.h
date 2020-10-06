@@ -6,32 +6,21 @@
 #include <string>
 #include <array>
 #include "../buffer/view.h"
-#include "../context.h"
-#include "../object.h"
+#include "entry.h"
 
 class Disassembler;
 class EmulateResult;
 class ILFunction;
 
-class Assembler: public Object
+class Assembler: public Entry<RDEntryAssembler>
 {
     public:
-        Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler);
-        virtual ~Assembler();
+        Assembler(const RDEntryAssembler* entry, Context* ctx);
         void lift(rd_address address, const RDBufferView* view, ILFunction* il) const;
         bool renderInstruction(RDRenderItemParams* rip);
         bool encode(RDEncodedInstruction* encoded) const;
         void emulate(EmulateResult* result) const;
-
-    public:
-        const RDAssemblerPlugin* plugin() const;
-        bool getUserData(RDUserData* userdata) const;
-        const char* id() const;
         size_t addressWidth() const;
         size_t bits() const;
-
-    private:
-        RDAssemblerPlugin* m_passembler;
-        Disassembler* m_disassembler;
 };
 

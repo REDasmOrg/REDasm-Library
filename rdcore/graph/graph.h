@@ -8,7 +8,7 @@
 class Graph: public Object
 {
     public:
-        Graph() = default;
+        Graph(Context* ctx);
         void setRoot(RDGraphNode n);
         void removeEdge(const RDGraphEdge* e);
         void removeNode(RDGraphNode n);

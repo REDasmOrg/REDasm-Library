@@ -14,7 +14,7 @@ class Algorithm: public AddressQueue
         enum { OK, SKIP, FAIL };
 
     public:
-        Algorithm(Disassembler* disassembler);
+        Algorithm(Context* ctx);
         void enqueue(rd_address address) override;
         void schedule(rd_address address) override;
         void disassemble();

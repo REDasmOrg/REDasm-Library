@@ -1,9 +1,10 @@
 #include "functiongraph.h"
 #include "../../document/backend/blockcontainer.h"
 #include "../../support/error.h"
+#include "../../document/document.h"
 #include "../../disassembler.h"
 #include "../../context.h"
-#include <rdapi/theme.h>
+#include <rdapi/config.h>
 #include <unordered_set>
 #include <stack>
 
@@ -52,7 +53,7 @@ rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
 void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeFalse; }
 void FunctionBasicBlock::bTrue(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeTrue; }
 
-FunctionGraph::FunctionGraph(Disassembler* disassembler): StyledGraph(), m_disassembler(disassembler), m_document(disassembler->document()) { }
+FunctionGraph::FunctionGraph(Context* ctx): StyledGraph(ctx), m_disassembler(ctx->disassembler()), m_document(ctx->document()) { }
 const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
 
 FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)

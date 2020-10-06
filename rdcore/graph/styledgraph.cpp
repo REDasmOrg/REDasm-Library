@@ -1,6 +1,7 @@
 #include "styledgraph.h"
 #include <algorithm>
 
+StyledGraph::StyledGraph(Context* ctx): DataGraph(ctx) { }
 void StyledGraph::color(const RDGraphEdge* e, const std::string& c) { m_edgeattributes[*e].color = c; }
 void StyledGraph::label(const RDGraphEdge* e, const std::string& l) { m_edgeattributes[*e].label = l; }
 

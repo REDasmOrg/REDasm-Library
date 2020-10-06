@@ -3,44 +3,29 @@
 #include "../rdil/ilfunction.h"
 #include <climits>
 
-Assembler::Assembler(RDAssemblerPlugin* passembler, Disassembler* disassembler): m_passembler(passembler), m_disassembler(disassembler) { }
-Assembler::~Assembler() { Context::freePlugin(reinterpret_cast<RDPluginHeader*>(m_passembler)); }
+Assembler::Assembler(const RDEntryAssembler* entry, Context* ctx): Entry<RDEntryAssembler>(entry, ctx) { }
 
 void Assembler::lift(rd_address address, const RDBufferView* view, ILFunction* il) const
 {
     il->setCurrentAddress(address); // Keep address <-> RDIL reference
-    if(m_passembler->lift) m_passembler->lift(m_passembler, address, view, CPTR(RDILFunction, il));
+    if(m_entry->lift) m_entry->lift(CPTR(RDContext, this->context()), address, view, CPTR(RDILFunction, il));
     else il->append(il->exprUNKNOWN());
 }
 
 bool Assembler::encode(RDEncodedInstruction* encoded) const
 {
-    if(!encoded->decoded || !m_passembler->encode) return false;
-    return m_passembler->encode(m_passembler, encoded);
+    if(!encoded->decoded || !m_entry->encode) return false;
+    return m_entry->encode(m_entry, encoded);
 }
 
-void Assembler::emulate(EmulateResult* result) const
-{
-    if(!m_passembler->emulate) return;
-    m_passembler->emulate(m_passembler, CPTR(RDEmulateResult, result));
-}
-
-const RDAssemblerPlugin* Assembler::plugin() const { return m_passembler; }
-
-bool Assembler::getUserData(RDUserData* userdata) const
-{
-    if(!userdata) return false;
-    userdata->userdata = m_passembler->userdata;
-    return true;
-}
+void Assembler::emulate(EmulateResult* result) const { if(m_entry->emulate) m_entry->emulate(CPTR(RDContext, this->context()), CPTR(RDEmulateResult, result)); }
 
 bool Assembler::renderInstruction(RDRenderItemParams* rip)
 {
-    if(!m_passembler->renderinstruction) return false;
-    m_passembler->renderinstruction(m_passembler, rip);
+    if(!m_entry->renderinstruction) return false;
+    m_entry->renderinstruction(CPTR(RDContext, this->context()), rip);
     return true;
 }
 
-const char* Assembler::id() const { return m_passembler->id; }
-size_t Assembler::addressWidth() const { return m_passembler->bits / CHAR_BIT; }
-size_t Assembler::bits() const { return m_passembler->bits; }
+size_t Assembler::addressWidth() const { return m_entry->bits / CHAR_BIT; }
+size_t Assembler::bits() const { return m_entry->bits; }

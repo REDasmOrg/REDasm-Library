@@ -1,5 +1,5 @@
 #include "segmentcontainer.h"
-#include "../../context.h"
+#include "../../config.h"
 #include <algorithm>
 
 SegmentContainer::SegmentContainer()
@@ -85,13 +85,13 @@ size_t SegmentContainer::insert(const RDSegment& segment)
 
     if(this->find(segment.address, &s))
     {
-        rd_ctx->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
+        rd_cfg->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
         return RD_NPOS;
     }
 
     if(this->find(segment.endaddress - 1, &s))
     {
-        rd_ctx->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
+        rd_cfg->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
         return RD_NPOS;
     }
 
@@ -100,7 +100,7 @@ size_t SegmentContainer::insert(const RDSegment& segment)
 
     if(!inserted)
     {
-        rd_ctx->log("Segment insertion failed (" + std::string(segment.name) + ")");
+        rd_cfg->log("Segment insertion failed (" + std::string(segment.name) + ")");
         return RD_NPOS;
     }
 

@@ -18,13 +18,13 @@
 #define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Disassembler* disassembler, const Cursor* cursor, rd_flag flags): m_disassembler(disassembler), m_cursor(cursor), m_flags(flags) { }
+Renderer::Renderer(Context* ctx, const Cursor* cursor, rd_flag flags): Object(ctx), m_cursor(cursor), m_flags(flags) { }
 
 void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void* userdata) const
 {
     if(!cbrender) return;
 
-    const auto& doc = m_disassembler->document();
+    const auto& doc = this->context()->document();
 
     for(size_t docindex = index, i = 0; (docindex < doc->itemsCount()) && (i < count); docindex++, i++)
     {
@@ -47,7 +47,7 @@ void Renderer::renderSigned(RendererItem* ritem, s64 value) const
 
 void Renderer::renderUnsigned(RendererItem* ritem, u64 value) const
 {
-    const char* name = m_disassembler->document()->name(static_cast<rd_address>(value));
+    const char* name = this->context()->document()->name(static_cast<rd_address>(value));
     if(name) ritem->push(name, Theme_Symbol);
     else ritem->push(Utils::hex(value), Theme_Constant);
 }
@@ -68,7 +68,7 @@ void Renderer::renderAssemblerInstruction(rd_address address, RendererItem* rite
     RDRenderItemParams rip;
     this->compileParams(address, ritem, &rip);
 
-    if(!m_disassembler->assembler()->renderInstruction(&rip))
+    if(!this->context()->assembler()->renderInstruction(&rip))
         ritem->push("???");
 }
 
@@ -77,8 +77,8 @@ void Renderer::renderRDILInstruction(rd_address address, RendererItem* ritem) co
     RDRenderItemParams rip;
     this->compileParams(address, ritem, &rip);
 
-    ILFunction il(m_disassembler);
-    m_disassembler->assembler()->lift(rip.address, &rip.view, &il);
+    ILFunction il(this->context());
+    this->context()->assembler()->lift(rip.address, &rip.view, &il);
 
     for(size_t i = 0; i < il.size(); i++)
     {
@@ -92,7 +92,7 @@ bool Renderer::renderItem(size_t index, RendererItem* ritem) const
     ritem->setDocumentIndex(index);
 
     RDDocumentItem item;
-    if(!m_disassembler->document()->itemAt(index, &item)) return false;
+    if(!this->context()->document()->itemAt(index, &item)) return false;
 
     switch(item.type)
     {
@@ -114,13 +114,13 @@ bool Renderer::selectedSymbol(RDSymbol* symbol) const
     const std::string& word = this->getCurrentWord();
     if(word.empty()) return false;
 
-    return m_disassembler->document()->symbol(word.c_str(), symbol);
+    return this->context()->document()->symbol(word.c_str(), symbol);
 }
 
 const std::string& Renderer::getInstructionText(rd_address address) const
 {
     m_instructionstr.clear();
-    size_t idx = m_disassembler->document()->instructionIndex(address);
+    size_t idx = this->context()->document()->instructionIndex(address);
     if(idx == RD_NPOS) return m_instructionstr;
 
     RendererItem ritem;
@@ -219,7 +219,7 @@ const std::string& Renderer::getWordFromPosition(const RDCursorPos* pos, RDCurso
             m_lastword = ritem.formatText(&rf);
             RDSymbol symbol;
 
-            if(m_disassembler->document()->symbol(m_lastword.c_str(), &symbol))
+            if(this->context()->document()->symbol(m_lastword.c_str(), &symbol))
             {
                 if(range) *range = { rf.start, rf.end };
                 return m_lastword;
@@ -306,13 +306,13 @@ void Renderer::renderHexDump(RendererItem* ritem, const RDBufferView* view, size
 
 bool Renderer::renderSymbolPointer(const RDSymbol* symbol, RendererItem* ritem) const
 {
-    auto loc = m_disassembler->dereference(symbol->address);
+    auto loc = this->context()->disassembler()->dereference(symbol->address);
     if(!loc.valid) return false;
 
     RDSymbol ptrsymbol;
-    if(!m_disassembler->document()->symbol(loc.address, &ptrsymbol)) return false;
+    if(!this->context()->document()->symbol(loc.address, &ptrsymbol)) return false;
 
-    ritem->push(m_disassembler->document()->name(ptrsymbol.address), Theme_Symbol);
+    ritem->push(this->context()->document()->name(ptrsymbol.address), Theme_Symbol);
     return true;
 }
 
@@ -323,16 +323,16 @@ void Renderer::renderSegment(rd_address address, RendererItem* ritem) const
     std::string seg = "SEGMENT ";
     RDSegment segment;
 
-    if(m_disassembler->document()->segment(address, &segment))
+    if(this->context()->document()->segment(address, &segment))
     {
         seg += Utils::quoted(segment.name);
-        seg += " START: " + Utils::hex(segment.address, m_disassembler->assembler()->bits());
-        seg += " END: " + Utils::hex(segment.endaddress, m_disassembler->assembler()->bits());
+        seg += " START: " + Utils::hex(segment.address, this->context()->assembler()->bits());
+        seg += " END: " + Utils::hex(segment.endaddress, this->context()->assembler()->bits());
     }
     else
     {
         seg += "???";
-        seg += " START: " + Utils::hex(address, m_disassembler->assembler()->bits());
+        seg += " START: " + Utils::hex(address, this->context()->assembler()->bits());
         seg += " END: ???" ;
     }
 
@@ -343,7 +343,7 @@ void Renderer::renderFunction(rd_address address, RendererItem* ritem) const
 {
     if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address, ritem);
 
-    const char* name = m_disassembler->document()->name(address);
+    const char* name = this->context()->document()->name(address);
     if(name) ritem->push("function " + std::string(name) + "()", Theme_Function);
     else ritem->push("function \?\?\?()", Theme_Function);
 }
@@ -352,7 +352,7 @@ void Renderer::renderInstruction(rd_address address, RendererItem* ritem) const
 {
     this->renderPrologue(address, ritem);
 
-    if(rd_ctx->flags() & ContextFlags_ShowRDIL) this->renderRDILInstruction(address, ritem);
+    if(this->context()->flags() & ContextFlags_ShowRDIL) this->renderRDILInstruction(address, ritem);
     else this->renderAssemblerInstruction(address, ritem);
 
     this->renderComments(address, ritem);
@@ -362,12 +362,12 @@ void Renderer::renderSymbol(rd_address address, RendererItem* ritem) const
 {
     this->renderPrologue(address, ritem);
 
-    const char* name = m_disassembler->document()->name(address);
+    const char* name = this->context()->document()->name(address);
     RDSymbol symbol;
 
-    if(!name || !m_disassembler->document()->symbol(address, &symbol))
+    if(!name || !this->context()->document()->symbol(address, &symbol))
     {
-        ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Constant);
+        ritem->push(Utils::hex(address, this->context()->assembler()->bits()), Theme_Constant);
         return;
     }
 
@@ -395,7 +395,7 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol, RendererItem* ritem) co
 {
     RDSegment segment;
 
-    if(m_disassembler->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
+    if(this->context()->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
     {
         if(IS_TYPE(symbol, SymbolType_Label)) ritem->push("<").push("dynamic branch", Theme_Symbol).push(">");
         else ritem->push("???", Theme_Data);
@@ -409,18 +409,18 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol, RendererItem* ritem) co
         case SymbolType_Import: ritem->push("<").push("import", Theme_Symbol).push(">"); return;
 
         case SymbolType_String:
-             if(HAS_FLAG(symbol, SymbolFlags_WideString)) ritem->push(Utils::quoted(Utils::simplified(m_disassembler->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
-             else ritem->push(Utils::quoted(Utils::simplified(m_disassembler->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             if(HAS_FLAG(symbol, SymbolFlags_WideString)) ritem->push(Utils::quoted(Utils::simplified(this->context()->disassembler()->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             else ritem->push(Utils::quoted(Utils::simplified(this->context()->disassembler()->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
              return;
 
         default: break;
     }
 
-    RDLocation loc = m_disassembler->dereference(symbol->address);
+    RDLocation loc = this->context()->disassembler()->dereference(symbol->address);
 
     if(loc.valid)
     {
-        const char* symbolname = m_disassembler->document()->name(loc.address);
+        const char* symbolname = this->context()->document()->name(loc.address);
 
         if(symbolname)
         {
@@ -436,11 +436,11 @@ void Renderer::compileParams(rd_address address, RendererItem* ritem, RDRenderIt
 {
     *rip = { address,
              { },
+             CPTR(const RDContext, this->context()),
              CPTR(const RDRenderer, this),
-             CPTR(RDDisassembler, m_disassembler),
              CPTR(RDRendererItem, ritem) };
 
-    m_disassembler->view(address, RD_NPOS, &rip->view);
+    this->context()->loader()->view(address, RD_NPOS, &rip->view);
 }
 
 void Renderer::renderComments(rd_address address, RendererItem* ritem) const
@@ -449,7 +449,7 @@ void Renderer::renderComments(rd_address address, RendererItem* ritem) const
 
     m_commentcolumn = std::max<size_t>(m_commentcolumn, ritem->text().size()); // Recalculate comment column
 
-    std::string comment = m_disassembler->document()->comment(address, false, COMMENT_SEPARATOR);
+    std::string comment = this->context()->document()->comment(address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
     ritem->push(std::string((m_commentcolumn - ritem->text().size()) + INDENT_COMMENT, ' '));
@@ -459,12 +459,12 @@ void Renderer::renderComments(rd_address address, RendererItem* ritem) const
 void Renderer::renderBlock(rd_address address, RendererItem* ritem) const
 {
     RDBlock block;
-    if(!m_disassembler->document()->block(address, &block)) REDasmError("Invalid Block", address);
+    if(!this->context()->document()->block(address, &block)) REDasmError("Invalid Block", address);
 
     size_t blocksize = BlockContainer::size(&block);
     RDBufferView view;
 
-    if((blocksize <= sizeof(rd_address)) && m_disassembler->view(block.address, blocksize, &view)) this->renderHexDump(ritem, &view, RD_NPOS);
+    if((blocksize <= sizeof(rd_address)) && this->context()->disassembler()->view(block.address, blocksize, &view)) this->renderHexDump(ritem, &view, RD_NPOS);
     else ritem->push("(").push(Utils::hex(blocksize), Theme_Constant).push(")");
 }
 
@@ -487,8 +487,8 @@ void Renderer::renderAddressIndent(rd_address address, RendererItem* ritem) cons
 {
     if((m_flags & RendererFlags_NoAddress) || (m_flags & RendererFlags_NoIndent)) return;
 
-    size_t c = m_disassembler->assembler()->bits() / 4;
-    const auto& doc = m_disassembler->document();
+    size_t c = this->context()->assembler()->bits() / 4;
+    const auto& doc = this->context()->document();
 
     RDSegment s;
     if(doc->segment(address, &s)) c += std::strlen(s.name);
@@ -502,7 +502,7 @@ void Renderer::renderPrologue(rd_address address, RendererItem* ritem) const
         if(!(m_flags & RendererFlags_NoSegment))
         {
             RDSegment s;
-            auto& doc = m_disassembler->document();
+            auto& doc = this->context()->document();
 
             if(doc->segment(address, &s)) ritem->push(s.name, Theme_Address);
             else ritem->push("???", Theme_Address);
@@ -510,7 +510,7 @@ void Renderer::renderPrologue(rd_address address, RendererItem* ritem) const
         }
 
         if(!(m_flags & RendererFlags_NoAddress))
-            ritem->push(Utils::hex(address, m_disassembler->assembler()->bits()), Theme_Address);
+            ritem->push(Utils::hex(address, this->context()->assembler()->bits()), Theme_Address);
     }
 
     this->renderIndent(ritem, 1);

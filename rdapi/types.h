@@ -4,10 +4,7 @@
 #include <stddef.h>
 #include "macros.h"
 
-#define DEFAULT_SYMBOL_NAME_SIZE 32
-#define DEFAULT_FULL_NAME_SIZE   64
 #define DEFAULT_NAME_SIZE        32
-#define DEFAULT_CONTAINER_SIZE   32
 
 typedef uint8_t  u8;
 typedef uint16_t u16;

@@ -3,13 +3,13 @@
 #include <rdapi/types.h>
 #include <rdapi/plugin/analyzer.h>
 
-class Disassembler;
+class Context;
 
-extern RDAnalyzerPlugin analyzer_Strings;
+extern RDEntryAnalyzer analyzerEntry_Strings;
 
 class StringsAnalyzer
 {
     public:
         StringsAnalyzer() = delete;
-        static void analyze(Disassembler* disassembler);
+        static void analyze(Context* ctx);
 };

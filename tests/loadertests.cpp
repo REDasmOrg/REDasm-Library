@@ -4,14 +4,14 @@
 #include <algorithm>
 #include <cstring>
 
-void LoaderTests::testCavia(RDDisassembler*, RDDocument* doc)
+void LoaderTests::testCavia(RDContext*, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401000, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_EntryPoint);
     LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function, SymbolFlags_None);
     GraphTests::testCavia(doc);
 }
 
-void LoaderTests::testCM01(RDDisassembler* d, RDDocument* doc)
+void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401128, "WndProc", SymbolType_Function, SymbolFlags_Export);
     LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_00401253", SymbolType_Function, SymbolFlags_None);
@@ -27,11 +27,11 @@ void LoaderTests::testCM01(RDDisassembler* d, RDDocument* doc)
         { 0x00402134, 1 }, { 0x00402160, 2 }, { 0x00402169, 2 }
     };
 
-    LoaderTests::checkSymbolsAndRefs(d, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
     GraphTests::testCM01(doc);
 }
 
-void LoaderTests::testVB5CrackMe(RDDisassembler*, RDDocument* doc)
+void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)
 {
     static std::map<rd_address, const char*> vbevents;
     vbevents[0x004020C4] = "Form1_Command1_Click";
@@ -39,12 +39,12 @@ void LoaderTests::testVB5CrackMe(RDDisassembler*, RDDocument* doc)
     LoaderTests::testVBEvents(doc, vbevents);
 }
 
-void LoaderTests::testTN_11(RDDisassembler* d, RDDocument* doc)
+void LoaderTests::testTN_11(RDContext* ctx, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function, SymbolFlags_None);
 }
 
-void LoaderTests::testSCrack(RDDisassembler* d, RDDocument* doc)
+void LoaderTests::testSCrack(RDContext* ctx, RDDocument* doc)
 {
     static std::map<rd_address, const char*> vbevents;
     vbevents[0x00403BB0] = "main_about_Click";
@@ -68,12 +68,12 @@ void LoaderTests::testSCrack(RDDisassembler* d, RDDocument* doc)
     };
 
     LoaderTests::testVBEvents(doc, vbevents);
-    LoaderTests::checkSymbolsAndRefs(d, doc, strings, SymbolType_String, SymbolFlags_WideString);
+    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_WideString);
 }
 
-void LoaderTests::checkSymbolsAndRefs(RDDisassembler* d, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags)
+void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags)
 {
-    const RDNet* net = RDDisassembler_GetNet(d);
+    const RDNet* net = RDContext_GetNet(ctx);
 
     for(const auto& [address, refs] : symbols)
     {

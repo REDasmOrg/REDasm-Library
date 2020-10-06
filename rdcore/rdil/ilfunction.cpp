@@ -1,8 +1,10 @@
 #include "ilfunction.h"
-#include "../disassembler.h"
+#include "../document/document.h"
+#include "../plugin/assembler.h"
+#include "../plugin/loader.h"
 #include "../context.h"
 
-ILFunction::ILFunction(const Disassembler* disassembler): m_disassembler(disassembler) { }
+ILFunction::ILFunction(Context* ctx): Object(ctx) { }
 
 void ILFunction::insert(size_t idx, ILExpression* e)
 {
@@ -23,7 +25,6 @@ const ILExpression* ILFunction::expression(size_t idx) const
     return m_expressions[idx];
 }
 
-const Disassembler* ILFunction::disassembler() const { return m_disassembler; }
 bool ILFunction::empty() const { return m_expressions.empty(); }
 size_t ILFunction::size() const { return m_expressions.size(); }
 
@@ -34,13 +35,13 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
     std::set<rd_address> path;
     if(!ILFunction::generatePath(address, il, path)) return false;
 
-    auto* assembler = il->disassembler()->assembler();
-    auto* loader = il->disassembler()->loader();
+    auto* assembler = il->context()->assembler();
+    auto* loader = il->context()->loader();
     RDBlock block;
 
     for(rd_address currentaddress : path)
     {
-        const auto* blocks = il->disassembler()->document()->blocks(currentaddress);
+        const auto* blocks = il->context()->document()->blocks(currentaddress);
         if(!blocks->find(currentaddress, &block)) return false;
 
         RDBufferView view;
@@ -161,7 +162,7 @@ ILExpression* ILFunction::expr(rd_type rdil) const { return this->expr(rdil, 0);
 
 void ILFunction::generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {
-    const auto* net = il->disassembler()->net();
+    const auto* net = il->context()->net();
     auto* node = net->findNode(address);
 
     while(node)
@@ -174,7 +175,7 @@ void ILFunction::generateBasicBlock(rd_address address, ILFunction* il, std::set
 
 bool ILFunction::generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {
-    auto* g = il->disassembler()->document()->graph(address);
+    auto* g = il->context()->document()->graph(address);
 
     if(!g)
     {

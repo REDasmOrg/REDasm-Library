@@ -1,29 +1,30 @@
 #include "rdilgraph.h"
+#include "../../document/document.h"
 #include "../../disassembler.h"
+#include "../../context.h"
 #include "../../rdil/rdil.h"
 #include <queue>
 
-RDILGraph::RDILGraph(const Disassembler* disassembler): StyledGraph(), m_disassembler(disassembler) { }
+RDILGraph::RDILGraph(Context* ctx): StyledGraph(ctx) { }
 
 void RDILGraph::build(rd_address address)
 {
-    const auto* net = m_disassembler->net();
+    const auto* net = this->context()->net();
     auto* node = net->findNode(address);
     if(!node) return;
 
     RDBlock block;
 
-    const auto* blocks = m_disassembler->document()->blocks(address);
+    const auto* blocks = this->context()->document()->blocks(address);
     if(!blocks->find(address, &block)) return;
 
-    auto* loader = m_disassembler->loader();
+    auto* loader = this->context()->loader();
     RDBufferView view;
     if(!loader->view(address, BlockContainer::size(&block), &view)) return;
 
-    auto* assembler = m_disassembler->assembler();
+    auto* assembler = this->context()->assembler();
 
-    ILFunction il(m_disassembler);
-
+    ILFunction il(this->context());
     assembler->lift(address, &view, &il);
     if(!il.empty()) this->generate(&il);
 }

@@ -4,6 +4,7 @@
 #include <rdapi/document/document.h>
 
 class Document;
+class DocumentNet;
 
 typedef safe_ptr<Document> SafeDocument;
 using s_lock_document = s_locked_safe_ptr<SafeDocument>;

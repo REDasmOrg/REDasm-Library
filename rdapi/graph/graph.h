@@ -3,6 +3,7 @@
 #include "../macros.h"
 #include "../types.h"
 
+struct RDContext;
 DECLARE_HANDLE(RDGraph);
 
 typedef size_t RDGraphNode;
@@ -23,7 +24,7 @@ typedef union RDGraphData {
 } RDGraphData;
 
 // Graph
-RD_API_EXPORT RDGraph* RDGraph_Create();
+RD_API_EXPORT RDGraph* RDGraph_Create(RDContext* ctx);
 RD_API_EXPORT const RDGraphEdge* RDGraph_GetEdge(const RDGraph* graph, RDGraphNode source, RDGraphNode target);
 RD_API_EXPORT RDGraphNode RDGraph_PushNode(RDGraph* graph);
 RD_API_EXPORT RDGraphNode RDGraph_GetRoot(const RDGraph* graph);

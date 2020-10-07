@@ -6,7 +6,6 @@
 #include "document/document.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
-#include <iostream>
 
 Disassembler::Disassembler(Context* ctx): Object(ctx) { }
 Assembler* Disassembler::assembler() const { return m_assembler.get(); }
@@ -64,7 +63,6 @@ void Disassembler::disassemble()
 
 bool Disassembler::load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
-    std::cout << std::hex << reinterpret_cast<uintptr_t>(entryloader) << std::endl;
     m_loader = std::make_unique<Loader>(request, entryloader, this->context());
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)

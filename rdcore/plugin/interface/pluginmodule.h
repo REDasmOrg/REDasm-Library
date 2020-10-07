@@ -13,16 +13,17 @@
 #ifdef _WIN32
     #include <windows.h>
     #include <winbase.h>
-    typedef HMODULE library_t;
+    typedef HMODULE hmodule;
 #else
     #include <dlfcn.h>
-    typedef void* library_t;
+    typedef void* hmodule;
 #endif
 
 class PluginModule: public Object
 {
     public:
         typedef std::pair<size_t, const RDEntry*> EntryItem;
+        typedef std::unordered_map<hmodule, int> ModuleHandles;
 
     public:
         PluginModule(Context* ctx);
@@ -46,8 +47,9 @@ class PluginModule: public Object
         void unload();
 
     private:
+        static ModuleHandles m_sharedhandles;
         std::vector<EntryItem> m_entries;
-        library_t m_handle{ };
+        hmodule m_handle{ };
         std::string m_filepath;
         Callback_PluginInit m_init;
         Callback_PluginFree m_free;

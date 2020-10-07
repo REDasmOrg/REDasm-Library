@@ -4,11 +4,14 @@
 #include "category.h"
 #include <rdapi/context.h>
 #include <filesystem>
+#include <iostream>
 
 #define RDPLUGIN_PLUGIN_INIT_NAME "rdplugin_init"
 #define RDPLUGIN_PLUGIN_FREE_NAME "rdplugin_free"
 
 namespace fs = std::filesystem;
+
+PluginModule::ModuleHandles PluginModule::m_sharedhandles;
 
 PluginModule::PluginModule(Context* ctx): Object(ctx) { }
 
@@ -31,6 +34,7 @@ PluginModule::PluginModule(Context* ctx, const std::string& filepath): Object(ct
         return;
     }
 
+    m_sharedhandles[m_handle]++; // Increase shared reference count
     m_init = this->funcT<Callback_PluginInit>(RDPLUGIN_PLUGIN_INIT_NAME);
     m_free = this->funcT<Callback_PluginFree>(RDPLUGIN_PLUGIN_FREE_NAME);
 
@@ -70,11 +74,14 @@ void PluginModule::unload()
     if(!m_handle) return;
     if(m_free) m_free(CPTR(RDContext, this->context()));
 
+    if(!(--m_sharedhandles[m_handle])) // Decrease shared reference count, keep library loaded if needed
+    {
 #ifdef _WIN32
-    FreeLibrary(m_handle);
+        FreeLibrary(m_handle);
 #else
-    dlclose(m_handle);
+        dlclose(m_handle);
 #endif
+    }
 
     m_handle = { };
 }

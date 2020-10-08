@@ -64,6 +64,7 @@ void Disassembler::disassemble()
 bool Disassembler::load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
     m_loader = std::make_unique<Loader>(request, entryloader, this->context());
+    m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)
     {
@@ -72,7 +73,6 @@ bool Disassembler::load(const RDLoaderRequest* request, const RDEntryLoader* ent
     else if(!m_loader->load())
         return false;
 
-    m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
     m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
     return true;
 }

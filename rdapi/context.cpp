@@ -28,7 +28,6 @@ void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, vo
 void RDContext_AddProblem(RDContext* ctx, const char* s) { CPTR(Context, ctx)->problem(s); }
 void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore) { CPTR(Context, ctx)->setIgnoreProblems(ignore); }
 bool RDContext_HasProblems(const RDContext* ctx) { return CPTR(const Context, ctx)->hasProblems(); }
-
-void RD_SetContextFlags(rd_flag flags, bool set) {}
-bool RD_ContextHasFlags(rd_flag flags) { return false; }
-rd_flag RD_GetContextFlags(void) { return 0; }
+void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set) { CPTR(Context, ctx)->setFlags(flags, set); }
+bool RDContext_HasFlags(const RDContext* ctx, rd_flag flags) { return CPTR(const Context, ctx)->hasFlags(flags); }
+rd_flag RDContext_GetFlags(const RDContext* ctx) { return CPTR(const Context, ctx)->flags(); }

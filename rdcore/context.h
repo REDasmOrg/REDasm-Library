@@ -65,8 +65,8 @@ class Context: public EventDispatcher
         void disassemble();
 
     public: // Flags
-        void setFlags(rd_flag flags, bool set);
         rd_flag flags() const;
+        void setFlags(rd_flag flags, bool set);
         bool hasFlags(rd_flag flags) const;
 
     public: // Problems

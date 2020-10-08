@@ -53,11 +53,9 @@ RD_API_EXPORT void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallbac
 RD_API_EXPORT void RDContext_AddProblem(RDContext* ctx, const char* s);
 RD_API_EXPORT void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore);
 RD_API_EXPORT bool RDContext_HasProblems(const RDContext* ctx);
-
-// vvv OLD vvv
-RD_API_EXPORT void RD_SetContextFlags(rd_flag flags, bool set);
-RD_API_EXPORT rd_flag RD_GetContextFlags(void);
-RD_API_EXPORT bool RD_ContextHasFlags(rd_flag flags);
+RD_API_EXPORT void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set);
+RD_API_EXPORT bool RDContext_HasFlags(const RDContext* ctx, rd_flag flags);
+RD_API_EXPORT rd_flag RDContext_GetFlags(const RDContext* ctx);
 
 #ifdef __cplusplus
   #include <string>

@@ -52,7 +52,7 @@ RD_API_EXPORT const RDILExpression* RDILExpression_GetSrc(const RDILExpression* 
 RD_API_EXPORT const RDILExpression* RDILExpression_GetRight(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetF(const RDILExpression* e);
 
-RD_API_EXPORT RDILFunction* RDILFunction_Generate(RDContext* context, rd_address address);
+RD_API_EXPORT RDILFunction* RDILFunction_Create(RDContext* context, rd_address address);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction);

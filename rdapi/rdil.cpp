@@ -34,7 +34,7 @@ bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
     return true;
 }
 
-RDILFunction* RDILFunction_Generate(RDContext* ctx, rd_address address)
+RDILFunction* RDILFunction_Create(RDContext* ctx, rd_address address)
 {
     std::unique_ptr<ILFunction> il = std::make_unique<ILFunction>(CPTR(Context, ctx));
     if(!ILFunction::generate(address, il.get())) return nullptr;

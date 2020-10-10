@@ -2,11 +2,9 @@
 #include "../document/document.h"
 #include "../support/utils.h"
 
-Loader::Loader(const RDLoaderRequest* req, const RDEntryLoader* entry, Context* ctx): Entry<RDEntryLoader>(entry, ctx)
+Loader::Loader(const std::shared_ptr<MemoryBuffer>& buffer, const std::string& filepath, const RDEntryLoader* entry, Context* ctx): Entry<RDEntryLoader>(entry, ctx), m_buffer(buffer), m_filepath(filepath)
 {
     m_document = SafeDocument(new Document(ctx));
-    m_buffer.reset(reinterpret_cast<MemoryBuffer*>(req->buffer)); // Take ownership
-    m_filepath = req->filepath;
 }
 
 bool Loader::load()

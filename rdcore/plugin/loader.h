@@ -12,7 +12,7 @@ class Disassembler;
 class Loader: public Entry<RDEntryLoader>
 {
     public:
-        Loader(const RDLoaderRequest* req, const RDEntryLoader* entry, Context* ctx);
+        Loader(const std::shared_ptr<MemoryBuffer>& buffer, const std::string& filepath, const RDEntryLoader* entry, Context* ctx);
         bool load();
         bool build();
         bool view(rd_address address, RDBufferView* view) const;
@@ -36,7 +36,7 @@ class Loader: public Entry<RDEntryLoader>
 
     private:
         RDLoaderBuildParams m_buildparams{ };
-        std::unique_ptr<MemoryBuffer> m_buffer;
+        std::shared_ptr<MemoryBuffer> m_buffer;
         std::unordered_map<std::string, std::unique_ptr<Database>> m_database;
         SafeDocument m_document;
         std::string m_filepath;

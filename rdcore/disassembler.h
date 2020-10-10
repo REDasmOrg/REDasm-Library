@@ -22,7 +22,7 @@ class Disassembler: public Object
         DocumentNet* net();
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
-        bool load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
+        bool load(const std::shared_ptr<MemoryBuffer>& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 
     public:
         bool scheduleFunction(rd_address address, const char* name);

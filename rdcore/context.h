@@ -84,8 +84,9 @@ class Context: public EventDispatcher
     private:
         std::unordered_map<std::string, std::string> m_proposedassembler; // LoaderID -> AssemblerID
         std::unordered_map<std::string, uintptr_t> m_userdata;
-        std::unique_ptr<PluginManager> m_pluginmanager;
+        std::shared_ptr<MemoryBuffer> m_buffer;
         std::unique_ptr<Disassembler> m_disassembler;
+        std::unique_ptr<PluginManager> m_pluginmanager;
 
     private:
         rd_flag m_flags{ContextFlags_None};

@@ -143,8 +143,9 @@ Disassembler* Context::buildDisassembler(const RDLoaderRequest* req, const RDEnt
         return nullptr;
     }
 
+    m_buffer = std::shared_ptr<MemoryBuffer>(CPTR(MemoryBuffer, req->buffer)); // Take ownership
     m_disassembler = std::make_unique<Disassembler>(this);
-    if(!m_disassembler->load(req, entryloader, entryassembler)) return nullptr;
+    if(!m_disassembler->load(m_buffer, req->filepath, entryloader, entryassembler)) return nullptr;
 
     this->loadAnalyzers();
     return m_disassembler.get();

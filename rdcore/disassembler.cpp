@@ -61,9 +61,9 @@ void Disassembler::disassemble()
     m_engine->execute();
 }
 
-bool Disassembler::load(const RDLoaderRequest* request, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
+bool Disassembler::load(const std::shared_ptr<MemoryBuffer>& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
-    m_loader = std::make_unique<Loader>(request, entryloader, this->context());
+    m_loader = std::make_unique<Loader>(buffer, filepath, entryloader, this->context());
     m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)

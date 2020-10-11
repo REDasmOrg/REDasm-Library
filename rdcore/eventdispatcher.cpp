@@ -64,6 +64,7 @@ void RDEventDeleter::operator()(RDEventArgs* e) const {
 
         case Event_BusyChanged:
         case Event_ContextFlagsChanged:
+        case Event_ContextFree:
             delete e;
             break;
 

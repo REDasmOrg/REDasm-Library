@@ -33,6 +33,7 @@ class Context: public EventDispatcher
 
     public:
         Context();
+        ~Context();
         bool busy() const;
         size_t bits() const;
         size_t addressWidth() const;

@@ -21,6 +21,7 @@ enum RDEvents {
 
     // Context Events
     Event_ContextFlagsChanged,
+    Event_ContextFree,
 
     // Document Events
     Event_DocumentChanged,

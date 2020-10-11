@@ -12,6 +12,7 @@
 #include "disassembler.h"
 
 Context::Context(): EventDispatcher(this) { m_pluginmanager = std::make_unique<PluginManager>(this); }
+Context::~Context() { this->enqueue<RDEventArgs>(Event_ContextFree, this); }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }

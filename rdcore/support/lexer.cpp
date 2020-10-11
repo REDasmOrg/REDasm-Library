@@ -4,6 +4,51 @@
 
 Lexer::Lexer(const char* s): m_str(s), m_curr(m_str) { }
 
+size_t Lexer::consume(const RDToken** tokens, const char** err)
+{
+    m_tokens.clear();
+    m_error.clear();
+    RDToken token;
+
+    while(this->lex(&token))
+    {
+        m_tokens.push_back(token);
+        if(!IS_TYPE(&token, TokenType_Unexpected)) continue;
+
+        this->error(&token);
+        break;
+    }
+
+    if(!m_error.empty())
+    {
+        if(err) *err = m_error.c_str();
+        m_tokens.clear();
+    }
+    else if(err) *err = nullptr;
+
+    if(tokens) *tokens = m_tokens.data();
+    return m_tokens.size();
+}
+
+const std::string& Lexer::lastError() const { return m_error; }
+
+std::string Lexer::unexpected(const RDToken* token) const
+{
+    return "Unexpected character '" + std::string(token->value, token->length) +
+            "' @ position " + std::to_string(token->pos);
+}
+
+void Lexer::error(const RDToken* token) const { m_error = this->unexpected(token); }
+
+bool Lexer::check(const RDToken* token, rd_type type) const
+{
+    if(token && (token->type == type)) return true;
+    this->error(token);
+    return false;
+}
+
+bool Lexer::hasError() const { return !m_error.empty(); }
+
 bool Lexer::lex(RDToken* token)
 {
     if(!m_curr) return false;
@@ -26,6 +71,12 @@ bool Lexer::lex(RDToken* token)
     return this->stop(TokenType_Unexpected, token);
 }
 
+bool Lexer::lexCheck(RDToken* token, rd_type type)
+{
+    if(!this->lex(token)) return false;
+    return this->check(token, type);
+}
+
 void Lexer::rewind()
 {
     m_curr = m_str;
@@ -38,6 +89,8 @@ bool Lexer::equals(const RDToken* t1, const RDToken* t2)
     return std::string_view(t1->value, t1->length) == std::string_view(t2->value, t2->length);
 }
 
+std::string Lexer::tokenValue(const RDToken* t) { return std::string(t->value, t->length); }
+
 void Lexer::tokenize(rd_type tokentype, RDToken* token, const Lexer::AcceptCharacter& acceptcb)
 {
     token->type = tokentype;
@@ -48,6 +101,25 @@ void Lexer::tokenize(rd_type tokentype, RDToken* token, const Lexer::AcceptChara
 
     while(acceptcb(this->peek(), token)) this->get();
     token->length = static_cast<size_t>(m_curr - token->value);
+}
+
+void Lexer::marker(RDToken* token)
+{
+    char ch = this->peek<1>();
+
+    if(std::isdigit(ch))
+    {
+        this->get();
+
+        this->tokenize(TokenType_Marker, token, [](char ch, RDToken*) -> bool {
+            return std::isdigit(ch);
+        });
+
+        return;
+    }
+
+    if(ch == '%') this->get();
+    this->atomize(TokenType_Percent, token);
 }
 
 void Lexer::atomize(rd_type tokentype, RDToken* token)
@@ -100,11 +172,11 @@ bool Lexer::punct(RDToken* token)
 {
     switch(this->peek())
     {
+        case '%':  this->marker(token); break;
         case '!':  this->atomize(TokenType_Exclamation, token); break;
         case '\"': this->atomize(TokenType_DoubleQuote, token); break;
         case '#':  this->atomize(TokenType_Hash, token); break;
         case '$':  this->atomize(TokenType_Dollar, token); break;
-        case '%':  this->atomize(TokenType_Percent, token); break;
         case '&':  this->atomize(TokenType_Ampersand, token); break;
         case '\'': this->atomize(TokenType_SingleQuote, token); break;
         case '(':  this->atomize(TokenType_OpenRound, token); break;

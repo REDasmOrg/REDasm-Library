@@ -49,7 +49,7 @@ void FunctionAnalyzer::findThunk(Context* ctx, const ILFunction* il, rd_address 
     const auto* expr = il->first();
     const char* name = nullptr;
 
-    if(RDIL::match(expr, "goto [c]")) name = ctx->document()->name(expr->u->u->address);
-    else if(RDIL::match(expr, "goto c")) name = ctx->document()->name(expr->u->address);
+    if(RDIL::match(expr, "goto [cnst]")) name = ctx->document()->name(RDIL::extract(expr, "u:mem/u:cnst")->address);
+    else if(RDIL::match(expr, "goto cnst")) name = ctx->document()->name(RDIL::extract(expr, "u:cnst")->address);
     if(name) ctx->document()->rename(address, Utils::thunk(name));
 }

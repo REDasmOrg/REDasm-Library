@@ -33,7 +33,7 @@
    | Push    | u         |           |           | push(u)                          |
    | Pop     | u         |           |           | u = pop()                        |
    | Copy    | dst       | src       |           | dst = src                        |
-   | If      | cond      | t         | f         | cond ? t : f                     |
+   | If      | cond      | t         | f         | if (cond) t else f               |
    | Ret     | cond      |           |           | ret(cond)                        |
    +---------+-----------+-----------+-----------+----------------------------------+
 

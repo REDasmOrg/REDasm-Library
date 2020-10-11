@@ -31,7 +31,7 @@
    | Goto    | u         |           |           | goto(u)                          |
    | Call    | u         |           |           | call(u)                          |
    | Push    | u         |           |           | push(u)                          |
-   | Pop     | u         |           |           | push(u)                          |
+   | Pop     | u         |           |           | u = pop()                        |
    | Copy    | dst       | src       |           | dst = src                        |
    | If      | cond      | t         | f         | cond ? t : f                     |
    | Ret     | cond      |           |           | ret(cond)                        |

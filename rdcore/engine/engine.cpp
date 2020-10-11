@@ -65,7 +65,10 @@ bool Engine::needsWeak() const
 {
     switch(m_currentstep)
     {
-        case Engine::State_Algorithm: return true;
+        case Engine::State_Algorithm:
+        case Engine::State_Analyze:
+            return true;
+
         default: break;
     }
 
@@ -88,17 +91,18 @@ void Engine::algorithmStep()
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
-
-    for(const Analyzer* p : this->context()->selectedAnalyzers())
-    {
-        if(HAS_FLAG(p->plugin(), AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
-
-        m_analyzecount[p]++;
-        p->execute();
-    }
+    size_t oldfc = this->context()->document()->functionsCount();
+    this->analyzeAll();
 
     if(!m_algorithm->hasNext())
     {
+        // Functions count is changed, trigger analysis again
+        while(oldfc != this->context()->document()->functionsCount())
+        {
+            oldfc = this->context()->document()->functionsCount();
+            this->analyzeAll();
+        }
+
         this->cfgStep(); // Run CFG again
         this->nextStep();
         return;
@@ -122,6 +126,17 @@ void Engine::signatureStep()
 {
     //TODO: Stub
     this->nextStep();
+}
+
+void Engine::analyzeAll()
+{
+    for(const Analyzer* p : this->context()->selectedAnalyzers())
+    {
+        if(HAS_FLAG(p->plugin(), AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
+
+        m_analyzecount[p]++;
+        p->execute();
+    }
 }
 
 void Engine::generateCfg(size_t funcindex)

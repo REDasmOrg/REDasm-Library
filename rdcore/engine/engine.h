@@ -37,6 +37,7 @@ class Engine: public Object
         void signatureStep();
 
     private:
+        void analyzeAll();
         void generateCfg(size_t funcindex);
         void notify(bool busy);
         void setStep(size_t step);

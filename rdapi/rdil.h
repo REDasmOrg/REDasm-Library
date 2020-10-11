@@ -3,6 +3,61 @@
 #include "macros.h"
 #include "types.h"
 
+/*
+ * *** RDIL Opcode Table ***
+   +---------+-----------+-----------+-----------+----------------------------------+
+   | Opcode  | Operand 1 | Operand 2 | Operand 3 |           Description            |
+   +---------+-----------+-----------+-----------+----------------------------------+
+   | Reg     |    N/A    |    N/A    |    N/A    | (VALUE) Register Name            |
+   | Cnst    |    N/A    |    N/A    |    N/A    | (VALUE) Constant Value           |
+   | Var     |    N/A    |    N/A    |    N/A    | (VALUE) Symbol Name              |
+   | Unknown |           |           |           |                                  |
+   | Nop     |           |           |           | nop                              |
+   | Add     | left      | right     |           | left + right                     |
+   | Sub     | left      | right     |           | left - right                     |
+   | Mul     | left      | right     |           | left * right                     |
+   | Div     | left      | right     |           | left / right                     |
+   | And     | left      | right     |           | left & right                     |
+   | Or      | left      | right     |           | left | right                     |
+   | Xor     | left      | right     |           | left ^ right                     |
+   | Eq      | left      | right     |           | left == right                    |
+   | Ne      | left      | right     |           | left != right                    |
+   | Lt      | left      | right     |           | left < right                     |
+   | Le      | left      | right     |           | left >= right                    |
+   | Gt      | left      | right     |           | left > right                     |
+   | Ge      | left      | right     |           | left >= right                    |
+   | Not     | u         |           |           | ~u                               |
+   | Mem     | u         |           |           | [u]                              |
+   | Goto    | u         |           |           | goto(u)                          |
+   | Call    | u         |           |           | call(u)                          |
+   | Push    | u         |           |           | push(u)                          |
+   | Pop     | u         |           |           | push(u)                          |
+   | Copy    | dst       | src       |           | dst = src                        |
+   | If      | cond      | t         | f         | cond ? t : f                     |
+   | Ret     | cond      |           |           | ret(cond)                        |
+   +---------+-----------+-----------+-----------+----------------------------------+
+
+   *** RDIL Query Syntax ***
+     nodeid:opcode/childnodeid:opcode
+
+     Example 1:
+       RDIL: if ((a + 1) == 5) goto 0xdeadbeef else call 0xcafebabe
+       ------------------------------------------------------------
+       1) cond:eq/left:add/left:var -> a
+       2) cond:eq/left:add/right:cnst -> 1
+       3) cond:eq/right:cnst -> 5
+       4) t:goto/u:cnst -> 0xdeadbeef
+       5) f:call/u:cnst -> 0xcafebabe
+
+     Example 2:
+       RDIL: push([myreg + 12])
+       ------------------------
+       1) u:mem                -> [myreg + 12]
+       2) u:mem/u:add          -> myreg + 12
+       3) u:mem/u:add/left:reg -> myreg
+       4) u:mem/u:add/right:cnst -> 12
+ */
+
 struct RDContext;
 struct RDGraph;
 
@@ -13,7 +68,7 @@ enum RDILTypes
     RDIL_Reg, RDIL_Cnst, RDIL_Var,                        // Value
     RDIL_Add, RDIL_Sub, RDIL_Mul, RDIL_Div,               // Math
     RDIL_And, RDIL_Or, RDIL_Xor, RDIL_Not,                // Logic
-    RDIL_Load, RDIL_Store, RDIL_Copy,                     // Memory
+    RDIL_Mem, RDIL_Copy,                                  // R/W
     RDIL_If, RDIL_Goto, RDIL_Call, RDIL_Ret,              // Control Flow
     RDIL_Eq, RDIL_Ne, RDIL_Lt, RDIL_Le, RDIL_Gt, RDIL_Ge, // Compare
     RDIL_Push, RDIL_Pop                                   // Stack
@@ -37,9 +92,10 @@ DECLARE_HANDLE(RDILExpression);
 RD_API_EXPORT RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address);
 
 RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
-RD_API_EXPORT size_t RDILExpression_Size(const RDILExpression* e);
 RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
+RD_API_EXPORT const char* RDILExpression_GetText(const RDILExpression* e);
+RD_API_EXPORT const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN1(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN2(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_GetN3(const RDILExpression* e);
@@ -72,8 +128,7 @@ RD_API_EXPORT RDILExpression* RDILFunction_DIV(const RDILFunction* rdilfunction,
 RD_API_EXPORT RDILExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
-RD_API_EXPORT RDILExpression* RDILFunction_LOAD(const RDILFunction* rdilfunction, RDILExpression* memloc);
-RD_API_EXPORT RDILExpression* RDILFunction_STORE(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);
+RD_API_EXPORT RDILExpression* RDILFunction_MEM(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);
 RD_API_EXPORT RDILExpression* RDILFunction_GOTO(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_CALL(const RDILFunction* rdilfunction, RDILExpression* e);

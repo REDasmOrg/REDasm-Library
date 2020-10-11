@@ -3,6 +3,9 @@
 #include "../plugin/assembler.h"
 #include "../plugin/loader.h"
 #include "../context.h"
+#include <climits>
+
+#define IL_EXPR_SIZE(size) (size ? size : (this->context()->bits() / CHAR_BIT))
 
 ILFunction::ILFunction(Context* ctx): Object(ctx) { }
 
@@ -79,13 +82,13 @@ ILExpression* ILFunction::exprUNKNOWN() const { return this->expr(RDIL_Unknown);
 ILExpression* ILFunction::exprNOP() const { return this->expr(RDIL_Nop); }
 ILExpression* ILFunction::exprPOP(ILExpression* e) const { return this->exprU(RDIL_Pop, 0, e); }
 ILExpression* ILFunction::exprPUSH(ILExpression* e) const { return this->exprU(RDIL_Push, 0, e); }
-ILExpression* ILFunction::exprVAR(size_t size, const char* name) const { return this->exprVALUE_P(RDIL_Var, size, reinterpret_cast<uintptr_t>(name)); }
-ILExpression* ILFunction::exprREG(size_t size, const char* reg) const { return this->exprVALUE_P(RDIL_Reg, size, reinterpret_cast<uintptr_t>(reg)); }
+ILExpression* ILFunction::exprVAR(size_t size, const char* name) const { return this->exprVALUE_P(RDIL_Var, IL_EXPR_SIZE(size), reinterpret_cast<uintptr_t>(name)); }
+ILExpression* ILFunction::exprREG(size_t size, const char* reg) const { return this->exprVALUE_P(RDIL_Reg, IL_EXPR_SIZE(size), reinterpret_cast<uintptr_t>(reg)); }
 ILExpression* ILFunction::exprCNST(size_t size, u64 value) const { return this->exprVALUE(RDIL_Cnst, size, value); }
 ILExpression* ILFunction::exprJUMP(ILExpression* e) const { return this->exprU(RDIL_Goto, 0, e); }
 ILExpression* ILFunction::exprCALL(ILExpression* e) const { return this->exprU(RDIL_Call, 0, e); }
 ILExpression* ILFunction::exprRET(ILExpression* e) const { return this->exprU(RDIL_Ret, 0, e); }
-ILExpression* ILFunction::exprLOAD(ILExpression* memloc) const { return this->exprU(RDIL_Load, 0, memloc); }
+ILExpression* ILFunction::exprMEM(ILExpression* e) const { return this->exprU(RDIL_Mem, 0, e); }
 ILExpression* ILFunction::exprADD(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Add, 0, l, r); }
 ILExpression* ILFunction::exprSUB(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Sub, 0, l, r); }
 ILExpression* ILFunction::exprMUL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Mul, 0, l, r); }
@@ -93,7 +96,6 @@ ILExpression* ILFunction::exprDIV(ILExpression* l, ILExpression* r) const { retu
 ILExpression* ILFunction::exprAND(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Div, 0, l, r); }
 ILExpression* ILFunction::exprOR(ILExpression* l, ILExpression* r)  const { return this->exprLR(RDIL_Or, 0, l, r);  }
 ILExpression* ILFunction::exprXOR(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Xor, 0, l, r); }
-ILExpression* ILFunction::exprSTORE(ILExpression* dst, ILExpression* src) const { return this->exprDS(RDIL_Store, 0, dst, src); }
 ILExpression* ILFunction::exprCOPY(ILExpression* dst, ILExpression* src) const { return this->exprDS(RDIL_Copy, 0, dst, src); }
 ILExpression* ILFunction::exprEQ(ILExpression* l, ILExpression* r)  const { return this->exprLR(RDIL_Eq, 0, l, r);  }
 ILExpression* ILFunction::exprNE(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Ne, 0, l, r); }

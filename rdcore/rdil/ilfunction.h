@@ -38,8 +38,7 @@ class ILFunction: public Object
         ILExpression* exprJUMP(ILExpression* e) const;
         ILExpression* exprCALL(ILExpression* e) const;
         ILExpression* exprRET(ILExpression* e) const;
-        ILExpression* exprLOAD(ILExpression* memloc) const;
-        ILExpression* exprSTORE( ILExpression* dst, ILExpression* src) const;
+        ILExpression* exprMEM(ILExpression* e) const;
         ILExpression* exprADD(ILExpression* l, ILExpression* r) const;
         ILExpression* exprSUB(ILExpression* l, ILExpression* r) const;
         ILExpression* exprMUL(ILExpression* l, ILExpression* r) const;

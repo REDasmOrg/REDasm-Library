@@ -105,6 +105,7 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
         if(q != "/")
         {
             nlohmann::json::json_pointer p(q);
+            if(!m_db.contains(p)) return false;
             value = m_db[p];
         }
         else

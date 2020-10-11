@@ -24,6 +24,7 @@ void RDContext_Subscribe(RDContext* ctx, void* owner, Callback_Event listener, v
 void RDContext_Unsubscribe(RDContext* ctx, void* owner) { CPTR(Context, ctx)->unsubscribe(owner); }
 void RDContext_DisassembleAt(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembleAt(address); }
 void RDContext_Disassemble(RDContext* ctx) { CPTR(Context, ctx)->disassemble(); }
+size_t RDContext_GetProblemsCount(const RDContext* ctx) { return CPTR(const Context, ctx)->problemsCount(); }
 void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata) { CPTR(const Context, ctx)->getProblems(callback, userdata); }
 void RDContext_AddProblem(RDContext* ctx, const char* s) { CPTR(Context, ctx)->problem(s); }
 void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore) { CPTR(Context, ctx)->setIgnoreProblems(ignore); }

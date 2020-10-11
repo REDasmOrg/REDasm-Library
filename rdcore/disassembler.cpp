@@ -2,7 +2,7 @@
 #include "support/error.h"
 #include "support/utils.h"
 #include "eventdispatcher.h"
-#include "config.h"
+#include "context.h"
 #include "document/document.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
@@ -227,7 +227,7 @@ bool Disassembler::readAddress(rd_address address, size_t size, u64* value) cons
         case 2:  if(value) *value = *reinterpret_cast<u16*>(view.data); break;
         case 4:  if(value) *value = *reinterpret_cast<u32*>(view.data); break;
         case 8:  if(value) *value = *reinterpret_cast<u64*>(view.data); break;
-        default: return false; //FIXME: rd_cfg->problem("Invalid size: " + Utils::number(size)); return false;
+        default: this->context()->problem("Invalid size: " + Utils::number(size)); return false;
     }
 
     return true;

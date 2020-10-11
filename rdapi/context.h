@@ -49,6 +49,7 @@ RD_API_EXPORT void RDContext_Subscribe(RDContext* ctx, void* owner, Callback_Eve
 RD_API_EXPORT void RDContext_Unsubscribe(RDContext* ctx, void* owner);
 RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);
+RD_API_EXPORT size_t RDContext_GetProblemsCount(const RDContext* ctx);
 RD_API_EXPORT void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata);
 RD_API_EXPORT void RDContext_AddProblem(RDContext* ctx, const char* s);
 RD_API_EXPORT void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore);

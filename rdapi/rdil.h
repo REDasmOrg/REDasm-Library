@@ -119,6 +119,7 @@ RD_API_EXPORT RDILExpression* RDILFunction_DIV(const RDILFunction* rdilfunction,
 RD_API_EXPORT RDILExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_NOT(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_MEM(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);
 RD_API_EXPORT RDILExpression* RDILFunction_GOTO(const RDILFunction* rdilfunction, RDILExpression* e);

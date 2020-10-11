@@ -89,6 +89,7 @@ ILExpression* ILFunction::exprJUMP(ILExpression* e) const { return this->exprU(R
 ILExpression* ILFunction::exprCALL(ILExpression* e) const { return this->exprU(RDIL_Call, 0, e); }
 ILExpression* ILFunction::exprRET(ILExpression* e) const { return this->exprU(RDIL_Ret, 0, e); }
 ILExpression* ILFunction::exprMEM(ILExpression* e) const { return this->exprU(RDIL_Mem, 0, e); }
+ILExpression* ILFunction::exprNOT(ILExpression* e) const { return this->exprU(RDIL_Not, 0, e); }
 ILExpression* ILFunction::exprADD(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Add, 0, l, r); }
 ILExpression* ILFunction::exprSUB(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Sub, 0, l, r); }
 ILExpression* ILFunction::exprMUL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Mul, 0, l, r); }

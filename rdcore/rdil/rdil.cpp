@@ -101,6 +101,7 @@ std::string RDIL::textOp(const ILExpression* e)
         case RDIL_And: return "&";
         case RDIL_Or:  return "|";
         case RDIL_Xor: return "^";
+        case RDIL_Not: return "~";
         case RDIL_Eq:  return "==";
         case RDIL_Ne:  return "!=";
         case RDIL_Lt:  return "<";
@@ -204,6 +205,11 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
             RDIL::wrapWalk(e->left, cb);
             cb(e, RDIL::textOp(e), WalkType::Normal);
             RDIL::walk(e->right, cb);
+            break;
+
+        case RDIL_Not:
+            cb(e, RDIL::textOp(e), WalkType::Normal);
+            RDIL::wrapWalk(e->u, cb);
             break;
 
         case RDIL_If:
@@ -325,6 +331,11 @@ bool RDIL::match(const ILExpression* e, std::string& res)
             RDIL::wrapMatch(e->left, res);
             res += RDIL::textOp(e);
             RDIL::wrapMatch(e->right, res);
+            break;
+
+        case RDIL_Not:
+            res += RDIL::textOp(e);
+            RDIL::wrapMatch(e->u, res);
             break;
 
         case RDIL_If:

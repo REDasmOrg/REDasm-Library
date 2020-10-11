@@ -31,12 +31,7 @@ size_t Lexer::consume(const RDToken** tokens, const char** err)
 }
 
 const std::string& Lexer::lastError() const { return m_error; }
-
-std::string Lexer::unexpected(const RDToken* token) const
-{
-    return "Unexpected character '" + std::string(token->value, token->length) +
-            "' @ position " + std::to_string(token->pos);
-}
+std::string Lexer::unexpected(const RDToken* token) const { return "Unexpected character '" + Lexer::tokenValue(token) + "' @ position " + std::to_string(token->pos); }
 
 void Lexer::error(const RDToken* token) const { m_error = this->unexpected(token); }
 

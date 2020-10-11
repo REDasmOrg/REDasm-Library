@@ -18,6 +18,7 @@ class Lexer: public Object
         bool lexCheck(RDToken* token, rd_type type);
         bool check(const RDToken* token, rd_type type) const;
         bool hasError() const;
+        void error(const RDToken* token) const;
         void rewind();
 
     public:
@@ -26,7 +27,6 @@ class Lexer: public Object
 
     private:
         std::string unexpected(const RDToken* token) const;
-        void error(const RDToken* token) const;
         void tokenize(rd_type tokentype, RDToken* token, const AcceptCharacter& acceptcb);
         void marker(RDToken* token);
         void atomize(rd_type tokentype, RDToken* token);

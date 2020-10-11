@@ -60,6 +60,7 @@ RD_API_EXPORT bool RDLexer_Lex(RDLexer* lex, RDToken* token);
 RD_API_EXPORT bool RDLexer_LexCheck(RDLexer* lex, RDToken* token, rd_type type);
 RD_API_EXPORT bool RDLexer_Check(RDLexer* lex, const RDToken* token, rd_type type);
 RD_API_EXPORT bool RDLexer_HasError(const RDLexer* lex);
+RD_API_EXPORT void RDLexer_Error(RDLexer* lex, const RDToken* token);
 RD_API_EXPORT void RDLexer_Rewind(RDLexer* lex);
 
 RD_API_EXPORT bool RDToken_Equals(const RDToken* t1, const RDToken* t2);

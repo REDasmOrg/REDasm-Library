@@ -131,7 +131,7 @@ bool RDIL::hasValue(const ILExpression* e)
 const ILExpression* RDIL::extract(const ILExpression* e, const RDILQueryItem& qi, RDIL::RDILQuery& query, int depth)
 {
     if(!e || query.empty()) return e;
-    if(depth && (e->type != RDIL::getOpType(qi.opcode))) return nullptr;
+    if(depth && (qi.opcode != "*") && (e->type != RDIL::getOpType(qi.opcode))) return nullptr;
 
     RDILQueryItem nqi = query.front();
     query.pop();
@@ -154,15 +154,22 @@ bool RDIL::parseQuery(const std::string& q, RDIL::RDILQuery& query)
     RDToken token;
     RDILQueryItem item;
 
-    while(l.lex(&token))
+    while(!l.hasError() && l.lex(&token))
     {
         if(IS_TYPE(&token, TokenType_Slash)) continue;
         if(!l.check(&token, TokenType_Identifier)) break;
-
         item.nodeid = Lexer::tokenValue(&token);
 
         if(!l.lexCheck(&token, TokenType_Colon)) break;
-        if(!l.lexCheck(&token, TokenType_Identifier)) break;
+        if(!l.lex(&token)) break;
+
+        switch(token.type)
+        {
+            case TokenType_Asterisk:
+            case TokenType_Identifier: break;
+
+            default: l.error(&token); continue;
+        }
 
         item.opcode = Lexer::tokenValue(&token);
         query.push(item);

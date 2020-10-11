@@ -14,17 +14,6 @@ RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
 rd_type RDILExpression_Type(const RDILExpression* e) { return e ? CPTR(const ILExpression, e)->type : RDIL_Unknown; }
 bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
 const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q) { return (e && q) ? CPTR(const RDILExpression, RDIL::extract(CPTR(const ILExpression, e), q)) : nullptr; }
-const RDILExpression* RDILExpression_GetN1(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n1); }
-const RDILExpression* RDILExpression_GetN2(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n2); }
-const RDILExpression* RDILExpression_GetN3(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->n3); }
-const RDILExpression* RDILExpression_GetU(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->u); }
-const RDILExpression* RDILExpression_GetCond(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->cond); }
-const RDILExpression* RDILExpression_GetDst(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->dst); }
-const RDILExpression* RDILExpression_GetLeft(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->left); }
-const RDILExpression* RDILExpression_GetT(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->t); }
-const RDILExpression* RDILExpression_GetSrc(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->src); }
-const RDILExpression* RDILExpression_GetRight(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->right); }
-const RDILExpression* RDILExpression_GetF(const RDILExpression* e) { return CPTR(const RDILExpression, CPTR(const ILExpression, e)->f); }
 
 bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
 {

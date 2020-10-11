@@ -38,7 +38,8 @@
    +---------+-----------+-----------+-----------+----------------------------------+
 
    *** RDIL Query Syntax ***
-     nodeid:opcode/childnodeid:opcode
+     - nodeid:opcode/childnodeid:opcode
+     - if opcode = * -> Match Any
 
      Example 1:
        RDIL: if ((a + 1) == 5) goto 0xdeadbeef else call 0xcafebabe
@@ -48,6 +49,7 @@
        3) cond:eq/right:cnst -> 5
        4) t:goto/u:cnst -> 0xdeadbeef
        5) f:call/u:cnst -> 0xcafebabe
+       6) cond:eq/left:* -> (a + 1)
 
      Example 2:
        RDIL: push([myreg + 12])
@@ -96,17 +98,6 @@ RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
 RD_API_EXPORT const char* RDILExpression_GetText(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetN1(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetN2(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetN3(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetU(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetCond(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetDst(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetLeft(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetT(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetSrc(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetRight(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_GetF(const RDILExpression* e);
 
 RD_API_EXPORT RDILFunction* RDILFunction_Create(RDContext* context, rd_address address);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);

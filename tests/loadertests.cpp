@@ -7,15 +7,15 @@
 void LoaderTests::testCavia(RDContext*, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401000, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_EntryPoint);
-    LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function, SymbolFlags_None);
-    GraphTests::testCavia(doc);
+    LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_401029", SymbolType_Function, SymbolFlags_None);
+    //GraphTests::testCavia(doc);
 }
 
 void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401128, "WndProc", SymbolType_Function, SymbolFlags_Export);
-    LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_00401253", SymbolType_Function, SymbolFlags_None);
-    LoaderTests::checkSymbol(doc, 0x0040130A, "DlgProc_0040130A", SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_401253", SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x0040130A, "DlgProc_40130A", SymbolType_Function, SymbolFlags_None);
 
     LoaderTests::checkSymbol(doc, 0x004020E7, nullptr, SymbolType_String, SymbolFlags_AsciiString);
     LoaderTests::checkSymbol(doc, 0x00402129, nullptr, SymbolType_String, SymbolFlags_AsciiString);
@@ -28,7 +28,7 @@ void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
     };
 
     LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
-    GraphTests::testCM01(doc);
+    //GraphTests::testCM01(doc);
 }
 
 void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)

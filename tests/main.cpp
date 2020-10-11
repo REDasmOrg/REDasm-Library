@@ -56,8 +56,8 @@ TEST_CASE("Executables")
             RDDisassembler* disassembler = RDContext_BuildDisassembler(ctx.get(), &req, g_currloader, nullptr);
             REQUIRE(disassembler);
 
-            // RD_Disassemble(disassembler);
-            // test(disassembler, RDContext_GetDocument(disassembler));
+            RDContext_Disassemble(ctx.get());
+            test(ctx.get(), RDContext_GetDocument(ctx.get()));
             g_currloader = nullptr;
         }
     }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../object.h"
-#include "document_fwd.h"
 #include <rdapi/document/cursor.h>
 #include <stack>
 
@@ -11,40 +10,42 @@ class Cursor: public Object
         typedef std::stack<RDCursorPos> PositionStack;
 
     public:
-        Cursor(SafeDocument& d);
+        Cursor(Context* ctx);
         void toggle();
         void enable();
         void disable();
         void goBack();
         void goForward();
         void clearSelection();
-        void set(size_t line, size_t column);
-        void moveTo(size_t line, size_t column);
-        void select(size_t line, size_t column);
+        void set(int row, int col);
+        virtual void moveTo(int row, int col);
+        virtual void select(int row, int col);
 
     public:
         const RDCursorPos* position() const;
         const RDCursorPos* selection() const;
         const RDCursorPos* startSelection() const;
         const RDCursorPos* endSelection() const;
-        size_t currentLine() const;
-        size_t currentColumn() const;
-        size_t selectionLine() const;
-        size_t selectionColumn() const;
-        bool isLineSelected(size_t line) const;
+        int currentRow() const;
+        int currentColumn() const;
+        int selectionLine() const;
+        int selectionColumn() const;
+        bool isRowSelected(int row) const;
         bool hasSelection() const;
         bool canGoBack() const;
         bool canGoForward() const;
         bool active() const;
 
+    protected:
+        virtual void onCursorChanged();
+
     private:
-        void moveTo(size_t line, size_t column, bool save);
+        void moveTo(int row, int column, bool save);
         static bool equalPos(const RDCursorPos* pos1, const RDCursorPos* pos2);
 
     private:
-        bool m_active{false};
         RDCursorPos m_position{0, 0}, m_selection{0, 0};
         PositionStack m_backstack, m_forwardstack;
-        SafeDocument& m_document;
+        bool m_active{false};
 };
 

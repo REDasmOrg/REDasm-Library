@@ -17,7 +17,7 @@ class Assembler: public Entry<RDEntryAssembler>
     public:
         Assembler(const RDEntryAssembler* entry, Context* ctx);
         void lift(rd_address address, const RDBufferView* view, ILFunction* il) const;
-        bool renderInstruction(RDRenderItemParams* rip);
+        bool renderInstruction(const RDRendererParams* rp);
         bool encode(RDEncodedInstruction* encoded) const;
         void emulate(EmulateResult* result) const;
         size_t addressWidth() const;

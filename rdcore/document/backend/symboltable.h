@@ -10,7 +10,7 @@
 class SymbolTable: public Object
 {
     public:
-        SymbolTable() = default;
+        SymbolTable(Context* ctx);
         size_t size() const;
         const char* getName(rd_address address) const;
         bool get(rd_address address, RDSymbol* symbol) const;
@@ -19,8 +19,8 @@ class SymbolTable: public Object
         void remove(rd_address address);
 
    public:
-        void create(rd_address address, const std::string& name, rd_type type, rd_flag flags);
-        bool rename(rd_address address, const std::string& newname);
+        void create(rd_address address, std::string name, rd_type type, rd_flag flags);
+        bool rename(rd_address address, std::string newname);
         static std::string name(rd_address address, const char* s, rd_type type, rd_flag flags);
         static std::string name(rd_address address, rd_type type, rd_flag flags);
 

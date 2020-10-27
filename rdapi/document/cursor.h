@@ -6,11 +6,11 @@
 DECLARE_HANDLE(RDCursor);
 
 typedef struct RDCursorPos {
-    size_t line, column;
+    int row, column;
 } RDCursorPos;
 
 typedef struct RDCursorRange {
-    s32 start, end;
+    int start, end;
 } RDCursorRange;
 
 struct RDDocument;

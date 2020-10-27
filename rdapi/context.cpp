@@ -1,5 +1,4 @@
 #include "context.h"
-#include <rdcore/document/document.h>
 #include <rdcore/context.h>
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
@@ -20,8 +19,6 @@ void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequ
 void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata) { CPTR(const Context, ctx)->findAssemblerEntries(callback, userdata); }
 void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata) { CPTR(const Context, ctx)->getAnalyzers(callback, userdata); }
 void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select) { CPTR(Context, ctx)->selectAnalyzer(CPTR(const Analyzer, analyzer), select); }
-void RDContext_Subscribe(RDContext* ctx, void* owner, Callback_Event listener, void* userdata) { CPTR(Context, ctx)->subscribe(owner, listener, userdata); }
-void RDContext_Unsubscribe(RDContext* ctx, void* owner) { CPTR(Context, ctx)->unsubscribe(owner); }
 void RDContext_DisassembleAt(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembleAt(address); }
 void RDContext_Disassemble(RDContext* ctx) { CPTR(Context, ctx)->disassemble(); }
 size_t RDContext_GetProblemsCount(const RDContext* ctx) { return CPTR(const Context, ctx)->problemsCount(); }
@@ -30,5 +27,5 @@ void RDContext_AddProblem(RDContext* ctx, const char* s) { CPTR(Context, ctx)->p
 void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore) { CPTR(Context, ctx)->setIgnoreProblems(ignore); }
 bool RDContext_HasProblems(const RDContext* ctx) { return CPTR(const Context, ctx)->hasProblems(); }
 void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set) { CPTR(Context, ctx)->setFlags(flags, set); }
-bool RDContext_HasFlags(const RDContext* ctx, rd_flag flags) { return CPTR(const Context, ctx)->hasFlags(flags); }
+bool RDContext_HasFlag(const RDContext* ctx, rd_flag flag) { return CPTR(const Context, ctx)->hasFlag(flag); }
 rd_flag RDContext_GetFlags(const RDContext* ctx) { return CPTR(const Context, ctx)->flags(); }

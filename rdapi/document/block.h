@@ -9,7 +9,7 @@ enum RDBlockType {
     BlockType_Code,
 };
 
-typedef struct RDBlock { // [start, end]
+typedef struct RDBlock { // [start, end)
     union {
         rd_address start;
         rd_address address;
@@ -21,9 +21,10 @@ typedef struct RDBlock { // [start, end]
 
 DECLARE_HANDLE(RDBlockContainer);
 
-RD_API_EXPORT bool RDBlockContainer_Find(const RDBlockContainer* c, rd_address address, RDBlock* block);
-RD_API_EXPORT bool RDBlockContainer_Get(const RDBlockContainer* c, size_t index, RDBlock* block);
-RD_API_EXPORT size_t RDBlockContainer_Index(const RDBlockContainer* c, const RDBlock* block);
+typedef bool(*BlockContainer_Callback)(const RDBlock* b, void* userdata);
+
+RD_API_EXPORT void RDBlockContainer_Each(const RDBlockContainer* c, BlockContainer_Callback cb, void* userdata);
+RD_API_EXPORT bool RDBlockContainer_Get(const RDBlockContainer* c, rd_address address, RDBlock* block);
 RD_API_EXPORT size_t RDBlockContainer_Size(const RDBlockContainer* c);
 
 RD_API_EXPORT bool RDBlock_Contains(const RDBlock* b, rd_address address);

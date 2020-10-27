@@ -2,8 +2,11 @@
 #include <cstring>
 #include <sstream>
 #include <iomanip>
+#include "../../context.h"
 #include "../../support/utils.h"
+#include "../../support/demangler.h"
 
+SymbolTable::SymbolTable(Context* ctx): Object(ctx) { }
 size_t SymbolTable::size() const { return m_byaddress.size(); }
 
 const char* SymbolTable::getName(rd_address address) const
@@ -23,6 +26,9 @@ bool SymbolTable::get(rd_address address, RDSymbol* symbol) const
 
 bool SymbolTable::get(const char* name, RDSymbol* symbol) const
 {
+    if(!this->context()->hasFlag(ContextFlags_NoDemangle))
+        name = Demangler::demangled(name);
+
     auto it = m_byname.find(name);
     if(it == m_byname.end()) return false;
     return this->get(it->second, symbol);
@@ -45,20 +51,23 @@ void SymbolTable::remove(rd_address address)
     m_byaddress.erase(address);
 }
 
-void SymbolTable::create(rd_address address, const std::string& name, rd_type type, rd_flag flags)
+void SymbolTable::create(rd_address address, std::string name, rd_type type, rd_flag flags)
 {
-    std::string symbolname = name;
-    if(symbolname.empty()) symbolname = SymbolTable::name(address, type, flags);
+    if(name.empty()) name = SymbolTable::name(address, type, flags);
+    else if(!this->context()->hasFlag(ContextFlags_NoDemangle)) name = Demangler::demangled(name);
 
     m_addresses.insert(address);
     m_byaddress[address] = { address, type, flags };
-    m_byname[symbolname] = address;
-    m_stringtable[address] = symbolname;
+    m_byname[name] = address;
+    m_stringtable[address] = name;
 }
 
-bool SymbolTable::rename(rd_address address, const std::string& newname)
+bool SymbolTable::rename(rd_address address, std::string newname)
 {
     if(newname.empty()) return false;
+
+    if(!this->context()->hasFlag(ContextFlags_NoDemangle))
+        newname = Demangler::demangled(newname);
 
     auto ait = m_byaddress.find(address);
     if(ait == m_byaddress.end()) return false;

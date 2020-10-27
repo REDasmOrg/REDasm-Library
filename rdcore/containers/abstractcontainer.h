@@ -1,27 +1,60 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <rdapi/types.h>
 
-template<typename T> class AbstractContainer
+template<typename T, typename Container>
+class AbstractContainer
 {
     public:
+        typedef std::function<bool(const T&)> TypeCallback;
+        typedef Container ContainerType;
+        typedef typename ContainerType::iterator Iterator;
+        typedef typename ContainerType::const_iterator ConstIterator;
+        typedef T Type;
+
+    public:
         virtual ~AbstractContainer() = default;
+        size_t size() const { return m_container.size(); }
+        bool empty() const { return m_container.empty(); }
+        void clear() { m_container.clear(); }
+        virtual const T* insert(const T& t) = 0;
+        virtual bool remove(const T& t) = 0;
+
+    public:
+        void each(const TypeCallback& cb) const {
+            for(auto it = this->begin(); it != this->end(); it++) {
+                if(!cb(*it)) break;
+            }
+        }
+
+    public: // Ranged-For support
+        typename ContainerType::iterator begin() { return m_container.begin(); }
+        typename ContainerType::iterator end() { return m_container.end(); }
+        typename ContainerType::const_iterator begin() const { return m_container.begin(); }
+        typename ContainerType::const_iterator end() const { return m_container.end(); }
+
+    protected:
+        Container m_container;
+};
+
+template<typename T, typename Container>
+class RandomAccessContainer: public AbstractContainer<T, Container>
+{
+    public:
+        virtual ~RandomAccessContainer() = default;
         virtual T& at(size_t idx) = 0;
         virtual T& front() = 0;
         virtual T& back() = 0;
-        virtual size_t insert(const T& t) = 0;
         virtual size_t indexOf(const T& t) const = 0;
-        virtual size_t size() const  = 0;
-        virtual bool empty() const = 0;
-        virtual void remove(const T& t) = 0;
-        virtual void removeAt(size_t idx) = 0;
-        virtual void clear() = 0;
+        virtual bool removeAt(size_t idx) = 0;
+        virtual size_t capacity() const = 0;
 
     public:
-        const T& front() const { return const_cast<AbstractContainer*>(this)->front(); }
-        const T& back() const { return const_cast<AbstractContainer*>(this)->back(); }
-        const T& at(size_t idx) const { return const_cast<AbstractContainer*>(this)->at(idx); }
+        const T& front() const { return const_cast<RandomAccessContainer*>(this)->front(); }
+        const T& back() const { return const_cast<RandomAccessContainer*>(this)->back(); }
+        const T& at(size_t idx) const { return const_cast<RandomAccessContainer*>(this)->at(idx); }
         bool contains(const T& t) const { return this->indexOf(t) != RD_NPOS; }
 
         bool get(size_t idx, T* t) const {

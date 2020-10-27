@@ -81,11 +81,10 @@ size_t FunctionGraph::bytesCount() const
 
         const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
 
-        for(size_t i = blocks->indexOf(&startb); i <= blocks->indexOf(&endb); i++)
-        {
-            const RDBlock& b = blocks->at(i);
-            c += BlockContainer::size(&b);
-        }
+        blocks->range(startb, endb, [&](const RDBlock& block) {
+            c += BlockContainer::size(&block);
+            return true;
+        });
     }
 
     return c;

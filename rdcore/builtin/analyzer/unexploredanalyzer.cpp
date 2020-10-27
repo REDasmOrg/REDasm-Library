@@ -26,13 +26,12 @@ void UnexploredAnalyzer::analyze(Context* ctx)
         RDSegment segment;
         if(!doc->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
 
-        const BlockContainer* bc = doc->blocks(segment.address);
+        const BlockContainer* blocks = doc->blocks(segment.address);
 
-        for(size_t j = 0; j < bc->size(); j++)
-        {
-            const RDBlock& block = bc->at(j);
+        blocks->each([&](const RDBlock& block) {
             rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
             if(IS_TYPE(&block, BlockType_Unexplored)) ctx->disassembler()->enqueue(block.address);
-        }
+            return true;
+        });
     }
 }

@@ -63,7 +63,6 @@ enum RDSegmentFlags {
     SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data,
 };
 
-#pragma pack(push, 1)
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
     rd_offset offset;
@@ -74,7 +73,6 @@ typedef struct RDSegment {
 
     RD_USERDATA_FIELD
 } RDSegment;
-#pragma pack(pop)
 
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);

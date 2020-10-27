@@ -10,8 +10,7 @@ bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address address, RDSeg
 bool RDDocument_GetSegmentOffset(const RDDocument* d, rd_offset offset, RDSegment* segment) { return docptr(d)->segmentOffset(offset, segment); }
 bool RDDocument_GetSegmentAt(const RDDocument* d, size_t index, RDSegment* segment) { return docptr(d)->segmentAt(index, segment); }
 bool RDDocument_GetBlock(const RDDocument* d, rd_address address, RDBlock* block) { return docptr(d)->block(address, block); }
-bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item) { return docptr(d)->itemAt(index, item); }
-bool RDDocument_GetFunctionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->functionItem(address, item); }
+bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item) { return false; }
 bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->instructionItem(address, item); }
 bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->symbolItem(address, item); }
 bool RDDocument_GetSymbolByIndex(const RDDocument* d, size_t index, RDSymbol* symbol) { return docptr(d)->symbolAt(index, symbol); }
@@ -27,11 +26,9 @@ size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item) { r
 size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address address) { return docptr(d)->functionIndex(address); }
 size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address) { return docptr(d)->instructionIndex(address); }
 size_t RDDocument_SymbolIndex(const RDDocument* d, rd_address address) { return docptr(d)->symbolIndex(address); }
-size_t RDDocument_GetItemList(const RDDocument* d, size_t startindex, size_t count, RDDocumentItem* items) { return docptr(d)->itemsAt(startindex, count, items); }
-size_t RDDocument_ItemsCount(const RDDocument* d) { return docptr(d)->itemsCount(); }
+size_t RDDocument_GetSize(const RDDocument* d) { return docptr(d)->size(); }
 size_t RDDocument_SegmentsCount(const RDDocument* d) { return docptr(d)->segmentsCount(); }
 size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
-size_t RDDocument_SymbolsCount(const RDDocument* d) { return docptr(d)->symbolsCount(); }
 bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
 bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
 bool RDDocument_SetEntry(RDDocument* d, rd_address address) { return docptr(d)->entry(address); }
@@ -69,3 +66,10 @@ bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offse
 }
 
 bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata) { return docptr(d)->setSegmentUserData(address, userdata); }
+
+void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata)
+{
+    if(cb) docptr(d)->items()->each([&](const RDDocumentItem& item) {
+        return cb(&item, userdata);
+    });
+}

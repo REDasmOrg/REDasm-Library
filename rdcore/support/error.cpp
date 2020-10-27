@@ -1,7 +1,6 @@
 #include "error.h"
 #include "utils.h"
 #include <stdexcept>
-#include "../eventdispatcher.h"
 #include <rdapi/events.h>
 
 std::string REDasmError::m_message;

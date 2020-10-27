@@ -1,7 +1,6 @@
 #include "context.h"
 #include "config.h"
 #include "support/utils.h"
-#include "eventdispatcher.h"
 #include "plugin/analyzer.h"
 #include "plugin/loader.h"
 #include "plugin/interface/pluginmanager.h"
@@ -11,8 +10,8 @@
 #include "builtin/loader/binary.h"
 #include "disassembler.h"
 
-Context::Context(): EventDispatcher(this) { m_pluginmanager = std::make_unique<PluginManager>(this); }
-Context::~Context() { this->enqueue<RDEventArgs>(Event_ContextFree, this); }
+Context::Context(): Object(this) { m_pluginmanager = std::make_unique<PluginManager>(this); }
+Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }
@@ -169,11 +168,11 @@ void Context::setFlags(rd_flag flags, bool set)
     else m_flags &= ~flags;
 
     if(m_flags != oldflags)
-        this->enqueue<RDEventArgs>(RDEvents::Event_ContextFlagsChanged, this);
+        this->notify<RDEventArgs>(RDEvents::Event_ContextFlagsChanged, this);
 }
 
 rd_flag Context::flags() const { return m_flags; }
-bool Context::hasFlags(rd_flag flags) const { return m_flags & flags; }
+bool Context::hasFlag(rd_flag flags) const { return m_flags & flags; }
 bool Context::hasProblems() const { return !m_problems.empty(); }
 size_t Context::problemsCount() const { return m_problems.size(); }
 void Context::getProblems(RD_ProblemCallback callback, void* userdata) const { for(const std::string& problem : m_problems) callback(problem.c_str(), userdata); }

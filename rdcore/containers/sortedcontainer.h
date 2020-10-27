@@ -1,90 +1,47 @@
 #pragma once
 
-#include <functional>
-#include <vector>
-#include "abstractcontainer.h"
+#include "basecontainer.h"
 
-template<typename T, typename Sorter = std::less<T>, typename Comparator = std::equal_to<T>, bool unique = false>
-class SortedContainer: public AbstractContainer<T>
+template<typename T, typename Comparator = std::equal_to<T>, typename Sorter = std::less<T>, bool unique = false>
+class SortedContainer: public FlatContainer<T, Comparator>
 {
-    private:
-        typedef std::vector<T> ContainerType;
-
     public:
         SortedContainer() = default;
-        size_t data(const T** t) const;
-        T& at(size_t idx) override { return m_container[idx]; }
-        T& front() override { return m_container.front(); }
-        T& back() override { return m_container.back(); }
-        size_t insert(const T& t) override;
+
+    public: // AbstractContainer Interface
+        const T* insert(const T& t) override;
+        bool remove(const T& t) override;
+
+    public: // RandomAccessContainer Interface
         size_t indexOf(const T& t) const override;
-        size_t size() const override { return m_container.size(); }
-        size_t capacity() { return m_container.capacity(); }
-        bool empty() const override { return m_container.empty(); }
-        void reserve(size_t n) { m_container.reserve(n); }
-        void remove(const T& t) override;
-        void removeAt(size_t idx) override;
-        void clear() override;
 
     public:
-        typename ContainerType::iterator begin() { return m_container.begin(); }
-        typename ContainerType::iterator end() { return m_container.end(); }
-        typename ContainerType::const_iterator begin() const { return m_container.begin(); }
-        typename ContainerType::const_iterator end() const { return m_container.end(); }
-
-    public:
-        using AbstractContainer<T>::front;
-        using AbstractContainer<T>::back;
-        using AbstractContainer<T>::at;
-
-    protected:
-        ContainerType m_container;
+        using FlatContainer<T, Comparator>::front;
+        using FlatContainer<T, Comparator>::back;
+        using FlatContainer<T, Comparator>::at;
 };
 
-template<typename T, typename Sorter, typename Comparator, bool unique>
-size_t SortedContainer<T, Sorter, Comparator, unique>::indexOf(const T& t) const
-{
-    auto it = std::lower_bound(m_container.begin(), m_container.end(), t, Sorter());
-    if(it == m_container.end()) return RD_NPOS;
+template<typename T, typename Comparator, typename Sorter, bool unique>
+size_t SortedContainer<T, Comparator, Sorter, unique>::indexOf(const T& t) const {
+    auto it = std::lower_bound(this->begin(), this->end(), t, Sorter());
+    if(it == this->end()) return RD_NPOS;
     if(!Comparator()(*it, t)) return RD_NPOS;
-    return std::distance(m_container.begin(), it);
+    return std::distance(this->begin(), it);
 }
 
-template<typename T, typename Sorter, typename Comparator, bool unique>
-void SortedContainer<T, Sorter, Comparator, unique>::remove(const T& t)
-{
+template<typename T, typename Comparator, typename Sorter, bool unique>
+bool SortedContainer<T, Comparator, Sorter, unique>::remove(const T& t) {
     size_t idx = this->indexOf(t);
-    if(idx != RD_NPOS) this->removeAt(idx);
+    return (idx != RD_NPOS) ? this->removeAt(idx) : false;
 }
 
-template<typename T, typename Sorter, typename Comparator, bool unique>
-size_t SortedContainer<T, Sorter, Comparator, unique>::data(const T** t) const
-{
-    if(t) *t = m_container.data();
-    return m_container.size();
-}
-
-template<typename T, typename Sorter, typename Comparator, bool unique>
-size_t SortedContainer<T, Sorter, Comparator, unique>::insert(const T& t)
-{
+template<typename T, typename Comparator, typename Sorter, bool unique>
+const T* SortedContainer<T, Comparator, Sorter, unique>::insert(const T& t) {
     if constexpr(unique) {
         size_t idx = this->indexOf(t);
-        if(idx != RD_NPOS) return idx;
+        if(idx != RD_NPOS) return std::addressof(this->m_container[idx]);
     }
 
-    auto it = std::upper_bound(m_container.begin(), m_container.end(), t, Sorter());
-    return std::distance(m_container.begin(), m_container.insert(it, t));
-}
-
-template<typename T, typename Sorter, typename Comparator, bool unique>
-void SortedContainer<T, Sorter, Comparator, unique>::removeAt(size_t idx)
-{
-    if(idx >= m_container.size()) return;
-    m_container.erase(std::next(m_container.begin(), idx));
-}
-
-template<typename T, typename Sorter, typename Comparator, bool unique>
-void SortedContainer<T, Sorter, Comparator, unique>::clear()
-{
-    m_container.clear();
+    auto it = std::upper_bound(this->begin(), this->end(), t, Sorter());
+    return std::addressof(*this->m_container.insert(it, t));
 }

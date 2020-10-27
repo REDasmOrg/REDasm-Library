@@ -2,6 +2,7 @@
 
 #include "macros.h"
 #include "types.h"
+#include "symbol.h"
 #include "plugin/assembler/assembler.h"
 
 DECLARE_HANDLE(RDDisassembler);

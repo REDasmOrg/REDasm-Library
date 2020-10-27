@@ -45,7 +45,7 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
     for(rd_address currentaddress : path)
     {
         const auto* blocks = il->context()->document()->blocks(currentaddress);
-        if(!blocks->find(currentaddress, &block)) return false;
+        if(!blocks->get(currentaddress, &block)) return false;
 
         RDBufferView view;
         if(!loader->view(currentaddress, BlockContainer::size(&block), &view)) return false;

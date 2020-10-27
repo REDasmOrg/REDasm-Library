@@ -19,10 +19,10 @@ struct SegmentComparator
     }
 };
 
-class SegmentContainer: public SortedContainer<RDSegment, SegmentSorter, SegmentComparator>
+class SegmentContainer: public SortedContainer<RDSegment, SegmentComparator, SegmentSorter>
 {
     private:
-        typedef SortedContainer<RDSegment, SegmentSorter, SegmentComparator> ClassType;
+        typedef SortedContainer<RDSegment, SegmentComparator, SegmentSorter> ClassType;
 
     public:
         SegmentContainer();
@@ -35,7 +35,7 @@ class SegmentContainer: public SortedContainer<RDSegment, SegmentSorter, Segment
         bool findOffset(rd_offset offset, RDSegment* segment) const;
         bool findBlock(rd_address address, RDBlock* block) const;
         bool setUserData(rd_address address, uintptr_t userdata);
-        size_t insert(const RDSegment& segment) override;
+        const RDSegment* insert(const RDSegment& segment) override;
         BlockContainer* findBlocks(rd_address address) const;
         BlockContainer* findBlocks(rd_address address);
 

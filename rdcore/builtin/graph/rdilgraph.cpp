@@ -16,7 +16,7 @@ void RDILGraph::build(rd_address address)
     RDBlock block;
 
     const auto* blocks = this->context()->document()->blocks(address);
-    if(!blocks->find(address, &block)) return;
+    if(!blocks->get(address, &block)) return;
 
     auto* loader = this->context()->loader();
     RDBufferView view;

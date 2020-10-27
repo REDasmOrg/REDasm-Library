@@ -1,5 +1,7 @@
 #include "rdil.h"
 #include "../renderer/renderer.h"
+#include "../support/utils.h"
+#include "../support/error.h"
 #include "../support/lexer.h"
 #include "../config.h"
 #include <unordered_map>
@@ -47,38 +49,38 @@ std::string RDIL::getText(const ILExpression* e)
     return res;
 }
 
-void RDIL::render(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address)
+void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
 {
-    RDIL::walk(e, [renderer, ritem, address](const ILExpression* expr, const std::string& s, WalkType wt) {
+    RDIL::walk(e, [renderer, address](const ILExpression* expr, const std::string& s, WalkType wt) {
         if(wt == WalkType::Mnemonic) {
             switch(expr->type) {
-                case RDIL_Goto: renderer->renderMnemonic(ritem, s, Theme_Jump); break;
-                case RDIL_Ret: renderer->renderMnemonic(ritem, s, Theme_Ret); break;
-                case RDIL_Nop: renderer->renderMnemonic(ritem, s, Theme_Nop); break;
+                case RDIL_Goto: renderer->renderMnemonic(s, Theme_Jump); break;
+                case RDIL_Ret: renderer->renderMnemonic(s, Theme_Ret); break;
+                case RDIL_Nop: renderer->renderMnemonic(s, Theme_Nop); break;
 
                 case RDIL_Unknown: {
-                    renderer->renderMnemonic(ritem, s, Theme_Default);
+                    renderer->renderMnemonic(s, Theme_Default);
 
                     if(address != RD_NPOS) {
-                        renderer->renderText(ritem, " {");
-                        renderer->renderAssemblerInstruction(address, ritem);
-                        renderer->renderText(ritem, "}");
+                        renderer->renderText(" {");
+                        renderer->renderAssemblerInstruction(address);
+                        renderer->renderText("}");
                     }
 
                     break;
                 }
 
-                default: renderer->renderMnemonic(ritem, s, Theme_Default); break;
+                default: renderer->renderMnemonic(s, Theme_Default); break;
             }
 
             return;
         }
 
         switch(expr->type) {
-            case RDIL_Cnst: renderer->renderUnsigned(ritem, expr->u_value); break;
-            case RDIL_Var:  renderer->renderText(ritem, expr->var, Theme_Symbol); break;
-            case RDIL_Reg:  renderer->renderRegister(ritem, expr->reg); break;
-            default: renderer->renderText(ritem, s); break;
+            case RDIL_Cnst: renderer->renderUnsigned(expr->u_value); break;
+            case RDIL_Var:  renderer->renderText(expr->var, Theme_Symbol); break;
+            case RDIL_Reg:  renderer->renderRegister(expr->reg); break;
+            default: renderer->renderText(s); break;
         }
     });
 }

@@ -1,7 +1,6 @@
 #include "disassembler.h"
 #include "support/error.h"
 #include "support/utils.h"
-#include "eventdispatcher.h"
 #include "context.h"
 #include "document/document.h"
 #include "builtin/graph/functiongraph.h"
@@ -37,11 +36,11 @@ void Disassembler::disassemble()
 
     // Check Exported Data
     std::vector<rd_address> exporteddata;
-    exporteddata.reserve(doc->symbolsCount());
+    exporteddata.reserve(doc->symbols()->size());
 
     const SymbolTable* symboltable = doc->symbols();
 
-    for(size_t i = 0; i < doc->symbolsCount(); i++)
+    for(size_t i = 0; i < doc->symbols()->size(); i++)
     {
         RDSymbol symbol;
         if(!symboltable->at(i, &symbol)) continue;

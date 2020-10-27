@@ -65,7 +65,7 @@ bool SegmentContainer::findBlock(rd_address address, RDBlock* block) const
 {
     auto* blocks = this->findBlocks(address);
     if(!blocks) return false;
-    return blocks->find(address, block);
+    return blocks->get(address, block);
 }
 
 bool SegmentContainer::setUserData(rd_address address, uintptr_t userdata)
@@ -79,29 +79,30 @@ bool SegmentContainer::setUserData(rd_address address, uintptr_t userdata)
     return true;
 }
 
-size_t SegmentContainer::insert(const RDSegment& segment)
+const RDSegment* SegmentContainer::insert(const RDSegment& segment)
 {
     RDSegment s;
 
     if(this->find(segment.address, &s))
     {
         rd_cfg->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
-        return RD_NPOS;
+        return nullptr;
     }
 
     if(this->find(segment.endaddress - 1, &s))
     {
         rd_cfg->log("Segment '" + std::string(segment.name) + "' overlaps '" + s.name + "'");
-        return RD_NPOS;
+        return nullptr;
     }
 
-    size_t res = ClassType::insert(segment);
+    const RDSegment* res = ClassType::insert(segment);
+    if(!res) return nullptr;
     auto [it, inserted] = m_blocks.insert({ segment.address, { } });
 
     if(!inserted)
     {
         rd_cfg->log("Segment insertion failed (" + std::string(segment.name) + ")");
-        return RD_NPOS;
+        return nullptr;
     }
 
     it->second.whenInsert(m_oninsert);

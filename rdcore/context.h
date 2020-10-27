@@ -10,7 +10,6 @@
 #include "containers/sortedcontainer.h"
 #include "containers/uniquecontainer.h"
 #include "document/document_fwd.h"
-#include "eventdispatcher.h"
 #include "object.h"
 
 class Disassembler;
@@ -24,7 +23,7 @@ typedef std::shared_ptr<Analyzer> AnalyzerPtr;
 template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->priority > a2->plugin()->priority; }; };
 template<typename T> struct AnalyzerEquals { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->execute == a2->plugin()->execute; }; };
 
-class Context: public EventDispatcher
+class Context: public Object
 {
     private:
         typedef SortedContainer<AnalyzerPtr, AnalyzerSorter<AnalyzerPtr>, AnalyzerEquals<AnalyzerPtr>, true> AnalyzerPtrList;
@@ -68,7 +67,7 @@ class Context: public EventDispatcher
     public: // Flags
         rd_flag flags() const;
         void setFlags(rd_flag flags, bool set);
-        bool hasFlags(rd_flag flags) const;
+        bool hasFlag(rd_flag flags) const;
 
     public: // Problems
         bool hasProblems() const;

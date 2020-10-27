@@ -20,10 +20,10 @@ bool Assembler::encode(RDEncodedInstruction* encoded) const
 
 void Assembler::emulate(EmulateResult* result) const { if(m_entry->emulate) m_entry->emulate(CPTR(RDContext, this->context()), CPTR(RDEmulateResult, result)); }
 
-bool Assembler::renderInstruction(RDRenderItemParams* rip)
+bool Assembler::renderInstruction(const RDRendererParams* rp)
 {
     if(!m_entry->renderinstruction) return false;
-    m_entry->renderinstruction(CPTR(RDContext, this->context()), rip);
+    m_entry->renderinstruction(CPTR(RDContext, this->context()), rp);
     return true;
 }
 

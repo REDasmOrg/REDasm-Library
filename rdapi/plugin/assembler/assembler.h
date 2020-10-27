@@ -2,7 +2,7 @@
 
 #include "../../macros.h"
 #include "../../buffer.h"
-#include "../../renderer.h"
+#include "../../renderer/renderer.h"
 #include "../../rdil.h"
 #include "../entry.h"
 
@@ -30,7 +30,7 @@ RD_API_EXPORT void RDEncodedInstruction_Init(RDEncodedInstruction* encoded);
 RD_API_EXPORT bool RDEncodedInstruction_Set(RDEncodedInstruction* encoded, u8* encdata, size_t count);
 
 typedef void (*Callback_AssemblerEmulate)(RDContext* ctx, RDEmulateResult* result);
-typedef void (*Callback_AssemblerRenderInstruction)(RDContext* ctx, const RDRenderItemParams* rip);
+typedef void (*Callback_AssemblerRenderInstruction)(RDContext* ctx, const RDRendererParams* rp);
 typedef void (*Callback_AssemblerLift)(RDContext* ctx, rd_address address, const RDBufferView* view, RDILFunction* il);
 
 typedef size_t (*Callback_AssemblerEncode)(const struct RDEntryAssembler* entry, RDEncodedInstruction* encoded);

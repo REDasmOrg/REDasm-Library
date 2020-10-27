@@ -6,7 +6,6 @@
 #include <queue>
 #include "expressions.h"
 
-class RendererItem;
 class Renderer;
 
 class RDIL
@@ -22,7 +21,7 @@ class RDIL
         static const char* getOpName(rd_type t);
         static rd_type getOpType(const std::string& id);
         static std::string getText(const ILExpression* e);
-        static void render(const ILExpression* e, const Renderer* renderer, RendererItem* ritem, rd_address address);
+        static void render(const ILExpression* e, Renderer* renderer, rd_address address);
         static const ILExpression* extract(const ILExpression* e, const char* q);
         static bool match(const ILExpression* e, const char* m);
         static bool hasValue(const ILExpression* e);

@@ -26,12 +26,10 @@ void StringsAnalyzer::analyze(Context* ctx)
         const auto* blocks = doc->blocks(segment.address);
         if(!blocks) continue;
 
-        for(size_t j = 0; j < blocks->size(); j++)
-        {
-            const RDBlock& block = blocks->at(j);
-            if(!IS_TYPE(&block, BlockType_Unexplored)) continue;
-            pendingblocks.push_back(block);
-        }
+        blocks->each([&](const RDBlock& block) {
+            if(IS_TYPE(&block, BlockType_Unexplored)) pendingblocks.push_back(block);
+            return true;
+        });
     }
 
     Loader* loader = ctx->loader();

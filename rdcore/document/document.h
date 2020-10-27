@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <unordered_set>
 #include <unordered_map>
@@ -28,6 +28,8 @@ class Document: public Object
     public:
         Document(Context* ctx);
         virtual ~Document() = default;
+        size_t size() const;
+        const ItemContainer* items() const;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
         const RDSymbol* entry() const;
@@ -56,7 +58,6 @@ class Document: public Object
         size_t itemsCount() const;
         size_t segmentsCount() const;
         size_t functionsCount() const;
-        size_t symbolsCount() const;
         bool empty() const;
 
     public: // Data
@@ -66,8 +67,6 @@ class Document: public Object
         bool rename(rd_address address, const std::string& newname);
 
     public: // Get-i
-        size_t itemsAt(size_t startidx, size_t count, RDDocumentItem* item) const;
-        bool itemAt(size_t idx, RDDocumentItem* item) const;
         bool segmentAt(size_t idx, RDSegment* segment) const;
         bool symbolAt(size_t idx, RDSymbol* symbol) const;
         RDLocation functionAt(size_t idx) const;
@@ -88,7 +87,7 @@ class Document: public Object
         size_t symbolIndex(rd_address address) const;
 
     public: // Item
-        bool functionItem(rd_address address, RDDocumentItem* item) const;
+        bool item(rd_address address, RDDocumentItem* item) const;
         bool instructionItem(rd_address address, RDDocumentItem* item) const;
         bool symbolItem(rd_address address, RDDocumentItem* item) const;
 
@@ -107,20 +106,19 @@ class Document: public Object
 
     private:
         const RDDocumentItem& insert(rd_address address, rd_type type, u16 index = 0);
-        void notify(size_t idx, rd_type action);
+        void notifyEvent(const RDDocumentItem& item, rd_type action);
         void replace(rd_address address, rd_type type);
         void remove(rd_address address, rd_type type);
-        void removeAt(size_t idx);
         bool canSymbolizeAddress(rd_address address, rd_flag flags) const;
         void onBlockInserted(const RDBlock& b);
         void onBlockRemoved(const RDBlock& b);
 
     private:
         RDSymbol m_entry{ };
+        ItemContainer m_items;
+        SegmentContainer m_segments;
+        FunctionContainer m_functions;
         std::unordered_map<rd_address, ItemData> m_itemdata;
         std::unordered_set<rd_address> m_separators;
-        std::unique_ptr<SegmentContainer> m_segments;
-        std::unique_ptr<FunctionContainer> m_functions;
-        std::unique_ptr<ItemContainer> m_items;
         std::unique_ptr<SymbolTable> m_symbols;
 };

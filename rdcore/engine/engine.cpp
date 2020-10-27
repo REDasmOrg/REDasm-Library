@@ -1,6 +1,5 @@
 #include "engine.h"
 #include "../support/utils.h"
-#include "../eventdispatcher.h"
 #include "../context.h"
 #include "../disassembler.h"
 #include "../document/document.h"
@@ -175,7 +174,7 @@ void Engine::generateCfg(size_t funcindex)
 void Engine::notify(bool busy)
 {
     m_busy = busy;
-    this->context()->enqueue<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    this->context()->notify<RDEventArgs>(RDEvents::Event_BusyChanged, this);
 }
 
 void Engine::nextStep() { m_currentstep++; }

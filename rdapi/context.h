@@ -2,14 +2,15 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "events.h"
+#include "object.h"
 #include "types.h"
 
 DECLARE_HANDLE(RDContext);
 
 enum RDContextFlags {
-    ContextFlags_None     = 0,
-    ContextFlags_ShowRDIL = (1 << 0),
+    ContextFlags_None       = 0,
+    ContextFlags_NoDemangle = (1 << 0),
+    ContextFlags_ShowRDIL   = (1 << 1),
 };
 
 struct RDLoaderRequest;
@@ -45,8 +46,6 @@ RD_API_EXPORT void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderReq
 RD_API_EXPORT void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata);
 RD_API_EXPORT void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata);
 RD_API_EXPORT void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select);
-RD_API_EXPORT void RDContext_Subscribe(RDContext* ctx, void* owner, Callback_Event listener, void* userdata);
-RD_API_EXPORT void RDContext_Unsubscribe(RDContext* ctx, void* owner);
 RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetProblemsCount(const RDContext* ctx);
@@ -55,7 +54,7 @@ RD_API_EXPORT void RDContext_AddProblem(RDContext* ctx, const char* s);
 RD_API_EXPORT void RDContext_SetIgnoreProblems(RDContext* ctx, bool ignore);
 RD_API_EXPORT bool RDContext_HasProblems(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set);
-RD_API_EXPORT bool RDContext_HasFlags(const RDContext* ctx, rd_flag flags);
+RD_API_EXPORT bool RDContext_HasFlag(const RDContext* ctx, rd_flag flag);
 RD_API_EXPORT rd_flag RDContext_GetFlags(const RDContext* ctx);
 
 #ifdef __cplusplus

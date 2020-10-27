@@ -24,10 +24,10 @@ class PluginManager: public Object
     private:
         template<typename T> const T* findEntry(size_t c, const std::string& id) const;
         const RDEntry* selectEntry(size_t c, const std::string& id);
-        void loadBuiltins();
         void loadAll(const std::string& pluginpath);
         void load(const std::string& filepath);
         void load(const PluginModulePtr& pm);
+        void loadBuiltins();
 
     private:
         std::unordered_map<size_t, EntryList> m_entries;

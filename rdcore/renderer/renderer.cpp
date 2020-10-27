@@ -1,14 +1,12 @@
 #include "renderer.h"
-#include "../document/backend/blockcontainer.h"
+#include "../document/document.h"
+#include "../plugin/assembler.h"
 #include "../rdil/ilfunction.h"
 #include "../rdil/rdil.h"
+#include "../support/utils.h"
 #include "../disassembler.h"
-#include <rdcore/support/utils.h>
-#include <rdcore/document/document.h>
-#include <rdcore/document/cursor.h>
-#include <rdcore/context.h>
-#include <cmath>
-#include <regex>
+#include "../context.h"
+#include <cstring>
 
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT      10
@@ -18,90 +16,20 @@
 #define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Context* ctx, const Cursor* cursor, rd_flag flags): Object(ctx), m_cursor(cursor), m_flags(flags) { }
+Renderer::Renderer(Context* ctx, rd_flag flags, int* commentcolumn): Object(ctx), m_commentcolumn(commentcolumn), m_flags(flags) { }
 
-void Renderer::render(size_t index, size_t count, Callback_Render cbrender, void* userdata) const
+bool Renderer::render(const RDDocumentItem* item)
 {
-    if(!cbrender) return;
+    if(!item) return false;
 
-    const auto& doc = this->context()->document();
-
-    for(size_t docindex = index, i = 0; (docindex < doc->itemsCount()) && (i < count); docindex++, i++)
+    switch(item->type)
     {
-        RendererItem ritem;
-        if(!this->renderItem(docindex, &ritem)) continue;
-
-        if(m_cursor && m_cursor->isLineSelected(docindex)) this->highlightSelection(&ritem);
-        else if(m_cursor) this->highlightWords(&ritem);
-
-        if(m_cursor && (m_cursor->currentLine() == docindex)) this->highlightCursor(&ritem);
-        cbrender(CPTR(RDRendererItem, &ritem), i, userdata);
-    }
-}
-
-void Renderer::renderSigned(RendererItem* ritem, s64 value) const
-{
-    if(value < 0) ritem->push("-");
-    ritem->push(Utils::hex(value), Theme_Constant);
-}
-
-void Renderer::renderUnsigned(RendererItem* ritem, u64 value) const
-{
-    const char* name = this->context()->document()->name(static_cast<rd_address>(value));
-    if(name) ritem->push(name, Theme_Symbol);
-    else ritem->push(Utils::hex(value), Theme_Constant);
-}
-
-void Renderer::renderMnemonic(RendererItem* ritem, const std::string& s, rd_type theme) const { if(!s.empty()) ritem->push(s, theme); }
-void Renderer::renderRegister(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Reg); }
-void Renderer::renderConstant(RendererItem* ritem, const std::string& s) const { ritem->push(s, Theme_Constant); }
-void Renderer::renderText(RendererItem* ritem, const std::string& s, rd_type theme) const { ritem->push(s, theme); }
-
-void Renderer::renderIndent(RendererItem* ritem, size_t n, bool ignoreflags) const
-{
-    if(!ignoreflags && (m_flags & RendererFlags_NoIndent)) return;
-    ritem->push(std::string(n * INDENT_WIDTH, ' '));
-}
-
-void Renderer::renderAssemblerInstruction(rd_address address, RendererItem* ritem) const
-{
-    RDRenderItemParams rip;
-    this->compileParams(address, ritem, &rip);
-
-    if(!this->context()->assembler()->renderInstruction(&rip))
-        ritem->push("???");
-}
-
-void Renderer::renderRDILInstruction(rd_address address, RendererItem* ritem) const
-{
-    RDRenderItemParams rip;
-    this->compileParams(address, ritem, &rip);
-
-    ILFunction il(this->context());
-    this->context()->assembler()->lift(rip.address, &rip.view, &il);
-
-    for(size_t i = 0; i < il.size(); i++)
-    {
-        if(i) ritem->push("; "); // Attach more statements, if needed
-        RDIL::render(il.expression(i), this, ritem, address);
-    }
-}
-
-bool Renderer::renderItem(size_t index, RendererItem* ritem) const
-{
-    ritem->setDocumentIndex(index);
-
-    RDDocumentItem item;
-    if(!this->context()->document()->itemAt(index, &item)) return false;
-
-    switch(item.type)
-    {
-        case DocumentItemType_Segment:     this->renderSegment(item.address, ritem);     break;
-        case DocumentItemType_Function:    this->renderFunction(item.address, ritem);    break;
-        case DocumentItemType_Instruction: this->renderInstruction(item.address, ritem); break;
-        case DocumentItemType_Symbol:      this->renderSymbol(item.address, ritem);      break;
-        case DocumentItemType_Unexplored:  this->renderUnexplored(item.address, ritem);  break;
-        case DocumentItemType_Separator:   this->renderSeparator(item.address, ritem);   break;
+        case DocumentItemType_Segment:     this->renderSegment(item->address);     break;
+        case DocumentItemType_Function:    this->renderFunction(item->address);    break;
+        case DocumentItemType_Instruction: this->renderInstruction(item->address); break;
+        case DocumentItemType_Symbol:      this->renderSymbol(item->address);      break;
+        case DocumentItemType_Unexplored:  this->renderUnexplored(item->address);  break;
+        case DocumentItemType_Separator:   this->renderSeparator(item->address);   break;
         case DocumentItemType_Empty:       return true;
         default:                           return false;
     }
@@ -109,409 +37,291 @@ bool Renderer::renderItem(size_t index, RendererItem* ritem) const
     return true;
 }
 
-bool Renderer::selectedSymbol(RDSymbol* symbol) const
-{
-    const std::string& word = this->getCurrentWord();
-    if(word.empty()) return false;
-
-    return this->context()->document()->symbol(word.c_str(), symbol);
-}
-
-const std::string& Renderer::getInstructionText(rd_address address) const
-{
-    m_instructionstr.clear();
-    size_t idx = this->context()->document()->instructionIndex(address);
-    if(idx == RD_NPOS) return m_instructionstr;
-
-    RendererItem ritem;
-    if(this->renderItem(idx, &ritem)) m_instructionstr = ritem.text();
-
-    return m_instructionstr;
-}
-
-const std::string& Renderer::getAssemblerInstruction(rd_address address) const
-{
-    m_asmstr.clear();
-
-    RendererItem ritem;
-    this->renderAssemblerInstruction(address, &ritem);
-    m_asmstr = ritem.text();
-    return m_asmstr;
-}
-
-const std::string& Renderer::getRDILInstruction(rd_address address) const
-{
-    m_rdilstr.clear();
-
-    RendererItem ritem;
-    this->renderRDILInstruction(address, &ritem);
-    m_rdilstr = ritem.text();
-    return m_rdilstr;
-}
-
-const std::string& Renderer::getSelectedText() const
-{
-    m_selectedtext.clear();
-    if(!m_cursor->hasSelection()) return m_selectedtext;
-
-    const RDCursorPos* startpos = m_cursor->startSelection();
-    const RDCursorPos* endpos = m_cursor->endSelection();
-
-    if(startpos->line != endpos->line)
-    {
-        size_t line = startpos->line;
-
-        while(line <= endpos->line)
-        {
-            RendererItem ritem;
-            this->renderItem(line, &ritem);
-
-            if(line == startpos->line) m_selectedtext += ritem.text().substr(startpos->column);
-            else if(line == endpos->line) m_selectedtext += ritem.text().substr(0, endpos->column + 1);
-            else m_selectedtext += ritem.text();
-
-            m_selectedtext += "\n";
-            line++;
-        }
-    }
-    else
-    {
-        RendererItem ritem;
-        this->renderItem(startpos->line, &ritem);
-        if(startpos->column >= ritem.text().size()) m_selectedtext.clear();
-        else m_selectedtext = ritem.text().substr(startpos->column, endpos->column - startpos->column + 1);
-    }
-
-    return m_selectedtext;
-}
-
-const std::string& Renderer::getCurrentWord() const
-{
-    if(m_cursor->hasSelection()) return this->getSelectedText();
-    return this->getWordFromPosition(m_cursor->position(), nullptr);
-}
-
-size_t Renderer::getLastColumn(size_t index) const
-{
-    RendererItem ritem;
-    if(!this->renderItem(index, &ritem)) return 0;
-    if(ritem.text().empty()) return 0;
-    return ritem.text().size() - 1;
-}
-
-rd_flag Renderer::flags() const { return m_flags; }
-
-const std::string& Renderer::getWordFromPosition(const RDCursorPos* pos, RDCursorRange* range) const
-{
-    m_lastword.clear();
-    if(!m_cursor || !pos) return m_lastword;
-
-    RendererItem ritem;
-    if(!this->renderItem(pos->line, &ritem)) return m_lastword;
-
-    if(!m_cursor->hasSelection())
-    {
-        for(size_t i = 0; i < ritem.size(); i++)
-        {
-            const RDRendererFormat& rf = ritem.format(i);
-            if(!RendererItem::formatContains(&rf, pos->column)) continue;
-
-            m_lastword = ritem.formatText(&rf);
-            RDSymbol symbol;
-
-            if(this->context()->document()->symbol(m_lastword.c_str(), &symbol))
-            {
-                if(range) *range = { rf.start, rf.end };
-                return m_lastword;
-            }
-        }
-    }
-
-    // Word Matching
-    m_lastword.clear();
-    static std::regex rgx(WORD_REGEX);
-
-    const std::string& s = ritem.text();
-    auto wbegin = std::sregex_iterator(s.begin(), s.end(), rgx);
-    auto wend = std::sregex_iterator();
-
-    for(auto it = wbegin; it != wend; it++)
-    {
-        auto match = *it;
-        s32 start = static_cast<s32>(match.position());
-        s32 end = static_cast<s32>(match.position() + match.str().size());
-
-        if((pos->column < start) || (pos->column > end))
-            continue;
-
-        if(range) *range = { start, end };
-        m_lastword = match.str();
-        return m_lastword;
-    }
-
-    if(range) *range = { 1, 0 };
-    return m_lastword;
-}
-
-void Renderer::highlightSelection(RendererItem* ritem) const
-{
-    if((m_flags & RendererFlags_NoCursor) || ritem->text().empty()) return;
-
-    const RDCursorPos* startsel = m_cursor->startSelection();
-    const RDCursorPos* endsel = m_cursor->endSelection();
-
-    if(startsel->line != endsel->line)
-    {
-        size_t start = (ritem->documentIndex() == startsel->line) ? startsel->column : 0;
-        size_t end = (ritem->documentIndex() == endsel->line) ? endsel->column : (ritem->text().size() - 1);
-        ritem->format(start, end, Theme_SelectionFg, Theme_SelectionBg);
-    }
-    else
-        ritem->format(startsel->column, endsel->column, Theme_SelectionFg, Theme_SelectionBg);
-}
-
-void Renderer::highlightCursor(RendererItem* ritem) const
-{
-    if((m_flags & RendererFlags_NoCursor) ||  !m_cursor || !m_cursor->active()) return;
-    ritem->format(m_cursor->currentColumn(), m_cursor->currentColumn(), Theme_CursorFg, Theme_CursorBg);
-}
-
-void Renderer::highlightWords(RendererItem* ritem) const
-{
-    if(m_flags & RendererFlags_NoHighlightWords) return;
-
-    const std::string& word = this->getCurrentWord();
-    if(word.empty()) return;
-
-    size_t pos = ritem->text().find(word, 0);
-    std::list<size_t> locations;
-
-    while(pos != std::string::npos)
-    {
-        locations.push_back(pos);
-        pos = ritem->text().find(word, pos + word.size());
-    }
-
-    for(size_t loc : locations)
-        ritem->format(loc, loc + word.size() - 1, Theme_HighlightFg, Theme_HighlightBg);
-}
-
-void Renderer::renderHexDump(RendererItem* ritem, const RDBufferView* view, size_t size) const
+void Renderer::renderHexDump(const RDBufferView* view, size_t size)
 {
     if(!view) return;
-
-    ritem->push(Utils::hexString(view, size), Theme_Constant);
-    this->renderIndent(ritem, 1);
+    this->chunk(Utils::hexString(view, size), Theme_Constant);
+    this->renderIndent(1);
 }
 
-bool Renderer::renderSymbolPointer(const RDSymbol* symbol, RendererItem* ritem) const
+void Renderer::renderAssemblerInstruction(rd_address address)
 {
-    auto loc = this->context()->disassembler()->dereference(symbol->address);
-    if(!loc.valid) return false;
+    RDRendererParams srp;
+    this->compileParams(address, &srp);
 
-    RDSymbol ptrsymbol;
-    if(!this->context()->document()->symbol(loc.address, &ptrsymbol)) return false;
-
-    ritem->push(this->context()->document()->name(ptrsymbol.address), Theme_Symbol);
-    return true;
+    if(!this->assembler()->renderInstruction(&srp))
+        this->chunk("???");
 }
 
-void Renderer::renderSegment(rd_address address, RendererItem* ritem) const
+void Renderer::renderRDILInstruction(rd_address address)
+{
+    RDRendererParams srp;
+    this->compileParams(address, &srp);
+
+    ILFunction il(this->context());
+    this->context()->assembler()->lift(srp.address, &srp.view, &il);
+
+    for(size_t i = 0; i < il.size(); i++)
+    {
+        if(i) this->chunk("; "); // Attach more statements, if needed
+        RDIL::render(il.expression(i), this, address);
+    }
+}
+
+void Renderer::renderSigned(s64 value)
+{
+    if(value < 0) this->chunk("-");
+    this->chunk(Utils::hex(value), Theme_Constant);
+}
+
+void Renderer::renderUnsigned(u64 value)
+{
+    const char* name = this->document()->name(static_cast<rd_address>(value));
+    if(name) this->chunk(name, Theme_Symbol);
+    else this->chunk(Utils::hex(value), Theme_Constant);
+}
+
+void Renderer::renderMnemonic(const std::string& s, rd_type theme) { if(!s.empty()) this->chunk(s, theme); }
+void Renderer::renderRegister(const std::string& s) { this->chunk(s, Theme_Reg); }
+void Renderer::renderConstant(const std::string& s) { this->chunk(s, Theme_Constant); }
+void Renderer::renderText(const std::string& s, rd_type theme) { this->chunk(s, theme); }
+const std::string& Renderer::text() const { return m_text; }
+const Renderer::Chunks& Renderer::chunks() const { return m_tokens; }
+
+void Renderer::renderSegment(rd_address address)
 {
     static std::string eq = std::string(HEADER_SYMBOL_COUNT * 2, '-');
-
-    std::string seg = "SEGMENT ";
+    StyleScope s(this, Theme_Segment);
     RDSegment segment;
+
+    this->chunk(eq).chunk("<").chunk(" ").chunk("SEGMENT").chunk(" ");
 
     if(this->context()->document()->segment(address, &segment))
     {
-        seg += Utils::quoted(segment.name);
-        seg += " START: " + Utils::hex(segment.address, this->context()->assembler()->bits());
-        seg += " END: " + Utils::hex(segment.endaddress, this->context()->assembler()->bits());
+        this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
+        this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
+        this->chunk("END").chunk(":").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()));
     }
     else
     {
-        seg += "???";
-        seg += " START: " + Utils::hex(address, this->context()->assembler()->bits());
-        seg += " END: ???" ;
+        this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
+        this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
+        this->chunk("END").chunk(":").chunk(" ").chunk("???");
     }
 
-    ritem->push(eq + "< " + seg + " >" + eq, Theme_Segment);
+    this->chunk(" ").chunk(">").chunk(eq);
 }
 
-void Renderer::renderFunction(rd_address address, RendererItem* ritem) const
+void Renderer::renderFunction(rd_address address)
 {
-    if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address, ritem);
+    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
 
-    const char* name = this->context()->document()->name(address);
-    if(name) ritem->push("function " + std::string(name) + "()", Theme_Function);
-    else ritem->push("function \?\?\?()", Theme_Function);
+    StyleScope s(this, Theme_Function);
+    const char* name = this->document()->name(address);
+    if(name) this->chunk("function").chunk(" ").chunk(name).chunk("()");
+    else this->chunk("function").chunk(" ").chunk("\?\?\?").chunk("()");
 }
 
-void Renderer::renderInstruction(rd_address address, RendererItem* ritem) const
+void Renderer::renderInstruction(rd_address address)
 {
-    this->renderPrologue(address, ritem);
+    this->renderPrologue(address);
 
-    if(this->context()->flags() & ContextFlags_ShowRDIL) this->renderRDILInstruction(address, ritem);
-    else this->renderAssemblerInstruction(address, ritem);
+    if(this->context()->flags() & ContextFlags_ShowRDIL)
+        this->renderRDILInstruction(address);
+    else
+        this->renderAssemblerInstruction(address);
 
-    this->renderComments(address, ritem);
+    this->renderComments(address);
 }
 
-void Renderer::renderSymbol(rd_address address, RendererItem* ritem) const
+void Renderer::renderSymbol(rd_address address)
 {
-    this->renderPrologue(address, ritem);
+    this->renderPrologue(address);
 
-    const char* name = this->context()->document()->name(address);
+    const char* name = this->document()->name(address);
     RDSymbol symbol;
 
-    if(!name || !this->context()->document()->symbol(address, &symbol))
+    if(!name || !this->document()->symbol(address, &symbol))
     {
-        ritem->push(Utils::hex(address, this->context()->assembler()->bits()), Theme_Constant);
+        this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Constant);
         return;
     }
 
-    if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
-        ritem->push(name, Theme_Pointer);
-    else
+    if(!HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
         switch(symbol.type)
         {
-            case SymbolType_Data: ritem->push(name, Theme_Data); break;
-            case SymbolType_String: ritem->push(name, Theme_String); break;
-            case SymbolType_Import: ritem->push(name, Theme_Imported); break;
-            case SymbolType_Label: ritem->push(name, Theme_Symbol).push(":"); return;
-            case SymbolType_Function: ritem->push(name, Theme_Function); return;
-            default: ritem->push(name); return;
+            case SymbolType_Data: this->chunk(name, Theme_Data); break;
+            case SymbolType_String: this->chunk(name, Theme_String); break;
+            case SymbolType_Import: this->chunk(name, Theme_Imported); break;
+            case SymbolType_Label: this->chunk(name, Theme_Symbol).chunk(":"); return;
+            case SymbolType_Function: this->chunk(name, Theme_Function); return;
+            default: this->chunk(name); return;
         }
     }
+    else
+        this->chunk(name, Theme_Pointer);
 
-    this->renderIndent(ritem, 1);
-    this->renderSymbolValue(&symbol, ritem);
-    this->renderComments(address, ritem);
+    this->renderIndent(1);
+    this->renderSymbolValue(&symbol);
+    this->renderComments(address);
 }
 
-void Renderer::renderSymbolValue(const RDSymbol* symbol, RendererItem* ritem) const
+void Renderer::renderUnexplored(rd_address address)
+{
+    this->renderPrologue(address);
+    this->chunk("db").chunk(" ");
+    this->renderBlock(address);
+}
+
+void Renderer::renderSeparator(rd_address address)
+{
+    if(this->hasFlag(SurfaceFlags_NoSeparators)) return;
+    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
+
+    this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
+}
+
+void Renderer::renderIndent(size_t n, bool ignoreflags)
+{
+    if(!ignoreflags && this->hasFlag(SurfaceFlags_NoIndent)) return;
+    this->chunk(std::string(n * INDENT_WIDTH, ' '));
+}
+
+void Renderer::renderPrologue(rd_address address)
+{
+    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress))
+    {
+        if(!this->hasFlag(SurfaceFlags_NoSegment))
+        {
+            RDSegment s;
+            auto& doc = this->context()->document();
+
+            if(doc->segment(address, &s)) this->chunk(s.name, Theme_Address);
+            else this->chunk("???", Theme_Address);
+            this->chunk(":", Theme_Address);
+        }
+
+        if(!this->hasFlag(SurfaceFlags_NoAddress))
+            this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Address);
+    }
+
+    this->renderIndent(1);
+}
+
+void Renderer::renderBlock(rd_address address)
+{
+    RDBlock block;
+    if(!this->document()->block(address, &block)) REDasmError("Invalid Block", address);
+
+    size_t blocksize = BlockContainer::size(&block);
+    RDBufferView view;
+
+    if((blocksize <= sizeof(rd_address)) && this->disassembler()->view(block.address, blocksize, &view))
+        this->renderHexDump(&view, RD_NPOS);
+    else
+        this->chunk("(").chunk(Utils::hex(blocksize), Theme_Constant).chunk(")");}
+
+void Renderer::renderAddressIndent(rd_address address)
+{
+    if(this->hasFlag(SurfaceFlags_NoAddress) || this->hasFlag(SurfaceFlags_NoIndent)) return;
+
+    size_t c = this->assembler()->bits() / 4;
+    const auto& doc = this->context()->document();
+
+    RDSegment s;
+    if(doc->segment(address, &s)) c += std::strlen(s.name);
+    this->chunk(std::string(c + INDENT_WIDTH, ' '));
+}
+
+void Renderer::renderComments(rd_address address)
+{
+    if(this->hasFlag(SurfaceFlags_NoComments)) return;
+
+    // Recalculate comment column
+    *m_commentcolumn = std::max<size_t>(*m_commentcolumn, m_text.size());
+
+    std::string comment = this->document()->comment(address, false, COMMENT_SEPARATOR);
+    if(comment.empty()) return;
+
+    this->chunk(std::string((*m_commentcolumn - m_text.size()) + INDENT_COMMENT, ' '));
+    this->chunk("# " + Utils::simplified(comment), Theme_Comment);
+}
+
+void Renderer::renderSymbolValue(const RDSymbol* symbol)
 {
     RDSegment segment;
 
-    if(this->context()->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
+    if(this->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
     {
-        if(IS_TYPE(symbol, SymbolType_Label)) ritem->push("<").push("dynamic branch", Theme_Symbol).push(">");
-        else ritem->push("???", Theme_Data);
+        if(IS_TYPE(symbol, SymbolType_Label)) this->chunk("<").chunk("dynamic branch", Theme_Symbol).chunk(">");
+        else this->chunk("???", Theme_Data);
         return;
     }
 
-    if(HAS_FLAG(symbol, SymbolFlags_Pointer) && this->renderSymbolPointer(symbol, ritem)) return;
+    if(HAS_FLAG(symbol, SymbolFlags_Pointer) && this->renderSymbolPointer(symbol)) return;
 
     switch(symbol->type)
     {
-        case SymbolType_Import: ritem->push("<").push("import", Theme_Symbol).push(">"); return;
+        case SymbolType_Import: this->chunk("<").chunk("import", Theme_Symbol).chunk(">"); return;
 
         case SymbolType_String:
-             if(HAS_FLAG(symbol, SymbolFlags_WideString)) ritem->push(Utils::quoted(Utils::simplified(this->context()->disassembler()->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
-             else ritem->push(Utils::quoted(Utils::simplified(this->context()->disassembler()->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             if(HAS_FLAG(symbol, SymbolFlags_WideString)) this->chunk(Utils::quoted(Utils::simplified(this->disassembler()->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             else this->chunk(Utils::quoted(Utils::simplified(this->disassembler()->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
              return;
 
         default: break;
     }
 
-    RDLocation loc = this->context()->disassembler()->dereference(symbol->address);
+    RDLocation loc = this->disassembler()->dereference(symbol->address);
 
     if(loc.valid)
     {
-        const char* symbolname = this->context()->document()->name(loc.address);
+        const char* symbolname = this->document()->name(loc.address);
 
         if(symbolname)
         {
-            ritem->push(symbolname, Theme_Symbol);
+            this->chunk(symbolname, Theme_Symbol);
             return;
         }
     }
 
-    this->renderBlock(symbol->address, ritem);
+    this->renderBlock(symbol->address);
 }
 
-void Renderer::compileParams(rd_address address, RendererItem* ritem, RDRenderItemParams* rip) const
+bool Renderer::renderSymbolPointer(const RDSymbol* symbol)
 {
-    *rip = { address,
+    auto loc = this->disassembler()->dereference(symbol->address);
+    if(!loc.valid) return false;
+
+    RDSymbol ptrsymbol;
+    if(!this->document()->symbol(loc.address, &ptrsymbol)) return false;
+
+    this->chunk(this->document()->name(ptrsymbol.address), Theme_Symbol);
+    return true;
+}
+
+void Renderer::compileParams(rd_address address, RDRendererParams* srp)
+{
+    *srp = { address,
              { },
              CPTR(const RDContext, this->context()),
-             CPTR(const RDRenderer, this),
-             CPTR(RDRendererItem, ritem) };
+             CPTR(RDRenderer, this) };
 
-    this->context()->loader()->view(address, RD_NPOS, &rip->view);
+    this->context()->loader()->view(address, RD_NPOS, &srp->view);
 }
 
-void Renderer::renderComments(rd_address address, RendererItem* ritem) const
+bool Renderer::hasFlag(rd_flag f) const { return m_flags & f; }
+Disassembler* Renderer::disassembler() const { return this->context()->disassembler(); }
+SafeDocument& Renderer::document() const { return this->context()->document(); }
+Assembler* Renderer::assembler() const { return this->context()->assembler(); }
+
+Renderer& Renderer::chunk(const std::string& s, u8 fg, u8 bg)
 {
-    if(m_flags & RendererFlags_NoComments) return;
+    if(fg == Theme_Default) fg = m_currentfg;
+    if(bg == Theme_Default) bg = m_currentbg;
 
-    m_commentcolumn = std::max<size_t>(m_commentcolumn, ritem->text().size()); // Recalculate comment column
-
-    std::string comment = this->context()->document()->comment(address, false, COMMENT_SEPARATOR);
-    if(comment.empty()) return;
-
-    ritem->push(std::string((m_commentcolumn - ritem->text().size()) + INDENT_COMMENT, ' '));
-    ritem->push("# " + Utils::simplified(comment), Theme_Comment);
-}
-
-void Renderer::renderBlock(rd_address address, RendererItem* ritem) const
-{
-    RDBlock block;
-    if(!this->context()->document()->block(address, &block)) REDasmError("Invalid Block", address);
-
-    size_t blocksize = BlockContainer::size(&block);
-    RDBufferView view;
-
-    if((blocksize <= sizeof(rd_address)) && this->context()->disassembler()->view(block.address, blocksize, &view)) this->renderHexDump(ritem, &view, RD_NPOS);
-    else ritem->push("(").push(Utils::hex(blocksize), Theme_Constant).push(")");
-}
-
-void Renderer::renderSeparator(rd_address address, RendererItem* ritem) const
-{
-    if(m_flags & RendererFlags_NoSeparators) return;
-    if(!(m_flags & RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address, ritem);
-
-    ritem->push(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
-}
-
-void Renderer::renderUnexplored(rd_address address, RendererItem* ritem) const
-{
-    this->renderPrologue(address, ritem);
-    ritem->push("db ");
-    this->renderBlock(address, ritem);
-}
-
-void Renderer::renderAddressIndent(rd_address address, RendererItem* ritem) const
-{
-    if((m_flags & RendererFlags_NoAddress) || (m_flags & RendererFlags_NoIndent)) return;
-
-    size_t c = this->context()->assembler()->bits() / 4;
-    const auto& doc = this->context()->document();
-
-    RDSegment s;
-    if(doc->segment(address, &s)) c += std::strlen(s.name);
-    ritem->push(std::string(c + INDENT_WIDTH, ' '));
-}
-
-void Renderer::renderPrologue(rd_address address, RendererItem* ritem) const
-{
-    if(!(m_flags & RendererFlags_NoSegmentAndAddress))
-    {
-        if(!(m_flags & RendererFlags_NoSegment))
-        {
-            RDSegment s;
-            auto& doc = this->context()->document();
-
-            if(doc->segment(address, &s)) ritem->push(s.name, Theme_Address);
-            else ritem->push("???", Theme_Address);
-            ritem->push(":", Theme_Address);
-        }
-
-        if(!(m_flags & RendererFlags_NoAddress))
-            ritem->push(Utils::hex(address, this->context()->assembler()->bits()), Theme_Address);
-    }
-
-    this->renderIndent(ritem, 1);
+    m_text += s;
+    m_tokens.push_back({ bg, fg, s });
+    return *this;
 }

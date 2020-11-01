@@ -3,7 +3,6 @@
 #include "types.h"
 #include "macros.h"
 #include "document/document.h"
-#include "document/cursor.h"
 
 #define RD_EVENTARGS_BASE \
     event_id_t eventid; \
@@ -29,18 +28,20 @@ enum RDEvents {
 
     // Cursor Events
     Event_CursorPositionChanged,
-    Event_CursorStackChanged,
 
     // Surface Events
+    Event_SurfaceCursorChanged,
     Event_SurfaceUpdated,
     Event_SurfaceChanged,
+
+    // SurfacePath Events
+    Event_SurfacePathChanged,
 
     // User defined Events
     Event_UserFirst = (1u << 31),
 };
 
-struct RDCursor;
-struct RDCursorPos;
+struct RDSurfacePos;
 
 typedef struct RDEventArgs {
     RD_EVENTARGS_BASE
@@ -61,16 +62,7 @@ typedef struct RDDocumentEventArgs {
 typedef struct RDSurfaceEventArgs {
     RD_EVENTARGS_BASE
 
-    const RDCursorPos* position;
-    const RDCursorPos* selection;
+    const RDSurfacePos* position;
+    const RDSurfacePos* selection;
     RDDocumentItem item;
 } RDSurfaceEventArgs;
-
-typedef struct RDCursorEventArgs {
-    RD_EVENTARGS_BASE
-
-    const RDCursorPos* position;
-    const RDCursorPos* selection;
-} RDCursorEventArgs;
-
-

@@ -38,7 +38,7 @@ class Engine: public Object
 
     private:
         void analyzeAll();
-        void generateCfg(size_t funcindex);
+        void generateCfg(rd_address address);
         void notify(bool busy);
         void setStep(size_t step);
         void nextStep();

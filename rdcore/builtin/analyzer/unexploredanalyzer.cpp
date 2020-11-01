@@ -11,7 +11,7 @@
 #include <execution>
 #include <deque>
 
-RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Aggressive Disassembly", 0,
+RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Aggressive Disassembly", std::numeric_limits<u32>::max(),
                                                             "Disassemble unknown blocks", AnalyzerFlags_RunOnce | AnalyzerFlags_Experimental,
                                                             [](const RDContext*) -> bool { return true; },
                                                             [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
@@ -21,11 +21,8 @@ void UnexploredAnalyzer::analyze(Context* ctx)
     auto& doc = ctx->document();
     size_t bits = ctx->assembler()->bits();
 
-    for(size_t i = 0; i < doc->segmentsCount(); i++)
-    {
-        RDSegment segment;
-        if(!doc->segmentAt(i, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
-
+    doc->segments()->each([&](const RDSegment& segment) {
+        if(!HAS_FLAG(&segment, SegmentFlags_Code)) return true;
         const BlockContainer* blocks = doc->blocks(segment.address);
 
         blocks->each([&](const RDBlock& block) {
@@ -33,5 +30,7 @@ void UnexploredAnalyzer::analyze(Context* ctx)
             if(IS_TYPE(&block, BlockType_Unexplored)) ctx->disassembler()->enqueue(block.address);
             return true;
         });
-    }
+
+        return true;
+    });
 }

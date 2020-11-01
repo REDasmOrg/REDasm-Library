@@ -7,41 +7,43 @@
 #include <rdapi/config.h>
 #include <unordered_set>
 #include <stack>
+#include <array>
 
 FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address address): node(n), startaddress(address), endaddress(address), m_document(document) { }
 bool FunctionBasicBlock::contains(rd_address address) const { return ((address >= startaddress) && (address <= endaddress)); }
 
 bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
 {
-    if(m_document->symbolItem(startaddress, item)) return true;
-    return m_document->instructionItem(startaddress, item);
+    static const std::array<rd_type, 3> TYPES = { DocumentItemType_Symbol,
+                                                  DocumentItemType_Instruction,
+                                                  DocumentItemType_None };
+
+    return m_document->getAny(startaddress, TYPES.data(), item);
 }
 
-bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const { return m_document->instructionItem(endaddress, item); }
-
-size_t FunctionBasicBlock::startIndex() const
+bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const
 {
-    RDDocumentItem item;
-    if(!this->getStartItem(&item)) return RD_NPOS;
-    return m_document->itemIndex(&item);
-}
+    static const std::array<rd_type, 3> TYPES = { DocumentItemType_Symbol,
+                                                  DocumentItemType_Instruction,
+                                                  DocumentItemType_None };
 
-size_t FunctionBasicBlock::endIndex() const
-{
-    RDDocumentItem item;
-    if(!this->getEndItem(&item)) return RD_NPOS;
-    return m_document->itemIndex(&item);
+    return m_document->getAny(endaddress, TYPES.data(), item);
 }
 
 size_t FunctionBasicBlock::itemsCount() const
 {
-    RDDocumentItem startitem, enditem;
-    if(!this->getStartItem(&startitem) || !this->getEndItem(&enditem)) return 0;
+    if(!m_itemscount)
+    {
+        RDDocumentItem startitem, enditem;
+        if(!this->getStartItem(&startitem) || !this->getEndItem(&enditem)) return 0;
 
-    size_t startidx = m_document->itemIndex(&startitem), endidx = m_document->itemIndex(&enditem);
-    if((startidx == RD_NPOS) || (endidx == RD_NPOS)) return 0;
+        auto sit = m_document->items()->find(startitem);
+        auto eit = m_document->items()->find(enditem);
 
-    return (endidx - startidx) + 1;
+        m_itemscount = std::distance(sit, eit) + 1;
+    }
+
+    return m_itemscount;
 }
 
 rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const

@@ -21,7 +21,6 @@
 #include "plugin/command.h"
 #include "renderer/renderer.h"
 #include "renderer/surface.h"
-#include "document/cursor.h"
 #include "database/database.h"
 #include "graph/functiongraph.h"
 #include "graph/graph.h"

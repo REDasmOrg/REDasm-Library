@@ -8,27 +8,17 @@ static inline SafeDocument& docptr(RDDocument* d) { return *reinterpret_cast<Saf
 
 bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address address, RDSegment* segment) { return docptr(d)->segment(address, segment); }
 bool RDDocument_GetSegmentOffset(const RDDocument* d, rd_offset offset, RDSegment* segment) { return docptr(d)->segmentOffset(offset, segment); }
-bool RDDocument_GetSegmentAt(const RDDocument* d, size_t index, RDSegment* segment) { return docptr(d)->segmentAt(index, segment); }
 bool RDDocument_GetBlock(const RDDocument* d, rd_address address, RDBlock* block) { return docptr(d)->block(address, block); }
-bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item) { return false; }
-bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->instructionItem(address, item); }
-bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item) { return docptr(d)->symbolItem(address, item); }
-bool RDDocument_GetSymbolByIndex(const RDDocument* d, size_t index, RDSymbol* symbol) { return docptr(d)->symbolAt(index, symbol); }
 bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol) { return docptr(d)->symbol(address, symbol); }
 bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol) { return docptr(d)->symbol(name, symbol); }
 bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname) { return docptr(d)->rename(address, newname ? newname : std::string()); }
+bool RDDocument_Contains(const RDDocument* d, const RDDocumentItem* item) { return docptr(d)->contains(item); }
+bool RDDocument_GetAny(const RDDocument* d, rd_address address, const rd_type* types, RDDocumentItem* item) { return docptr(d)->getAny(address, types, item); }
 const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { return docptr(d)->symbols()->getName(address); }
 const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
-RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index) { return docptr(d)->functionAt(index); }
 RDLocation RDDocument_GetEntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
 RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
-size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item) { return docptr(d)->itemIndex(item); }
-size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address address) { return docptr(d)->functionIndex(address); }
-size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address) { return docptr(d)->instructionIndex(address); }
-size_t RDDocument_SymbolIndex(const RDDocument* d, rd_address address) { return docptr(d)->symbolIndex(address); }
 size_t RDDocument_GetSize(const RDDocument* d) { return docptr(d)->size(); }
-size_t RDDocument_SegmentsCount(const RDDocument* d) { return docptr(d)->segmentsCount(); }
-size_t RDDocument_FunctionsCount(const RDDocument* d) { return docptr(d)->functionsCount(); }
 bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
 bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
 bool RDDocument_SetEntry(RDDocument* d, rd_address address) { return docptr(d)->entry(address); }
@@ -71,5 +61,12 @@ void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userda
 {
     if(cb) docptr(d)->items()->each([&](const RDDocumentItem& item) {
         return cb(&item, userdata);
+    });
+}
+
+void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata)
+{
+    if(cb) docptr(d)->functions()->each([&](rd_address address) {
+        return cb(address, userdata);
     });
 }

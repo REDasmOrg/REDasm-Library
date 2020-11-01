@@ -26,22 +26,22 @@ void Cursor::goBack()
 {
     if(m_backstack.empty()) return;
 
-    RDCursorPos pos = m_backstack.top();
+    RDSurfacePos pos = m_backstack.top();
     m_backstack.pop();
     m_forwardstack.push(m_position);
     this->moveTo(pos.row, pos.column, false);
-    this->notify<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+    this->onCursorStackChanged();
 }
 
 void Cursor::goForward()
 {
     if(m_forwardstack.empty()) return;
 
-    RDCursorPos pos = m_forwardstack.top();
+    RDSurfacePos pos = m_forwardstack.top();
     m_forwardstack.pop();
     m_backstack.push(m_position);
     this->moveTo(pos.row, pos.column, false);
-    this->notify<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+    this->onCursorStackChanged();
 }
 
 void Cursor::clearSelection()
@@ -61,10 +61,10 @@ void Cursor::select(int row, int col)
     this->onCursorChanged();
 }
 
-const RDCursorPos* Cursor::position() const { return &m_position; }
-const RDCursorPos* Cursor::selection() const { return &m_selection; }
+const RDSurfacePos* Cursor::position() const { return &m_position; }
+const RDSurfacePos* Cursor::selection() const { return &m_selection; }
 
-const RDCursorPos* Cursor::startSelection() const
+const RDSurfacePos* Cursor::startSelection() const
 {
     if(m_position.row < m_selection.row) return &m_position;
 
@@ -77,7 +77,7 @@ const RDCursorPos* Cursor::startSelection() const
     return &m_selection;
 }
 
-const RDCursorPos* Cursor::endSelection() const
+const RDSurfacePos* Cursor::endSelection() const
 {
     if(m_position.row > m_selection.row) return &m_position;
 
@@ -110,9 +110,8 @@ bool Cursor::hasSelection() const { return !Cursor::equalPos(&m_position, &m_sel
 bool Cursor::canGoBack() const { return !m_backstack.empty(); }
 bool Cursor::canGoForward() const { return !m_forwardstack.empty(); }
 bool Cursor::active() const { return m_active; }
-void Cursor::onCursorChanged() { }
 
-bool Cursor::equalPos(const RDCursorPos* pos1, const RDCursorPos* pos2)
+bool Cursor::equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2)
 {
     return std::tie(pos1->row, pos1->column) ==
            std::tie(pos2->row, pos2->column);
@@ -120,14 +119,14 @@ bool Cursor::equalPos(const RDCursorPos* pos1, const RDCursorPos* pos2)
 
 void Cursor::moveTo(int row, int column, bool save)
 {
-    RDCursorPos pos = { row, column };
+    RDSurfacePos pos = { row, column };
 
     if(save && !this->hasSelection())
     {
         if(m_backstack.empty() || (!m_backstack.empty() && !Cursor::equalPos(&m_backstack.top(), &m_position)))
         {
             m_backstack.push(m_position);
-            this->notify<RDCursorEventArgs>(Event_CursorStackChanged, this, &m_position, &m_selection);
+            this->onCursorStackChanged();
         }
     }
 

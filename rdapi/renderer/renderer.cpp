@@ -9,3 +9,24 @@ void RDRenderer_Mnemonic(RDRenderer* r, const char* s, rd_type theme) { CPTR(Ren
 void RDRenderer_Register(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderRegister(s); }
 void RDRenderer_Constant(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderConstant(s); }
 void RDRenderer_Text(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderText(s); }
+
+const char* RD_GetInstruction(RDContext* ctx, rd_address address)
+{
+    static std::string s;
+    s = Renderer::getInstruction(CPTR(Context, ctx), address);
+    return !s.empty() ? s.c_str() : nullptr;
+}
+
+const char* RD_GetAssemblerInstruction(RDContext* ctx, rd_address address)
+{
+    static std::string s;
+    s = Renderer::getAssemblerInstruction(CPTR(Context, ctx), address);
+    return !s.empty() ? s.c_str() : nullptr;
+}
+
+const char* RD_GetRDILInstruction(RDRenderer* ctx, rd_address address)
+{
+    static std::string s;
+    s = Renderer::getRDILInstruction(CPTR(Context, ctx), address);
+    return !s.empty() ? s.c_str() : nullptr;
+}

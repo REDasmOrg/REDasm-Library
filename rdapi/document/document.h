@@ -37,37 +37,30 @@ typedef struct RDDocumentItem {
     u16 index;
 } RDDocumentItem;
 
+#define RD_DOCUMENT_ITEM(address, type, index) { address, type, index}
+
 struct RDGraph;
 
 DECLARE_HANDLE(RDDocument);
 
 typedef bool (*Callback_DocumentItem)(const RDDocumentItem* item, void* userdata);
+typedef bool (*Callback_Address)(rd_address address, void* userdata);
 
 RD_API_EXPORT bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address address, RDSegment* segment);
 RD_API_EXPORT bool RDDocument_GetSegmentOffset(const RDDocument* d, rd_offset offset, RDSegment* segment);
-RD_API_EXPORT bool RDDocument_GetSegmentAt(const RDDocument* d, size_t index, RDSegment* segment);
 RD_API_EXPORT bool RDDocument_GetBlock(const RDDocument* d, rd_address address, RDBlock* block);
-RD_API_EXPORT bool RDDocument_GetItemAt(const RDDocument* d, size_t index, RDDocumentItem* item);
-RD_API_EXPORT bool RDDocument_GetInstructionItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
-RD_API_EXPORT bool RDDocument_GetSymbolItem(const RDDocument* d, rd_address address, RDDocumentItem* item);
-RD_API_EXPORT bool RDDocument_GetSymbolByIndex(const RDDocument* d, size_t index, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByAddress(const RDDocument* d, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetSymbolByName(const RDDocument* d, const char* name, RDSymbol* symbol);
 RD_API_EXPORT bool RDDocument_GetFunctionGraph(const RDDocument* d, rd_address address, RDGraph** item);
+RD_API_EXPORT bool RDDocument_GetAny(const RDDocument* d, rd_address address, const rd_type* types, RDDocumentItem* item);
 RD_API_EXPORT bool RDDocument_Rename(RDDocument* d, rd_address address, const char* newname);
+RD_API_EXPORT bool RDDocument_Contains(const RDDocument* d, const RDDocumentItem* item);
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address);
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address, const char* separator);
 RD_API_EXPORT const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address);
-RD_API_EXPORT RDLocation RDDocument_GetFunctionAt(const RDDocument* d, size_t index);
 RD_API_EXPORT RDLocation RDDocument_GetEntryPoint(const RDDocument* d);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address);
-RD_API_EXPORT size_t RDDocument_ItemIndex(const RDDocument* d, const RDDocumentItem* item);
-RD_API_EXPORT size_t RDDocument_FunctionIndex(const RDDocument* d, rd_address address);
-RD_API_EXPORT size_t RDDocument_InstructionIndex(const RDDocument* d, rd_address address);
-RD_API_EXPORT size_t RDDocument_SymbolIndex(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_GetSize(const RDDocument* d);
-RD_API_EXPORT size_t RDDocument_SegmentsCount(const RDDocument* d);
-RD_API_EXPORT size_t RDDocument_FunctionsCount(const RDDocument* d);
 RD_API_EXPORT bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
 RD_API_EXPORT bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags);
 RD_API_EXPORT bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags);
@@ -85,6 +78,7 @@ RD_API_EXPORT bool RDDocument_AddFunction(RDDocument* d, rd_address address, con
 RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata);
+RD_API_EXPORT void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata);
 
 // UserData
 RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

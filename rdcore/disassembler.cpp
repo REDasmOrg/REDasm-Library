@@ -32,7 +32,7 @@ void Disassembler::disassemble()
     auto& doc = this->document();
 
     m_engine.reset(new Engine(this->context()));
-    if(!doc->segmentsCount()) return;
+    if(doc->segments()->empty()) return;
 
     // Check Exported Data
     std::vector<rd_address> exporteddata;
@@ -54,8 +54,10 @@ void Disassembler::disassemble()
     });
 
     // Preload functions for analysis
-    for(size_t i = 0; i < doc->functionsCount(); i++)
-        m_algorithm->enqueue(doc->functionAt(i).address);
+    doc->functions()->each([&](rd_address address) {
+        m_algorithm->enqueue(address);
+        return true;
+    });
 
     m_engine->execute();
 }
@@ -251,8 +253,8 @@ void Disassembler::markLocation(rd_address fromaddress, rd_address address)
         if(loc.valid) this->markPointer(fromaddress, address);
         else this->document()->data(address, m_assembler->addressWidth(), std::string());
     }
-    else
-        return;
+    else // Mapped but BSS Segment
+        this->document()->data(address, m_assembler->addressWidth(), std::string());
 
     if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, address);
 }

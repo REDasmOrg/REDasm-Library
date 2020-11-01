@@ -19,7 +19,7 @@ typedef void (*Callback_AnalyzerExecute)(RDContext* ctx);
 typedef struct RDEntryAnalyzer {
     RD_ENTRY_HEADER
 
-    u64 priority;
+    u32 order;
     const char* description;
     rd_flag flags;
     Callback_AnalyzerIsEnabled isenabled;
@@ -31,3 +31,4 @@ RD_API_EXPORT bool RDAnalyzer_IsSelected(const RDAnalyzer* analyzer);
 RD_API_EXPORT bool RDAnalyzer_IsExperimental(const RDAnalyzer* analyzer);
 RD_API_EXPORT const char* RDAnalyzer_GetDescription(const RDAnalyzer* analyzer);
 RD_API_EXPORT const char* RDAnalyzer_GetName(const RDAnalyzer* analyzer);
+RD_API_EXPORT u32 RDAnalyzer_GetOrder(const RDAnalyzer* analyzer);

@@ -14,8 +14,6 @@ RD_API_EXPORT rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph);
 // RDFunctionBasicBlock
 RD_API_EXPORT rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node);
 RD_API_EXPORT size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb);
-RD_API_EXPORT size_t RDFunctionBasicBlock_GetStartIndex(const RDFunctionBasicBlock* fbb);
-RD_API_EXPORT size_t RDFunctionBasicBlock_GetEndIndex(const RDFunctionBasicBlock* fbb);
 RD_API_EXPORT rd_address RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb);
 RD_API_EXPORT rd_address RDFunctionBasicBlock_GetEndAddress(const RDFunctionBasicBlock* fbb);
 RD_API_EXPORT bool RDFunctionBasicBlock_GetStartItem(const RDFunctionBasicBlock* fbb, RDDocumentItem* item);

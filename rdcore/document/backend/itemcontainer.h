@@ -25,14 +25,12 @@ class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemSorte
     public:
         ItemContainer() = default;
         bool containsInstruction(rd_address address) const { return this->containsItem(address, DocumentItemType_Instruction); }
-        bool containerFunction(rd_address address) const { return this->containsItem(address, DocumentItemType_Instruction); }
+        bool containsFunction(rd_address address) const { return this->containsItem(address, DocumentItemType_Instruction); }
         bool containsSymbol(rd_address address) const { return this->containsItem(address, DocumentItemType_Instruction); }
+
+    public:
+        static bool equals(const RDDocumentItem* item1, const RDDocumentItem* item2);
 
     private:
         bool containsItem(rd_address address, rd_type type, u16 index = 0) const { return this->m_container.count({ address, type, index }); }
-
-    public: // vvv Deprececated vvv
-        size_t instructionIndex(rd_address address) const;
-        size_t functionIndex(rd_address address) const;
-        size_t symbolIndex(rd_address address) const;
 };

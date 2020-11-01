@@ -51,10 +51,9 @@ void Engine::execute(size_t step)
 
 bool Engine::cfg(rd_address address)
 {
-    size_t idx = this->context()->document()->functionIndex(address);
-    if(idx == RD_NPOS) return false;
-
-    this->generateCfg(idx);
+    auto loc = this->context()->document()->functionStart(address);
+    if(!loc.valid) return false;
+    this->generateCfg(loc.address);
     return true;
 }
 
@@ -90,15 +89,15 @@ void Engine::algorithmStep()
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
-    size_t oldfc = this->context()->document()->functionsCount();
+    size_t oldfc = this->context()->document()->functions()->size();
     this->analyzeAll();
 
     if(!m_algorithm->hasNext())
     {
         // Functions count is changed, trigger analysis again
-        while(oldfc != this->context()->document()->functionsCount())
+        while(oldfc != this->context()->document()->functions()->size())
         {
-            oldfc = this->context()->document()->functionsCount();
+            oldfc = this->context()->document()->functions()->size();
             this->analyzeAll();
         }
 
@@ -115,8 +114,10 @@ void Engine::cfgStep()
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
-    for(size_t i = 0; i < this->context()->document()->functionsCount(); i++)
-        this->generateCfg(i);
+    this->context()->document()->functions()->each([&](rd_address address) {
+        this->generateCfg(address);
+        return true;
+    });
 
     this->nextStep();
 }
@@ -138,15 +139,14 @@ void Engine::analyzeAll()
     }
 }
 
-void Engine::generateCfg(size_t funcindex)
+void Engine::generateCfg(rd_address address)
 {
-    RDLocation loc = this->context()->document()->functionAt(funcindex);
-    rd_cfg->status("Computing basic blocks @ " + Utils::hex(loc.address));
+    rd_cfg->status("Computing basic blocks @ " + Utils::hex(address));
     auto g = std::make_unique<FunctionGraph>(this->context());
     bool cfgdone = false;
 
     // Build CFG
-    cfgdone = g->build(loc.address);
+    cfgdone = g->build(address);
 
     if(cfgdone) // Apply CFG
     {
@@ -168,7 +168,7 @@ void Engine::generateCfg(size_t funcindex)
         this->context()->document()->graph(g.release());
     }
     else
-        this->context()->problem("Graph creation failed @ " + Utils::hex(loc.address));
+        this->context()->problem("Graph creation failed @ " + Utils::hex(address));
 }
 
 void Engine::notify(bool busy)

@@ -7,6 +7,22 @@ struct RDContext;
 
 DECLARE_HANDLE(RDRenderer);
 
+enum RDRendererFlags {
+    RendererFlags_Normal           = 0,
+
+    RendererFlags_Decompile        = (1 << 1),
+    RendererFlags_NoSegment        = (1 << 2),
+    RendererFlags_NoAddress        = (1 << 3),
+    RendererFlags_NoSeparators     = (1 << 4),
+    RendererFlags_NoIndent         = (1 << 5),
+    RendererFlags_NoCursor         = (1 << 6),
+    RendererFlags_NoHighlightWords = (1 << 7),
+    RendererFlags_NoComments       = (1 << 8),
+
+    RendererFlags_NoSegmentAndAddress = RendererFlags_NoSegment | RendererFlags_NoAddress,
+    RendererFlags_Simplified          = ~0,
+};
+
 typedef struct RDRendererParams {
     rd_address address;
     RDBufferView view;
@@ -23,3 +39,7 @@ RD_API_EXPORT void RDRenderer_Mnemonic(RDRenderer* r, const char* s, rd_type the
 RD_API_EXPORT void RDRenderer_Register(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Constant(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Text(RDRenderer* r, const char* s);
+
+RD_API_EXPORT const char* RD_GetInstruction(RDContext* ctx, rd_address address);
+RD_API_EXPORT const char* RD_GetAssemblerInstruction(RDContext* ctx, rd_address address);
+RD_API_EXPORT const char* RD_GetRDILInstruction(RDRenderer* ctx, rd_address address);

@@ -29,7 +29,12 @@ class Document: public Object
         Document(Context* ctx);
         virtual ~Document() = default;
         size_t size() const;
+        bool empty() const;
+        bool contains(const RDDocumentItem* item) const;
+        bool getAny(rd_address address, const rd_type* types, RDDocumentItem* item) const;
         const ItemContainer* items() const;
+        const FunctionContainer* functions() const;
+        const SegmentContainer* segments() const;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
         const RDSymbol* entry() const;
@@ -54,22 +59,11 @@ class Document: public Object
         bool entry(rd_address address);
         void empty(rd_address address);
 
-    public: // Count
-        size_t itemsCount() const;
-        size_t segmentsCount() const;
-        size_t functionsCount() const;
-        bool empty() const;
-
     public: // Data
         std::string comment(rd_address address, bool skipauto, const char* separator) const;
         void autoComment(rd_address address, const std::string& s);
         void comment(rd_address address, const std::string& s);
         bool rename(rd_address address, const std::string& newname);
-
-    public: // Get-i
-        bool segmentAt(size_t idx, RDSegment* segment) const;
-        bool symbolAt(size_t idx, RDSymbol* symbol) const;
-        RDLocation functionAt(size_t idx) const;
 
     public: // Get
         RDLocation entryPoint() const;
@@ -79,17 +73,6 @@ class Document: public Object
         bool segment(rd_address address, RDSegment* segment) const;
         bool segmentOffset(rd_offset offset, RDSegment* segment) const;
         const char* name(rd_address address) const;
-
-    public: // Index
-        size_t itemIndex(const RDDocumentItem* item) const;
-        size_t functionIndex(rd_address address) const;
-        size_t instructionIndex(rd_address address) const;
-        size_t symbolIndex(rd_address address) const;
-
-    public: // Item
-        bool item(rd_address address, RDDocumentItem* item) const;
-        bool instructionItem(rd_address address, RDDocumentItem* item) const;
-        bool symbolItem(rd_address address, RDDocumentItem* item) const;
 
     public: // Graph
         void invalidateGraphs();

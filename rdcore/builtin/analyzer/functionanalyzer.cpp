@@ -6,7 +6,7 @@
 #include "../../context.h"
 #include "../builtin.h"
 
-RDEntryAnalyzer analyzerEntry_Function = RD_BUILTIN_ENTRY(analyzerfunction_builtin, "Discover Functions", static_cast<u64>(-1),
+RDEntryAnalyzer analyzerEntry_Function = RD_BUILTIN_ENTRY(analyzerfunction_builtin, "Discover Functions", 0,
                                                           "Autorename Nullsubs and Thunks", AnalyzerFlags_Selected,
                                                           [](const RDContext*) -> bool { return true; },
                                                           [](RDContext* ctx) { FunctionAnalyzer::analyze(CPTR(Context, ctx)); });
@@ -17,21 +17,18 @@ void FunctionAnalyzer::analyze(Context* ctx)
     const RDSymbol* entry = document->entry();
     Loader* loader = ctx->loader();
 
-    for(size_t i = 0; i < document->functionsCount(); i++)
-    {
-        RDLocation loc = document->functionAt(i);
-        if(!loc.valid) continue;
-        if(entry && (entry->address == loc.address)) continue; // Don't rename EP, if any
-
+    document->functions()->each([&](rd_address address) {
+        if(entry && (entry->address == address)) return true; // Don't rename EP, if any
         RDBufferView view;
-        if(!loader->view(loc.address, RD_NPOS, &view)) continue;
+        if(!loader->view(address, RD_NPOS, &view)) return true;
 
         ILFunction il(ctx);
-        if(!ILFunction::generate(loc.address, &il) || (il.size() > 1)) continue;
+        if(!ILFunction::generate(address, &il) || (il.size() > 1)) return true;
 
-        if(FunctionAnalyzer::findNullSubs(ctx, &il, loc.address)) continue;
-        FunctionAnalyzer::findThunk(ctx, &il, loc.address);
-    }
+        if(FunctionAnalyzer::findNullSubs(ctx, &il, address)) return true;
+        FunctionAnalyzer::findThunk(ctx, &il, address);
+        return true;
+    });
 }
 
 bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILFunction* il, rd_address address)

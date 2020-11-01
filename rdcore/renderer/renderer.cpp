@@ -6,6 +6,7 @@
 #include "../support/utils.h"
 #include "../disassembler.h"
 #include "../context.h"
+#include <rdapi/renderer/surface.h>
 #include <cstring>
 
 #define INDENT_WIDTH         2
@@ -13,7 +14,6 @@
 #define STRING_THRESHOLD    48
 #define HEADER_SYMBOL_COUNT 10
 #define SEPARATOR_LENGTH    50
-#define WORD_REGEX          R"(\b[\w\d\.\$_]+\b)"
 #define COMMENT_SEPARATOR   " | "
 
 Renderer::Renderer(Context* ctx, rd_flag flags, int* commentcolumn): Object(ctx), m_commentcolumn(commentcolumn), m_flags(flags) { }
@@ -114,7 +114,7 @@ void Renderer::renderSegment(rd_address address)
 
 void Renderer::renderFunction(rd_address address)
 {
-    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
+    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
 
     StyleScope s(this, Theme_Function);
     const char* name = this->document()->name(address);
@@ -176,23 +176,23 @@ void Renderer::renderUnexplored(rd_address address)
 
 void Renderer::renderSeparator(rd_address address)
 {
-    if(this->hasFlag(SurfaceFlags_NoSeparators)) return;
-    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
+    if(this->hasFlag(RendererFlags_NoSeparators)) return;
+    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
 
     this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)
 {
-    if(!ignoreflags && this->hasFlag(SurfaceFlags_NoIndent)) return;
+    if(!ignoreflags && this->hasFlag(RendererFlags_NoIndent)) return;
     this->chunk(std::string(n * INDENT_WIDTH, ' '));
 }
 
 void Renderer::renderPrologue(rd_address address)
 {
-    if(!this->hasFlag(SurfaceFlags_NoSegmentAndAddress))
+    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress))
     {
-        if(!this->hasFlag(SurfaceFlags_NoSegment))
+        if(!this->hasFlag(RendererFlags_NoSegment))
         {
             RDSegment s;
             auto& doc = this->context()->document();
@@ -202,7 +202,7 @@ void Renderer::renderPrologue(rd_address address)
             this->chunk(":", Theme_Address);
         }
 
-        if(!this->hasFlag(SurfaceFlags_NoAddress))
+        if(!this->hasFlag(RendererFlags_NoAddress))
             this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Address);
     }
 
@@ -224,7 +224,7 @@ void Renderer::renderBlock(rd_address address)
 
 void Renderer::renderAddressIndent(rd_address address)
 {
-    if(this->hasFlag(SurfaceFlags_NoAddress) || this->hasFlag(SurfaceFlags_NoIndent)) return;
+    if(this->hasFlag(RendererFlags_NoAddress) || this->hasFlag(RendererFlags_NoIndent)) return;
 
     size_t c = this->assembler()->bits() / 4;
     const auto& doc = this->context()->document();
@@ -236,15 +236,15 @@ void Renderer::renderAddressIndent(rd_address address)
 
 void Renderer::renderComments(rd_address address)
 {
-    if(this->hasFlag(SurfaceFlags_NoComments)) return;
+    if(this->hasFlag(RendererFlags_NoComments)) return;
 
     // Recalculate comment column
-    *m_commentcolumn = std::max<size_t>(*m_commentcolumn, m_text.size());
+    if(m_commentcolumn) *m_commentcolumn = std::max<size_t>(*m_commentcolumn, m_text.size());
 
     std::string comment = this->document()->comment(address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
-    this->chunk(std::string((*m_commentcolumn - m_text.size()) + INDENT_COMMENT, ' '));
+    if(m_commentcolumn) this->chunk(std::string((*m_commentcolumn - m_text.size()) + INDENT_COMMENT, ' '));
     this->chunk("# " + Utils::simplified(comment), Theme_Comment);
 }
 
@@ -324,4 +324,24 @@ Renderer& Renderer::chunk(const std::string& s, u8 fg, u8 bg)
     m_text += s;
     m_tokens.push_back({ bg, fg, s });
     return *this;
+}
+
+std::string Renderer::getInstruction(Context* ctx, rd_address address)
+{
+    if(ctx->flags() & ContextFlags_ShowRDIL) return Renderer::getRDILInstruction(ctx, address);
+    return Renderer::getAssemblerInstruction(ctx, address);
+}
+
+std::string Renderer::getAssemblerInstruction(Context* ctx, rd_address address)
+{
+    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    r.renderAssemblerInstruction(address);
+    return r.text();
+}
+
+std::string Renderer::getRDILInstruction(Context* ctx, rd_address address)
+{
+    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    r.renderRDILInstruction(address);
+    return r.text();
 }

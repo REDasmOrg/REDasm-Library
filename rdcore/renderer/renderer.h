@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <string>
 #include <deque>
-#include <rdapi/renderer/surface.h>
 #include <rdapi/renderer/renderer.h>
 #include <rdapi/config.h>
 #include "../document/document_fwd.h"
@@ -77,7 +76,13 @@ class Renderer: public Object
         SafeDocument& document() const;
         Renderer& chunk(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
 
+    public:
+        static std::string getInstruction(Context* ctx, rd_address address);
+        static std::string getAssemblerInstruction(Context* ctx, rd_address address);
+        static std::string getRDILInstruction(Context* ctx, rd_address address);
+
     private:
+        mutable std::string m_asminstruction, m_rdilinstruction;
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
         int* m_commentcolumn;
         std::deque<SurfaceChunk> m_tokens;

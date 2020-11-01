@@ -8,7 +8,7 @@
 #include <execution>
 #include <deque>
 
-RDEntryAnalyzer analyzerEntry_Strings = RD_BUILTIN_ENTRY(analyzerstring_builtin, "Find All Strings", 1,
+RDEntryAnalyzer analyzerEntry_Strings = RD_BUILTIN_ENTRY(analyzerstring_builtin, "Find All Strings", std::numeric_limits<u32>::max() - 1,
                                                          "Mark strings in all segments", AnalyzerFlags_RunOnce,
                                                          [](const RDContext*) -> bool { return true; },
                                                          [](RDContext* ctx) { StringsAnalyzer::analyze(CPTR(Context, ctx)); });
@@ -18,19 +18,19 @@ void StringsAnalyzer::analyze(Context* ctx)
     std::deque<RDBlock> pendingblocks;
     auto& doc = ctx->document();
 
-    for(size_t i = 0; i < doc->segmentsCount(); i++)
-    {
-        RDSegment segment;
-        if(!doc->segmentAt(i, &segment) || HAS_FLAG(&segment, SegmentFlags_Bss) || !HAS_FLAG(&segment, SegmentFlags_Data)) continue;
+    doc->segments()->each([&](const RDSegment& segment) {
+        if(HAS_FLAG(&segment, SegmentFlags_Bss) || !HAS_FLAG(&segment, SegmentFlags_Data)) return true;
 
         const auto* blocks = doc->blocks(segment.address);
-        if(!blocks) continue;
+        if(!blocks) return true;
 
         blocks->each([&](const RDBlock& block) {
             if(IS_TYPE(&block, BlockType_Unexplored)) pendingblocks.push_back(block);
             return true;
         });
-    }
+
+        return true;
+    });
 
     Loader* loader = ctx->loader();
 

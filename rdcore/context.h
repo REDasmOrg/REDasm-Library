@@ -20,14 +20,14 @@ class Loader;
 class MemoryBuffer;
 
 typedef std::shared_ptr<Analyzer> AnalyzerPtr;
-template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->priority > a2->plugin()->priority; }; };
-template<typename T> struct AnalyzerEquals { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->execute == a2->plugin()->execute; }; };
+template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->order < a2->plugin()->order; }; };
+template<typename T> struct AnalyzerComparator { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->execute == a2->plugin()->execute; }; };
 
 class Context: public Object
 {
     private:
-        typedef SortedContainer<AnalyzerPtr, AnalyzerSorter<AnalyzerPtr>, AnalyzerEquals<AnalyzerPtr>, true> AnalyzerPtrList;
-        typedef SortedContainer<const Analyzer*, AnalyzerSorter<const Analyzer*>, AnalyzerEquals<const Analyzer*>, true> AnalyzerList;
+        typedef SortedContainer<AnalyzerPtr, AnalyzerComparator<AnalyzerPtr>, AnalyzerSorter<AnalyzerPtr>, true> AnalyzerPtrList;
+        typedef SortedContainer<const Analyzer*, AnalyzerComparator<const Analyzer*>, AnalyzerSorter<const Analyzer*>, true> AnalyzerList;
         typedef std::unordered_map<std::string, RDEntry*> PluginMap;
 
     public:

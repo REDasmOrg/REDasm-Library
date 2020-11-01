@@ -21,6 +21,8 @@ Document::Document(Context* ctx): Object(ctx)
 
 size_t Document::size() const { return m_items.size(); }
 const ItemContainer* Document::items() const { return &m_items; }
+const FunctionContainer* Document::functions() const { return &m_functions; }
+const SegmentContainer* Document::segments() const { return &m_segments; }
 const SymbolTable* Document::symbols() const { return m_symbols.get(); }
 const BlockContainer* Document::blocks(rd_address address) const { return m_segments.findBlocks(address); }
 const RDSymbol* Document::entry() const { return &m_entry; }
@@ -125,10 +127,28 @@ bool Document::entry(rd_address address)
 }
 
 void Document::empty(rd_address address) { this->insert(address, DocumentItemType_Empty); }
-size_t Document::itemsCount() const { return m_items.size(); }
-size_t Document::segmentsCount() const { return m_segments.size(); }
-size_t Document::functionsCount() const { return m_functions.size(); }
 bool Document::empty() const { return m_items.empty(); }
+bool Document::contains(const RDDocumentItem* item) const { return item && (m_items.find(*item) != m_items.end()); }
+
+bool Document::getAny(rd_address address, const rd_type* types, RDDocumentItem* item) const
+{
+    if(!types) return false;
+
+    RDDocumentItem citem = { address, *types, 0 };
+
+    while(citem.type != DocumentItemType_None)
+    {
+        if(this->contains(&citem))
+        {
+            if(item) *item = citem;
+            return true;
+        }
+
+        citem.type = *(++types);
+    }
+
+    return false;
+}
 
 std::string Document::comment(rd_address address, bool skipauto, const char* separator) const
 {
@@ -174,15 +194,6 @@ bool Document::rename(rd_address address, const std::string& newname)
     return true;
 }
 
-bool Document::segmentAt(size_t idx, RDSegment* segment) const { return m_segments.get(idx, segment); }
-bool Document::symbolAt(size_t idx, RDSymbol* symbol) const { return m_symbols->at(idx, symbol); }
-
-RDLocation Document::functionAt(size_t idx) const
-{
-    if(idx >= m_functions.size()) return { {0}, false };
-    return { {m_functions.at(idx)}, true };
-}
-
 RDLocation Document::entryPoint() const
 {
     if(!IS_TYPE(&m_entry, SymbolType_Function)) return {{0}, false};
@@ -195,44 +206,6 @@ bool Document::block(rd_address address, RDBlock* block) const { return m_segmen
 bool Document::segment(rd_address address, RDSegment* segment) const { return m_segments.find(address, segment); }
 bool Document::segmentOffset(rd_offset offset, RDSegment* segment) const { return m_segments.findOffset(offset, segment); }
 const char* Document::name(rd_address address) const { return m_symbols->getName(address); }
-
-size_t Document::itemIndex(const RDDocumentItem* item) const
-{
-    return RD_NPOS;
-    //if(!item) return RD_NPOS;
-    //return m_items.indexOf(*item);
-}
-
-size_t Document::functionIndex(rd_address address) const { return m_items.functionIndex(address); }
-size_t Document::instructionIndex(rd_address address) const { return m_items.instructionIndex(address); }
-size_t Document::symbolIndex(rd_address address) const { return m_items.symbolIndex(address); }
-
-bool Document::item(rd_address address, RDDocumentItem* item) const
-{
-    // for(size_t i = DocumentItemType_First; i < DocumentItemType_Length; i++)
-    // {
-    //     size_t idx = m_items.indexOf(address, i);
-    //     if(idx == RD_NPOS) continue;
-    //     if(item) *item = m_items.at(idx);
-    //     return true;
-    // }
-
-    return false;
-}
-
-bool Document::instructionItem(rd_address address, RDDocumentItem* item) const
-{
-    size_t idx = this->instructionIndex(address);
-    if(idx == RD_NPOS) return false;
-    return false; //m_items.get(idx, item);
-}
-
-bool Document::symbolItem(rd_address address, RDDocumentItem* item) const
-{
-    size_t idx = this->symbolIndex(address);
-    if(idx == RD_NPOS) return false;
-    return false; //m_items.get(idx, item);
-}
 
 void Document::invalidateGraphs()
 {

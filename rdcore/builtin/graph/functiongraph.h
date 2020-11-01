@@ -16,8 +16,6 @@ struct FunctionBasicBlock
     bool contains(rd_address address) const;
     bool getStartItem(RDDocumentItem* item) const;
     bool getEndItem(RDDocumentItem* item) const;
-    size_t startIndex() const;
-    size_t endIndex() const;
     size_t itemsCount() const;
     rd_type getTheme(RDGraphNode n) const;
     void bFalse(RDGraphNode n);
@@ -27,6 +25,7 @@ struct FunctionBasicBlock
     rd_address startaddress, endaddress; // [startaddress, endaddress]
 
     private:
+        mutable size_t m_itemscount{0};
         std::unordered_map<RDGraphNode, rd_type> m_themes;
         SafeDocument& m_document;
 };

@@ -1,5 +1,10 @@
 #include "itemcontainer.h"
+#include <tuple>
 
-size_t ItemContainer::instructionIndex(rd_address address) const { return RD_NPOS; }
-size_t ItemContainer::functionIndex(rd_address address) const { return RD_NPOS; }
-size_t ItemContainer::symbolIndex(rd_address address) const { return RD_NPOS; }
+bool ItemContainer::equals(const RDDocumentItem* item1, const RDDocumentItem* item2)
+{
+    if(!item1 || !item2) return false;
+
+    return std::tie(item1->address, item1->type, item1->index) ==
+           std::tie(item2->address, item2->type, item2->index);
+}

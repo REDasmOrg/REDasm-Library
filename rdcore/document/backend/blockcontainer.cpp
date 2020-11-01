@@ -32,7 +32,7 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
     if(start > end) REDasmError("Trying to insert an empty block [" + Utils::hex(start) + ", " + Utils::hex(end) + "]");
 
     auto begit = this->get(start);
-    auto endit = this->get(end);
+    auto endit = this->get(end - 1);
 
     std::optional<RDBlock> begbl, endbl;
 
@@ -77,7 +77,6 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
     }
 
     this->doInsert({{start}, end, type});
-
 }
 
 void BlockContainer::markSize(rd_address start, size_t size, rd_type type) { this->mark(start, start + size, type); }

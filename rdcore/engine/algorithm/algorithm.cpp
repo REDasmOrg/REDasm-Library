@@ -171,7 +171,7 @@ bool Algorithm::isAddressValid(rd_address address) const
     auto loc = m_disassembler->loader()->offset(address);
     if(!loc.valid) return false;
 
-    if(m_document->instructionItem(address, nullptr)) return false;
+    if(m_document->items()->contains(RDDocumentItem{ address, DocumentItemType_Instruction, 0 })) return false;
     if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code)) return false;
     return true;
 }

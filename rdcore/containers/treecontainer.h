@@ -27,6 +27,10 @@ class TreeContainer: public AbstractContainer<T, Container>
     public: // Internal C++ Helpers
         template<typename K> typename TreeContainer::Iterator find(const K& k) { return this->m_container.find(k); }
         template<typename K> typename TreeContainer::ConstIterator find(const K& k) const { return this->m_container.find(k); }
+        template<typename K> typename TreeContainer::Iterator lowerBound(const K& k) { return this->m_container.lowerBound(k); }
+        template<typename K> typename TreeContainer::ConstIterator lowerBound(const K& k) const { return this->m_container.lower_bound(k); }
+        template<typename K> typename TreeContainer::Iterator upperBound(const K& k) { return this->m_container.upperBound(k); }
+        template<typename K> typename TreeContainer::ConstIterator upperBound(const K& k) const { return this->m_container.upper_bound(k); }
 
     public: // AbstractContainer Interface
         bool remove(const T& t) override;

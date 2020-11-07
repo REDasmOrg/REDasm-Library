@@ -14,21 +14,16 @@ bool FunctionBasicBlock::contains(rd_address address) const { return ((address >
 
 bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
 {
-    static const std::array<rd_type, 3> TYPES = { DocumentItemType_Symbol,
-                                                  DocumentItemType_Instruction,
-                                                  DocumentItemType_None };
+    if(m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Symbol, 0}, item))
+    {
+        RDSymbol symbol;
+        if(m_document->symbol(startaddress, &symbol) && !IS_TYPE(&symbol, SymbolType_Function)) return true;
+    }
 
-    return m_document->getAny(startaddress, TYPES.data(), item);
+    return m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Instruction, 0 }, item);
 }
 
-bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const
-{
-    static const std::array<rd_type, 3> TYPES = { DocumentItemType_Symbol,
-                                                  DocumentItemType_Instruction,
-                                                  DocumentItemType_None };
-
-    return m_document->getAny(endaddress, TYPES.data(), item);
-}
+bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const { return m_document->items()->get(RDDocumentItem{ endaddress, DocumentItemType_Instruction, 0}, item); }
 
 size_t FunctionBasicBlock::itemsCount() const
 {
@@ -55,7 +50,7 @@ rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
 void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeFalse; }
 void FunctionBasicBlock::bTrue(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeTrue; }
 
-FunctionGraph::FunctionGraph(Context* ctx): StyledGraph(ctx), m_disassembler(ctx->disassembler()), m_document(ctx->document()) { }
+FunctionGraph::FunctionGraph(Context* ctx): StyledGraph(ctx), m_document(ctx->document()) { }
 const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { return const_cast<FunctionGraph*>(this)->basicBlock(address); }
 
 FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
@@ -136,7 +131,7 @@ FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 
 void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
 {
-    const DocumentNet* net = m_disassembler->net();
+    const DocumentNet* net = this->context()->net();
     std::stack<rd_address> pending;
     pending.push(m_graphstart.address);
 
@@ -170,7 +165,7 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
 
 void FunctionGraph::buildBasicBlocks()
 {
-    const DocumentNet* net = m_disassembler->net();
+    const DocumentNet* net = this->context()->net();
     std::map<rd_address, FunctionBasicBlock*> basicblocks;
     this->buildBasicBlocks(basicblocks);
 

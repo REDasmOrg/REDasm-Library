@@ -17,12 +17,13 @@ typedef struct RDSurfaceCell {
 } RDSurfaceCell;
 
 typedef struct RDSurfacePos {
-    int row, column;
+    int row;
+    int col;
 } RDSurfacePos;
 
 typedef struct RDPathItem {
     int fromrow;  // = -1 if out of range
-    int torow;    // = document.size if out of range
+    int torow;    // = rows + 1 if out of range
     u8 style;
 } RDPathItem;
 
@@ -33,11 +34,11 @@ RD_API_EXPORT const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* s
 RD_API_EXPORT const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf);
 RD_API_EXPORT const RDDocumentItem* RDSurface_GetFirstItem(const RDSurface* sf);
 RD_API_EXPORT const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf);
+RD_API_EXPORT const char* RDSurface_GetSelectedText(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetCurrentWord(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetWordAt(const RDSurface* sf, int row, int col);
 RD_API_EXPORT size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path);
-RD_API_EXPORT int RDSurface_GetLastColumn(const RDSurface* sf);
-RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, RDSurfaceCell* cells);
+RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells);
 RD_API_EXPORT int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_Contains(const RDSurface* sf, const RDDocumentItem* item);
@@ -51,6 +52,7 @@ RD_API_EXPORT void RDSurface_Scroll(RDSurface* sf, int nrows, int ncols);
 RD_API_EXPORT void RDSurface_Resize(RDSurface* sf, int rows, int cols);
 RD_API_EXPORT void RDSurface_MoveTo(RDSurface* sf, int row, int col);
 RD_API_EXPORT void RDSurface_Select(RDSurface* sf, int row, int col);
+RD_API_EXPORT void RDSurface_SelectAt(RDSurface* sf, int row, int col);
 RD_API_EXPORT void RDSurface_GoBack(RDSurface* sf);
 RD_API_EXPORT void RDSurface_GoForward(RDSurface* sf);
 RD_API_EXPORT void RDSurface_Activate(RDSurface* sf);

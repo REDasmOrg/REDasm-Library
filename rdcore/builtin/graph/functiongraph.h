@@ -1,14 +1,11 @@
 #pragma once
 
-#include <unordered_map>
 #include <string>
 #include <list>
 #include <map>
 #include "../../document/document_fwd.h"
 #include "../../document/documentnet.h"
 #include "../../graph/styledgraph.h"
-
-class Disassembler;
 
 struct FunctionBasicBlock
 {
@@ -55,7 +52,6 @@ class FunctionGraph: public StyledGraph
 
     private:
         std::list<FunctionBasicBlock> m_basicblocks;
-        Disassembler* m_disassembler;
         SafeDocument& m_document;
         RDBlock m_graphstart{ };
         bool m_complete{true};

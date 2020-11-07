@@ -24,7 +24,7 @@ const char* RD_GetAssemblerInstruction(RDContext* ctx, rd_address address)
     return !s.empty() ? s.c_str() : nullptr;
 }
 
-const char* RD_GetRDILInstruction(RDRenderer* ctx, rd_address address)
+const char* RD_GetRDILInstruction(RDContext* ctx, rd_address address)
 {
     static std::string s;
     s = Renderer::getRDILInstruction(CPTR(Context, ctx), address);

@@ -10,8 +10,7 @@
 enum RDDocumentItemType {
     DocumentItemType_None,
 
-    DocumentItemType_First,
-    DocumentItemType_Empty = DocumentItemType_First,
+    DocumentItemType_Empty,
     DocumentItemType_Segment,
     DocumentItemType_Function,
     DocumentItemType_Type,

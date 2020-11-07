@@ -30,15 +30,9 @@ enum RDEvents {
     Event_CursorPositionChanged,
 
     // Surface Events
-    Event_SurfaceCursorChanged,
     Event_SurfaceUpdated,
-    Event_SurfaceChanged,
-
-    // SurfacePath Events
-    Event_SurfacePathChanged,
-
-    // User defined Events
-    Event_UserFirst = (1u << 31),
+    Event_SurfaceStackChanged,
+    Event_SurfacePositionChanged,
 };
 
 struct RDSurfacePos;

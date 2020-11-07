@@ -8,9 +8,9 @@ const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf) { return CP
 const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->endSelection(); }
 const RDDocumentItem* RDSurface_GetFirstItem(const RDSurface* sf) { return CPTR(const Surface, sf)->firstItem(); }
 const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf) { return CPTR(const Surface, sf)->lastItem(); }
+const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
 size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path) { return CPTR(const Surface, sf)->getPath(path); }
-int RDSurface_GetLastColumn(const RDSurface* sf) { return CPTR(const Surface, sf)->lastColumn(); }
-int RDSurface_GetRow(const RDSurface* sf, int row, RDSurfaceCell* cells) { return CPTR(const Surface, sf)->row(row, cells); }
+int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) { return CPTR(const Surface, sf)->row(row, cells); }
 int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->findRow(item); }
 bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item) { return CPTR(const Surface, sf)->getItem(row, item); }
 bool RDSurface_Contains(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->contains(item); }
@@ -28,6 +28,7 @@ void RDSurface_Scroll(RDSurface* sf, int nrows, int ncols) { CPTR(Surface, sf)->
 void RDSurface_Resize(RDSurface* sf, int rows, int cols) { CPTR(Surface, sf)->resize(rows, cols); }
 void RDSurface_MoveTo(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->moveTo(row, col); }
 void RDSurface_Select(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->select(row, col); }
+void RDSurface_SelectAt(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->selectAt(row, col); }
 void RDSurface_GoBack(RDSurface* sf) { return CPTR(Surface, sf)->goBack(); }
 void RDSurface_GoForward(RDSurface* sf) { return CPTR(Surface, sf)->goForward(); }
 void RDSurface_Activate(RDSurface* sf) { CPTR(Surface, sf)->enable(); }

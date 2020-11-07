@@ -92,6 +92,9 @@ int SurfacePath::calculateToRow(const RDDocumentItem* fromitem, const RDDocument
     int torow = m_surface->findRow(toitem);
     if(torow != -1) return torow;
 
+    int rows = 0;
+    m_surface->getSize(&rows, nullptr);
+
     if(toitem->address < fromitem->address) return -1;
-    else return m_context->document()->size();
+    else return rows + 1;
 }

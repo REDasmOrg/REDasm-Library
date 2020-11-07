@@ -2,24 +2,19 @@
 #include "../context.h"
 
 Cursor::Cursor(Context* ctx): Object(ctx) { }
-void Cursor::toggle()
-{
-    m_active = !m_active;
-    this->onCursorChanged();
-}
 
 void Cursor::enable()
 {
     if(m_active) return;
     m_active = true;
-    this->onCursorChanged();
+    this->onPositionChanged();
 }
 
 void Cursor::disable()
 {
     if(!m_active) return;
     m_active = false;
-    this->onCursorChanged();
+    this->onPositionChanged();
 }
 
 void Cursor::goBack()
@@ -29,8 +24,8 @@ void Cursor::goBack()
     RDSurfacePos pos = m_backstack.top();
     m_backstack.pop();
     m_forwardstack.push(m_position);
-    this->moveTo(pos.row, pos.column, false);
-    this->onCursorStackChanged();
+    this->moveTo(pos.row, pos.col, false, true);
+    this->onStackChanged();
 }
 
 void Cursor::goForward()
@@ -40,8 +35,8 @@ void Cursor::goForward()
     RDSurfacePos pos = m_forwardstack.top();
     m_forwardstack.pop();
     m_backstack.push(m_position);
-    this->moveTo(pos.row, pos.column, false);
-    this->onCursorStackChanged();
+    this->moveTo(pos.row, pos.col, false, true);
+    this->onStackChanged();
 }
 
 void Cursor::clearSelection()
@@ -49,16 +44,15 @@ void Cursor::clearSelection()
     if(Cursor::equalPos(&m_position, &m_selection)) return;
 
     m_selection = m_position;
-    this->onCursorChanged();
+    this->onPositionChanged();
 }
 
-void Cursor::set(int row, int col) { this->moveTo(row, col, false); }
-void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true); }
+void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true, true); }
 
 void Cursor::select(int row, int col)
 {
     m_position = { row, col };
-    this->onCursorChanged();
+    this->onPositionChanged();
 }
 
 const RDSurfacePos* Cursor::position() const { return &m_position; }
@@ -70,7 +64,7 @@ const RDSurfacePos* Cursor::startSelection() const
 
     if(m_position.row == m_selection.row)
     {
-        if(m_position.column < m_selection.column)
+        if(m_position.col < m_selection.col)
             return &m_position;
     }
 
@@ -83,7 +77,7 @@ const RDSurfacePos* Cursor::endSelection() const
 
     if(m_position.row == m_selection.row)
     {
-        if(m_position.column > m_selection.column)
+        if(m_position.col > m_selection.col)
             return &m_position;
     }
 
@@ -91,9 +85,9 @@ const RDSurfacePos* Cursor::endSelection() const
 }
 
 int Cursor::currentRow() const { return m_position.row; }
-int Cursor::currentColumn() const { return m_position.column; }
+int Cursor::currentColumn() const { return m_position.col; }
 int Cursor::selectionLine() const { return m_selection.row; }
-int Cursor::selectionColumn() const { return m_selection.column; }
+int Cursor::selectionColumn() const { return m_selection.col; }
 
 bool Cursor::isRowSelected(int row) const
 {
@@ -111,13 +105,15 @@ bool Cursor::canGoBack() const { return !m_backstack.empty(); }
 bool Cursor::canGoForward() const { return !m_forwardstack.empty(); }
 bool Cursor::active() const { return m_active; }
 
+void Cursor::set(int row, int col) { this->moveTo(row, col, true, false); }
+
 bool Cursor::equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2)
 {
-    return std::tie(pos1->row, pos1->column) ==
-           std::tie(pos2->row, pos2->column);
+    return std::tie(pos1->row, pos1->col) ==
+           std::tie(pos2->row, pos2->col);
 }
 
-void Cursor::moveTo(int row, int column, bool save)
+void Cursor::moveTo(int row, int column, bool save, bool notify)
 {
     RDSurfacePos pos = { row, column };
 
@@ -126,10 +122,16 @@ void Cursor::moveTo(int row, int column, bool save)
         if(m_backstack.empty() || (!m_backstack.empty() && !Cursor::equalPos(&m_backstack.top(), &m_position)))
         {
             m_backstack.push(m_position);
-            this->onCursorStackChanged();
+            this->onStackChanged();
         }
     }
 
     m_selection = pos;
-    this->select(row, column);
+    this->select(row, column, notify);
+}
+
+void Cursor::select(int row, int col, bool notify)
+{
+    m_position = { row, col };
+    if(notify) this->onPositionChanged();
 }

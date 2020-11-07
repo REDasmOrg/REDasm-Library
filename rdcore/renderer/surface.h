@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include <vector>
 #include <mutex>
 #include "../document/document_fwd.h"
@@ -15,8 +14,8 @@ class Surface: public Cursor
     private:
         struct SurfaceRow {
             std::deque<std::string> chunks;
+            std::deque<RDSurfaceCell> cells;
             RDDocumentItem item;
-            int length;
         };
 
         typedef std::scoped_lock<std::mutex> SurfaceLock;
@@ -25,10 +24,10 @@ class Surface: public Cursor
         Surface(Context* ctx, rd_flag flags);
         ~Surface();
         size_t getPath(const RDPathItem** path) const;
-        int lastColumn() const;
-        int row(int row, RDSurfaceCell* cells) const;
+        int row(int row, const RDSurfaceCell** cells) const;
         const std::string* currentWord() const;
         const std::string* wordAt(int row, int col) const;
+        const std::string& selectedText() const;
         const RDDocumentItem* firstItem() const;
         const RDDocumentItem* lastItem() const;
         int findRow(const RDDocumentItem* item) const;
@@ -44,35 +43,40 @@ class Surface: public Cursor
         void resize(int rows, int cols);
         void moveTo(int row, int col) override;
         void select(int row, int col) override;
-        void update();
+        void selectAt(int row, int col);
+        void update(const RDDocumentItem* currentitem = nullptr);
 
     protected:
         void handleEvents(const RDEventArgs* event);
-        void onCursorStackChanged() override;
-        void onCursorChanged() override;
+        void onStackChanged() override;
+        void onPositionChanged() override;
 
     private:
         const SurfaceRow* currentSurfaceRow() const;
-        RDSurfaceCell* cell(size_t row, size_t col);
+        RDSurfaceCell& cell(size_t row, size_t col);
         SafeDocument& document() const;
         const ItemContainer* items() const;
-        void notifyChanged();
-        void checkColumn(int row, int& column) const;
-        void drawRow(int row, const Renderer& st, SurfaceRow& sfrow);
+        int lastColumn() const;
+        void notifyPositionChanged();
+        void checkColumn(int row, int& col) const;
+        void drawRow(SurfaceRow& sfrow, const Renderer& st);
         void drawCursor();
         void highlightCurrentRow();
         void highlightWords();
-        void highlightSelection();
+        void checkSelection();
         bool hasFlag(rd_flag flag) const;
         void scrollRows(int nrows);
 
     private:
+        mutable std::vector<RDSurfaceCell> m_reqrows;
         mutable std::mutex m_mutex;
+
+    private:
         SurfacePath m_path;
-        std::vector<RDSurfaceCell> m_surface;
-        std::unordered_map<int, SurfaceRow> m_surfacerows;
+        std::unordered_map<int, SurfaceRow> m_surface;
         std::pair<RDDocumentItem, RDDocumentItem> m_items{ };
         int m_rows{0}, m_cols{0}, m_commentcolumn{0}, m_lastcolumn{0};
+        std::string m_selectedtext;
         rd_flag m_flags;
 };
 

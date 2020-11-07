@@ -11,21 +11,11 @@ class Cursor: public Object
 
     public:
         Cursor(Context* ctx);
-        void toggle();
         void enable();
         void disable();
         void goBack();
         void goForward();
         void clearSelection();
-        void set(int row, int col);
-        virtual void moveTo(int row, int col);
-        virtual void select(int row, int col);
-
-    public:
-        const RDSurfacePos* position() const;
-        const RDSurfacePos* selection() const;
-        const RDSurfacePos* startSelection() const;
-        const RDSurfacePos* endSelection() const;
         int currentRow() const;
         int currentColumn() const;
         int selectionLine() const;
@@ -35,13 +25,21 @@ class Cursor: public Object
         bool canGoBack() const;
         bool canGoForward() const;
         bool active() const;
+        void set(int row, int col);
+        virtual void moveTo(int row, int col);
+        virtual void select(int row, int col);
+        const RDSurfacePos* position() const;
+        const RDSurfacePos* selection() const;
+        const RDSurfacePos* startSelection() const;
+        const RDSurfacePos* endSelection() const;
 
     protected:
-        virtual void onCursorStackChanged() = 0;
-        virtual void onCursorChanged() = 0;
+        virtual void onStackChanged() = 0;
+        virtual void onPositionChanged() = 0;
 
     private:
-        void moveTo(int row, int column, bool save);
+        void moveTo(int row, int col, bool save, bool notify);
+        void select(int row, int col, bool notify);
         static bool equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2);
 
     private:

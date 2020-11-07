@@ -4,6 +4,8 @@
 #include "renderer.h"
 #include <cmath>
 
+#define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
+
 Surface::Surface(Context* ctx, rd_flag flags): Cursor(ctx), m_path(this), m_flags(flags)
 {
     this->context()->subscribe(this, std::bind(&Surface::handleEvents, this, std::placeholders::_1));
@@ -23,22 +25,29 @@ Surface::Surface(Context* ctx, rd_flag flags): Cursor(ctx), m_path(this), m_flag
 
 Surface::~Surface() { this->document()->unsubscribe(this); }
 size_t Surface::getPath(const RDPathItem** path) const { return m_path.getPath(path); }
-int Surface::lastColumn() const { return m_lastcolumn; }
 
-int Surface::row(int row, RDSurfaceCell* cells) const
+int Surface::row(int row, const RDSurfaceCell** cells) const
 {
-    auto it = m_surfacerows.find(row);
-    if(it == m_surfacerows.end()) return 0;
-
     SurfaceLock lock(m_mutex);
-    if(cells) std::copy_n(std::addressof(m_surface[row * m_cols]), m_cols, cells);
-    return m_cols;
+    auto it = m_surface.find(row);
+    if(it == m_surface.end()) return 0;
+
+    int c = m_cols != -1 ? std::min<int>(it->second.cells.size(), m_cols) :
+                           it->second.cells.size();
+
+    if(cells)
+    {
+        std::copy_n(it->second.cells.begin(), c, m_reqrows.data());
+        *cells = m_reqrows.data();
+    }
+
+    return c;
 }
 
 bool Surface::currentItem(RDDocumentItem* item) const
 {
-    auto it = m_surfacerows.find(this->currentRow());
-    if(it == m_surfacerows.end()) return false;
+    auto it = m_surface.find(this->currentRow());
+    if(it == m_surface.end()) return false;
 
     if(item) *item = it->second.item;
     return true;
@@ -49,7 +58,7 @@ const RDDocumentItem* Surface::lastItem() const { return &m_items.second; }
 
 int Surface::findRow(const RDDocumentItem* item) const
 {
-    for(const auto& ri : m_surfacerows)
+    for(const auto& ri : m_surface)
     {
         if(!ItemContainer::equals(&ri.second.item, item)) continue;
         return ri.first;
@@ -60,8 +69,8 @@ int Surface::findRow(const RDDocumentItem* item) const
 
 bool Surface::getItem(int row, RDDocumentItem* item) const
 {
-    auto it = m_surfacerows.find(row);
-    if(it == m_surfacerows.end()) return false;
+    auto it = m_surface.find(row);
+    if(it == m_surface.end()) return false;
 
     if(item) *item = it->second.item;
     return true;
@@ -85,8 +94,8 @@ const std::string* Surface::currentWord() const { return this->wordAt(this->curr
 
 const std::string* Surface::wordAt(int row, int col) const
 {
-    auto it = m_surfacerows.find(row);
-    if(it == m_surfacerows.end()) return nullptr;
+    auto it = m_surface.find(row);
+    if(it == m_surface.end()) return nullptr;
 
     int currcol = 0;
 
@@ -101,29 +110,46 @@ const std::string* Surface::wordAt(int row, int col) const
     return nullptr;
 }
 
+const std::string& Surface::selectedText() const { return m_selectedtext; }
+
 bool Surface::goTo(const RDDocumentItem* item)
 {
     if(!item) return false;
 
-    auto it = this->items()->find(*item);
-    if(it == this->items()->end()) return false;
+    auto* items = this->items();
+    auto it = items->find(*item);
+    if(it == items->end()) return false;
+
+    // Center on view
+    for(int i = 0; i < (m_rows / 2) && (it != items->begin()); i++) it--;
 
     m_items.first = *it;
-    this->update();
+    this->update(item);
     return true;
 }
 
 bool Surface::goToAddress(rd_address address)
 {
-    auto it = this->items()->find(address);
-    if(it == this->items()->end()) return false;
-    return this->goTo(std::addressof(*it));
+    auto* items = this->items();
+    auto it = items->find(address);
+    if(it == items->end()) return false;
+
+    auto currit = it;
+
+    // Select something inside segments
+    while((currit != items->end()) && (currit->type <= DocumentItemType_Segment))
+    {
+        if(currit->address != address) break;
+        currit++;
+    }
+
+    return this->goTo(std::addressof(*currit));
 }
 
 void Surface::getSize(int* rows, int* cols) const
 {
     if(rows) *rows = m_rows;
-    if(cols) *cols = m_cols;
+    if(cols) *cols = this->lastColumn();
 }
 
 void Surface::scroll(int nrows, int ncols)
@@ -131,18 +157,13 @@ void Surface::scroll(int nrows, int ncols)
     this->scrollRows(nrows);
     this->update();
 
-    if(nrows) this->notifyChanged();
+    if(nrows) this->notifyPositionChanged();
 }
 
 void Surface::resize(int rows, int cols)
 {
     int area = rows * cols;
-    if(area <= 0) return;
-
-    {
-        SurfaceLock lock(m_mutex);
-        m_surface.resize(area, { });
-    }
+    if(!area) return;
 
     m_rows = rows;
     m_cols = cols;
@@ -167,36 +188,65 @@ void Surface::select(int row, int col)
     Cursor::select(row, col);
 }
 
-void Surface::onCursorChanged()
+void Surface::selectAt(int row, int col)
+{
+    auto it = m_surface.find(row);
+    if(it == m_surface.end()) return;
+
+    int startcol = 0;
+
+    for(const std::string& chunk : it->second.chunks)
+    {
+        int endcol = static_cast<int>(startcol + chunk.size());
+
+        if((col >= startcol) && (col <= endcol))
+        {
+            this->moveTo(row, startcol);
+            this->select(row, endcol - 1);
+            break;
+        }
+
+        startcol += chunk.size();
+    }
+}
+
+void Surface::onPositionChanged()
 {
     this->update();
-    this->notifyChanged();
+    this->notifyPositionChanged();
 }
 
 const Surface::SurfaceRow* Surface::currentSurfaceRow() const
 {
-    auto it = m_surfacerows.find(this->currentRow());
-    return (it != m_surfacerows.end()) ? std::addressof(it->second) : nullptr;
+    auto it = m_surface.find(this->currentRow());
+    return (it != m_surface.end()) ? std::addressof(it->second) : nullptr;
 }
 
-RDSurfaceCell* Surface::cell(size_t row, size_t col) { return std::addressof(m_surface[row * m_cols + col]); }
+RDSurfaceCell& Surface::cell(size_t row, size_t col) { return m_surface.at(row).cells.at(col); }
 SafeDocument& Surface::document() const { return this->context()->document(); }
 const ItemContainer* Surface::items() const { return this->context()->document()->items(); }
 
-void Surface::notifyChanged()
+int Surface::lastColumn() const
+{
+    if(m_cols == -1) return m_lastcolumn;
+    return m_cols;
+}
+
+void Surface::notifyPositionChanged()
 {
     RDDocumentItem item;
     if(!this->currentItem(&item)) return;
-    this->notify<RDSurfaceEventArgs>(Event_SurfaceChanged, this, this->position(), this->selection(), item);
+    this->notify<RDSurfaceEventArgs>(Event_SurfacePositionChanged, this, this->position(), this->selection(), item);
 }
 
-void Surface::checkColumn(int row, int& column) const
+void Surface::checkColumn(int row, int& col) const
 {
-    if(column == -1) column = m_cols - 1;
-    else column = std::min(column, m_cols);
+    int lastcol = this->lastColumn();
+    if(col == -1) col = lastcol - 1;
+    else col = std::min(col, lastcol);
 
-    auto it = m_surfacerows.find(row);
-    if(it != m_surfacerows.end()) column = std::min(column, it->second.length - 1);
+    auto it = m_surface.find(row);
+    if(it != m_surface.end()) col = std::min<int>(col, it->second.cells.size() - 1);
 }
 
 void Surface::scrollRows(int nrows)
@@ -204,8 +254,9 @@ void Surface::scrollRows(int nrows)
     if(!nrows) return;
     this->clearSelection();
 
-    auto it = this->items()->find(m_items.first);
-    if(it == this->items()->end()) return;
+    auto* items = this->items();
+    auto it = items->find(m_items.first);
+    if(it == items->end()) return;
 
     RDDocumentItem item = *it;
 
@@ -273,9 +324,9 @@ void Surface::handleEvents(const RDEventArgs* event)
     this->update();
 }
 
-void Surface::onCursorStackChanged() { this->notify<RDEventArgs>(Event_SurfaceCursorChanged, this); }
+void Surface::onStackChanged() { this->notify<RDEventArgs>(Event_SurfaceStackChanged, this); }
 
-void Surface::update()
+void Surface::update(const RDDocumentItem* currentitem)
 {
     if(!m_items.first.type || !m_rows || !m_cols) return;
 
@@ -284,67 +335,88 @@ void Surface::update()
     auto it = items->find(m_items.first);
 
     // Clear Cached Data
-    std::fill(m_surface.begin(), m_surface.end(), RDSurfaceCell{ Theme_Default, Theme_Default, ' ' });
-    m_surfacerows.clear();
+    m_surface.clear();
     m_lastcolumn = 0;
 
-    for(int row = 0; (row < m_rows) && (it != items->end()); row++, it++)
+    for(int row = 0; row < m_rows; row++)
     {
+        if(it == items->end()) // Fill remaining rows
+        {
+            m_surface[row].item = { };
+            m_surface[row].cells.assign(m_lastcolumn, BLANK_CELL);
+            continue;
+        }
+
         Renderer r(m_context, m_flags, &m_commentcolumn);
         if(!r.render(std::addressof(*it))) continue;
 
-        m_surfacerows[row].item = *it;
-        this->drawRow(row, r, m_surfacerows[row]);
+        m_surface[row].item = *it;
+        this->drawRow(m_surface[row], r);
 
-        m_lastcolumn = std::max<int>(m_lastcolumn, r.text().size());
+        m_lastcolumn = std::max<int>(m_lastcolumn, m_surface[row].cells.size());
         m_items.second = *it;
+        it++;
     }
 
-    this->highlightCurrentRow();
+    // Uniform cells width & highlight item (if any)
+    for(auto& [row, surfacerow] : m_surface)
+    {
+        surfacerow.cells.resize(m_lastcolumn, BLANK_CELL);
+
+        if(ItemContainer::equals(currentitem, &surfacerow.item))
+            this->set(row, this->currentColumn());
+    }
+
+    m_reqrows.resize(m_lastcolumn); // Prepare buffer for Surface::row()
+
+    if(!this->hasFlag(RendererFlags_NoCursor)) this->highlightCurrentRow();
     if(!this->hasFlag(RendererFlags_NoHighlightWords)) this->highlightWords();
 
-    this->highlightSelection();
-    if(!this->hasFlag(RendererFlags_NoCursor)) this->drawCursor();
+    if(!this->hasFlag(RendererFlags_NoCursor))
+    {
+        this->checkSelection();
+        this->drawCursor();
+    }
 
     if(!m_context->busy()) m_path.update();
     this->notify<RDEventArgs>(Event_SurfaceUpdated, this);
 }
 
-void Surface::drawRow(int row, const Renderer& st, SurfaceRow& sfrow)
+void Surface::drawRow(SurfaceRow& sfrow, const Renderer& st)
 {
-    int col = 0;
-
     for(const auto& c : st.chunks())
     {
         sfrow.chunks.push_back(c.chunk);
-        sfrow.length += c.chunk.size();
 
         for(const auto& ch : c.chunk)
-        {
-            if(col >= m_cols) return;
-            *this->cell(row, col) = { c.background, c.foreground, ch };
-            col++;
-        }
+            sfrow.cells.push_back({ c.background, c.foreground, ch });
     }
+
+    // Fill remaining cells with blank characters
+    for(int i = sfrow.cells.size() - 1; i < m_cols; i++)
+        sfrow.cells.push_back(BLANK_CELL);
 }
 
 void Surface::drawCursor()
 {
     if(!this->active()) return;
     if(this->currentRow() >= m_rows) return;
-    if(this->currentColumn() >= m_cols) return;
+    if(this->currentColumn() >= this->lastColumn()) return;
 
-    auto* cell = this->cell(this->currentRow(), this->currentColumn());
-    cell->background = Theme_CursorBg;
-    cell->foreground = Theme_CursorFg;
+    auto& cell = this->cell(this->currentRow(), this->currentColumn());
+    cell.background = Theme_CursorBg;
+    cell.foreground = Theme_CursorFg;
 }
 
 void Surface::highlightCurrentRow()
 {
-    if(this->hasFlag(RendererFlags_NoCursor) || (this->currentRow() >= m_rows)) return;
+    if(!this->active() || (this->currentRow() >= m_rows)) return;
 
-    for(int i = 0; i < m_cols; i++)
-        this->cell(this->currentRow(), i)->background = Theme_Seek;
+    auto it = m_surface.find(this->currentRow());
+    if(it == m_surface.end()) return;
+
+    for(RDSurfaceCell& cell : it->second.cells)
+        cell.background = Theme_Seek;
 }
 
 void Surface::highlightWords()
@@ -352,9 +424,11 @@ void Surface::highlightWords()
     if(!this->active() || this->hasSelection()) return;
 
     auto* cw = this->currentWord();
-    if(!cw) return;
+    if(!cw || (cw->find_first_not_of(' ') == std::string::npos)) return;
 
-    for(const auto& [row, surfacerow] : m_surfacerows)
+    int lastcol = this->lastColumn();
+
+    for(const auto& [row, surfacerow] : m_surface)
     {
         int col = 0;
 
@@ -362,9 +436,9 @@ void Surface::highlightWords()
         {
             for(int i = 0; (*cw == c) && (i < static_cast<int>(c.size())); i++)
             {
-                if((col + i) >= m_cols) break;
-                this->cell(row, col + i)->background = Theme_HighlightBg;
-                this->cell(row, col + i)->foreground = Theme_HighlightFg;
+                if((col + i) >= lastcol) break;
+                this->cell(row, col + i).background = Theme_HighlightBg;
+                this->cell(row, col + i).foreground = Theme_HighlightFg;
             }
 
             col += c.size();
@@ -372,18 +446,27 @@ void Surface::highlightWords()
     }
 }
 
-void Surface::highlightSelection()
+void Surface::checkSelection()
 {
+    m_selectedtext.clear();
     if(!this->hasSelection()) return;
+
     const RDSurfacePos* startsel = this->startSelection();
     const RDSurfacePos* endsel = this->endSelection();
-    int start = startsel->row * m_cols + startsel->column;
-    int end = endsel->row * m_cols + endsel->column;
 
-    for(int i = start; i <= end; i++)
+    for(int row = startsel->row; row <= endsel->row; row++)
     {
-        m_surface[i].background = Theme_SelectionBg;
-        m_surface[i].foreground = Theme_SelectionFg;
+        int startcol = 0, endcol = m_surface[row].cells.size() - 1;
+        if(row == startsel->row) startcol = startsel->col;
+        if(row == endsel->row) endcol = endsel->col;
+
+        for(int col = startcol; col <= endcol; col++)
+        {
+            auto& cell = this->cell(row, col);
+            cell.background = Theme_SelectionBg;
+            cell.foreground = Theme_SelectionFg;
+            m_selectedtext += cell.ch;
+        }
     }
 }
 

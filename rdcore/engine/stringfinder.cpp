@@ -34,7 +34,7 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
 {
     static std::vector<char> buffer(MB_CUR_MAX);
     size_t c = std::c16rtomb(buffer.data(), inch, nullptr);
-    if(!c || (c == RD_NPOS) || (c > MB_CUR_MAX)) return false;
+    if(!c || (c == RD_NVAL) || (c > MB_CUR_MAX)) return false;
 
     bool res = StringFinder::isAscii(buffer[0]);
     if(res && outch) *outch = buffer[0];

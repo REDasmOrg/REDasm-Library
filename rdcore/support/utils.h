@@ -29,7 +29,7 @@ class Utils
         static u16 crc16(const u8* data, size_t datasize, rd_offset offset, size_t size);
         static u32 crc32(const u8* data, size_t datasize, rd_offset offset, size_t size);
         static inline std::string thunk(const std::string& s) { return "thunk_" + s; }
-        static std::string hexString(const RDBufferView* view, size_t size = RD_NPOS);
+        static std::string hexString(const RDBufferView* view, size_t size = RD_NVAL);
         static std::string toString(const std::u16string& s);
         static std::string quoted(const std::u16string& s);
         static std::string quoted(const std::string& s);

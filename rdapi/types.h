@@ -23,15 +23,9 @@ typedef u16 rd_type;
 typedef u16 rd_flag;
 
 #ifdef __cplusplus
-    #define RD_NPOS static_cast<size_t>(-1)
+    #define RD_NVAL static_cast<size_t>(-1)
 #else
-    #define RD_NPOS (size_t)(-1)
-#endif
-
-#ifdef __cplusplus
-    #define RD_NREG static_cast<rd_register_id>(-1)
-#else
-    #define RD_NREG (rd_register_id)(-1)
+    #define RD_NVAL (size_t)(-1)
 #endif
 
 #define PRIVATE_RD_USERDATA_FIELDS \
@@ -42,7 +36,6 @@ typedef u16 rd_flag;
     const char* s_data;
 
 #define RD_USERDATA_FIELD union { PRIVATE_RD_USERDATA_FIELDS };
-typedef union RDUserData { PRIVATE_RD_USERDATA_FIELDS } RDUserData;
 
 typedef struct RDLocation {
     union {

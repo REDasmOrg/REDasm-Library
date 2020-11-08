@@ -218,7 +218,7 @@ void Renderer::renderBlock(rd_address address)
     RDBufferView view;
 
     if((blocksize <= sizeof(rd_address)) && this->disassembler()->view(block.address, blocksize, &view))
-        this->renderHexDump(&view, RD_NPOS);
+        this->renderHexDump(&view, RD_NVAL);
     else
         this->chunk("(").chunk(Utils::hex(blocksize), Theme_Constant).chunk(")");}
 
@@ -308,7 +308,7 @@ void Renderer::compileParams(rd_address address, RDRendererParams* srp)
              CPTR(const RDContext, this->context()),
              CPTR(RDRenderer, this) };
 
-    this->context()->loader()->view(address, RD_NPOS, &srp->view);
+    this->context()->loader()->view(address, RD_NVAL, &srp->view);
 }
 
 bool Renderer::hasFlag(rd_flag f) const { return m_flags & f; }

@@ -3,20 +3,6 @@
 
 Cursor::Cursor(Context* ctx): Object(ctx) { }
 
-void Cursor::enable()
-{
-    if(m_active) return;
-    m_active = true;
-    this->onPositionChanged();
-}
-
-void Cursor::disable()
-{
-    if(!m_active) return;
-    m_active = false;
-    this->onPositionChanged();
-}
-
 void Cursor::goBack()
 {
     if(m_backstack.empty()) return;
@@ -103,7 +89,6 @@ bool Cursor::isRowSelected(int row) const
 bool Cursor::hasSelection() const { return !Cursor::equalPos(&m_position, &m_selection); }
 bool Cursor::canGoBack() const { return !m_backstack.empty(); }
 bool Cursor::canGoForward() const { return !m_forwardstack.empty(); }
-bool Cursor::active() const { return m_active; }
 
 void Cursor::set(int row, int col) { this->moveTo(row, col, true, false); }
 

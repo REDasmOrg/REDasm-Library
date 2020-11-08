@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include "basecontainer.h"
+#include "flatcontainer.h"
 
 template<typename T, typename Comparator = std::equal_to<T>>
 class UniqueContainer: public FlatContainer<T, Comparator>
@@ -16,6 +16,6 @@ class UniqueContainer: public FlatContainer<T, Comparator>
 template<typename T, typename Comparator>
 const T* UniqueContainer<T, Comparator>::insert(const T& t) {
     size_t idx = this->indexOf(t);
-    if(idx != RD_NPOS) return std::addressof(this->m_container[idx]);
+    if(idx != RD_NVAL) return std::addressof(this->m_container[idx]);
     return FlatContainer<T, Comparator>::insert(t);
 }

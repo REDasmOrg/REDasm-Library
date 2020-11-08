@@ -10,7 +10,7 @@ typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_addr
 
 struct DocumentNetNode {
     AddressContainer prev;
-    rd_address next{RD_NPOS};
+    rd_address next{RD_NVAL};
 
     u64 syscall{0};
     rd_type branchtype{EmulateResult::None};

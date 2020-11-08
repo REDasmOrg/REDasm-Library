@@ -22,15 +22,15 @@ int Utils::branchDirection(rd_address fromaddress, rd_address address)
 
 rd_offset Utils::findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize)
 {
-    if(finddatasize > datasize) return RD_NPOS;
+    if(finddatasize > datasize) return RD_NVAL;
 
     for(const u8* p = data; datasize; datasize--, p++)
     {
-        if(datasize < finddatasize) return RD_NPOS;
+        if(datasize < finddatasize) return RD_NVAL;
         if(!std::memcmp(p, finddata, finddatasize)) return p - data;
     }
 
-    return RD_NPOS;
+    return RD_NVAL;
 }
 
 u16 Utils::crc16(const u8* data, size_t datasize, rd_offset offset, size_t size)

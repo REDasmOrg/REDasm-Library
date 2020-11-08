@@ -55,7 +55,7 @@ class RandomAccessContainer: public AbstractContainer<T, Container>
         const T& front() const { return const_cast<RandomAccessContainer*>(this)->front(); }
         const T& back() const { return const_cast<RandomAccessContainer*>(this)->back(); }
         const T& at(size_t idx) const { return const_cast<RandomAccessContainer*>(this)->at(idx); }
-        bool contains(const T& t) const { return this->indexOf(t) != RD_NPOS; }
+        bool contains(const T& t) const { return this->indexOf(t) != RD_NVAL; }
 
         bool get(size_t idx, T* t) const {
             if(idx >= this->size()) return false;

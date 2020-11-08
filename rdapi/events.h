@@ -5,7 +5,7 @@
 #include "document/document.h"
 
 #define RD_EVENTARGS_BASE \
-    event_id_t eventid; \
+    event_id_t id; \
     void* sender; \
     void* owner; \
     RD_USERDATA_FIELD;
@@ -21,6 +21,7 @@ enum RDEvents {
 
     // Context Events
     Event_ContextFlagsChanged,
+    Event_ContextSurfaceChanged,
     Event_ContextFree,
 
     // Document Events

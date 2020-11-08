@@ -11,8 +11,6 @@ class Cursor: public Object
 
     public:
         Cursor(Context* ctx);
-        void enable();
-        void disable();
         void goBack();
         void goForward();
         void clearSelection();
@@ -24,7 +22,6 @@ class Cursor: public Object
         bool hasSelection() const;
         bool canGoBack() const;
         bool canGoForward() const;
-        bool active() const;
         void set(int row, int col);
         virtual void moveTo(int row, int col);
         virtual void select(int row, int col);
@@ -45,6 +42,5 @@ class Cursor: public Object
     private:
         RDSurfacePos m_position{0, 0}, m_selection{0, 0};
         PositionStack m_backstack, m_forwardstack;
-        bool m_active{false};
 };
 

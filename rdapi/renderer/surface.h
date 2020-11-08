@@ -27,7 +27,7 @@ typedef struct RDPathItem {
     u8 style;
 } RDPathItem;
 
-RD_API_EXPORT RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags);
+RD_API_EXPORT RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags, uintptr_t userdata);
 RD_API_EXPORT const RDSurfacePos* RDSurface_GetPosition(const RDSurface* sf);
 RD_API_EXPORT const RDSurfacePos* RDSurface_GetSelection(const RDSurface* sf);
 RD_API_EXPORT const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf);
@@ -37,6 +37,7 @@ RD_API_EXPORT const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetSelectedText(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetCurrentWord(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetWordAt(const RDSurface* sf, int row, int col);
+RD_API_EXPORT uintptr_t RDSurface_GetUserData(const RDSurface* sf);
 RD_API_EXPORT size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path);
 RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells);
 RD_API_EXPORT int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item);

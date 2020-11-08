@@ -32,14 +32,14 @@ void RDILGraph::build(rd_address address)
 void RDILGraph::generate(const ILFunction* il)
 {
     m_strings.clear();
-    this->setRoot(this->generate(il->first(), RD_NPOS));
+    this->setRoot(this->generate(il->first(), RD_NVAL));
 };
 
 RDGraphNode RDILGraph::generate(const ILExpression* e, RDGraphNode parentnode)
 {
     RDGraphNode n = this->pushNode();
     this->setData(n, RDIL::getOpName(e->type));
-    if(parentnode != RD_NPOS) this->pushEdge(parentnode, n);
+    if(parentnode != RD_NVAL) this->pushEdge(parentnode, n);
 
     if(RDIL::hasValue(e))
     {

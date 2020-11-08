@@ -74,7 +74,7 @@ bool Engine::needsWeak() const
 }
 
 bool Engine::busy() const { return m_busy; }
-void Engine::stop() { this->notify(false); }
+void Engine::stop() { if(m_busy) this->notify(false); }
 
 void Engine::algorithmStep()
 {

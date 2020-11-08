@@ -50,7 +50,7 @@ void Disassembler::disassemble()
     }
 
     std::for_each(exporteddata.begin(), exporteddata.end(), [&](rd_address address) {
-        this->markLocation(RD_NPOS, address);
+        this->markLocation(RD_NVAL, address);
     });
 
     // Preload functions for analysis
@@ -131,7 +131,7 @@ void Disassembler::checkLocation(rd_address fromaddress, rd_address address)
 
     if(this->document()->symbol(address, nullptr))
     {
-        if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, address); // Just add the reference
+        if(fromaddress != RD_NVAL) m_net.addRef(fromaddress, address); // Just add the reference
         return;
     }
 
@@ -148,7 +148,7 @@ void Disassembler::markPointer(rd_address fromaddress, rd_address address)
 
     if(!this->document()->symbol(loc.address, &symbol))
     {
-        this->markLocation(RD_NPOS, loc.address); // Don't generate autocomments and xrefs automatically
+        this->markLocation(RD_NVAL, loc.address); // Don't generate autocomments and xrefs automatically
         if(!this->document()->symbol(loc.address, &symbol)) return;
     }
 
@@ -167,7 +167,7 @@ void Disassembler::markPointer(rd_address fromaddress, rd_address address)
     else if(HAS_FLAG(&symbol, SymbolFlags_Export))
         this->document()->autoComment(address, std::string("=> EXPORT: ") + symbolname);
 
-    if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, loc.address);
+    if(fromaddress != RD_NVAL) m_net.addRef(fromaddress, loc.address);
 }
 
 size_t Disassembler::markTable(rd_address startaddress, rd_address fromaddress, size_t count)
@@ -241,7 +241,7 @@ void Disassembler::markLocation(rd_address fromaddress, rd_address address)
 
     if(this->markString(address, &flags)) // Is it a string?
     {
-        if(fromaddress == RD_NPOS) return;
+        if(fromaddress == RD_NVAL) return;
 
         if(flags & SymbolFlags_AsciiString) this->document()->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
         else if(flags & SymbolFlags_WideString) this->document()->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
@@ -256,7 +256,7 @@ void Disassembler::markLocation(rd_address fromaddress, rd_address address)
     else // Mapped but BSS Segment
         this->document()->data(address, m_assembler->addressWidth(), std::string());
 
-    if(fromaddress != RD_NPOS) m_net.addRef(fromaddress, address);
+    if(fromaddress != RD_NVAL) m_net.addRef(fromaddress, address);
 }
 
 bool Disassembler::markString(rd_address address, rd_flag* resflags)

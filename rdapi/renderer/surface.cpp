@@ -1,7 +1,7 @@
 #include "surface.h"
 #include <rdcore/renderer/surface.h>
 
-RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags) { return CPTR(RDSurface, new Surface(CPTR(Context, ctx), flags)); }
+RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags, uintptr_t userdata) { return CPTR(RDSurface, new Surface(CPTR(Context, ctx), flags, userdata)); }
 const RDSurfacePos* RDSurface_GetPosition(const RDSurface* sf) { return CPTR(const Surface, sf)->position(); }
 const RDSurfacePos* RDSurface_GetSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->selection(); }
 const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->startSelection(); }
@@ -9,6 +9,7 @@ const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR
 const RDDocumentItem* RDSurface_GetFirstItem(const RDSurface* sf) { return CPTR(const Surface, sf)->firstItem(); }
 const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf) { return CPTR(const Surface, sf)->lastItem(); }
 const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
+uintptr_t RDSurface_GetUserData(const RDSurface* sf) { return CPTR(const Surface, sf)->userData(); }
 size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path) { return CPTR(const Surface, sf)->getPath(path); }
 int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) { return CPTR(const Surface, sf)->row(row, cells); }
 int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->findRow(item); }
@@ -31,8 +32,8 @@ void RDSurface_Select(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->sele
 void RDSurface_SelectAt(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->selectAt(row, col); }
 void RDSurface_GoBack(RDSurface* sf) { return CPTR(Surface, sf)->goBack(); }
 void RDSurface_GoForward(RDSurface* sf) { return CPTR(Surface, sf)->goForward(); }
-void RDSurface_Activate(RDSurface* sf) { CPTR(Surface, sf)->enable(); }
-void RDSurface_Deactivate(RDSurface* sf) { CPTR(Surface, sf)->disable(); }
+void RDSurface_Activate(RDSurface* sf) { CPTR(Surface, sf)->activate(); }
+void RDSurface_Deactivate(RDSurface* sf) { CPTR(Surface, sf)->deactivate(); }
 
 const char* RDSurface_GetCurrentWord(const RDSurface* sf)
 {

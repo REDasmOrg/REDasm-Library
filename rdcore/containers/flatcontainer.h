@@ -53,7 +53,7 @@ size_t FlatContainer<T, Comparator>::indexOf(const T& t) const {
         return Comparator{ }(t, item);
     });
 
-    return (it != this->m_container.end()) ? std::distance(this->m_container.begin(), it) : RD_NPOS;
+    return (it != this->m_container.end()) ? std::distance(this->m_container.begin(), it) : RD_NVAL;
 }
 
 template<typename T, typename Comparator>

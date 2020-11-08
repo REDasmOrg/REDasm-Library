@@ -6,7 +6,7 @@
 
 #define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
 
-Surface::Surface(Context* ctx, rd_flag flags): Cursor(ctx), m_path(this), m_flags(flags)
+Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Cursor(ctx), m_path(this), m_userdata(userdata), m_flags(flags)
 {
     this->context()->subscribe(this, std::bind(&Surface::handleEvents, this, std::placeholders::_1));
 
@@ -23,7 +23,14 @@ Surface::Surface(Context* ctx, rd_flag flags): Cursor(ctx), m_path(this), m_flag
     this->goTo(&item);
 }
 
-Surface::~Surface() { this->document()->unsubscribe(this); }
+Surface::~Surface()
+{
+    this->document()->unsubscribe(this);
+
+    if(this->context()->activeSurface() == this)
+        this->context()->setActiveSurface(nullptr);
+}
+
 size_t Surface::getPath(const RDPathItem** path) const { return m_path.getPath(path); }
 
 int Surface::row(int row, const RDSurfaceCell** cells) const
@@ -55,6 +62,7 @@ bool Surface::currentItem(RDDocumentItem* item) const
 
 const RDDocumentItem* Surface::firstItem() const { return &m_items.first; }
 const RDDocumentItem* Surface::lastItem() const { return &m_items.second; }
+uintptr_t Surface::userData() const { return m_userdata; }
 
 int Surface::findRow(const RDDocumentItem* item) const
 {
@@ -236,7 +244,14 @@ void Surface::notifyPositionChanged()
 {
     RDDocumentItem item;
     if(!this->currentItem(&item)) return;
-    this->notify<RDSurfaceEventArgs>(Event_SurfacePositionChanged, this, this->position(), this->selection(), item);
+    this->notify<RDSurfaceEventArgs>(Event_SurfacePositionChanged,
+                                     this, this->position(), this->selection(), item);
+
+    if(!m_active) return;
+
+    // Notify globally too
+    this->context()->notify<RDSurfaceEventArgs>(Event_SurfacePositionChanged,
+                                                this, this->position(), this->selection(), item);
 }
 
 void Surface::checkColumn(int row, int& col) const
@@ -285,7 +300,7 @@ bool Surface::contains(const RDDocumentItem* item) const
 
 void Surface::handleEvents(const RDEventArgs* event)
 {
-    switch(event->eventid)
+    switch(event->id)
     {
         case Event_DocumentChanged:
         {
@@ -381,6 +396,24 @@ void Surface::update(const RDDocumentItem* currentitem)
     if(!m_context->busy()) m_path.update();
     this->notify<RDEventArgs>(Event_SurfaceUpdated, this);
 }
+
+void Surface::activate()
+{
+    if(m_active) return;
+    m_active = true;
+
+    this->update();
+    this->context()->setActiveSurface(this);
+}
+
+void Surface::deactivate()
+{
+    if(!m_active) return;
+    m_active = false;
+    this->update();
+}
+
+bool Surface::active() const { return m_active; }
 
 void Surface::drawRow(SurfaceRow& sfrow, const Renderer& st)
 {

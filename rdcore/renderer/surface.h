@@ -21,7 +21,7 @@ class Surface: public Cursor
         typedef std::scoped_lock<std::mutex> SurfaceLock;
 
     public:
-        Surface(Context* ctx, rd_flag flags);
+        Surface(Context* ctx, rd_flag flags, uintptr_t userdata);
         ~Surface();
         size_t getPath(const RDPathItem** path) const;
         int row(int row, const RDSurfaceCell** cells) const;
@@ -30,6 +30,7 @@ class Surface: public Cursor
         const std::string& selectedText() const;
         const RDDocumentItem* firstItem() const;
         const RDDocumentItem* lastItem() const;
+        uintptr_t userData() const;
         int findRow(const RDDocumentItem* item) const;
         bool getItem(int row, RDDocumentItem* item) const;
         bool contains(const RDDocumentItem* item) const;
@@ -45,6 +46,9 @@ class Surface: public Cursor
         void select(int row, int col) override;
         void selectAt(int row, int col);
         void update(const RDDocumentItem* currentitem = nullptr);
+        void activate();
+        void deactivate();
+        bool active() const;
 
     protected:
         void handleEvents(const RDEventArgs* event);
@@ -77,6 +81,8 @@ class Surface: public Cursor
         std::pair<RDDocumentItem, RDDocumentItem> m_items{ };
         int m_rows{0}, m_cols{0}, m_commentcolumn{0}, m_lastcolumn{0};
         std::string m_selectedtext;
+        uintptr_t m_userdata;
+        bool m_active{false};
         rd_flag m_flags;
 };
 

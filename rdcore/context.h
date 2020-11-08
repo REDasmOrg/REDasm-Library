@@ -18,6 +18,7 @@ class Analyzer;
 class Assembler;
 class Loader;
 class MemoryBuffer;
+class Surface;
 
 typedef std::shared_ptr<Analyzer> AnalyzerPtr;
 template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->order < a2->plugin()->order; }; };
@@ -64,6 +65,10 @@ class Context: public Object
         void disassembleAt(rd_address address);
         void disassemble();
 
+    public:
+        Surface* activeSurface() const;
+        void setActiveSurface(Surface* sf);
+
     public: // Flags
         rd_flag flags() const;
         void setFlags(rd_flag flags, bool set);
@@ -89,6 +94,7 @@ class Context: public Object
         std::unique_ptr<PluginManager> m_pluginmanager;
 
     private:
+        Surface* m_activesurface{nullptr};
         rd_flag m_flags{ContextFlags_None};
         PluginMap m_commands;
         AnalyzerPtrList m_analyzers;

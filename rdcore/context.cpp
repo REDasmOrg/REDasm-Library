@@ -159,6 +159,15 @@ Loader* Context::loader() const { return m_disassembler ? m_disassembler->loader
 MemoryBuffer* Context::buffer() const { return m_disassembler ? m_disassembler->buffer() : nullptr; }
 void Context::disassembleAt(rd_address address) { if(m_disassembler) m_disassembler->disassembleAt(address); }
 void Context::disassemble() { if(m_disassembler) m_disassembler->disassemble(); }
+Surface* Context::activeSurface() const { return m_activesurface; }
+
+void Context::setActiveSurface(Surface* sf)
+{
+    if(m_activesurface == sf) return;
+
+    m_activesurface = sf;
+    this->notify<RDEventArgs>(Event_ContextSurfaceChanged, this);
+}
 
 void Context::setFlags(rd_flag flags, bool set)
 {

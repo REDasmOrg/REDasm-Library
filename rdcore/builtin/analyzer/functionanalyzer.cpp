@@ -20,7 +20,7 @@ void FunctionAnalyzer::analyze(Context* ctx)
     document->functions()->each([&](rd_address address) {
         if(entry && (entry->address == address)) return true; // Don't rename EP, if any
         RDBufferView view;
-        if(!loader->view(address, RD_NPOS, &view)) return true;
+        if(!loader->view(address, RD_NVAL, &view)) return true;
 
         ILFunction il(ctx);
         if(!ILFunction::generate(address, &il) || (il.size() > 1)) return true;

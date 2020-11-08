@@ -19,7 +19,7 @@ bool Loader::build()
     return m_entry->build(CPTR(RDContext, this->context()), CPTR(RDLoader, this), &m_buildparams);
 }
 
-bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NPOS, view); }
+bool Loader::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NVAL, view); }
 
 bool Loader::view(rd_address address, size_t size, RDBufferView* view) const
 {

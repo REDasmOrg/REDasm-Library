@@ -71,7 +71,7 @@ class ILFunction: public Object
         static void generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path);
 
     private:
-        rd_address m_currentaddress{RD_NPOS};
+        rd_address m_currentaddress{RD_NVAL};
         std::vector<ILExpression*> m_expressions;
         std::unordered_map<const ILExpression*, rd_address> m_addresses;
         mutable std::forward_list<ILExpressionPtr> m_pool;

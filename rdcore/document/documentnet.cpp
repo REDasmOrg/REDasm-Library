@@ -16,7 +16,7 @@ void DocumentNet::unlinkNext(rd_address fromaddress)
     if(it == m_netnodes.end()) return;
 
     rd_address toaddress = it->second.next;
-    it->second.next = RD_NPOS;
+    it->second.next = RD_NVAL;
 
     it = m_netnodes.find(toaddress);
     if(it == m_netnodes.end()) return;

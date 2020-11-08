@@ -31,8 +31,8 @@ class Disassembler: public Object
         const char* getHexDump(rd_address address, size_t size) const;
         const char16_t* readWString(rd_address address, size_t* len) const;
         const char* readString(rd_address address, size_t* len) const;
-        std::string readWString(rd_address address, size_t len = RD_NPOS) const; // Internal C++ Helper
-        std::string readString(rd_address address, size_t len = RD_NPOS) const;  // Internal C++ Helper
+        std::string readWString(rd_address address, size_t len = RD_NVAL) const; // Internal C++ Helper
+        std::string readString(rd_address address, size_t len = RD_NVAL) const;  // Internal C++ Helper
 
     public: // Engine/Algorithm
         bool needsWeak() const;
@@ -70,7 +70,7 @@ class Disassembler: public Object
 template<typename T>
 const T* Disassembler::readStringT(rd_address address, size_t* len) const
 {
-    size_t clen = 0, maxlen = RD_NPOS;
+    size_t clen = 0, maxlen = RD_NVAL;
     if(len && *len) maxlen = *len;
 
     RDBufferView view;

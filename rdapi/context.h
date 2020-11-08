@@ -22,6 +22,7 @@ struct RDDocument;
 struct RDAssembler;
 struct RDLoader;
 struct RDBuffer;
+struct RDSurface;
 
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
 typedef void (*Callback_AssemblerEntry)(const struct RDEntryAssembler* entry, void* userdata);
@@ -39,6 +40,7 @@ RD_API_EXPORT RDLoader* RDContext_GetLoader(const RDContext* ctx);
 RD_API_EXPORT RDBuffer* RDContext_GetBuffer(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetBits(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetAddressWidth(const RDContext* ctx);
+RD_API_EXPORT RDSurface* RDContext_GetActiveSurface(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetUserData(RDContext* ctx, const char* s, uintptr_t userdata);
 RD_API_EXPORT uintptr_t RDContext_GetUserData(const RDContext* ctx, const char* s);
 RD_API_EXPORT bool RDContext_IsBusy(const RDContext* ctx);

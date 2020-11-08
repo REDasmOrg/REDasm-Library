@@ -39,7 +39,7 @@ rd_type RDIL::getOpType(const std::string& id)
     };
 
     auto it = IDS.find(id);
-    return (it != IDS.end()) ? it->second : static_cast<rd_type>(RD_NPOS);
+    return (it != IDS.end()) ? it->second : static_cast<rd_type>(RD_NVAL);
 }
 
 std::string RDIL::getText(const ILExpression* e)
@@ -61,7 +61,7 @@ void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
                 case RDIL_Unknown: {
                     renderer->renderMnemonic(s, Theme_Default);
 
-                    if(address != RD_NPOS) {
+                    if(address != RD_NVAL) {
                         renderer->renderText(" {");
                         renderer->renderAssemblerInstruction(address);
                         renderer->renderText("}");

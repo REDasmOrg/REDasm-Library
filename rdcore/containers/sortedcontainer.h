@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basecontainer.h"
+#include "flatcontainer.h"
 
 template<typename T, typename Comparator = std::equal_to<T>, typename Sorter = std::less<T>, bool unique = false>
 class SortedContainer: public FlatContainer<T, Comparator>
@@ -24,22 +24,22 @@ class SortedContainer: public FlatContainer<T, Comparator>
 template<typename T, typename Comparator, typename Sorter, bool unique>
 size_t SortedContainer<T, Comparator, Sorter, unique>::indexOf(const T& t) const {
     auto it = std::lower_bound(this->begin(), this->end(), t, Sorter());
-    if(it == this->end()) return RD_NPOS;
-    if(!Comparator()(*it, t)) return RD_NPOS;
+    if(it == this->end()) return RD_NVAL;
+    if(!Comparator()(*it, t)) return RD_NVAL;
     return std::distance(this->begin(), it);
 }
 
 template<typename T, typename Comparator, typename Sorter, bool unique>
 bool SortedContainer<T, Comparator, Sorter, unique>::remove(const T& t) {
     size_t idx = this->indexOf(t);
-    return (idx != RD_NPOS) ? this->removeAt(idx) : false;
+    return (idx != RD_NVAL) ? this->removeAt(idx) : false;
 }
 
 template<typename T, typename Comparator, typename Sorter, bool unique>
 const T* SortedContainer<T, Comparator, Sorter, unique>::insert(const T& t) {
     if constexpr(unique) {
         size_t idx = this->indexOf(t);
-        if(idx != RD_NPOS) return std::addressof(this->m_container[idx]);
+        if(idx != RD_NVAL) return std::addressof(this->m_container[idx]);
     }
 
     auto it = std::upper_bound(this->begin(), this->end(), t, Sorter());

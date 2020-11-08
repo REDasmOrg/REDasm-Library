@@ -10,7 +10,12 @@ FunctionGraph* FunctionContainer::findGraph(rd_address address) const
 }
 
 void FunctionContainer::graph(FunctionGraph* g) { m_graphs[g->startAddress()] = FunctionGraphPtr(g); }
-bool FunctionContainer::remove(rd_address address) { m_graphs.erase(address); return ContainerType::remove(address); }
+
+bool FunctionContainer::remove(const rd_address& address)
+{
+    m_graphs.erase(address);
+    return TreeContainer<rd_address>::remove(address);
+}
 
 RDLocation FunctionContainer::findFunction(rd_address address) const
 {

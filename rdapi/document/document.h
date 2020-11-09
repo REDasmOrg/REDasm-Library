@@ -43,6 +43,7 @@ struct RDGraph;
 DECLARE_HANDLE(RDDocument);
 
 typedef bool (*Callback_DocumentItem)(const RDDocumentItem* item, void* userdata);
+typedef bool (*Callback_Segment)(const RDSegment* segment, void* userdata);
 typedef bool (*Callback_Address)(rd_address address, void* userdata);
 
 RD_API_EXPORT bool RDDocument_GetSegmentAddress(const RDDocument* d, rd_address address, RDSegment* segment);
@@ -78,6 +79,7 @@ RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata);
+RD_API_EXPORT void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata);
 
 // UserData
 RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

@@ -70,3 +70,10 @@ void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* use
         return cb(address, userdata);
     });
 }
+
+void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata)
+{
+    if(cb) docptr(d)->segments()->each([&](const RDSegment& segment) {
+        return cb(&segment, userdata);
+    });
+}

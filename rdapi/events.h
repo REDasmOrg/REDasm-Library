@@ -27,9 +27,6 @@ enum RDEvents {
     // Document Events
     Event_DocumentChanged,
 
-    // Cursor Events
-    Event_CursorPositionChanged,
-
     // Surface Events
     Event_SurfaceUpdated,
     Event_SurfaceStackChanged,

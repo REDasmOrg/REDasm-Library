@@ -116,7 +116,10 @@ void Engine::cfgStep()
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
-    this->context()->document()->functions()->each([&](rd_address address) {
+    const FunctionContainer* functions = this->context()->document()->functions();
+
+    functions->each([&](rd_address address) {
+        this->context()->statusAddress("Computing basic blocks", address);
         this->generateCfg(address);
         return true;
     });
@@ -143,7 +146,6 @@ void Engine::analyzeAll()
 
 void Engine::generateCfg(rd_address address)
 {
-    rd_cfg->status("Computing basic blocks @ " + Utils::hex(address));
     auto g = std::make_unique<FunctionGraph>(this->context());
     bool cfgdone = false;
 

@@ -339,7 +339,15 @@ void Surface::handleEvents(const RDEventArgs* event)
     this->update();
 }
 
-void Surface::onStackChanged() { this->notify<RDEventArgs>(Event_SurfaceStackChanged, this); }
+void Surface::onStackChanged()
+{
+    this->notify<RDEventArgs>(Event_SurfaceStackChanged, this);
+
+    if(!m_active) return;
+
+    // Notify globally too
+    this->context()->notify<RDEventArgs>(Event_SurfaceStackChanged, this);
+}
 
 void Surface::update(const RDDocumentItem* currentitem)
 {

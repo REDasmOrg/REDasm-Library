@@ -26,6 +26,7 @@ class Object
         Context* context() const;
         void log(const std::string& s) const;
         void status(const std::string& s) const;
+        void statusAddress(const std::string& s, rd_address address) const;
         void subscribe(void* owner, const SubscribedListener& listener, void* userdata = nullptr);
         void unsubscribe(void* owner);
         template<typename EventArgs, typename ...Args> void notify(event_id_t id, void* sender, Args... args) const;

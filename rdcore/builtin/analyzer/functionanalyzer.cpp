@@ -17,7 +17,10 @@ void FunctionAnalyzer::analyze(Context* ctx)
     const RDSymbol* entry = document->entry();
     Loader* loader = ctx->loader();
 
-    document->functions()->each([&](rd_address address) {
+    const FunctionContainer* functions = document->functions();
+
+    functions->each([&](rd_address address) {
+        ctx->statusAddress("Analyzing function" , address);
         if(entry && (entry->address == address)) return true; // Don't rename EP, if any
         RDBufferView view;
         if(!loader->view(address, RD_NVAL, &view)) return true;

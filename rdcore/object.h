@@ -5,7 +5,6 @@
 #include <functional>
 #include <unordered_map>
 #include <string>
-#include <mutex>
 
 #define CPTR(type, ptr) reinterpret_cast<type*>(ptr)
 #define CPTR_P(type, ptr) type* p = CPTR(type, ptr)
@@ -16,7 +15,6 @@ class Object
 {
     protected:
         typedef std::function<void(const RDEventArgs*)> SubscribedListener;
-        typedef std::unique_lock<std::mutex> EventLock;
         struct EventItem { SubscribedListener listener; void* userdata; };
 
     public:
@@ -30,17 +28,15 @@ class Object
         void status(const std::string& s) const;
         void subscribe(void* owner, const SubscribedListener& listener, void* userdata = nullptr);
         void unsubscribe(void* owner);
-        template<typename EventArgs, typename ...Args> void notify(event_id_t id, void* sender, Args... args);
+        template<typename EventArgs, typename ...Args> void notify(event_id_t id, void* sender, Args... args) const;
 
-    protected:
+    private:
         Context* m_context{nullptr};
         std::unordered_map<void*, EventItem> m_listeners;
-        std::mutex m_mutex;
 };
 
 template<typename EventArgs, typename ...Args>
-void Object::notify(event_id_t id, void* sender, Args... args) {
-    EventLock lock(m_mutex);
+void Object::notify(event_id_t id, void* sender, Args... args) const {
     EventArgs e{ id, sender, nullptr, { nullptr }, args... };
 
     for(const auto& [owner, item] : m_listeners) {

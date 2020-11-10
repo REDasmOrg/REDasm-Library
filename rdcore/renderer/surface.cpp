@@ -362,7 +362,7 @@ void Surface::update(const RDDocumentItem* currentitem)
             continue;
         }
 
-        Renderer r(m_context, m_flags, &m_commentcolumn);
+        Renderer r(this->context(), m_flags, &m_commentcolumn);
         if(!r.render(std::addressof(*it))) continue;
 
         m_surface[row].item = *it;
@@ -393,7 +393,7 @@ void Surface::update(const RDDocumentItem* currentitem)
         this->drawCursor();
     }
 
-    if(!m_context->busy()) m_path.update();
+    if(!this->context()->busy()) m_path.update();
     this->notify<RDEventArgs>(Event_SurfaceUpdated, this);
 }
 

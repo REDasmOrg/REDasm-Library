@@ -18,8 +18,8 @@ void SurfacePath::update()
     m_paths.clear();
     m_done.clear();
 
-    const auto* net = m_context->net();
-    const auto* items = m_context->document()->items();
+    const auto* net = this->context()->net();
+    const auto* items = this->context()->document()->items();
     auto firstit = items->lowerBound(*m_surface->firstItem());
     auto lastit = items->upperBound(*m_surface->lastItem());
     size_t fromrow = 0;
@@ -43,7 +43,7 @@ void SurfacePath::update()
         else if(IS_TYPE(&item, DocumentItemType_Symbol))
         {
             RDSymbol symbol;
-            if(!m_context->document()->symbol(item.address, &symbol)) continue;
+            if(!this->context()->document()->symbol(item.address, &symbol)) continue;
             if(!items->contains(RDDocumentItem{ item.address, DocumentItemType_Instruction, 0 })) continue;
 
             const rd_address* refs = nullptr;
@@ -65,7 +65,7 @@ void SurfacePath::update()
 
 void SurfacePath::insertPath(const RDDocumentItem& fromitem, const RDDocumentItem& toitem)
 {
-    const auto* net = m_context->net();
+    const auto* net = this->context()->net();
     const auto* node = net->findNode(fromitem.address);
     if(!node) return;
 

@@ -89,15 +89,17 @@ void Engine::algorithmStep()
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
-    size_t oldfc = this->context()->document()->functions()->size();
+    const FunctionContainer* functions = this->context()->document()->functions();
+
+    size_t oldfc = functions->size();
     this->analyzeAll();
 
     if(!m_algorithm->hasNext())
     {
         // Functions count is changed, trigger analysis again
-        while(oldfc != this->context()->document()->functions()->size())
+        while(oldfc != functions->size())
         {
-            oldfc = this->context()->document()->functions()->size();
+            oldfc = functions->size();
             this->analyzeAll();
         }
 

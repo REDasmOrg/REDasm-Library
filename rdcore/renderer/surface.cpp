@@ -335,9 +335,9 @@ void Surface::handleEvents(const RDEventArgs* event)
 
 void Surface::notifyHistoryChanged()
 {
-    this->notify<RDEventArgs>(Event_SurfaceStackChanged, this);
+    this->notify<RDEventArgs>(Event_SurfaceHistoryChanged, this);
     if(!m_active) return;
-    this->context()->notify<RDEventArgs>(Event_SurfaceStackChanged, this); // Notify globally too
+    this->context()->notify<RDEventArgs>(Event_SurfaceHistoryChanged, this); // Notify globally too
 }
 
 void Surface::update(const RDDocumentItem* currentitem)

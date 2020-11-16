@@ -41,6 +41,10 @@ class Context: public Object
         void setUserData(const std::string& s, uintptr_t userdata);
         uintptr_t getUserData(const std::string& s) const;
 
+    public: // Document
+        RDLocation functionStart(rd_address address) const;
+        RDLocation entryPoint() const;
+
     public: // Loader
         void findLoaderEntries(const RDLoaderRequest* req, Callback_LoaderEntry callback, void* userdata);
         Loader* loader() const;
@@ -57,11 +61,11 @@ class Context: public Object
         const AnalyzerList& selectedAnalyzers() const;
 
     public: // Disassembler
-        bool needsWeak() const;
-        Disassembler* buildDisassembler(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
         const DocumentNet* net() const;
+        Disassembler* buildDisassembler(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
         Disassembler* disassembler() const;
         MemoryBuffer* buffer() const;
+        bool needsWeak() const;
         void disassembleAt(rd_address address);
         void disassemble();
 

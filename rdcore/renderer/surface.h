@@ -9,7 +9,7 @@
 class ItemContainer;
 class Renderer;
 
-class Surface: public Cursor
+class Surface: public Object
 {
     private:
         struct SurfaceRow {
@@ -23,6 +23,7 @@ class Surface: public Cursor
     public:
         Surface(Context* ctx, rd_flag flags, uintptr_t userdata);
         ~Surface();
+        const CursorPtr& cursor() const;
         size_t getPath(const RDPathItem** path) const;
         int row(int row, const RDSurfaceCell** cells) const;
         const std::string* currentWord() const;
@@ -39,35 +40,38 @@ class Surface: public Cursor
         bool symbolAt(int row, int col, RDSymbol* symbol) const;
         bool goTo(const RDDocumentItem* item);
         bool goToAddress(rd_address address);
+        void setUserData(uintptr_t userdata);
         void getSize(int* rows, int* cols) const;
         void scroll(int nrows, int ncols);
         void resize(int rows, int cols);
-        void moveTo(int row, int col) override;
-        void select(int row, int col) override;
+        void moveTo(int row, int col);
+        void select(int row, int col);
         void selectAt(int row, int col);
         void update(const RDDocumentItem* currentitem = nullptr);
+        void linkTo(Surface* s);
+        void unlink();
         void activate();
         void deactivate();
         bool active() const;
 
-    protected:
-        void handleEvents(const RDEventArgs* event);
-        void onStackChanged() override;
-        void onPositionChanged() override;
+    public: // Used by Cursor class
+        void notifyHistoryChanged();
+        void notifyPositionChanged();
 
     private:
-        const SurfaceRow* currentSurfaceRow() const;
         RDSurfaceCell& cell(size_t row, size_t col);
         SafeDocument& document() const;
         const ItemContainer* items() const;
         int lastColumn() const;
-        void notifyPositionChanged();
+        void handleEvents(const RDEventArgs* event);
         void checkColumn(int row, int& col) const;
         void drawRow(SurfaceRow& sfrow, const Renderer& st);
         void drawCursor();
         void highlightCurrentRow();
         void highlightWords();
         void checkSelection();
+        void updateCurrentItem();
+        void ensureVisible(const RDDocumentItem* item);
         bool hasFlag(rd_flag flag) const;
         void scrollRows(int nrows);
 
@@ -76,6 +80,7 @@ class Surface: public Cursor
         mutable std::mutex m_mutex;
 
     private:
+        CursorPtr m_cursor;
         SurfacePath m_path;
         std::unordered_map<int, SurfaceRow> m_surface;
         std::pair<RDDocumentItem, RDDocumentItem> m_items{ };

@@ -8,6 +8,7 @@
 #include "builtin/analyzer/functionanalyzer.h"
 #include "builtin/analyzer/stringsanalyzer.h"
 #include "builtin/loader/binary.h"
+#include "document/document.h"
 #include "disassembler.h"
 
 Context::Context(): Object(this) { m_pluginmanager = std::make_unique<PluginManager>(this); }
@@ -69,6 +70,9 @@ uintptr_t Context::getUserData(const std::string& s) const
     auto it = m_userdata.find(s);
     return it != m_userdata.end() ? it->second : 0;
 }
+
+RDLocation Context::functionStart(rd_address address) const { return m_disassembler->document()->functionStart(address); }
+RDLocation Context::entryPoint() const { return m_disassembler->document()->entryPoint(); }
 
 void Context::findLoaderEntries(const RDLoaderRequest* req, Callback_LoaderEntry callback, void* userdata)
 {

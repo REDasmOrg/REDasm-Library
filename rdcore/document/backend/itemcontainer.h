@@ -3,7 +3,7 @@
 #include "../../containers/treecontainer.h"
 #include <rdapi/document/document.h>
 
-struct DocumentItemSorter
+struct DocumentItemComparator
 {
     typedef void is_transparent;
 
@@ -20,7 +20,7 @@ struct DocumentItemSorter
     bool operator()(const RDDocumentItem& item1, rd_address address) const { return item1.address < address; }
 };
 
-class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemSorter>
+class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemComparator>
 {
     public:
         ItemContainer() = default;

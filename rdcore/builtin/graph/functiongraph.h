@@ -30,12 +30,16 @@ struct FunctionBasicBlock
 class FunctionGraph: public StyledGraph
 {
     private:
-        typedef std::map<rd_address, FunctionBasicBlock*> BasicBlocks;
+        typedef std::map<rd_address, FunctionBasicBlock*> BasicBlockMap;
+
+    public:
+        typedef std::list<FunctionBasicBlock> BasicBlocks;
 
     public:
         FunctionGraph(Context* ctx);
         const FunctionBasicBlock* basicBlock(rd_address address) const;
         FunctionBasicBlock* basicBlock(rd_address address);
+        const BasicBlocks& basicBlocks() const;
         rd_address startAddress() const;
         size_t bytesCount() const;
         bool contains(rd_address address) const;
@@ -47,11 +51,11 @@ class FunctionGraph: public StyledGraph
 
     private:
         FunctionBasicBlock* createBasicBlock(rd_address startaddress);
-        void buildBasicBlocks(BasicBlocks& basicblocks);
+        void buildBasicBlocks(BasicBlockMap& basicblocks);
         void buildBasicBlocks();
 
     private:
-        std::list<FunctionBasicBlock> m_basicblocks;
+        BasicBlocks m_basicblocks;
         SafeDocument& m_document;
         RDBlock m_graphstart{ };
         bool m_complete{true};

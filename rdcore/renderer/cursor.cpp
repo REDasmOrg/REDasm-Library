@@ -1,44 +1,63 @@
 #include "cursor.h"
+#include "../document/backend/itemcontainer.h"
 #include "../context.h"
+#include "surface.h"
 
 Cursor::Cursor(Context* ctx): Object(ctx) { }
-
-void Cursor::goBack()
-{
-    if(m_backstack.empty()) return;
-
-    RDSurfacePos pos = m_backstack.top();
-    m_backstack.pop();
-    m_forwardstack.push(m_position);
-    this->moveTo(pos.row, pos.col, false, true);
-    this->onStackChanged();
-}
-
-void Cursor::goForward()
-{
-    if(m_forwardstack.empty()) return;
-
-    RDSurfacePos pos = m_forwardstack.top();
-    m_forwardstack.pop();
-    m_backstack.push(m_position);
-    this->moveTo(pos.row, pos.col, false, true);
-    this->onStackChanged();
-}
+bool Cursor::hasSelection() const { return !Cursor::equalPos(&m_position, &m_selection); }
+bool Cursor::canGoForward() const { return !m_hforward.empty(); }
+bool Cursor::canGoBack() const { return !m_hback.empty(); }
+int Cursor::currentRow() const { return m_position.row; }
+int Cursor::currentColumn() const { return m_position.col; }
 
 void Cursor::clearSelection()
 {
     if(Cursor::equalPos(&m_position, &m_selection)) return;
-
     m_selection = m_position;
-    this->onPositionChanged();
 }
 
-void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true, true); }
+void Cursor::goForward()
+{
+    if(m_hforward.empty()) return;
 
-void Cursor::select(int row, int col)
+    auto pos = m_hforward.top();
+    m_hforward.pop();
+    m_hback.push(m_position);
+    this->moveTo(pos.row, pos.col);
+    this->notifyHistoryChanged();
+}
+
+void Cursor::goBack()
+{
+    if(m_hback.empty()) return;
+
+    auto pos = m_hback.top();
+    m_hback.pop();
+    m_hforward.push(m_position);
+    this->moveTo(pos.row, pos.col);
+    this->notifyHistoryChanged();
+}
+
+void Cursor::setCurrentItem(const RDDocumentItem& item) { m_currentitem = item; }
+void Cursor::set(int row, int col) { this->moveTo(row, col, false); }
+void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true); }
+void Cursor::select(int row, int col) { this->select(row, col, true); }
+void Cursor::attach(Surface* s) { m_surfaces.insert(s); }
+void Cursor::detach(Surface* s) { m_surfaces.erase(s); }
+void Cursor::notifyHistoryChanged() { for(Surface* s : m_surfaces) s->notifyHistoryChanged(); }
+void Cursor::notifyPositionChanged() { for(Surface* s : m_surfaces) s->notifyPositionChanged(); }
+
+void Cursor::moveTo(int row, int col, bool notify)
+{
+    RDSurfacePos pos = { row, col };
+    m_selection = pos;
+    this->select(row, col, notify);
+}
+
+void Cursor::select(int row, int col, bool notify)
 {
     m_position = { row, col };
-    this->onPositionChanged();
+    if(notify) this->notifyPositionChanged();
 }
 
 const RDSurfacePos* Cursor::position() const { return &m_position; }
@@ -70,53 +89,5 @@ const RDSurfacePos* Cursor::endSelection() const
     return &m_selection;
 }
 
-int Cursor::currentRow() const { return m_position.row; }
-int Cursor::currentColumn() const { return m_position.col; }
-int Cursor::selectionLine() const { return m_selection.row; }
-int Cursor::selectionColumn() const { return m_selection.col; }
-
-bool Cursor::isRowSelected(int row) const
-{
-    if(!this->hasSelection()) return false;
-
-    int first = std::min(m_position.row, m_selection.row);
-    int last = std::max(m_position.row, m_selection.row);
-
-    if((row < first) || (row > last)) return false;
-    return true;
-}
-
-bool Cursor::hasSelection() const { return !Cursor::equalPos(&m_position, &m_selection); }
-bool Cursor::canGoBack() const { return !m_backstack.empty(); }
-bool Cursor::canGoForward() const { return !m_forwardstack.empty(); }
-
-void Cursor::set(int row, int col) { this->moveTo(row, col, true, false); }
-
-bool Cursor::equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2)
-{
-    return std::tie(pos1->row, pos1->col) ==
-           std::tie(pos2->row, pos2->col);
-}
-
-void Cursor::moveTo(int row, int column, bool save, bool notify)
-{
-    RDSurfacePos pos = { row, column };
-
-    if(save && !this->hasSelection())
-    {
-        if(m_backstack.empty() || (!m_backstack.empty() && !Cursor::equalPos(&m_backstack.top(), &m_position)))
-        {
-            m_backstack.push(m_position);
-            this->onStackChanged();
-        }
-    }
-
-    m_selection = pos;
-    this->select(row, column, notify);
-}
-
-void Cursor::select(int row, int col, bool notify)
-{
-    m_position = { row, col };
-    if(notify) this->onPositionChanged();
-}
+const RDDocumentItem& Cursor::currentItem() const { return m_currentitem; }
+bool Cursor::equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2) { return std::tie(pos1->row, pos1->col) == std::tie(pos2->row, pos2->col); }

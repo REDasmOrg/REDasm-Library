@@ -58,6 +58,8 @@ RD_API_EXPORT void RDSurface_GoBack(RDSurface* sf);
 RD_API_EXPORT void RDSurface_GoForward(RDSurface* sf);
 RD_API_EXPORT void RDSurface_Activate(RDSurface* sf);
 RD_API_EXPORT void RDSurface_Deactivate(RDSurface* sf);
+RD_API_EXPORT void RDSurface_LinkTo(RDSurface* sf, RDSurface* s);
+RD_API_EXPORT void RDSurface_Unlink(RDSurface* sf);
 RD_API_EXPORT bool RDSurface_GetCurrentItem(const RDSurface* sf, RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_HasSelection(const RDSurface* sf);
 RD_API_EXPORT bool RDSurface_CanGoBack(const RDSurface* sf);

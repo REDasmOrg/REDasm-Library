@@ -1,7 +1,10 @@
 #include "context.h"
+#include <rdcore/disassembler.h>
 #include <rdcore/context.h>
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
+RDLocation RDContext_GetEntryPoint(const RDContext* ctx) { return CPTR(const Context, ctx)->entryPoint(); }
+RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->functionStart(address); }
 const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader) { return CPTR(const Context, ctx)->findAssemblerEntry(entryloader, nullptr); }
 RDDisassembler* RDContext_BuildDisassembler(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler) { return CPTR(RDDisassembler, CPTR(Context, ctx)->buildDisassembler(req, entryloader, entryassembler)); }
 const RDNet* RDContext_GetNet(const RDContext* ctx) { return CPTR(const RDNet, CPTR(const Context, ctx)->net()); }
@@ -30,3 +33,7 @@ bool RDContext_HasProblems(const RDContext* ctx) { return CPTR(const Context, ct
 void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set) { CPTR(Context, ctx)->setFlags(flags, set); }
 bool RDContext_HasFlag(const RDContext* ctx, rd_flag flag) { return CPTR(const Context, ctx)->hasFlag(flag); }
 rd_flag RDContext_GetFlags(const RDContext* ctx) { return CPTR(const Context, ctx)->flags(); }
+
+const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, symbol); }
+bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(const Context, ctx)->disassembler()->createFunction(address, name); }
+bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(const Context, ctx)->disassembler()->scheduleFunction(address, name); }

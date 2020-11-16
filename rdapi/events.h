@@ -29,7 +29,8 @@ enum RDEvents {
 
     // Surface Events
     Event_SurfaceUpdated,
-    Event_SurfaceStackChanged,
+    Event_SurfaceStackChanged, // Deprecated
+    Event_SurfaceHistoryChanged,
     Event_SurfacePositionChanged,
 };
 

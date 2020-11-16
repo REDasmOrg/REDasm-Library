@@ -23,6 +23,7 @@ struct RDAssembler;
 struct RDLoader;
 struct RDBuffer;
 struct RDSurface;
+struct RDSymbol;
 
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
 typedef void (*Callback_AssemblerEntry)(const struct RDEntryAssembler* entry, void* userdata);
@@ -30,6 +31,11 @@ typedef void (*Callback_LoaderEntry)(const struct RDEntryLoader* entry, void* us
 typedef void (*Callback_Analyzer)(const struct RDAnalyzer* analyzer, void* userdata);
 
 RD_API_EXPORT RDContext* RDContext_Create();
+RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
+RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
+RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name);
+RD_API_EXPORT bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* name);
 RD_API_EXPORT const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader);
 RD_API_EXPORT RDDisassembler* RDContext_BuildDisassembler(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 RD_API_EXPORT const RDNet* RDContext_GetNet(const RDContext* ctx);

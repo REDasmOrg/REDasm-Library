@@ -2,10 +2,10 @@
 #include <rdcore/renderer/surface.h>
 
 RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags, uintptr_t userdata) { return CPTR(RDSurface, new Surface(CPTR(Context, ctx), flags, userdata)); }
-const RDSurfacePos* RDSurface_GetPosition(const RDSurface* sf) { return CPTR(const Surface, sf)->position(); }
-const RDSurfacePos* RDSurface_GetSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->selection(); }
-const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->startSelection(); }
-const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->endSelection(); }
+const RDSurfacePos* RDSurface_GetPosition(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->position(); }
+const RDSurfacePos* RDSurface_GetSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->selection(); }
+const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->startSelection(); }
+const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->endSelection(); }
 const RDDocumentItem* RDSurface_GetFirstItem(const RDSurface* sf) { return CPTR(const Surface, sf)->firstItem(); }
 const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf) { return CPTR(const Surface, sf)->lastItem(); }
 const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
@@ -19,9 +19,9 @@ bool RDSurface_GetCurrentSymbol(const RDSurface* sf, RDSymbol* symbol) { return 
 bool RDSurface_GetSymbolAt(const RDSurface* sf, int row, int col, RDSymbol* symbol) { return CPTR(const Surface, sf)->symbolAt(row, col, symbol); }
 bool RDSurface_GoTo(RDSurface* sf, const RDDocumentItem* item) { return CPTR(Surface, sf)->goTo(item); }
 bool RDSurface_GoToAddress(RDSurface* sf, rd_address address) { return CPTR(Surface, sf)->goToAddress(address); }
-bool RDSurface_HasSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->hasSelection(); }
-bool RDSurface_CanGoBack(const RDSurface* sf) { return CPTR(const Surface, sf)->canGoBack(); }
-bool RDSurface_CanGoForward(const RDSurface* sf) { return CPTR(const Surface, sf)->canGoForward(); }
+bool RDSurface_HasSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->hasSelection(); }
+bool RDSurface_CanGoBack(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->canGoBack(); }
+bool RDSurface_CanGoForward(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->canGoForward(); }
 bool RDSurface_GetCurrentItem(const RDSurface* sf, RDDocumentItem* item) { return CPTR(const Surface, sf)->currentItem(item); }
 void RDSurface_GetSize(const RDSurface* sf, int* rows, int* cols) { return CPTR(const Surface, sf)->getSize(rows, cols); }
 void RDSurface_Update(RDSurface* sf) { CPTR(Surface, sf)->update(); }
@@ -30,10 +30,12 @@ void RDSurface_Resize(RDSurface* sf, int rows, int cols) { CPTR(Surface, sf)->re
 void RDSurface_MoveTo(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->moveTo(row, col); }
 void RDSurface_Select(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->select(row, col); }
 void RDSurface_SelectAt(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->selectAt(row, col); }
-void RDSurface_GoBack(RDSurface* sf) { return CPTR(Surface, sf)->goBack(); }
-void RDSurface_GoForward(RDSurface* sf) { return CPTR(Surface, sf)->goForward(); }
+void RDSurface_GoBack(RDSurface* sf) { return CPTR(Surface, sf)->cursor()->goBack(); }
+void RDSurface_GoForward(RDSurface* sf) { return CPTR(Surface, sf)->cursor()->goForward(); }
 void RDSurface_Activate(RDSurface* sf) { CPTR(Surface, sf)->activate(); }
 void RDSurface_Deactivate(RDSurface* sf) { CPTR(Surface, sf)->deactivate(); }
+void RDSurface_LinkTo(RDSurface* sf, RDSurface* s) { CPTR(Surface, sf)->linkTo(CPTR(Surface, s)); }
+void RDSurface_Unlink(RDSurface* sf) { CPTR(Surface, sf)->unlink(); }
 
 const char* RDSurface_GetCurrentWord(const RDSurface* sf)
 {

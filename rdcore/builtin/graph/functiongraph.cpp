@@ -64,6 +64,7 @@ FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
     return nullptr;
 }
 
+const FunctionGraph::BasicBlocks& FunctionGraph::basicBlocks() const { return m_basicblocks; }
 rd_address FunctionGraph::startAddress() const { return m_graphstart.start; }
 
 size_t FunctionGraph::bytesCount() const
@@ -129,7 +130,7 @@ FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
     return &newfbb;
 }
 
-void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocks& basicblocks)
+void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlockMap& basicblocks)
 {
     const DocumentNet* net = this->context()->net();
     std::stack<rd_address> pending;

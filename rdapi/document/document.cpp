@@ -16,8 +16,6 @@ bool RDDocument_Contains(const RDDocument* d, const RDDocumentItem* item) { retu
 bool RDDocument_GetAny(const RDDocument* d, rd_address address, const rd_type* types, RDDocumentItem* item) { return docptr(d)->getAny(address, types, item); }
 const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { return docptr(d)->symbols()->getName(address); }
 const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
-RDLocation RDDocument_GetEntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
-RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
 size_t RDDocument_GetSize(const RDDocument* d) { return docptr(d)->size(); }
 bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
 bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }

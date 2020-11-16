@@ -89,7 +89,7 @@ void PluginModule::unload()
 void* PluginModule::func(const char* name)
 {
 #ifdef _WIN32
-    return reinterpret_cast<void*>(GetProcAddressA(m_handle, name));
+    return reinterpret_cast<void*>(GetProcAddress(m_handle, name));
 #else
     return reinterpret_cast<void*>(dlsym(m_handle, name));
 #endif

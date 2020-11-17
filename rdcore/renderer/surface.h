@@ -38,8 +38,8 @@ class Surface: public Object
         bool currentItem(RDDocumentItem* item) const;
         bool currentSymbol(RDSymbol* symbol) const;
         bool symbolAt(int row, int col, RDSymbol* symbol) const;
-        bool goTo(const RDDocumentItem* item);
-        bool goToAddress(rd_address address);
+        bool goTo(const RDDocumentItem* item, bool updatehistory = true);
+        bool goToAddress(rd_address address, bool updatehistory = true);
         void setUserData(uintptr_t userdata);
         void getSize(int* rows, int* cols) const;
         void scroll(int nrows, int ncols);

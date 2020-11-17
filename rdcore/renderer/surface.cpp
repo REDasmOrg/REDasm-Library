@@ -21,7 +21,7 @@ Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), 
         item = *items->begin();
     }
 
-    this->goTo(&item);
+    this->goTo(&item, false);
 }
 
 Surface::~Surface()
@@ -126,7 +126,7 @@ const std::string* Surface::wordAt(int row, int col) const
 
 const std::string& Surface::selectedText() const { return m_selectedtext; }
 
-bool Surface::goTo(const RDDocumentItem* item)
+bool Surface::goTo(const RDDocumentItem* item, bool updatehistory)
 {
     if(!item) return false;
 
@@ -134,12 +134,13 @@ bool Surface::goTo(const RDDocumentItem* item)
     auto it = items->find(*item);
     if(it == items->end()) return false;
 
+    if(updatehistory) m_cursor->updateHistory();
     this->ensureVisible(item);
     this->update(item);
     return true;
 }
 
-bool Surface::goToAddress(rd_address address)
+bool Surface::goToAddress(rd_address address, bool updatehistory)
 {
     auto* items = this->items();
     auto it = items->find(address);
@@ -154,7 +155,7 @@ bool Surface::goToAddress(rd_address address)
         currit++;
     }
 
-    return this->goTo(std::addressof(*currit));
+    return this->goTo(std::addressof(*currit), updatehistory);
 }
 
 void Surface::setUserData(uintptr_t userdata) { m_userdata = userdata; }
@@ -322,7 +323,7 @@ void Surface::handleEvents(const RDEventArgs* event)
         case Event_BusyChanged: {
             if(this->context()->busy()) return;
             RDLocation loc = this->document()->entryPoint();
-            if(loc.valid) this->goToAddress(loc.address);
+            if(loc.valid) this->goToAddress(loc.address, false);
             break;
         }
 

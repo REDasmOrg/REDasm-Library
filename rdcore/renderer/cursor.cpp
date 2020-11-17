@@ -20,10 +20,11 @@ void Cursor::goForward()
 {
     if(m_hforward.empty()) return;
 
-    auto pos = m_hforward.top();
+    auto item = m_hforward.top();
     m_hforward.pop();
-    m_hback.push(m_position);
-    this->moveTo(pos.row, pos.col);
+    if(m_currentitem.type) m_hback.push(m_currentitem);
+
+    this->moveSurfaces(&item);
     this->notifyHistoryChanged();
 }
 
@@ -31,10 +32,11 @@ void Cursor::goBack()
 {
     if(m_hback.empty()) return;
 
-    auto pos = m_hback.top();
+    auto item = m_hback.top();
     m_hback.pop();
-    m_hforward.push(m_position);
-    this->moveTo(pos.row, pos.col);
+    if(m_currentitem.type) m_hforward.push(m_currentitem);
+
+    this->moveSurfaces(&item);
     this->notifyHistoryChanged();
 }
 
@@ -42,8 +44,18 @@ void Cursor::setCurrentItem(const RDDocumentItem& item) { m_currentitem = item; 
 void Cursor::set(int row, int col) { this->moveTo(row, col, false); }
 void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true); }
 void Cursor::select(int row, int col) { this->select(row, col, true); }
+
+void Cursor::updateHistory()
+{
+    if(!m_currentitem.type) return;
+
+    m_hback.push(m_currentitem);
+    this->notifyHistoryChanged();
+}
+
 void Cursor::attach(Surface* s) { m_surfaces.insert(s); }
 void Cursor::detach(Surface* s) { m_surfaces.erase(s); }
+void Cursor::moveSurfaces(const RDDocumentItem* item) { for(Surface* s : m_surfaces) s->goTo(item, false); }
 void Cursor::notifyHistoryChanged() { for(Surface* s : m_surfaces) s->notifyHistoryChanged(); }
 void Cursor::notifyPositionChanged() { for(Surface* s : m_surfaces) s->notifyPositionChanged(); }
 

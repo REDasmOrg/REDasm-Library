@@ -10,7 +10,7 @@ class Surface;
 class Cursor: public Object
 {
     private:
-        typedef std::stack<RDSurfacePos> History;
+        typedef std::stack<RDDocumentItem> History;
 
     public:
         Cursor(Context* ctx);
@@ -31,10 +31,12 @@ class Cursor: public Object
         void set(int row, int col);
         void moveTo(int row, int col);
         void select(int row, int col);
+        void updateHistory();
         void attach(Surface* s);
         void detach(Surface* s);
 
     private:
+        void moveSurfaces(const RDDocumentItem* item);
         void notifyHistoryChanged();
         void notifyPositionChanged();
 

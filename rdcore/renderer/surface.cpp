@@ -402,17 +402,25 @@ void Surface::linkTo(Surface* s)
 {
     if(!s) return;
 
-    if(m_cursor) m_cursor->detach(this);
-    m_cursor = s->cursor();
-    m_cursor->attach(this);
+    m_cursor->linkHistory(s->cursor()->history());
 
-    if(s->m_items.first.type)
-        this->goTo(&s->m_items.first);
+    // if(m_cursor) m_cursor->detach(this);
+    // m_cursor = s->cursor();
+    // m_cursor->attach(this);
+
+    // if(s->m_items.first.type)
+    //     this->goTo(&s->m_items.first);
 }
 
 void Surface::unlink()
 {
-    if(m_cursor) m_cursor->detach(this);
+    if(m_cursor)
+    {
+        //m_cursor->detach(this);
+        m_cursor->unlinkHistory();
+        return;
+    }
+
     m_cursor = std::make_shared<Cursor>(this->context());
     m_cursor->attach(this);
 }

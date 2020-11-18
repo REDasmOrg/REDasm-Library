@@ -7,10 +7,27 @@
 
 class Surface;
 
-class Cursor: public Object
+class CursorHistory
 {
     private:
         typedef std::stack<RDDocumentItem> History;
+
+    public:
+        CursorHistory() = default;
+        CursorHistory(const History& backstack, const History& forwardstack);
+        History& backStack();
+        History& forwardStack();
+        bool canGoForward() const;
+        bool canGoBack() const;
+
+    private:
+        History m_hback, m_hforward;
+};
+
+typedef std::shared_ptr<CursorHistory> CursorHistoryPtr;
+
+class Cursor: public Object
+{
 
     public:
         Cursor(Context* ctx);
@@ -19,6 +36,9 @@ class Cursor: public Object
         const RDSurfacePos* startSelection() const;
         const RDSurfacePos* endSelection() const;
         const RDDocumentItem& currentItem() const;
+        const CursorHistoryPtr& history() const;
+        void linkHistory(const CursorHistoryPtr& ptr);
+        void unlinkHistory();
         int currentRow() const;
         int currentColumn() const;
         bool hasSelection() const;
@@ -46,10 +66,10 @@ class Cursor: public Object
         void select(int row, int col, bool notify);
 
     private:
+        CursorHistoryPtr m_history;
         RDDocumentItem m_currentitem{ };
         std::unordered_set<Surface*> m_surfaces;
         RDSurfacePos m_position{0, 0}, m_selection{0, 0};
-        History m_hback, m_hforward;
 };
 
 typedef std::shared_ptr<Cursor> CursorPtr;

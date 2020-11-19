@@ -11,8 +11,8 @@ bool CursorHistory::canGoBack() const { return !m_hback.empty(); }
 
 Cursor::Cursor(Context* ctx): Object(ctx) { m_history = std::make_shared<CursorHistory>(); }
 bool Cursor::hasSelection() const { return !Cursor::equalPos(&m_position, &m_selection); }
-bool Cursor::canGoForward() const { return !m_history->canGoForward(); }
-bool Cursor::canGoBack() const { return !m_history->canGoBack(); }
+bool Cursor::canGoForward() const { return m_history->canGoForward(); }
+bool Cursor::canGoBack() const { return m_history->canGoBack(); }
 int Cursor::currentRow() const { return m_position.row; }
 int Cursor::currentColumn() const { return m_position.col; }
 

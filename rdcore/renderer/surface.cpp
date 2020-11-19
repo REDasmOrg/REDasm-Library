@@ -21,7 +21,7 @@ Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), 
         item = *items->begin();
     }
 
-    this->goTo(&item, false);
+    this->seek(&item);
 }
 
 Surface::~Surface()
@@ -99,6 +99,12 @@ bool Surface::symbolAt(int row, int col, RDSymbol* symbol) const
     auto* w = this->wordAt(row, col);
     if(!w) return false;
     return this->document()->symbol(w->c_str(), symbol);
+}
+
+bool Surface::seek(const RDDocumentItem* item)
+{
+    if(!item) return false;
+    return this->goTo(item, false);
 }
 
 const std::string* Surface::currentWord() const

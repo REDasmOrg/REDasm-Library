@@ -38,6 +38,7 @@ class Surface: public Object
         bool currentItem(RDDocumentItem* item) const;
         bool currentSymbol(RDSymbol* symbol) const;
         bool symbolAt(int row, int col, RDSymbol* symbol) const;
+        bool seek(const RDDocumentItem* item);
         bool goTo(const RDDocumentItem* item, bool updatehistory = true);
         bool goToAddress(rd_address address, bool updatehistory = true);
         void setUserData(uintptr_t userdata);

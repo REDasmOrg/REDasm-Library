@@ -17,6 +17,7 @@ bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item) { ret
 bool RDSurface_Contains(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->contains(item); }
 bool RDSurface_GetCurrentSymbol(const RDSurface* sf, RDSymbol* symbol) { return CPTR(const Surface, sf)->currentSymbol(symbol); }
 bool RDSurface_GetSymbolAt(const RDSurface* sf, int row, int col, RDSymbol* symbol) { return CPTR(const Surface, sf)->symbolAt(row, col, symbol); }
+bool RDSurface_Seek(RDSurface* sf, const RDDocumentItem* item) { return CPTR(Surface, sf)->seek(item); }
 bool RDSurface_GoTo(RDSurface* sf, const RDDocumentItem* item) { return CPTR(Surface, sf)->goTo(item); }
 bool RDSurface_GoToAddress(RDSurface* sf, rd_address address) { return CPTR(Surface, sf)->goToAddress(address); }
 bool RDSurface_HasSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->hasSelection(); }

@@ -135,7 +135,7 @@ bool StringFinder::validateString(const char* s, size_t size)
         case '(':  if((str.back() != ')'))    return false; break;
         case '[':  if((str.back() != ']'))    return false; break;
         case '{':  if((str.back() != '}'))    return false; break;
-        case '%':  if(!StringFinder::checkFormats(s)) return false; break;
+        case '%':  if(!StringFinder::checkFormats(str)) return false; break;
         case ' ':  return false; break;
         default:   if(GibberishDetector::isGibberish(str)) return false; break;
     }

@@ -8,7 +8,7 @@ struct RDSymbol;
 struct RDContext;
 struct RDDocumentItem;
 
-DECLARE_HANDLE(RDSurface);
+RD_HANDLE(RDSurface);
 
 typedef struct RDSurfaceCell {
     u8 background;

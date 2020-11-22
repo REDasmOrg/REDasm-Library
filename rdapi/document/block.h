@@ -19,7 +19,7 @@ typedef struct RDBlock { // [start, end)
     rd_type type;
 } RDBlock;
 
-DECLARE_HANDLE(RDBlockContainer);
+RD_HANDLE(RDBlockContainer);
 
 typedef bool(*BlockContainer_Callback)(const RDBlock* b, void* userdata);
 

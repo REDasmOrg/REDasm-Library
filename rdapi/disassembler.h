@@ -5,7 +5,7 @@
 #include "symbol.h"
 #include "plugin/assembler/assembler.h"
 
-DECLARE_HANDLE(RDDisassembler);
+RD_HANDLE(RDDisassembler);
 
 RD_API_EXPORT RDLocation RDDisassembler_Dereference(const RDDisassembler* d, rd_address address);
 RD_API_EXPORT bool RDDisassembler_Encode(RDDisassembler* d, RDEncodedInstruction* encoded);

@@ -11,7 +11,7 @@ enum RDAnalyzerFlags {
     AnalyzerFlags_Experimental = (1 << 2),
 };
 
-DECLARE_HANDLE(RDAnalyzer);
+RD_HANDLE(RDAnalyzer);
 
 typedef bool (*Callback_AnalyzerIsEnabled)(const RDContext* ctx);
 typedef void (*Callback_AnalyzerExecute)(RDContext* ctx);

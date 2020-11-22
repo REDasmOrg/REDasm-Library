@@ -4,7 +4,7 @@
 #include "../types.h"
 
 struct RDContext;
-DECLARE_HANDLE(RDGraph);
+RD_HANDLE(RDGraph);
 
 typedef size_t RDGraphNode;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <rdapi/config.h>
+#include <filesystem>
 #include <utility>
 #include <string>
 #include <chrono>
@@ -8,6 +9,9 @@
 #include "containers/uniquecontainer.h"
 
 #define DATABASE_FOLDER_NAME "database"
+
+namespace fs = std::filesystem;
+typedef fs::path::string_type platform_string;
 
 struct RDUI;
 
@@ -56,10 +60,10 @@ class Config
         const CallbackStruct<RD_ProgressCallback>& progressCallback() const;
         const CallbackStruct<RD_StatusCallback>& statusCallback() const;
         const CallbackStruct<RD_LogCallback>& logCallback() const;
-        const UniqueContainer<std::string>& databasePaths() const;
-        const UniqueContainer<std::string>& pluginPaths() const;
-        const char* runtimePath() const;
-        const char* tempPath() const;
+        const UniqueContainer<fs::path>& databasePaths() const;
+        const UniqueContainer<fs::path>& pluginPaths() const;
+        std::string runtimePath() const;
+        std::string tempPath() const;
         const RDUI* ui() const;
         const char* theme(rd_type theme) const;
 
@@ -75,11 +79,11 @@ class Config
         static const char* themeAlt(const std::string& color, const std::string& altcolor);
 
     private:
-        UniqueContainer<std::string> m_pluginpaths, m_dbpaths;
+        UniqueContainer<fs::path> m_pluginpaths, m_dbpaths;
         CallbackStruct<RD_ProgressCallback> m_progresscallback;
         CallbackStruct<RD_StatusCallback> m_statuscallback;
         CallbackStruct<RD_LogCallback> m_logcallback;
-        std::string m_rntpath, m_tmppath;
+        fs::path m_rntpath, m_tmppath;
         ThemeColors m_themecolors;
         const RDUI* m_ui{nullptr};
 

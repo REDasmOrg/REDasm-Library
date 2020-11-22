@@ -5,7 +5,7 @@
 #include "object.h"
 #include "types.h"
 
-DECLARE_HANDLE(RDContext);
+RD_HANDLE(RDContext);
 
 enum RDContextFlags {
     ContextFlags_None       = 0,

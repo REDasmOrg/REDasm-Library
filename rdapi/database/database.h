@@ -31,7 +31,7 @@ typedef struct RDDatabaseValue {
     };
 } RDDatabaseValue;
 
-DECLARE_HANDLE(RDDatabase);
+RD_HANDLE(RDDatabase);
 
 RD_API_EXPORT size_t RDDatabase_CompileFile(const char* filepath, const u8** compiled);
 RD_API_EXPORT size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled);

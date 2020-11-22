@@ -1,7 +1,6 @@
 #include "config.h"
 #include "support/utils.h"
 #include <rdapi/ui.h>
-#include <filesystem>
 #include <iostream>
 #include <sstream>
 
@@ -11,8 +10,6 @@
     auto now = std::chrono::steady_clock::now(); \
     if((now - m_laststatusreport) < m_debouncetimeout) return; \
     m_laststatusreport = now;
-
-namespace fs = std::filesystem;
 
 Config::Config(): m_rntpath(fs::current_path()), m_tmppath(fs::temp_directory_path())
 {
@@ -184,14 +181,14 @@ void Config::log(const char* s) const
     m_logcallback(s);
 }
 
-void Config::getDatabasePaths(RD_PathCallback callback, void* userdata) const { for(const std::string& dbpath : m_dbpaths) callback(dbpath.c_str(), userdata); }
-void Config::getPluginPaths(RD_PathCallback callback, void* userdata) const { for(const std::string& pluginpath : m_pluginpaths) callback(pluginpath.c_str(), userdata); }
+void Config::getDatabasePaths(RD_PathCallback callback, void* userdata) const { for(const auto& dbpath : m_dbpaths) callback(dbpath.string().c_str(), userdata); }
+void Config::getPluginPaths(RD_PathCallback callback, void* userdata) const { for(const auto& pluginpath : m_pluginpaths) callback(pluginpath.string().c_str(), userdata); }
 const CallbackStruct<RD_ProgressCallback>& Config::progressCallback() const { return m_progresscallback; }
 const CallbackStruct<RD_StatusCallback>& Config::statusCallback() const { return m_statuscallback; }
 const CallbackStruct<RD_LogCallback>& Config::logCallback() const { return m_logcallback; }
-const UniqueContainer<std::string>& Config::databasePaths() const { return m_dbpaths; }
-const UniqueContainer<std::string>& Config::pluginPaths() const { return m_pluginpaths; }
-const char* Config::runtimePath() const { return m_rntpath.c_str(); }
-const char* Config::tempPath() const { return m_tmppath.c_str(); }
+const UniqueContainer<fs::path>& Config::databasePaths() const { return m_dbpaths; }
+const UniqueContainer<fs::path>& Config::pluginPaths() const { return m_pluginpaths; }
+std::string Config::runtimePath() const { return m_rntpath.string(); }
+std::string Config::tempPath() const { return m_tmppath.string(); }
 const RDUI* Config::ui() const { return m_ui; }
 const char* Config::themeAlt(const std::string& color, const std::string& altcolor) { return color.empty() ? altcolor.c_str() : color.c_str(); }

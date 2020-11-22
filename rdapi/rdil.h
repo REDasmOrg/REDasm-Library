@@ -88,8 +88,8 @@ enum RDILTypes
 
 typedef union RDILValue { PRIVATE_RDIL_VALUE_FIELDS } RDILValue;
 
-DECLARE_HANDLE(RDILFunction);
-DECLARE_HANDLE(RDILExpression);
+RD_HANDLE(RDILFunction);
+RD_HANDLE(RDILExpression);
 
 RD_API_EXPORT RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address);
 

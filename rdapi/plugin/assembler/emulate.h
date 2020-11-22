@@ -6,7 +6,7 @@
 struct RDDisassembler;
 struct RDBufferView;
 
-DECLARE_HANDLE(RDEmulateResult);
+RD_HANDLE(RDEmulateResult);
 
 RD_API_EXPORT RDDisassembler* RDEmulateResult_GetDisassembler(const RDEmulateResult* res);
 RD_API_EXPORT const RDBufferView* RDEmulateResult_GetView(const RDEmulateResult* res);

@@ -2,21 +2,18 @@
 #include "../config.h"
 #include "../support/utils.h"
 #include "../support/compression.h"
-#include <filesystem>
 #include <fstream>
 
-namespace fs = std::filesystem;
+Database::Database(const fs::path& dbpath, const nlohmann::json& db): Object(), m_dbfilepath(dbpath), m_dbname(dbpath.stem().string()), m_db(db) { }
 
-Database::Database(const std::string& dbpath, const nlohmann::json& db): Object(), m_dbfilepath(dbpath), m_dbname(fs::path(dbpath).stem()), m_db(db) { }
-
-bool Database::compileFile(const std::string& filepath, CompiledData& compiled)
+bool Database::compileFile(const fs::path &filepath, CompiledData& compiled)
 {
     DecompiledData decompiled;
     Database::read(filepath, decompiled);
     return Database::compile(decompiled, compiled);
 }
 
-bool Database::decompileFile(const std::string& filepath, DecompiledData& decompiled)
+bool Database::decompileFile(const fs::path &filepath, DecompiledData& decompiled)
 {
     CompiledData compiled;
     Database::read(filepath, compiled);
@@ -122,12 +119,12 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
     return true;
 }
 
-const std::string& Database::filePath() const { return m_dbfilepath; }
-Database* Database::create(const std::string& dbpath) { return new Database(dbpath, nlohmann::json::object()); }
+std::string Database::filePath() const { return m_dbfilepath.string(); }
+Database* Database::create(const fs::path& dbpath) { return new Database(dbpath, nlohmann::json::object()); }
 
-Database* Database::open(const std::string& dbpath)
+Database* Database::open(const fs::path& dbpath)
 {
-    std::string path = Database::locate(dbpath);
+    auto path = Database::locate(dbpath);
     if(path.empty()) return nullptr;
 
     nlohmann::json db;
@@ -135,7 +132,7 @@ Database* Database::open(const std::string& dbpath)
     return new Database(path, db);
 }
 
-void Database::read(const std::string& filepath, Database::DatabaseData& data)
+void Database::read(const fs::path& filepath, Database::DatabaseData& data)
 {
     std::ifstream stream(filepath, std::ios::in | std::ios::binary | std::ios::ate);
     if(!stream.is_open()) return;
@@ -147,14 +144,14 @@ void Database::read(const std::string& filepath, Database::DatabaseData& data)
     stream.read(reinterpret_cast<char*>(data.data()), size);
 }
 
-bool Database::parseDecompiledFile(const std::string& filepath, nlohmann::json& j)
+bool Database::parseDecompiledFile(const fs::path& filepath, nlohmann::json& j)
 {
     DecompiledData decompiled;
     Database::read(filepath, decompiled);
     return Database::parseDecompiled(decompiled, j);
 }
 
-bool Database::parseCompiledFile(const std::string& filepath, nlohmann::json& j)
+bool Database::parseCompiledFile(const fs::path& filepath, nlohmann::json& j)
 {
     CompiledData compiled;
     Database::read(filepath, compiled);
@@ -187,22 +184,22 @@ bool Database::parseCompiled(const CompiledData& compiled, nlohmann::json& j)
     return true;
 }
 
-std::string Database::locate(std::string dbname)
+fs::path Database::locate(fs::path dbname)
 {
-    if(fs::path(dbname).extension() != DATABASE_RDB_EXT) dbname += DATABASE_RDB_EXT;
+    if(dbname.extension() != DATABASE_RDB_EXT) dbname.replace_extension(DATABASE_RDB_EXT);
     if(fs::exists(dbname)) return dbname;
 
     fs::directory_entry dbentry;
 
     // Search everywhere
-    for(const std::string& searchpath : rd_cfg->databasePaths())
+    for(const auto& searchpath : rd_cfg->databasePaths())
     {
-        dbentry.assign((fs::path(searchpath) / dbname).make_preferred());
+        dbentry.assign(searchpath / dbname);
         if(dbentry.is_regular_file()) return dbentry.path();
 
-        dbentry.assign((fs::path(searchpath) / DATABASE_FOLDER_NAME / dbname).make_preferred());
+        dbentry.assign(searchpath / DATABASE_FOLDER_NAME / dbname);
         if(dbentry.is_regular_file()) return dbentry.path();
     }
 
-    return std::string();
+    return { };
 }

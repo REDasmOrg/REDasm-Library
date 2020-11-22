@@ -8,7 +8,7 @@
 
 #define ENCODE_BUFFER_SIZE 64
 
-DECLARE_HANDLE(RDAssembler);
+RD_HANDLE(RDAssembler);
 
 struct RDEntryAssembler;
 struct RDEmulateResult;

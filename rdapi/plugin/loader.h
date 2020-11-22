@@ -24,7 +24,7 @@ typedef struct RDLoaderRequest {
     RDLoaderBuildParams buildparams;
 } RDLoaderRequest;
 
-DECLARE_HANDLE(RDLoader);
+RD_HANDLE(RDLoader);
 
 struct RDEntryLoader;
 struct RDContext;

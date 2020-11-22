@@ -40,7 +40,7 @@ typedef struct RDDocumentItem {
 
 struct RDGraph;
 
-DECLARE_HANDLE(RDDocument);
+RD_HANDLE(RDDocument);
 
 typedef bool (*Callback_DocumentItem)(const RDDocumentItem* item, void* userdata);
 typedef bool (*Callback_Segment)(const RDSegment* segment, void* userdata);

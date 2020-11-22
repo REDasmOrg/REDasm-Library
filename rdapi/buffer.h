@@ -3,7 +3,7 @@
 #include "types.h"
 #include "macros.h"
 
-DECLARE_HANDLE(RDBuffer);
+RD_HANDLE(RDBuffer);
 
 RD_API_EXPORT RDBuffer* RDBuffer_Create(size_t size);
 RD_API_EXPORT RDBuffer* RDBuffer_CreateFromFile(const char* filename);

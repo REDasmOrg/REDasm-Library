@@ -3,7 +3,7 @@
 #include "../macros.h"
 #include "../types.h"
 
-DECLARE_HANDLE(RDLexer);
+RD_HANDLE(RDLexer);
 
 enum RDTokenType {
     TokenType_End,

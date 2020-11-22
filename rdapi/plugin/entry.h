@@ -33,7 +33,7 @@
 
 struct RDContext;
 
-DECLARE_HANDLE(RDPluginModule);
+RD_HANDLE(RDPluginModule);
 
 #ifdef rd_plugin_id
 RD_API_EXPORT void rdplugin_init(RDContext* ctx, RDPluginModule* pm);

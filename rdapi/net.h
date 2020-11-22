@@ -3,8 +3,8 @@
 #include "macros.h"
 #include "types.h"
 
-DECLARE_HANDLE(RDNet);
-DECLARE_HANDLE(RDNetNode);
+RD_HANDLE(RDNet);
+RD_HANDLE(RDNetNode);
 
 RD_API_EXPORT const RDNetNode* RDNet_FindNode(const RDNet* net, rd_address address);
 RD_API_EXPORT size_t RDNet_GetReferences(const RDNet* net, rd_address address, const rd_address** refs);

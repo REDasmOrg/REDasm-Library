@@ -3,8 +3,8 @@
 #include "../macros.h"
 #include "../types.h"
 
-DECLARE_HANDLE(RDDBEnum);
-DECLARE_HANDLE(RDDBUnion);
-DECLARE_HANDLE(RDDBStruct);
-DECLARE_HANDLE(RDDBTypedef);
-DECLARE_HANDLE(RDDBFunction);
+RD_HANDLE(RDDBEnum);
+RD_HANDLE(RDDBUnion);
+RD_HANDLE(RDDBStruct);
+RD_HANDLE(RDDBTypedef);
+RD_HANDLE(RDDBFunction);

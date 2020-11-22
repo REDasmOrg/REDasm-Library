@@ -5,7 +5,7 @@
 
 struct RDContext;
 
-DECLARE_HANDLE(RDRenderer);
+RD_HANDLE(RDRenderer);
 
 enum RDRendererFlags {
     RendererFlags_Normal           = 0,

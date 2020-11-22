@@ -2,7 +2,7 @@
 
 #include "graph.h"
 
-DECLARE_HANDLE(RDFunctionBasicBlock);
+RD_HANDLE(RDFunctionBasicBlock);
 
 struct RDDocumentItem;
 

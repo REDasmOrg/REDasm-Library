@@ -13,8 +13,20 @@ void RDConfig_SetStatusCallback(RD_StatusCallback callback, void* userdata) { rd
 void RDConfig_SetProgressCallback(RD_ProgressCallback callback, void* userdata) { rd_cfg->setProgressCallback(callback, userdata); }
 void RDConfig_SetTheme(rd_type theme, const char* color) { rd_cfg->setTheme(theme, color); }
 const char* RDConfig_GetTheme(rd_type theme) { return rd_cfg->theme(theme); }
-const char* RDConfig_GetRuntimePath() { return rd_cfg->runtimePath(); }
-const char* RDConfig_GetTempPath() { return rd_cfg->tempPath(); }
+
+const char* RDConfig_GetRuntimePath()
+{
+    static std::string s;
+    s = rd_cfg->runtimePath();
+    return s.c_str();
+}
+
+const char* RDConfig_GetTempPath()
+{
+    static std::string s;
+    s = rd_cfg->tempPath();
+    return s.c_str();
+}
 
 void RD_StatusAddress(const char* s, rd_address address) { rd_cfg->statusAddress(s, address); }
 void RD_Status(const char* s) { rd_cfg->status(s); }

@@ -6,7 +6,7 @@
 PluginManager::PluginManager(Context* ctx): Object(ctx)
 {
     for(size_t i = 0; i < EntryCategory_Last; i++) m_entries[i] = { }; // Initialize all categories
-    for(const std::string& pluginpath : rd_cfg->pluginPaths()) this->loadAll(pluginpath);
+    for(const auto& pluginpath : rd_cfg->pluginPaths()) this->loadAll(pluginpath);
     this->loadBuiltins();
 }
 
@@ -17,7 +17,7 @@ const RDEntryAssembler* PluginManager::findAssembler(const std::string& id) cons
 const RDEntryLoader* PluginManager::selectLoader(const std::string& id) { return reinterpret_cast<const RDEntryLoader*>(this->selectEntry(EntryCategory_Loader, id)); }
 const RDEntryAssembler* PluginManager::selectAssembler(const std::string& id) { return reinterpret_cast<const RDEntryAssembler*>(this->selectEntry(EntryCategory_Assembler, id)); }
 
-void PluginManager::loadAll(const std::string& pluginpath)
+void PluginManager::loadAll(const fs::path& pluginpath)
 {
     std::filesystem::directory_entry e(pluginpath);
     if(!e.is_directory()) return;
@@ -61,7 +61,7 @@ void PluginManager::loadBuiltins()
     this->load(pm);
 }
 
-void PluginManager::load(const std::string& filepath)
+void PluginManager::load(const fs::path& filepath)
 {
     auto pm = std::make_shared<PluginModule>(this->context(), filepath);
     if(pm->loaded()) this->load(pm);

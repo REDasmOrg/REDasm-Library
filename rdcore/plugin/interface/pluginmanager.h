@@ -24,8 +24,8 @@ class PluginManager: public Object
     private:
         template<typename T> const T* findEntry(size_t c, const std::string& id) const;
         const RDEntry* selectEntry(size_t c, const std::string& id);
-        void loadAll(const std::string& pluginpath);
-        void load(const std::string& filepath);
+        void loadAll(const fs::path& pluginpath);
+        void load(const fs::path& filepath);
         void load(const PluginModulePtr& pm);
         void loadBuiltins();
 

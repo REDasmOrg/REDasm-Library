@@ -26,7 +26,7 @@ void initializeContext()
 {
     if(g_initialized) return;
 
-    RDConfig_AddPluginPath((fs::current_path().parent_path().parent_path() / "plugins").c_str());
+    RDConfig_AddPluginPath((fs::current_path().parent_path().parent_path() / "plugins").string().c_str());
     RDConfig_SetStatusCallback([](const char*, void*) { }, nullptr);
     RDConfig_SetLogCallback([](const char*, void*) { }, nullptr);
     g_initialized = true;
@@ -40,7 +40,7 @@ TEST_CASE("Executables")
 
     for(const auto& [filepath, test] : g_tests)
     {
-        SUBCASE(fs::path(filepath).filename().c_str())
+        SUBCASE(fs::path(filepath).filename().string().c_str())
         {
             rd_ptr<RDContext> ctx(RDContext_Create());
             RDBuffer* b = RDBuffer_CreateFromFile(filepath.c_str());

@@ -38,7 +38,7 @@ class TreeContainer: public AbstractContainer<T, Container>
 };
 
 template<typename T, typename Sorter, typename Container>
-void TreeContainer<T, Sorter, Container>::range(const T& first, const T& last, const typename TreeContainer<T, Sorter, Container>::TypeCallback& cb) const {
+void TreeContainer<T, Sorter, Container>::range(const T& first, const T& last, const typename TreeContainer::TypeCallback& cb) const {
     auto startit = this->m_container.find(first);
     if(startit == this->m_container.end()) return;
 

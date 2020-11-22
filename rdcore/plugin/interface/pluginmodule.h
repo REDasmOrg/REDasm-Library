@@ -27,7 +27,7 @@ class PluginModule: public Object
 
     public:
         PluginModule(Context* ctx);
-        PluginModule(Context* ctx, const std::string& filepath);
+        PluginModule(Context* ctx, const fs::path& filepath);
         virtual ~PluginModule();
         const std::vector<EntryItem>& entries() const;
         bool loaded() const;
@@ -50,7 +50,7 @@ class PluginModule: public Object
         static ModuleHandles m_sharedhandles;
         std::vector<EntryItem> m_entries;
         hmodule m_handle{ };
-        std::string m_filepath;
+        fs::path m_filepath;
         Callback_PluginInit m_init;
         Callback_PluginFree m_free;
 };

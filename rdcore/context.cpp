@@ -190,3 +190,9 @@ bool Context::hasProblems() const { return !m_problems.empty(); }
 size_t Context::problemsCount() const { return m_problems.size(); }
 void Context::getProblems(RD_ProblemCallback callback, void* userdata) const { for(const std::string& problem : m_problems) callback(problem.c_str(), userdata); }
 void Context::problem(const std::string& s) { if(!m_ignoreproblems) m_problems.insert(s); }
+
+template<typename T>
+bool AnalyzerSorter<T>::operator ()(const T &a1, const T &a2) const { return a1->plugin()->order < a2->plugin()->order; };
+
+template<typename T>
+bool AnalyzerComparator<T>::operator ()(const T &a1, const T &a2) const { return a1->plugin()->execute == a2->plugin()->execute; };

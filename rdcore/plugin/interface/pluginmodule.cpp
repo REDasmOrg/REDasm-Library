@@ -9,16 +9,14 @@
 #define RDPLUGIN_PLUGIN_INIT_NAME "rdplugin_init"
 #define RDPLUGIN_PLUGIN_FREE_NAME "rdplugin_free"
 
-namespace fs = std::filesystem;
-
 PluginModule::ModuleHandles PluginModule::m_sharedhandles;
 
 PluginModule::PluginModule(Context* ctx): Object(ctx) { }
 
-PluginModule::PluginModule(Context* ctx, const std::string& filepath): Object(ctx), m_filepath(filepath)
+PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx), m_filepath(filepath)
 {
 #ifdef _WIN32
-    m_handle = LoadLibraryA(m_filepath.c_str());
+    m_handle = LoadLibraryW(m_filepath.c_str());
 #else
     m_handle = dlopen(m_filepath.c_str(), RTLD_LAZY);
 #endif
@@ -67,7 +65,7 @@ bool PluginModule::registerEntry(const RDEntryAnalyzer* entry)
 }
 
 bool PluginModule::registerEntry(const RDEntryCommand* entry) { return this->registerEntry(EntryCategory_Command, entry); }
-std::string PluginModule::fileName() const { return fs::path(m_filepath).filename(); }
+std::string PluginModule::fileName() const { return m_filepath.filename().string(); }
 
 void PluginModule::unload()
 {

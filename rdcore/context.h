@@ -21,8 +21,8 @@ class MemoryBuffer;
 class Surface;
 
 typedef std::shared_ptr<Analyzer> AnalyzerPtr;
-template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->order < a2->plugin()->order; }; };
-template<typename T> struct AnalyzerComparator { bool operator ()(const T& a1, const T& a2) const { return a1->plugin()->execute == a2->plugin()->execute; }; };
+template<typename T> struct AnalyzerSorter { bool operator ()(const T& a1, const T& a2) const; };
+template<typename T> struct AnalyzerComparator { bool operator ()(const T& a1, const T& a2) const; };
 
 class Context: public Object
 {

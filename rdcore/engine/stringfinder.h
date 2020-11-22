@@ -3,6 +3,7 @@
 #define MIN_STRING 4
 
 #include <memory>
+#include <string>
 #include <rdapi/types.h>
 #include "../buffer/view.h"
 

@@ -17,7 +17,7 @@ if(WIN32)
     endif()
 
     if(NOT DEFINED REDASM_LIBRARY_PATH)
-        set(REDASM_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/../${REDASM_LIBRARY_NAME}")
+        set(REDASM_LIBRARY_PATH ${CMAKE_BINARY_DIR})
     endif()
 endif()
 
@@ -36,11 +36,10 @@ function(redasm_plugin P_NAME)
     endif()
 
     if(DEFINED REDASM_LIBRARY_PATH)
-        target_link_libraries(${P_NAME} PRIVATE ${REDASM_LIBRARY_PATH})
-    else()
-        target_link_libraries(${P_NAME} PRIVATE LibREDasm)
+        target_link_directories(${P_NAME} PRIVATE ${REDASM_LIBRARY_PATH})
     endif()
 
+    target_link_libraries(${P_NAME} PRIVATE LibREDasm)
     set_target_properties(${P_NAME} PROPERTIES PREFIX "")
     set_target_properties(${P_NAME} PROPERTIES OUTPUT_NAME "${P_ID}")
     set_target_properties(${P_NAME} PROPERTIES LINKER_LANGUAGE CXX)

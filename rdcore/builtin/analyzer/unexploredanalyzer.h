@@ -2,6 +2,7 @@
 
 #include <rdapi/types.h>
 #include <rdapi/plugin/analyzer.h>
+#include <unordered_set>
 
 class Context;
 
@@ -12,5 +13,9 @@ class UnexploredAnalyzer
     public:
         UnexploredAnalyzer() = delete;
         static void analyze(Context* ctx);
+        static void clearDone();
+
+    private:
+        static std::unordered_set<rd_address> m_done;
 };
 

@@ -12,14 +12,17 @@
 #include <deque>
 
 RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Aggressive Disassembly", std::numeric_limits<u32>::max(),
-                                                            "Disassemble unknown blocks", AnalyzerFlags_RunOnce | AnalyzerFlags_Experimental,
-                                                            [](const RDContext*) -> bool { return true; },
+                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental,
+                                                            [](const RDContext*) -> bool { UnexploredAnalyzer::clearDone(); return true; },
                                                             [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
+
+std::unordered_set<rd_address> UnexploredAnalyzer::m_done;
 
 void UnexploredAnalyzer::analyze(Context* ctx)
 {
     auto& doc = ctx->document();
     size_t bits = ctx->assembler()->bits();
+    int c = 0;
 
     doc->segments()->each([&](const RDSegment& segment) {
         if(!HAS_FLAG(&segment, SegmentFlags_Code)) return true;
@@ -27,10 +30,18 @@ void UnexploredAnalyzer::analyze(Context* ctx)
 
         blocks->each([&](const RDBlock& block) {
             rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
-            if(IS_TYPE(&block, BlockType_Unexplored)) ctx->disassembler()->enqueue(block.address);
+            if(!IS_TYPE(&block, BlockType_Unexplored) || m_done.count(block.address)) return true;
+
+            c++;
+            m_done.insert(block.address);
+            ctx->disassembler()->enqueue(block.address);
             return true;
         });
 
         return true;
     });
+
+    if(c) rd_cfg->log("Found " + std::to_string(c) + " unexplored blocks");
 }
+
+void UnexploredAnalyzer::clearDone() { m_done.clear(); }

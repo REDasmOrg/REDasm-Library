@@ -45,9 +45,12 @@ void Database::writeValue(const nlohmann::json& value, RDDatabaseValue* dbvalue)
     switch(value.type())
     {
         case nlohmann::detail::value_t::string:
+        {
+            auto it = m_valuecache.insert_or_assign(value.type(), value.dump());
             dbvalue->type = DatabaseValueType_String;
-            dbvalue->s = value.get_ptr<const nlohmann::json::string_t*>()->c_str();
+            dbvalue->s = it.first->second.c_str();
             break;
+        }
 
         case nlohmann::detail::value_t::number_float:
             dbvalue->type = DatabaseValueType_Float;

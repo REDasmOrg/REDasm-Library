@@ -5,6 +5,7 @@
 #include "document/document.h"
 #include "builtin/graph/functiongraph.h"
 #include "support/utils.h"
+#include <deque>
 
 Disassembler::Disassembler(Context* ctx): Object(ctx) { }
 Assembler* Disassembler::assembler() const { return m_assembler.get(); }
@@ -34,16 +35,12 @@ void Disassembler::disassemble()
     m_engine.reset(new Engine(this->context()));
     if(doc->segments()->empty()) return;
 
-    // Check Exported Data
-    std::vector<rd_address> exporteddata;
-    exporteddata.reserve(doc->symbols()->size());
-
     const SymbolTable* symboltable = doc->symbols();
+    std::deque<rd_address> exporteddata; // Check Exported Data
 
-    for(size_t i = 0; i < doc->symbols()->size(); i++)
+    for(auto it = symboltable->begin(); it != symboltable->end(); it++)
     {
-        RDSymbol symbol;
-        if(!symboltable->at(i, &symbol)) continue;
+        const RDSymbol& symbol = it->second;
 
         if(IS_TYPE(&symbol, SymbolType_Data) && HAS_FLAG(&symbol, SymbolFlags_Export))
             exporteddata.push_back(symbol.address);

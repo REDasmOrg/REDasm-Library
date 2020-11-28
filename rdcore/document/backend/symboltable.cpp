@@ -7,7 +7,6 @@
 #include "../../support/demangler.h"
 
 SymbolTable::SymbolTable(Context* ctx): Object(ctx) { }
-size_t SymbolTable::size() const { return m_byaddress.size(); }
 
 const char* SymbolTable::getName(rd_address address) const
 {
@@ -34,32 +33,54 @@ bool SymbolTable::get(const char* name, RDSymbol* symbol) const
     return this->get(it->second, symbol);
 }
 
-bool SymbolTable::at(size_t idx, RDSymbol* symbol) const
-{
-    if(idx >= m_addresses.size()) return false;
-    return this->get(m_addresses.at(idx), symbol);
-}
-
 void SymbolTable::remove(rd_address address)
 {
-    auto it = m_stringtable.find(address);
-    if(it == m_stringtable.end()) return;
+    auto it = m_byaddress.find(address);
+    if(it == m_byaddress.end()) return;
 
-    m_addresses.remove(address);
-    m_byname.erase(it->second);
-    m_stringtable.erase(it);
+    auto sit = m_stringtable.find(address);
+
+    if(sit != m_stringtable.end())
+    {
+        m_byname.erase(sit->second);
+        m_stringtable.erase(sit);
+    }
+
+    m_bytype[it->second.type].erase(address);
     m_byaddress.erase(address);
 }
+
+void SymbolTable::each(const SymbolTable::AddressCallback& cb) const
+{
+    for(const auto& [address, symbol] : m_byaddress)
+    {
+        if(!cb(address)) break;
+    }
+}
+
+void SymbolTable::eachType(rd_type type, const SymbolTable::AddressCallback& cb) const
+{
+    auto it = m_bytype.find(type);
+    if(it == m_bytype.end()) return;
+
+    for(rd_address address : it->second)
+    {
+        if(!cb(address)) break;
+    }
+}
+
+SymbolTable::ByAddress::const_iterator SymbolTable::begin() const { return m_byaddress.begin(); }
+SymbolTable::ByAddress::const_iterator SymbolTable::end() const { return m_byaddress.end(); }
 
 void SymbolTable::create(rd_address address, std::string name, rd_type type, rd_flag flags)
 {
     if(name.empty()) name = SymbolTable::name(address, type, flags);
     else if(!this->context()->hasFlag(ContextFlags_NoDemangle)) name = Demangler::demangled(name);
 
-    m_addresses.insert(address);
     m_byaddress[address] = { address, type, flags };
     m_byname[name] = address;
     m_stringtable[address] = name;
+    m_bytype[type].insert(address);
 }
 
 bool SymbolTable::rename(rd_address address, std::string newname)

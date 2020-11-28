@@ -75,3 +75,17 @@ void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* user
         return cb(&segment, userdata);
     });
 }
+
+void RDDocument_EachSymbol(const RDDocument* d, Callback_Address cb, void* userdata)
+{
+    if(cb) docptr(d)->symbols()->each([&](rd_address address) {
+        return cb(address, userdata);
+    });
+}
+
+void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Address cb, void* userdata)
+{
+    if(cb) docptr(d)->symbols()->eachType(type, [&](rd_address address) {
+        return cb(address, userdata);
+    });
+}

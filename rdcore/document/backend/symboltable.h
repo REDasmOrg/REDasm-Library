@@ -1,6 +1,8 @@
 #pragma once
 
 #include <unordered_map>
+#include <map>
+#include <set>
 #include <string>
 #include <rdapi/types.h>
 #include <rdapi/symbol.h>
@@ -9,14 +11,25 @@
 
 class SymbolTable: public Object
 {
+    private:
+        typedef std::function<bool(rd_address)> AddressCallback;
+        typedef std::unordered_map<rd_address, std::string> StringTable;
+        typedef std::unordered_map<std::string, rd_address> ByName;
+        typedef std::unordered_map<rd_type, std::set<rd_address>> ByType;
+        typedef std::map<rd_address, RDSymbol> ByAddress;
+
     public:
         SymbolTable(Context* ctx);
-        size_t size() const;
         const char* getName(rd_address address) const;
         bool get(rd_address address, RDSymbol* symbol) const;
         bool get(const char* name, RDSymbol* symbol) const;
-        bool at(size_t idx, RDSymbol* symbol) const;
         void remove(rd_address address);
+        void each(const AddressCallback& cb) const;
+        void eachType(rd_type type, const AddressCallback& cb) const;
+
+    public:
+        ByAddress::const_iterator begin() const;
+        ByAddress::const_iterator end() const;
 
    public:
         void create(rd_address address, std::string name, rd_type type, rd_flag flags);
@@ -29,9 +42,8 @@ class SymbolTable: public Object
         static std::string prefix(rd_type type, rd_flag flags);
 
     private:
-        SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> m_addresses;
-        std::unordered_map<rd_address, RDSymbol> m_byaddress;      // address   -> RDSymbol
-        std::unordered_map<std::string, rd_address> m_byname;      // sym_xyz   -> address
-        std::unordered_map<rd_address, std::string> m_stringtable; // address_t -> sym_xyz
+        StringTable m_stringtable;
+        ByAddress m_byaddress;
+        ByName m_byname;
+        ByType m_bytype;
 };
-

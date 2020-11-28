@@ -78,6 +78,8 @@ RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata);
+RD_API_EXPORT void RDDocument_EachSymbol(const RDDocument* d, Callback_Address cb, void* userdata);
+RD_API_EXPORT void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Address cb, void* userdata);
 
 // UserData
 RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

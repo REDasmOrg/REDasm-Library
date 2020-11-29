@@ -33,6 +33,7 @@ typedef void (*Callback_Analyzer)(const struct RDAnalyzer* analyzer, void* userd
 RD_API_EXPORT RDContext* RDContext_Create();
 RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
+RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name);
 RD_API_EXPORT bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* name);

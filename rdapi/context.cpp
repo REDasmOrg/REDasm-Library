@@ -4,6 +4,13 @@
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
 RDLocation RDContext_GetEntryPoint(const RDContext* ctx) { return CPTR(const Context, ctx)->entryPoint(); }
+
+RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address)
+{
+    const Disassembler* d = CPTR(const Context, ctx)->disassembler();
+    return d ? d->dereference(address) : RDLocation{{0}, false};
+}
+
 RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->functionStart(address); }
 const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader) { return CPTR(const Context, ctx)->findAssemblerEntry(entryloader, nullptr); }
 RDDisassembler* RDContext_BuildDisassembler(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler) { return CPTR(RDDisassembler, CPTR(Context, ctx)->buildDisassembler(req, entryloader, entryassembler)); }

@@ -1,13 +1,13 @@
 #include "documentnet.h"
 
-void DocumentNet::linkSysCall(rd_address address, u64 syscall) { m_netnodes[address].syscall = syscall; }
-void DocumentNet::linkBranchIndirect(rd_address address) { m_netnodes[address].branchtype = EmulateResult::BranchIndirect; }
-void DocumentNet::linkBranchUnresolved(rd_address address) { m_netnodes[address].branchtype = EmulateResult::BranchUnresolved; }
+void DocumentNet::linkSysCall(rd_address address, u64 syscall) { this->n(address).syscall = syscall; }
+void DocumentNet::linkBranchIndirect(rd_address address) { this->n(address).branchtype = EmulateResult::BranchIndirect; }
+void DocumentNet::linkBranchUnresolved(rd_address address) { this->n(address).branchtype = EmulateResult::BranchUnresolved; }
 
 void DocumentNet::linkNext(rd_address fromaddress, rd_address toaddress)
 {
-    m_netnodes[fromaddress].next = toaddress;
-    m_netnodes[toaddress].prev.insert(fromaddress);
+    this->n(fromaddress).next = toaddress;
+    this->n(toaddress).prev.insert(fromaddress);
 }
 
 void DocumentNet::unlinkNext(rd_address fromaddress)
@@ -30,46 +30,46 @@ void DocumentNet::linkBranch(rd_address fromaddress, rd_address toaddress, rd_ty
     {
         case EmulateResult::Branch:
         case EmulateResult::BranchTrue:
-            m_netnodes[fromaddress].branchtype = EmulateResult::Branch;
-            m_netnodes[fromaddress].branchestrue.insert(toaddress);
+            this->n(fromaddress).branchtype = EmulateResult::Branch;
+            this->n(fromaddress).branchestrue.insert(toaddress);
             m_refs[toaddress].insert(fromaddress);
             break;
 
         case EmulateResult::BranchFalse:
-            m_netnodes[fromaddress].branchtype = EmulateResult::Branch;
-            m_netnodes[fromaddress].branchesfalse.insert(toaddress);
+            this->n(fromaddress).branchtype = EmulateResult::Branch;
+            this->n(fromaddress).branchesfalse.insert(toaddress);
             break;
 
         case EmulateResult::BranchIndirect:
         case EmulateResult::BranchUnresolved:
-            m_netnodes[fromaddress].branchtype = type;
+            this->n(fromaddress).branchtype = type;
             break;
 
         default: return;
     }
 
-    m_netnodes[toaddress].from.insert(fromaddress);
+    this->n(toaddress).from.insert(fromaddress);
 }
 
 void DocumentNet::unlinkBranch(rd_address fromaddress, rd_address toaddress)
 {
-    m_netnodes[fromaddress].branchestrue.remove(toaddress);
-    m_netnodes[fromaddress].branchesfalse.remove(toaddress);
-    m_netnodes[toaddress].from.remove(fromaddress);
+    this->n(fromaddress).branchestrue.remove(toaddress);
+    this->n(fromaddress).branchesfalse.remove(toaddress);
+    this->n(toaddress).from.remove(fromaddress);
     m_refs[toaddress].remove(fromaddress);
 }
 
 void DocumentNet::linkCall(rd_address fromaddress, rd_address toaddress)
 {
-    m_netnodes[fromaddress].calls.insert(toaddress);
-    m_netnodes[toaddress].from.insert(fromaddress);
+    this->n(fromaddress).calls.insert(toaddress);
+    this->n(toaddress).from.insert(fromaddress);
     m_refs[toaddress].insert(fromaddress);
 }
 
 void DocumentNet::unlinkCall(rd_address fromaddress, rd_address toaddress)
 {
-    m_netnodes[fromaddress].calls.remove(toaddress);
-    m_netnodes[toaddress].from.remove(fromaddress);
+    this->n(fromaddress).calls.remove(toaddress);
+    this->n(toaddress).from.remove(fromaddress);
     m_refs[toaddress].remove(fromaddress);
 }
 
@@ -80,6 +80,18 @@ const DocumentNetNode* DocumentNet::findNode(rd_address address) const
 {
     auto it = m_netnodes.find(address);
     return (it != m_netnodes.end()) ? std::addressof(it->second) : nullptr;
+}
+
+const DocumentNetNode* DocumentNet::prevNode(const DocumentNetNode* n) const
+{
+    if(!n || n->prev.empty()) return nullptr;
+    return this->findNode(n->prev.front());
+}
+
+const DocumentNetNode* DocumentNet::nextNode(const DocumentNetNode* n) const
+{
+    if(!n || (n->next == RD_NVAL)) return nullptr;
+    return this->findNode(n->next);
 }
 
 size_t DocumentNet::getReferences(rd_address address, const rd_address** refs) const
@@ -109,3 +121,10 @@ bool DocumentNet::isBranch(const DocumentNetNode* n)
 }
 
 bool DocumentNet::isCall(const DocumentNetNode* n) { return !n->calls.empty(); }
+
+DocumentNetNode& DocumentNet::n(rd_address address)
+{
+    auto& nn = m_netnodes[address];
+    nn.address = address;
+    return nn;
+}

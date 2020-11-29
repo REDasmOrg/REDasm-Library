@@ -10,7 +10,7 @@ typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_addr
 
 struct DocumentNetNode {
     AddressContainer prev;
-    rd_address next{RD_NVAL};
+    rd_address address{RD_NVAL}, next{RD_NVAL};
 
     u64 syscall{0};
     rd_type branchtype{EmulateResult::None};
@@ -40,12 +40,17 @@ class DocumentNet: public Object
         void unlinkCall(rd_address fromaddress, rd_address toaddress);
         void removeRef(rd_address fromaddress, rd_address toaddress);
         const DocumentNetNode* findNode(rd_address address) const;
+        const DocumentNetNode* prevNode(const DocumentNetNode* n) const;
+        const DocumentNetNode* nextNode(const DocumentNetNode* n) const;
         size_t getReferences(rd_address address, const rd_address** refs) const;
 
     public:
         static bool isConditional(const DocumentNetNode* n);
         static bool isBranch(const DocumentNetNode* n);
         static bool isCall(const DocumentNetNode* n);
+
+    private:
+        DocumentNetNode& n(rd_address address);
 
     private:
         std::unordered_map<rd_address, DocumentNetNode> m_netnodes;

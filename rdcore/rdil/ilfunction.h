@@ -1,9 +1,9 @@
 #pragma once
 
 #include <rdapi/types.h>
-#include <forward_list>
+#include <list>
 #include <unordered_map>
-#include <vector>
+#include <deque>
 #include "expressions.h"
 #include "../object.h"
 #include <set>
@@ -18,6 +18,7 @@ class ILFunction: public Object
         void append(ILExpression* e);
         void setCurrentAddress(rd_address address);
         bool getAddress(const ILExpression* e, rd_address* address) const;
+        ILExpression* takeFirst();
         const ILExpression* first() const;
         const ILExpression* last() const;
         const ILExpression* expression(size_t idx) const;
@@ -26,6 +27,7 @@ class ILFunction: public Object
 
     public:
         static bool generate(rd_address address, ILFunction* il);
+        static ILExpression* generateOne(Context* ctx, rd_address address);
 
     public:
         ILExpression* exprUNKNOWN() const;
@@ -65,6 +67,7 @@ class ILFunction: public Object
         ILExpression* exprU(rd_type rdil, size_t size, ILExpression* e) const;
         ILExpression* expr(rd_type rdil, size_t size) const;
         ILExpression* expr(rd_type rdil) const;
+        void unpool(const ILExpression* e);
 
     private:
         static bool generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path);
@@ -72,8 +75,8 @@ class ILFunction: public Object
 
     private:
         rd_address m_currentaddress{RD_NVAL};
-        std::vector<ILExpression*> m_expressions;
+        std::deque<ILExpression*> m_expressions;
         std::unordered_map<const ILExpression*, rd_address> m_addresses;
-        mutable std::forward_list<ILExpressionPtr> m_pool;
+        mutable std::list<ILExpressionPtr> m_pool;
         const Disassembler* m_disassembler;
 };

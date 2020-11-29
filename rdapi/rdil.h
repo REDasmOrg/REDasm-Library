@@ -93,6 +93,7 @@ RD_HANDLE(RDILExpression);
 
 RD_API_EXPORT RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address);
 
+RD_API_EXPORT RDILExpression* RDILExpression_Create(RDContext* ctx, rd_address address);
 RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
 RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);

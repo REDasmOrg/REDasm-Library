@@ -11,6 +11,7 @@ RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
     return CPTR(RDGraph, g);
 }
 
+RDILExpression* RDILExpression_Create(RDContext* ctx, rd_address address) { return CPTR(RDILExpression, ILFunction::generateOne(CPTR(Context, ctx), address)); }
 rd_type RDILExpression_Type(const RDILExpression* e) { return e ? CPTR(const ILExpression, e)->type : RDIL_Unknown; }
 bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
 const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q) { return (e && q) ? CPTR(const RDILExpression, RDIL::extract(CPTR(const ILExpression, e), q)) : nullptr; }

@@ -6,7 +6,7 @@
 #include "../containers/sortedcontainer.h"
 #include "../object.h"
 
-typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> AddressContainer;
+typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> AddressContainer;
 
 struct DocumentNetNode {
     AddressContainer prev;
@@ -23,7 +23,7 @@ struct DocumentNetNode {
 class DocumentNet: public Object
 {
     private:
-        typedef SortedContainer<rd_address, std::less<rd_address>, std::equal_to<rd_address>, true> References;
+        typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> References;
         typedef std::unordered_map<rd_address, References> ReferencesMap;
 
     public:

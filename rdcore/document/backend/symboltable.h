@@ -26,22 +26,32 @@ class SymbolTable: public Object
         void remove(rd_address address);
         void each(const AddressCallback& cb) const;
         void eachType(rd_type type, const AddressCallback& cb) const;
+        bool find(const std::string& q, RDSymbol* symbol, rd_type hint) const;
+        bool findR(const std::string& q, RDSymbol* symbol, rd_type hint) const;
+        size_t findAll(const std::string& q, const RDSymbol** symbols, rd_type hint) const;
+        size_t findAllR(const std::string& q, const RDSymbol** symbols, rd_type hint) const;
 
     public:
         ByAddress::const_iterator begin() const;
         ByAddress::const_iterator end() const;
 
-   public:
+    public:
         void create(rd_address address, std::string name, rd_type type, rd_flag flags);
         bool rename(rd_address address, std::string newname);
         static std::string name(rd_address address, const char* s, rd_type type, rd_flag flags);
         static std::string name(rd_address address, rd_type type, rd_flag flags);
 
-   private:
+    private:
+        bool isSymbolAccepted(const std::string& q, rd_address address) const;
+        bool findByType(const std::string& q, RDSymbol* symbol, rd_type type) const;
+        size_t findAllByType(const std::string& q, const RDSymbol** symbols, rd_type type) const;
+
+    private:
         static std::string name(const char* s, rd_address address);
         static std::string prefix(rd_type type, rd_flag flags);
 
     private:
+        mutable std::vector<RDSymbol> m_result;
         StringTable m_stringtable;
         ByAddress m_byaddress;
         ByName m_byname;

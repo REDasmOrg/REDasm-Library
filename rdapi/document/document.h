@@ -80,6 +80,10 @@ RD_API_EXPORT void RDDocument_EachFunction(const RDDocument* d, Callback_Address
 RD_API_EXPORT void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSymbol(const RDDocument* d, Callback_Address cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Address cb, void* userdata);
+RD_API_EXPORT bool RDDocument_FindSymbol(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint);
+RD_API_EXPORT bool RDDocument_FindSymbolR(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint);
+RD_API_EXPORT size_t RDDocument_FindAllSymbols(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);
+RD_API_EXPORT size_t RDDocument_FindAllSymbolsR(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);
 
 // UserData
 RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

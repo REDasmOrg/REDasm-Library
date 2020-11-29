@@ -2,6 +2,7 @@
 #include <cstring>
 #include <sstream>
 #include <iomanip>
+#include <regex>
 #include "../../context.h"
 #include "../../support/utils.h"
 #include "../../support/demangler.h"
@@ -69,6 +70,38 @@ void SymbolTable::eachType(rd_type type, const SymbolTable::AddressCallback& cb)
     }
 }
 
+bool SymbolTable::find(const std::string& q, RDSymbol* symbol, rd_type hint) const { return this->findR(Utils::wildcardToRegex(q), symbol, hint); }
+size_t SymbolTable::findAll(const std::string& q, const RDSymbol** symbols, rd_type hint) const { return this->findAllR(Utils::wildcardToRegex(q), symbols, hint); }
+
+bool SymbolTable::findR(const std::string& q, RDSymbol* symbol, rd_type hint) const
+{
+    if(hint != SymbolType_None) return this->findByType(q, symbol, hint);
+
+    for(const auto& [a, s] : m_byaddress)
+    {
+        if(!this->isSymbolAccepted(q, a)) continue;
+        if(symbol) *symbol = s;
+        return true;
+    }
+
+    return false;
+}
+
+size_t SymbolTable::findAllR(const std::string& q, const RDSymbol** symbols, rd_type hint) const
+{
+    m_result.clear();
+    if(hint != SymbolType_None) return this->findAllByType(q, symbols, hint);
+
+    for(const auto& [a, s] : m_byaddress)
+    {
+        if(!this->isSymbolAccepted(q, a)) continue;
+        m_result.push_back(s);
+    }
+
+    if(symbols) *symbols = m_result.data();
+    return m_result.size();
+}
+
 SymbolTable::ByAddress::const_iterator SymbolTable::begin() const { return m_byaddress.begin(); }
 SymbolTable::ByAddress::const_iterator SymbolTable::end() const { return m_byaddress.end(); }
 
@@ -113,6 +146,53 @@ std::string SymbolTable::name(rd_address address, rd_type type, rd_flag flags)
     return ss.str();
 }
 
+bool SymbolTable::isSymbolAccepted(const std::string& q, rd_address address) const
+{
+    auto it = m_stringtable.find(address);
+    if(it == m_stringtable.end()) return false;
+
+    std::regex r(q);
+    return std::regex_search(it->second, r);
+}
+
+bool SymbolTable::findByType(const std::string& q, RDSymbol* symbol, rd_type type) const
+{
+    auto it = m_bytype.find(type);
+    if(it == m_bytype.end()) return false;
+
+    for(rd_address address : it->second)
+    {
+        if(!this->isSymbolAccepted(q, address)) continue;
+
+        auto it = m_byaddress.find(address);
+        if(it == m_byaddress.end()) return false;
+
+        if(symbol) *symbol = it->second;
+        return true;
+    }
+
+    return false;
+}
+
+size_t SymbolTable::findAllByType(const std::string& q, const RDSymbol** symbols, rd_type type) const
+{
+    auto it = m_bytype.find(type);
+    if(it == m_bytype.end()) return false;
+
+    for(rd_address address : it->second)
+    {
+        if(!this->isSymbolAccepted(q, address)) continue;
+
+        auto it = m_byaddress.find(address);
+        if(it == m_byaddress.end()) continue;
+
+        m_result.push_back(it->second);
+    }
+
+    if(symbols) *symbols = m_result.data();
+    return m_result.size();
+}
+
 std::string SymbolTable::name(rd_address address, const char* s, rd_type type, rd_flag flags)
 {
     if(!s || !std::strlen(s))
@@ -123,10 +203,7 @@ std::string SymbolTable::name(rd_address address, const char* s, rd_type type, r
     return ss.str();
 }
 
-std::string SymbolTable::name(const char* s, rd_address address)
-{
-    return std::string(s) + "_" + Utils::hex(address);
-}
+std::string SymbolTable::name(const char* s, rd_address address) { return std::string(s) + "_" + Utils::hex(address); }
 
 std::string SymbolTable::prefix(rd_type type, rd_flag flags)
 {

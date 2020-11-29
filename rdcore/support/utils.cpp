@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <codecvt>
 #include <cstring>
+#include <regex>
 #include "../buffer/view.h"
 #include "../support/hash.h"
 #include "../document/document.h"
@@ -102,4 +103,30 @@ Utils::StringContainer Utils::split(const std::string& s, char sep)
     }
 
     return parts;
+}
+
+std::string Utils::wildcardToRegex(const std::string& wcs)
+{
+    std::string s = "^" + Utils::escapeRegex(wcs);
+    Utils::replaceAll(s, "\\*", ".*");
+    return Utils::replaceAll(s, "\\?", ".") + "$";
+}
+
+std::string& Utils::replaceAll(std::string& s, const std::string& from, const std::string& to)
+{
+    size_t pos = s.find(from);
+
+    while(pos != std::string::npos)
+    {
+        s.replace(pos, from.size(), to);
+        pos = s.find(from, pos + to.size());
+    }
+
+    return s;
+}
+
+std::string Utils::escapeRegex(const std::string& s)
+{
+    static const std::regex SPECIAL_CHARS{R"([-[\]{}()*+?.,\^$|#\s])"};
+    return std::regex_replace(s, SPECIAL_CHARS, R"(\$&)");
 }

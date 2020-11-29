@@ -89,3 +89,27 @@ void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Add
         return cb(address, userdata);
     });
 }
+
+bool RDDocument_FindSymbol(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint)
+{
+    if(!q) return false;
+    return docptr(d)->symbols()->find(q, symbol, hint);
+}
+
+bool RDDocument_FindSymbolR(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint)
+{
+    if(!q) return false;
+    return docptr(d)->symbols()->findR(q, symbol, hint);
+}
+
+size_t RDDocument_FindAllSymbols(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint)
+{
+    if(!q) return false;
+    return docptr(d)->symbols()->findAll(q, symbols, hint);
+}
+
+size_t RDDocument_FindAllSymbolsR(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint)
+{
+    if(!q) return false;
+    return docptr(d)->symbols()->findAllR(q, symbols, hint);
+}

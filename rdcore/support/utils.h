@@ -38,6 +38,7 @@ class Utils
         static std::string simplified(const std::u16string& s);
         static std::string simplified(std::string s);
         static StringContainer split(const std::string& s, char sep);
+        static std::string wildcardToRegex(const std::string& wcs);
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);
@@ -46,6 +47,10 @@ class Utils
         template<typename T> static typename std::make_signed<T>::type signext(T val, int valbits);
         template<typename T> static T rol(T val, T amt);
         template<typename T> static T ror(T val, T amt);
+
+    private:
+        static std::string& replaceAll(std::string& s, const std::string& from, const std::string& to);
+        static std::string escapeRegex(const std::string& s);
 };
 
 template<typename T>

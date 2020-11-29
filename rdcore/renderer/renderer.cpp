@@ -162,7 +162,7 @@ void Renderer::renderSymbol(rd_address address)
     else
         this->chunk(name, Theme_Pointer);
 
-    this->renderIndent(1);
+    this->renderIndent(1, true);
     this->renderSymbolValue(&symbol);
     this->renderComments(address);
 }

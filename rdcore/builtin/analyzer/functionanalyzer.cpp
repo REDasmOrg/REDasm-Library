@@ -25,31 +25,51 @@ void FunctionAnalyzer::analyze(Context* ctx)
         RDBufferView view;
         if(!loader->view(address, RD_NVAL, &view)) return true;
 
-        ILFunction il(ctx);
-        if(!ILFunction::generate(address, &il) || (il.size() > 1)) return true;
+        std::unique_ptr<ILExpression> e(ILFunction::generateOne(ctx, address));
+        if(!e) return true;
 
-        if(FunctionAnalyzer::findNullSubs(ctx, &il, address)) return true;
-        FunctionAnalyzer::findThunk(ctx, &il, address);
+        if(FunctionAnalyzer::findNullSubs(ctx, e.get(), address)) return true;
+        FunctionAnalyzer::findThunk(ctx, e.get(), address);
         return true;
     });
 }
 
-bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILFunction* il, rd_address address)
+bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_address address)
 {
-    const auto* expr = il->first();
-
     if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop))
         return ctx->document()->rename(address, "nullsub_" + Utils::hex(address));
 
     return false;
 }
 
-void FunctionAnalyzer::findThunk(Context* ctx, const ILFunction* il, rd_address address)
+std::string FunctionAnalyzer::findThunk(Context* ctx, const ILExpression* expr, rd_address address, int level)
 {
-    const auto* expr = il->first();
-    const char* name = nullptr;
+    std::string name;
+    rd_address raddress = 0;
 
-    if(RDIL::match(expr, "goto [cnst]")) name = ctx->document()->name(RDIL::extract(expr, "u:mem/u:cnst")->address);
-    else if(RDIL::match(expr, "goto cnst")) name = ctx->document()->name(RDIL::extract(expr, "u:cnst")->address);
-    if(name) ctx->document()->rename(address, Utils::thunk(name));
+    if(RDIL::match(expr, "goto [cnst]"))
+    {
+        raddress = RDIL::extract(expr, "u:mem/u:cnst")->address;
+        const char* pname = ctx->document()->name(raddress);
+        if(pname) name = pname;
+    }
+    else if(RDIL::match(expr, "goto cnst"))
+    {
+        raddress = RDIL::extract(expr, "u:cnst")->address;
+        const char* pname = ctx->document()->name(raddress);
+        if(pname) name = pname;
+    }
+
+    if(name.empty()) return std::string();
+
+    std::unique_ptr<ILExpression> rexpr(ILFunction::generateOne(ctx, raddress));
+
+    if(rexpr) // Try to recurse
+    {
+        std::string newname = FunctionAnalyzer::findThunk(ctx, rexpr.get(), raddress, level + 1);
+        if(!newname.empty()) name = newname;
+    }
+
+    if(level == 1) ctx->document()->rename(address, Utils::thunk(name));
+    return name;
 }

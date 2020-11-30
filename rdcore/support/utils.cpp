@@ -46,6 +46,12 @@ u32 Utils::crc32(const u8* data, size_t datasize, rd_offset offset, size_t size)
     return Hash::crc32(data + offset, size);
 }
 
+std::string Utils::thunk(const std::string& s, int level)
+{
+    if(level > 1) return "thunk_" + std::to_string(level) + "_" + s;
+    return "thunk_" + s;
+}
+
 std::string Utils::hexString(const RDBufferView* view, size_t size)
 {
     std::stringstream ss;

@@ -2,10 +2,10 @@
 
 #include <rdapi/types.h>
 #include <rdapi/plugin/analyzer.h>
+#include <string>
 
 class Context;
-class Disassembler;
-class ILFunction;
+class ILExpression;
 
 extern RDEntryAnalyzer analyzerEntry_Function;
 
@@ -16,7 +16,7 @@ class FunctionAnalyzer
         static void analyze(Context* ctx);
 
     private:
-        static bool findNullSubs(Context* ctx, const ILFunction* il, rd_address address);
-        static void findThunk(Context* ctx, const ILFunction* il, rd_address address);
+        static bool findNullSubs(Context* ctx, const ILExpression* expr, rd_address address);
+        static std::string findThunk(Context* ctx, const ILExpression* expr, rd_address address, int level = 1);
 };
 

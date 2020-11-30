@@ -16,7 +16,6 @@ enum RDContextFlags {
 struct RDLoaderRequest;
 struct RDEntryLoader;
 struct RDEntryAssembler;
-struct RDDisassembler;
 struct RDNet;
 struct RDDocument;
 struct RDAssembler;
@@ -35,13 +34,14 @@ RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
 RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT bool RDContext_Bind(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 RD_API_EXPORT bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name);
 RD_API_EXPORT bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* name);
+RD_API_EXPORT void RDContext_Schedule(RDContext* ctx, rd_address address);
+RD_API_EXPORT void RDContext_Enqueue(RDContext* ctx, rd_address address);
 RD_API_EXPORT const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader);
-RD_API_EXPORT RDDisassembler* RDContext_BuildDisassembler(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 RD_API_EXPORT const RDNet* RDContext_GetNet(const RDContext* ctx);
 RD_API_EXPORT RDDocument* RDContext_GetDocument(const RDContext* ctx);
-RD_API_EXPORT RDDisassembler* RDContext_GetDisassembler(const RDContext* ctx);
 RD_API_EXPORT RDAssembler* RDContext_GetAssembler(const RDContext* ctx);
 RD_API_EXPORT RDLoader* RDContext_GetLoader(const RDContext* ctx);
 RD_API_EXPORT RDBuffer* RDContext_GetBuffer(const RDContext* ctx);
@@ -65,6 +65,11 @@ RD_API_EXPORT bool RDContext_HasProblems(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set);
 RD_API_EXPORT bool RDContext_HasFlag(const RDContext* ctx, rd_flag flag);
 RD_API_EXPORT rd_flag RDContext_GetFlags(const RDContext* ctx);
+
+// Extra Functions
+RD_API_EXPORT const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size);
+RD_API_EXPORT const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len);
+RD_API_EXPORT const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len);
 
 #ifdef __cplusplus
   #include <string>

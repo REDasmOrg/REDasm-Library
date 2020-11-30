@@ -120,7 +120,7 @@ const RDEntryAssembler* Context::findAssemblerEntry(const RDEntryLoader* entrylo
     return m_pluginmanager->findAssembler(it->second);
 }
 
-Disassembler* Context::buildDisassembler(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
+bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
     if(m_disassembler) return m_disassembler.get();
 
@@ -133,7 +133,7 @@ Disassembler* Context::buildDisassembler(const RDLoaderRequest* req, const RDEnt
         {
             if(assemblerid.empty()) this->log("Cannot find assembler for " + Utils::quoted(entryloader->id));
             else this->log("Cannot find assembler " + Utils::quoted(assemblerid) + " for loader " + Utils::quoted(entryloader->id));
-            return nullptr;
+            return false;
         }
 
         entryassembler = m_pluginmanager->selectAssembler(entryassembler->id);
@@ -144,15 +144,15 @@ Disassembler* Context::buildDisassembler(const RDLoaderRequest* req, const RDEnt
     if(!loaderentry)
     {
         this->log("Cannot find loader " + Utils::quoted(entryloader->id));
-        return nullptr;
+        return false;
     }
 
     m_buffer = std::shared_ptr<MemoryBuffer>(CPTR(MemoryBuffer, req->buffer)); // Take ownership
     m_disassembler = std::make_unique<Disassembler>(this);
-    if(!m_disassembler->load(m_buffer, req->filepath, entryloader, entryassembler)) return nullptr;
+    if(!m_disassembler->load(m_buffer, req->filepath, entryloader, entryassembler)) return false;
 
     this->loadAnalyzers();
-    return m_disassembler.get();
+    return true;
 }
 
 SafeDocument& Context::document() const { return m_disassembler->loader()->document(); }

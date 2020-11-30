@@ -7,7 +7,6 @@
 #include "context.h"
 #include "buffer.h"
 #include "events.h"
-#include "disassembler.h"
 #include "net.h"
 #include "rdil.h"
 #include "ui.h"

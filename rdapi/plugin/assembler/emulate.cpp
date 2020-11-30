@@ -1,7 +1,6 @@
 #include "emulate.h"
 #include <rdcore/engine/algorithm/emulateresult.h>
 
-RDDisassembler* RDEmulateResult_GetDisassembler(const RDEmulateResult* res) { return CPTR(RDDisassembler, CPTR(const EmulateResult, res)->disassembler()); }
 const RDBufferView* RDEmulateResult_GetView(const RDEmulateResult* res) { return CPTR(const RDBufferView, CPTR(const EmulateResult, res)->view()); }
 rd_address RDEmulateResult_GetAddress(const RDEmulateResult* res) { return CPTR(const EmulateResult, res)->address(); }
 void RDEmulateResult_SetSize(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->setSize(size); }

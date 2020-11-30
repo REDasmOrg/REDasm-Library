@@ -31,7 +31,6 @@ RD_API_EXPORT bool RDArguments_PushString(RDArguments* arguments, const char* v)
 RD_API_EXPORT bool RDArguments_PushPointer(RDArguments* arguments, void* v);
 
 struct RDEntryCommand;
-struct RDDisassembler;
 
 typedef bool (*Callback_CommandExecute)(const struct RDEntrycommand* plugin, const RDArguments* arguments);
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rdapi/disassembler.h>
 #include <memory>
 #include "plugin/loader.h"
 #include "plugin/assembler.h"

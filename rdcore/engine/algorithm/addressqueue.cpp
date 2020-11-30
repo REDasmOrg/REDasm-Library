@@ -3,7 +3,6 @@
 #include "../../support/utils.h"
 #include "../../disassembler.h"
 #include "../../context.h"
-#include <rdapi/disassembler.h>
 
 AddressQueue::AddressQueue(Context* ctx): m_disassembler(ctx->disassembler()), m_document(ctx->document()) { }
 size_t AddressQueue::pending() const { return m_pending.size(); }

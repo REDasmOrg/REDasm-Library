@@ -4,7 +4,6 @@
 #include <rdapi/types.h>
 #include "../../object.h"
 
-class Disassembler;
 struct RDBufferView;
 
 class EmulateResult: public Object
@@ -22,10 +21,9 @@ class EmulateResult: public Object
         typedef std::deque<std::pair<rd_type, Value>> Results;
 
     public:
-        EmulateResult(rd_address address, const RDBufferView* view, Disassembler* disassembler);
+        EmulateResult(rd_address address, const RDBufferView* view);
         bool canFlow() const;
         const Results& results() const;
-        Disassembler* disassembler() const;
         const RDBufferView* view() const;
         rd_address address() const;
         size_t size() const;
@@ -48,7 +46,6 @@ class EmulateResult: public Object
         bool m_canflow{true};
         rd_address m_address;
         size_t m_size{0}, m_delayslot{0};
-        Disassembler* m_disassembler;
         const RDBufferView* m_view;
         Results m_results;
 };

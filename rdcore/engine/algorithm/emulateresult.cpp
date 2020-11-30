@@ -1,9 +1,8 @@
 #include "emulateresult.h"
 
-EmulateResult::EmulateResult(rd_address address, const RDBufferView* view, Disassembler* disassembler): m_address(address), m_disassembler(disassembler), m_view(view) { }
+EmulateResult::EmulateResult(rd_address address, const RDBufferView* view): m_address(address), m_view(view) { }
 bool EmulateResult::canFlow() const { return m_canflow; }
 const EmulateResult::Results& EmulateResult::results() const { return m_results; }
-Disassembler* EmulateResult::disassembler() const { return m_disassembler; }
 const RDBufferView* EmulateResult::view() const { return m_view; }
 rd_address EmulateResult::address() const { return m_address; }
 size_t EmulateResult::size() const { return m_size; }

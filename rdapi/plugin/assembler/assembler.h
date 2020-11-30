@@ -12,7 +12,6 @@ RD_HANDLE(RDAssembler);
 
 struct RDEntryAssembler;
 struct RDEmulateResult;
-struct RDDisassembler;
 
 enum RDEncodeFlags {
     EncodeFlags_None    = 0,

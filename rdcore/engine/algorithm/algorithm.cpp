@@ -5,7 +5,6 @@
 #include "../../disassembler.h"
 #include "../../config.h"
 #include "emulateresult.h"
-#include <rdapi/disassembler.h>
 #include <thread>
 
 Algorithm::Algorithm(Context* ctx): AddressQueue(ctx) { }
@@ -149,7 +148,7 @@ std::optional<rd_address> Algorithm::decodeAddress(rd_address address)
     RDBufferView view;
     if(!m_disassembler->view(address, SegmentContainer::offsetSize(m_currentsegment), &view)) return std::nullopt;
 
-    EmulateResult result(address, &view, m_disassembler);
+    EmulateResult result(address, &view);
     m_disassembler->assembler()->emulate(&result);
     if(!result.size() || (result.size() > view.size)) return std::nullopt;
 

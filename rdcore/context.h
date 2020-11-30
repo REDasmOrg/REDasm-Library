@@ -62,7 +62,7 @@ class Context: public Object
 
     public: // Disassembler
         const DocumentNet* net() const;
-        Disassembler* buildDisassembler(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
+        bool bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
         Disassembler* disassembler() const;
         MemoryBuffer* buffer() const;
         bool needsWeak() const;

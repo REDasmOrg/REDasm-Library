@@ -3,12 +3,10 @@
 #include "../../macros.h"
 #include "../../types.h"
 
-struct RDDisassembler;
 struct RDBufferView;
 
 RD_HANDLE(RDEmulateResult);
 
-RD_API_EXPORT RDDisassembler* RDEmulateResult_GetDisassembler(const RDEmulateResult* res);
 RD_API_EXPORT const RDBufferView* RDEmulateResult_GetView(const RDEmulateResult* res);
 RD_API_EXPORT rd_address RDEmulateResult_GetAddress(const RDEmulateResult* res);
 RD_API_EXPORT void RDEmulateResult_SetSize(RDEmulateResult* res, size_t size);

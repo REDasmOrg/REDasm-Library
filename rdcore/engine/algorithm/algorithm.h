@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rdapi/disassembler.h>
 #include <optional>
 #include "../../support/safe_ptr.h"
 #include "addressqueue.h"

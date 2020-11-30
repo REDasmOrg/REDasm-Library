@@ -200,7 +200,8 @@ void Surface::moveTo(int row, int col)
 
 void Surface::select(int row, int col)
 {
-    if(row < 0) return;
+    if(row < 0) row = 0;
+    if(col < 0) col = 0;
 
     row = std::min(row, m_rows - 1);
     this->checkColumn(row, col);
@@ -229,7 +230,7 @@ void Surface::selectAt(int row, int col)
     }
 }
 
-RDSurfaceCell& Surface::cell(size_t row, size_t col) { return m_surface.at(row).cells.at(col); }
+RDSurfaceCell& Surface::cell(int row, int col) { return m_surface.at(row).cells.at(col); }
 SafeDocument& Surface::document() const { return this->context()->document(); }
 const ItemContainer* Surface::items() const { return this->context()->document()->items(); }
 

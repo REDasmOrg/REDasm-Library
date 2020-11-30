@@ -60,7 +60,7 @@ class Surface: public Object
         void notifyPositionChanged();
 
     private:
-        RDSurfaceCell& cell(size_t row, size_t col);
+        RDSurfaceCell& cell(int row, int col);
         SafeDocument& document() const;
         const ItemContainer* items() const;
         int lastColumn() const;

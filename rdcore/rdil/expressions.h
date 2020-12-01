@@ -2,6 +2,7 @@
 
 #include <rdapi/rdil.h>
 #include <memory>
+#include <unordered_set>
 #include "../object.h"
 
 class ILExpression;
@@ -17,4 +18,12 @@ class ILExpression : public Object
         union { ILExpression *n2{nullptr}, *dst, *left, *t; };
         union { ILExpression *n3{nullptr}, *src, *right, *f; };
         union { PRIVATE_RDIL_VALUE_FIELDS };
+
+    public:
+        static ILExpression* clone(const ILExpression* e);
+
+    private:
+        std::unordered_set<ILExpressionPtr> children; // Keep expressions alive, if needed
+
+    friend class ILFunction;
 };

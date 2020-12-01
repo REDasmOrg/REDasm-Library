@@ -67,7 +67,7 @@ ILExpression* ILFunction::generateOne(Context* ctx, rd_address address)
 
     ILFunction il(ctx);
     ctx->assembler()->lift(address, &view, &il);
-    return il.empty() ? nullptr : il.takeFirst();
+    return il.empty() ? nullptr : ILExpression::clone(il.first());
 }
 
 void ILFunction::append(ILExpression* e)
@@ -88,20 +88,6 @@ bool ILFunction::getAddress(const ILExpression* e, rd_address* address) const
 
     if(address) *address = it->second;
     return true;
-}
-
-ILExpression* ILFunction::takeFirst()
-{
-    ILExpression* e = nullptr;
-
-    if(!m_expressions.empty())
-    {
-        e = m_expressions.front();
-        m_expressions.pop_front();
-        this->unpool(e);
-    }
-
-    return e;
 }
 
 const ILExpression* ILFunction::first() const { return !m_expressions.empty() ? m_expressions.front() : nullptr; }
@@ -190,18 +176,6 @@ ILExpression* ILFunction::expr(rd_type rdil, size_t size) const
 }
 
 ILExpression* ILFunction::expr(rd_type rdil) const { return this->expr(rdil, 0); }
-
-void ILFunction::unpool(const ILExpression* e)
-{
-    for(auto it = m_pool.begin(); it != m_pool.end(); it++)
-    {
-        if(it->get() != e) continue;
-
-        it->release();
-        m_pool.erase(it);
-        break;
-    }
-}
 
 void ILFunction::generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {

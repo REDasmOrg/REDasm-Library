@@ -18,7 +18,6 @@ class ILFunction: public Object
         void append(ILExpression* e);
         void setCurrentAddress(rd_address address);
         bool getAddress(const ILExpression* e, rd_address* address) const;
-        ILExpression* takeFirst();
         const ILExpression* first() const;
         const ILExpression* last() const;
         const ILExpression* expression(size_t idx) const;
@@ -67,7 +66,6 @@ class ILFunction: public Object
         ILExpression* exprU(rd_type rdil, size_t size, ILExpression* e) const;
         ILExpression* expr(rd_type rdil, size_t size) const;
         ILExpression* expr(rd_type rdil) const;
-        void unpool(const ILExpression* e);
 
     private:
         static bool generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path);

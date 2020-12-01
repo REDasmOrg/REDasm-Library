@@ -469,6 +469,7 @@ void Surface::drawCursor()
 {
     if(!this->active()) return;
     if(m_cursor->currentColumn() >= this->lastColumn()) return;
+    if(!m_surface.count(m_cursor->currentRow())) return;
 
     auto& cell = this->cell(m_cursor->currentRow(), m_cursor->currentColumn());
     cell.background = Theme_CursorBg;

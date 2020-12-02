@@ -8,19 +8,21 @@ struct RDContext;
 RD_HANDLE(RDRenderer);
 
 enum RDRendererFlags {
-    RendererFlags_Normal           = 0,
+    RendererFlags_None             = 0,
 
     RendererFlags_Decompile        = (1 << 1),
-    RendererFlags_NoSegment        = (1 << 2),
-    RendererFlags_NoAddress        = (1 << 3),
-    RendererFlags_NoSeparators     = (1 << 4),
-    RendererFlags_NoIndent         = (1 << 5),
-    RendererFlags_NoCursor         = (1 << 6),
-    RendererFlags_NoHighlightWords = (1 << 7),
-    RendererFlags_NoComments       = (1 << 8),
+    RendererFlags_CenterOnSurface  = (1 << 2),
+
+    RendererFlags_NoSegment        = (1 << 3),
+    RendererFlags_NoAddress        = (1 << 4),
+    RendererFlags_NoSeparators     = (1 << 5),
+    RendererFlags_NoIndent         = (1 << 6),
+    RendererFlags_NoCursor         = (1 << 7),
+    RendererFlags_NoHighlightWords = (1 << 8),
+    RendererFlags_NoComments       = (1 << 9),
 
     RendererFlags_NoSegmentAndAddress = RendererFlags_NoSegment | RendererFlags_NoAddress,
-    RendererFlags_Simplified          = ~0,
+    RendererFlags_Simplified          = ~0 & ~(RendererFlags_Decompile | RendererFlags_CenterOnSurface),
 };
 
 typedef struct RDRendererParams {

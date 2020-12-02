@@ -72,7 +72,7 @@ class Surface: public Object
         void highlightWords();
         void checkSelection();
         void updateCurrentItem();
-        void ensureVisible(const RDDocumentItem* item);
+        void centerOnSurface(const RDDocumentItem* item);
         bool hasFlag(rd_flag flag) const;
         void scrollRows(int nrows);
 
@@ -91,4 +91,3 @@ class Surface: public Object
         bool m_active{false};
         rd_flag m_flags;
 };
-

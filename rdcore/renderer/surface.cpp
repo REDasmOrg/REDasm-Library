@@ -117,6 +117,7 @@ const std::string* Surface::wordAt(int row, int col) const
     auto it = m_surface.find(row);
     if(it == m_surface.end()) return nullptr;
 
+    col += m_firstcol; // Fix column according to horizontal scroll
     int currcol = 0;
 
     for(const std::string& c : it->second.chunks)
@@ -174,8 +175,15 @@ void Surface::getSize(int* rows, int* cols) const
 
 void Surface::scroll(int nrows, int ncols)
 {
+    int oldfirstcol = m_firstcol;
+    m_firstcol = std::max(m_firstcol + ncols, 0);
     this->scrollRows(nrows);
-    if(nrows) this->notifyPositionChanged();
+
+    if(nrows || (m_firstcol != oldfirstcol))
+    {
+        m_cursor->clearSelection();
+        this->notifyPositionChanged();
+    }
 }
 
 void Surface::resize(int rows, int cols)
@@ -269,7 +277,6 @@ void Surface::checkColumn(int row, int& col) const
 void Surface::scrollRows(int nrows)
 {
     if(!nrows) return;
-    m_cursor->clearSelection();
 
     auto* items = this->items();
     auto it = items->find(m_items.first);
@@ -452,12 +459,19 @@ bool Surface::active() const { return m_active; }
 
 void Surface::drawRow(SurfaceRow& sfrow, const Renderer& st)
 {
+    int col = 0;
+
     for(const auto& c : st.chunks())
     {
         sfrow.chunks.push_back(c.chunk);
 
         for(const auto& ch : c.chunk)
-            sfrow.cells.push_back({ c.background, c.foreground, ch });
+        {
+            if(col >= m_firstcol)
+                sfrow.cells.push_back({ c.background, c.foreground, ch });
+
+            col++;
+        }
     }
 
     // Fill remaining cells with blank characters
@@ -498,15 +512,18 @@ void Surface::highlightWords()
 
     for(const auto& [row, surfacerow] : m_surface)
     {
-        int col = 0;
+        int col = -m_firstcol; // Fix column according to horizontal scroll
 
         for(const auto& c : surfacerow.chunks)
         {
             for(int i = 0; (*cw == c) && (i < static_cast<int>(c.size())); i++)
             {
-                if((col + i) >= lastcol) break;
-                this->cell(row, col + i).background = Theme_HighlightBg;
-                this->cell(row, col + i).foreground = Theme_HighlightFg;
+                int currcol = col + i;
+                if(currcol < 0) continue;
+                if(currcol >= lastcol) break;
+
+                this->cell(row, currcol).background = Theme_HighlightBg;
+                this->cell(row, currcol).foreground = Theme_HighlightFg;
             }
 
             col += c.size();

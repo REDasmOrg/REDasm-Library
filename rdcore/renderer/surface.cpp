@@ -142,7 +142,10 @@ bool Surface::goTo(const RDDocumentItem* item, bool updatehistory)
     if(it == items->end()) return false;
 
     if(updatehistory) m_cursor->updateHistory();
-    this->ensureVisible(item);
+
+    if(this->hasFlag(RendererFlags_CenterOnSurface)) this->centerOnSurface(item);
+    else  m_items.first = *it;
+
     this->update(item);
     return true;
 }
@@ -562,7 +565,7 @@ void Surface::updateCurrentItem()
     else m_cursor->setCurrentItem({ });
 }
 
-void Surface::ensureVisible(const RDDocumentItem* item)
+void Surface::centerOnSurface(const RDDocumentItem* item)
 {
     if(!item->type) return;
 

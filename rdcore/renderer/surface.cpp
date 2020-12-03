@@ -33,6 +33,23 @@ Surface::~Surface()
         this->context()->setActiveSurface(nullptr);
 }
 
+int Surface::scrollLength() const { return this->context()->document()->size(); }
+
+int Surface::scrollValue() const
+{
+    RDDocumentItem item;
+    if(!this->currentItem(&item)) return 0;
+
+    const auto* segments = this->context()->document()->segments();
+    if(segments->empty()) return 0;
+
+    const auto& f = segments->front(), b = segments->back();
+    size_t docsize = this->context()->document()->size();
+
+    // Approximate document location
+    return docsize * (item.address - f.address) / (b.endaddress - f.address);
+}
+
 const CursorPtr& Surface::cursor() const { return m_cursor; }
 size_t Surface::getPath(const RDPathItem** path) const { return m_path.getPath(path); }
 
@@ -267,6 +284,8 @@ void Surface::notifyPositionChanged()
                                                 this, m_cursor->position(), m_cursor->selection(), item);
 }
 
+void Surface::notifyScrollChanged() { this->notify<RDEventArgs>(Event_SurfaceScrollChanged, this); }
+
 void Surface::checkColumn(int row, int& col) const
 {
     int lastcol = this->lastColumn();
@@ -334,6 +353,7 @@ void Surface::handleEvents(const RDEventArgs* event)
                 default: return;
             }
 
+            this->notifyScrollChanged();
             break;
         }
 
@@ -341,6 +361,8 @@ void Surface::handleEvents(const RDEventArgs* event)
             if(this->context()->busy()) return;
             RDLocation loc = this->document()->entryPoint();
             if(loc.valid) this->goToAddress(loc.address, false);
+
+            this->notifyScrollChanged();
             break;
         }
 

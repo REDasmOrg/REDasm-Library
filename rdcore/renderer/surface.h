@@ -23,6 +23,8 @@ class Surface: public Object
     public:
         Surface(Context* ctx, rd_flag flags, uintptr_t userdata);
         ~Surface();
+        int scrollLength() const;
+        int scrollValue() const;
         const CursorPtr& cursor() const;
         size_t getPath(const RDPathItem** path) const;
         int row(int row, const RDSurfaceCell** cells) const;
@@ -58,6 +60,7 @@ class Surface: public Object
     public: // Used by Cursor class
         void notifyHistoryChanged();
         void notifyPositionChanged();
+        void notifyScrollChanged();
 
     private:
         RDSurfaceCell& cell(int row, int col);

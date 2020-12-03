@@ -39,6 +39,8 @@ RD_API_EXPORT const char* RDSurface_GetCurrentWord(const RDSurface* sf);
 RD_API_EXPORT const char* RDSurface_GetWordAt(const RDSurface* sf, int row, int col);
 RD_API_EXPORT uintptr_t RDSurface_GetUserData(const RDSurface* sf);
 RD_API_EXPORT size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path);
+RD_API_EXPORT int RDSurface_GetScrollLength(const RDSurface* sf);
+RD_API_EXPORT int RDSurface_GetScrollValue(const RDSurface* sf);
 RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells);
 RD_API_EXPORT int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item);

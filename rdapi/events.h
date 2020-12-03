@@ -29,6 +29,7 @@ enum RDEvents {
 
     // Surface Events
     Event_SurfaceUpdated,
+    Event_SurfaceScrollChanged,
     Event_SurfaceHistoryChanged,
     Event_SurfacePositionChanged,
 };

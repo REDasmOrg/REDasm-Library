@@ -11,6 +11,8 @@ const RDDocumentItem* RDSurface_GetLastItem(const RDSurface* sf) { return CPTR(c
 const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
 uintptr_t RDSurface_GetUserData(const RDSurface* sf) { return CPTR(const Surface, sf)->userData(); }
 size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path) { return CPTR(const Surface, sf)->getPath(path); }
+int RDSurface_GetScrollLength(const RDSurface* sf) { return CPTR(const Surface, sf)->scrollLength(); }
+int RDSurface_GetScrollValue(const RDSurface* sf) { return CPTR(const Surface, sf)->scrollValue(); }
 int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) { return CPTR(const Surface, sf)->row(row, cells); }
 int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->findRow(item); }
 bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item) { return CPTR(const Surface, sf)->getItem(row, item); }

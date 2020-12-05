@@ -37,6 +37,8 @@ class Context: public Object
         bool busy() const;
         size_t bits() const;
         size_t addressWidth() const;
+        bool matchLoader(const std::string& q) const;
+        bool matchAssembler(const std::string& q) const;
         void setIgnoreProblems(bool ignore);
         void setUserData(const std::string& s, uintptr_t userdata);
         uintptr_t getUserData(const std::string& s) const;

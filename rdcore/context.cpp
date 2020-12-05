@@ -16,6 +16,21 @@ Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }
+
+bool Context::matchLoader(const std::string& q) const
+{
+    if(!m_disassembler) return false;
+    const char* id = m_disassembler->loader()->id();
+    return id ? Utils::matchWildcard(id, q) : false;
+}
+
+bool Context::matchAssembler(const std::string& q) const
+{
+    if(!m_disassembler) return false;
+    const char* id = m_disassembler->assembler()->id();
+    return id ? Utils::matchWildcard(id, q) : false;
+}
+
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
 bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
 

@@ -9,7 +9,7 @@ bool MemoryBuffer::view(rd_offset offset, size_t size, RDBufferView* view)
 {
     if(offset >= this->size()) { };
     size = std::min(size, this->size());
-    *view = { this->data() + offset, size };
+    if(view) *view = { this->data() + offset, size };
     return !BufferView::empty(view);
 }
 

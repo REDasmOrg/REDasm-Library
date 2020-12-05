@@ -10,14 +10,11 @@ const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix)
 {
     // Fixed internal storage
     static std::string s;
-
-    if(bits == RD_NVAL) bits = 0; //FIXME: rd_ctx->disassembler()->assembler()->bits();
-
     s = Utils::hex(value, bits, withprefix);
     return s.c_str();
 }
 
-const char* RD_ToHexAuto(size_t value) { return RD_ToHexBits(value, RD_NVAL, false); }
+const char* RD_ToHexAuto(const RDContext* ctx, size_t value) {  return RD_ToHexBits(value, CPTR(const Context, ctx)->bits(), false); }
 const char* RD_ToHex(size_t value) { return RD_ToHexBits(value, 0, false); }
 
 const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)

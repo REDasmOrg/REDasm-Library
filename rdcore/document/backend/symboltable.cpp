@@ -2,7 +2,6 @@
 #include <cstring>
 #include <sstream>
 #include <iomanip>
-#include <regex>
 #include "../../context.h"
 #include "../../support/utils.h"
 #include "../../support/demangler.h"
@@ -151,8 +150,7 @@ bool SymbolTable::isSymbolAccepted(const std::string& q, rd_address address) con
     auto it = m_stringtable.find(address);
     if(it == m_stringtable.end()) return false;
 
-    std::regex r(q);
-    return std::regex_search(it->second, r);
+    return Utils::matchRegex(it->second, q);
 }
 
 bool SymbolTable::findByType(const std::string& q, RDSymbol* symbol, rd_type type) const

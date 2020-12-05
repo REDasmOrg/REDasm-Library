@@ -39,6 +39,8 @@ class Utils
         static std::string simplified(std::string s);
         static StringContainer split(const std::string& s, char sep);
         static std::string wildcardToRegex(const std::string& wcs);
+        static bool matchWildcard(const std::string& s, const std::string& wc);
+        static bool matchRegex(const std::string& s, const std::string& rgx);
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);

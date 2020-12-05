@@ -118,6 +118,14 @@ std::string Utils::wildcardToRegex(const std::string& wcs)
     return Utils::replaceAll(s, "\\?", ".") + "$";
 }
 
+bool Utils::matchWildcard(const std::string& s, const std::string& wc) { return Utils::matchRegex(s, Utils::wildcardToRegex(wc)); }
+
+bool Utils::matchRegex(const std::string& s, const std::string& rgx)
+{
+    std::regex r(rgx);
+    return std::regex_search(s, r);
+}
+
 std::string& Utils::replaceAll(std::string& s, const std::string& from, const std::string& to)
 {
     size_t pos = s.find(from);

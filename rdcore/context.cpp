@@ -71,6 +71,10 @@ uintptr_t Context::getUserData(const std::string& s) const
     return it != m_userdata.end() ? it->second : 0;
 }
 
+void Context::setCompilerABI(rd_type t) { m_compilerabi.first = t; }
+rd_type Context::compilerABI() const { return m_compilerabi.first; }
+void Context::setCompilerCC(rd_type t) { m_compilerabi.second = t; }
+rd_type Context::compilerCC() const { return m_compilerabi.second; }
 RDLocation Context::functionStart(rd_address address) const { return m_disassembler->document()->functionStart(address); }
 RDLocation Context::entryPoint() const { return m_disassembler->document()->entryPoint(); }
 

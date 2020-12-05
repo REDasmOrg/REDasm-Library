@@ -40,6 +40,10 @@ class Context: public Object
         void setIgnoreProblems(bool ignore);
         void setUserData(const std::string& s, uintptr_t userdata);
         uintptr_t getUserData(const std::string& s) const;
+        void setCompilerABI(rd_type t);
+        rd_type compilerABI() const;
+        void setCompilerCC(rd_type t);
+        rd_type compilerCC() const;
 
     public: // Document
         RDLocation functionStart(rd_address address) const;
@@ -98,6 +102,7 @@ class Context: public Object
         std::unique_ptr<PluginManager> m_pluginmanager;
 
     private:
+        std::pair<rd_type, rd_type> m_compilerabi{CompilerABI_Unknown, CompilerCC_Unknown};
         Surface* m_activesurface{nullptr};
         rd_flag m_flags{ContextFlags_None};
         PluginMap m_commands;

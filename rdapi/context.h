@@ -7,6 +7,24 @@
 
 RD_HANDLE(RDContext);
 
+enum RDCompilerABI {
+    CompilerABI_Unknown = 0,
+    CompilerABI_GNU,     // Gcc or CLang
+    CompilerABI_MSVC,    // Visual C++
+    CompilerABI_DotNET,     // Visual C++ .NET Mode
+    CompilerABI_Borland, // Borland/Embarcadero
+    CompilerABI_Go       // GoLang
+};
+
+enum RDCompilerCC {
+    CompilerCC_Unknown = 0,
+    CompilerCC_Cdecl,
+    CompilerCC_Stdcall,
+    CompilerCC_Pascal,
+    CompilerCC_Fastcall,
+    CompilerCC_Thiscall,
+};
+
 enum RDContextFlags {
     ContextFlags_None       = 0,
     ContextFlags_NoDemangle = (1 << 0),
@@ -65,6 +83,10 @@ RD_API_EXPORT bool RDContext_HasProblems(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetFlags(RDContext* ctx, rd_flag flags, bool set);
 RD_API_EXPORT bool RDContext_HasFlag(const RDContext* ctx, rd_flag flag);
 RD_API_EXPORT rd_flag RDContext_GetFlags(const RDContext* ctx);
+RD_API_EXPORT void RDContext_SetABI(RDContext* ctx, rd_type t);
+RD_API_EXPORT rd_type RDContext_GetABI(const RDContext* ctx);
+RD_API_EXPORT void RDContext_SetCC(RDContext* ctx, rd_type t);
+RD_API_EXPORT rd_type RDContext_GetCC(const RDContext* ctx);
 
 // Extra Functions
 RD_API_EXPORT const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size);

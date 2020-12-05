@@ -20,6 +20,8 @@ typedef struct RDBufferView {
     size_t size;
 } RDBufferView;
 
-RD_API_EXPORT rd_offset RDBufferView_Find(const RDBufferView* view, const u8* data, size_t size);
+RD_API_EXPORT u8* RDBufferView_Find(const RDBufferView* view, const u8* data, size_t size);
+RD_API_EXPORT u8* RDBufferView_FindNext(RDBufferView* view, const u8* data, size_t size);
 RD_API_EXPORT u16 RDBufferView_CRC16(const RDBufferView* view, rd_offset offset, size_t size);
 RD_API_EXPORT u32 RDBufferView_CRC32(const RDBufferView* view, rd_offset offset, size_t size);
+RD_API_EXPORT void RDBufferView_Advance(RDBufferView* view, size_t offset);

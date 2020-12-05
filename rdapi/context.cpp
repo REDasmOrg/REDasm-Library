@@ -54,3 +54,17 @@ void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)-
 const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size) { return CPTR(const Context, ctx)->disassembler()->getHexDump(address, size); }
 const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->disassembler()->readString(address, len); }
 const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->disassembler()->readWString(address, len); }
+
+bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view)
+{
+    if(!segment) return false;
+    auto* loader = CPTR(const Context, ctx)->loader();
+    return loader ? loader->view(*segment, view) : false;
+}
+
+bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view)
+{
+    if(!block) return false;
+    auto* loader = CPTR(const Context, ctx)->loader();
+    return loader ? loader->view(*block, view) : false;
+}

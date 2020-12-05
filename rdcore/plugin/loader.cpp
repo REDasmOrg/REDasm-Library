@@ -34,6 +34,12 @@ bool Loader::view(const RDSegment& segment, RDBufferView* view) const
     return m_buffer->view(segment.offset, SegmentContainer::offsetSize(segment), view);
 }
 
+bool Loader::view(const RDBlock& block, RDBufferView* view) const
+{
+    size_t sz = BlockContainer::size(&block);
+    return sz ? this->view(block.address, sz, view) : false;
+}
+
 Database* Loader::database(const std::string& dbname)
 {
     auto it = m_database.find(dbname);

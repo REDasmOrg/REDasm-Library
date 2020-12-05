@@ -33,6 +33,7 @@ enum RDContextFlags {
 
 struct RDLoaderRequest;
 struct RDEntryLoader;
+struct RDBufferView;
 struct RDEntryAssembler;
 struct RDNet;
 struct RDDocument;
@@ -41,6 +42,7 @@ struct RDLoader;
 struct RDBuffer;
 struct RDSurface;
 struct RDSymbol;
+struct RDBlock;
 
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
 typedef void (*Callback_AssemblerEntry)(const struct RDEntryAssembler* entry, void* userdata);
@@ -52,6 +54,8 @@ RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
 RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view);
+RD_API_EXPORT bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view);
 RD_API_EXPORT bool RDContext_MatchLoader(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_MatchAssembler(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_Bind(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);

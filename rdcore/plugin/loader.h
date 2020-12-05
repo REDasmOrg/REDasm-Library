@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <rdapi/document/block.h>
 #include <rdapi/plugin/loader.h>
 #include "../document/document_fwd.h"
 #include "../database/database.h"
@@ -18,6 +19,7 @@ class Loader: public Entry<RDEntryLoader>
         bool view(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;
+        bool view(const RDBlock& block, RDBufferView* view) const;
         Database* database(const std::string& dbname);
         rd_flag flags() const;
         MemoryBuffer* buffer();

@@ -21,5 +21,6 @@
 #include "renderer/renderer.h"
 #include "renderer/surface.h"
 #include "database/database.h"
+#include "database/types.h"
 #include "graph/functiongraph.h"
 #include "graph/graph.h"

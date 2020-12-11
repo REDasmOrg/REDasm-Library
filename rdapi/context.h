@@ -11,7 +11,7 @@ enum RDCompilerABI {
     CompilerABI_Unknown = 0,
     CompilerABI_GNU,     // Gcc or CLang
     CompilerABI_MSVC,    // Visual C++
-    CompilerABI_DotNET,     // Visual C++ .NET Mode
+    CompilerABI_DotNET,  // Visual C++ (.NET Mode)
     CompilerABI_Borland, // Borland/Embarcadero
     CompilerABI_Go       // GoLang
 };

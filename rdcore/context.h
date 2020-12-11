@@ -10,6 +10,7 @@
 #include "containers/sortedcontainer.h"
 #include "containers/uniquecontainer.h"
 #include "document/document_fwd.h"
+#include "database/database.h"
 #include "object.h"
 
 class Disassembler;

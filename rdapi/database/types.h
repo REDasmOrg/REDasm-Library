@@ -3,8 +3,26 @@
 #include "../macros.h"
 #include "../types.h"
 
-RD_HANDLE(RDDBEnum);
-RD_HANDLE(RDDBUnion);
-RD_HANDLE(RDDBStruct);
-RD_HANDLE(RDDBTypedef);
-RD_HANDLE(RDDBFunction);
+RD_HANDLE(RDType);
+
+enum RDTypes {
+    Type_Void,
+    Type_Bool,
+    Type_Char,
+    Type_Int,
+    Type_Float,
+
+    Type_Array,
+
+    Type_Function,
+    Type_Alias,
+    Type_Structure,
+    Type_Union,
+    Type_Enum,
+};
+
+RD_API_EXPORT RDType* RDType_CreateInt(size_t bits, bool issigned);
+RD_API_EXPORT RDType* RDType_CreateFloat(size_t bits, bool issigned);
+RD_API_EXPORT RDType* RDType_CreateStructure();
+
+RD_API_EXPORT bool RDStructure_Append(RDType* s, RDType* t, const char* name);

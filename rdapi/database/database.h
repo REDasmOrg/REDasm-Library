@@ -15,6 +15,7 @@ enum RDDatabaseValueTypes {
     DatabaseValueType_String,
     DatabaseValueType_Object,
     DatabaseValueType_Array,
+    DatabaseValueType_Type,
 };
 
 typedef struct RDDatabaseValue {
@@ -28,6 +29,7 @@ typedef struct RDDatabaseValue {
         const char* s;
         const char* obj;
         const char* arr;
+        const RDType* t;
     };
 } RDDatabaseValue;
 

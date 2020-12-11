@@ -129,15 +129,15 @@ bool StringFinder::validateString(const char* s, size_t size)
 
     switch(str.front()) // Some Heuristics
     {
-        case '\'': if((str.back() != '\''))   return false; break;
-        case '\"': if((str.back() != '\"'))   return false; break;
-        case '<':  if((str.back() != '>'))    return false; break;
-        case '(':  if((str.back() != ')'))    return false; break;
-        case '[':  if((str.back() != ']'))    return false; break;
-        case '{':  if((str.back() != '}'))    return false; break;
-        case '%':  if(!StringFinder::checkFormats(str)) return false; break;
-        case ' ':  return false; break;
-        default:   if(GibberishDetector::isGibberish(str)) return false; break;
+        case '\'': if((str.back() != '\''))   return false;
+        case '\"': if((str.back() != '\"'))   return false;
+        case '<':  if((str.back() != '>'))    return false;
+        case '(':  if((str.back() != ')'))    return false;
+        case '[':  if((str.back() != ']'))    return false;
+        case '{':  if((str.back() != '}'))    return false;
+        case '%':  if(!StringFinder::checkFormats(str)) return false;
+        case ' ':  return false;
+        default:   if(GibberishDetector::isGibberish(str)) return false;
     }
 
     double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));

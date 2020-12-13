@@ -2,6 +2,7 @@ from pathlib import Path
 from cparser import CParser
 import json
 import sys
+import os
 
 
 categories = {}
@@ -29,7 +30,7 @@ def generate_json(outputdir):
         doc["functions"] = p.functions
 
         rpath = str(file)
-        i = rpath.index("rdapi/")
+        i = rpath.index("rdapi" + os.path.sep)
         doc["path"] = rpath[i:]
 
         docjson["categories"][name] = doc

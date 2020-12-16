@@ -4,6 +4,7 @@
 RDType* RDType_CreateInt(size_t size, bool issigned) { return CPTR(RDType, new IntType(size, issigned)); }
 RDType* RDType_CreateFloat(size_t size, bool issigned) { return CPTR(RDType, new FloatType(size, issigned)); }
 RDType* RDType_CreateStructure() { return CPTR(RDType, new StructureType()); }
+rd_type RDType_GetType(const RDType* type) { return CPTR(const Type, type)->type(); }
 
 bool RDStructure_Append(RDType* s, RDType* t, const char* name)
 {
@@ -14,3 +15,4 @@ bool RDStructure_Append(RDType* s, RDType* t, const char* name)
     st->append(CPTR(Type, t), name);
     return true;
 }
+

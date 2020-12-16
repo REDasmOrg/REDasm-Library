@@ -72,7 +72,7 @@ bool Document::data(rd_address address, size_t size, const std::string& name) { 
 void Document::table(rd_address address, size_t count)
 {
     this->tableItem(address, address, 0);
-    this->type(address, "Table with " + Utils::number(count) + " case(s)");
+    //FIXME: this->type(address, "Table with " + Utils::number(count) + " case(s)");
 }
 
 void Document::tableItem(rd_address address, rd_address startaddress, size_t idx)
@@ -99,12 +99,23 @@ bool Document::branch(rd_address address, int direction)
     return this->symbol(address, name, SymbolType_Label, SymbolType_None);
 }
 
-void Document::type(rd_address address, const std::string& s)
+bool Document::typeName(rd_address address, const std::string& q)
 {
-    if(m_itemdata[address].type == s) return;
+    RDDatabaseValue v;
+    if(!this->context()->database()->query(q, &v)) return false;
+    return this->type(address, CPTR(const Type, v.t));
+}
 
-    m_itemdata[address].type = s;
+bool Document::type(rd_address address, const Type* type)
+{
+    if(!type) return false;
+
+    //if(m_itemdata[address].type == q) return false;
+    //m_itemdata[address].type = q;
+
+    if(!m_segments.markData(address, type->size())) return false;
     this->replace(address, DocumentItemType_Type);
+    return true;
 }
 
 void Document::separator(rd_address address)

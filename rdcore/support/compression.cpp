@@ -1,4 +1,5 @@
 #include "compression.h"
+#include <fstream>
 
 #define CHUNK_SIZE 16384
 
@@ -13,6 +14,33 @@ bool Compression::decompress(const Compression::Data& datain, Compression::Data&
     bool res = Compression::process(&zs, dataout, ::inflate, 0);
     inflateEnd(&zs);
     return res;
+}
+
+bool Compression::compressFile(const std::string& filepath, Compression::Data& dataout)
+{
+    Data data;
+    if(!Compression::readFile(filepath, data)) return false;
+    return Compression::compress(data, dataout);
+}
+
+bool Compression::decompressFile(const std::string& filepath, Compression::Data& dataout)
+{
+    Data data;
+    if(!Compression::readFile(filepath, data)) return false;
+    return Compression::decompress(data, dataout);
+}
+
+bool Compression::readFile(const std::string& filepath, Compression::Data& data)
+{
+    std::ifstream stream(filepath, std::ios::in | std::ios::binary | std::ios::ate);
+    if(!stream.is_open()) return false;
+
+    std::streamsize size = stream.tellg();
+    stream.seekg(0, std::ios::beg);
+
+    data.resize(size);
+    stream.read(reinterpret_cast<char*>(data.data()), size);
+    return true;
 }
 
 bool Compression::compress(const Compression::Data& datain, Compression::Data& dataout)

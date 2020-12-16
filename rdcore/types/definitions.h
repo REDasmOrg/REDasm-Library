@@ -22,6 +22,9 @@ class Type: public Object
         rd_type type() const;
 
     public:
+        static Type* load(const tao::json::value& v);
+
+    public:
         static std::string typeName(rd_type type);
         static rd_type typeId(const std::string& s);
 
@@ -34,6 +37,7 @@ typedef std::unique_ptr<Type> TypePtr;
 class NumericType: public Type
 {
     protected:
+        NumericType(rd_type type);
         NumericType(rd_type type, size_t size, bool issigned);
 
     public:
@@ -50,6 +54,7 @@ class NumericType: public Type
 class IntType: public NumericType
 {
     public:
+        IntType();
         IntType(size_t size, bool issigned);
         Type* clone() const override;
 };
@@ -57,6 +62,7 @@ class IntType: public NumericType
 class FloatType: public NumericType
 {
     public:
+        FloatType();
         FloatType(size_t size, bool issigned);
         Type* clone() const override;
 };

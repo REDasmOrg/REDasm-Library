@@ -10,6 +10,25 @@
 Type::Type(rd_type t): Object(), m_type(t) { }
 rd_type Type::type() const { return m_type; }
 
+Type* Type::load(const tao::json::value& v)
+{
+    auto* tf = v.find(TYPE_FIELD);
+    if(!tf) return nullptr;
+
+    TypePtr t;
+
+    switch(Type::typeId(tf->as<std::string>()))
+    {
+        case Type_Int: t.reset(new IntType()); break;
+        case Type_Float: t.reset(new FloatType()); break;
+        case Type_Structure: t.reset(new StructureType()); break;
+        default: break;
+    }
+
+    if(!t || !t->fromJson(v)) return nullptr;
+    return t.release();
+}
+
 std::string Type::typeName(rd_type type)
 {
     switch(type)
@@ -125,6 +144,7 @@ std::string StructureType::uncollided(std::string s) const
     return s;
 }
 
+NumericType::NumericType(rd_type type): Type(type) { }
 NumericType::NumericType(rd_type type, size_t size, bool issigned): Type(type), m_size(size), m_signed(issigned) { }
 size_t NumericType::size() const { return m_size; }
 
@@ -153,8 +173,10 @@ tao::json::value NumericType::toJson() const
 
 bool NumericType::isSigned() const { return m_signed; }
 
+IntType::IntType(): NumericType(Type_Int) { }
 IntType::IntType(size_t size, bool issigned): NumericType(Type_Int, size, issigned) { }
 Type* IntType::clone() const { return new IntType(this->size(), this->isSigned()); }
 
+FloatType::FloatType(): NumericType(Type_Float) { }
 FloatType::FloatType(size_t size, bool issigned): NumericType(Type_Float, size, issigned) { }
 Type* FloatType::clone() const { return new FloatType(this->size(), this->isSigned()); }

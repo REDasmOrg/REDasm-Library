@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <rdapi/types.h>
 #include "../libs/miniz/miniz.h"
@@ -18,6 +19,11 @@ class Compression
         Compression() = delete;
         static bool compress(const Data& datain, Data& dataout);
         static bool decompress(const Data& datain, Data& dataout);
+        static bool compressFile(const std::string& filepath, Data& dataout);
+        static bool decompressFile(const std::string& filepath, Data& dataout);
+
+    private:
+        static bool readFile(const std::string& filepath, Data& data);
 
     private:
         static bool process(z_stream* zs, Data& dataout, const ZLibFunction& func, int funcarg);

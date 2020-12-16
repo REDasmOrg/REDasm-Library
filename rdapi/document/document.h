@@ -1,8 +1,10 @@
 #pragma once
 
+#include "../database/types.h"
 #include "../types.h"
 #include "../macros.h"
 #include "../symbol.h"
+#include "../types.h"
 #include "block.h"
 
 #define RD_ENTRY_NAME "__redasm_entry__"
@@ -73,6 +75,8 @@ RD_API_EXPORT bool RDDocument_AddWideString(RDDocument* d, rd_address address, s
 RD_API_EXPORT bool RDDocument_AddPointer(RDDocument* d, rd_address address, rd_type type, const char* name);
 RD_API_EXPORT bool RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const char* name);
 RD_API_EXPORT bool RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name);
+RD_API_EXPORT bool RDDocument_AddTypeName(RDDocument* d, rd_address address, const char* q);
+RD_API_EXPORT bool RDDocument_AddType(RDDocument* d, rd_address address, const RDType* t);
 RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata);

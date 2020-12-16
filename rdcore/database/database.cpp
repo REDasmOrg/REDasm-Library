@@ -1,6 +1,8 @@
 #include "database.h"
 #include "../support/compression.h"
+#include "../support/utils.h"
 #include "../config.h"
+#include <algorithm>
 #include <fstream>
 
 #define DATABASE_NAME_FIELD "@name"
@@ -96,7 +98,7 @@ Database* Database::open(const std::string& dbname)
     if(dbloc.empty()) return nullptr;
 
     tao::json::value tree;
-    if(!Database::parseCompiledFile(dbloc, tree)) return nullptr;
+    if(!Database::parseFile(dbloc, tree)) return nullptr;
     if(!Database::validateTree(tree)) return nullptr;
     return new Database(tree);
 }
@@ -126,6 +128,23 @@ bool Database::decompileFile(const fs::path& filepath, Database::Data& outdata)
     return !outdata.empty();
 }
 
+void Database::extractObject(const tao::json::value& obj, RDDatabaseValue* outval) const
+{
+    Type* t = Type::load(obj);
+
+    if(t)
+    {
+        m_typecache.reset(t); // Take ownership
+        outval->type = DatabaseValueType_Type;
+        outval->t = CPTR(RDType, t);
+        return;
+    }
+
+    auto it = m_valuecache.insert_or_assign(obj.type(), tao::json::to_string(obj));
+    outval->type = DatabaseValueType_Object;
+    outval->obj = it.first->second.c_str();
+}
+
 bool Database::extract(const tao::json::value& inval, RDDatabaseValue* outval) const
 {
     switch(inval.type())
@@ -140,22 +159,26 @@ bool Database::extract(const tao::json::value& inval, RDDatabaseValue* outval) c
         case tao::json::type::DOUBLE:
             outval->type = DatabaseValueType_Float;
             inval.to(outval->f);
-            break;
+            return true;
 
         case tao::json::type::SIGNED:
             outval->type = DatabaseValueType_Int;
             inval.to(outval->i);
-            break;
+            return true;
 
         case tao::json::type::UNSIGNED:
             outval->type = DatabaseValueType_UInt;
             inval.to(outval->u);
-            break;
+            return true;
 
         case tao::json::type::BOOLEAN:
             outval->type = DatabaseValueType_Bool;
             inval.to(outval->b);
-            break;
+            return true;
+
+        case tao::json::type::OBJECT:
+            this->extractObject(inval, outval);
+            return true;
 
         default: break;
     }
@@ -165,9 +188,9 @@ bool Database::extract(const tao::json::value& inval, RDDatabaseValue* outval) c
 
 bool Database::checkPointer(std::string& path) const
 {
-    if(path.empty()) return { };
     if(path.front() != '/') path = "/" + path;
     if(!path.find("/@")) return false; // Disallow database field access
+    if(path == "/") path.clear();
     return true;
 }
 
@@ -210,7 +233,11 @@ bool Database::parseDecompiledFile(const fs::path& filepath, tao::json::value& j
 bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
 {
     try {
-        j = tao::json::msgpack::from_file(filepath);
+        Data data;
+        if(!Compression::decompressFile(filepath, data)) return false;
+
+        std::string mp(data.begin(), data.end());
+        j = tao::json::msgpack::from_string(mp);
     }
     catch(tao::json::pegtl::parse_error& e) {
         rd_cfg->log(e.what());
@@ -220,9 +247,25 @@ bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
     return true;
 }
 
+bool Database::parseFile(const fs::path& filepath, tao::json::value& j)
+{
+    std::string ext = filepath.extension();
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+    if(ext == ".json") return Database::parseDecompiledFile(filepath, j);
+    else if(ext == ".rdb") return Database::parseCompiledFile(filepath, j);
+    else
+    {
+        rd_cfg->log("Unknown file type: " + Utils::quoted(ext));
+        return false;
+    }
+
+    return true;
+}
+
 fs::path Database::locate(fs::path dbname)
 {
-    if(dbname.extension() != DATABASE_RDB_EXT) dbname.replace_extension(DATABASE_RDB_EXT);
+    if(dbname.extension().empty()) dbname.replace_extension(DATABASE_RDB_EXT);
     if(fs::exists(dbname)) return dbname;
 
     fs::directory_entry dbentry;

@@ -9,6 +9,7 @@
 #include "../document/backend/functioncontainer.h"
 #include "../document/backend/itemcontainer.h"
 #include "../document/backend/symboltable.h"
+#include "../types/definitions.h"
 #include "../object.h"
 #include "document_fwd.h"
 
@@ -53,7 +54,8 @@ class Document: public Object
         bool pointer(rd_address address, rd_type type, const std::string& name);
         bool function(rd_address address, const std::string& name);
         bool branch(rd_address address, int direction);
-        void type(rd_address address, const std::string& s);
+        bool typeName(rd_address address, const std::string& q);
+        bool type(rd_address address, const Type* type);
         void separator(rd_address address);
         bool label(rd_address address);
         bool entry(rd_address address);

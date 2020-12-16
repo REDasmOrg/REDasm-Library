@@ -113,3 +113,15 @@ size_t RDDocument_FindAllSymbolsR(const RDDocument* d, const char* q, const RDSy
     if(!q) return false;
     return docptr(d)->symbols()->findAllR(q, symbols, hint);
 }
+
+bool RDDocument_AddTypeName(RDDocument* d, rd_address address, const char* q)
+{
+    if(!q) return false;
+    return docptr(d)->typeName(address, q);
+}
+
+bool RDDocument_AddType(RDDocument* d, rd_address address, const RDType* t)
+{
+    if(!t) return false;
+    return docptr(d)->type(address, CPTR(const Type, t));
+}

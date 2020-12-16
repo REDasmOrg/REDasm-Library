@@ -15,6 +15,7 @@ Context::Context(): Object(this)
 {
     m_pluginmanager = std::make_unique<PluginManager>(this);
     m_database = std::make_unique<Database>(this);
+    m_database->setName("Active Database");
 }
 
 Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }

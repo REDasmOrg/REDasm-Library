@@ -39,7 +39,12 @@ RD_API_EXPORT size_t RDDatabase_CompileFile(const char* filepath, const u8** com
 RD_API_EXPORT size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled);
 
 RD_API_EXPORT RDDatabase* RDDatabase_Open(const char* dbname);
-RD_API_EXPORT RDDatabase* RDDatabase_Create(const char* dbname);
+RD_API_EXPORT RDDatabase* RDDatabase_Create();
 RD_API_EXPORT const char* RDDatabase_GetName(const RDDatabase* db);
-RD_API_EXPORT const char* RDDatabase_GetFilePath(const RDDatabase* db);
+RD_API_EXPORT const char* RDDatabase_Decompile(const RDDatabase* db);
+RD_API_EXPORT bool RDDatabase_Compile(const RDDatabase* db, const char* filepath);
 RD_API_EXPORT bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue);
+RD_API_EXPORT bool RDDatabase_Add(RDDatabase* db, const char* path, const char* dbname);
+RD_API_EXPORT bool RDDatabase_WriteString(RDDatabase* db, const char* path, const char* s);
+RD_API_EXPORT bool RDDatabase_WriteType(RDDatabase* db, const char* path, const RDType* t);
+RD_API_EXPORT void RDDatabase_SetName(RDDatabase* db, const char* name);

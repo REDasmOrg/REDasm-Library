@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../database/database.h"
 #include "../document/document.h"
 #include "../buffer.h"
 #include "assembler/assembler.h"
@@ -48,7 +47,6 @@ RD_API_EXPORT const char* RDLoader_GetName(const RDLoader* ldr);
 RD_API_EXPORT RDEntryAssembler* RDLoader_GetAssemblerPlugin(const RDEntryLoader* ploader);
 RD_API_EXPORT rd_flag RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);
-RD_API_EXPORT RDDatabase* RDLoader_GetDatabase(RDLoader* ldr);
 RD_API_EXPORT RDBuffer* RDLoader_GetBuffer(RDLoader* ldr);
 RD_API_EXPORT u8* RDLoader_GetData(RDLoader* ldr);
 

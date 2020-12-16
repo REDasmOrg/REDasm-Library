@@ -42,6 +42,7 @@ struct RDLoader;
 struct RDBuffer;
 struct RDSurface;
 struct RDSymbol;
+struct RDDatabase;
 struct RDBlock;
 
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
@@ -50,6 +51,7 @@ typedef void (*Callback_LoaderEntry)(const struct RDEntryLoader* entry, void* us
 typedef void (*Callback_Analyzer)(const struct RDAnalyzer* analyzer, void* userdata);
 
 RD_API_EXPORT RDContext* RDContext_Create();
+RD_API_EXPORT RDDatabase* RDContext_GetDatabase(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
 RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);

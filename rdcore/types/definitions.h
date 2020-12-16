@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include "../libs/tao/json.hpp"
 #include "../object.h"
 
 class Type: public Object
@@ -14,13 +15,17 @@ class Type: public Object
         Type(rd_type t);
 
     public:
-        const std::string& name() const;
+        virtual bool fromJson(const tao::json::value& v);
+        virtual tao::json::value toJson() const;
         virtual Type* clone() const = 0;
         virtual size_t size() const = 0;
         rd_type type() const;
 
+    public:
+        static std::string typeName(rd_type type);
+        static rd_type typeId(const std::string& s);
+
     private:
-        std::string m_name;
         rd_type m_type;
 };
 
@@ -29,28 +34,30 @@ typedef std::unique_ptr<Type> TypePtr;
 class NumericType: public Type
 {
     protected:
-        NumericType(rd_type type, size_t bits, bool issigned);
+        NumericType(rd_type type, size_t size, bool issigned);
 
     public:
         bool isSigned() const;
         size_t size() const override;
+        bool fromJson(const tao::json::value& v) override;
+        tao::json::value toJson() const override;
 
     private:
-        size_t m_bits{0};
+        size_t m_size{0};
         bool m_signed{false};
 };
 
 class IntType: public NumericType
 {
     public:
-        IntType(size_t bits, bool issigned);
+        IntType(size_t size, bool issigned);
         Type* clone() const override;
 };
 
 class FloatType: public NumericType
 {
     public:
-        FloatType(size_t bits, bool issigned);
+        FloatType(size_t size, bool issigned);
         Type* clone() const override;
 };
 
@@ -65,6 +72,8 @@ class StructureType: public Type
         Type* clone() const override;
         size_t size() const override;
         void append(Type* t, const std::string& name);
+        bool fromJson(const tao::json::value& v) override;
+        tao::json::value toJson() const override;
 
     public: // C++ Interface
         Fields::const_iterator begin() const;

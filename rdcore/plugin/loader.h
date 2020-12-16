@@ -4,7 +4,6 @@
 #include <rdapi/document/block.h>
 #include <rdapi/plugin/loader.h>
 #include "../document/document_fwd.h"
-#include "../database/database.h"
 #include "../buffer/buffer.h"
 #include "entry.h"
 
@@ -20,7 +19,6 @@ class Loader: public Entry<RDEntryLoader>
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;
         bool view(const RDBlock& block, RDBufferView* view) const;
-        Database* database(const std::string& dbname);
         rd_flag flags() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
@@ -39,7 +37,6 @@ class Loader: public Entry<RDEntryLoader>
     private:
         RDLoaderBuildParams m_buildparams{ };
         std::shared_ptr<MemoryBuffer> m_buffer;
-        std::unordered_map<std::string, std::unique_ptr<Database>> m_database;
         SafeDocument m_document;
         std::string m_filepath;
 };

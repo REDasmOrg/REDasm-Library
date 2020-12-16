@@ -1,8 +1,8 @@
 #include "types.h"
 #include <rdcore/types/definitions.h>
 
-RDType* RDType_CreateInt(size_t bits, bool issigned) { return CPTR(RDType, new IntType(bits, issigned)); }
-RDType* RDType_CreateFloat(size_t bits, bool issigned) { return CPTR(RDType, new FloatType(bits, issigned)); }
+RDType* RDType_CreateInt(size_t size, bool issigned) { return CPTR(RDType, new IntType(size, issigned)); }
+RDType* RDType_CreateFloat(size_t size, bool issigned) { return CPTR(RDType, new FloatType(size, issigned)); }
 RDType* RDType_CreateStructure() { return CPTR(RDType, new StructureType()); }
 
 bool RDStructure_Append(RDType* s, RDType* t, const char* name)

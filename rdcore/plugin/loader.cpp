@@ -40,18 +40,6 @@ bool Loader::view(const RDBlock& block, RDBufferView* view) const
     return sz ? this->view(block.address, sz, view) : false;
 }
 
-Database* Loader::database(const std::string& dbname)
-{
-    auto it = m_database.find(dbname);
-    if(it != m_database.end()) return it->second.get();
-
-    auto* db = Database::open(dbname);
-    if(!db) return nullptr;
-
-    auto iit = m_database.emplace(dbname, db);
-    return iit.first->second.get();
-}
-
 rd_flag Loader::flags() const { return m_entry->flags; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }

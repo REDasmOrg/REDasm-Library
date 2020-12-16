@@ -1,5 +1,6 @@
 #include "database.h"
 #include <rdcore/database/database.h>
+#include <rdcore/types/definitions.h>
 
 RDDatabase* RDDatabase_Open(const char* dbname)
 {
@@ -7,15 +8,11 @@ RDDatabase* RDDatabase_Open(const char* dbname)
     return CPTR(RDDatabase, Database::open(dbname));
 }
 
-RDDatabase* RDDatabase_Create(const char* dbname)
-{
-    if(!dbname) return nullptr;
-    return CPTR(RDDatabase, Database::create(dbname));
-}
+RDDatabase* RDDatabase_Create() { return CPTR(RDDatabase, new Database()); }
 
 size_t RDDatabase_CompileFile(const char* filepath, const u8** compiled)
 {
-    static Database::CompiledData data;
+    static Database::Data data;
 
     if(!filepath) return 0;
     if(!Database::compileFile(filepath, data)) return 0;
@@ -25,7 +22,7 @@ size_t RDDatabase_CompileFile(const char* filepath, const u8** compiled)
 
 size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled)
 {
-    static Database::DecompiledData data;
+    static Database::Data data;
 
     if(!filepath) return 0;
     if(!Database::decompileFile(filepath, data)) return 0;
@@ -33,13 +30,31 @@ size_t RDDatabase_DecompileFile(const char* filepath, const u8** decompiled)
     return data.size();
 }
 
+void RDDatabase_SetName(RDDatabase* db, const char* name) { if(name) CPTR(Database, db)->setName(name); }
 const char* RDDatabase_GetName(const RDDatabase* db) { return CPTR(const Database, db)->name().c_str(); }
+const char* RDDatabase_Decompile(const RDDatabase* db) { return CPTR(const Database, db)->decompile().c_str(); }
+bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue) { return q ? CPTR(const Database, db)->query(q, dbvalue) : false; }
 
-const char* RDDatabase_GetFilePath(const RDDatabase* db)
+bool RDDatabase_WriteString(RDDatabase* db, const char* path, const char* s)
 {
-    static std::string filepath;
-    filepath = CPTR(const Database, db)->filePath();
-    return filepath.c_str();
+    if(!db || !path || !s) return false;
+    return CPTR(Database, db)->write(path, s);
 }
 
-bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue) { return q ? CPTR(const Database, db)->query(q, dbvalue) : false; }
+bool RDDatabase_WriteType(RDDatabase* db, const char* path, const RDType* t)
+{
+    if(!db || !path || !t) return false;
+    return CPTR(Database, db)->write(path, CPTR(const Type, t));
+}
+
+bool RDDatabase_Add(RDDatabase* db, const char* path, const char* dbname)
+{
+    if(!db || !path || !dbname) return false;
+    return CPTR(Database, db)->add(path, dbname);
+}
+
+bool RDDatabase_Compile(const RDDatabase* db, const char* filepath)
+{
+    if(!db || !filepath) return false;
+    return CPTR(const Database, db)->compile(filepath);
+}

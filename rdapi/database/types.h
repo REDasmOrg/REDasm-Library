@@ -6,6 +6,7 @@
 RD_HANDLE(RDType);
 
 enum RDTypes {
+    Type_None,
     Type_Void,
     Type_Bool,
     Type_Char,
@@ -21,8 +22,8 @@ enum RDTypes {
     Type_Enum,
 };
 
-RD_API_EXPORT RDType* RDType_CreateInt(size_t bits, bool issigned);
-RD_API_EXPORT RDType* RDType_CreateFloat(size_t bits, bool issigned);
+RD_API_EXPORT RDType* RDType_CreateInt(size_t size, bool issigned);
+RD_API_EXPORT RDType* RDType_CreateFloat(size_t size, bool issigned);
 RD_API_EXPORT RDType* RDType_CreateStructure();
 
 RD_API_EXPORT bool RDStructure_Append(RDType* s, RDType* t, const char* name);

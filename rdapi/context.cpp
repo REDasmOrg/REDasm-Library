@@ -3,6 +3,7 @@
 #include <rdcore/context.h>
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
+RDDatabase* RDContext_GetDatabase(const RDContext* ctx) { return CPTR(RDDatabase, CPTR(const Context, ctx)->database()); }
 RDLocation RDContext_GetEntryPoint(const RDContext* ctx) { return CPTR(const Context, ctx)->entryPoint(); }
 
 RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address)

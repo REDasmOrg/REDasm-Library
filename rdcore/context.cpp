@@ -11,8 +11,14 @@
 #include "document/document.h"
 #include "disassembler.h"
 
-Context::Context(): Object(this) { m_pluginmanager = std::make_unique<PluginManager>(this); }
+Context::Context(): Object(this)
+{
+    m_pluginmanager = std::make_unique<PluginManager>(this);
+    m_database = std::make_unique<Database>(this);
+}
+
 Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
+Database* Context::database() const { return m_database.get(); }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }

@@ -4,7 +4,6 @@
 
 bool RDLoader_Register(RDPluginModule* pm, const RDEntryLoader* entry) { return CPTR(PluginModule, pm)->registerEntry(entry); }
 RDDocument* RDLoader_GetDocument(RDLoader* ldr) { return CPTR(RDDocument, std::addressof(CPTR(Loader, ldr)->document())); }
-RDDatabase* RDLoader_GetDatabase(RDLoader* ldr, const char* dbname) { return CPTR(RDDatabase, CPTR(Loader, ldr)->database(dbname)); }
 RDBuffer* RDLoader_GetBuffer(RDLoader* ldr) { return CPTR(RDBuffer, CPTR(Loader, ldr)->buffer()); }
 rd_flag RDLoader_GetFlags(const RDLoader* ldr) { return CPTR(const Loader, ldr)->flags(); }
 u8* RDLoader_GetData(RDLoader* ldr) { return CPTR(Loader, ldr)->buffer()->data(); }

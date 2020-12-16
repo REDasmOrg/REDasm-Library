@@ -35,6 +35,7 @@ class Context: public Object
     public:
         Context();
         ~Context();
+        Database* database() const;
         bool busy() const;
         size_t bits() const;
         size_t addressWidth() const;
@@ -105,6 +106,7 @@ class Context: public Object
         std::unique_ptr<PluginManager> m_pluginmanager;
 
     private:
+        std::unique_ptr<Database> m_database;
         std::pair<rd_type, rd_type> m_compilerabi{CompilerABI_Unknown, CompilerCC_Unknown};
         Surface* m_activesurface{nullptr};
         rd_flag m_flags{ContextFlags_None};

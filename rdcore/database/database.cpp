@@ -1,120 +1,205 @@
 #include "database.h"
-#include "../config.h"
-#include "../support/utils.h"
 #include "../support/compression.h"
+#include "../config.h"
 #include <fstream>
 
-Database::Database(const fs::path& dbpath, const nlohmann::json& db): Object(), m_dbfilepath(dbpath), m_dbname(dbpath.stem().string()), m_db(db) { }
+#define DATABASE_NAME_FIELD "@name"
 
-bool Database::compileFile(const fs::path &filepath, CompiledData& compiled)
-{
-    DecompiledData decompiled;
-    Database::read(filepath, decompiled);
-    return Database::compile(decompiled, compiled);
-}
-
-bool Database::decompileFile(const fs::path &filepath, DecompiledData& decompiled)
-{
-    CompiledData compiled;
-    Database::read(filepath, compiled);
-    return Database::decompile(compiled, decompiled);
-}
-
-bool Database::compile(const DecompiledData& decompiled, Database::CompiledData& compiled)
-{
-    nlohmann::json compiledb;
-    if(!Database::parseDecompiled(decompiled, compiledb)) return false;
-    auto tempdata = nlohmann::json::to_msgpack(compiledb);
-    if(!Compression::compress(tempdata, compiled)) return false;
-    return !compiled.empty();
-}
-
-bool Database::decompile(const CompiledData& compiled, Database::DecompiledData& decompiled)
-{
-    nlohmann::json decompiledb;
-    if(!Database::parseCompiled(compiled, decompiledb)) return false;
-    auto d = decompiledb.dump(2);
-    decompiled = DecompiledData(d.begin(), d.end());
-    return !decompiled.empty();
-}
-
-const std::string& Database::name() const { return m_dbname; }
-
-void Database::writeValue(const nlohmann::json& value, RDDatabaseValue* dbvalue) const
-{
-    switch(value.type())
-    {
-        case nlohmann::detail::value_t::string:
-        {
-            auto it = m_valuecache.insert_or_assign(value.type(), value);
-            dbvalue->type = DatabaseValueType_String;
-            dbvalue->s = it.first->second.c_str();
-            break;
-        }
-
-        case nlohmann::detail::value_t::number_float:
-            dbvalue->type = DatabaseValueType_Float;
-            dbvalue->f = value;
-            break;
-
-        case nlohmann::detail::value_t::number_integer:
-            dbvalue->type = DatabaseValueType_Int;
-            dbvalue->i = value;
-            break;
-
-        case nlohmann::detail::value_t::number_unsigned:
-            dbvalue->type = DatabaseValueType_UInt;
-            dbvalue->u = value;
-            break;
-
-        case nlohmann::detail::value_t::boolean:
-            dbvalue->type = DatabaseValueType_Bool;
-            dbvalue->b = value;
-            break;
-
-        case nlohmann::detail::value_t::array:
-        {
-            auto it = m_valuecache.insert_or_assign(value.type(), value.dump());
-            dbvalue->type = DatabaseValueType_Array;
-            dbvalue->arr = it.first->second.c_str();
-            break;
-        }
-
-        case nlohmann::detail::value_t::object:
-        {
-            auto it = m_valuecache.insert_or_assign(value.type(), value.dump());
-            dbvalue->type = DatabaseValueType_Object;
-            dbvalue->obj = it.first->second.c_str();
-            break;
-        }
-
-        default:
-            REDasmError("Unhandled Type: " + std::string(value.type_name()));
-            break;
-    }
-}
+Database::Database(const tao::json::value& tree): Object(), m_tree(tree) { }
+Database::Database(): Object() { Database::initializeTree(m_tree); }
+Database::Database(Context* ctx): Object(ctx) { Database::initializeTree(m_tree); }
+const std::string& Database::name() const { m_tree.at(DATABASE_NAME_FIELD).to(m_name); return m_name; }
+void Database::setName(const std::string& name) { m_tree[DATABASE_NAME_FIELD] = name; }
 
 bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
 {
-    if(q.empty()) return false;
-    if(q[0] != '/') q = "/" + q;
+    if(!this->checkPointer(q)) return false;
 
-    try {
-        nlohmann::json value;
+    auto* val = m_tree.find(tao::json::pointer(q));
+    return val ? this->extract(*val, dbvalue) : false;
+}
 
-        if(q != "/")
+bool Database::write(const std::string& path, const std::string& val)
+{
+    tao::json::pointer p = this->checkTree(path);
+    if(p.empty()) return false;
+
+    m_tree[p] = val;
+    return true;
+}
+
+bool Database::write(const std::string& path, const Type* type)
+{
+    tao::json::pointer p = this->checkTree(path);
+    if(p.empty()) return false;
+
+    m_tree[p] = type->toJson();
+    return true;
+}
+
+bool Database::add(const std::string& path, const std::string& dbpath)
+{
+    auto dbloc = Database::locate(dbpath);
+    if(dbloc.empty()) return false;
+
+    tao::json::pointer p = this->checkTree(path);
+    if(p.empty()) return false;
+
+    tao::json::value tree;
+    if(!Database::parseCompiledFile(dbloc, tree)) return false;
+    if(!Database::validateTree(tree)) return false;
+
+    m_tree[p] = tree;
+    return true;
+}
+
+bool Database::compile(const std::string& filepath) const
+{
+    if(!filepath.empty()) return false;
+
+    auto res = tao::json::msgpack::to_string(m_tree);
+    if(res.empty()) return false;
+
+    Data data(res.begin(), res.end()), outdata;
+    if(!Compression::compress(data, outdata) || outdata.empty()) return false;
+
+    std::ofstream ofs(filepath, std::ios::binary);
+    if(!ofs.is_open()) return false;
+    ofs.write(reinterpret_cast<char*>(outdata.data()), outdata.size());
+    return true;
+}
+
+const std::string& Database::decompile() const
+{
+    m_decompiled = tao::json::to_string(m_tree);
+    return m_decompiled;
+}
+
+void Database::initializeTree(tao::json::value& tree)
+{
+    tree = {
+        { DATABASE_NAME_FIELD, "" }
+    };
+}
+
+bool Database::validateTree(const tao::json::value& tree)
+{
+    if(!tree.is_object()) return false;
+
+    auto* name = tree.find(DATABASE_NAME_FIELD);
+    return name && name->is_string();
+}
+
+Database* Database::open(const std::string& dbname)
+{
+    auto dbloc = Database::locate(dbname);
+    if(dbloc.empty()) return nullptr;
+
+    tao::json::value tree;
+    if(!Database::parseCompiledFile(dbloc, tree)) return nullptr;
+    if(!Database::validateTree(tree)) return nullptr;
+    return new Database(tree);
+}
+
+bool Database::compileFile(const fs::path& filepath, Database::Data& outdata)
+{
+    tao::json::value v;
+    if(!Database::parseDecompiledFile(filepath, v)) return false;
+
+    auto res = tao::json::msgpack::to_string(v);
+    if(res.empty()) return false;
+
+    Data data(res.begin(), res.end());
+    if(!Compression::compress(data, outdata)) return false;
+    return !outdata.empty();
+}
+
+bool Database::decompileFile(const fs::path& filepath, Database::Data& outdata)
+{
+    tao::json::value tree;
+    if(!Database::parseCompiledFile(filepath, tree)) return false;
+
+    auto res = tao::json::msgpack::to_string(tree);
+    if(res.empty()) return false;
+
+    outdata = Data(res.begin(), res.end());
+    return !outdata.empty();
+}
+
+bool Database::extract(const tao::json::value& inval, RDDatabaseValue* outval) const
+{
+    switch(inval.type())
+    {
+        case tao::json::type::STRING: {
+            auto it = m_valuecache.insert_or_assign(inval.type(), inval.as<std::string>());
+            outval->type = DatabaseValueType_String;
+            outval->s = it.first->second.c_str();
+            return true;
+        }
+
+        case tao::json::type::DOUBLE:
+            outval->type = DatabaseValueType_Float;
+            inval.to(outval->f);
+            break;
+
+        case tao::json::type::SIGNED:
+            outval->type = DatabaseValueType_Int;
+            inval.to(outval->i);
+            break;
+
+        case tao::json::type::UNSIGNED:
+            outval->type = DatabaseValueType_UInt;
+            inval.to(outval->u);
+            break;
+
+        case tao::json::type::BOOLEAN:
+            outval->type = DatabaseValueType_Bool;
+            inval.to(outval->b);
+            break;
+
+        default: break;
+    }
+
+    return false;
+}
+
+bool Database::checkPointer(std::string& path) const
+{
+    if(path.empty()) return { };
+    if(path.front() != '/') path = "/" + path;
+    if(!path.find("/@")) return false; // Disallow database field access
+    return true;
+}
+
+tao::json::pointer Database::checkTree(std::string path)
+{
+    if(!this->checkPointer(path)) return { };
+
+    tao::json::pointer ptr(path);
+    auto* obj = &m_tree;
+
+    for(const auto& item : ptr)
+    {
+        auto* itemobj = obj->find(item.key());
+
+        if(!itemobj)
         {
-            nlohmann::json::json_pointer p(q);
-            if(!m_db.contains(p)) return false;
-            value = m_db[p];
+            (*obj)[item.key()] = tao::json::empty_object;
+            obj = std::addressof((*obj)[item.key()]);
         }
         else
-            value = m_db;
-
-        if(value.is_null()) return false;
-        if(dbvalue) Database::writeValue(value, dbvalue);
+            obj = itemobj;
     }
-    catch(nlohmann::json::parse_error& e) {
+
+    return ptr;
+}
+
+bool Database::parseDecompiledFile(const fs::path& filepath, tao::json::value& j)
+{
+    try {
+        j = tao::json::from_file(filepath);
+    }
+    catch(tao::json::pegtl::parse_error& e) {
         rd_cfg->log(e.what());
         return false;
     }
@@ -122,64 +207,12 @@ bool Database::query(std::string q, RDDatabaseValue* dbvalue) const
     return true;
 }
 
-std::string Database::filePath() const { return m_dbfilepath.string(); }
-Database* Database::create(const fs::path& dbpath) { return new Database(dbpath, nlohmann::json::object()); }
-
-Database* Database::open(const fs::path& dbpath)
-{
-    auto path = Database::locate(dbpath);
-    if(path.empty()) return nullptr;
-
-    nlohmann::json db;
-    if(!Database::parseCompiledFile(path, db)) return nullptr;
-    return new Database(path, db);
-}
-
-void Database::read(const fs::path& filepath, Database::DatabaseData& data)
-{
-    std::ifstream stream(filepath, std::ios::in | std::ios::binary | std::ios::ate);
-    if(!stream.is_open()) return;
-
-    std::streamsize size = stream.tellg();
-    stream.seekg(0, std::ios::beg);
-
-    data.resize(size);
-    stream.read(reinterpret_cast<char*>(data.data()), size);
-}
-
-bool Database::parseDecompiledFile(const fs::path& filepath, nlohmann::json& j)
-{
-    DecompiledData decompiled;
-    Database::read(filepath, decompiled);
-    return Database::parseDecompiled(decompiled, j);
-}
-
-bool Database::parseCompiledFile(const fs::path& filepath, nlohmann::json& j)
-{
-    CompiledData compiled;
-    Database::read(filepath, compiled);
-    return Database::parseCompiled(compiled, j);
-}
-
-bool Database::parseDecompiled(const Database::DecompiledData& decompiled, nlohmann::json& j)
+bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
 {
     try {
-        j = nlohmann::json::parse(decompiled);
-    }  catch (nlohmann::json::parse_error& e) {
-        rd_cfg->log(e.what());
-        return false;
+        j = tao::json::msgpack::from_file(filepath);
     }
-
-    return true;
-}
-
-bool Database::parseCompiled(const CompiledData& compiled, nlohmann::json& j)
-{
-    try {
-        CompiledData tempdata;
-        Compression::decompress(compiled, tempdata);
-        j = nlohmann::json::from_msgpack(tempdata);
-    }  catch (nlohmann::json::parse_error& e) {
+    catch(tao::json::pegtl::parse_error& e) {
         rd_cfg->log(e.what());
         return false;
     }

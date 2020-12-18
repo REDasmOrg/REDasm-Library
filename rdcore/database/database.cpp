@@ -234,7 +234,7 @@ bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
 {
     try {
         Data data;
-        if(!Compression::decompressFile(filepath, data)) return false;
+        if(!Compression::decompressFile(filepath.string(), data)) return false;
 
         std::string mp(data.begin(), data.end());
         j = tao::json::msgpack::from_string(mp);
@@ -249,7 +249,7 @@ bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
 
 bool Database::parseFile(const fs::path& filepath, tao::json::value& j)
 {
-    std::string ext = filepath.extension();
+    std::string ext = filepath.extension().string();
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
     if(ext == ".json") return Database::parseDecompiledFile(filepath, j);

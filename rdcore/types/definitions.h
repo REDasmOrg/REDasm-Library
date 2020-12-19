@@ -40,7 +40,7 @@ class NumericType: public Type
     protected:
         NumericType(rd_type type);
         NumericType(rd_type type, size_t size, bool issigned);
-        virtual std::string typeName() const;
+        std::string typeName() const override;
 
     public:
         bool isSigned() const;

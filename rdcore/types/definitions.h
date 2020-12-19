@@ -16,6 +16,7 @@ class Type: public Object
 
     public:
         virtual bool fromJson(const tao::json::value& v);
+        virtual std::string typeName() const;
         virtual tao::json::value toJson() const;
         virtual Type* clone() const = 0;
         virtual size_t size() const = 0;
@@ -39,6 +40,7 @@ class NumericType: public Type
     protected:
         NumericType(rd_type type);
         NumericType(rd_type type, size_t size, bool issigned);
+        virtual std::string typeName() const;
 
     public:
         bool isSigned() const;
@@ -80,6 +82,7 @@ class StructureType: public Type
         void append(Type* t, const std::string& name);
         bool fromJson(const tao::json::value& v) override;
         tao::json::value toJson() const override;
+        const Fields& fields() const;
 
     public: // C++ Interface
         Fields::const_iterator begin() const;

@@ -1,5 +1,6 @@
 #include "definitions.h"
 #include <numeric>
+#include <climits>
 
 #define TYPE_FIELD    "type"
 #define SIZE_FIELD    "size"
@@ -17,7 +18,7 @@ Type* Type::load(const tao::json::value& v)
 
     TypePtr t;
 
-    switch(Type::typeId(tf->as<std::string>()))
+    switch(Type::typeId(tf->get_string()))
     {
         case Type_Int: t.reset(new IntType()); break;
         case Type_Float: t.reset(new FloatType()); break;
@@ -44,6 +45,7 @@ std::string Type::typeName(rd_type type)
         case Type_Structure: return "structure";
         case Type_Union:     return "union";
         case Type_Enum:      return "enum";
+        default: break;
     }
 
     return std::string();
@@ -67,11 +69,13 @@ bool Type::fromJson(const tao::json::value& v)
     auto* type = v.find(TYPE_FIELD);
     if(!type) return false;
 
-    m_type = Type::typeId(type->as<std::string>());
+    m_type = Type::typeId(type->get_string());
     if(m_type == Type_None) return false;
 
     return true;
 }
+
+std::string Type::typeName() const { return Type::typeName(m_type); }
 
 tao::json::value Type::toJson() const
 {
@@ -110,6 +114,17 @@ bool StructureType::fromJson(const tao::json::value& v)
 {
     if(!Type::fromJson(v)) return false;
 
+    auto* f = v.find(FIELDS_FIELD);
+    if(!f || !f->is_array()) return false;
+
+    for(const auto& fi : f->get_array())
+    {
+        auto& obj = fi.get_object();
+
+        this->append(Type::load(obj.at(TYPE_FIELD).get_object()),
+                     obj.at(NAME_FIELD).get_string());
+    }
+
     return true;
 }
 
@@ -129,6 +144,7 @@ tao::json::value StructureType::toJson() const
     return obj;
 }
 
+const StructureType::Fields& StructureType::fields() const { return m_fields; }
 StructureType::Fields::const_iterator StructureType::begin() const { return m_fields.begin(); }
 StructureType::Fields::const_iterator StructureType::end() const { return m_fields.end(); }
 StructureType::Fields::iterator StructureType::begin() { return m_fields.begin(); }
@@ -146,6 +162,15 @@ std::string StructureType::uncollided(std::string s) const
 
 NumericType::NumericType(rd_type type): Type(type) { }
 NumericType::NumericType(rd_type type, size_t size, bool issigned): Type(type), m_size(size), m_signed(issigned) { }
+
+std::string NumericType::typeName() const
+{
+    std::string tn;
+    tn += m_signed ? "s" : "u";
+    tn += std::to_string(m_size * CHAR_BIT);
+    return tn;
+}
+
 size_t NumericType::size() const { return m_size; }
 
 bool NumericType::fromJson(const tao::json::value& v)

@@ -13,6 +13,7 @@ class Type: public Object
 {
     protected:
         Type(rd_type t);
+        Type(rd_type t, const std::string& name);
 
     public:
         virtual bool fromJson(const tao::json::value& v);
@@ -20,6 +21,7 @@ class Type: public Object
         virtual tao::json::value toJson() const;
         virtual Type* clone() const = 0;
         virtual size_t size() const = 0;
+        const std::string& name() const;
         rd_type type() const;
 
     public:
@@ -31,6 +33,7 @@ class Type: public Object
 
     private:
         rd_type m_type;
+        std::string m_name;
 };
 
 typedef std::unique_ptr<Type> TypePtr;
@@ -77,6 +80,7 @@ class StructureType: public Type
 
     public:
         StructureType();
+        StructureType(const std::string& name);
         Type* clone() const override;
         size_t size() const override;
         void append(Type* t, const std::string& name);

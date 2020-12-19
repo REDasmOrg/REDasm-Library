@@ -30,6 +30,7 @@ bool Renderer::render(const RDDocumentItem* item)
         case DocumentItemType_Symbol:      this->renderSymbol(item->address);      break;
         case DocumentItemType_Unexplored:  this->renderUnexplored(item->address);  break;
         case DocumentItemType_Separator:   this->renderSeparator(item->address);   break;
+        case DocumentItemType_Type:        this->renderType(item->address);        break;
         case DocumentItemType_Empty:       return true;
         default:                           return false;
     }
@@ -153,7 +154,7 @@ void Renderer::renderSymbol(rd_address address)
         {
             case SymbolType_Data: this->chunk(name, Theme_Data); break;
             case SymbolType_String: this->chunk(name, Theme_String); break;
-            case SymbolType_Import: this->chunk(name, Theme_Imported); break;
+            case SymbolType_Import: this->chunk(name, Theme_Import); break;
             case SymbolType_Label: this->chunk(name, Theme_Symbol).chunk(":"); return;
             case SymbolType_Function: this->chunk(name, Theme_Function); return;
             default: this->chunk(name); return;
@@ -180,6 +181,19 @@ void Renderer::renderSeparator(rd_address address)
     if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
 
     this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
+}
+
+void Renderer::renderType(rd_address address)
+{
+    this->renderPrologue(address);
+    auto type = this->document()->type(address);
+
+    if(type)
+    {
+        this->chunk(type->typeName(), Theme_Type).chunk(" ").chunk(type->name(), Theme_Symbol);
+    }
+    else
+        this->chunk("Type not Found");
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)

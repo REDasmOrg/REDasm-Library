@@ -26,9 +26,10 @@ typedef bool(*Callback_StructureFields)(const char* name, const RDType* type, vo
 
 RD_API_EXPORT RDType* RDType_CreateInt(size_t size, bool issigned);
 RD_API_EXPORT RDType* RDType_CreateFloat(size_t size, bool issigned);
-RD_API_EXPORT RDType* RDType_CreateStructure();
+RD_API_EXPORT RDType* RDType_CreateStructure(const char* name);
 RD_API_EXPORT size_t RDType_GetSize(const RDType* type);
 RD_API_EXPORT rd_type RDType_GetType(const RDType* type);
+RD_API_EXPORT const char* RDType_GetTypeName(const RDType* type);
 RD_API_EXPORT const char* RDType_GetName(const RDType* type);
 
 RD_API_EXPORT bool RDStructure_Append(RDType* s, RDType* t, const char* name);

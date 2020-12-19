@@ -64,7 +64,7 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_Symbol:            m_themecolors.symbol = color; break;
         case Theme_Data:              m_themecolors.data = color; break;
         case Theme_Pointer:           m_themecolors.pointer = color; break;
-        case Theme_Imported:          m_themecolors.imported = color; break;
+        case Theme_Import:          m_themecolors.imported = color; break;
         case Theme_Nop:               m_themecolors.nop = color; break;
         case Theme_Ret:               m_themecolors.ret = color; break;
         case Theme_Call:              m_themecolors.call = color; break;
@@ -123,7 +123,7 @@ const char* Config::theme(rd_type theme) const
         case Theme_Symbol:            return Config::themeAlt(m_themecolors.symbol, m_themecolors.fg);
         case Theme_Data:              return Config::themeAlt(m_themecolors.data, m_themecolors.fg);
         case Theme_Pointer:           return Config::themeAlt(m_themecolors.pointer, m_themecolors.fg);
-        case Theme_Imported:          return Config::themeAlt(m_themecolors.imported, m_themecolors.fg);
+        case Theme_Import:          return Config::themeAlt(m_themecolors.imported, m_themecolors.fg);
         case Theme_Constant:          return Config::themeAlt(m_themecolors.constant, m_themecolors.fg);
         case Theme_Reg:               return Config::themeAlt(m_themecolors.reg, m_themecolors.fg);
         case Theme_Nop:               return Config::themeAlt(m_themecolors.nop, m_themecolors.fg);

@@ -11,6 +11,7 @@
 #include "../document/backend/symboltable.h"
 #include "../types/definitions.h"
 #include "../object.h"
+#include "../libs/tao/json.hpp"
 #include "document_fwd.h"
 
 class FunctionGraph;
@@ -23,7 +24,7 @@ class Document: public Object
         struct ItemData {
             std::unordered_set<std::string> comments, autocomments;
             std::map<size_t, MetaItem> meta;
-            std::string type;
+            std::unique_ptr<Type> type;
         };
 
     public:
@@ -69,6 +70,7 @@ class Document: public Object
 
     public: // Get
         RDLocation entryPoint() const;
+        const Type* type(rd_address address) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
         bool symbol(rd_address address, RDSymbol* symbol) const;
         bool block(rd_address address, RDBlock* block) const;

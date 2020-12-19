@@ -9,6 +9,7 @@
 #define FIELDS_FIELD  "fields"
 
 Type::Type(rd_type t): Object(), m_type(t) { }
+Type::Type(rd_type t, const std::string& name): Object(), m_type(t), m_name(name) { }
 rd_type Type::type() const { return m_type; }
 
 Type* Type::load(const tao::json::value& v)
@@ -69,6 +70,9 @@ bool Type::fromJson(const tao::json::value& v)
     auto* type = v.find(TYPE_FIELD);
     if(!type) return false;
 
+    auto* name = v.find(NAME_FIELD);
+    if(name) name->to(m_name);
+
     m_type = Type::typeId(type->get_string());
     if(m_type == Type_None) return false;
 
@@ -82,14 +86,18 @@ tao::json::value Type::toJson() const
     return {
         { TYPE_FIELD, Type::typeName(m_type) },
         { SIZE_FIELD, this->size() },
+        { NAME_FIELD, this->name() },
     };
 }
 
+const std::string& Type::name() const { return m_name; }
+
 StructureType::StructureType(): Type(Type_Structure) { }
+StructureType::StructureType(const std::string& name): Type(Type_Structure, name) { }
 
 Type* StructureType::clone() const
 {
-    auto* s = new StructureType();
+    auto* s = new StructureType(this->name());
     for(const auto& [n, f] : m_fields) s->append(f->clone(), n);
     return s;
 }

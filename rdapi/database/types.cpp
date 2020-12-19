@@ -3,7 +3,7 @@
 
 RDType* RDType_CreateInt(size_t size, bool issigned) { return CPTR(RDType, new IntType(size, issigned)); }
 RDType* RDType_CreateFloat(size_t size, bool issigned) { return CPTR(RDType, new FloatType(size, issigned)); }
-RDType* RDType_CreateStructure() { return CPTR(RDType, new StructureType()); }
+RDType* RDType_CreateStructure(const char* name) { return CPTR(RDType, new StructureType(name ? name : std::string())); }
 rd_type RDType_GetType(const RDType* type) { return CPTR(const Type, type)->type(); }
 size_t RDType_GetSize(const RDType* type) { return CPTR(const Type, type)->size(); }
 
@@ -30,7 +30,7 @@ void RDStructure_GetFields(const RDType* s, Callback_StructureFields cb, void* u
     }
 }
 
-const char* RDType_GetName(const RDType* type)
+const char* RDType_GetTypeName(const RDType* type)
 {
     static std::string tn;
 
@@ -38,3 +38,5 @@ const char* RDType_GetName(const RDType* type)
     tn = CPTR(const Type, type)->typeName();
     return tn.c_str();
 }
+
+const char* RDType_GetName(const RDType* type) { return CPTR(const Type, type)->name().c_str(); }

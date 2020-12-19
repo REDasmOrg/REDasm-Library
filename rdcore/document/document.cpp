@@ -111,7 +111,7 @@ bool Document::type(rd_address address, const Type* type)
     if(!type) return false;
 
     //if(m_itemdata[address].type == q) return false;
-    //m_itemdata[address].type = q;
+    m_itemdata[address].type.reset(type->clone());
 
     if(!m_segments.markData(address, type->size())) return false;
     this->replace(address, DocumentItemType_Type);
@@ -209,6 +209,12 @@ RDLocation Document::entryPoint() const
 {
     if(!IS_TYPE(&m_entry, SymbolType_Function)) return {{0}, false};
     return { {m_entry.address}, true };
+}
+
+const Type* Document::type(rd_address address) const
+{
+    auto it = m_itemdata.find(address);
+    return (it != m_itemdata.end()) ? it->second.type.get() : nullptr;
 }
 
 bool Document::symbol(const char* name, RDSymbol* symbol) const { return m_symbols->get(name, symbol); }

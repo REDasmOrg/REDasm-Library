@@ -59,6 +59,7 @@ class Renderer: public Object
         void renderSymbol(rd_address address);
         void renderUnexplored(rd_address address);
         void renderSeparator(rd_address address);
+        void renderType(rd_address address);
 
     private:
         void renderPrologue(rd_address address);

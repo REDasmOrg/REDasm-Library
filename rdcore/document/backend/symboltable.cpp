@@ -145,6 +145,8 @@ std::string SymbolTable::name(rd_address address, rd_type type, rd_flag flags)
     return ss.str();
 }
 
+std::string SymbolTable::name(rd_address address, const std::string& s) { return s + "_" + Utils::hex(address); }
+
 bool SymbolTable::isSymbolAccepted(const std::string& q, rd_address address) const
 {
     auto it = m_stringtable.find(address);
@@ -191,10 +193,9 @@ size_t SymbolTable::findAllByType(const std::string& q, const RDSymbol** symbols
     return m_result.size();
 }
 
-std::string SymbolTable::name(rd_address address, const char* s, rd_type type, rd_flag flags)
+std::string SymbolTable::name(rd_address address, const std::string& s, rd_type type, rd_flag flags)
 {
-    if(!s || !std::strlen(s))
-        return SymbolTable::name(address, type, flags);
+    if(s.empty()) return SymbolTable::name(address, type, flags);
 
     std::stringstream ss;
     ss << SymbolTable::prefix(type, flags) << "_" << s << "_" << std::hex << address;

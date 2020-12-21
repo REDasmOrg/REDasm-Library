@@ -38,7 +38,8 @@ typedef struct RDDocumentItem {
     u16 index;
 } RDDocumentItem;
 
-#define RD_DOCUMENT_ITEM(address, type, index) { address, type, index}
+#define RD_DOCITEM_EX(address, type, index) { address, type, index }
+#define RD_DOCITEM(address, type)           RD_DOCITEM_EX(address, type, 0)
 
 struct RDGraph;
 
@@ -60,7 +61,7 @@ RD_API_EXPORT bool RDDocument_Contains(const RDDocument* d, const RDDocumentItem
 RD_API_EXPORT const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address);
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address, const char* separator);
 RD_API_EXPORT const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address);
-RD_API_EXPORT const RDType* RDDocument_GetType(const RDDocument* d, rd_address address);
+RD_API_EXPORT const RDType* RDDocument_GetType(const RDDocument* d, const RDDocumentItem* item);
 RD_API_EXPORT size_t RDDocument_GetSize(const RDDocument* d);
 RD_API_EXPORT bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
 RD_API_EXPORT bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags);

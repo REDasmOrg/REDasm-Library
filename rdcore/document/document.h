@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <unordered_set>
-#include <unordered_map>
 #include <map>
 #include <rdapi/document/document.h>
 #include <rdapi/events.h>
@@ -25,6 +24,7 @@ class Document: public Object
             std::unordered_set<std::string> comments, autocomments;
             std::map<size_t, MetaItem> meta;
             std::unique_ptr<Type> type;
+            size_t level{0};
         };
 
     public:
@@ -50,6 +50,7 @@ class Document: public Object
         bool asciiString(rd_address address, size_t size, const std::string& name);
         bool wideString(rd_address address, size_t size, const std::string& name);
         bool data(rd_address address, size_t size, const std::string& name);
+        bool field(rd_address address, size_t size, const std::string& name);
         void table(rd_address address, size_t count);
         void tableItem(rd_address address, rd_address startaddress, size_t idx);
         bool pointer(rd_address address, rd_type type, const std::string& name);
@@ -70,7 +71,8 @@ class Document: public Object
 
     public: // Get
         RDLocation entryPoint() const;
-        const Type* type(rd_address address) const;
+        size_t level(const RDDocumentItem* item) const;
+        const Type* type(const RDDocumentItem* item) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
         bool symbol(rd_address address, RDSymbol* symbol) const;
         bool block(rd_address address, RDBlock* block) const;
@@ -92,9 +94,10 @@ class Document: public Object
         bool symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);
 
     private:
+        bool type(rd_address address, const Type* type, int level);
         const RDDocumentItem& insert(rd_address address, rd_type type, u16 index = 0);
         void notifyEvent(const RDDocumentItem& item, rd_type action);
-        void replace(rd_address address, rd_type type);
+        const RDDocumentItem& replace(rd_address address, rd_type type);
         void remove(rd_address address, rd_type type);
         bool canSymbolizeAddress(rd_address address, rd_flag flags) const;
         void onBlockInserted(const RDBlock& b);
@@ -105,7 +108,7 @@ class Document: public Object
         ItemContainer m_items;
         SegmentContainer m_segments;
         FunctionContainer m_functions;
-        std::unordered_map<rd_address, ItemData> m_itemdata;
+        std::map<RDDocumentItem, ItemData, DocumentItemSorter> m_itemdata;
         std::unordered_set<rd_address> m_separators;
         std::unique_ptr<SymbolTable> m_symbols;
 };

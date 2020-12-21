@@ -22,6 +22,7 @@ enum RDSymbolFlags {
     SymbolFlags_Pointer     = (1 << 5),
     SymbolFlags_TableItem   = (1 << 6),
     SymbolFlags_NoReturn    = (1 << 7),
+    SymbolFlags_Field       = (1 << 8),
 };
 
 typedef struct RDSymbol {

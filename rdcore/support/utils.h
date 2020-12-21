@@ -44,6 +44,7 @@ class Utils
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);
+        template<typename T> static size_t& hashCombine(size_t& s, const T& v);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
         template<typename T> static typename std::make_signed<T>::type signext(T val, int valbits);
@@ -54,6 +55,14 @@ class Utils
         static std::string& replaceAll(std::string& s, const std::string& from, const std::string& to);
         static std::string escapeRegex(const std::string& s);
 };
+
+template<typename T>
+size_t& Utils::hashCombine(size_t& s, const T& v)
+{
+    std::hash<T> h;
+    s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+    return s;
+}
 
 template<typename T>
 T Utils::rol(T val, T amt)

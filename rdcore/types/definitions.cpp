@@ -90,6 +90,7 @@ tao::json::value Type::toJson() const
     };
 }
 
+void Type::setName(const std::string& name) { m_name = name; }
 const std::string& Type::name() const { return m_name; }
 
 StructureType::StructureType(): Type(Type_Structure) { }
@@ -114,6 +115,7 @@ void StructureType::append(Type* t, const std::string& name)
     if(!t || !t->size() || name.empty()) return;
 
     auto ns = this->uncollided(name);
+    t->setName(ns);
     m_byname[ns] = TypePtr(t); // Take ownership
     m_fields.push_back({ns, t});
 }

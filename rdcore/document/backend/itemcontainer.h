@@ -2,8 +2,17 @@
 
 #include "../../containers/treecontainer.h"
 #include <rdapi/document/document.h>
+#include <tuple>
 
 struct DocumentItemComparator
+{
+    bool operator()(const RDDocumentItem& item1, const RDDocumentItem& item2) const {
+        return std::tie(item1.address, item1.type, item1.index) ==
+               std::tie(item2.address, item2.type, item2.index);
+    }
+};
+
+struct DocumentItemSorter
 {
     typedef void is_transparent;
 
@@ -20,7 +29,7 @@ struct DocumentItemComparator
     bool operator()(const RDDocumentItem& item1, rd_address address) const { return item1.address < address; }
 };
 
-class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemComparator>
+class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemSorter>
 {
     public:
         ItemContainer() = default;

@@ -68,6 +68,7 @@ bool Document::instruction(rd_address address, size_t size) { return m_segments.
 bool Document::asciiString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
 bool Document::wideString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
 bool Document::data(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
+bool Document::field(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_Field); }
 
 void Document::table(rd_address address, size_t count)
 {
@@ -106,17 +107,7 @@ bool Document::typeName(rd_address address, const std::string& q)
     return this->type(address, CPTR(const Type, v.t));
 }
 
-bool Document::type(rd_address address, const Type* type)
-{
-    if(!type) return false;
-
-    //if(m_itemdata[address].type == q) return false;
-    m_itemdata[address].type.reset(type->clone());
-
-    if(!m_segments.markData(address, type->size())) return false;
-    this->replace(address, DocumentItemType_Type);
-    return true;
-}
+bool Document::type(rd_address address, const Type* type) { return this->type(address, type, 0); }
 
 void Document::separator(rd_address address)
 {
@@ -163,7 +154,7 @@ bool Document::getAny(rd_address address, const rd_type* types, RDDocumentItem* 
 
 std::string Document::comment(rd_address address, bool skipauto, const char* separator) const
 {
-    auto it = m_itemdata.find(address);
+    auto it = m_itemdata.find(RD_DOCITEM(address, DocumentItemType_Instruction));
     if(it == m_itemdata.end()) return std::string();
 
     auto comments = it->second.comments;
@@ -178,22 +169,25 @@ void Document::autoComment(rd_address address, const std::string& s)
 {
     if(s.empty()) return;
 
-    auto it = m_itemdata[address].autocomments.insert(s);
+    RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Instruction);
+    auto it = m_itemdata[item].autocomments.insert(s);
     if(!it.second) return;
 
-    if(m_items.containsInstruction(address)) this->notifyEvent({ address, DocumentItemType_Instruction, 0 }, DocumentAction_ItemChanged);
-    if(m_items.containsSymbol(address)) this->notifyEvent({ address, DocumentItemType_Symbol, 0 }, DocumentAction_ItemChanged);
+    if(m_items.containsInstruction(address)) this->notifyEvent(item, DocumentAction_ItemChanged);
+    if(m_items.containsSymbol(address)) this->notifyEvent(item, DocumentAction_ItemChanged);
 }
 
 void Document::comment(rd_address address, const std::string& s)
 {
-    m_itemdata[address].comments.clear();
+    RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Instruction);
+
+    m_itemdata[item].comments.clear();
     if(s.empty()) return;
 
     auto parts = Utils::split(s, '\n');
-    for(const std::string& part : parts) m_itemdata[address].comments.insert(part);
+    for(const std::string& part : parts) m_itemdata[item].comments.insert(part);
 
-    if(m_items.containsInstruction(address)) this->notifyEvent({ address, DocumentItemType_Instruction, 0 }, DocumentAction_ItemChanged);
+    if(m_items.containsInstruction(address)) this->notifyEvent(item, DocumentAction_ItemChanged);
 }
 
 bool Document::rename(rd_address address, const std::string& newname)
@@ -201,7 +195,7 @@ bool Document::rename(rd_address address, const std::string& newname)
     if(!m_symbols->rename(address, newname)) return false;
     if(!m_items.containsSymbol(address)) return false;
 
-    this->notifyEvent({ address, DocumentItemType_Symbol, 0 }, DocumentAction_ItemChanged);
+    this->notifyEvent(RD_DOCITEM(address, DocumentItemType_Symbol), DocumentAction_ItemChanged);
     return true;
 }
 
@@ -211,9 +205,18 @@ RDLocation Document::entryPoint() const
     return { {m_entry.address}, true };
 }
 
-const Type* Document::type(rd_address address) const
+size_t Document::level(const RDDocumentItem* item) const
 {
-    auto it = m_itemdata.find(address);
+    if(!item) return 0;
+    auto it = m_itemdata.find(*item);
+    return (it != m_itemdata.end()) ? it->second.level : 0;
+}
+
+const Type* Document::type(const RDDocumentItem* item) const
+{
+    if(!item) return nullptr;
+
+    auto it = m_itemdata.find(*item);
     return (it != m_itemdata.end()) ? it->second.type.get() : nullptr;
 }
 
@@ -279,6 +282,44 @@ bool Document::symbol(rd_address address, const std::string& name, rd_type type,
     return true;
 }
 
+bool Document::type(rd_address address, const Type* type, int level)
+{
+    if(!type) return false;
+
+    //if(m_itemdata[address].type == q) return false;
+
+    if(auto* st = dynamic_cast<const StructureType*>(type))
+    {
+        RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Type);
+        m_itemdata[item].type.reset(type->clone());
+        m_itemdata[item].level = level;
+        rd_address fieldaddress = address;
+
+        for(const auto& [n, f] : st->fields())
+        {
+            this->type(fieldaddress, f, level + 1);
+            fieldaddress += f->size();
+        }
+
+        this->replace(address, DocumentItemType_Type);
+    }
+    else if(auto* nt = dynamic_cast<const NumericType*>(type))
+    {
+        if(this->field(address, nt->size(), SymbolTable::name(address, nt->name())))
+        {
+            RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Symbol);
+            m_itemdata[item].type.reset(type->clone());
+            m_itemdata[item].level = level;
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+
+    return true;
+}
+
 const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 index)
 {
     switch(type)
@@ -296,10 +337,10 @@ const RDDocumentItem& Document::insert(rd_address address, rd_type type, u16 ind
 
 void Document::notifyEvent(const RDDocumentItem& item, const rd_type action) { this->context()->notify<RDDocumentEventArgs>(Event_DocumentChanged, this, action, item); }
 
-void Document::replace(rd_address address, rd_type type)
+const RDDocumentItem& Document::replace(rd_address address, rd_type type)
 {
     this->remove(address, type);
-    this->insert(address, type);
+    return this->insert(address, type);
 }
 
 void Document::remove(rd_address address, rd_type type)

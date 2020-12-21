@@ -53,13 +53,13 @@ class Renderer: public Object
         void renderIndent(size_t n, bool ignoreflags = false);
 
     private:
-        void renderSegment(rd_address address);
-        void renderFunction(rd_address address);
-        void renderInstruction(rd_address address);
-        void renderSymbol(rd_address address);
-        void renderUnexplored(rd_address address);
-        void renderSeparator(rd_address address);
-        void renderType(rd_address address);
+        void renderSegment(const RDDocumentItem* item);
+        void renderFunction(const RDDocumentItem* item);
+        void renderInstruction(const RDDocumentItem* item);
+        void renderSymbol(const RDDocumentItem* item);
+        void renderUnexplored(const RDDocumentItem* item);
+        void renderSeparator(const RDDocumentItem* item);
+        void renderType(const RDDocumentItem* item);
 
     private:
         void renderPrologue(rd_address address);

@@ -24,13 +24,13 @@ bool Renderer::render(const RDDocumentItem* item)
 
     switch(item->type)
     {
-        case DocumentItemType_Segment:     this->renderSegment(item->address);     break;
-        case DocumentItemType_Function:    this->renderFunction(item->address);    break;
-        case DocumentItemType_Instruction: this->renderInstruction(item->address); break;
-        case DocumentItemType_Symbol:      this->renderSymbol(item->address);      break;
-        case DocumentItemType_Unexplored:  this->renderUnexplored(item->address);  break;
-        case DocumentItemType_Separator:   this->renderSeparator(item->address);   break;
-        case DocumentItemType_Type:        this->renderType(item->address);        break;
+        case DocumentItemType_Segment:     this->renderSegment(item);     break;
+        case DocumentItemType_Function:    this->renderFunction(item);    break;
+        case DocumentItemType_Instruction: this->renderInstruction(item); break;
+        case DocumentItemType_Symbol:      this->renderSymbol(item);      break;
+        case DocumentItemType_Unexplored:  this->renderUnexplored(item);  break;
+        case DocumentItemType_Separator:   this->renderSeparator(item);   break;
+        case DocumentItemType_Type:        this->renderType(item);        break;
         case DocumentItemType_Empty:       return true;
         default:                           return false;
     }
@@ -89,7 +89,7 @@ void Renderer::renderText(const std::string& s, rd_type theme) { this->chunk(s, 
 const std::string& Renderer::text() const { return m_text; }
 const Renderer::Chunks& Renderer::chunks() const { return m_tokens; }
 
-void Renderer::renderSegment(rd_address address)
+void Renderer::renderSegment(const RDDocumentItem* item)
 {
     static std::string eq = std::string(HEADER_SYMBOL_COUNT * 2, '-');
     StyleScope s(this, Theme_Segment);
@@ -97,7 +97,7 @@ void Renderer::renderSegment(rd_address address)
 
     this->chunk(eq).chunk("<").chunk(" ").chunk("SEGMENT").chunk(" ");
 
-    if(this->context()->document()->segment(address, &segment))
+    if(this->context()->document()->segment(item->address, &segment))
     {
         this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
         this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
@@ -113,40 +113,43 @@ void Renderer::renderSegment(rd_address address)
     this->chunk(" ").chunk(">").chunk(eq);
 }
 
-void Renderer::renderFunction(rd_address address)
+void Renderer::renderFunction(const RDDocumentItem* item)
 {
-    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
+    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(item->address);
 
     StyleScope s(this, Theme_Function);
-    const char* name = this->document()->name(address);
+    const char* name = this->document()->name(item->address);
     if(name) this->chunk("function").chunk(" ").chunk(name).chunk("()");
     else this->chunk("function").chunk(" ").chunk("\?\?\?").chunk("()");
 }
 
-void Renderer::renderInstruction(rd_address address)
+void Renderer::renderInstruction(const RDDocumentItem* item)
 {
-    this->renderPrologue(address);
+    this->renderPrologue(item->address);
 
     if(this->context()->flags() & ContextFlags_ShowRDIL)
-        this->renderRDILInstruction(address);
+        this->renderRDILInstruction(item->address);
     else
-        this->renderAssemblerInstruction(address);
+        this->renderAssemblerInstruction(item->address);
 
-    this->renderComments(address);
+    this->renderComments(item->address);
 }
 
-void Renderer::renderSymbol(rd_address address)
+void Renderer::renderSymbol(const RDDocumentItem* item)
 {
-    this->renderPrologue(address);
+    this->renderPrologue(item->address);
 
-    const char* name = this->document()->name(address);
+    const char* name = this->document()->name(item->address);
     RDSymbol symbol;
 
-    if(!name || !this->document()->symbol(address, &symbol))
+    if(!name || !this->document()->symbol(item->address, &symbol))
     {
-        this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Constant);
+        this->chunk(Utils::hex(item->address, this->assembler()->bits()), Theme_Constant);
         return;
     }
+
+    if(HAS_FLAG(&symbol, SymbolFlags_Field))
+        this->renderIndent(this->document()->level(item), true);
 
     if(!HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
@@ -165,35 +168,30 @@ void Renderer::renderSymbol(rd_address address)
 
     this->renderIndent(1, true);
     this->renderSymbolValue(&symbol);
-    this->renderComments(address);
+    this->renderComments(item->address);
 }
 
-void Renderer::renderUnexplored(rd_address address)
+void Renderer::renderUnexplored(const RDDocumentItem* item)
 {
-    this->renderPrologue(address);
+    this->renderPrologue(item->address);
     this->chunk("db").chunk(" ");
-    this->renderBlock(address);
+    this->renderBlock(item->address);
 }
 
-void Renderer::renderSeparator(rd_address address)
+void Renderer::renderSeparator(const RDDocumentItem* item)
 {
     if(this->hasFlag(RendererFlags_NoSeparators)) return;
-    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(address);
+    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(item->address);
 
     this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
 }
 
-void Renderer::renderType(rd_address address)
+void Renderer::renderType(const RDDocumentItem* item)
 {
-    this->renderPrologue(address);
-    auto type = this->document()->type(address);
-
-    if(type)
-    {
-        this->chunk(type->typeName(), Theme_Type).chunk(" ").chunk(type->name(), Theme_Symbol);
-    }
-    else
-        this->chunk("Type not Found");
+    this->renderPrologue(item->address);
+    auto type = this->document()->type(item);
+    if(type) this->chunk(type->typeName(), Theme_Type).chunk(" ").chunk(type->name(), Theme_Symbol);
+    else this->chunk("Type not Found");
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)

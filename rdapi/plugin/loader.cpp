@@ -16,3 +16,4 @@ RDLocation RD_FileOffset(const RDLoader* ldr, const void* ptr) { return CPTR(con
 RDLocation RD_AddressOf(const RDLoader* ldr, const void* ptr) { return CPTR(const Loader, ldr)->addressof(ptr); }
 RDLocation RD_Offset(const RDLoader* ldr, rd_address address) { return CPTR(const Loader, ldr)->offset(address); }
 RDLocation RD_Address(const RDLoader* ldr, rd_offset offset) { return CPTR(const Loader, ldr)->address(offset); }
+bool RD_IsAddress(const RDLoader* ldr, rd_address address) { return CPTR(const Loader, ldr)->isAddress(address); }

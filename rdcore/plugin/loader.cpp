@@ -43,6 +43,7 @@ bool Loader::view(const RDBlock& block, RDBufferView* view) const
 rd_flag Loader::flags() const { return m_entry->flags; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
+bool Loader::isAddress(rd_address address) const { return m_document->segments()->find(address, nullptr); }
 
 RDLocation Loader::offset(rd_address address) const
 {

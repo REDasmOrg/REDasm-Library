@@ -56,3 +56,4 @@ RD_API_EXPORT RDLocation RD_FileOffset(const RDLoader* ldr, const void* ptr);
 RD_API_EXPORT RDLocation RD_AddressOf(const RDLoader* ldr, const void* ptr);
 RD_API_EXPORT RDLocation RD_Offset(const RDLoader* ldr, rd_address address);
 RD_API_EXPORT RDLocation RD_Address(const RDLoader* ldr, rd_offset offset);
+RD_API_EXPORT bool RD_IsAddress(const RDLoader* ldr, rd_address address);

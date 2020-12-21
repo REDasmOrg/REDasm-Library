@@ -24,6 +24,7 @@ class Loader: public Entry<RDEntryLoader>
         SafeDocument& document();
 
     public:
+        bool isAddress(rd_address address) const;
         RDLocation offset(rd_address address) const;
         RDLocation address(rd_offset offset) const;
         RDLocation addressof(const void* ptr) const;

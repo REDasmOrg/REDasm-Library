@@ -21,6 +21,7 @@ typedef rd_location rd_offset;
 
 typedef u16 rd_type;
 typedef u16 rd_flag;
+typedef u16 rd_endianness;
 
 #ifdef __cplusplus
     #define RD_NVAL static_cast<size_t>(-1)

@@ -3,7 +3,9 @@
 #include <memory>
 #include <rdapi/document/block.h>
 #include <rdapi/plugin/loader.h>
+#include <rdapi/support/utils.h>
 #include "../document/document_fwd.h"
+#include "../support/endian.h"
 #include "../buffer/buffer.h"
 #include "entry.h"
 
@@ -19,11 +21,13 @@ class Loader: public Entry<RDEntryLoader>
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;
         bool view(const RDBlock& block, RDBufferView* view) const;
+        rd_endianness endianness() const;
         rd_flag flags() const;
         MemoryBuffer* buffer();
         SafeDocument& document();
 
     public:
+        void setEndianness(rd_endianness endianness);
         bool isAddress(rd_address address) const;
         RDLocation offset(rd_address address) const;
         RDLocation address(rd_offset offset) const;
@@ -36,6 +40,7 @@ class Loader: public Entry<RDEntryLoader>
         static const char* test(const RDEntryLoader* entry, const RDLoaderRequest* req);
 
     private:
+        rd_endianness m_endianness{Endianness_Little};
         RDLoaderBuildParams m_buildparams{ };
         std::shared_ptr<MemoryBuffer> m_buffer;
         SafeDocument m_document;

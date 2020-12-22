@@ -40,9 +40,12 @@ bool Loader::view(const RDBlock& block, RDBufferView* view) const
     return sz ? this->view(block.address, sz, view) : false;
 }
 
+rd_endianness Loader::endianness() const { return m_endianness; }
 rd_flag Loader::flags() const { return m_entry->flags; }
 MemoryBuffer* Loader::buffer() { return m_buffer.get(); }
 SafeDocument& Loader::document() { return m_document; }
+
+void Loader::setEndianness(rd_endianness endianness) { m_endianness = endianness; }
 bool Loader::isAddress(rd_address address) const { return m_document->segments()->find(address, nullptr); }
 
 RDLocation Loader::offset(rd_address address) const

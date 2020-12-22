@@ -41,7 +41,7 @@ bool Renderer::render(const RDDocumentItem* item)
 void Renderer::renderHexDump(const RDBufferView* view, size_t size)
 {
     if(!view) return;
-    this->chunk(Utils::hexString(view, size), Theme_Constant);
+    this->chunk(Utils::hexStringEndian(this->context(), view, size), Theme_Constant);
     this->renderIndent(1);
 }
 

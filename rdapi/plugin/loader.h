@@ -45,10 +45,12 @@ RD_API_EXPORT bool RDLoader_Register(RDPluginModule* pm, const RDEntryLoader* en
 RD_API_EXPORT const char* RDLoader_GetId(const RDLoader* ldr);
 RD_API_EXPORT const char* RDLoader_GetName(const RDLoader* ldr);
 RD_API_EXPORT RDEntryAssembler* RDLoader_GetAssemblerPlugin(const RDEntryLoader* ploader);
+RD_API_EXPORT rd_endianness RDLoader_GetEndianness(const RDLoader* ldr);
 RD_API_EXPORT rd_flag RDLoader_GetFlags(const RDLoader* ldr);
 RD_API_EXPORT RDDocument* RDLoader_GetDocument(RDLoader* ldr);
 RD_API_EXPORT RDBuffer* RDLoader_GetBuffer(RDLoader* ldr);
 RD_API_EXPORT u8* RDLoader_GetData(RDLoader* ldr);
+RD_API_EXPORT void RDLoader_SetEndianness(RDLoader* ldr, rd_endianness e);
 
 RD_API_EXPORT u8* RD_AddrPointer(const RDLoader* ldr, rd_address address);
 RD_API_EXPORT u8* RD_Pointer(const RDLoader* ldr, rd_offset offset);

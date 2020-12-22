@@ -17,3 +17,5 @@ RDLocation RD_AddressOf(const RDLoader* ldr, const void* ptr) { return CPTR(cons
 RDLocation RD_Offset(const RDLoader* ldr, rd_address address) { return CPTR(const Loader, ldr)->offset(address); }
 RDLocation RD_Address(const RDLoader* ldr, rd_offset offset) { return CPTR(const Loader, ldr)->address(offset); }
 bool RD_IsAddress(const RDLoader* ldr, rd_address address) { return CPTR(const Loader, ldr)->isAddress(address); }
+rd_endianness RDLoader_GetEndianness(const RDLoader* ldr) { return CPTR(const Loader, ldr)->endianness(); }
+void RDLoader_SetEndianness(RDLoader* ldr, rd_endianness e) { CPTR(Loader, ldr)->setEndianness(e); }

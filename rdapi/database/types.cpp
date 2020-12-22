@@ -3,6 +3,8 @@
 
 RDType* RDType_CreateInt(size_t size, bool issigned) { return CPTR(RDType, new IntType(size, issigned)); }
 RDType* RDType_CreateFloat(size_t size, bool issigned) { return CPTR(RDType, new FloatType(size, issigned)); }
+RDType* RDType_CreateAsciiString(size_t size) { return CPTR(RDType, new AsciiStringType(size)); }
+RDType* RDType_CreateWideString(size_t size) { return CPTR(RDType, new WideStringType(size)); }
 RDType* RDType_CreateStructure(const char* name) { return CPTR(RDType, new StructureType(name ? name : std::string())); }
 rd_type RDType_GetType(const RDType* type) { return CPTR(const Type, type)->type(); }
 size_t RDType_GetSize(const RDType* type) { return CPTR(const Type, type)->size(); }

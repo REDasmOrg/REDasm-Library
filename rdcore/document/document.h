@@ -47,10 +47,9 @@ class Document: public Object
         bool exported(rd_address address, size_t size, const std::string& name);
         bool exportedFunction(rd_address address, const std::string& name);
         bool instruction(rd_address address, size_t size);
-        bool asciiString(rd_address address, size_t size, const std::string& name);
-        bool wideString(rd_address address, size_t size, const std::string& name);
-        bool data(rd_address address, size_t size, const std::string& name);
-        bool field(rd_address address, size_t size, const std::string& name);
+        bool asciiString(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
+        bool wideString(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
+        bool data(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
         void table(rd_address address, size_t count);
         void tableItem(rd_address address, rd_address startaddress, size_t idx);
         bool pointer(rd_address address, rd_type type, const std::string& name);

@@ -65,10 +65,9 @@ bool Document::imported(rd_address address, size_t size, const std::string& name
 bool Document::exported(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_Export); }
 bool Document::exportedFunction(rd_address address, const std::string& name) { return this->symbol(address, name, SymbolType_Function, SymbolFlags_Export); }
 bool Document::instruction(rd_address address, size_t size) { return m_segments.markCode(address, size); }
-bool Document::asciiString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString); }
-bool Document::wideString(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_String, SymbolFlags_WideString); }
-bool Document::data(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_None); }
-bool Document::field(rd_address address, size_t size, const std::string& name) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_Field); }
+bool Document::asciiString(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString | flags); }
+bool Document::wideString(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_String, SymbolFlags_WideString | flags); }
+bool Document::data(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_None | flags); }
 
 void Document::table(rd_address address, size_t count)
 {
@@ -291,7 +290,7 @@ bool Document::type(rd_address address, const Type* type, int level)
     if(auto* st = dynamic_cast<const StructureType*>(type))
     {
         RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Type);
-        m_itemdata[item].type.reset(type->clone());
+        m_itemdata[item].type.reset(type->clone(this->context()));
         m_itemdata[item].level = level;
         rd_address fieldaddress = address;
 
@@ -303,12 +302,34 @@ bool Document::type(rd_address address, const Type* type, int level)
 
         this->replace(address, DocumentItemType_Type);
     }
+    else if(auto* st = dynamic_cast<const StringType*>(type))
+    {
+        TypePtr cst(st->clone(this->context()));
+        static_cast<StringType*>(cst.get())->calculateSize(address);
+
+        switch(cst->type())
+        {
+            case Type_AsciiString:
+                if(!this->asciiString(address, cst->size(), cst->name(), SymbolFlags_Field)) return false;
+                break;
+
+            case Type_WideString:
+                if(!this->wideString(address, cst->size(), cst->name(), SymbolFlags_Field)) return false;
+                break;
+
+            default: return false;
+        }
+
+        RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Symbol);
+        m_itemdata[item].type = std::move(cst);
+        m_itemdata[item].level = level;
+    }
     else if(auto* nt = dynamic_cast<const NumericType*>(type))
     {
-        if(this->field(address, nt->size(), SymbolTable::name(address, nt->name())))
+        if(this->data(address, nt->size(), SymbolTable::name(address, nt->name()), SymbolFlags_Field))
         {
             RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Symbol);
-            m_itemdata[item].type.reset(type->clone());
+            m_itemdata[item].type.reset(type->clone(this->context()));
             m_itemdata[item].level = level;
         }
         else

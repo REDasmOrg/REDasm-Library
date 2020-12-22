@@ -6,12 +6,10 @@
 RD_HANDLE(RDType);
 
 enum RDTypes {
-    Type_None,
-    Type_Void,
-    Type_Bool,
-    Type_Char,
-    Type_Int,
-    Type_Float,
+    Type_None, Type_Void,
+    Type_Bool, Type_Char,
+    Type_Int, Type_Float,
+    Type_AsciiString, Type_WideString,
 
     Type_Array,
 
@@ -27,6 +25,8 @@ typedef bool(*Callback_StructureFields)(const char* name, const RDType* type, vo
 RD_API_EXPORT RDType* RDType_CreateInt(size_t size, bool issigned);
 RD_API_EXPORT RDType* RDType_CreateFloat(size_t size, bool issigned);
 RD_API_EXPORT RDType* RDType_CreateStructure(const char* name);
+RD_API_EXPORT RDType* RDType_CreateAsciiString(size_t size);
+RD_API_EXPORT RDType* RDType_CreateWideString(size_t size);
 RD_API_EXPORT size_t RDType_GetSize(const RDType* type);
 RD_API_EXPORT rd_type RDType_GetType(const RDType* type);
 RD_API_EXPORT const char* RDType_GetTypeName(const RDType* type);

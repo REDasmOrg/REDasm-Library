@@ -2,6 +2,7 @@
 #include "numeric.h"
 #include "string.h"
 #include "structure.h"
+#include "array.h"
 
 Type::Type(rd_type t, Context* ctx): Object(ctx), m_type(t) { }
 Type::Type(rd_type t, const std::string& name, Context* ctx): Object(ctx), m_type(t), m_name(name) { }
@@ -18,6 +19,7 @@ Type* Type::load(const tao::json::value& v)
     {
         case Type_Int: t.reset(new IntType()); break;
         case Type_Float: t.reset(new FloatType()); break;
+        case Type_Array: t.reset(new ArrayType()); break;
         case Type_Structure: t.reset(new StructureType()); break;
         case Type_AsciiString: t.reset(new AsciiStringType()); break;
         case Type_WideString: t.reset(new WideStringType()); break;
@@ -57,8 +59,7 @@ rd_type Type::typeId(const std::string& s)
         { "void", Type_Void }, { "bool", Type_Bool }, { "char", Type_Char },
         { "int", Type_Int }, { "float", Type_Float },
         { "string", Type_AsciiString }, { "wstring", Type_WideString },
-        { "array", Type_Array },
-        { "function", Type_Function }, { "alias", Type_Alias },
+        { "array", Type_Array }, { "function", Type_Function }, { "alias", Type_Alias },
         { "structure", Type_Structure }, { "union", Type_Union }, { "enum", Type_Enum }
     };
 

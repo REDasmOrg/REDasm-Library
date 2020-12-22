@@ -302,6 +302,19 @@ bool Document::type(rd_address address, const Type* type, int level)
 
         this->replace(address, DocumentItemType_Type);
     }
+    else if(auto* at = dynamic_cast<const ArrayType*>(type))
+    {
+        RDDocumentItem item = RD_DOCITEM(address, DocumentItemType_Type);
+        m_itemdata[item].type.reset(type->clone(this->context()));
+        m_itemdata[item].level = level;
+        rd_address itemaddress = address;
+
+        for(size_t i = 0; i < at->itemsCount(); i++)
+        {
+            this->type(itemaddress, at->type());
+            itemaddress += at->type()->size();
+        }
+    }
     else if(auto* st = dynamic_cast<const StringType*>(type))
     {
         TypePtr cst(st->clone(this->context()));

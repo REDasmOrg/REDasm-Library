@@ -1,10 +1,11 @@
 #pragma once
 
-#define T_TYPE_FIELD    "type"
-#define T_SIZE_FIELD    "size"
-#define T_NAME_FIELD    "name"
-#define T_SIGNED_FIELD  "signed"
-#define T_FIELDS_FIELD  "fields"
+#define T_TYPE_FIELD     "type"
+#define T_SIZE_FIELD     "size"
+#define T_NAME_FIELD     "name"
+#define T_ITEMTYPE_FIELD "itemtype"
+#define T_SIGNED_FIELD   "signed"
+#define T_FIELDS_FIELD   "fields"
 
 #include <rdapi/database/types.h>
 #include <rdapi/types.h>

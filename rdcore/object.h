@@ -24,6 +24,7 @@ class Object
 
     public:
         Context* context() const;
+        void setContext(Context* ctx);
         void log(const std::string& s) const;
         void status(const std::string& s) const;
         void statusAddress(const std::string& s, rd_address address) const;

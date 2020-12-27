@@ -45,6 +45,7 @@ RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurface
 RD_API_EXPORT int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item);
 RD_API_EXPORT bool RDSurface_Contains(const RDSurface* sf, const RDDocumentItem* item);
+RD_API_EXPORT bool RDSurface_ContainsAddress(const RDSurface* sf, rd_address address);
 RD_API_EXPORT bool RDSurface_GetCurrentSymbol(const RDSurface* sf, RDSymbol* symbol);
 RD_API_EXPORT bool RDSurface_GetSymbolAt(const RDSurface* sf, int row, int col, RDSymbol* symbol);
 RD_API_EXPORT bool RDSurface_Seek(RDSurface* sf, const RDDocumentItem* item);

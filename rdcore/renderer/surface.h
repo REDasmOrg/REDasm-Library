@@ -36,6 +36,7 @@ class Surface: public Object
         uintptr_t userData() const;
         int findRow(const RDDocumentItem* item) const;
         bool getItem(int row, RDDocumentItem* item) const;
+        bool containsAddress(rd_address address) const;
         bool contains(const RDDocumentItem* item) const;
         bool currentItem(RDDocumentItem* item) const;
         bool currentSymbol(RDSymbol* symbol) const;

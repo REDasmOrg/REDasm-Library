@@ -104,6 +104,12 @@ bool Surface::getItem(int row, RDDocumentItem* item) const
     return true;
 }
 
+bool Surface::containsAddress(rd_address address) const
+{
+    return (address >= m_items.first.address) &&
+           (address <= m_items.second.address);
+}
+
 bool Surface::currentSymbol(RDSymbol* symbol) const
 {
     auto* cw = this->currentWord();

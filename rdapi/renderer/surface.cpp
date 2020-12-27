@@ -17,6 +17,7 @@ int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) 
 int RDSurface_FindRow(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->findRow(item); }
 bool RDSurface_GetItem(const RDSurface* sf, int row, RDDocumentItem* item) { return CPTR(const Surface, sf)->getItem(row, item); }
 bool RDSurface_Contains(const RDSurface* sf, const RDDocumentItem* item) { return CPTR(const Surface, sf)->contains(item); }
+bool RDSurface_ContainsAddress(const RDSurface* sf, rd_address address) { return CPTR(const Surface, sf)->containsAddress(address); }
 bool RDSurface_GetCurrentSymbol(const RDSurface* sf, RDSymbol* symbol) { return CPTR(const Surface, sf)->currentSymbol(symbol); }
 bool RDSurface_GetSymbolAt(const RDSurface* sf, int row, int col, RDSymbol* symbol) { return CPTR(const Surface, sf)->symbolAt(row, col, symbol); }
 bool RDSurface_Seek(RDSurface* sf, const RDDocumentItem* item) { return CPTR(Surface, sf)->seek(item); }

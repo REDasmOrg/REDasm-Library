@@ -149,7 +149,10 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
     }
 
     if(HAS_FLAG(&symbol, SymbolFlags_Field))
-        this->renderIndent(this->document()->level(item), true);
+    {
+        auto* itemdata = this->document()->itemData(item);
+        this->renderIndent(itemdata ? itemdata->level : 0, true);
+    }
 
     if(!HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
@@ -278,14 +281,14 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol)
         case SymbolType_Import: this->chunk("<").chunk("import", Theme_Symbol).chunk(">"); return;
 
         case SymbolType_String:
-             if(HAS_FLAG(symbol, SymbolFlags_WideString)) this->chunk(Utils::quoted(Utils::simplified(this->disassembler()->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
-             else this->chunk(Utils::quoted(Utils::simplified(this->disassembler()->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             if(HAS_FLAG(symbol, SymbolFlags_WideString)) this->chunk(Utils::quoted(Utils::simplified(this->document()->readWString(symbol->address, STRING_THRESHOLD))), Theme_String);
+             else this->chunk(Utils::quoted(Utils::simplified(this->document()->readString(symbol->address, STRING_THRESHOLD))), Theme_String);
              return;
 
         default: break;
     }
 
-    RDLocation loc = this->disassembler()->dereference(symbol->address);
+    RDLocation loc = this->document()->dereference(symbol->address);
 
     if(loc.valid)
     {
@@ -303,7 +306,7 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol)
 
 bool Renderer::renderSymbolPointer(const RDSymbol* symbol)
 {
-    auto loc = this->disassembler()->dereference(symbol->address);
+    auto loc = this->document()->dereference(symbol->address);
     if(!loc.valid) return false;
 
     RDSymbol ptrsymbol;
@@ -320,7 +323,7 @@ void Renderer::compileParams(rd_address address, RDRendererParams* srp)
              CPTR(const RDContext, this->context()),
              CPTR(RDRenderer, this) };
 
-    this->context()->loader()->view(address, RD_NVAL, &srp->view);
+    this->context()->document()->view(address, RD_NVAL, &srp->view);
 }
 
 bool Renderer::hasFlag(rd_flag f) const { return m_flags & f; }

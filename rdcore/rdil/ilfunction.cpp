@@ -39,7 +39,7 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
     if(!ILFunction::generatePath(address, il, path)) return false;
 
     auto* assembler = il->context()->assembler();
-    auto* loader = il->context()->loader();
+    auto& document = il->context()->document();
     RDBlock block;
 
     for(rd_address currentaddress : path)
@@ -48,7 +48,7 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
         if(!blocks || !blocks->get(currentaddress, &block)) return false;
 
         RDBufferView view;
-        if(!loader->view(currentaddress, BlockContainer::size(&block), &view)) return false;
+        if(!document->view(currentaddress, BlockContainer::size(&block), &view)) return false;
 
         assembler->lift(currentaddress, &view, il);
     }
@@ -63,7 +63,7 @@ ILExpression* ILFunction::generateOne(Context* ctx, rd_address address)
     if(!blocks || !blocks->get(address, &block)) return nullptr;
 
     RDBufferView view;
-    if(!ctx->loader()->view(address, BlockContainer::size(&block), &view)) return nullptr;
+    if(!ctx->document()->view(address, BlockContainer::size(&block), &view)) return nullptr;
 
     ILFunction il(ctx);
     ctx->assembler()->lift(address, &view, &il);

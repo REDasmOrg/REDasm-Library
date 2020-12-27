@@ -15,15 +15,13 @@ void FunctionAnalyzer::analyze(Context* ctx)
 {
     auto& document = ctx->document();
     const RDSymbol* entry = document->entry();
-    Loader* loader = ctx->loader();
-
     const FunctionContainer* functions = document->functions();
 
     functions->each([&](rd_address address) {
         ctx->statusAddress("Analyzing function" , address);
         if(entry && (entry->address == address)) return true; // Don't rename EP, if any
         RDBufferView view;
-        if(!loader->view(address, RD_NVAL, &view)) return true;
+        if(!document->view(address, RD_NVAL, &view)) return true;
 
         std::unique_ptr<ILExpression> e(ILFunction::generateOne(ctx, address));
         if(!e) return true;

@@ -77,7 +77,7 @@ void Algorithm::processResult(EmulateResult* result)
         switch(forktype)
         {
             case EmulateResult::Ref:
-                m_disassembler->checkLocation(result->address(), res.address);
+                m_document->checkLocation(result->address(), res.address);
                 break;
 
             case EmulateResult::Branch:
@@ -167,7 +167,7 @@ std::optional<rd_address> Algorithm::decodeAddress(rd_address address)
 
 bool Algorithm::isAddressValid(rd_address address) const
 {
-    auto loc = m_disassembler->loader()->offset(address);
+    auto loc = m_disassembler->document()->offset(address);
     if(!loc.valid) return false;
 
     if(m_document->items()->contains(RDDocumentItem{ address, DocumentItemType_Instruction, 0 })) return false;

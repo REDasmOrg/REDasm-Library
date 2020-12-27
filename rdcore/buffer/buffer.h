@@ -19,3 +19,5 @@ class MemoryBuffer: public AbstractBuffer
     private:
         std::vector<u8> m_data;
 };
+
+typedef std::shared_ptr<MemoryBuffer> MemoryBufferPtr;

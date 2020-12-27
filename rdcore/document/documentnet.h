@@ -27,7 +27,7 @@ class DocumentNet: public Object
         typedef std::unordered_map<rd_address, References> ReferencesMap;
 
     public:
-        DocumentNet() = default;
+        DocumentNet(Context* ctx);
         void linkSysCall(rd_address address, u64 syscall);
         void linkBranchIndirect(rd_address address);
         void linkBranchUnresolved(rd_address address);

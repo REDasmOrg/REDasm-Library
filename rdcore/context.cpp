@@ -173,7 +173,7 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
         return false;
     }
 
-    m_buffer = std::shared_ptr<MemoryBuffer>(CPTR(MemoryBuffer, req->buffer)); // Take ownership
+    m_buffer = MemoryBufferPtr(CPTR(MemoryBuffer, req->buffer)); // Take ownership
     m_disassembler = std::make_unique<Disassembler>(this);
     if(!m_disassembler->load(m_buffer, req->filepath, entryloader, entryassembler)) return false;
 

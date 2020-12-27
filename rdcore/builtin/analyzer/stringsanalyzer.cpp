@@ -32,11 +32,9 @@ void StringsAnalyzer::analyze(Context* ctx)
         return true;
     });
 
-    Loader* loader = ctx->loader();
-
     std::for_each(std::execution::par_unseq, pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
         RDBufferView view;
-        if(!loader->view(b.address, BlockContainer::size(&b), &view)) return;
+        if(!doc->view(b.address, BlockContainer::size(&b), &view)) return;
         StringFinder::find(ctx, view);
     });
 }

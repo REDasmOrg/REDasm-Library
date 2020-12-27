@@ -6,6 +6,7 @@
 #include "../context.h"
 #include "../buffer/view.h"
 #include "../support/hash.h"
+#include "../support/endian.h"
 #include "../document/document.h"
 #include "../plugin/loader.h"
 
@@ -58,22 +59,22 @@ std::string Utils::hexStringEndian(const Context* ctx, const RDBufferView* view,
 {
     if(size == RD_NVAL) size = view->size;
 
-    if(ctx->loader() && (ctx->loader()->endianness() != Endianness_Invalid))
+    if(ctx->document()->endianness() != Endianness_Invalid)
     {
         switch(size)
         {
             case 1: return std::to_string(view->data[0]); break;
 
             case 2:
-                if(ctx->loader()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian16(*reinterpret_cast<u16*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian16(*reinterpret_cast<u16*>(view->data)));
                 else return Utils::hex(Endian::fromlittleendian16(*reinterpret_cast<u16*>(view->data)));
 
             case 4:
-                if(ctx->loader()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian32(*reinterpret_cast<u32*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian32(*reinterpret_cast<u32*>(view->data)));
                 else return Utils::hex(Endian::fromlittleendian32(*reinterpret_cast<u32*>(view->data)));
 
             case 8:
-                if(ctx->loader()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian64(*reinterpret_cast<u64*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian64(*reinterpret_cast<u64*>(view->data)));
                 else return Utils::hex(Endian::fromlittleendian64(*reinterpret_cast<u64*>(view->data)));
 
             default: break;

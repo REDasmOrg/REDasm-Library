@@ -1,17 +1,12 @@
 #include "context.h"
+#include <rdcore/document/document.h>
 #include <rdcore/disassembler.h>
 #include <rdcore/context.h>
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
 RDDatabase* RDContext_GetDatabase(const RDContext* ctx) { return CPTR(RDDatabase, CPTR(const Context, ctx)->database()); }
 RDLocation RDContext_GetEntryPoint(const RDContext* ctx) { return CPTR(const Context, ctx)->entryPoint(); }
-
-RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address)
-{
-    const Disassembler* d = CPTR(const Context, ctx)->disassembler();
-    return d ? d->dereference(address) : RDLocation{{0}, false};
-}
-
+RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->dereference(address); }
 RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->functionStart(address); }
 const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader) { return CPTR(const Context, ctx)->findAssemblerEntry(entryloader, nullptr); }
 bool RDContext_MatchLoader(const RDContext* ctx, const char* q) { return q ? CPTR(const Context, ctx)->matchLoader(q) : false; }
@@ -52,20 +47,20 @@ bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* 
 void RDContext_Schedule(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->schedule(address); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 
-const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size) { return CPTR(const Context, ctx)->disassembler()->getHexDump(address, size); }
-const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->disassembler()->readString(address, len); }
-const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->disassembler()->readWString(address, len); }
+const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size) { return CPTR(const Context, ctx)->document()->getHexDump(address, size); }
+const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readString(address, len); }
+const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readWString(address, len); }
 
 bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view)
 {
     if(!segment) return false;
-    auto* loader = CPTR(const Context, ctx)->loader();
-    return loader ? loader->view(*segment, view) : false;
+    auto& document = CPTR(const Context, ctx)->document();
+    return document->view(*segment, view);
 }
 
 bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view)
 {
     if(!block) return false;
-    auto* loader = CPTR(const Context, ctx)->loader();
-    return loader ? loader->view(*block, view) : false;
+    auto& document = CPTR(const Context, ctx)->document();
+    return document->view(*block, view);
 }

@@ -18,9 +18,8 @@ void RDILGraph::build(rd_address address)
     const auto* blocks = this->context()->document()->blocks(address);
     if(!blocks->get(address, &block)) return;
 
-    auto* loader = this->context()->loader();
     RDBufferView view;
-    if(!loader->view(address, BlockContainer::size(&block), &view)) return;
+    if(!this->context()->document()->view(address, BlockContainer::size(&block), &view)) return;
 
     auto* assembler = this->context()->assembler();
 

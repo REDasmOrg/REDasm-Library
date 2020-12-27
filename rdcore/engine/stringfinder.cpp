@@ -44,7 +44,7 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
 bool StringFinder::step(Context* ctx, RDBufferView* view)
 {
     if(BufferView::empty(view)) return false;
-    RDLocation loc = ctx->loader()->addressof(view->data);
+    RDLocation loc = ctx->document()->addressof(view->data);
     if(!loc.valid) return false;
 
     rd_cfg->status("Searching strings @ " + Utils::hex(loc.value));

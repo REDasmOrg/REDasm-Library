@@ -30,7 +30,7 @@ Type* AsciiStringType::clone(Context* ctx) const { return new AsciiStringType(m_
 void AsciiStringType::calculateSize(rd_address address)
 {
     if(m_size > 1) return;
-    std::string s = this->context()->disassembler()->readString(address);
+    std::string s = this->context()->document()->readString(address);
     if(!s.empty()) m_size = s.size();
 }
 
@@ -40,6 +40,6 @@ Type* WideStringType::clone(Context* ctx) const { return new WideStringType(m_si
 void WideStringType::calculateSize(rd_address address)
 {
     if(m_size > 1) return;
-    std::string s = this->context()->disassembler()->readWString(address);
+    std::string s = this->context()->document()->readWString(address);
     if(!s.empty()) m_size = s.size();
 }

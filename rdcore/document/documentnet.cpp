@@ -1,5 +1,6 @@
 #include "documentnet.h"
 
+DocumentNet::DocumentNet(Context* ctx): Object(ctx) { }
 void DocumentNet::linkSysCall(rd_address address, u64 syscall) { this->n(address).syscall = syscall; }
 void DocumentNet::linkBranchIndirect(rd_address address) { this->n(address).branchtype = EmulateResult::BranchIndirect; }
 void DocumentNet::linkBranchUnresolved(rd_address address) { this->n(address).branchtype = EmulateResult::BranchUnresolved; }

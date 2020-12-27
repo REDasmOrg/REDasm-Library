@@ -33,7 +33,7 @@ void DocumentNet::linkBranch(rd_address fromaddress, rd_address toaddress, rd_ty
         case EmulateResult::BranchTrue:
             this->n(fromaddress).branchtype = EmulateResult::Branch;
             this->n(fromaddress).branchestrue.insert(toaddress);
-            m_refs[toaddress].insert(fromaddress);
+            m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Direct });
             break;
 
         case EmulateResult::BranchFalse:
@@ -57,25 +57,35 @@ void DocumentNet::unlinkBranch(rd_address fromaddress, rd_address toaddress)
     this->n(fromaddress).branchestrue.remove(toaddress);
     this->n(fromaddress).branchesfalse.remove(toaddress);
     this->n(toaddress).from.remove(fromaddress);
-    m_refs[toaddress].remove(fromaddress);
+    this->removeRef(fromaddress, toaddress);
 }
 
 void DocumentNet::linkCall(rd_address fromaddress, rd_address toaddress)
 {
     this->n(fromaddress).calls.insert(toaddress);
     this->n(toaddress).from.insert(fromaddress);
-    m_refs[toaddress].insert(fromaddress);
+    m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Direct });
 }
 
 void DocumentNet::unlinkCall(rd_address fromaddress, rd_address toaddress)
 {
     this->n(fromaddress).calls.remove(toaddress);
     this->n(toaddress).from.remove(fromaddress);
-    m_refs[toaddress].remove(fromaddress);
+    this->removeRef(fromaddress, toaddress);
 }
 
-void DocumentNet::addRef(rd_address fromaddress, rd_address toaddress) { m_refs[toaddress].insert(fromaddress); }
-void DocumentNet::removeRef(rd_address fromaddress, rd_address toaddress) { m_refs[toaddress].remove(fromaddress); }
+void DocumentNet::addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags) { m_refs[toaddress].insert({fromaddress, flags}); }
+
+void DocumentNet::removeRef(rd_address fromaddress, rd_address toaddress)
+{
+    auto& refs = m_refs[toaddress];
+
+    auto it = std::find_if(refs.begin(), refs.end(), [fromaddress](const RDReference& r) {
+        return r.address == fromaddress;
+    });
+
+    if(it != refs.end()) refs.remove(*it);
+}
 
 const DocumentNetNode* DocumentNet::findNode(rd_address address) const
 {
@@ -95,7 +105,7 @@ const DocumentNetNode* DocumentNet::nextNode(const DocumentNetNode* n) const
     return this->findNode(n->next);
 }
 
-size_t DocumentNet::getReferences(rd_address address, const rd_address** refs) const
+size_t DocumentNet::getReferences(rd_address address, const RDReference** refs) const
 {
     auto it = m_refs.find(address);
     if(it == m_refs.end()) return 0;

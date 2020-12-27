@@ -4,7 +4,7 @@
 const RDNetNode* RDNet_FindNode(const RDNet* net, rd_address address) { return CPTR(const RDNetNode, CPTR(const DocumentNet, net)->findNode(address)); }
 const RDNetNode* RDNet_GetPrevNode(const RDNet* net, const RDNetNode* netnode) { return CPTR(const RDNetNode, CPTR(const DocumentNet, net)->prevNode(CPTR(const DocumentNetNode, netnode))); }
 const RDNetNode* RDNet_GetNextNode(const RDNet* net, const RDNetNode* netnode) { return CPTR(const RDNetNode, CPTR(const DocumentNet, net)->nextNode(CPTR(const DocumentNetNode, netnode))); }
-size_t RDNet_GetReferences(const RDNet* net, rd_address address, const rd_address** refs) { return CPTR(const DocumentNet, net)->getReferences(address, refs); }
+size_t RDNet_GetReferences(const RDNet* net, rd_address address, const RDReference** refs) { return CPTR(const DocumentNet, net)->getReferences(address, refs); }
 
 rd_address RDNetNode_GetAddress(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->address; }
 rd_type RDNetNode_GetBranchType(const RDNetNode* netnode) { return CPTR(const DocumentNetNode, netnode)->branchtype; }

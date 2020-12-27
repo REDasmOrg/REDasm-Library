@@ -46,13 +46,13 @@ void SurfacePath::update()
             if(!this->context()->document()->symbol(item.address, &symbol)) continue;
             if(!items->contains(RDDocumentItem{ item.address, DocumentItemType_Instruction, 0 })) continue;
 
-            const rd_address* refs = nullptr;
+            const RDReference* refs = nullptr;
             size_t c = net->getReferences(item.address, &refs);
 
             for(size_t i = 0; i < c; i++)
             {
-                if(refs[i] == item.address) continue;
-                RDDocumentItem fromitem{ refs[i], DocumentItemType_Instruction, 0 };
+                if(refs[i].address == item.address) continue;
+                RDDocumentItem fromitem{ refs[i].address, DocumentItemType_Instruction, 0 };
                 if(items->contains(fromitem)) this->insertPath(fromitem, item);
             }
         }

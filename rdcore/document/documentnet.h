@@ -20,10 +20,18 @@ struct DocumentNetNode {
     AddressContainer calls;
 };
 
+struct ReferenceComparator {
+    bool operator ()(const RDReference& r1, const RDReference& r2) const { return r1.address == r2.address; }
+};
+
+struct ReferenceSorter {
+    bool operator ()(const RDReference& r1, const RDReference& r2) const { return r1.address < r2.address; }
+};
+
 class DocumentNet: public Object
 {
     private:
-        typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> References;
+        typedef SortedContainer<RDReference, ReferenceComparator, ReferenceSorter, true> References;
         typedef std::unordered_map<rd_address, References> ReferencesMap;
 
     public:
@@ -34,7 +42,7 @@ class DocumentNet: public Object
         void linkNext(rd_address fromaddress, rd_address toaddress);
         void linkBranch(rd_address fromaddress, rd_address toaddress, rd_type type);
         void linkCall(rd_address fromaddress, rd_address toaddress);
-        void addRef(rd_address fromaddress, rd_address toaddress);
+        void addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags = ReferenceFlags_Direct);
         void unlinkNext(rd_address fromaddress);
         void unlinkBranch(rd_address fromaddress, rd_address toaddress);
         void unlinkCall(rd_address fromaddress, rd_address toaddress);
@@ -42,7 +50,7 @@ class DocumentNet: public Object
         const DocumentNetNode* findNode(rd_address address) const;
         const DocumentNetNode* prevNode(const DocumentNetNode* n) const;
         const DocumentNetNode* nextNode(const DocumentNetNode* n) const;
-        size_t getReferences(rd_address address, const rd_address** refs) const;
+        size_t getReferences(rd_address address, const RDReference** refs) const;
 
     public:
         static bool isConditional(const DocumentNetNode* n);

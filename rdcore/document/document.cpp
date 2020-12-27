@@ -150,7 +150,7 @@ void Document::markPointer(rd_address fromaddress, rd_address address)
     else if(HAS_FLAG(&symbol, SymbolFlags_Export))
         this->autoComment(address, std::string("=> EXPORT: ") + symbolname);
 
-    if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, loc.address);
+    if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
 }
 
 void Document::markLocation(rd_address fromaddress, rd_address address)

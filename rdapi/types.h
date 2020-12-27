@@ -57,6 +57,18 @@ enum RDSegmentFlags {
     SegmentFlags_CodeData  = SegmentFlags_Code | SegmentFlags_Data,
 };
 
+enum RDReferenceFlags {
+    ReferenceFlags_None,    // Internal use
+    ReferenceFlags_Direct   = (1 << 0),
+    ReferenceFlags_Indirect = (1 << 1),
+    ReferenceFlags_Manual   = (1 << 2),
+};
+
+typedef struct RDReference {
+    rd_address address;
+    rd_flag flags;
+} RDReference;
+
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
     rd_offset offset;

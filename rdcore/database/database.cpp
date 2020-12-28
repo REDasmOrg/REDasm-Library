@@ -39,16 +39,22 @@ bool Database::write(const std::string& path, const Type* type)
     return true;
 }
 
-bool Database::add(const std::string& path, const std::string& dbpath)
+bool Database::add(const std::string& dbpath, const std::string& filepath)
 {
-    auto dbloc = Database::locate(dbpath);
+    auto dbp = std::make_pair(dbpath, filepath);
+    if(m_importeddb.count(dbp)) return true; // This db is already imported
+    m_importeddb.insert(dbp);
+
+    if(this->pathExists(dbpath)) return false;
+
+    auto dbloc = Database::locate(filepath);
     if(dbloc.empty()) return false;
 
-    tao::json::pointer p = this->checkTree(path);
+    tao::json::pointer p = this->checkTree(dbpath);
     if(p.empty()) return false;
 
     tao::json::value tree;
-    if(!Database::parseCompiledFile(dbloc, tree)) return false;
+    if(!Database::parseFile(dbloc, tree)) return false;
     if(!Database::validateTree(tree)) return false;
 
     m_tree[p] = tree;
@@ -194,6 +200,12 @@ bool Database::checkPointer(std::string& path) const
     return true;
 }
 
+bool Database::pathExists(std::string path) const
+{
+    this->checkPointer(path);
+    return m_tree.find(path);
+}
+
 tao::json::pointer Database::checkTree(std::string path)
 {
     if(!this->checkPointer(path)) return { };
@@ -252,8 +264,8 @@ bool Database::parseFile(const fs::path& filepath, tao::json::value& j)
     std::string ext = filepath.extension().string();
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
-    if(ext == ".json") return Database::parseDecompiledFile(filepath, j);
-    else if(ext == ".rdb") return Database::parseCompiledFile(filepath, j);
+    if(ext == DATABASE_JSON_EXT) return Database::parseDecompiledFile(filepath, j);
+    else if(ext == DATABASE_RDB_EXT) return Database::parseCompiledFile(filepath, j);
     else
     {
         rd_cfg->log("Unknown file type: " + Utils::quoted(ext));
@@ -263,22 +275,43 @@ bool Database::parseFile(const fs::path& filepath, tao::json::value& j)
     return true;
 }
 
-fs::path Database::locate(fs::path dbname)
+fs::path Database::locatePath(const fs::path& dbpath)
 {
-    if(dbname.extension().empty()) dbname.replace_extension(DATABASE_RDB_EXT);
-    if(fs::exists(dbname)) return dbname;
-
     fs::directory_entry dbentry;
 
-    // Search everywhere
     for(const auto& searchpath : rd_cfg->databasePaths())
     {
-        dbentry.assign(searchpath / dbname);
+        dbentry.assign(searchpath / dbpath);
         if(dbentry.is_regular_file()) return dbentry.path();
 
-        dbentry.assign(searchpath / DATABASE_FOLDER_NAME / dbname);
+        dbentry.assign(searchpath / DATABASE_FOLDER_NAME / dbpath);
         if(dbentry.is_regular_file()) return dbentry.path();
     }
 
     return { };
+}
+
+fs::path Database::locateAs(fs::path dbpath, const platform_string& ext)
+{
+    dbpath.replace_extension(ext);
+    if(fs::exists(dbpath)) return dbpath;
+    return Database::locatePath(dbpath);
+}
+
+fs::path Database::locate(fs::path dbpath)
+{
+    if(dbpath.extension().empty())
+    {
+        static const std::vector<platform_string> ALLOWED_EXT = {
+            DATABASE_RDB_EXT, DATABASE_JSON_EXT
+        };
+
+        for(const auto& ext : ALLOWED_EXT)
+        {
+            auto p = Database::locateAs(dbpath, ext);
+            if(!p.empty()) return p;
+        }
+    }
+
+    return Database::locatePath(dbpath);
 }

@@ -2,9 +2,12 @@
 
 #include <rdapi/database/database.h>
 #include <filesystem>
+#include <unordered_map>
+#include <set>
 #include "../libs/tao/json.hpp"
 #include "../types/definitions.h"
 #include "../object.h"
+#include "../config.h"
 
 namespace fs = std::filesystem;
 
@@ -24,7 +27,7 @@ class Database: public Object
         bool query(std::string q, RDDatabaseValue* dbvalue) const;
         bool write(const std::string& path, const std::string& val);
         bool write(const std::string& path, const Type* type);
-        bool add(const std::string& path, const std::string& dbpath);
+        bool add(const std::string& dbpath, const std::string& filepath);
         bool compile(const std::string& filepath) const;
         const std::string& decompile() const;
 
@@ -39,17 +42,21 @@ class Database: public Object
         void extractObject(const tao::json::value& obj, RDDatabaseValue* outval) const;
         bool extract(const tao::json::value& inval, RDDatabaseValue* outval) const;
         bool checkPointer(std::string& path) const;
+        bool pathExists(std::string path) const;
         tao::json::pointer checkTree(std::string path);
 
     private:
         static bool parseDecompiledFile(const fs::path &filepath, tao::json::value& j);
         static bool parseCompiledFile(const fs::path &filepath, tao::json::value& j);
         static bool parseFile(const fs::path &filepath, tao::json::value& j);
-        static fs::path locate(fs::path dbname);
+        static fs::path locatePath(const fs::path& dbpath);
+        static fs::path locateAs(fs::path dbpath, const platform_string& ext);
+        static fs::path locate(fs::path dbpath);
 
     private:
         mutable std::unique_ptr<Type> m_typecache;
         mutable std::unordered_map<tao::json::type, std::string> m_valuecache;
         mutable std::string m_decompiled, m_name;
+        std::set<std::pair<std::string, std::string>> m_importeddb;
         tao::json::value m_tree;
 };

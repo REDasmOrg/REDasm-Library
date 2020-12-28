@@ -47,10 +47,10 @@ bool RDDatabase_WriteType(RDDatabase* db, const char* path, const RDType* t)
     return CPTR(Database, db)->write(path, CPTR(const Type, t));
 }
 
-bool RDDatabase_Add(RDDatabase* db, const char* path, const char* dbname)
+bool RDDatabase_Add(RDDatabase* db, const char* dbpath, const char* filepath)
 {
-    if(!db || !path || !dbname) return false;
-    return CPTR(Database, db)->add(path, dbname);
+    if(!db || !dbpath || !filepath) return false;
+    return CPTR(Database, db)->add(dbpath, filepath);
 }
 
 bool RDDatabase_Compile(const RDDatabase* db, const char* filepath)

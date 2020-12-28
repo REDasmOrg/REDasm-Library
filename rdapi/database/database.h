@@ -4,7 +4,8 @@
 #include "../types.h"
 #include "types.h"
 
-#define DATABASE_RDB_EXT ".rdb"
+#define DATABASE_RDB_EXT  ".rdb"
+#define DATABASE_JSON_EXT ".json"
 
 enum RDDatabaseValueTypes {
     DatabaseValueType_Null = 0,
@@ -44,7 +45,7 @@ RD_API_EXPORT const char* RDDatabase_GetName(const RDDatabase* db);
 RD_API_EXPORT const char* RDDatabase_Decompile(const RDDatabase* db);
 RD_API_EXPORT bool RDDatabase_Compile(const RDDatabase* db, const char* filepath);
 RD_API_EXPORT bool RDDatabase_Query(const RDDatabase* db, const char* q, RDDatabaseValue* dbvalue);
-RD_API_EXPORT bool RDDatabase_Add(RDDatabase* db, const char* path, const char* dbname);
+RD_API_EXPORT bool RDDatabase_Add(RDDatabase* db, const char* dbpath, const char* filepath);
 RD_API_EXPORT bool RDDatabase_WriteString(RDDatabase* db, const char* path, const char* s);
 RD_API_EXPORT bool RDDatabase_WriteType(RDDatabase* db, const char* path, const RDType* t);
 RD_API_EXPORT void RDDatabase_SetName(RDDatabase* db, const char* name);

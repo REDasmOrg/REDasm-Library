@@ -25,10 +25,10 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         BlockContainer();
         void whenInsert(const Callback& cb);
         void whenRemove(const Callback& cb);
-        void unexplored(rd_address start, rd_address end);
+        void unknown(rd_address start, rd_address end);
         void data(rd_address start, rd_address end);
         void code(rd_address start, rd_address end);
-        void unexploredSize(rd_address start, size_t size);
+        void unknownSize(rd_address start, size_t size);
         void dataSize(rd_address start, size_t size);
         void codeSize(rd_address start, size_t size);
 

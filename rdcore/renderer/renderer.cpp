@@ -28,7 +28,7 @@ bool Renderer::render(const RDDocumentItem* item)
         case DocumentItemType_Function:    this->renderFunction(item);    break;
         case DocumentItemType_Instruction: this->renderInstruction(item); break;
         case DocumentItemType_Symbol:      this->renderSymbol(item);      break;
-        case DocumentItemType_Unexplored:  this->renderUnexplored(item);  break;
+        case DocumentItemType_Unknown:     this->renderUnknown(item);     break;
         case DocumentItemType_Separator:   this->renderSeparator(item);   break;
         case DocumentItemType_Type:        this->renderType(item);        break;
         case DocumentItemType_Empty:       return true;
@@ -174,7 +174,7 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
     this->renderComments(item->address);
 }
 
-void Renderer::renderUnexplored(const RDDocumentItem* item)
+void Renderer::renderUnknown(const RDDocumentItem* item)
 {
     this->renderPrologue(item->address);
     this->chunk("db").chunk(" ");

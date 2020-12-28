@@ -107,7 +107,7 @@ const RDSegment* SegmentContainer::insert(const RDSegment& segment)
 
     it->second.whenInsert(m_oninsert);
     it->second.whenRemove(m_onremove);
-    it->second.unexploredSize(segment.address, SegmentContainer::addressSize(segment));
+    it->second.unknownSize(segment.address, SegmentContainer::addressSize(segment));
     return res;
 }
 

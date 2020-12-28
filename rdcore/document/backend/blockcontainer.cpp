@@ -11,10 +11,10 @@ BlockContainer::BlockContainer()
 
 void BlockContainer::whenInsert(const BlockContainer::Callback& cb) { m_oninsert = cb; }
 void BlockContainer::whenRemove(const BlockContainer::Callback& cb) { m_onremove = cb; }
-void BlockContainer::unexplored(rd_address start, rd_address end) { this->mark(start, end, BlockType_Unexplored); }
+void BlockContainer::unknown(rd_address start, rd_address end) { this->mark(start, end, BlockType_Unknown); }
 void BlockContainer::data(rd_address start, rd_address end) { this->mark(start, end, BlockType_Data); }
 void BlockContainer::code(rd_address start, rd_address end) { this->mark(start, end, BlockType_Code); }
-void BlockContainer::unexploredSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Unexplored); }
+void BlockContainer::unknownSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Unknown); }
 void BlockContainer::dataSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Data); }
 void BlockContainer::codeSize(rd_address start, size_t size) { this->markSize(start, size, BlockType_Code); }
 
@@ -39,7 +39,11 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
     if(begit != m_container.end())
     {
         begbl = *begit;
-        begbl->type = BlockType_Unexplored; // Demote to "Unexplored"
+
+        if(begbl->type != BlockType_Unknown) begbl->flags = BlockFlags_Explored;
+        else begbl->flags = BlockFlags_None;
+
+        begbl->type = BlockType_Unknown; // Demote to "Unknown"
         begbl->end = start;
 
         if(BlockContainer::empty(std::addressof(*begbl)))
@@ -49,7 +53,11 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
     if(endit != m_container.end())
     {
         endbl = *endit;
-        endbl->type = BlockType_Unexplored; // Demote to "Unexplored"
+
+        if(endbl->type != BlockType_Unknown) endbl->flags = BlockFlags_Explored;
+        else endbl->flags = BlockFlags_None;
+
+        endbl->type = BlockType_Unknown; // Demote to "Unknown"
         endbl->start = end;
 
         if(BlockContainer::empty(std::addressof(*endbl)))
@@ -62,7 +70,7 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
 
     if(begbl)
     {
-        if((begbl->type == type) && (type == BlockType_Unexplored))
+        if((begbl->type == type) && (type == BlockType_Unknown))
             start = begbl->start;
         else
             this->doInsert(*begbl);
@@ -70,13 +78,13 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type)
 
     if(endbl)
     {
-        if((endbl->type == type) && (type == BlockType_Unexplored))
+        if((endbl->type == type) && (type == BlockType_Unknown))
             end = endbl->end;
         else
             this->doInsert(*endbl);
     }
 
-    this->doInsert({{start}, end, type});
+    this->doInsert({{start}, end, type, BlockFlags_Explored});
 }
 
 void BlockContainer::markSize(rd_address start, size_t size, rd_type type) { this->mark(start, start + size, type); }

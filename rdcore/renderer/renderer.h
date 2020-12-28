@@ -57,7 +57,7 @@ class Renderer: public Object
         void renderFunction(const RDDocumentItem* item);
         void renderInstruction(const RDDocumentItem* item);
         void renderSymbol(const RDDocumentItem* item);
-        void renderUnexplored(const RDDocumentItem* item);
+        void renderUnknown(const RDDocumentItem* item);
         void renderSeparator(const RDDocumentItem* item);
         void renderType(const RDDocumentItem* item);
 

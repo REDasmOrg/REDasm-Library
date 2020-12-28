@@ -19,7 +19,7 @@ enum RDDocumentItemType {
     DocumentItemType_Symbol,
     DocumentItemType_Meta,
     DocumentItemType_Instruction,
-    DocumentItemType_Unexplored,
+    DocumentItemType_Unknown,
     DocumentItemType_Separator,
 
     DocumentItemType_Length,

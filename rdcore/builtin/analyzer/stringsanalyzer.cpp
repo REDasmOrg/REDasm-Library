@@ -25,7 +25,7 @@ void StringsAnalyzer::analyze(Context* ctx)
         if(!blocks) return true;
 
         blocks->each([&](const RDBlock& block) {
-            if(IS_TYPE(&block, BlockType_Unexplored)) pendingblocks.push_back(block);
+            if(IS_TYPE(&block, BlockType_Unknown)) pendingblocks.push_back(block);
             return true;
         });
 

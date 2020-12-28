@@ -305,7 +305,7 @@ void Listing::onBlockInserted(const RDBlock& b)
 {
     switch(b.type)
     {
-        case BlockType_Unexplored: this->insert(b.start, DocumentItemType_Unexplored); break;
+        case BlockType_Unknown: this->insert(b.start, DocumentItemType_Unknown); break;
         //case BlockType_Data: thethis->insert(b.start, DocumentItemType_Symbol); break;
         case BlockType_Code: this->insert(b.start, DocumentItemType_Instruction); break;
         default: break;
@@ -316,7 +316,7 @@ void Listing::onBlockRemoved(const RDBlock& b)
 {
     switch(b.type)
     {
-        case BlockType_Unexplored: this->remove(b.start, DocumentItemType_Unexplored); break;
+        case BlockType_Unknown: this->remove(b.start, DocumentItemType_Unknown); break;
         case BlockType_Data: this->remove(b.start, DocumentItemType_Symbol); break;
         case BlockType_Code: this->remove(b.start, DocumentItemType_Instruction); break;
         default: break;

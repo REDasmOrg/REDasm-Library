@@ -4,9 +4,14 @@
 #include "../macros.h"
 
 enum RDBlockType {
-    BlockType_Unexplored,
+    BlockType_Unknown,
     BlockType_Data,
     BlockType_Code,
+};
+
+enum RDBlockFlags {
+    BlockFlags_None,
+    BlockFlags_Explored = (1 << 0)
 };
 
 typedef struct RDBlock { // [start, end)
@@ -17,6 +22,7 @@ typedef struct RDBlock { // [start, end)
 
     rd_address end;
     rd_type type;
+    rd_flag flags;
 } RDBlock;
 
 RD_HANDLE(RDBlockContainer);

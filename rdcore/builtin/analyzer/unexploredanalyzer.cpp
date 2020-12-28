@@ -11,8 +11,8 @@
 #include <execution>
 #include <deque>
 
-RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Aggressive Disassembly", std::numeric_limits<u32>::max(),
-                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental,
+RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Unexplored Blocks", std::numeric_limits<u32>::max(),
+                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental | AnalyzerFlags_Selected,
                                                             [](const RDContext*) -> bool { UnexploredAnalyzer::clearDone(); return true; },
                                                             [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
 
@@ -30,7 +30,7 @@ void UnexploredAnalyzer::analyze(Context* ctx)
 
         blocks->each([&](const RDBlock& block) {
             rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
-            if(!IS_TYPE(&block, BlockType_Unexplored) || m_done.count(block.address)) return true;
+            if(!IS_TYPE(&block, BlockType_Unknown) || HAS_FLAG(&block, BlockFlags_Explored) || m_done.count(block.address)) return true;
 
             c++;
             m_done.insert(block.address);

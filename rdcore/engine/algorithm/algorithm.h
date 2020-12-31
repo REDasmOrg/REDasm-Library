@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <rdapi/buffer.h>
 #include "../../support/safe_ptr.h"
 #include "addressqueue.h"
 
@@ -16,13 +17,15 @@ class Algorithm: public AddressQueue
         Algorithm(Context* ctx);
         void enqueue(rd_address address) override;
         void schedule(rd_address address) override;
+        void disassembleBlock(const RDBlock* block);
         void disassemble();
 
     protected:
         void nextAddress(rd_address address) override;
 
     private:
-        std::optional<rd_address> decodeAddress(rd_address address);
+        std::optional<rd_address> decode(rd_address address);
+        std::optional<rd_address> decode(RDBufferView* view, EmulateResult* result);
         bool isAddressValid(rd_address address) const;
         bool canBeDisassembled(rd_address address) const;
         rd_address processDelaySlots(rd_address address, size_t ds);

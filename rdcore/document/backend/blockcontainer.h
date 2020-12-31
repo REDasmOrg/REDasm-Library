@@ -25,9 +25,11 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         BlockContainer();
         void whenInsert(const Callback& cb);
         void whenRemove(const Callback& cb);
+        void explored(rd_address start, rd_address end);
         void unknown(rd_address start, rd_address end);
         void data(rd_address start, rd_address end);
         void code(rd_address start, rd_address end);
+        void exploredSize(rd_address start, size_t size);
         void unknownSize(rd_address start, size_t size);
         void dataSize(rd_address start, size_t size);
         void codeSize(rd_address start, size_t size);
@@ -39,8 +41,8 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
 
     private:
         ContainerType::const_iterator get(rd_address address) const;
-        void mark(rd_address start, rd_address end, rd_type type);
-        void markSize(rd_address start, size_t size, rd_type type);
+        void mark(rd_address start, rd_address end, rd_type type, rd_flag flags);
+        void markSize(rd_address start, size_t size, rd_type type, rd_flag flags);
         void doInsert(const RDBlock& b);
 
     private:

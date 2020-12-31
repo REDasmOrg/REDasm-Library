@@ -12,7 +12,7 @@
 #include <deque>
 
 RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Unexplored Blocks", std::numeric_limits<u32>::max(),
-                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental /* | AnalyzerFlags_Selected */,
+                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental | AnalyzerFlags_Selected,
                                                             [](const RDContext*) -> bool { UnexploredAnalyzer::clearDone(); return true; },
                                                             [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
 
@@ -22,6 +22,7 @@ void UnexploredAnalyzer::analyze(Context* ctx)
 {
     auto& doc = ctx->document();
     size_t bits = ctx->assembler()->bits();
+    std::deque<RDBlock> pending;
     int c = 0;
 
     doc->segments()->each([&](const RDSegment& segment) {
@@ -34,14 +35,20 @@ void UnexploredAnalyzer::analyze(Context* ctx)
 
             c++;
             m_done.insert(block.address);
-            ctx->disassembler()->enqueue(block.address);
+            pending.push_back(block);
             return true;
         });
 
         return true;
     });
 
-    if(c) rd_cfg->log("Found " + std::to_string(c) + " unknown blocks");
+    if(c) rd_cfg->log("Found " + std::to_string(c) + " unknown block(s)");
+
+    while(!pending.empty())
+    {
+        ctx->disassembleBlock(std::addressof(pending.front()));
+        pending.pop_front();
+    }
 }
 
 void UnexploredAnalyzer::clearDone() { m_done.clear(); }

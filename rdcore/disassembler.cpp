@@ -16,6 +16,14 @@ bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 void Disassembler::schedule(rd_address address) { m_algorithm->schedule(address); }
 
+void Disassembler::disassembleFunction(rd_address address, const char* name)
+{
+    if(!this->scheduleFunction(address, name)) return;
+    m_algorithm->disassemble();
+}
+
+void Disassembler::disassembleBlock(const RDBlock* block) { m_algorithm->disassembleBlock(block); }
+
 void Disassembler::disassembleAt(rd_address address)
 {
     m_algorithm->enqueue(address);

@@ -40,6 +40,7 @@ bool Context::matchAssembler(const std::string& q) const
 
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
 bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
+void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disassembler->disassembleBlock(block); }
 
 bool Context::commandExecute(const char* command, const RDArguments* arguments)
 {

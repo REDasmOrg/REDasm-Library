@@ -27,6 +27,8 @@ void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequ
 void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata) { CPTR(const Context, ctx)->findAssemblerEntries(callback, userdata); }
 void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata) { CPTR(const Context, ctx)->getAnalyzers(callback, userdata); }
 void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select) { CPTR(Context, ctx)->selectAnalyzer(CPTR(const Analyzer, analyzer), select); }
+void RDContext_DisassembleFunction(RDContext* ctx, rd_address address, const char* name) { CPTR(Context, ctx)->disassembler()->disassembleFunction(address, name); }
+void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block) { CPTR(Context, ctx)->disassembleBlock(block); }
 void RDContext_DisassembleAt(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembleAt(address); }
 void RDContext_Disassemble(RDContext* ctx) { CPTR(Context, ctx)->disassemble(); }
 size_t RDContext_GetProblemsCount(const RDContext* ctx) { return CPTR(const Context, ctx)->problemsCount(); }

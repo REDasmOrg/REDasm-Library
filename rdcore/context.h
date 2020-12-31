@@ -74,6 +74,7 @@ class Context: public Object
         Disassembler* disassembler() const;
         MemoryBuffer* buffer() const;
         bool needsWeak() const;
+        void disassembleBlock(const RDBlock* block);
         void disassembleAt(rd_address address);
         void disassemble();
 

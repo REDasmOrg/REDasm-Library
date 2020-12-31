@@ -31,6 +31,8 @@ class Disassembler: public Object
         bool busy() const;
         void enqueue(rd_address address);
         void schedule(rd_address address);
+        void disassembleFunction(rd_address address, const char* name);
+        void disassembleBlock(const RDBlock* block);
         void disassembleAt(rd_address address);
         void disassemble();
         void stop();

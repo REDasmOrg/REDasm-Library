@@ -29,6 +29,7 @@ class SegmentContainer: public SortedContainer<RDSegment, SegmentComparator, Seg
         void whenInsert(const BlockContainer::Callback& cb);
         void whenRemove(const BlockContainer::Callback& cb);
         void removeAddress(rd_address address);
+        bool markExplored(rd_address address, size_t size);
         bool markCode(rd_address address, size_t size);
         bool markData(rd_address address, size_t size);
         bool find(rd_address address, RDSegment* segment) const;

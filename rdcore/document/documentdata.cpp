@@ -33,8 +33,12 @@ RDLocation DocumentData::dereference(rd_address address) const
 {
     if(!this->context()->assembler()) return { };
 
+    //Pointer Definition: address -> ptr_address -> data
+
     RDLocation loc;
-    loc.valid = this->readAddress(address, this->context()->addressWidth(), &loc.value);
+    if(!this->readAddress(address, this->context()->addressWidth(), &loc.address)) return { };
+
+    loc.valid = this->readAddress(loc.address, this->context()->addressWidth(), &loc.address);
     return loc;
 }
 

@@ -22,6 +22,8 @@ size_t RDContext_GetAddressWidth(const RDContext* ctx) { return CPTR(const Conte
 RDSurface* RDContext_GetActiveSurface(const RDContext* ctx) { return CPTR(RDSurface, CPTR(const Context, ctx)->activeSurface()); }
 void RDContext_SetUserData(RDContext* ctx, const char* s, uintptr_t userdata) { if(s) CPTR(Context, ctx)->setUserData(s, userdata); }
 uintptr_t RDContext_GetUserData(const RDContext* ctx, const char* s) { return s ? CPTR(const Context, ctx)->getUserData(s) : 0; }
+size_t RDContext_GetMinString(const RDContext* ctx) { return CPTR(const Context, ctx)->minString(); }
+void RDContext_SetMinString(RDContext* ctx, size_t n) { return CPTR(Context, ctx)->setMinString(n); }
 bool RDContext_IsBusy(const RDContext* ctx) { return CPTR(const Context, ctx)->busy(); }
 void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequest, Callback_LoaderEntry callback, void* userdata) { CPTR(Context, ctx)->findLoaderEntries(loadrequest, callback, userdata); }
 void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata) { CPTR(const Context, ctx)->findAssemblerEntries(callback, userdata); }

@@ -1,5 +1,7 @@
 #pragma once
 
+#define DEFAULT_MIN_STRING 5
+
 #include <memory>
 #include <string>
 #include <rdapi/context.h>
@@ -48,6 +50,8 @@ class Context: public Object
         rd_type compilerABI() const;
         void setCompilerCC(rd_type t);
         rd_type compilerCC() const;
+        void setMinString(size_t s);
+        size_t minString() const;
 
     public: // Document
         RDLocation functionStart(rd_address address) const;
@@ -115,5 +119,6 @@ class Context: public Object
         AnalyzerPtrList m_analyzers;
         AnalyzerList m_selectedanalyzers;
         UniqueContainer<std::string> m_problems;
+        size_t m_minstring{DEFAULT_MIN_STRING};
         bool m_ignoreproblems{false};
 };

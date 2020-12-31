@@ -1,7 +1,5 @@
 #pragma once
 
-#define MIN_STRING 5
-
 #include <memory>
 #include <string>
 #include <rdapi/types.h>
@@ -13,7 +11,7 @@ class StringFinder
 {
     public:
         StringFinder() = delete;
-        static rd_flag categorize(const RDBufferView* view, size_t* totalsize);
+        static rd_flag categorize(Context* ctx, const RDBufferView* view, size_t* totalsize);
         static bool checkAndMark(Context* ctx, rd_address address, rd_flag flags, size_t totalsize);
         static void find(Context* ctx, const RDBufferView& inview);
 

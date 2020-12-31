@@ -191,7 +191,7 @@ bool Document::markString(rd_address address, rd_flag* resflags)
     view.size = BlockContainer::size(&block); // Resize view to block size
 
     size_t totalsize = 0;
-    rd_flag flags = StringFinder::categorize(&view, &totalsize);
+    rd_flag flags = StringFinder::categorize(this->context(), &view, &totalsize);
     if(resflags) *resflags = flags;
     return StringFinder::checkAndMark(this->context(), address, flags, totalsize);
 }

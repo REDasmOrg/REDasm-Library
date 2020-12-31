@@ -71,6 +71,8 @@ RD_API_EXPORT RDLoader* RDContext_GetLoader(const RDContext* ctx);
 RD_API_EXPORT RDBuffer* RDContext_GetBuffer(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetBits(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetAddressWidth(const RDContext* ctx);
+RD_API_EXPORT size_t RDContext_GetMinString(const RDContext* ctx);
+RD_API_EXPORT void RDContext_SetMinString(RDContext* ctx, size_t n);
 RD_API_EXPORT RDSurface* RDContext_GetActiveSurface(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetUserData(RDContext* ctx, const char* s, uintptr_t userdata);
 RD_API_EXPORT uintptr_t RDContext_GetUserData(const RDContext* ctx, const char* s);

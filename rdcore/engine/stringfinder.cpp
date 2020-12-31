@@ -50,7 +50,7 @@ bool StringFinder::step(Context* ctx, RDBufferView* view)
     rd_cfg->status("Searching strings @ " + Utils::hex(loc.value));
 
     size_t totalsize = 0;
-    rd_flag flags = StringFinder::categorize(view, &totalsize);
+    rd_flag flags = StringFinder::categorize(ctx, view, &totalsize);
 
     if(StringFinder::checkAndMark(ctx, loc.address, flags, totalsize))
         BufferView::advance(view, totalsize);
@@ -60,7 +60,7 @@ bool StringFinder::step(Context* ctx, RDBufferView* view)
     return true;
 }
 
-rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
+rd_flag StringFinder::categorize(Context* ctx, const RDBufferView* view, size_t* totalsize)
 {
     if(view->size < (sizeof(char) * 2)) return SymbolFlags_None;
 
@@ -84,7 +84,7 @@ rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
                 continue;
             }
 
-            if(i >= MIN_STRING)
+            if(i >= ctx->minString())
             {
                 if(!StringFinder::validateString(reinterpret_cast<const char*>(ts.data()), ts.size()))
                     return SymbolFlags_None;
@@ -101,7 +101,7 @@ rd_flag StringFinder::categorize(const RDBufferView* view, size_t* totalsize)
     {
         if(StringFinder::isAscii(view->data[i])) continue;
 
-        if(i >= MIN_STRING)
+        if(i >= ctx->minString())
         {
             if(!StringFinder::validateString(reinterpret_cast<const char*>(view->data), i - 1))
                 return SymbolFlags_None;

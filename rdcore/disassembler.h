@@ -22,7 +22,6 @@ class Disassembler: public Object
         bool load(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 
     public:
-        bool scheduleFunction(rd_address address, const char* name);
         bool createFunction(rd_address address, const char* name);
         const char* getFunctionHexDump(rd_address address, RDSymbol* symbol) const;
 
@@ -30,8 +29,7 @@ class Disassembler: public Object
         bool needsWeak() const;
         bool busy() const;
         void enqueue(rd_address address);
-        void schedule(rd_address address);
-        void disassembleFunction(rd_address address, const char* name);
+        bool disassembleFunction(rd_address address, const char* name);
         void disassembleBlock(const RDBlock* block);
         void disassembleAt(rd_address address);
         void disassemble();

@@ -14,12 +14,13 @@ SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
-void Disassembler::schedule(rd_address address) { m_algorithm->schedule(address); }
 
-void Disassembler::disassembleFunction(rd_address address, const char* name)
+bool Disassembler::disassembleFunction(rd_address address, const char* name)
 {
-    if(!this->scheduleFunction(address, name)) return;
+    if(!this->document()->function(address, name ? name : std::string())) return false;
+    m_algorithm->enqueue(address);
     m_algorithm->disassemble();
+    return true;
 }
 
 void Disassembler::disassembleBlock(const RDBlock* block) { m_algorithm->disassembleBlock(block); }
@@ -138,13 +139,6 @@ SafeDocument& Disassembler::document() const { return m_loader->document(); }
 DocumentNet* Disassembler::net() const { return this->document()->net(); }
 MemoryBuffer* Disassembler::buffer() const { return this->document()->buffer(); }
 bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return this->document()->view(address, size, view); }
-
-bool Disassembler::scheduleFunction(rd_address address, const char* name)
-{
-    if(!this->document()->function(address, name ? name : std::string())) return false;
-    m_algorithm->enqueue(address);
-    return true;
-}
 
 bool Disassembler::createFunction(rd_address address, const char* name)
 {

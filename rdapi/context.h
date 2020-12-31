@@ -62,8 +62,6 @@ RD_API_EXPORT bool RDContext_MatchLoader(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_MatchAssembler(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_Bind(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
 RD_API_EXPORT bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name);
-RD_API_EXPORT bool RDContext_ScheduleFunction(RDContext* ctx, rd_address address, const char* name);
-RD_API_EXPORT void RDContext_Schedule(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Enqueue(RDContext* ctx, rd_address address);
 RD_API_EXPORT const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader);
 RD_API_EXPORT const RDNet* RDContext_GetNet(const RDContext* ctx);

@@ -10,11 +10,22 @@
 #include "../document/document.h"
 #include "../plugin/loader.h"
 
+#define WILDCARD_BYTE "??"
+
 bool Utils::isCode(const SafeDocument& doc, rd_address address)
 {
     RDSegment segment;
     if(!doc->segment(address, &segment)) return false;
     if(!HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+    return true;
+}
+
+bool Utils::toByte(const std::string& s, u8* val, u64 offset)
+{
+    if(offset > (s.size() - 2)) return false;
+    if(!std::isxdigit(s[offset]) || !std::isxdigit(s[offset + 1])) return false;
+
+    *val = static_cast<u8>(std::stoi(s.substr(offset, 2), nullptr, 16));
     return true;
 }
 
@@ -32,6 +43,23 @@ rd_offset Utils::findIn(const u8* data, size_t datasize, const u8* finddata, siz
     {
         if(datasize < finddatasize) return RD_NVAL;
         if(!std::memcmp(p, finddata, finddatasize)) return p - data;
+    }
+
+    return RD_NVAL;
+}
+
+rd_offset Utils::findPattern(const u8* data, size_t datasize, std::string pattern, size_t* patternlen)
+{
+    if(!data || !datasize) return RD_NVAL;
+
+    size_t len = 0;
+    if(!Utils::checkPattern(pattern, len) || (len > datasize)) return RD_NVAL;
+    if(patternlen) *patternlen = len;
+
+    for(size_t i = 0; datasize && (len <= datasize); i++, datasize--, data++)
+    {
+        if(Utils::matchPattern(data, pattern))
+            return i;
     }
 
     return RD_NVAL;
@@ -175,4 +203,46 @@ std::string Utils::escapeRegex(const std::string& s)
 {
     static const std::regex SPECIAL_CHARS{R"([-[\]{}()*+?.,\^$|#\s])"};
     return std::regex_replace(s, SPECIAL_CHARS, R"(\$&)");
+}
+
+bool Utils::matchPattern(const u8* data, const std::string& pattern)
+{
+    const u8* pcurr = data;
+
+    for(size_t i = 0; i <= pattern.size() - 2; i += 2, pcurr++)
+    {
+        const std::string& hexb = pattern.substr(i, 2);
+        if(hexb == WILDCARD_BYTE) continue;
+
+        u8 b = 0;
+        if(!Utils::toByte(hexb, &b) || (b != *pcurr)) return false;
+    }
+
+    return true;
+}
+
+bool Utils::checkPattern(std::string& p, size_t& len)
+{
+    p.erase(std::remove_if(p.begin(), p.end(), ::isspace), p.end());
+    if(p.empty() || (p.size() % 2)) return false;
+
+    std::string_view v(p);
+    size_t wccount = 0;
+    len = 0;
+
+    for(size_t i = 0; i < v.size() - 2; i += 2, len++)
+    {
+        const auto& hexb = v.substr(i, 2);
+
+        if(hexb == WILDCARD_BYTE)
+        {
+            wccount++;
+            continue;
+        }
+
+        if(!std::isxdigit(hexb.front()) || !std::isxdigit(hexb.back()))
+            return false;
+    }
+
+    return wccount < p.size();
 }

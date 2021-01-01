@@ -14,6 +14,8 @@ u32 RDBuffer_CRC32(const RDBuffer* buffer, rd_offset offset, size_t size) { retu
 
 u8* RDBufferView_Find(const RDBufferView* view, const u8* data, size_t size) { return BufferView::find(view, data, size); }
 u8* RDBufferView_FindNext(RDBufferView* view, const u8* data, size_t size) { return BufferView::findNext(view, data, size); }
+u8* RDBufferView_FindPattern(const RDBufferView* view, const char* pattern) { return BufferView::findPattern(view, pattern); }
+u8* RDBufferView_FindPatternNext(RDBufferView* view, const char* pattern) { return BufferView::findPatternNext(view, pattern); }
 u16 RDBufferView_CRC16(const RDBufferView* view, rd_offset offset, size_t size) { return BufferView::crc16(view, offset, size); }
 u32 RDBufferView_CRC32(const RDBufferView* view, rd_offset offset, size_t size) { return BufferView::crc32(view, offset, size); }
 void RDBufferView_Advance(RDBufferView* view, size_t offset) { BufferView::advance(view, offset); }

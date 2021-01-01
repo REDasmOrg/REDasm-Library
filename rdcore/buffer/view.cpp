@@ -24,9 +24,38 @@ u8* BufferView::findNext(RDBufferView* view, const u8* finddata, size_t findsize
    if(!view->size) return nullptr;
 
    rd_offset offset = Utils::findIn(view->data, view->size, finddata, findsize);
-   if(offset == RD_NVAL) return nullptr;
+
+   if(offset == RD_NVAL)
+   {
+       BufferView::advance(view, 1);
+       return nullptr;
+   }
 
    u8* res = view->data + offset;
    BufferView::advance(view, offset + findsize);
    return res;
+}
+
+u8* BufferView::findPattern(const RDBufferView* view, const char* pattern)
+{
+    if(!pattern) return nullptr;
+    rd_offset offset = Utils::findPattern(view->data, view->size, pattern);
+    return offset == RD_NVAL ? view->data + offset : nullptr;
+}
+
+u8* BufferView::findPatternNext(RDBufferView* view, const char* pattern)
+{
+    if(!pattern) return nullptr;
+    size_t patternlen = 0;
+    rd_offset offset = Utils::findPattern(view->data, view->size, pattern, &patternlen);
+
+    if(offset == RD_NVAL)
+    {
+        BufferView::advance(view, 1);
+        return nullptr;
+    }
+
+    u8* res = view->data + offset;
+    BufferView::advance(view, offset + patternlen);
+    return res;
 }

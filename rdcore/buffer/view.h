@@ -12,5 +12,7 @@ class BufferView
         static u32 crc32(const RDBufferView* view, rd_offset offset, size_t size);
         static u8* find(const RDBufferView* view, const u8* finddata, size_t findsize);
         static u8* findNext(RDBufferView* view, const u8* finddata, size_t findsize);
+        static u8* findPattern(const RDBufferView* view, const char* pattern);
+        static u8* findPatternNext(RDBufferView* view, const char* pattern);
 };
 

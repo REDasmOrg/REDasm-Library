@@ -24,9 +24,11 @@ class Utils
     public:
         Utils() = delete;
         static bool isCode(const SafeDocument& doc, rd_address address);
+        static bool toByte(const std::string& s, u8 *val, u64 offset = 0);
         static int branchDirection(rd_address fromaddress, rd_address address);
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
         static rd_offset findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize);
+        static rd_offset findPattern(const u8* data, size_t datasize, std::string pattern, size_t* patternlen = nullptr);
         static u16 crc16(const u8* data, size_t datasize, rd_offset offset, size_t size);
         static u32 crc32(const u8* data, size_t datasize, rd_offset offset, size_t size);
         static std::string thunk(const std::string& s, int level = 1);
@@ -56,6 +58,8 @@ class Utils
     private:
         static std::string& replaceAll(std::string& s, const std::string& from, const std::string& to);
         static std::string escapeRegex(const std::string& s);
+        static bool matchPattern(const u8* data, const std::string& pattern);
+        static bool checkPattern(std::string& p, size_t& len);
 };
 
 template<typename T>

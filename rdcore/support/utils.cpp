@@ -223,6 +223,19 @@ bool Utils::matchPattern(const u8* data, const std::string& pattern)
 
 bool Utils::checkPattern(std::string& p, size_t& len)
 {
+    // Cache processed patterns
+    static std::unordered_map<std::string, std::pair<std::string, size_t>> PROCESSED;
+
+    auto it = PROCESSED.find(p);
+
+    if(it != PROCESSED.end())
+    {
+        p = it->second.first;
+        len = it->second.second;
+        return true;
+    }
+
+    std::string op = p; // Store unprocessed pattern
     p.erase(std::remove_if(p.begin(), p.end(), ::isspace), p.end());
     if(p.empty() || (p.size() % 2)) return false;
 
@@ -244,5 +257,7 @@ bool Utils::checkPattern(std::string& p, size_t& len)
             return false;
     }
 
-    return wccount < p.size();
+   if(wccount >= p.size()) return false;
+   PROCESSED[op] = {p, len}; // Cache processed pattern
+   return true;
 }

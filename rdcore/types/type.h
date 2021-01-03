@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
-#include "../libs/tao/json.hpp"
+#include <tao/json.hpp>
 #include "../object.h"
 
 class Type: public Object

@@ -49,16 +49,37 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # Core
-file(GLOB_RECURSE RDCORE_HEADERS rdcore/*.h*)
-file(GLOB_RECURSE RDCORE_SOURCES rdcore/*.c*)
+file(GLOB_RECURSE LIBS_HEADERS
+     rdcore/libs/binutils_demangler/*.h* rdcore/libs/miniz/*.h* rdcore/libs/taojson/include/*.h*
+     rdcore/libs/undname.h)
+
+file(GLOB_RECURSE LIBS_SOURCES
+     rdcore/libs/binutils_demangler/*.c* rdcore/libs/miniz/*.c* rdcore/libs/taojson/include/*.c*)
+
+file(GLOB_RECURSE RDCORE_HEADERS
+     rdcore/buffer/*.h* rdcore/builtin/*.h* rdcore/containers/*.h*
+     rdcore/database/*.h* rdcore/document/*.h* rdcore/engine/*.h*
+     rdcore/graph/*.h* rdcore/plugin/*.h* rdcore/rdil/*.h*
+     rdcore/renderer/*.h* rdcore/support/*.h* rdcore/types/*.h*
+     rdcore/renderer/*.h* rdcore/config.h rdcore/context.h
+     rdcore/disassembler.h rdcore/object.h)
+
+file(GLOB_RECURSE RDCORE_SOURCES
+     rdcore/buffer/*.c* rdcore/builtin/*.c* rdcore/containers/*.c*
+     rdcore/database/*.c* rdcore/document/*.c* rdcore/engine/*.c*
+     rdcore/graph/*.c* rdcore/plugin/*.c* rdcore/rdil/*.c*
+     rdcore/renderer/*.c* rdcore/support/*.c* rdcore/types/*.c*
+     rdcore/renderer/*.c* rdcore/config.cpp rdcore/context.cpp
+     rdcore/disassembler.cpp rdcore/object.cpp)
 
 # API
 file(GLOB_RECURSE RDAPI_HEADERS rdapi/*.h*)
 file(GLOB_RECURSE RDAPI_SOURCES rdapi/*.c*)
 
-set(HEADERS ${RDCORE_HEADERS} ${RDAPI_HEADERS})
-set(SOURCES ${RDCORE_SOURCES} ${RDAPI_SOURCES})
+set(HEADERS ${LIBS_HEADERS} ${RDCORE_HEADERS} ${RDAPI_HEADERS})
+set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 
+add_subdirectory(rdcore/libs/taojson)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
@@ -88,7 +109,9 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} pthread dl tbb)
+    target_link_libraries(${PROJECT_NAME} pthread dl tbb taocpp::json)
+else()
+    target_link_libraries(${PROJECT_NAME} taocpp::json)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

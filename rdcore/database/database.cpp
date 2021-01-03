@@ -2,6 +2,7 @@
 #include "../support/compression.h"
 #include "../support/utils.h"
 #include "../config.h"
+#include <tao/pegtl.hpp>
 #include <algorithm>
 #include <fstream>
 
@@ -234,7 +235,7 @@ bool Database::parseDecompiledFile(const fs::path& filepath, tao::json::value& j
     try {
         j = tao::json::from_file(filepath);
     }
-    catch(tao::json::pegtl::parse_error& e) {
+    catch(tao::pegtl::parse_error& e) {
         rd_cfg->log(e.what());
         return false;
     }
@@ -251,7 +252,7 @@ bool Database::parseCompiledFile(const fs::path& filepath, tao::json::value& j)
         std::string mp(data.begin(), data.end());
         j = tao::json::msgpack::from_string(mp);
     }
-    catch(tao::json::pegtl::parse_error& e) {
+    catch(tao::pegtl::parse_error& e) {
         rd_cfg->log(e.what());
         return false;
     }
@@ -291,7 +292,7 @@ fs::path Database::locatePath(const fs::path& dbpath)
     return { };
 }
 
-fs::path Database::locateAs(fs::path dbpath, const platform_string& ext)
+fs::path Database::locateAs(fs::path dbpath, const std::string& ext)
 {
     dbpath.replace_extension(ext);
     if(fs::exists(dbpath)) return dbpath;
@@ -302,7 +303,7 @@ fs::path Database::locate(fs::path dbpath)
 {
     if(dbpath.extension().empty())
     {
-        static const std::vector<platform_string> ALLOWED_EXT = {
+        static const std::vector<std::string> ALLOWED_EXT = {
             DATABASE_RDB_EXT, DATABASE_JSON_EXT
         };
 

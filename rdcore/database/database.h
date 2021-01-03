@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <set>
-#include "../libs/tao/json.hpp"
+#include <tao/json.hpp>
 #include "../types/definitions.h"
 #include "../object.h"
 #include "../config.h"
@@ -50,7 +50,7 @@ class Database: public Object
         static bool parseCompiledFile(const fs::path &filepath, tao::json::value& j);
         static bool parseFile(const fs::path &filepath, tao::json::value& j);
         static fs::path locatePath(const fs::path& dbpath);
-        static fs::path locateAs(fs::path dbpath, const platform_string& ext);
+        static fs::path locateAs(fs::path dbpath, const std::string& ext);
         static fs::path locate(fs::path dbpath);
 
     private:

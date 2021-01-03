@@ -205,23 +205,20 @@ void Renderer::renderIndent(size_t n, bool ignoreflags)
 
 void Renderer::renderPrologue(rd_address address)
 {
-    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress))
+    if(!this->hasFlag(RendererFlags_NoSegment))
     {
-        if(!this->hasFlag(RendererFlags_NoSegment))
-        {
-            RDSegment s;
-            auto& doc = this->context()->document();
+        RDSegment s;
+        auto& doc = this->context()->document();
 
-            if(doc->segment(address, &s)) this->chunk(s.name, Theme_Address);
-            else this->chunk("???", Theme_Address);
-            this->chunk(":", Theme_Address);
-        }
-
-        if(!this->hasFlag(RendererFlags_NoAddress))
-            this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Address);
+        if(doc->segment(address, &s)) this->chunk(s.name, Theme_Address);
+        else this->chunk("???", Theme_Address);
+        this->chunk(":", Theme_Address);
     }
 
-    this->renderIndent(1);
+    if(!this->hasFlag(RendererFlags_NoAddress))
+        this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Address);
+
+    this->chunk(" ");
 }
 
 void Renderer::renderBlock(rd_address address)

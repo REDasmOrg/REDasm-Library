@@ -89,7 +89,7 @@ class Surface: public Object
         SurfacePath m_path;
         std::unordered_map<int, SurfaceRow> m_surface;
         std::pair<RDDocumentItem, RDDocumentItem> m_items{ };
-        int m_rows{0}, m_cols{0}, m_firstcol{0}, m_commentcolumn{0}, m_lastcolumn{0};
+        int m_rows{0}, m_cols{0}, m_firstcol{0}, m_lastcolumn{0};
         std::string m_selectedtext;
         uintptr_t m_userdata;
         bool m_active{false};

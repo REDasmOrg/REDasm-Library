@@ -16,7 +16,7 @@
 #define SEPARATOR_LENGTH    50
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Context* ctx, rd_flag flags, int* commentcolumn): Object(ctx), m_commentcolumn(commentcolumn), m_flags(flags) { }
+Renderer::Renderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 
 bool Renderer::render(const RDDocumentItem* item)
 {
@@ -250,13 +250,10 @@ void Renderer::renderComments(rd_address address)
 {
     if(this->hasFlag(RendererFlags_NoComments)) return;
 
-    // Recalculate comment column
-    if(m_commentcolumn) *m_commentcolumn = std::max<size_t>(*m_commentcolumn, m_text.size());
-
     std::string comment = this->document()->comment(address, false, COMMENT_SEPARATOR);
     if(comment.empty()) return;
 
-    if(m_commentcolumn) this->chunk(std::string((*m_commentcolumn - m_text.size()) + INDENT_COMMENT, ' '));
+    this->chunk(std::string(INDENT_COMMENT, ' '));
     this->chunk("# " + Utils::simplified(comment), Theme_Comment);
 }
 
@@ -346,14 +343,14 @@ std::string Renderer::getInstruction(Context* ctx, rd_address address)
 
 std::string Renderer::getAssemblerInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    Renderer r(ctx, RendererFlags_Simplified);
     r.renderAssemblerInstruction(address);
     return r.text();
 }
 
 std::string Renderer::getRDILInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    Renderer r(ctx, RendererFlags_Simplified);
     r.renderRDILInstruction(address);
     return r.text();
 }

@@ -35,7 +35,7 @@ class Renderer: public Object
         };
 
     public:
-        Renderer(Context* ctx, rd_flag flags, int* commentcolumn);
+        Renderer(Context* ctx, rd_flag flags);
         bool render(const RDDocumentItem* item);
         const std::string& text() const;
         const Chunks& chunks() const;
@@ -85,7 +85,6 @@ class Renderer: public Object
     private:
         mutable std::string m_asminstruction, m_rdilinstruction;
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
-        int* m_commentcolumn;
         std::deque<SurfaceChunk> m_tokens;
         std::string m_text;
         rd_flag m_flags;

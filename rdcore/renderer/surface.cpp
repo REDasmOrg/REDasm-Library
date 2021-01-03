@@ -407,7 +407,7 @@ void Surface::update(const RDDocumentItem* currentitem)
             continue;
         }
 
-        Renderer r(this->context(), m_flags, &m_commentcolumn);
+        Renderer r(this->context(), m_flags);
         if(!r.render(std::addressof(*it))) continue;
 
         m_surface[row].item = *it;

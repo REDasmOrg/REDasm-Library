@@ -25,8 +25,15 @@ bool DocumentData::view(const RDSegment& segment, RDBufferView* view) const
 
 bool DocumentData::view(const RDBlock& block, RDBufferView* view) const
 {
-    size_t sz = BlockContainer::size(&block);
-    return sz ? this->view(block.address, sz, view) : false;
+    RDSegment segment;
+    if(!this->segment(block.address, &segment) || HAS_FLAG(&segment, SegmentFlags_Bss)) return false;
+
+    RDLocation loc = this->offset(block.address);
+    if(!loc.valid) return false;
+
+    // Limit BufferView's size to this segment, if needed
+    auto bs = BlockContainer::size(&block), ss = segment.endoffset - loc.offset;
+    return m_buffer->view(loc.offset, std::min(bs, ss), view);
 }
 
 RDLocation DocumentData::dereference(rd_address address) const

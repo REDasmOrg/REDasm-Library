@@ -1,5 +1,6 @@
 #include "listing.h"
 #include "../../support/utils.h"
+#include "../../buffer/buffer.h"
 #include "../../context.h"
 #include "../../config.h"
 
@@ -22,7 +23,7 @@ bool Listing::segment(const std::string& name, rd_offset offset, rd_address addr
 {
     if((!(flags & SegmentFlags_Bss) && !psize) || !vsize)
     {
-        rd_cfg->log("Segment '" + name + "' is empty, skipping");
+        this->log("Segment " + Utils::quoted(name) + " is empty, skipping");
         return false;
     }
 
@@ -37,8 +38,18 @@ bool Listing::segment(const std::string& name, rd_offset offset, rd_address addr
     }
     else
     {
+        auto endoffset = offset + psize, bsize = this->context()->buffer()->size();
+
+        if(endoffset > bsize)
+        {
+            this->log("Segment " + Utils::quoted(name) +
+                      " is bigger than loaded file (" + Utils::hex(endoffset) + " vs " + Utils::hex(bsize) + ")");
+
+            endoffset = bsize;
+        }
+
         segment.offset = offset;
-        segment.endoffset = offset + psize;
+        segment.endoffset = endoffset;
     }
 
     segment.address = address;

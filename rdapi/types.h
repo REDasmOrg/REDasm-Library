@@ -71,9 +71,9 @@ typedef struct RDReference {
 
 typedef struct RDSegment {
     char name[DEFAULT_NAME_SIZE];
-    rd_offset offset;
+    rd_offset offset;    // [offset, endoffset)
     rd_offset endoffset;
-    rd_address address;
+    rd_address address;  // [address, endaddress)
     rd_address endaddress;
     rd_flag flags;
 

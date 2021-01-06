@@ -310,7 +310,6 @@ bool Listing::canSymbolizeAddress(rd_address address, rd_flag flags) const
 
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;
-
     if(!HAS_FLAG(&symbol, SymbolFlags_Weak) && (flags & SymbolFlags_Weak)) return false;
     return true;
 }

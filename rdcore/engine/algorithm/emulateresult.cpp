@@ -17,4 +17,5 @@ void EmulateResult::addBranchTrue(rd_address address) { m_canflow = false; m_res
 void EmulateResult::addBranchFalse(rd_address address) { m_canflow = false; m_results.push_back({BranchFalse, {address}}); }
 void EmulateResult::addSysCall(u64 n) { m_results.push_back({SysCall, {n}}); }
 void EmulateResult::addCall(rd_address address) { m_results.push_back({Call, {address}}); }
+void EmulateResult::addCallUnresolved() { m_results.push_back({CallUnresolved, {0}}); }
 void EmulateResult::addReference(rd_address address) { m_results.push_back({Ref, {address}}); }

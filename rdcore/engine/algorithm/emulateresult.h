@@ -12,7 +12,8 @@ class EmulateResult: public Object
         enum {
             None = 0,
             Branch, BranchTrue, BranchFalse, BranchIndirect, BranchUnresolved,
-            Return, SysCall, Call, Ref
+            Call, CallUnresolved,
+            Return, SysCall, Ref
         };
 
         union Value { rd_address address; u64 syscall; };
@@ -40,6 +41,7 @@ class EmulateResult: public Object
         void addBranchFalse(rd_address address);
         void addSysCall(u64 n);
         void addCall(rd_address address);
+        void addCallUnresolved();
         void addReference(rd_address address);
 
     private:

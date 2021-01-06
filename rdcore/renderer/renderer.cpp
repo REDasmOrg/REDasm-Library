@@ -69,11 +69,7 @@ void Renderer::renderRDILInstruction(rd_address address)
     }
 }
 
-void Renderer::renderSigned(s64 value)
-{
-    if(value < 0) this->chunk("-");
-    this->chunk(Utils::hex(value), Theme_Constant);
-}
+void Renderer::renderSigned(s64 value) { this->chunk(Utils::hex(value), Theme_Constant); }
 
 void Renderer::renderUnsigned(u64 value)
 {

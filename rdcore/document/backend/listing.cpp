@@ -306,6 +306,7 @@ bool Listing::canSymbolizeAddress(rd_address address, rd_flag flags) const
 
     RDBlock block;
     if(!m_segments.findBlock(address, &block)) return false;
+    if(IS_TYPE(&block, BlockType_Unknown)) return true;
 
     RDSymbol symbol;
     if(!m_symbols->get(block.start, &symbol)) return true;

@@ -3,7 +3,6 @@
 #include <numeric>
 #include <cassert>
 #include <cmath>
-#include <regex>
 
 const size_t GibberishDetector::DEFAULT_COUNTS_VALUE = 10;
 GibberishDetectorData::MatrixCounts GibberishDetector::m_counts;
@@ -84,13 +83,20 @@ void GibberishDetector::initializeCounts()
     m_counts = GibberishDetector::fillMatrix<GibberishDetectorData::MatrixCounts::value_type::value_type, m_counts.size()>(DEFAULT_COUNTS_VALUE);
 }
 
-std::string GibberishDetector::normalize(const std::string& s)
+std::string GibberishDetector::normalize(std::string s)
 {
-    static std::regex rgx("[^a-z ]+");
+    for(auto it = s.begin(); it != s.end(); ) // Remove [^a-z ]+
+    {
+        if((*it == ' ') || ::isalpha(*it))
+        {
+            *it = ::tolower(*it);
+            it++;
+        }
+        else
+            it = s.erase(it);
+    }
 
-    std::string ns = s;
-    std::transform(ns.begin(), ns.end(), ns.begin(), ::tolower);
-    return std::regex_replace(ns, rgx, std::string());
+    return s;
 }
 
 double GibberishDetector::avgTransitionProb(const std::string& s, const GibberishDetectorData::MatrixCounts& counts)

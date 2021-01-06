@@ -29,7 +29,7 @@ class GibberishDetector
         template<typename T, size_t N> static GibberishDetectorData::Matrix2D<T, N> fillMatrix(const T& val);
         template<typename Function> static bool lines(const std::string& filename, const Function& cb);
         static NGramList ngram(const std::string& s);
-        static std::string normalize(const std::string& s);
+        static std::string normalize(std::string s);
         static double avgTransitionProb(const std::string& s, const GibberishDetectorData::MatrixCounts& counts);
         static void initializeCharIndex();
         static void initializeCounts();

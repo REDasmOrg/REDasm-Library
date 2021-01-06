@@ -36,9 +36,26 @@ void Document::checkLocation(rd_address fromaddress, rd_address address)
     if(fromaddress == address) return; // Ignore self references
     if(!this->segment(address, nullptr)) return;
 
-    if(this->symbol(address, nullptr))
+    RDSymbol symbol;
+
+    if(this->symbol(address, &symbol))
     {
-        if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, address); // Just add the reference
+        if(fromaddress != RD_NVAL)
+        {
+            m_net->addRef(fromaddress, address); // Just add the reference
+
+            if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
+            {
+                auto loc = this->dereference(address);
+                const char* name = this->name(address);
+
+                if(name && loc.valid && this->symbol(loc.address, &symbol))
+                    this->updateComments(fromaddress, loc.address, name, symbol.type, symbol.flags);
+            }
+            else
+                this->updateComments(fromaddress, address, nullptr, symbol.type, symbol.flags);
+        }
+
         return;
     }
 
@@ -120,6 +137,31 @@ bool Document::type(rd_address address, const Type* type, int level)
     return true;
 }
 
+void Document::updateComments(rd_address fromaddress, rd_address address, const char* symbolname, rd_type type, rd_flag flags)
+{
+    if(type == SymbolType_String)
+    {
+        if(flags & SymbolFlags_WideString)
+        {
+            if(symbolname)
+                this->autoComment(address, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(address)));
+            else
+                this->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
+        }
+        else
+        {
+            if(symbolname)
+                this->autoComment(address, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(address)));
+            else
+                this->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
+        }
+    }
+    else if((type == SymbolType_Import) && symbolname)
+        this->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
+    else if((flags & SymbolFlags_Export) && symbolname)
+        this->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
+}
+
 void Document::markPointer(rd_address fromaddress, rd_address address)
 {
     RDLocation loc = this->dereference(address);
@@ -136,19 +178,8 @@ void Document::markPointer(rd_address fromaddress, rd_address address)
 
     const char* symbolname = this->name(loc.address);
     if(!symbolname) return;
-    m_net->addRef(address, loc.address);
-
-    if(IS_TYPE(&symbol, SymbolType_String))
-    {
-        if(HAS_FLAG(&symbol, SymbolFlags_WideString))
-            this->autoComment(address, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(loc.address)));
-        else
-            this->autoComment(address, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(loc.address)));
-    }
-    else if(IS_TYPE(&symbol, SymbolType_Import))
-        this->autoComment(address, std::string("=> IMPORT: ") + symbolname);
-    else if(HAS_FLAG(&symbol, SymbolFlags_Export))
-        this->autoComment(address, std::string("=> EXPORT: ") + symbolname);
+    m_net->addRef(fromaddress, address);
+    this->updateComments(fromaddress, symbol.address, symbolname, symbol.type, symbol.flags);
 
     if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
 }
@@ -164,10 +195,7 @@ void Document::markLocation(rd_address fromaddress, rd_address address)
     if(this->markString(address, &flags)) // Is it a string?
     {
         if(fromaddress == RD_NVAL) return;
-
-        if(flags & SymbolFlags_AsciiString) this->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
-        else if(flags & SymbolFlags_WideString) this->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
-        else REDasmError("Unhandled String symbol", address);
+        this->updateComments(fromaddress, address, nullptr, SymbolType_String, flags);
     }
     else if(this->view(address, &view)) // It belongs to a mapped area?
     {

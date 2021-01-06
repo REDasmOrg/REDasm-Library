@@ -19,6 +19,7 @@ class Document: public DocumentData
 
     private:
         bool type(rd_address address, const Type* type, int level);
+        void updateComments(rd_address fromaddress, rd_address address, const char* symbolname, rd_type type, rd_flag flags);
         void markPointer(rd_address fromaddress, rd_address address);
         void markLocation(rd_address fromaddress, rd_address address);
         bool markString(rd_address address, rd_flag* resflags);

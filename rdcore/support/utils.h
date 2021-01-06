@@ -58,7 +58,7 @@ class Utils
     private:
         static std::string& replaceAll(std::string& s, const std::string& from, const std::string& to);
         static std::string escapeRegex(const std::string& s);
-        static bool matchPattern(const u8* data, const std::string& pattern);
+        static bool matchPattern(const u8* data, size_t datasize, const std::string& pattern);
         static bool checkPattern(std::string& p, size_t& len);
 };
 

@@ -56,10 +56,10 @@ rd_offset Utils::findPattern(const u8* data, size_t datasize, std::string patter
     if(!Utils::checkPattern(pattern, len) || (len > datasize)) return RD_NVAL;
     if(patternlen) *patternlen = len;
 
-    for(size_t i = 0; datasize && (len <= datasize); i++, datasize--, data++)
+    for(size_t i = 0; datasize >= len; i++, data++, datasize--)
     {
-        if(Utils::matchPattern(data, pattern))
-            return i;
+        if(!datasize) break;
+        if(Utils::matchPattern(data, datasize, pattern)) return i;
     }
 
     return RD_NVAL;
@@ -205,12 +205,14 @@ std::string Utils::escapeRegex(const std::string& s)
     return std::regex_replace(s, SPECIAL_CHARS, R"(\$&)");
 }
 
-bool Utils::matchPattern(const u8* data, const std::string& pattern)
+bool Utils::matchPattern(const u8* data, size_t datasize, const std::string& pattern)
 {
     const u8* pcurr = data;
 
-    for(size_t i = 0; i <= pattern.size() - 2; i += 2, pcurr++)
+    for(size_t i = 0; (i <= (pattern.size() - 2)); i += 2, pcurr++, datasize--)
     {
+        if(!datasize) return false;
+
         const std::string& hexb = pattern.substr(i, 2);
         if(hexb == WILDCARD_BYTE) continue;
 

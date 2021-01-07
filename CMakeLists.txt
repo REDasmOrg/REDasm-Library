@@ -42,10 +42,8 @@ if(UNIX AND NOT APPLE)
   endif()
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 # Core
@@ -82,27 +80,17 @@ set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 add_subdirectory(rdcore/libs/taojson)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+                      CXX_EXTENSIONS OFF
+                      OUTPUT_NAME "LibREDasm"
+                      PREFIX "")
+
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
-
-if(PORTABLE_MODE)
-    # Create "rdapi" folder
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_BINARY_DIR}/rdapi")
-
-    # Copy Headers
-    foreach(HEADER ${RDAPI_HEADERS})
-        string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" DST_HEADER ${HEADER})
-        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${HEADER} "${CMAKE_BINARY_DIR}/${DST_HEADER}")
-    endforeach()
-
-    # Copy FindREDasm.cmake
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
-                       "${CMAKE_CURRENT_SOURCE_DIR}/rdapi/FindREDasm.cmake" "${CMAKE_BINARY_DIR}/rdapi")
-else()
-    install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/redasm DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} FILES_MATCHING PATTERN "*.h*")
-endif()
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
@@ -113,6 +101,3 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 else()
     target_link_libraries(${PROJECT_NAME} taocpp::json)
 endif()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LibREDasm")

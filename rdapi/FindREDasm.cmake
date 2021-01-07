@@ -22,13 +22,11 @@ if(WIN32)
 endif()
 
 function(redasm_plugin P_NAME)
-    set(CMAKE_CXX_STANDARD 17)
     set(CMAKE_SKIP_BUILD_RPATH TRUE)
     string(TOLOWER "${P_NAME}" P_ID)
 
     cmake_parse_arguments(ARG "${OPTIONS}" "" "" ${ARGN})
     add_library(${P_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
-    target_compile_definitions(${P_NAME} PRIVATE -Drd_plugin_id="${P_ID}")
 
     if(DEFINED REDASM_INCLUDE_PATH)
         target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH}
@@ -39,8 +37,12 @@ function(redasm_plugin P_NAME)
         target_link_directories(${P_NAME} PRIVATE ${REDASM_LIBRARY_PATH})
     endif()
 
+    set_target_properties(${P_NAME} PROPERTIES CXX_EXTENSIONS OFF
+                                    PREFIX ""
+                                    OUTPUT_NAME "${P_ID}"
+                                    LINKER_LANGUAGE CXX)
+
     target_link_libraries(${P_NAME} PRIVATE LibREDasm)
-    set_target_properties(${P_NAME} PROPERTIES PREFIX "")
-    set_target_properties(${P_NAME} PROPERTIES OUTPUT_NAME "${P_ID}")
-    set_target_properties(${P_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+    target_compile_definitions(${P_NAME} PRIVATE -Drd_plugin_id="${P_ID}")
+    target_compile_features(${P_NAME} PUBLIC cxx_std_17)
 endfunction()

@@ -4,8 +4,11 @@ project(LibREDasm)
 include(GNUInstallDirs)
 include(cmake/functions.cmake)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
 option(RDAPI_DOC "Build API Documentation" ON)
 option(ENABLE_TESTS "Enable Unit Testing" ON)
+add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)
@@ -42,10 +45,6 @@ if(UNIX AND NOT APPLE)
   endif()
 endif()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
-
 # Core
 file(GLOB_RECURSE LIBS_HEADERS
      rdcore/libs/binutils_demangler/*.h* rdcore/libs/miniz/*.h* rdcore/libs/taojson/include/*.h*
@@ -77,27 +76,31 @@ file(GLOB_RECURSE RDAPI_SOURCES rdapi/*.c*)
 set(HEADERS ${LIBS_HEADERS} ${RDCORE_HEADERS} ${RDAPI_HEADERS})
 set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 
-add_subdirectory(rdcore/libs/taojson)
+add_subdirectory(rdcore/libs/taojson EXCLUDE_FROM_ALL)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_link_libraries(${PROJECT_NAME} PRIVATE taocpp::json)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
+                      POSITION_INDEPENDENT_CODE ON
                       CXX_EXTENSIONS OFF
                       OUTPUT_NAME "LibREDasm"
                       PREFIX "")
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl tbb)
+endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})  # This is for Windows
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} pthread dl tbb taocpp::json)
-else()
-    target_link_libraries(${PROJECT_NAME} taocpp::json)
-endif()
+install(DIRECTORY rdapi
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.h")

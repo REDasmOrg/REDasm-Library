@@ -1,5 +1,11 @@
+include(GNUInstallDirs)
+
 set(REDASM_FOUND TRUE)
 set(REDASM_LIBRARY_NAME "LibREDasm${CMAKE_SHARED_LIBRARY_SUFFIX}")
+set(REDASM_PLUGIN_PATH ${CMAKE_INSTALL_DATADIR}/redasm/plugins)
+set(LOADER_TYPE "loaders")
+set(ASSEMBLER_TYPE "assemblers")
+set(PLUGIN_TYPE "plugins")
 
 foreach(MODULE ${CMAKE_MODULE_PATH})
     if(NOT DEFINED REDASM_INCLUDE_PATH AND EXISTS "${MODULE}/rdapi.h")
@@ -21,7 +27,7 @@ if(WIN32)
     endif()
 endif()
 
-function(redasm_plugin P_NAME)
+function(redasm_plugin P_NAME P_TYPE)
     set(CMAKE_SKIP_BUILD_RPATH TRUE)
     string(TOLOWER "${P_NAME}" P_ID)
 
@@ -29,8 +35,7 @@ function(redasm_plugin P_NAME)
     add_library(${P_NAME} SHARED ${ARG_UNPARSED_ARGUMENTS})
 
     if(DEFINED REDASM_INCLUDE_PATH)
-        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH}
-                                             PUBLIC  ${REDASM_INCLUDE_PATH}/libs)
+        target_include_directories(${P_NAME} PRIVATE ${REDASM_INCLUDE_PATH})
     endif()
 
     if(DEFINED REDASM_LIBRARY_PATH)
@@ -45,4 +50,6 @@ function(redasm_plugin P_NAME)
     target_link_libraries(${P_NAME} PRIVATE LibREDasm)
     target_compile_definitions(${P_NAME} PRIVATE -Drd_plugin_id="${P_ID}")
     target_compile_features(${P_NAME} PUBLIC cxx_std_17)
+
+    install(TARGETS ${P_NAME} DESTINATION ${REDASM_PLUGIN_PATH}/${P_TYPE})
 endfunction()

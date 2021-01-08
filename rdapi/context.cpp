@@ -46,6 +46,7 @@ rd_type RDContext_GetABI(const RDContext* ctx) { return CPTR(const Context, ctx)
 void RDContext_SetCC(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompilerCC(t); }
 rd_type RDContext_GetCC(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerCC(); }
 const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, symbol); }
+u8* RDContext_GetData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
 bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->createFunction(address, name); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 
@@ -66,3 +67,11 @@ bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBuffer
     auto& document = CPTR(const Context, ctx)->document();
     return document->view(*block, view);
 }
+
+u8* RD_AddrPointer(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->addrpointer(address); }
+u8* RD_Pointer(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->offspointer(offset);  }
+RDLocation RD_FileOffset(const RDContext* ctx, const void* ptr) { return CPTR(const Context, ctx)->document()->fileoffset(ptr); }
+RDLocation RD_AddressOf(const RDContext* ctx, const void* ptr) { return CPTR(const Context, ctx)->document()->addressof(ptr); }
+RDLocation RD_Offset(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->offset(address); }
+RDLocation RD_Address(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->address(offset); }
+bool RD_IsAddress(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->isAddress(address); }

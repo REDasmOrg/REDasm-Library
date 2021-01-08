@@ -1,16 +1,16 @@
 #include "binary.h"
 #include "../../object.h"
-#include "../../plugin/loader.h"
+#include "../../context.h"
 #include "../../document/document.h"
 #include "../builtin.h"
 
 static const char* test(const RDLoaderRequest*) { return ""; /* Always valid */ }
 
-static bool build(RDContext*, RDLoader* ldr, const RDLoaderBuildParams* req)
+static bool build(RDContext* ctx, const RDLoaderBuildParams* req)
 {
-    auto* loader = CPTR(Loader, ldr);
-    auto& doc = loader->document();
-    size_t sz = loader->buffer()->size();
+    auto* context = CPTR(Context, ctx);
+    auto& doc = context->document();
+    size_t sz = context->buffer()->size();
 
     doc->segment("BINARY", req->offset, req->baseaddress, sz, sz, SegmentFlags_CodeData);
     doc->entry(req->entrypoint);

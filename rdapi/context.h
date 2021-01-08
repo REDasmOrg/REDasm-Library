@@ -55,6 +55,7 @@ RD_API_EXPORT RDDatabase* RDContext_GetDatabase(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
 RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
+RD_API_EXPORT u8* RDContext_GetData(RDContext* ctx);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
 RD_API_EXPORT bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view);
 RD_API_EXPORT bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view);
@@ -102,6 +103,13 @@ RD_API_EXPORT rd_type RDContext_GetCC(const RDContext* ctx);
 RD_API_EXPORT const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size);
 RD_API_EXPORT const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len);
 RD_API_EXPORT const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len);
+RD_API_EXPORT u8* RD_AddrPointer(const RDContext* ctx, rd_address address);
+RD_API_EXPORT u8* RD_Pointer(const RDContext* ctx, rd_offset offset);
+RD_API_EXPORT RDLocation RD_FileOffset(const RDContext* ctx, const void* ptr);
+RD_API_EXPORT RDLocation RD_AddressOf(const RDContext* ctx, const void* ptr);
+RD_API_EXPORT RDLocation RD_Offset(const RDContext* ctx, rd_address address);
+RD_API_EXPORT RDLocation RD_Address(const RDContext* ctx, rd_offset offset);
+RD_API_EXPORT bool RD_IsAddress(const RDContext* ctx, rd_address address);
 
 #ifdef __cplusplus
   #include <string>

@@ -10,13 +10,13 @@ Loader::Loader(const MemoryBufferPtr& buffer, const std::string& filepath, const
 bool Loader::load()
 {
     if(!m_entry->load) return false;
-    return m_entry->load(CPTR(RDContext, this->context()), CPTR(RDLoader, this));
+    return m_entry->load(CPTR(RDContext, this->context()));
 }
 
 bool Loader::build()
 {
     if(!m_entry->build) return false;
-    return m_entry->build(CPTR(RDContext, this->context()), CPTR(RDLoader, this), &m_buildparams);
+    return m_entry->build(CPTR(RDContext, this->context()), &m_buildparams);
 }
 
 rd_flag Loader::flags() const { return m_entry->flags; }

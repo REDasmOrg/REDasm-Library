@@ -100,6 +100,7 @@ RD_API_EXPORT void RDContext_SetCC(RDContext* ctx, rd_type t);
 RD_API_EXPORT rd_type RDContext_GetCC(const RDContext* ctx);
 
 // Extra Functions
+RD_API_EXPORT const char* RD_FromWString(const char16_t* s, size_t* len);
 RD_API_EXPORT const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size);
 RD_API_EXPORT const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len);
 RD_API_EXPORT const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len);

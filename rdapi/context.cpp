@@ -50,6 +50,18 @@ u8* RDContext_GetData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->dat
 bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->createFunction(address, name); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 
+const char* RD_FromWString(const char16_t* s, size_t* len)
+{
+    static std::string res;
+
+    if(!s) return nullptr;
+    if(!len || (len && (*len == RD_NVAL))) res = Utils::toString(s);
+    else res = Utils::toString(std::u16string(s, *len));
+
+    if(len) *len = res.size();
+    return res.c_str();
+}
+
 const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size) { return CPTR(const Context, ctx)->document()->getHexDump(address, size); }
 const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readString(address, len); }
 const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readWString(address, len); }

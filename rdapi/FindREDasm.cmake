@@ -48,7 +48,10 @@ function(redasm_plugin P_NAME P_TYPE)
     target_compile_definitions(${P_NAME} PRIVATE -Drd_plugin_id="${P_ID}")
     target_compile_features(${P_NAME} PUBLIC cxx_std_17)
 
-    if(NOT WIN32) # HACK: Set install directory manually
+    # HACK: Set install directory manually
+    if(WIN32)
+        install(TARGETS ${P_NAME} DESTINATION "plugins/${P_TYPE}")
+    else()
         include(GNUInstallDirs)
         install(TARGETS ${P_NAME} DESTINATION "${CMAKE_INSTALL_DATADIR}/plugins/${P_TYPE}")
     endif()

@@ -1,8 +1,5 @@
-include(GNUInstallDirs)
-
 set(REDASM_FOUND TRUE)
 set(REDASM_LIBRARY_NAME "LibREDasm${CMAKE_SHARED_LIBRARY_SUFFIX}")
-set(REDASM_PLUGIN_PATH ${CMAKE_INSTALL_DATADIR}/redasm/plugins)
 set(LOADER_TYPE "loaders")
 set(ASSEMBLER_TYPE "assemblers")
 set(PLUGIN_TYPE "plugins")
@@ -51,5 +48,8 @@ function(redasm_plugin P_NAME P_TYPE)
     target_compile_definitions(${P_NAME} PRIVATE -Drd_plugin_id="${P_ID}")
     target_compile_features(${P_NAME} PUBLIC cxx_std_17)
 
-    install(TARGETS ${P_NAME} DESTINATION ${REDASM_PLUGIN_PATH}/${P_TYPE})
+    if(NOT WIN32) # HACK: Set install directory manually
+        include(GNUInstallDirs)
+        install(TARGETS ${P_NAME} DESTINATION "${CMAKE_INSTALL_DATADIR}/plugins/${P_TYPE}")
+    endif()
 endfunction()

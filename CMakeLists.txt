@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(LibREDasm)
-include(GNUInstallDirs)
 include(cmake/functions.cmake)
+include(cmake/installdirs.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 option(RDAPI_DOC "Build API Documentation" ON)
 option(ENABLE_TESTS "Enable Unit Testing" ON)
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
@@ -15,35 +14,10 @@ if(ENABLE_TESTS)
 endif(ENABLE_TESTS)
 
 if(RDAPI_DOC)
-    find_package(Python)
-
-    if(Python_FOUND)
-        set(RDAPI_DOC_GEN ${CMAKE_CURRENT_SOURCE_DIR}/docs/gendoc.py)
-        set(RDAPI_DOC_IN  ${CMAKE_CURRENT_SOURCE_DIR}/rdapi)
-        set(RDAPI_DOC_OUT ${CMAKE_CURRENT_BINARY_DIR}/docs)
-        message("Generating documentation")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${RDAPI_DOC_OUT})
-        execute_process(COMMAND ${Python_EXECUTABLE} ${RDAPI_DOC_GEN} ${RDAPI_DOC_IN} ${RDAPI_DOC_OUT})
-    else(Python_FOUND)
-        message("Python not found, cannot generate documentation")
-    endif(Python_FOUND)
+    check_documentation()
 endif(RDAPI_DOC)
 
-if(UNIX AND NOT APPLE)
-   find_program(CCACHE_PROGRAM ccache)
-   if(CCACHE_PROGRAM AND (CMAKE_GENERATOR STREQUAL "Ninja" OR CMAKE_GENERATOR STREQUAL "Unix Makefiles"))
-       message(STATUS "${PROJECT_NAME}: Found CCache, speed up compilation")
-       set(CMAKE_C_COMPILER_LAUNCHER   ${CCACHE_PROGRAM})
-       set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
-   endif()
-
-  execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE ld_version)
-  if("${ld_version}" MATCHES "GNU gold")
-      message(STATUS "${PROJECT_NAME}: Found Gold linker, use faster linker")
-      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold")
-      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=gold ")
-  endif()
-endif()
+check_ccache_and_ld()
 
 # Core
 file(GLOB_RECURSE LIBS_HEADERS
@@ -104,3 +78,10 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config
 install(DIRECTORY rdapi
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.h")
+
+install(DIRECTORY rdapi
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        FILES_MATCHING PATTERN "*.h")
+
+install(FILES rdapi/FindREDasm.cmake
+        DESTINATION ${REDASM_CMAKE_DIR})

@@ -19,6 +19,11 @@ endif(RDAPI_DOC)
 
 check_ccache_and_ld()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    find_package(Threads REQUIRED)
+    find_package(TBB REQUIRED)
+endif()
+
 # Core
 file(GLOB_RECURSE LIBS_HEADERS
      rdcore/libs/binutils_demangler/*.h* rdcore/libs/miniz/*.h* rdcore/libs/taojson/include/*.h*
@@ -67,7 +72,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl tbb)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS} ${TBB_IMPORTED_TARGETS})
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config

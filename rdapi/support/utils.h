@@ -9,12 +9,9 @@ enum RDEndianness {
     Endianness_Big,
 };
 
-typedef u16 (*FromLittleEndian16_Callback)(u16);
-typedef u32 (*FromLittleEndian32_Callback)(u32);
-typedef u64 (*FromLittleEndian64_Callback)(u64);
-typedef u16 (*FromBigEndian16_Callback)(u16);
-typedef u32 (*FromBigEndian32_Callback)(u32);
-typedef u64 (*FromBigEndian64_Callback)(u64);
+typedef u16 (*Swap16_Callback)(u16);
+typedef u32 (*Swap32_Callback)(u32);
+typedef u64 (*Swap64_Callback)(u64);
 
 struct RDContext;
 

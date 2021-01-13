@@ -2,8 +2,6 @@
 
 #include "../object.h"
 
-struct RDEntry;
-
 template<typename T>
 class Entry: public Object
 {

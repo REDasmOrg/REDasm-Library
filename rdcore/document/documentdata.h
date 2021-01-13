@@ -23,7 +23,6 @@ class DocumentData: public Listing
 
     public:
         RDLocation dereference(rd_address address) const;
-        bool readAddress(rd_address address, size_t size, u64 *value) const;
         const char* getHexDump(rd_address address, size_t size) const;
         const char* readString(rd_address address, size_t* len) const;
         const char16_t* readWString(rd_address address, size_t* len) const;
@@ -38,6 +37,10 @@ class DocumentData: public Listing
         RDLocation fileoffset(const void* ptr) const;
         u8* addrpointer(rd_address address) const;
         u8* offspointer(rd_offset offset) const;
+
+    protected:
+        bool readAddress(rd_address address, u64 *value) const;
+        bool readAddress(rd_address address, size_t size, u64 *value) const;
 
     private:
         template<typename T> const T* readStringT(rd_address address, size_t* len) const;

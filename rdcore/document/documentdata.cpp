@@ -38,16 +38,15 @@ bool DocumentData::view(const RDBlock& block, RDBufferView* view) const
 
 RDLocation DocumentData::dereference(rd_address address) const
 {
-    if(!this->context()->assembler()) return { };
-
-    //Pointer Definition: address -> ptr_address -> data
-
     RDLocation loc;
-    if(!this->readAddress(address, this->context()->addressWidth(), &loc.address)) return { };
 
-    loc.valid = this->readAddress(loc.address, this->context()->addressWidth(), &loc.address);
+    u64 ptrvalue = 0;
+    loc.valid = this->readAddress(address, &ptrvalue);
+    if(loc.valid) loc.address = static_cast<rd_address>(ptrvalue);
     return loc;
 }
+
+bool DocumentData::readAddress(rd_address address, u64* value) const { return this->readAddress(address, this->context()->addressWidth(), value); }
 
 bool DocumentData::readAddress(rd_address address, size_t size, u64* value) const
 {

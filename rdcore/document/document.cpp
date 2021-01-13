@@ -1,6 +1,8 @@
 #include "document.h"
 #include "../plugin/assembler.h"
+#include "../plugin/loader.h"
 #include "../support/utils.h"
+#include "../disassembler.h"
 #include "../context.h"
 
 Document::Document(const MemoryBufferPtr& buffer, Context* ctx): DocumentData(buffer, ctx) { m_net = std::make_unique<DocumentNet>(ctx); }
@@ -34,32 +36,42 @@ bool Document::type(rd_address address, const Type* type) { return this->type(ad
 void Document::checkLocation(rd_address fromaddress, rd_address address)
 {
     if(fromaddress == address) return; // Ignore self references
-    if(!this->segment(address, nullptr)) return;
 
-    RDSymbol symbol;
+    RDSegment segment;
+    if(!this->segment(address, &segment)) return;
 
-    if(this->symbol(address, &symbol))
+    if(this->symbol(address, nullptr))
     {
-        if(fromaddress != RD_NVAL)
-        {
-            m_net->addRef(fromaddress, address); // Just add the reference
-
-            if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
-            {
-                auto loc = this->dereference(address);
-                const char* name = this->name(address);
-
-                if(name && loc.valid && this->symbol(loc.address, &symbol))
-                    this->updateComments(fromaddress, loc.address, name, symbol.type, symbol.flags);
-            }
-            else
-                this->updateComments(fromaddress, address, nullptr, symbol.type, symbol.flags);
-        }
-
+        m_net->addRef(fromaddress, address);
+        this->updateComments(fromaddress, address);
         return;
     }
 
-    this->markLocation(fromaddress, address);
+    u64 ptraddress = 0;
+
+    if(this->readAddress(address, &ptraddress) && this->isAddress(ptraddress)) // Is Pointer
+    {
+        this->pointer(address, SymbolType_Data, std::string());
+        this->checkLocation(address, static_cast<rd_address>(ptraddress));
+        m_net->addRef(fromaddress, static_cast<rd_address>(ptraddress), ReferenceFlags_Indirect);
+        this->updateComments(fromaddress, address);
+    }
+    else if(this->markString(address, nullptr)) // Is String
+    {
+        this->updateComments(fromaddress, address);
+    }
+    else if(HAS_FLAG(&segment, SegmentFlags_Code) && !HAS_FLAG(&segment, SegmentFlags_Data) && !HAS_FLAG(&segment, SegmentFlags_Bss)) // Code Reference
+    {
+        if(!this->label(address)) return;
+        this->context()->disassembler()->enqueue(address); // Enqueue for analysis
+    }
+    else // Data
+    {
+        this->data(address, this->context()->addressWidth(), std::string());
+        this->updateComments(fromaddress, address);
+    }
+
+    m_net->addRef(fromaddress, address);
 }
 
 bool Document::type(rd_address address, const Type* type, int level)
@@ -137,79 +149,33 @@ bool Document::type(rd_address address, const Type* type, int level)
     return true;
 }
 
-void Document::updateComments(rd_address fromaddress, rd_address address, const char* symbolname, rd_type type, rd_flag flags)
+void Document::updateComments(rd_address address, rd_address symboladdress, const std::string& prefix)
 {
-    if(type == SymbolType_String)
-    {
-        if(flags & SymbolFlags_WideString)
-        {
-            if(symbolname)
-                this->autoComment(address, std::string("=> ") + symbolname + ": " + Utils::quoted(this->readWString(address)));
-            else
-                this->autoComment(fromaddress, "WIDE STRING: " + Utils::quoted(this->readWString(address)));
-        }
-        else
-        {
-            if(symbolname)
-                this->autoComment(address, std::string("=> ") +  symbolname + ": " + Utils::quoted(this->readString(address)));
-            else
-                this->autoComment(fromaddress, "STRING: " + Utils::quoted(this->readString(address)));
-        }
-    }
-    else if((type == SymbolType_Import) && symbolname)
-        this->autoComment(fromaddress, std::string("=> IMPORT: ") + symbolname);
-    else if((flags & SymbolFlags_Export) && symbolname)
-        this->autoComment(fromaddress, std::string("=> EXPORT: ") + symbolname);
-}
-
-void Document::markPointer(rd_address fromaddress, rd_address address)
-{
-    RDLocation loc = this->dereference(address);
-    if(!loc.valid) return;
-
-    this->pointer(address, SymbolType_Data, std::string());
     RDSymbol symbol;
+    if(!this->symbol(symboladdress, &symbol)) return;
 
-    if(!this->symbol(loc.address, &symbol))
+    const char* symbolname = this->name(symboladdress);
+
+    if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
-        this->markLocation(RD_NVAL, loc.address); // Don't generate autocomments and xrefs automatically
-        if(!this->symbol(loc.address, &symbol)) return;
+        u64 ptraddress = 0;
+        if(!symbolname || !this->readAddress(symboladdress, &ptraddress)) return;
+        if(ptraddress == symboladdress) return; // Avoid infinite recursion
+
+        this->updateComments(address, static_cast<rd_address>(ptraddress),
+                             (prefix.empty() ? prefix : (prefix + " ")) + symbolname + " => ");
     }
-
-    const char* symbolname = this->name(loc.address);
-    if(!symbolname) return;
-    m_net->addRef(fromaddress, address);
-    this->updateComments(fromaddress, symbol.address, symbolname, symbol.type, symbol.flags);
-
-    if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
+    else if(HAS_FLAG(&symbol, SymbolFlags_WideString))
+        this->autoComment(address, prefix + "WIDE STRING: " + Utils::quoted(this->readWString(symboladdress)));
+    else if(HAS_FLAG(&symbol, SymbolFlags_AsciiString))
+        this->autoComment(address, prefix + "STRING: " + Utils::quoted(this->readString(symboladdress)));
+    else if(HAS_FLAG(&symbol, SymbolFlags_Export) && symbolname)
+        this->autoComment(address, prefix + "EXPORT: " + symbolname);
+    else if(IS_TYPE(&symbol, SymbolType_Import) && symbolname)
+        this->autoComment(address, prefix + "IMPORT: " + symbolname);
 }
 
-void Document::markLocation(rd_address fromaddress, rd_address address)
-{
-    auto* assembler = this->context()->assembler();
-    if(!assembler) return;
-
-    RDBufferView view;
-    rd_flag flags = SymbolFlags_None;
-
-    if(this->markString(address, &flags)) // Is it a string?
-    {
-        if(fromaddress == RD_NVAL) return;
-        this->updateComments(fromaddress, address, nullptr, SymbolType_String, flags);
-    }
-    else if(this->view(address, &view)) // It belongs to a mapped area?
-    {
-        RDLocation loc = this->dereference(address);
-        if(loc.valid) this->markPointer(fromaddress, address);
-        else this->data(address, assembler->addressWidth(), std::string());
-    }
-    else // Mapped but BSS Segment
-        this->data(address, assembler->addressWidth(), std::string());
-
-    if(fromaddress != RD_NVAL) m_net->addRef(fromaddress, address);
-}
-
-bool Document::markString(rd_address address, rd_flag* resflags)
+size_t Document::markString(rd_address address, rd_flag* resflags)
 {
     RDBlock block;
     if(!this->block(address, &block)) return false;
@@ -221,5 +187,7 @@ bool Document::markString(rd_address address, rd_flag* resflags)
     size_t totalsize = 0;
     rd_flag flags = StringFinder::categorize(this->context(), &view, &totalsize);
     if(resflags) *resflags = flags;
-    return StringFinder::checkAndMark(this->context(), address, flags, totalsize);
+
+    if(StringFinder::checkAndMark(this->context(), address, flags, totalsize)) return totalsize;
+    return 0;
 }

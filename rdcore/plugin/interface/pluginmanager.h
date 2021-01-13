@@ -19,6 +19,8 @@ class PluginManager: public Object
         const RDEntryAssembler* findAssembler(const std::string& id) const;
         const RDEntryLoader* selectLoader(const std::string& id);
         const RDEntryAssembler* selectAssembler(const std::string& id);
+        bool executeCommand(const std::string& cmd, const RDArguments* a) const;
+        void checkCommands();
         void unload(const RDEntry* entry);
 
     private:
@@ -27,11 +29,13 @@ class PluginManager: public Object
         void loadAll(const fs::path& pluginpath);
         void load(const fs::path& filepath);
         void load(const PluginModulePtr& pm);
+        bool checkArguments(const RDEntryCommand* command, const RDArguments* a) const;
         void loadBuiltins();
 
     private:
         std::unordered_map<size_t, EntryList> m_entries;
         std::unordered_map<std::string, PluginModulePtr> m_modules;
+        std::unordered_map<std::string, const RDEntryCommand*> m_commands;
 };
 
 template<typename T>

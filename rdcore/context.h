@@ -72,6 +72,9 @@ class Context: public Object
         void selectAnalyzer(const Analyzer* panalyzer, bool select);
         const AnalyzerList& selectedAnalyzers() const;
 
+    public: // Command
+        bool executeCommand(const char* cmd, const RDArguments* a) const;
+
     public: // Disassembler
         const DocumentNet* net() const;
         bool bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
@@ -96,9 +99,6 @@ class Context: public Object
         void getProblems(RD_ProblemCallback callback, void* userdata) const;
         void problem(const std::string& s);
         size_t problemsCount() const;
-
-    public:
-        bool commandExecute(const char* command, const RDArguments* arguments);
 
     private:
         void loadAnalyzers();

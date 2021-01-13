@@ -57,5 +57,4 @@ bool RDArguments_PushPointer(RDArguments* arguments, void* v)
     return false;
 }
 
-bool RDCommand_Register(RDPluginModule* m, const RDEntryCommand* entry) { return CPTR(PluginModule, m)->registerEntry(entry); }
-bool RDCommand_Execute(RDContext* ctx, const char* command, const RDArguments* arguments) { return false; /* return CPTR(Context, ctx)->commandExecute(command, arguments); */ }
+bool RDCommand_Register(RDPluginModule* pm, const RDEntryCommand* entry) { return CPTR(PluginModule, pm)->registerEntry(entry); }

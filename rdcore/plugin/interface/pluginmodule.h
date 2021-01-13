@@ -42,6 +42,7 @@ class PluginModule: public Object
 
     private:
         template<typename Function> Function funcT(const char* name) { return reinterpret_cast<Function>(func(name)); }
+        bool validateSignature(const RDEntryCommand* entry) const;
         std::string fileName() const;
         void* func(const char* name);
         void unload();

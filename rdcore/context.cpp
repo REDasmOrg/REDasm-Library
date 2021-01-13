@@ -39,29 +39,9 @@ bool Context::matchAssembler(const std::string& q) const
 }
 
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
+bool Context::executeCommand(const char* cmd, const RDArguments* a) const { return cmd ? m_pluginmanager->executeCommand(cmd, a) : false; }
 bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
 void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disassembler->disassembleBlock(block); }
-
-bool Context::commandExecute(const char* command, const RDArguments* arguments)
-{
-    auto it = m_commands.find(command);
-
-    if((it == m_commands.end()) || !it->second)
-    {
-        this->log("Cannot find command " + Utils::quoted(command));
-        return false;
-    }
-
-    RDEntryCommand* pcommand = reinterpret_cast<RDEntryCommand*>(std::addressof(it->second));
-
-    //FIXME: if(!pcommand->execute(pcommand, arguments))
-    //FIXME: {
-    //FIXME:     this->log("Command execution " + Utils::quoted(command) + " failed");
-    //FIXME:     return false;
-    //FIXME: }
-
-    return true;
-}
 
 void Context::loadAnalyzers()
 {
@@ -178,7 +158,10 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 
     m_buffer = MemoryBufferPtr(CPTR(MemoryBuffer, req->buffer)); // Take ownership
     m_disassembler = std::make_unique<Disassembler>(this);
-    if(!m_disassembler->load(m_buffer, req->filepath, entryloader, entryassembler)) return false;
+    m_disassembler->prepare(m_buffer, req->filepath, entryloader, entryassembler);
+
+    m_pluginmanager->checkCommands();
+    if(!m_disassembler->load()) return false;
 
     this->loadAnalyzers();
     return true;

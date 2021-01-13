@@ -19,7 +19,8 @@ class Disassembler: public Object
         DocumentNet* net() const;
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
-        bool load(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
+        void prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
+        bool load();
 
     public:
         bool createFunction(rd_address address, const char* name);

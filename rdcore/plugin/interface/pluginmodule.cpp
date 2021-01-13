@@ -3,6 +3,7 @@
 #include "../../config.h"
 #include "category.h"
 #include <rdapi/context.h>
+#include <unordered_set>
 #include <filesystem>
 #include <iostream>
 
@@ -50,6 +51,7 @@ PluginModule::~PluginModule() { this->unload(); }
 const std::vector<PluginModule::EntryItem>& PluginModule::entries() const { return m_entries; }
 bool PluginModule::loaded() const { return m_handle; }
 bool PluginModule::builtin() const { return m_filepath.empty() && !m_handle; }
+
 bool PluginModule::registerEntry(const RDEntryLoader* entry) { return this->registerEntry(EntryCategory_Loader, entry); }
 bool PluginModule::registerEntry(const RDEntryAssembler* entry) { return this->registerEntry(EntryCategory_Assembler, entry); }
 
@@ -57,14 +59,50 @@ bool PluginModule::registerEntry(const RDEntryAnalyzer* entry)
 {
     if(!entry->isenabled || !entry->execute)
     {
-        this->log("Invalid analyzer");
+        this->log("Invalid analyzer: " + Utils::quoted(entry->id));
         return false;
     }
 
     return this->registerEntry(EntryCategory_Analyzer, entry);
 }
 
-bool PluginModule::registerEntry(const RDEntryCommand* entry) { return this->registerEntry(EntryCategory_Command, entry); }
+bool PluginModule::registerEntry(const RDEntryCommand* entry)
+{
+    if(!entry->isenabled || !entry->execute)
+    {
+        this->log("Invalid command: " + Utils::quoted(entry->id));
+        return false;
+    }
+
+    if(!this->validateSignature(entry)) return false;
+    return this->registerEntry(EntryCategory_Command, entry);
+}
+
+bool PluginModule::validateSignature(const RDEntryCommand* entry) const
+{
+    static const std::unordered_set<char> VALID_TYPES = { 'i', 'u', 's', 'p' };
+    if(!entry->signature) return true;
+    size_t len = std::strlen(entry->signature);
+
+    if(len >= RD_ARGUMENTS_SIZE)
+    {
+        this->log("Too many arguments for " + Utils::quoted(entry->id) +
+                  ": expected less than " + std::to_string(RD_ARGUMENTS_SIZE) + ", got " + std::to_string(len));
+
+        return false;
+    }
+
+    for(size_t i = 0; i < len; i++)
+    {
+        if(VALID_TYPES.count(entry->signature[i])) continue;
+
+        this->log("Argument " + std::to_string(i + 1) + " is not valid");
+        return false;
+    }
+
+    return true;
+}
+
 std::string PluginModule::fileName() const { return m_filepath.filename().string(); }
 
 void PluginModule::unload()

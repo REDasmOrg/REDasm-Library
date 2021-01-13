@@ -44,6 +44,7 @@ struct RDSurface;
 struct RDSymbol;
 struct RDDatabase;
 struct RDBlock;
+struct RDArguments;
 
 typedef void (*RD_ProblemCallback)(const char* s, void* userdata);
 typedef void (*Callback_AssemblerEntry)(const struct RDEntryAssembler* entry, void* userdata);
@@ -86,6 +87,7 @@ RD_API_EXPORT void RDContext_DisassembleFunction(RDContext* ctx, rd_address addr
 RD_API_EXPORT void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block);
 RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);
+RD_API_EXPORT bool RDContext_ExecuteCommand(const RDContext* ctx, const char* cmd, const struct RDArguments* a);
 RD_API_EXPORT size_t RDContext_GetProblemsCount(const RDContext* ctx);
 RD_API_EXPORT void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata);
 RD_API_EXPORT void RDContext_AddProblem(RDContext* ctx, const char* s);

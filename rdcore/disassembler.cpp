@@ -68,22 +68,6 @@ void Disassembler::disassemble()
     m_engine->execute();
 }
 
-bool Disassembler::load(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
-{
-    m_loader = std::make_unique<Loader>(buffer, filepath, entryloader, this->context());
-    m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
-
-    if(m_loader->flags() & LoaderFlags_CustomAddressing)
-    {
-        if(!m_loader->build()) return false;
-    }
-    else if(!m_loader->load())
-        return false;
-
-    m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
-    return true;
-}
-
 void Disassembler::stop() { if(m_engine) m_engine->stop(); }
 
 const char* Disassembler::getFunctionHexDump(rd_address address, RDSymbol* symbol) const
@@ -139,6 +123,25 @@ SafeDocument& Disassembler::document() const { return m_loader->document(); }
 DocumentNet* Disassembler::net() const { return this->document()->net(); }
 MemoryBuffer* Disassembler::buffer() const { return this->document()->buffer(); }
 bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return this->document()->view(address, size, view); }
+
+void Disassembler::prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
+{
+    m_loader = std::make_unique<Loader>(buffer, filepath, entryloader, this->context());
+    m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
+}
+
+bool Disassembler::load()
+{
+    if(m_loader->flags() & LoaderFlags_CustomAddressing)
+    {
+        if(!m_loader->build()) return false;
+    }
+    else if(!m_loader->load())
+        return false;
+
+    m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
+    return true;
+}
 
 bool Disassembler::createFunction(rd_address address, const char* name)
 {

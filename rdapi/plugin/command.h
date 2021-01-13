@@ -8,10 +8,10 @@
 
 enum RDArgumentType {
     ArgumentType_Void,
-    ArgumentType_Int,
-    ArgumentType_UInt,
-    ArgumentType_String,
-    ArgumentType_Pointer,
+    ArgumentType_Int,     // i
+    ArgumentType_UInt,    // u
+    ArgumentType_String,  // s
+    ArgumentType_Pointer, // p
 };
 
 typedef struct RDArgument {
@@ -32,13 +32,15 @@ RD_API_EXPORT bool RDArguments_PushPointer(RDArguments* arguments, void* v);
 
 struct RDEntryCommand;
 
-typedef bool (*Callback_CommandExecute)(const struct RDEntrycommand* plugin, const RDArguments* arguments);
+typedef bool (*Callback_CommandIsEnabled)(const struct RDContext* ctx);
+typedef bool (*Callback_CommandExecute)(struct RDContext* ctx, const RDArguments* arguments);
 
 typedef struct RDEntryCommand {
     RD_ENTRY_HEADER
 
+    const char* signature;
+    Callback_CommandIsEnabled isenabled;
     Callback_CommandExecute execute;
 } RDEntryCommand;
 
-RD_API_EXPORT bool RDCommand_Register(RDPluginModule* m, const RDEntryCommand* entry);
-RD_API_EXPORT bool RDCommand_Execute(RDContext* ctx, const char* command, const RDArguments* arguments);
+RD_API_EXPORT bool RDCommand_Register(RDPluginModule* pm, const RDEntryCommand* entry);

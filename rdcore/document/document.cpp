@@ -154,18 +154,24 @@ void Document::updateComments(rd_address address, rd_address symboladdress, cons
     RDSymbol symbol;
     if(!this->symbol(symboladdress, &symbol)) return;
 
-    const char* symbolname = this->name(symboladdress);
+    const char* symbolname = nullptr;
 
     if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
     {
         u64 ptraddress = 0;
-        if(!symbolname || !this->readAddress(symboladdress, &ptraddress)) return;
-        if(ptraddress == symboladdress) return; // Avoid infinite recursion
+        if(!this->readAddress(symboladdress, &ptraddress) || (ptraddress == symboladdress)) return; // Avoid infinite recursion
+        symbolname = this->name(ptraddress);
+        if(!symbolname) return;
 
         this->updateComments(address, static_cast<rd_address>(ptraddress),
                              (prefix.empty() ? prefix : (prefix + " ")) + symbolname + " => ");
+
+        return;
     }
-    else if(HAS_FLAG(&symbol, SymbolFlags_WideString))
+
+    symbolname = this->name(symboladdress);
+
+    if(HAS_FLAG(&symbol, SymbolFlags_WideString))
         this->autoComment(address, prefix + "WIDE STRING: " + Utils::quoted(this->readWString(symboladdress)));
     else if(HAS_FLAG(&symbol, SymbolFlags_AsciiString))
         this->autoComment(address, prefix + "STRING: " + Utils::quoted(this->readString(symboladdress)));

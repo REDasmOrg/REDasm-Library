@@ -50,7 +50,9 @@ function(redasm_plugin P_NAME P_TYPE)
 
     # HACK: Set install directory manually
     if(WIN32)
-        install(TARGETS ${P_NAME} DESTINATION "plugins/${P_TYPE}")
+        install(TARGETS ${P_NAME}
+            LIBRARY DESTINATION "plugins/${P_TYPE}"
+            RUNTIME DESTINATION "plugins/${P_TYPE}")  # This is for Windows
     else()
         include(GNUInstallDirs)
         install(TARGETS ${P_NAME} DESTINATION "${CMAKE_INSTALL_DATADIR}/plugins/${P_TYPE}")

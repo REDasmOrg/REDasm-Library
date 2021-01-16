@@ -8,7 +8,6 @@
 #include "../../config.h"
 #include "../builtin.h"
 #include <algorithm>
-#include <execution>
 #include <deque>
 
 RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Unexplored Blocks", std::numeric_limits<u32>::max(),

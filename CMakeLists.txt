@@ -21,7 +21,6 @@ check_ccache_and_ld()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     find_package(Threads REQUIRED)
-    find_package(TBB REQUIRED)
 endif()
 
 # Core
@@ -72,7 +71,7 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS} ${TBB_IMPORTED_TARGETS})
+    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config

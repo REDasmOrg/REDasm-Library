@@ -5,7 +5,6 @@
 #include "../../engine/stringfinder.h"
 #include "../builtin.h"
 #include <algorithm>
-#include <execution>
 #include <deque>
 
 RDEntryAnalyzer analyzerEntry_Strings = RD_BUILTIN_ENTRY(analyzerstring_builtin, "Find All Strings", std::numeric_limits<u32>::max() - 1,
@@ -32,7 +31,7 @@ void StringsAnalyzer::analyze(Context* ctx)
         return true;
     });
 
-    std::for_each(std::execution::par_unseq, pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
+    std::for_each(pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
         RDBufferView view;
         if(!doc->view(b.address, BlockContainer::size(&b), &view)) return;
         StringFinder::find(ctx, view);

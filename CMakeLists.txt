@@ -88,4 +88,4 @@ install(DIRECTORY rdapi
         FILES_MATCHING PATTERN "*.h")
 
 install(FILES rdapi/FindREDasm.cmake
-        DESTINATION ${REDASM_CMAKE_DIR})
+        DESTINATION ${REDASM_CMAKE_PATH})

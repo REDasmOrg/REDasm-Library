@@ -132,6 +132,8 @@ void Disassembler::prepare(const MemoryBufferPtr& buffer, const std::string& fil
 
 bool Disassembler::load()
 {
+    m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
+
     if(m_loader->flags() & LoaderFlags_CustomAddressing)
     {
         if(!m_loader->build()) return false;
@@ -139,7 +141,6 @@ bool Disassembler::load()
     else if(!m_loader->load())
         return false;
 
-    m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
     return true;
 }
 

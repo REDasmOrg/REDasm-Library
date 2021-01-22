@@ -3,29 +3,8 @@
 #include <string>
 #include <list>
 #include <map>
-#include "../../../document/document_fwd.h"
 #include "../../../document/documentnet.h"
-#include "../../../graph/styledgraph.h"
-
-struct FunctionBasicBlock
-{
-    FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address startaddress);
-    bool contains(rd_address address) const;
-    bool getStartItem(RDDocumentItem* item) const;
-    bool getEndItem(RDDocumentItem* item) const;
-    size_t itemsCount() const;
-    rd_type getTheme(RDGraphNode n) const;
-    void bFalse(RDGraphNode n);
-    void bTrue(RDGraphNode n);
-
-    RDGraphNode node{0};
-    rd_address startaddress, endaddress; // [startaddress, endaddress]
-
-    private:
-        mutable size_t m_itemscount{0};
-        std::unordered_map<RDGraphNode, rd_type> m_themes;
-        SafeDocument& m_document;
-};
+#include "functionbasicblock.h"
 
 class FunctionGraph: public StyledGraph
 {

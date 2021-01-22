@@ -1,6 +1,6 @@
 #include "document.h"
+#include <rdcore/builtin/graph/functiongraph/functiongraph.h>
 #include <rdcore/document/backend/symboltable.h>
-#include <rdcore/builtin/graph/functiongraph.h>
 #include <rdcore/document/document.h>
 
 static inline const SafeDocument& docptr(const RDDocument* d) { return *reinterpret_cast<const SafeDocument*>(d); }

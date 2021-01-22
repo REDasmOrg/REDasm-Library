@@ -1,5 +1,5 @@
 #include "functiongraph.h"
-#include <rdcore/builtin/graph/functiongraph.h>
+#include <rdcore/builtin/graph/functiongraph/functiongraph.h>
 
 bool RDFunctionGraph_GetBasicBlock(const RDGraph* graph, RDGraphNode n, const RDFunctionBasicBlock** fbb)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../graph/styledgraph.h"
-#include "../../rdil/ilfunction.h"
+#include "../../../graph/styledgraph.h"
+#include "../../../rdil/ilfunction.h"
 #include <deque>
 
 class RDILGraph: public StyledGraph

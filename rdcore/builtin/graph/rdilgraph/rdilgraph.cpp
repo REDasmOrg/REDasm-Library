@@ -1,8 +1,8 @@
 #include "rdilgraph.h"
-#include "../../document/document.h"
-#include "../../disassembler.h"
-#include "../../context.h"
-#include "../../rdil/rdil.h"
+#include "../../../document/document.h"
+#include "../../../disassembler.h"
+#include "../../../rdil/rdil.h"
+#include "../../../context.h"
 #include <queue>
 
 RDILGraph::RDILGraph(Context* ctx): StyledGraph(ctx) { }

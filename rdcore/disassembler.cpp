@@ -3,7 +3,7 @@
 #include "support/utils.h"
 #include "context.h"
 #include "document/document.h"
-#include "builtin/graph/functiongraph.h"
+#include "builtin/graph/functiongraph/functiongraph.h"
 #include "support/utils.h"
 #include <deque>
 

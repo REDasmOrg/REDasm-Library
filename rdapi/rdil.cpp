@@ -1,5 +1,5 @@
 #include "rdil.h"
-#include <rdcore/builtin/graph/rdilgraph.h>
+#include <rdcore/builtin/graph/rdilgraph/rdilgraph.h>
 #include <rdcore/rdil/ilfunction.h>
 #include <rdcore/rdil/rdil.h>
 #include <rdcore/disassembler.h>

@@ -3,9 +3,9 @@
 #include <string>
 #include <list>
 #include <map>
-#include "../../document/document_fwd.h"
-#include "../../document/documentnet.h"
-#include "../../graph/styledgraph.h"
+#include "../../../document/document_fwd.h"
+#include "../../../document/documentnet.h"
+#include "../../../graph/styledgraph.h"
 
 struct FunctionBasicBlock
 {

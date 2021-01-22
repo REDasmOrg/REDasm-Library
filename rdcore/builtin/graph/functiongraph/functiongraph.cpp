@@ -1,9 +1,9 @@
 #include "functiongraph.h"
-#include "../../document/backend/blockcontainer.h"
-#include "../../support/error.h"
-#include "../../document/document.h"
-#include "../../disassembler.h"
-#include "../../context.h"
+#include "../../../document/backend/blockcontainer.h"
+#include "../../../support/error.h"
+#include "../../../document/document.h"
+#include "../../../disassembler.h"
+#include "../../../context.h"
 #include <rdapi/config.h>
 #include <unordered_set>
 #include <stack>

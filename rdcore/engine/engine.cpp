@@ -6,7 +6,7 @@
 #include "../config.h"
 #include "../plugin/analyzer.h"
 #include "../builtin/analyzer/functionanalyzer.h"
-#include "../builtin/graph/functiongraph.h"
+#include "../builtin/graph/functiongraph/functiongraph.h"
 #include "gibberish/gibberishdetector.h"
 #include "stringfinder.h"
 #include <vector>

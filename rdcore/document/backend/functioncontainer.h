@@ -4,7 +4,7 @@
 #include <memory>
 #include <rdapi/types.h>
 #include "../../containers/treecontainer.h"
-#include "../../builtin/graph/functiongraph.h"
+#include "../../builtin/graph/functiongraph/functiongraph.h"
 
 typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
 

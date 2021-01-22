@@ -13,6 +13,9 @@ class Disassembler;
 class ILFunction: public Object
 {
     public:
+        typedef std::deque<ILExpression*> ExpressionList;
+
+    public:
         ILFunction(Context* ctx);
         void insert(size_t idx, ILExpression* e);
         void append(ILExpression* e);
@@ -71,9 +74,15 @@ class ILFunction: public Object
         static bool generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path);
         static void generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path);
 
+    public:
+        ExpressionList::iterator begin();
+        ExpressionList::iterator end();
+        ExpressionList::const_iterator begin() const;
+        ExpressionList::const_iterator end() const;
+
     private:
         rd_address m_currentaddress{RD_NVAL};
-        std::deque<ILExpression*> m_expressions;
+        ExpressionList m_expressions;
         std::unordered_map<const ILExpression*, rd_address> m_addresses;
         mutable std::list<ILExpressionPtr> m_pool;
         const Disassembler* m_disassembler;

@@ -190,6 +190,11 @@ void ILFunction::generateBasicBlock(rd_address address, ILFunction* il, std::set
     }
 }
 
+ILFunction::ExpressionList::iterator ILFunction::begin() { return m_expressions.begin(); }
+ILFunction::ExpressionList::iterator ILFunction::end() { return m_expressions.end(); }
+ILFunction::ExpressionList::const_iterator ILFunction::begin() const { return m_expressions.begin(); }
+ILFunction::ExpressionList::const_iterator ILFunction::end() const { return m_expressions.end(); }
+
 bool ILFunction::generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {
     auto* g = il->context()->document()->graph(address);

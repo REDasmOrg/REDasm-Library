@@ -4,6 +4,17 @@
 #include <sstream>
 
 Graph::Graph(Context* ctx): Object(ctx) { }
+
+void Graph::clear()
+{
+    m_incomings.clear();
+    m_outgoings.clear();
+    m_edges.clear();
+    m_nodes.clear();
+    m_nodeid = 0;
+    m_root = {0};
+}
+
 bool Graph::empty() const { return m_nodes.empty(); }
 void Graph::setRoot(RDGraphNode n) { m_root = n; }
 

@@ -2,6 +2,15 @@
 #include <algorithm>
 
 StyledGraph::StyledGraph(Context* ctx): DataGraph(ctx) { }
+
+void StyledGraph::clear()
+{
+    DataGraph::clear();
+    m_nodeattributes.clear();
+    m_edgeattributes.clear();
+    m_areawidth = m_areaheight = 0;
+}
+
 void StyledGraph::color(const RDGraphEdge* e, const std::string& c) { m_edgeattributes[*e].color = c; }
 void StyledGraph::label(const RDGraphEdge* e, const std::string& l) { m_edgeattributes[*e].label = l; }
 

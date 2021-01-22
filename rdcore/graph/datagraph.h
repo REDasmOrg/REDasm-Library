@@ -7,6 +7,7 @@ class DataGraph: public Graph
 {
     public:
         DataGraph(Context* ctx);
+        void clear() override;
         const RDGraphData* data(RDGraphNode n) const;
         void setData(RDGraphNode n, uintptr_t val);
         void setData(RDGraphNode n, intptr_t val);

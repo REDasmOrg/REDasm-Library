@@ -9,6 +9,7 @@ class Graph: public Object
 {
     public:
         Graph(Context* ctx);
+        virtual void clear();
         void setRoot(RDGraphNode n);
         void removeEdge(const RDGraphEdge* e);
         void removeNode(RDGraphNode n);

@@ -2,6 +2,12 @@
 
 DataGraph::DataGraph(Context* ctx): Graph(ctx) { }
 
+void DataGraph::clear()
+{
+    Graph::clear();
+    m_data.clear();
+}
+
 const RDGraphData* DataGraph::data(RDGraphNode n) const
 {
     auto it = m_data.find(n);

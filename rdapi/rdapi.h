@@ -23,4 +23,5 @@
 #include "database/database.h"
 #include "database/types.h"
 #include "graph/functiongraph.h"
+#include "graph/callgraph.h"
 #include "graph/graph.h"

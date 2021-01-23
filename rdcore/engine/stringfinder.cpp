@@ -11,6 +11,8 @@
 #include <cctype>
 #include <cuchar>
 
+#define ALPHA_THRESHOLD 0.5
+
 void StringFinder::find(Context* ctx, const RDBufferView& inview)
 {
     RDBufferView view = inview;
@@ -89,7 +91,12 @@ rd_flag StringFinder::categorize(Context* ctx, const RDBufferView* view, size_t*
                 if(!StringFinder::validateString(reinterpret_cast<const char*>(ts.data()), ts.size()))
                     return SymbolFlags_None;
 
-                if(totalsize) *totalsize = i * sizeof(char16_t);
+                if(totalsize)
+                {
+                    *totalsize = i * sizeof(char16_t);
+                    if(!wc) *totalsize += sizeof(char16_t); // Include null terminator too
+                }
+
                 return SymbolFlags_WideString;
             }
 
@@ -106,7 +113,12 @@ rd_flag StringFinder::categorize(Context* ctx, const RDBufferView* view, size_t*
             if(!StringFinder::validateString(reinterpret_cast<const char*>(view->data), i - 1))
                 return SymbolFlags_None;
 
-            if(totalsize) *totalsize = i;
+            if(totalsize)
+            {
+                *totalsize = i;
+                if(!view->data[i]) (*totalsize)++; // Include null terminator too
+            }
+
             return SymbolFlags_AsciiString;
         }
 
@@ -137,11 +149,11 @@ bool StringFinder::validateString(const char* s, size_t size)
         case '{':  if((str.back() != '}'))    return false;
         case '%':  if(!StringFinder::checkFormats(str)) return false;
         case ' ':  return false;
-        default:   if(GibberishDetector::isGibberish(str)) return false;
+        default:   break; //if(GibberishDetector::isGibberish(str)) return false;
     }
 
     double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));
-    return (alphacount / static_cast<double>(str.size())) > 0.50;
+    return (alphacount / static_cast<double>(str.size())) > ALPHA_THRESHOLD;
 }
 
 bool StringFinder::checkFormats(const std::string& s)

@@ -1,7 +1,7 @@
 #include "callgraph.h"
 #include "../../../document/document.h"
-#include "../../../rdil/ilfunction.h"
 #include "../../../context.h"
+#include <iostream>
 
 CallGraph::CallGraph(Context* ctx): StyledGraph(ctx) { }
 
@@ -14,34 +14,70 @@ void CallGraph::walk(rd_address address)
     auto& doc = this->context()->document();
     auto loc = doc->functionStart(address);
     if(loc.valid) address = loc.address;
-    this->cgraph(address, RD_NVAL);
+
+    auto* net = doc->net();
+    auto* nn = net->findNode(address);
+    if(nn) this->cgraph(net, nn);
 }
 
-void CallGraph::cgraph(rd_address address, RDGraphNode parentnode)
+void CallGraph::cgraph(DocumentNet* net, const DocumentNetNode* nn)
 {
-    auto it = m_done.find(address);
-    RDGraphNode n{ };
+    auto [cgitem, added] = this->pushCallItem(nn);
+    this->setRoot(cgitem->node());
+    m_queue.push({ nn, cgitem });
 
-    if(it == m_done.end()) // Avoid infinite call recursion
+    while(!m_queue.empty())
     {
-        ILFunction il(this->context());
-        if(!ILFunction::generate(address, &il)) return;
+        auto cg = m_queue.front();
+        std::cout << std::hex << std::get<0>(cg)->address << std::endl;
+        m_queue.pop();
+        this->cgraph(net, std::get<0>(cg), std::get<1>(cg));
+    }
+}
 
-        n = this->pushNode();
-        auto& cgitem = m_items.emplace_back(n, address);
-        this->setData(n, std::addressof(cgitem));
-        m_done[address] = n;
+void CallGraph::cgraph(DocumentNet* net, CallGraphItem* cgitem, rd_address address)
+{
+    auto* nn = net->findNode(address);
+    if(nn) m_queue.push({ nn, cgitem });
+}
 
-        for(const ILExpression* e : il)
+void CallGraph::cgraph(DocumentNet* net, const DocumentNetNode* nn, CallGraphItem* cgitem)
+{
+    for(auto* node = nn; node; node = net->nextNode(node))
+    {
+        for(rd_address branch : node->branchestrue)
         {
-            if(!IS_TYPE(e, RDIL_Call)) continue;
-            cgitem.addCall(e);
-            this->cgraph(e->u->u_value, n);
+            if(branch <= node->address) continue; // Ignore loops
+            this->cgraph(net, cgitem, branch);
+        }
+
+        for(rd_address branch : node->branchesfalse)
+        {
+            if(branch <= node->address) continue; // Ignore loops
+            this->cgraph(net, cgitem, branch);
+        }
+
+        for(rd_address call : node->calls)
+        {
+            auto* cnn = net->findNode(call);
+            if(!cnn) continue;
+
+            auto [ccgitem, added] = this->pushCallItem(cnn);
+            this->pushEdge(cgitem->node(), ccgitem->node());
+            if(added) m_queue.push({ cnn, ccgitem });
         }
     }
-    else // Just recover the node and add the edge
-        n = it->second;
+}
 
-    if(parentnode != RD_NVAL) this->pushEdge(parentnode, n);
-    else this->setRoot(n);
+std::pair<CallGraphItem*, bool> CallGraph::pushCallItem(const DocumentNetNode* nn)
+{
+    auto it = m_done.find(nn);
+    if(it != m_done.end()) return { it->second, false };
+
+    auto n = this->pushNode();
+    auto& cgitem = m_items.emplace_back(n, nn);
+    this->setData(n, &cgitem);
+
+    m_done[nn] = &cgitem;
+    return { &cgitem, true };
 }

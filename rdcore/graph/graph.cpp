@@ -16,7 +16,7 @@ void Graph::clear()
 }
 
 bool Graph::empty() const { return m_nodes.empty(); }
-void Graph::setRoot(RDGraphNode n) { m_root = n; }
+RDGraphNode Graph::setRoot(RDGraphNode n) { m_root = n; return n; }
 
 void Graph::removeEdge(const RDGraphEdge* edge)
 {

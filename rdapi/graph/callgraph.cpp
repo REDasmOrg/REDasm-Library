@@ -12,6 +12,4 @@ bool RDCallGraph_Walk(RDGraph* graph, rd_address address)
 }
 
 RDGraphNode RDCallGraphItem_GetNode(const RDCallGraphItem* item) { return CPTR(const CallGraphItem, item)->node(); }
-rd_address RDCallGraphItem_GetAddress(const RDCallGraphItem* item) { return CPTR(const CallGraphItem, item)->address(); }
-size_t RDCallGraphItem_GetSize(const RDCallGraphItem* item) { return CPTR(const CallGraphItem, item)->size(); }
-const RDILExpression* RDCallGraphItem_GetCall(const RDCallGraphItem* item, size_t idx) { return CPTR(const RDILExpression, CPTR(const CallGraphItem, item)->call(idx)); }
+const RDNetNode* RDCallGraphItem_GetNetNode(const RDCallGraphItem* item) { return CPTR(const RDNetNode, CPTR(const CallGraphItem, item)->netNode()); }

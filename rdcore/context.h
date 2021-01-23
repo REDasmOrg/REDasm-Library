@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEFAULT_MIN_STRING 5
+#define DEFAULT_MIN_STRING 4
 
 #include <memory>
 #include <string>

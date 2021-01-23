@@ -50,3 +50,4 @@ void RDGraph_SetX(RDGraph* graph, RDGraphNode n, int px) { CPTR(StyledGraph, gra
 void RDGraph_SetY(RDGraph* graph, RDGraphNode n, int py) { CPTR(StyledGraph, graph)->y(n, py); }
 void RDGraph_SetWidth(RDGraph* graph, RDGraphNode n, int w) { CPTR(StyledGraph, graph)->width(n, w); }
 void RDGraph_SetHeight(RDGraph* graph, RDGraphNode n, int h) { CPTR(StyledGraph, graph)->height(n, h); }
+void RDGraph_ClearLayout(RDGraph* graph) { CPTR(StyledGraph, graph)->clearLayout(); }

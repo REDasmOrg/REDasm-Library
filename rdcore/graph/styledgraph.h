@@ -19,6 +19,7 @@ class StyledGraph: public DataGraph
 
     public:
         StyledGraph(Context* ctx);
+        void clearLayout();
         void clear() override;
 
     public: // Write

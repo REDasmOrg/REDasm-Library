@@ -69,6 +69,7 @@ RD_API_EXPORT void RDGraph_SetX(RDGraph* graph, RDGraphNode n, int px);
 RD_API_EXPORT void RDGraph_SetY(RDGraph* graph, RDGraphNode n, int py);
 RD_API_EXPORT void RDGraph_SetWidth(RDGraph* graph, RDGraphNode n, int w);
 RD_API_EXPORT void RDGraph_SetHeight(RDGraph* graph, RDGraphNode n, int h);
+RD_API_EXPORT void RDGraph_ClearLayout(RDGraph* graph);
 
 #ifdef __cplusplus
 #include <utility>

@@ -3,12 +3,17 @@
 
 StyledGraph::StyledGraph(Context* ctx): DataGraph(ctx) { }
 
-void StyledGraph::clear()
+void StyledGraph::clearLayout()
 {
-    DataGraph::clear();
     m_nodeattributes.clear();
     m_edgeattributes.clear();
     m_areawidth = m_areaheight = 0;
+}
+
+void StyledGraph::clear()
+{
+    DataGraph::clear();
+    this->clearLayout();
 }
 
 void StyledGraph::color(const RDGraphEdge* e, const std::string& c) { m_edgeattributes[*e].color = c; }

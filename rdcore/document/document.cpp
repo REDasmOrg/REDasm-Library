@@ -183,12 +183,8 @@ void Document::updateComments(rd_address address, rd_address symboladdress, cons
 
 size_t Document::markString(rd_address address, rd_flag* resflags)
 {
-    RDBlock block;
-    if(!this->block(address, &block)) return false;
-
     RDBufferView view;
     if(!this->view(address, &view)) return false;
-    view.size = BlockContainer::size(&block); // Resize view to block size
 
     size_t totalsize = 0;
     rd_flag flags = StringFinder::categorize(this->context(), &view, &totalsize);

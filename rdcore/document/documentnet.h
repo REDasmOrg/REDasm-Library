@@ -43,10 +43,12 @@ class DocumentNet: public Object
         void linkBranch(rd_address fromaddress, rd_address toaddress, rd_type type);
         void linkCall(rd_address fromaddress, rd_address toaddress);
         void addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags = ReferenceFlags_Direct);
-        void unlinkNext(rd_address fromaddress);
+        bool unlinkPrev(rd_address address);
+        bool unlinkNext(rd_address address);
         void unlinkBranch(rd_address fromaddress, rd_address toaddress);
         void unlinkCall(rd_address fromaddress, rd_address toaddress);
         void removeRef(rd_address fromaddress, rd_address toaddress);
+        bool link(rd_address prevaddress, rd_address nextaddress);
         const DocumentNetNode* findNode(rd_address address) const;
         const DocumentNetNode* prevNode(const DocumentNetNode* n) const;
         const DocumentNetNode* nextNode(const DocumentNetNode* n) const;

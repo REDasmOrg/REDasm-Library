@@ -120,7 +120,7 @@ bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) con
 }
 
 SafeDocument& Disassembler::document() const { return m_loader->document(); }
-DocumentNet* Disassembler::net() const { return this->document()->net(); }
+DocumentNet* Disassembler::net() { return this->document()->net(); }
 MemoryBuffer* Disassembler::buffer() const { return this->document()->buffer(); }
 bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return this->document()->view(address, size, view); }
 

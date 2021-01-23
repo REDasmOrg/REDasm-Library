@@ -169,6 +169,7 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 
 SafeDocument& Context::document() const { return m_disassembler->loader()->document(); }
 const DocumentNet* Context::net() const { return m_disassembler ? m_disassembler->net() : nullptr; }
+DocumentNet* Context::net() { return m_disassembler ? m_disassembler->net() : nullptr; }
 Disassembler* Context::disassembler() const { return m_disassembler.get(); }
 Assembler* Context::assembler() const { return m_disassembler ? m_disassembler->assembler() : nullptr; }
 Loader* Context::loader() const { return m_disassembler ? m_disassembler->loader() : nullptr; }

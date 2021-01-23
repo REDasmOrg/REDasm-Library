@@ -11,18 +11,44 @@ void DocumentNet::linkNext(rd_address fromaddress, rd_address toaddress)
     this->n(toaddress).prev.insert(fromaddress);
 }
 
-void DocumentNet::unlinkNext(rd_address fromaddress)
+bool DocumentNet::unlinkPrev(rd_address address)
 {
-    auto it = m_netnodes.find(fromaddress);
-    if(it == m_netnodes.end()) return;
+    auto nit = m_netnodes.find(address);
+    if(nit == m_netnodes.end()) return false;
 
-    rd_address toaddress = it->second.next;
+    auto& n = nit->second;
+
+    for(size_t i = 0; i < n.prev.size(); )
+    {
+        rd_address prevaddress = n.prev.at(i);
+        auto pit = m_netnodes.find(prevaddress);
+
+        if((pit != m_netnodes.end()) && (pit->second.next == address))
+        {
+            pit->second.next = RD_NVAL;
+            n.prev.remove(prevaddress);
+        }
+        else
+            i++;
+    }
+
+    return true;
+}
+
+bool DocumentNet::unlinkNext(rd_address address)
+{
+    auto it = m_netnodes.find(address);
+    if(it == m_netnodes.end()) return false;
+
+    rd_address nextaddress = it->second.next;
+    if(nextaddress == RD_NVAL) return true;
     it->second.next = RD_NVAL;
 
-    it = m_netnodes.find(toaddress);
-    if(it == m_netnodes.end()) return;
+    it = m_netnodes.find(nextaddress);
+    if(it == m_netnodes.end()) return false;
 
-    it->second.prev.remove(fromaddress);
+    it->second.prev.remove(address);
+    return true;
 }
 
 void DocumentNet::linkBranch(rd_address fromaddress, rd_address toaddress, rd_type type)

@@ -117,6 +117,14 @@ void Engine::cfgStep()
     this->context()->document()->invalidateGraphs();
 
     const FunctionContainer* functions = this->context()->document()->functions();
+    DocumentNet* net = this->context()->net();
+
+    this->context()->status("Processing function bounds");
+
+    functions->each([&](rd_address address) {
+        net->unlinkPrev(address);
+        return true;
+    });
 
     functions->each([&](rd_address address) {
         this->context()->statusAddress("Computing basic blocks", address);

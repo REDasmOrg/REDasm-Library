@@ -16,7 +16,7 @@ class Disassembler: public Object
         Loader* loader() const;
         SafeAlgorithm& algorithm();
         SafeDocument& document() const;
-        DocumentNet* net() const;
+        DocumentNet* net();
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         void prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);

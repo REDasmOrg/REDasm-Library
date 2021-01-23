@@ -83,7 +83,7 @@ RD_API_EXPORT void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderReq
 RD_API_EXPORT void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata);
 RD_API_EXPORT void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata);
 RD_API_EXPORT void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select);
-RD_API_EXPORT void RDContext_DisassembleFunction(RDContext* ctx, rd_address address, const char* name);
+RD_API_EXPORT bool RDContext_DisassembleFunction(RDContext* ctx, rd_address address, const char* name);
 RD_API_EXPORT void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block);
 RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);

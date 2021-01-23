@@ -22,7 +22,6 @@ void UnexploredAnalyzer::analyze(Context* ctx)
     auto& doc = ctx->document();
     size_t bits = ctx->assembler()->bits();
     std::deque<RDBlock> pending;
-    int c = 0;
 
     doc->segments()->each([&](const RDSegment& segment) {
         if(!HAS_FLAG(&segment, SegmentFlags_Code)) return true;
@@ -32,7 +31,6 @@ void UnexploredAnalyzer::analyze(Context* ctx)
             rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
             if(!IS_TYPE(&block, BlockType_Unknown) || HAS_FLAG(&block, BlockFlags_Explored) || m_done.count(block.address)) return true;
 
-            c++;
             m_done.insert(block.address);
             pending.push_back(block);
             return true;
@@ -41,7 +39,7 @@ void UnexploredAnalyzer::analyze(Context* ctx)
         return true;
     });
 
-    if(c) rd_cfg->log("Found " + std::to_string(c) + " unknown block(s)");
+    if(!pending.empty()) rd_cfg->log("Found " + std::to_string(pending.size()) + " unknown block(s)");
 
     while(!pending.empty())
     {

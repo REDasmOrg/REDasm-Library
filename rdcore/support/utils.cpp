@@ -186,6 +186,13 @@ bool Utils::matchRegex(const std::string& s, const std::string& rgx)
     return std::regex_search(s, r);
 }
 
+size_t& Utils::hashCombine(size_t& s, size_t v)
+{
+    std::hash<size_t> h;
+    s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
+    return s;
+}
+
 std::string& Utils::replaceAll(std::string& s, const std::string& from, const std::string& to)
 {
     size_t pos = s.find(from);

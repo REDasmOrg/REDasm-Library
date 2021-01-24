@@ -33,6 +33,12 @@ const char* RD_Thunk(const char* name)
     return s.c_str();
 }
 
+size_t* RD_HashCombine(size_t* h, size_t v)
+{
+    if(h) Utils::hashCombine(*h, v);
+    return h;
+}
+
 const char* RD_ToString(size_t value) { return RD_ToStringBase(value, 10, 0, '0'); }
 u8* RD_RelPointer(void* ptr, size_t offset) { return Utils::relpointer(ptr, offset); }
 bool RD_InRange(rd_address address, rd_address start, rd_address end) { return ((address >= start) && (address < end));  }

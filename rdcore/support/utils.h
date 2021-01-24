@@ -11,8 +11,6 @@
 #include "../support/error.h"
 #include "../document/document_fwd.h"
 
-#define DEFAULT_SLEEP_TIME std::chrono::milliseconds(5)
-
 struct RDBufferView;
 class Context;
 
@@ -45,10 +43,10 @@ class Utils
         static std::string wildcardToRegex(const std::string& wcs);
         static bool matchWildcard(const std::string& s, const std::string& wc);
         static bool matchRegex(const std::string& s, const std::string& rgx);
+        static size_t& hashCombine(size_t& s, size_t v);
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);
-        template<typename T> static size_t& hashCombine(size_t& s, const T& v);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
         template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
         template<typename T> static typename std::make_signed<T>::type signext(T val, int valbits);
@@ -61,14 +59,6 @@ class Utils
         static bool matchPattern(const u8* data, size_t datasize, const std::string& pattern);
         static bool checkPattern(std::string& p, size_t& len);
 };
-
-template<typename T>
-size_t& Utils::hashCombine(size_t& s, const T& v)
-{
-    std::hash<T> h;
-    s ^= h(v) + 0x9e3779b9 + (s << 6) + (s >> 2);
-    return s;
-}
 
 template<typename T>
 T Utils::rol(T val, T amt)

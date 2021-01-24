@@ -16,6 +16,7 @@ class DocumentData: public Listing
         void setEndianness(rd_endianness endianness);
 
     public:
+        bool blockView(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         bool view(const RDSegment& segment, RDBufferView* view) const;

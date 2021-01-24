@@ -8,6 +8,16 @@ DocumentData::DocumentData(const MemoryBufferPtr& buffer, Context* ctx): Listing
 rd_endianness DocumentData::endianness() const { return m_endianness; }
 MemoryBuffer* DocumentData::buffer() const { return m_buffer.get(); }
 void DocumentData::setEndianness(rd_endianness endianness) { m_endianness = endianness; }
+
+bool DocumentData::blockView(rd_address address, RDBufferView* view) const
+{
+    RDBlock b;
+    if(!this->block(address, &b)) return false;
+    if(!this->view(b.address, BlockContainer::size(&b), view)) return false;
+    BufferView::advance(view, address - b.address); // Adjust view to requested address
+    return true;
+}
+
 bool DocumentData::view(rd_address address, RDBufferView* view) const { return this->view(address, RD_NVAL, view); }
 
 bool DocumentData::view(rd_address address, size_t size, RDBufferView* view) const

@@ -33,18 +33,10 @@ void GraphTests::testCM01(const RDDocument* doc)
 
 void GraphTests::testGraphs(const GraphTests::TestGraphs& tg, const RDDocument* doc)
 {
-    // FIXME: size_t c = RDDocument_FunctionsCount(doc);
-
-    // FIXME: for(size_t i = 0; i < c; i++)
-    // FIXME: {
-    // FIXME:     auto loc = RDDocument_GetFunctionAt(doc, i);
-    // FIXME:     REQUIRE(loc.valid);
-
-    // FIXME:     RDGraph* g = nullptr;
-    // FIXME:     REQUIRE(RDDocument_GetFunctionGraph(doc, loc.address, &g));
-
-    // FIXME:     auto it = tg.find(RDFunctionGraph_GetStartAddress(g));
-    // FIXME:     REQUIRE(it != tg.end());
-    // FIXME:     REQUIRE_EQ(RDGraph_Hash(g), it->second);
-    // FIXME: }
+    for(const auto& [address, hash] : tg)
+    {
+        RDGraph* g = nullptr;
+        REQUIRE(RDDocument_GetFunctionGraph(doc,address, &g));
+        REQUIRE_EQ(RDGraph_Hash(g), hash);
+    }
 }

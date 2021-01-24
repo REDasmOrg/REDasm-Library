@@ -22,8 +22,8 @@ class AddressQueue: public Object
         bool getNext(rd_address* address);
 
     protected:
-        Disassembler* m_disassembler;
         SafeDocument& m_document;
+        DocumentNet* m_net;
 
     private:
         std::deque<rd_address> m_pending;

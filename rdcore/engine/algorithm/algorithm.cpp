@@ -3,7 +3,7 @@
 #include "../../support/error.h"
 #include "../../support/utils.h"
 #include "../../disassembler.h"
-#include "../../config.h"
+#include "../../context.h"
 #include "emulateresult.h"
 #include <thread>
 
@@ -72,8 +72,7 @@ bool Algorithm::canBeDisassembled(rd_address address) const
             default: break;
         }
 
-        auto* net = m_disassembler->net();
-        if(net->getReferences(block.address, nullptr)) return false;
+        if(m_net->getReferences(block.address, nullptr)) return false;
         return HAS_FLAG(&symbol, SymbolFlags_Weak);
     }
 
@@ -87,7 +86,7 @@ rd_address Algorithm::processDelaySlots(rd_address address, size_t ds)
         auto nextaddress = this->decode(address);
         if(!nextaddress) break;
 
-        if(i > 1) m_disassembler->net()->linkNext(address, *nextaddress);
+        if(i > 1) m_net->linkNext(address, *nextaddress);
         address = *nextaddress;
     }
 
@@ -96,8 +95,6 @@ rd_address Algorithm::processDelaySlots(rd_address address, size_t ds)
 
 void Algorithm::processResult(EmulateResult* result)
 {
-    DocumentNet* net = m_disassembler->net();
-
     for(const auto& [forktype, res] : result->results())
     {
         RDSegment segment;
@@ -112,11 +109,11 @@ void Algorithm::processResult(EmulateResult* result)
             case EmulateResult::Branch:
             case EmulateResult::BranchTrue:
             case EmulateResult::BranchFalse:
-                this->processBranches(net, forktype, result->address(), res.address, &segment);
+                this->processBranches(forktype, result->address(), res.address, &segment);
                 break;
 
             case EmulateResult::Call: {
-                net->linkCall(result->address(), res.address);
+                m_net->linkCall(result->address(), res.address);
 
                 if(HAS_FLAG(&segment, SegmentFlags_Code)) {
                     m_document->function(res.address, std::string());
@@ -132,17 +129,17 @@ void Algorithm::processResult(EmulateResult* result)
     }
 }
 
-void Algorithm::processBranches(DocumentNet* net, rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment)
+void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment)
 {
     switch(forktype)
     {
         case EmulateResult::Branch:
         case EmulateResult::BranchTrue:
-            net->linkBranch(fromaddress, address, forktype);
+            m_net->linkBranch(fromaddress, address, forktype);
             break;
 
         case EmulateResult::BranchFalse:
-            net->linkBranch(fromaddress, address, forktype);
+            m_net->linkBranch(fromaddress, address, forktype);
             this->schedule(address);
             return; // Don't generate symbols
 
@@ -158,7 +155,7 @@ void Algorithm::processBranches(DocumentNet* net, rd_type forktype, rd_address f
         return;
     }
 
-    m_document->data(address, m_disassembler->assembler()->addressWidth(), std::string());
+    m_document->data(address, this->context()->addressWidth(), std::string());
 }
 
 void Algorithm::nextAddress(rd_address address)
@@ -170,7 +167,7 @@ void Algorithm::nextAddress(rd_address address)
 std::optional<rd_address> Algorithm::decode(rd_address address)
 {
     RDBufferView view;
-    if(!m_disassembler->view(address, SegmentContainer::offsetSize(m_currentsegment), &view)) return std::nullopt;
+    if(!m_document->blockView(address, &view)) return std::nullopt;
 
     EmulateResult result(address, &view);
     return this->decode(&view, &result);
@@ -181,20 +178,20 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
     if(!this->canBeDisassembled(result->address())) return std::nullopt;
 
     this->status("Decoding @ " + Utils::hex(result->address()));
-    m_disassembler->assembler()->emulate(result);
+    this->context()->assembler()->emulate(result);
 
     if(!result->size() || (result->size() > view->size))
     {
-        m_disassembler->document()->explored(result->address(), 1);
+        m_document->explored(result->address(), 1);
         return std::nullopt;
     }
 
-    m_disassembler->document()->instruction(result->address(), result->size());
+    m_document->instruction(result->address(), result->size());
     rd_address nextaddress = result->address() + result->size();
 
     if(result->delaySlot())
     {
-        m_disassembler->net()->linkNext(result->address(), nextaddress);
+        m_net->linkNext(result->address(), nextaddress);
         nextaddress = this->processDelaySlots(nextaddress, result->delaySlot());
     }
 
@@ -202,7 +199,7 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 
     if(result->canFlow())
     {
-        m_disassembler->net()->linkNext(result->address(), nextaddress);
+        m_net->linkNext(result->address(), nextaddress);
         return nextaddress;
     }
 
@@ -211,9 +208,6 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 
 bool Algorithm::isAddressValid(rd_address address) const
 {
-    auto loc = m_disassembler->document()->offset(address);
-    if(!loc.valid) return false;
-
     if(m_document->items()->contains(RDDocumentItem{ address, DocumentItemType_Instruction, 0 })) return false;
     if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code)) return false;
     return true;

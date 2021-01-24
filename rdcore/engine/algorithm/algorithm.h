@@ -10,9 +10,6 @@ class EmulateResult;
 
 class Algorithm: public AddressQueue
 {
-    private:
-        enum { OK, SKIP, FAIL };
-
     public:
         Algorithm(Context* ctx);
         void enqueue(rd_address address) override;
@@ -30,7 +27,7 @@ class Algorithm: public AddressQueue
         bool canBeDisassembled(rd_address address) const;
         rd_address processDelaySlots(rd_address address, size_t ds);
         void processResult(EmulateResult* result);
-        void processBranches(DocumentNet* net, rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment);
+        void processBranches(rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment);
 
     private:
         mutable RDSegment m_currentsegment{ };

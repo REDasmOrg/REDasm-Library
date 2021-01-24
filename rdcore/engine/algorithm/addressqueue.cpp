@@ -1,10 +1,7 @@
 #include "addressqueue.h"
-#include "../../document/document.h"
-#include "../../support/utils.h"
-#include "../../disassembler.h"
 #include "../../context.h"
 
-AddressQueue::AddressQueue(Context* ctx): m_disassembler(ctx->disassembler()), m_document(ctx->document()) { }
+AddressQueue::AddressQueue(Context* ctx): Object(ctx), m_document(ctx->document()), m_net(ctx->net()) { }
 size_t AddressQueue::pending() const { return m_pending.size(); }
 bool AddressQueue::hasNext() const { return !m_pending.empty(); }
 

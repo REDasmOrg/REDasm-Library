@@ -39,7 +39,9 @@ function(redasm_plugin P_NAME P_TYPE)
         target_link_directories(${P_NAME} PRIVATE ${REDASM_LIBRARY_PATH})
     endif()
 
-    set_target_properties(${P_NAME} PROPERTIES CXX_EXTENSIONS OFF
+    set_target_properties(${P_NAME} PROPERTIES
+                                    POSITION_INDEPENDENT_CODE ON
+                                    CXX_EXTENSIONS OFF
                                     PREFIX ""
                                     OUTPUT_NAME "${P_ID}"
                                     LINKER_LANGUAGE CXX)

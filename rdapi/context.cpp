@@ -17,6 +17,7 @@ RDDocument* RDContext_GetDocument(const RDContext* ctx) { return CPTR(RDDocument
 RDAssembler* RDContext_GetAssembler(const RDContext* ctx) { return CPTR(RDAssembler, CPTR(const Context, ctx)->assembler()); }
 RDLoader* RDContext_GetLoader(const RDContext* ctx) { return CPTR(RDLoader, CPTR(const Context, ctx)->loader()); }
 RDBuffer* RDContext_GetBuffer(const RDContext* ctx) { return CPTR(RDBuffer, CPTR(const Context, ctx)->buffer()); }
+size_t RDContext_GetBufferSize(const RDContext* ctx) { return CPTR(const Context, ctx)->buffer()->size(); }
 size_t RDContext_GetBits(const RDContext* ctx) { return CPTR(const Context, ctx)->bits(); }
 size_t RDContext_GetAddressWidth(const RDContext* ctx) { return CPTR(const Context, ctx)->addressWidth(); }
 RDSurface* RDContext_GetActiveSurface(const RDContext* ctx) { return CPTR(RDSurface, CPTR(const Context, ctx)->activeSurface()); }
@@ -47,7 +48,7 @@ rd_type RDContext_GetABI(const RDContext* ctx) { return CPTR(const Context, ctx)
 void RDContext_SetCC(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompilerCC(t); }
 rd_type RDContext_GetCC(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerCC(); }
 const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, symbol); }
-u8* RDContext_GetData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
+u8* RDContext_GetBufferData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
 bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->createFunction(address, name); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 

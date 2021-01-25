@@ -47,9 +47,11 @@ class Renderer: public Object
         void renderSigned(s64 value);
         void renderUnsigned(u64 value);
         void renderMnemonic(const std::string& s, rd_type theme);
+        void renderMnemonicWord(const std::string& s, rd_type theme);
         void renderRegister(const std::string& s);
         void renderConstant(const std::string& s);
         void renderText(const std::string& s, rd_type theme = Theme_Default);
+        void renderUnknown();
         void renderIndent(size_t n, bool ignoreflags = false);
 
     private:

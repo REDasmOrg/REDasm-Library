@@ -38,9 +38,11 @@ RD_API_EXPORT void RDRenderer_HexDump(RDRenderer* r, const RDBufferView* view, s
 RD_API_EXPORT void RDRenderer_Signed(RDRenderer* r, s64 val);
 RD_API_EXPORT void RDRenderer_Unsigned(RDRenderer* r, u64 val);
 RD_API_EXPORT void RDRenderer_Mnemonic(RDRenderer* r, const char* s, rd_type theme);
+RD_API_EXPORT void RDRenderer_MnemonicWord(RDRenderer* r, const char* s, rd_type theme);
 RD_API_EXPORT void RDRenderer_Register(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Constant(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Text(RDRenderer* r, const char* s);
+RD_API_EXPORT void RDRenderer_Unknown(RDRenderer* r);
 
 RD_API_EXPORT const char* RD_GetInstruction(RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RD_GetAssemblerInstruction(RDContext* ctx, rd_address address);

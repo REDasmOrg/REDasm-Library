@@ -79,9 +79,18 @@ void Renderer::renderUnsigned(u64 value)
 }
 
 void Renderer::renderMnemonic(const std::string& s, rd_type theme) { if(!s.empty()) this->chunk(s, theme); }
+
+void Renderer::renderMnemonicWord(const std::string& s, rd_type theme)
+{
+    this->renderMnemonic(s, theme);
+    this->renderText(" ");
+}
+
 void Renderer::renderRegister(const std::string& s) { this->chunk(s, Theme_Reg); }
 void Renderer::renderConstant(const std::string& s) { this->chunk(s, Theme_Constant); }
 void Renderer::renderText(const std::string& s, rd_type theme) { this->chunk(s, theme); }
+void Renderer::renderUnknown() { this->chunk("???"); }
+
 const std::string& Renderer::text() const { return m_text; }
 const Renderer::Chunks& Renderer::chunks() const { return m_tokens; }
 

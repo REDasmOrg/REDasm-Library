@@ -100,7 +100,12 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlockMap& basicblocks)
         if(!Utils::isCode(m_document, address) || basicblocks.count(address)) continue;
 
         const auto* link = net->findNode(address);
-        if(!link) continue;
+
+        if(!link)
+        {
+            this->context()->problem("Cannot find node @ " + Utils::hex(address));
+            continue;
+        }
 
         basicblocks[address] = this->createBasicBlock(address);
 
@@ -130,7 +135,12 @@ void FunctionGraph::buildBasicBlocks()
     {
         rd_address address = bbaddress;
         auto* link = net->findNode(address);
-        if(!link) continue;
+
+        if(!link)
+        {
+            this->context()->problem("Cannot find node @ " + Utils::hex(bbaddress));
+            continue;
+        }
 
         while(link && Utils::isCode(m_document, address))
         {

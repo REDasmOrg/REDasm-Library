@@ -16,7 +16,16 @@ bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
     return m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Instruction, 0 }, item);
 }
 
-bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const { return m_document->items()->get(RDDocumentItem{ endaddress, DocumentItemType_Instruction, 0}, item); }
+bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const
+{
+    static const std::array<rd_type, 3> END_ITEMS = {
+        DocumentItemType_Instruction,
+        DocumentItemType_Symbol, // Include symbols as fallback solution
+        0
+    };
+
+    return m_document->getAny(endaddress, END_ITEMS.data(), item);
+}
 
 size_t FunctionBasicBlock::itemsCount() const
 {

@@ -5,13 +5,13 @@
 #include "../support/utils.h"
 #include "../context.h"
 #include "../config.h"
-#include <rdapi/symbol.h>
 #include <thread>
-#include <vector>
 #include <cctype>
 #include <cuchar>
 
 #define ALPHA_THRESHOLD 0.5
+
+std::string StringFinder::m_tempstr;
 
 void StringFinder::find(Context* ctx, const RDBufferView& inview)
 {
@@ -20,7 +20,7 @@ void StringFinder::find(Context* ctx, const RDBufferView& inview)
 
     while(hasnext)
     {
-        hasnext = StringFinder::step(ctx, &view);
+        hasnext = StringFinder::step(ctx, view);
         std::this_thread::yield();
     }
 }
@@ -43,10 +43,10 @@ bool StringFinder::toAscii(char16_t inch, char* outch)
     return res;
 }
 
-bool StringFinder::step(Context* ctx, RDBufferView* view)
+bool StringFinder::step(Context* ctx, RDBufferView& view)
 {
-    if(BufferView::empty(view)) return false;
-    RDLocation loc = ctx->document()->addressof(view->data);
+    if(BufferView::empty(&view)) return false;
+    RDLocation loc = ctx->document()->addressof(view.data);
     if(!loc.valid) return false;
 
     rd_cfg->status("Searching strings @ " + Utils::hex(loc.value));
@@ -55,77 +55,37 @@ bool StringFinder::step(Context* ctx, RDBufferView* view)
     rd_flag flags = StringFinder::categorize(ctx, view, &totalsize);
 
     if(StringFinder::checkAndMark(ctx, loc.address, flags, totalsize))
-        BufferView::advance(view, totalsize);
+        BufferView::advance(&view, totalsize);
     else
-        BufferView::advance(view, 1);
+        BufferView::advance(&view, 1);
 
     return true;
 }
 
-rd_flag StringFinder::categorize(Context* ctx, const RDBufferView* view, size_t* totalsize)
+rd_flag StringFinder::categorize(Context* ctx, const RDBufferView& view, size_t* totalsize)
 {
-    if(view->size < (sizeof(char) * 2)) return SymbolFlags_None;
+    if(view.size < (sizeof(char) * 2)) return SymbolFlags_None;
 
-    char c1 = static_cast<char>(view->data[0]);
-    char c2 = static_cast<char>(view->data[1]);
+    char c1 = static_cast<char>(view.data[0]);
+    char c2 = static_cast<char>(view.data[1]);
+    bool ok = false;
 
     if(StringFinder::isAscii(c1) && !c2)
     {
-        std::vector<char> ts;
-        RDBufferView v = *view;
-        char16_t wc = *reinterpret_cast<const char16_t*>(v.data);
-        char ch = 0;
+        bool ok = StringFinder::categorizeT<char16_t>(view, ctx->minString(), totalsize, [](char16_t ch, char* outch) {
+            return StringFinder::toAscii(ch, outch);
+        });
 
-        for(size_t i = 0; !BufferView::empty(&v) && wc; i++, BufferView::advance(&v, sizeof(char16_t)))
-        {
-            wc = *reinterpret_cast<const char16_t*>(v.data);
-
-            if(StringFinder::toAscii(wc, &ch))
-            {
-                ts.push_back(ch);
-                continue;
-            }
-
-            if(i >= ctx->minString())
-            {
-                if(!StringFinder::validateString(reinterpret_cast<const char*>(ts.data()), ts.size()))
-                    return SymbolFlags_None;
-
-                if(totalsize)
-                {
-                    *totalsize = i * sizeof(char16_t);
-                    if(!wc) *totalsize += sizeof(char16_t); // Include null terminator too
-                }
-
-                return SymbolFlags_WideString;
-            }
-
-            break;
-        }
+        if(ok) return SymbolFlags_WideString;
     }
 
-    for(size_t i = 0; i < view->size; i++)
-    {
-        if(StringFinder::isAscii(view->data[i])) continue;
+    ok = StringFinder::categorizeT<char>(view, ctx->minString(), totalsize, [](char ch, char* outch) {
+        if(!StringFinder::isAscii(ch)) return false;
+        *outch = ch;
+        return true;
+    });
 
-        if(i >= ctx->minString())
-        {
-            if(!StringFinder::validateString(reinterpret_cast<const char*>(view->data), i - 1))
-                return SymbolFlags_None;
-
-            if(totalsize)
-            {
-                *totalsize = i;
-                if(!view->data[i]) (*totalsize)++; // Include null terminator too
-            }
-
-            return SymbolFlags_AsciiString;
-        }
-
-        break;
-    }
-
-    return SymbolFlags_None;
+    return ok ? SymbolFlags_AsciiString : SymbolFlags_None;
 }
 
 bool StringFinder::checkAndMark(Context* ctx, rd_address address, rd_flag flags, size_t totalsize)
@@ -135,30 +95,36 @@ bool StringFinder::checkAndMark(Context* ctx, rd_address address, rd_flag flags,
     return false;
 }
 
-bool StringFinder::validateString(const char* s, size_t size)
+bool StringFinder::validateString(const std::string& str)
 {
-    std::string str(s, size);
+    if(!StringFinder::checkHeuristic(str, true)) return false;
 
-    switch(str.front()) // Some Heuristics
+    double alnumcount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalnum));
+    return (alnumcount / static_cast<double>(str.size())) > ALPHA_THRESHOLD;
+}
+
+bool StringFinder::checkHeuristic(const std::string& s, bool gibberish)
+{
+    switch(s.front())
     {
-        case '\'': if((str.back() != '\''))   return false;
-        case '\"': if((str.back() != '\"'))   return false;
-        case '<':  if((str.back() != '>'))    return false;
-        case '(':  if((str.back() != ')'))    return false;
-        case '[':  if((str.back() != ']'))    return false;
-        case '{':  if((str.back() != '}'))    return false;
-        case '%':  if(!StringFinder::checkFormats(str)) return false;
-        case ' ':  return false;
-        default:   break; //if(GibberishDetector::isGibberish(str)) return false;
+        case '\'': if((s.back() != '\'')) break;
+        case '\"': if((s.back() != '\"')) break;
+        case '<':  if((s.back() != '>'))  break;
+        case '(':  if((s.back() != ')'))  break;
+        case '[':  if((s.back() != ']'))  break;
+        case '{':  if((s.back() != '}'))  break;
+        case ' ':  break;
+
+        case '%':  return StringFinder::checkFormats(s);
+        default:   return gibberish && !GibberishDetector::isGibberish(s);
     }
 
-    double alphacount = static_cast<double>(std::count_if(str.begin(), str.end(), ::isalpha));
-    return (alphacount / static_cast<double>(str.size())) > ALPHA_THRESHOLD;
+    return false;
 }
 
 bool StringFinder::checkFormats(const std::string& s)
 {
-    static std::unordered_set<std::string> formats = {
+    static const std::unordered_set<std::string> FORMATS = {
         "%c", "%d", "%e", "%E", "%f", "%g", "%G",
         "%hi", "%hu", "%i", "%l", "%ld", "%li",
         "%lf", "%Lf", "%lu", "%lli, %lld", "%llu",
@@ -166,5 +132,5 @@ bool StringFinder::checkFormats(const std::string& s)
         "%x", "%X", "%n", "%%"
     };
 
-    return formats.find(s) != formats.end();
+    return FORMATS.find(s) != FORMATS.end();
 }

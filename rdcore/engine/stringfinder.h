@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <rdapi/types.h>
+#include <rdapi/symbol.h>
 #include "../buffer/view.h"
 
 class Context;
@@ -11,7 +12,7 @@ class StringFinder
 {
     public:
         StringFinder() = delete;
-        static rd_flag categorize(Context* ctx, const RDBufferView* view, size_t* totalsize);
+        static rd_flag categorize(Context* ctx, const RDBufferView& view, size_t* totalsize);
         static bool checkAndMark(Context* ctx, rd_address address, rd_flag flags, size_t totalsize);
         static void find(Context* ctx, const RDBufferView& inview);
 
@@ -21,7 +22,32 @@ class StringFinder
         static bool toAscii(char16_t inch, char* outch);
 
     private:
-        static bool step(Context* ctx, RDBufferView* view);
-        static bool validateString(const char* s, size_t size);
+        template<typename T, typename ToAsciiCallback> static bool categorizeT(RDBufferView view, size_t minstring, size_t* totalsize, const ToAsciiCallback& cb);
+        static bool step(Context* ctx, RDBufferView& view);
+        static bool validateString(const std::string& str);
+        static bool checkHeuristic(const std::string& s, bool gibberish);
         static bool checkFormats(const std::string& s);
+
+    private:
+        static std::string m_tempstr;
 };
+
+template<typename T, typename ToAsciiCallback>
+bool StringFinder::categorizeT(RDBufferView view, size_t minstring, size_t* totalsize, const ToAsciiCallback& cb) {
+    m_tempstr.clear();
+    m_tempstr.reserve(view.size);
+    char ch;
+
+    for( ; !BufferView::empty(&view); BufferView::advance(&view, sizeof(T))) {
+        if(!cb(*reinterpret_cast<const T*>(view.data), &ch)) break;
+        m_tempstr.push_back(ch);
+    }
+
+    if(totalsize) {
+        *totalsize = m_tempstr.size();
+        if(!(*view.data)) *totalsize += sizeof(T); // Include null terminator too
+    }
+
+    if(m_tempstr.size() >= minstring) return StringFinder::validateString(m_tempstr);
+    return StringFinder::checkHeuristic(m_tempstr, false);
+}

@@ -14,16 +14,6 @@ const Type* Document::type(const RDDocumentItem* item) const
     return itemdata ? itemdata->type.get() : nullptr;
 }
 
-bool Document::pointer(rd_address address, rd_type type, const std::string& name)
-{
-    if(!this->block(address, this->context()->addressWidth(), name, type, SymbolFlags_Pointer))
-        return false;
-
-    auto loc = this->dereference(address);
-    if(loc.valid) this->checkLocation(address, loc.address);
-    return loc.valid;
-}
-
 bool Document::typeName(rd_address address, const std::string& q)
 {
     RDDatabaseValue v;
@@ -187,7 +177,7 @@ size_t Document::markString(rd_address address, rd_flag* resflags)
     if(!this->view(address, &view)) return false;
 
     size_t totalsize = 0;
-    rd_flag flags = StringFinder::categorize(this->context(), &view, &totalsize);
+    rd_flag flags = StringFinder::categorize(this->context(), view, &totalsize);
     if(resflags) *resflags = flags;
 
     if(StringFinder::checkAndMark(this->context(), address, flags, totalsize)) return totalsize;

@@ -18,6 +18,7 @@ const SegmentContainer* Listing::segments() const { return &m_segments; }
 const SymbolTable* Listing::symbols() const { return m_symbols.get(); }
 const BlockContainer* Listing::blocks(rd_address address) const { return m_segments.findBlocks(address); }
 const RDSymbol* Listing::entry() const { return &m_entry; }
+bool Listing::pointer(rd_address address, rd_type type, const std::string& name) { return this->block(address, this->context()->addressWidth(), name, type, SymbolFlags_Pointer); }
 
 bool Listing::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
 {

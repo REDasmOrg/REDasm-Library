@@ -37,6 +37,7 @@ class Listing: public Object
         const RDSymbol* entry() const;
 
     public: // Insertion
+        bool pointer(rd_address address, rd_type type, const std::string& name);
         bool segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
         bool imported(rd_address address, size_t size, const std::string& name);
         bool exported(rd_address address, size_t size, const std::string& name);

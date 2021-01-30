@@ -126,8 +126,9 @@ void Engine::cfgStep()
         return true;
     });
 
+    this->context()->status("Computing basic blocks");
+
     functions->each([&](rd_address address) {
-        this->context()->statusAddress("Computing basic blocks", address);
         this->generateCfg(address);
         return true;
     });

@@ -9,7 +9,7 @@ void Assembler::lift(rd_address address, const RDBufferView* view, ILFunction* i
 {
     il->setCurrentAddress(address); // Keep address <-> RDIL reference
     if(m_entry->lift) m_entry->lift(CPTR(RDContext, this->context()), address, view, CPTR(RDILFunction, il));
-    else il->append(il->exprUNKNOWN());
+    if(!m_entry->lift || il->empty()) il->append(il->exprUNKNOWN());
 }
 
 bool Assembler::encode(RDEncodedInstruction* encoded) const

@@ -70,12 +70,13 @@ void Renderer::renderRDILInstruction(rd_address address)
 }
 
 void Renderer::renderSigned(s64 value) { this->chunk(Utils::hex(value), Theme_Constant); }
+void Renderer::renderUnsigned(u64 value) { this->chunk(Utils::hex(value), Theme_Constant); }
 
-void Renderer::renderUnsigned(u64 value)
+void Renderer::renderReference(rd_location loc)
 {
-    const char* name = this->document()->name(static_cast<rd_address>(value));
+    const char* name = this->document()->name(loc);
     if(name) this->chunk(name, Theme_Symbol);
-    else this->chunk(Utils::hex(value), Theme_Constant);
+    else this->chunk(Utils::hex(loc), Theme_Constant);
 }
 
 void Renderer::renderMnemonic(const std::string& s, rd_type theme) { if(!s.empty()) this->chunk(s, theme); }

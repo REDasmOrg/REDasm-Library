@@ -77,7 +77,7 @@ void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
         }
 
         switch(expr->type) {
-            case RDIL_Cnst: renderer->renderUnsigned(expr->u_value); break;
+            case RDIL_Cnst: renderer->renderReference(expr->u_value); break;
             case RDIL_Var:  renderer->renderText(expr->var, Theme_Symbol); break;
             case RDIL_Reg:  renderer->renderRegister(expr->reg); break;
             default: renderer->renderText(s); break;

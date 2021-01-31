@@ -46,6 +46,7 @@ class Renderer: public Object
         void renderRDILInstruction(rd_address address);
         void renderSigned(s64 value);
         void renderUnsigned(u64 value);
+        void renderReference(rd_location loc);
         void renderMnemonic(const std::string& s, rd_type theme);
         void renderMnemonicWord(const std::string& s, rd_type theme);
         void renderRegister(const std::string& s);

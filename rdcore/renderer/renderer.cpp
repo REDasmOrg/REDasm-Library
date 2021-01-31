@@ -14,9 +14,10 @@
 #define STRING_THRESHOLD    48
 #define HEADER_SYMBOL_COUNT 10
 #define SEPARATOR_LENGTH    50
+#define UNKNOWN_STRING      "???"
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
+Renderer::Renderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { m_instrindent = ctx->addressWidth() * 2; }
 
 bool Renderer::render(const RDDocumentItem* item)
 {
@@ -51,7 +52,7 @@ void Renderer::renderAssemblerInstruction(rd_address address)
     this->compileParams(address, &srp);
 
     if(!this->assembler()->renderInstruction(&srp))
-        this->chunk("???");
+        this->chunk(UNKNOWN_STRING);
 }
 
 void Renderer::renderRDILInstruction(rd_address address)
@@ -90,7 +91,7 @@ void Renderer::renderMnemonicWord(const std::string& s, rd_type theme)
 void Renderer::renderRegister(const std::string& s) { this->chunk(s, Theme_Reg); }
 void Renderer::renderConstant(const std::string& s) { this->chunk(s, Theme_Constant); }
 void Renderer::renderText(const std::string& s, rd_type theme) { this->chunk(s, theme); }
-void Renderer::renderUnknown() { this->chunk("???"); }
+void Renderer::renderUnknown() { this->chunk(UNKNOWN_STRING); }
 
 const std::string& Renderer::text() const { return m_text; }
 const Renderer::Chunks& Renderer::chunks() const { return m_tokens; }
@@ -113,7 +114,7 @@ void Renderer::renderSegment(const RDDocumentItem* item)
     {
         this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
         this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
-        this->chunk("END").chunk(":").chunk(" ").chunk("???");
+        this->chunk("END").chunk(":").chunk(" ").chunk(UNKNOWN_STRING);
     }
 
     this->chunk(" ").chunk(">").chunk(eq);
@@ -121,17 +122,21 @@ void Renderer::renderSegment(const RDDocumentItem* item)
 
 void Renderer::renderFunction(const RDDocumentItem* item)
 {
-    if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(item->address);
+    this->renderPrologue(item->address);
 
     StyleScope s(this, Theme_Function);
-    const char* name = this->document()->name(item->address);
-    if(name) this->chunk("function").chunk(" ").chunk(name).chunk("()");
-    else this->chunk("function").chunk(" ").chunk("\?\?\?").chunk("()");
+    const char* fname = this->document()->name(item->address);
+
+    std::string name = fname ? fname : Utils::hex(item->address);
+    this->chunk(name).chunk(" ");
+    this->renderInstrIndent(name + " ");
+    this->chunk("function");
 }
 
 void Renderer::renderInstruction(const RDDocumentItem* item)
 {
     this->renderPrologue(item->address);
+    this->renderInstrIndent(std::string());
 
     if(this->context()->flags() & ContextFlags_ShowRDIL)
         this->renderRDILInstruction(item->address);
@@ -183,7 +188,20 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
 void Renderer::renderUnknown(const RDDocumentItem* item)
 {
     this->renderPrologue(item->address);
-    this->chunk("db").chunk(" ");
+    this->renderInstrIndent(std::string());
+
+    RDBlock block;
+    if(!this->document()->block(item->address, &block)) REDasmError("Invalid Block", item->address);
+
+    switch(BlockContainer::size(&block))
+    {
+        case 2:  this->chunk("word", Theme_Nop);  break;
+        case 4:  this->chunk("dword", Theme_Nop); break;
+        case 8:  this->chunk("qword", Theme_Nop); break;
+        default: this->chunk("byte", Theme_Nop);  break;
+    }
+
+    this->chunk(" ");
     this->renderBlock(item->address);
 }
 
@@ -191,7 +209,6 @@ void Renderer::renderSeparator(const RDDocumentItem* item)
 {
     if(this->hasFlag(RendererFlags_NoSeparators)) return;
     if(!this->hasFlag(RendererFlags_NoSegmentAndAddress)) this->renderAddressIndent(item->address);
-
     this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment);
 }
 
@@ -199,8 +216,16 @@ void Renderer::renderType(const RDDocumentItem* item)
 {
     this->renderPrologue(item->address);
     auto type = this->document()->type(item);
-    if(type) this->chunk(type->typeName(), Theme_Type).chunk(" ").chunk(type->name(), Theme_Symbol);
+    if(type) this->chunk(type->name(), Theme_Symbol).chunk(" ").chunk(type->typeName(), Theme_Type);
     else this->chunk("Type not Found");
+}
+
+void Renderer::renderInstrIndent(const std::string& diffstr)
+{
+    auto sz = diffstr.size() ? diffstr.size() : 0;
+
+    if(m_instrindent <= sz) return;
+    this->renderIndent(m_instrindent - sz);
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)
@@ -217,7 +242,7 @@ void Renderer::renderPrologue(rd_address address)
         auto& doc = this->context()->document();
 
         if(doc->segment(address, &s)) this->chunk(s.name, Theme_Address);
-        else this->chunk("???", Theme_Address);
+        else this->chunk(UNKNOWN_STRING, Theme_Address);
         this->chunk(":", Theme_Address);
     }
 
@@ -270,7 +295,7 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol)
     if(this->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
     {
         if(IS_TYPE(symbol, SymbolType_Label)) this->chunk("<").chunk("dynamic branch", Theme_Symbol).chunk(">");
-        else this->chunk("???", Theme_Data);
+        else this->chunk(UNKNOWN_STRING, Theme_Data);
         return;
     }
 

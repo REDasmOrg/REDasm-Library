@@ -65,6 +65,7 @@ class Renderer: public Object
         void renderType(const RDDocumentItem* item);
 
     private:
+        void renderInstrIndent(const std::string& diffstr);
         void renderPrologue(rd_address address);
         void renderBlock(rd_address address);
         void renderAddressIndent(rd_address address);
@@ -90,6 +91,7 @@ class Renderer: public Object
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
         std::deque<SurfaceChunk> m_tokens;
         std::string m_text;
+        size_t m_instrindent;
         rd_flag m_flags;
 };
 

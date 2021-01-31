@@ -19,7 +19,8 @@ static std::list<TestItem> g_tests = {
     { "/home/davide/Programmazione/Campioni/PE Test/CM01.exe", &LoaderTests::testCM01 },
     { "/home/davide/Programmazione/Campioni/PE Test/VB5CRKME.EXE", &LoaderTests::testVB5CrackMe },
     { "/home/davide/Programmazione/Campioni/PE Test/tn_11.exe", &LoaderTests::testTN_11 },
-    { "/home/davide/Programmazione/Campioni/PE Test/tn12/scrack.exe", &LoaderTests::testSCrack }
+    { "/home/davide/Programmazione/Campioni/PE Test/tn12/scrack.exe", &LoaderTests::testSCrack },
+    { "/home/davide/Programmazione/Campioni/IOLI-crackme/bin-pocketPC/crackme0x00.arm.exe", &LoaderTests::testIOLI00 }
 };
 
 void initializeContext()

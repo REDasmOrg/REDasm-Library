@@ -71,6 +71,29 @@ void LoaderTests::testSCrack(RDContext* ctx, RDDocument* doc)
     LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_WideString);
 }
 
+void LoaderTests::testIOLI00(RDContext* ctx, RDDocument* doc)
+{
+    static std::map<rd_address, const char*> functions = {
+        { 0x00011000, "WinMainCRTStartup" },
+        { 0x00011050, "main" },
+        { 0x000116C8, "GetModuleFileNameW"}
+    };
+
+    static std::map<rd_address, size_t> strings = {
+        { 0x00013000, 2 }, { 0x00013018, 2 }, { 0x00013024, 2 },
+        { 0x00013028, 2 }, { 0x00013030, 2 }, { 0x00013044, 2 },
+    };
+
+    for(const auto& [address, name] : functions)
+    {
+        RDSymbol symbol;
+        REQUIRE(RDDocument_GetSymbolByName(doc, name, &symbol));
+        REQUIRE_EQ(symbol.address, address);
+    }
+
+    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
+}
+
 void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags)
 {
     const RDNet* net = RDContext_GetNet(ctx);
@@ -78,7 +101,7 @@ void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std
     for(const auto& [address, refs] : symbols)
     {
         LoaderTests::checkSymbol(doc, address, nullptr, type, flags);
-        REQUIRE_EQ(RDNet_GetReferences(net, address, nullptr), refs);
+        if(refs != RD_NVAL) REQUIRE_EQ(RDNet_GetReferences(net, address, nullptr), refs);
     }
 }
 

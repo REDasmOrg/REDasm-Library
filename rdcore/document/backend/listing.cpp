@@ -69,7 +69,13 @@ bool Listing::exportedFunction(rd_address address, const std::string& name) { re
 bool Listing::instruction(rd_address address, size_t size) { return m_segments.markCode(address, size); }
 bool Listing::asciiString(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_String, SymbolFlags_AsciiString | flags); }
 bool Listing::wideString(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_String, SymbolFlags_WideString | flags); }
-bool Listing::data(rd_address address, size_t size, const std::string& name, rd_flag flags) { return this->block(address, size, name, SymbolType_Data, SymbolFlags_None | flags); }
+
+bool Listing::data(rd_address address, size_t size, std::string name, rd_flag flags)
+{
+    if(name.empty()) name = SymbolTable::dataName(address, size);
+    return this->block(address, size, name, SymbolType_Data, SymbolFlags_None | flags);
+}
+
 bool Listing::function(rd_address address, const std::string& name) { return this->symbol(address, name, SymbolType_Function, SymbolFlags_None); }
 
 bool Listing::branch(rd_address address, int direction)

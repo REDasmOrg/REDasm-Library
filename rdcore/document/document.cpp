@@ -23,7 +23,7 @@ bool Document::typeName(rd_address address, const std::string& q)
 
 bool Document::type(rd_address address, const Type* type) { return this->type(address, type, 0); }
 
-void Document::checkLocation(rd_address fromaddress, rd_address address)
+void Document::checkLocation(rd_address fromaddress, rd_address address, size_t size)
 {
     if(fromaddress == address) return; // Ignore self references
 
@@ -42,7 +42,7 @@ void Document::checkLocation(rd_address fromaddress, rd_address address)
     if(this->readAddress(address, &ptraddress) && this->isAddress(ptraddress)) // Is Pointer
     {
         this->pointer(address, SymbolType_Data, std::string());
-        this->checkLocation(address, static_cast<rd_address>(ptraddress));
+        this->checkLocation(address, static_cast<rd_address>(ptraddress), size);
         m_net->addRef(fromaddress, static_cast<rd_address>(ptraddress), ReferenceFlags_Indirect);
         this->updateComments(fromaddress, address);
     }
@@ -57,7 +57,7 @@ void Document::checkLocation(rd_address fromaddress, rd_address address)
     }
     else // Data
     {
-        this->data(address, this->context()->addressWidth(), std::string());
+        this->data(address, size == RD_NVAL ? this->context()->addressWidth() : size, std::string());
         this->updateComments(fromaddress, address);
     }
 

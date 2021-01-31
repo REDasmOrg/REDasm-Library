@@ -1,7 +1,4 @@
 #include "symboltable.h"
-#include <cstring>
-#include <sstream>
-#include <iomanip>
 #include "../../context.h"
 #include "../../support/utils.h"
 #include "../../support/demangler.h"
@@ -138,13 +135,21 @@ bool SymbolTable::rename(rd_address address, std::string newname)
     return true;
 }
 
-std::string SymbolTable::name(rd_address address, rd_type type, rd_flag flags)
+std::string SymbolTable::dataName(rd_address address, size_t size)
 {
-    std::stringstream ss;
-    ss << SymbolTable::prefix(type, flags).c_str() << "_" << std::hex << address;
-    return ss.str();
+    switch(size)
+    {
+        case 1: return "byte_" + Utils::hex(address);
+        case 2: return "word_" + Utils::hex(address);
+        case 4: return "dword_" + Utils::hex(address);
+        case 8: return "qword_" + Utils::hex(address);
+        default: break;
+    }
+
+    return "data_" + Utils::hex(address);
 }
 
+std::string SymbolTable::name(rd_address address, rd_type type, rd_flag flags) { return SymbolTable::prefix(type, flags) + "_" + Utils::hex(address); }
 std::string SymbolTable::name(rd_address address, const std::string& s) { return s + "_" + Utils::hex(address); }
 
 bool SymbolTable::isSymbolAccepted(const std::string& q, rd_address address) const
@@ -196,10 +201,7 @@ size_t SymbolTable::findAllByType(const std::string& q, const RDSymbol** symbols
 std::string SymbolTable::name(rd_address address, const std::string& s, rd_type type, rd_flag flags)
 {
     if(s.empty()) return SymbolTable::name(address, type, flags);
-
-    std::stringstream ss;
-    ss << SymbolTable::prefix(type, flags) << "_" << s << "_" << std::hex << address;
-    return ss.str();
+    return SymbolTable::prefix(type, flags) + "_" + s + "_" + Utils::hex(address);
 }
 
 std::string SymbolTable::name(const char* s, rd_address address) { return std::string(s) + "_" + Utils::hex(address); }

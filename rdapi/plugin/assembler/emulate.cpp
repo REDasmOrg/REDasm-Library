@@ -14,4 +14,5 @@ void RDEmulateResult_AddBranchFalse(RDEmulateResult* res, rd_address address) { 
 void RDEmulateResult_AddCall(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addCall(address); }
 void RDEmulateResult_AddCallIndirect(RDEmulateResult* res) { CPTR(EmulateResult, res)->addCallIndirect();  }
 void RDEmulateResult_AddCallUnresolved(RDEmulateResult* res) { CPTR(EmulateResult, res)->addCallUnresolved(); }
+void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addReferenceSize(address, size); }
 void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }

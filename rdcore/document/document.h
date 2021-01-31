@@ -14,7 +14,7 @@ class Document: public DocumentData
         const Type* type(const RDDocumentItem* item) const;
         bool typeName(rd_address address, const std::string& q);
         bool type(rd_address address, const Type* type);
-        void checkLocation(rd_address fromaddress, rd_address address);
+        void checkLocation(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
 
     private:
         bool type(rd_address address, const Type* type, int level);

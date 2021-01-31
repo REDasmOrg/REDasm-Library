@@ -45,7 +45,7 @@ class Listing: public Object
         bool instruction(rd_address address, size_t size);
         bool asciiString(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
         bool wideString(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
-        bool data(rd_address address, size_t size, const std::string& name, rd_flag flags = SymbolFlags_None);
+        bool data(rd_address address, size_t size, std::string name, rd_flag flags = SymbolFlags_None);
         bool function(rd_address address, const std::string& name);
         bool branch(rd_address address, int direction);
         void separator(rd_address address);

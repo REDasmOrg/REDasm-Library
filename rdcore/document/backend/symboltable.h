@@ -38,6 +38,7 @@ class SymbolTable: public Object
     public:
         void create(rd_address address, std::string name, rd_type type, rd_flag flags);
         bool rename(rd_address address, std::string newname);
+        static std::string dataName(rd_address address, size_t size);
         static std::string name(rd_address address, const std::string& s, rd_type type, rd_flag flags);
         static std::string name(rd_address address, rd_type type, rd_flag flags);
         static std::string name(rd_address address, const std::string& s);

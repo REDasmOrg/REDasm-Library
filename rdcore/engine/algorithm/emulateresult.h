@@ -16,7 +16,14 @@ class EmulateResult: public Object
             Return, SysCall, Ref
         };
 
-        union Value { rd_address address; u64 syscall; };
+        struct Value {
+            union {
+                rd_address address;
+                u64 syscall;
+            };
+
+            size_t size;
+        };
 
     private:
         typedef std::deque<std::pair<rd_type, Value>> Results;
@@ -43,6 +50,7 @@ class EmulateResult: public Object
         void addCall(rd_address address);
         void addCallIndirect();
         void addCallUnresolved();
+        void addReferenceSize(rd_address address, size_t size);
         void addReference(rd_address address);
 
     private:

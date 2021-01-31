@@ -103,7 +103,7 @@ void Algorithm::processResult(EmulateResult* result)
         switch(forktype)
         {
             case EmulateResult::Ref:
-                m_document->checkLocation(result->address(), res.address);
+                m_document->checkLocation(result->address(), res.address, res.size);
                 break;
 
             case EmulateResult::Branch:

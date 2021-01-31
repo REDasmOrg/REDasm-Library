@@ -9,14 +9,15 @@ size_t EmulateResult::size() const { return m_size; }
 void EmulateResult::setSize(size_t size) { m_size = size; }
 size_t EmulateResult::delaySlot() const { return m_delayslot; }
 void EmulateResult::setDelaySlot(size_t ds) { m_delayslot = ds; }
-void EmulateResult::addReturn() { m_canflow = false; m_results.push_back({Return, {0}}); }
-void EmulateResult::addBranchUnresolved() { m_canflow = false; m_results.push_back({BranchUnresolved, {0}});  }
-void EmulateResult::addBranchIndirect() { m_canflow = false; m_results.push_back({BranchIndirect, {0}}); }
-void EmulateResult::addBranch(rd_address address) { m_canflow = false; m_results.push_back({Branch, {address}}); }
-void EmulateResult::addBranchTrue(rd_address address) { m_canflow = false; m_results.push_back({BranchTrue, {address}}); }
-void EmulateResult::addBranchFalse(rd_address address) { m_canflow = false; m_results.push_back({BranchFalse, {address}}); }
-void EmulateResult::addSysCall(u64 n) { m_results.push_back({SysCall, {n}}); }
-void EmulateResult::addCall(rd_address address) { m_results.push_back({Call, {address}}); }
-void EmulateResult::addCallIndirect() { m_results.push_back({CallIndirect, {0}}); }
-void EmulateResult::addCallUnresolved() { m_results.push_back({CallUnresolved, {0}}); }
-void EmulateResult::addReference(rd_address address) { m_results.push_back({Ref, {address}}); }
+void EmulateResult::addReturn() { m_canflow = false; m_results.push_back({Return, {{0}, RD_NVAL}}); }
+void EmulateResult::addBranchUnresolved() { m_canflow = false; m_results.push_back({BranchUnresolved, {{0}, RD_NVAL}});  }
+void EmulateResult::addBranchIndirect() { m_canflow = false; m_results.push_back({BranchIndirect, {{0}, RD_NVAL}}); }
+void EmulateResult::addBranch(rd_address address) { m_canflow = false; m_results.push_back({Branch, {{address} ,RD_NVAL}}); }
+void EmulateResult::addBranchTrue(rd_address address) { m_canflow = false; m_results.push_back({BranchTrue, {{address}, RD_NVAL}}); }
+void EmulateResult::addBranchFalse(rd_address address) { m_canflow = false; m_results.push_back({BranchFalse, {{address}, RD_NVAL}}); }
+void EmulateResult::addSysCall(u64 n) { m_results.push_back({SysCall, {{n}, RD_NVAL}}); }
+void EmulateResult::addCall(rd_address address) { m_results.push_back({Call, {{address}, RD_NVAL}}); }
+void EmulateResult::addCallIndirect() { m_results.push_back({CallIndirect, {{0}, RD_NVAL}}); }
+void EmulateResult::addCallUnresolved() { m_results.push_back({CallUnresolved, {{0}, RD_NVAL}}); }
+void EmulateResult::addReferenceSize(rd_address address, size_t size) { m_results.push_back({Ref, {{address}, size}}); }
+void EmulateResult::addReference(rd_address address) { this->addReferenceSize(address, RD_NVAL); }

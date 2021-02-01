@@ -8,6 +8,7 @@
 #include "../document/document_fwd.h"
 #include "../object.h"
 
+struct SurfaceColumns;
 class Disassembler;
 class Assembler;
 
@@ -35,7 +36,7 @@ class Renderer: public Object
         };
 
     public:
-        Renderer(Context* ctx, rd_flag flags);
+        Renderer(Context* ctx, rd_flag flags, SurfaceColumns* columns);
         bool render(const RDDocumentItem* item);
         const std::string& text() const;
         const Chunks& chunks() const;
@@ -88,10 +89,10 @@ class Renderer: public Object
 
     private:
         mutable std::string m_asminstruction, m_rdilinstruction;
+        SurfaceColumns* m_columns;
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
         std::deque<SurfaceChunk> m_tokens;
         std::string m_text;
-        size_t m_instrindent;
         rd_flag m_flags;
 };
 

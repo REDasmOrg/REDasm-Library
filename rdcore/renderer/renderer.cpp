@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "surface.h"
 #include "../document/document.h"
 #include "../plugin/assembler.h"
 #include "../rdil/ilfunction.h"
@@ -17,7 +18,7 @@
 #define UNKNOWN_STRING      "???"
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { m_instrindent = ctx->addressWidth() * 2; }
+Renderer::Renderer(Context* ctx, rd_flag flags, SurfaceColumns* columns): Object(ctx), m_columns(columns), m_flags(flags) { }
 
 bool Renderer::render(const RDDocumentItem* item)
 {
@@ -80,12 +81,24 @@ void Renderer::renderReference(rd_location loc)
     else this->chunk(Utils::hex(loc), Theme_Constant);
 }
 
-void Renderer::renderMnemonic(const std::string& s, rd_type theme) { if(!s.empty()) this->chunk(s, theme); }
+void Renderer::renderMnemonic(const std::string& s, rd_type theme)
+{
+    if(s.empty()) return;
+
+    this->chunk(s, theme);
+    if(!m_columns) return;
+
+    m_columns->mnemonicendcol = std::max(m_columns->mnemonicendcol, s.size());
+
+    size_t diff = m_columns->mnemonicendcol - s.size();
+    this->log(std::to_string(m_columns->mnemonicendcol));
+    if(diff) this->chunk(std::string(diff, ' '));
+}
 
 void Renderer::renderMnemonicWord(const std::string& s, rd_type theme)
 {
     this->renderMnemonic(s, theme);
-    this->renderText(" ");
+    this->chunk(" ");
 }
 
 void Renderer::renderRegister(const std::string& s) { this->chunk(s, Theme_Reg); }
@@ -222,10 +235,11 @@ void Renderer::renderType(const RDDocumentItem* item)
 
 void Renderer::renderInstrIndent(const std::string& diffstr)
 {
-    auto sz = diffstr.size() ? diffstr.size() : 0;
+    if(!m_columns) return;
 
-    if(m_instrindent <= sz) return;
-    this->renderIndent(m_instrindent - sz);
+    auto sz = diffstr.size() ? diffstr.size() : 0;
+    if(m_columns->instrstartcol <= sz) return;
+    this->renderIndent(m_columns->instrstartcol - sz);
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)
@@ -374,14 +388,14 @@ std::string Renderer::getInstruction(Context* ctx, rd_address address)
 
 std::string Renderer::getAssemblerInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified);
+    Renderer r(ctx, RendererFlags_Simplified, nullptr);
     r.renderAssemblerInstruction(address);
     return r.text();
 }
 
 std::string Renderer::getRDILInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified);
+    Renderer r(ctx, RendererFlags_Simplified, nullptr);
     r.renderRDILInstruction(address);
     return r.text();
 }

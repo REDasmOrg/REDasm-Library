@@ -9,6 +9,12 @@
 class ItemContainer;
 class Renderer;
 
+struct SurfaceColumns
+{
+    size_t instrstartcol{0};
+    size_t mnemonicendcol{0};
+};
+
 class Surface: public Object
 {
     private:
@@ -85,6 +91,7 @@ class Surface: public Object
         mutable std::mutex m_mutex;
 
     private:
+        SurfaceColumns m_columns;
         CursorPtr m_cursor;
         SurfacePath m_path;
         std::unordered_map<int, SurfaceRow> m_surface;

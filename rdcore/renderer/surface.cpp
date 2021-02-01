@@ -8,6 +8,8 @@
 
 Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), m_path(this), m_userdata(userdata), m_flags(flags)
 {
+    m_columns.instrstartcol = ctx->addressWidth() * 2;
+
     this->unlink();
     this->context()->subscribe(this, std::bind(&Surface::handleEvents, this, std::placeholders::_1));
 
@@ -407,7 +409,7 @@ void Surface::update(const RDDocumentItem* currentitem)
             continue;
         }
 
-        Renderer r(this->context(), m_flags);
+        Renderer r(this->context(), m_flags, &m_columns);
         if(!r.render(std::addressof(*it))) continue;
 
         m_surface[row].item = *it;

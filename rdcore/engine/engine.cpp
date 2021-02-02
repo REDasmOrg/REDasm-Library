@@ -163,10 +163,11 @@ void Engine::generateCfg(rd_address address)
 
     if(cfgdone) // Apply CFG
     {
+        auto& doc = this->context()->document();
         const RDGraphNode* nodes = nullptr;
-        size_t c = g->nodes(&nodes);
+        size_t tailaddress = 0, c = g->nodes(&nodes);
 
-        // // Add basic block separators to listing
+        // Add basic block separators to listing
         for(size_t i = 0; (c > 1) && (i < c - 1); i++)
         {
             const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[i])->p_data);
@@ -174,11 +175,20 @@ void Engine::generateCfg(rd_address address)
 
             RDDocumentItem item;
             if(!fbb->getEndItem(&item)) continue;
-
-            this->context()->document()->separator(item.address);
+            if(item.address > tailaddress) tailaddress = item.address;
+            doc->separator(item.address);
         }
 
-        this->context()->document()->graph(g.release());
+        if(!tailaddress && c) // Try to get the first block
+        {
+            const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[0])->p_data);
+
+            RDDocumentItem item;
+            if(fbb && fbb->getEndItem(&item)) tailaddress = item.address;
+        }
+
+        if(tailaddress) doc->empty(tailaddress);
+        doc->graph(g.release());
     }
     else
         this->context()->problem("Graph creation failed @ " + Utils::hex(address));

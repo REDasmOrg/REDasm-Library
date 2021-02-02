@@ -12,7 +12,6 @@
 enum RDDocumentItemType {
     DocumentItemType_None,
 
-    DocumentItemType_Empty,
     DocumentItemType_Segment,
     DocumentItemType_Function,
     DocumentItemType_Type,
@@ -21,6 +20,7 @@ enum RDDocumentItemType {
     DocumentItemType_Instruction,
     DocumentItemType_Unknown,
     DocumentItemType_Separator,
+    DocumentItemType_Empty,
 
     DocumentItemType_Length,
     DocumentItemType_All,

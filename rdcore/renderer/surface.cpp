@@ -4,11 +4,12 @@
 #include "renderer.h"
 #include <cmath>
 
+#define INSTRUCTION_START_COL 16
 #define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
 
 Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), m_path(this), m_userdata(userdata), m_flags(flags)
 {
-    m_columns.instrstartcol = ctx->addressWidth() * 2;
+    m_columns.instrstartcol = INSTRUCTION_START_COL;
 
     this->unlink();
     this->context()->subscribe(this, std::bind(&Surface::handleEvents, this, std::placeholders::_1));

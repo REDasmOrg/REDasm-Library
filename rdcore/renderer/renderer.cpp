@@ -10,7 +10,6 @@
 #include <rdapi/renderer/surface.h>
 #include <cstring>
 
-#define INDENT_WIDTH         2
 #define INDENT_COMMENT      10
 #define STRING_THRESHOLD    48
 #define SEPARATOR_LENGTH    50
@@ -119,11 +118,11 @@ void Renderer::renderSegment(const RDDocumentItem* item)
         this->chunk(segment.name);
         this->renderInstrIndent(segment.name);
 
-        this->chunk(" ").chunk("segment").chunk(" ")
-                        .chunk("(")
-                        .chunk("START").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
-                        .chunk("END").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
-                        .chunk(")");
+        this->chunk("segment").chunk(" ")
+             .chunk("(")
+             .chunk("START").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
+             .chunk("END").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
+             .chunk(")");
     }
     else
     {
@@ -194,7 +193,7 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
     else
         this->chunk(name, Theme_Pointer);
 
-    this->renderIndent(1, true);
+    this->renderInstrIndent(name, true);
     this->renderSymbolValue(&symbol);
     this->renderComments(item->address);
 }
@@ -234,19 +233,18 @@ void Renderer::renderType(const RDDocumentItem* item)
     else this->chunk("Type not Found");
 }
 
-void Renderer::renderInstrIndent(const std::string& diffstr)
+void Renderer::renderInstrIndent(const std::string& diffstr, bool ignoreflags)
 {
     if(!m_columns) return;
 
-    auto sz = diffstr.size() ? diffstr.size() : 0;
-    if(m_columns->instrstartcol <= sz) return;
-    this->renderIndent(m_columns->instrstartcol - sz);
+    if(m_columns->instrstartcol <= diffstr.size()) return;
+    this->renderIndent(m_columns->instrstartcol - diffstr.size(), ignoreflags);
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)
 {
     if(!ignoreflags && this->hasFlag(RendererFlags_NoIndent)) return;
-    this->chunk(std::string(n * INDENT_WIDTH, ' '));
+    this->chunk(std::string(n, ' '));
 }
 
 void Renderer::renderPrologue(rd_address address)
@@ -289,7 +287,7 @@ void Renderer::renderAddressIndent(rd_address address)
 
     RDSegment s;
     if(doc->segment(address, &s)) c += std::strlen(s.name);
-    this->chunk(std::string(c + INDENT_WIDTH, ' '));
+    this->chunk(std::string(c, ' '));
 }
 
 void Renderer::renderComments(rd_address address)

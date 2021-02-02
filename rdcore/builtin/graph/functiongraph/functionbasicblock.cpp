@@ -18,9 +18,12 @@ bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
 
 bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const
 {
-    static const std::array<rd_type, 3> END_ITEMS = {
+    static const std::array<rd_type, 4> END_ITEMS = {
         DocumentItemType_Instruction,
-        DocumentItemType_Symbol, // Include symbols as fallback solution
+
+        // Include more types as fallback solution
+        DocumentItemType_Symbol,
+        DocumentItemType_Unknown,
         0
     };
 

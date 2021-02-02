@@ -13,7 +13,6 @@
 #define INDENT_WIDTH         2
 #define INDENT_COMMENT      10
 #define STRING_THRESHOLD    48
-#define HEADER_SYMBOL_COUNT 10
 #define SEPARATOR_LENGTH    50
 #define UNKNOWN_STRING      "???"
 #define COMMENT_SEPARATOR   " | "
@@ -111,26 +110,29 @@ const Renderer::Chunks& Renderer::chunks() const { return m_tokens; }
 
 void Renderer::renderSegment(const RDDocumentItem* item)
 {
-    static std::string eq = std::string(HEADER_SYMBOL_COUNT * 2, '-');
+    this->renderPrologue(item->address);
+
     StyleScope s(this, Theme_Segment);
     RDSegment segment;
 
-    this->chunk(eq).chunk("<").chunk(" ").chunk("SEGMENT").chunk(" ");
-
     if(this->context()->document()->segment(item->address, &segment))
     {
-        this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
-        this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
-        this->chunk("END").chunk(":").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()));
+        this->chunk(segment.name);
+        this->renderInstrIndent(segment.name);
+
+        this->chunk(" ").chunk("segment").chunk(" ")
+                        .chunk("(")
+                        .chunk("START").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
+                        .chunk("END").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
+                        .chunk(")");
     }
     else
     {
-        this->chunk("'").chunk(segment.name).chunk("'").chunk(" ");
-        this->chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(" ");
-        this->chunk("END").chunk(":").chunk(" ").chunk(UNKNOWN_STRING);
+        std::string name = Utils::hex(item->address);
+        this->chunk(name);
+        this->renderInstrIndent(name);
+        this->chunk(" ").chunk("segment");
     }
-
-    this->chunk(" ").chunk(">").chunk(eq);
 }
 
 void Renderer::renderFunction(const RDDocumentItem* item)
@@ -255,13 +257,13 @@ void Renderer::renderPrologue(rd_address address)
         RDSegment s;
         auto& doc = this->context()->document();
 
-        if(doc->segment(address, &s)) this->chunk(s.name, Theme_Address);
-        else this->chunk(UNKNOWN_STRING, Theme_Address);
-        this->chunk(":", Theme_Address);
+        if(doc->segment(address, &s)) this->chunk(s.name);
+        else this->chunk(UNKNOWN_STRING);
+        this->chunk(":");
     }
 
     if(!this->hasFlag(RendererFlags_NoAddress))
-        this->chunk(Utils::hex(address, this->assembler()->bits()), Theme_Address);
+        this->chunk(Utils::hex(address, this->assembler()->bits()));
 
     this->chunk(" ");
 }

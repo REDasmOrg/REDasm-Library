@@ -90,7 +90,6 @@ void Renderer::renderMnemonic(const std::string& s, rd_type theme)
     m_columns->mnemonicendcol = std::max(m_columns->mnemonicendcol, s.size());
 
     size_t diff = m_columns->mnemonicendcol - s.size();
-    this->log(std::to_string(m_columns->mnemonicendcol));
     if(diff) this->chunk(std::string(diff, ' '));
 }
 

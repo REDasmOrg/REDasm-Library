@@ -107,7 +107,13 @@ bool Listing::entry(rd_address address)
     return res;
 }
 
-void Listing::empty(rd_address address) { this->insert(address, DocumentItemType_Empty); }
+void Listing::empty(rd_address address)
+{
+    if(m_empties.count(address)) return; // Avoid duplicate empty items
+    m_empties.insert(address);
+    this->insert(address, DocumentItemType_Empty);
+}
+
 bool Listing::empty() const { return m_items.empty(); }
 bool Listing::contains(const RDDocumentItem* item) const { return item && (m_items.find(*item) != m_items.end()); }
 
@@ -296,10 +302,6 @@ void Listing::remove(rd_address address, rd_type type)
         case DocumentItemType_Function:
             m_functions.remove(item.address);
             m_symbols->remove(item.address);
-            break;
-
-        case DocumentItemType_Type:
-            this->remove(item.address, DocumentItemType_Empty);
             break;
 
         default: break;

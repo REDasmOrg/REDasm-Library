@@ -99,6 +99,6 @@ class Listing: public Object
         ItemContainer m_items;
         SegmentContainer m_segments;
         FunctionContainer m_functions;
-        std::unordered_set<rd_address> m_separators;
+        std::unordered_set<rd_address> m_separators, m_empties;
         std::unique_ptr<SymbolTable> m_symbols;
 };

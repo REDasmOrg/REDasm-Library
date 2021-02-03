@@ -4,13 +4,10 @@
 #include "renderer.h"
 #include <cmath>
 
-#define INSTRUCTION_START_COL 16
 #define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
 
 Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), m_path(this), m_userdata(userdata), m_flags(flags)
 {
-    m_columns.instrstartcol = INSTRUCTION_START_COL;
-
     this->unlink();
     this->context()->subscribe(this, std::bind(&Surface::handleEvents, this, std::placeholders::_1));
 
@@ -410,7 +407,7 @@ void Surface::update(const RDDocumentItem* currentitem)
             continue;
         }
 
-        Renderer r(this->context(), m_flags, &m_columns);
+        Renderer r(this->context(), m_flags);
         if(!r.render(std::addressof(*it))) continue;
 
         m_surface[row].item = *it;

@@ -30,6 +30,7 @@ template<typename T> struct AnalyzerComparator { bool operator ()(const T& a1, c
 class Context: public Object
 {
     private:
+        struct SurfaceState { size_t instrstartcol{0}, mnemonicendcol{0}; };
         typedef SortedContainer<AnalyzerPtr, AnalyzerComparator<AnalyzerPtr>, AnalyzerSorter<AnalyzerPtr>, true> AnalyzerPtrList;
         typedef SortedContainer<const Analyzer*, AnalyzerComparator<const Analyzer*>, AnalyzerSorter<const Analyzer*>, true> AnalyzerList;
         typedef std::unordered_map<std::string, RDEntry*> PluginMap;
@@ -38,6 +39,8 @@ class Context: public Object
         Context();
         ~Context();
         Database* database() const;
+        const SurfaceState& surfaceState() const;
+        SurfaceState& surfaceState();
         bool busy() const;
         size_t bits() const;
         size_t addressWidth() const;
@@ -114,6 +117,7 @@ class Context: public Object
     private:
         std::unique_ptr<Database> m_database;
         std::pair<rd_type, rd_type> m_compilerabi{CompilerABI_Unknown, CompilerCC_Unknown};
+        SurfaceState m_surfacestate;
         Surface* m_activesurface{nullptr};
         rd_flag m_flags{ContextFlags_None};
         PluginMap m_commands;

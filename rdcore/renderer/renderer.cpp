@@ -16,7 +16,7 @@
 #define UNKNOWN_STRING      "???"
 #define COMMENT_SEPARATOR   " | "
 
-Renderer::Renderer(Context* ctx, rd_flag flags, SurfaceColumns* columns): Object(ctx), m_columns(columns), m_flags(flags) { }
+Renderer::Renderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 
 bool Renderer::render(const RDDocumentItem* item)
 {
@@ -84,11 +84,11 @@ void Renderer::renderMnemonic(const std::string& s, rd_type theme)
     if(s.empty()) return;
 
     this->chunk(s, theme);
-    if(!m_columns) return;
 
-    m_columns->mnemonicendcol = std::max(m_columns->mnemonicendcol, s.size());
+    auto& ss = this->context()->surfaceState();
+    ss.mnemonicendcol = std::max(ss.mnemonicendcol, s.size());
 
-    size_t diff = m_columns->mnemonicendcol - s.size();
+    size_t diff = ss.mnemonicendcol - s.size();
     if(diff) this->chunk(std::string(diff, ' '));
 }
 
@@ -235,10 +235,9 @@ void Renderer::renderType(const RDDocumentItem* item)
 
 void Renderer::renderInstrIndent(const std::string& diffstr, bool ignoreflags)
 {
-    if(!m_columns) return;
-
-    if(m_columns->instrstartcol <= diffstr.size()) return;
-    this->renderIndent(m_columns->instrstartcol - diffstr.size(), ignoreflags);
+    auto& ss = this->context()->surfaceState();
+    if(ss.instrstartcol <= diffstr.size()) return;
+    this->renderIndent(ss.instrstartcol - diffstr.size(), ignoreflags);
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)
@@ -387,14 +386,14 @@ std::string Renderer::getInstruction(Context* ctx, rd_address address)
 
 std::string Renderer::getAssemblerInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    Renderer r(ctx, RendererFlags_Simplified);
     r.renderAssemblerInstruction(address);
     return r.text();
 }
 
 std::string Renderer::getRDILInstruction(Context* ctx, rd_address address)
 {
-    Renderer r(ctx, RendererFlags_Simplified, nullptr);
+    Renderer r(ctx, RendererFlags_Simplified);
     r.renderRDILInstruction(address);
     return r.text();
 }

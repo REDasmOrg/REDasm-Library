@@ -11,8 +11,12 @@
 #include "document/document.h"
 #include "disassembler.h"
 
+#define INSTRUCTION_START_COL 16
+
 Context::Context(): Object(this)
 {
+    m_surfacestate.instrstartcol = INSTRUCTION_START_COL;
+
     m_pluginmanager = std::make_unique<PluginManager>(this);
     m_database = std::make_unique<Database>(this);
     m_database->setName("Active Database");
@@ -20,6 +24,8 @@ Context::Context(): Object(this)
 
 Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
 Database* Context::database() const { return m_database.get(); }
+const Context::SurfaceState& Context::surfaceState() const { return m_surfacestate; }
+Context::SurfaceState& Context::surfaceState() { return m_surfacestate; }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }

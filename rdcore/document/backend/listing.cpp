@@ -276,7 +276,7 @@ const RDDocumentItem& Listing::insert(rd_address address, rd_type type, u16 inde
     return *item;
 }
 
-void Listing::notifyEvent(const RDDocumentItem& item, const rd_type action) { this->context()->notify<RDDocumentEventArgs>(Event_DocumentChanged, this, action, item); }
+void Listing::notifyEvent(const RDDocumentItem& item, RDDocumentAction action) { this->context()->notify<RDDocumentEventArgs>(Event_DocumentChanged, this, action, item); }
 
 const RDDocumentItem& Listing::replace(rd_address address, rd_type type)
 {

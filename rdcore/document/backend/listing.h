@@ -86,7 +86,7 @@ class Listing: public Object
 
     private:
         const RDDocumentItem& insert(rd_address address, rd_type type, u16 index = 0);
-        void notifyEvent(const RDDocumentItem& item, rd_type action);
+        void notifyEvent(const RDDocumentItem& item, RDDocumentAction action);
         bool canSymbolizeAddress(rd_address address, rd_flag flags) const;
         void onBlockInserted(const RDBlock& b);
         void onBlockRemoved(const RDBlock& b);

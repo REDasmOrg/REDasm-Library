@@ -19,6 +19,6 @@
   #endif
 #endif
 
-#define RD_HANDLE(name)  typedef struct name { void* __unused; } name
+#define RD_HANDLE(name)  typedef struct name { void* _rd_unused_; } name
 #define HAS_FLAG(obj, f) ((obj)->flags & (f))
 #define IS_TYPE(obj, t)  ((obj)->type == (t))

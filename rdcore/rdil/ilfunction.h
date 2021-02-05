@@ -85,5 +85,4 @@ class ILFunction: public Object
         ExpressionList m_expressions;
         std::unordered_map<const ILExpression*, rd_address> m_addresses;
         mutable std::list<ILExpressionPtr> m_pool;
-        const Disassembler* m_disassembler;
 };

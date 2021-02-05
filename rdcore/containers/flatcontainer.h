@@ -17,7 +17,7 @@ class FlatContainer: public RandomAccessContainer<T, std::vector<T>>
         bool remove(const T& t) override;
 
     public: // RandomAccessContainer Interface
-        size_t capacity() const { return this->m_container.capacity(); }
+        size_t capacity() const override { return this->m_container.capacity(); }
         T& at(size_t idx) override { return this->m_container[idx]; }
         T& front() override { return this->m_container.front(); }
         T& back() override { return this->m_container.back(); }

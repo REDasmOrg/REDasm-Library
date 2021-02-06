@@ -42,8 +42,9 @@ bool DocumentData::view(const RDBlock& block, RDBufferView* view) const
     if(!loc.valid) return false;
 
     // Limit BufferView's size to this segment, if needed
-    auto bs = BlockContainer::size(&block), ss = segment.endoffset - loc.offset;
-    return m_buffer->view(loc.offset, std::min(bs, ss), view);
+    auto bs = BlockContainer::size(&block);
+    auto ss = segment.endoffset - loc.offset;
+    return m_buffer->view(loc.offset, std::min<size_t>(bs, ss), view);
 }
 
 RDLocation DocumentData::dereference(rd_address address) const

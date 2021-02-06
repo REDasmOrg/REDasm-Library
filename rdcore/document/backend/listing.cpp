@@ -39,7 +39,8 @@ bool Listing::segment(const std::string& name, rd_offset offset, rd_address addr
     }
     else
     {
-        auto endoffset = offset + psize, bsize = this->context()->buffer()->size();
+        auto endoffset = offset + psize;
+        auto bsize = this->context()->buffer()->size();
 
         if(endoffset > bsize)
         {

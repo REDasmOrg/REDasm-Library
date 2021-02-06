@@ -193,7 +193,7 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
     else
         this->chunk(name, Theme_Pointer);
 
-    this->renderInstrIndent(name, true);
+    if(!this->renderInstrIndent(name, true)) this->chunk(" ");
     this->renderSymbolValue(&symbol);
     this->renderComments(item->address);
 }
@@ -233,11 +233,12 @@ void Renderer::renderType(const RDDocumentItem* item)
     else this->chunk("Type not Found");
 }
 
-void Renderer::renderInstrIndent(const std::string& diffstr, bool ignoreflags)
+bool Renderer::renderInstrIndent(const std::string& diffstr, bool ignoreflags)
 {
     auto& ss = this->context()->surfaceState();
-    if(ss.instrstartcol <= diffstr.size()) return;
+    if(ss.instrstartcol <= diffstr.size()) return false;
     this->renderIndent(ss.instrstartcol - diffstr.size(), ignoreflags);
+    return true;
 }
 
 void Renderer::renderIndent(size_t n, bool ignoreflags)

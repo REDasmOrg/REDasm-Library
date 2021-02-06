@@ -66,7 +66,7 @@ class Renderer: public Object
         void renderType(const RDDocumentItem* item);
 
     private:
-        void renderInstrIndent(const std::string& diffstr, bool ignoreflags = false);
+        bool renderInstrIndent(const std::string& diffstr, bool ignoreflags = false);
         void renderPrologue(rd_address address);
         void renderBlock(rd_address address);
         void renderAddressIndent(rd_address address);

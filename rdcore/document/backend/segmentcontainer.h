@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_map>
 #include <rdapi/document/document.h>
 #include "../../containers/sortedcontainer.h"
 #include "blockcontainer.h"

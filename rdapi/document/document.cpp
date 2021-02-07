@@ -33,6 +33,9 @@ bool RDDocument_AddData(RDDocument* d, rd_address address, size_t size, const ch
 bool RDDocument_AddFunction(RDDocument* d, rd_address address, const char* name) { return docptr(d)->function(address, name ? name : std::string() ); }
 void RDDocument_AddSeparator(RDDocument* d, rd_address address) { return docptr(d)->separator(address); }
 void RDDocument_AddEmpty(RDDocument* d, rd_address address) { return docptr(d)->empty(address); }
+bool RDDocument_GetEntryItem(const RDDocument* d, RDDocumentItem* item) { return docptr(d)->getEntryItem(item); }
+RDLocation RDDocument_GetEntryPoint(const RDDocument* d) { return docptr(d)->entryPoint(); }
+const RDSymbol* RDDocument_GetEntrySymbol(const RDDocument* d) { return docptr(d)->entry(); }
 
 bool RDDocument_GetFunctionGraph(const RDDocument* d, rd_address address, RDGraph** item)
 {

@@ -5,6 +5,7 @@
 #include <climits>
 #include <sstream>
 #include <iomanip>
+#include <limits>
 #include <string>
 #include <deque>
 #include <rdapi/types.h>
@@ -48,16 +49,20 @@ class Utils
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);
         template<typename T> static std::string number(T value, size_t base = 10, size_t width = 0, char fill = '\0');
-        template<typename T> static std::string hex(T t, size_t bits = 0, bool withprefix = false);
+        template<typename T> static std::string hex(T value, size_t bits = 0, bool withprefix = false);
         template<typename T> static typename std::make_signed<T>::type signext(T val, int valbits);
         template<typename T> static T rol(T val, T amt);
         template<typename T> static T ror(T val, T amt);
 
     private:
+        template<typename T> static std::string hexSigned(T t, size_t bits = 0, bool withprefix = false);
         static std::string& replaceAll(std::string& s, const std::string& from, const std::string& to);
         static std::string escapeRegex(const std::string& s);
         static bool matchPattern(const u8* data, size_t datasize, const std::string& pattern);
         static bool checkPattern(std::string& p, size_t& len);
+
+    private:
+        static const char HEX_DIGITS[513];
 };
 
 template<typename T>
@@ -124,15 +129,72 @@ std::string Utils::number(T value, size_t base, size_t width, char fill)
 template<typename T>
 std::string Utils::hex(T value, size_t bits, bool withprefix)
 {
-    std::stringstream ss;
-    if(withprefix && (value > (std::is_signed<T>::value ? 9 : 9u))) ss << "0x";
+    if constexpr(std::is_unsigned<T>::value) {
+        uint64_t v = static_cast<uint64_t>(value);
 
-    ss << std::uppercase << std::hex;
+        int i = static_cast<int>(bits / CHAR_BIT) - 1;
 
-    if(bits > 0) ss << std::setfill('0') << std::setw(bits / 4);
+        if(i <= 0) { // Guess bits
+            if(v <= std::numeric_limits<u8>::max()) i = 0;
+            else if(v <= std::numeric_limits<u16>::max()) i = 1;
+            else if(v <= std::numeric_limits<u32>::max()) i = 3;
+            else i = 7;
+        }
 
-    if(std::is_signed<T>::value && value < 0) ss << "-" << (~value) + 1;
-    else ss << value;
+        std::string result(i * 2 + 2, '0');
 
-    return ss.str();
+        while(i >= 0) {
+            int pos = (v & 0xFF) * 2;
+            char ch = Utils::HEX_DIGITS[pos];
+            result[i * 2] = ch;
+            ch = Utils::HEX_DIGITS[pos + 1];
+            result[i * 2 + 1] = ch;
+            v >>= 8;
+            i -= 1;
+        }
+
+        return withprefix ? ("0x" + result) : result;
+    }
+
+    return Utils::hexSigned(value, bits, withprefix);
+}
+
+template<typename T>
+std::string Utils::hexSigned(T value, size_t bits, bool withprefix)
+{
+    bool negative = false;
+
+    if(value < 0) {
+        value = (~value) + 1;
+        negative = true;
+    }
+
+    uint64_t v = static_cast<uint64_t>(value);
+    int i = (bits / CHAR_BIT) - 1;
+
+    if(i <= 0) { // Guess bits
+        if(v <= std::numeric_limits<u8>::max()) i = 0;
+        else if(v <= std::numeric_limits<u16>::max()) i = 1;
+        else if(v <= std::numeric_limits<u32>::max()) i = 3;
+        else i = 7;
+    }
+
+    std::string result(i * 2 + 2, '0');
+
+    while(i >= 0) {
+        int pos = (v & 0xFF) * 2;
+        char ch = Utils::HEX_DIGITS[pos];
+        result[i * 2] = ch;
+        ch = Utils::HEX_DIGITS[pos + 1];
+        result[i * 2 + 1] = ch;
+        v >>= 8;
+        i -= 1;
+    }
+
+    if(negative) {
+        if(withprefix) return "-0x" + result;
+        else "-" + result;
+    }
+
+    return withprefix ? ("0x" + result) : result;
 }

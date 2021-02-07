@@ -10,30 +10,64 @@
 #include "gibberish/gibberishdetector.h"
 #include "stringfinder.h"
 #include <vector>
+#include <ctime>
 
-Engine::Engine(Context* ctx): Object(ctx), m_algorithm(ctx->disassembler()->algorithm()) { GibberishDetector::initialize(); }
+const std::array<const char*, Engine::State_Last> Engine::STATUS_LIST = {
+    "Stop", "Algorithm", "CFG", "Analyze", "Done"
+};
+
+Engine::Engine(Context* ctx): Object(ctx), m_algorithm(ctx->disassembler()->algorithm())
+{
+    GibberishDetector::initialize();
+
+    const auto& selanalyzers = this->context()->selectedAnalyzers();
+    m_analyzersdone.resize(selanalyzers.size());
+
+    for(size_t i = 0; i < selanalyzers.size(); i++)
+    {
+        m_analyzersnames.push_back(selanalyzers.at(i)->name());
+        m_analyzersdone[i] = 0;
+    }
+
+    m_status.filepath = ctx->loader()->filePath().c_str();
+    m_status.assembler = ctx->assembler()->name();
+    m_status.loader = ctx->loader()->name();
+    m_status.filesize = ctx->buffer()->size();
+    m_status.stepslist = STATUS_LIST.data();
+    m_status.stepscount = STATUS_LIST.size();
+    m_status.analyzerslist = m_analyzersnames.data();
+    m_status.analyzerscount = m_analyzersnames.size();
+    m_status.analyzerscurrent = RD_NVAL;
+    m_status.analyzersdone = m_analyzersdone.data();
+
+    this->notifyStatus();
+}
+
 Engine::~Engine() { this->stop(); }
-size_t Engine::currentStep() const { return m_currentstep; }
-void Engine::reset() { m_currentstep = Engine::State_None; }
+size_t Engine::currentStep() const { return m_status.stepscurrent; }
+void Engine::reset() { m_status.stepscurrent = Engine::State_Stop; }
 
 void Engine::execute()
 {
-    while(m_currentstep < State_Last)
+    while(m_status.stepscurrent < State_Done)
     {
-        switch(m_currentstep)
+        switch(m_status.stepscurrent)
         {
-            case Engine::State_None:      m_sigcount = 0; m_currentstep++; break;
-            case Engine::State_Algorithm: this->algorithmStep();  break;
-            case Engine::State_CFG:       this->cfgStep();        break;
-            case Engine::State_Analyze:   this->analyzeStep();    break;
-            case Engine::State_Signature: this->signatureStep();  break;
-            default:                      rd_cfg->log("Unknown step: " + Utils::number(m_currentstep)); return;
+            case Engine::State_Stop:
+                m_status.analysisstart = static_cast<u64>(time(nullptr));
+                this->nextStep();
+                break;
+
+            case Engine::State_Algorithm: this->algorithmStep(); break;
+            case Engine::State_CFG:       this->cfgStep();       break;
+            case Engine::State_Analyze:   this->analyzeStep();   break;
+            default:                      rd_cfg->log("Unknown step: " + Utils::number(m_status.stepscurrent)); return;
         }
     }
 
     if(!m_algorithm->hasNext())
     {
-        this->notify(false);
+        this->notifyBusy(false);
         rd_cfg->log("Analysis completed");
         rd_cfg->status("Ready");
     }
@@ -43,7 +77,7 @@ void Engine::execute()
 
 void Engine::execute(size_t step)
 {
-    if(step == m_currentstep) return;
+    if(step == m_status.stepscurrent) return;
 
     this->setStep(step);
     this->execute();
@@ -57,11 +91,15 @@ bool Engine::cfg(rd_address address)
     return true;
 }
 
-void Engine::setStep(size_t step) { m_currentstep = step; }
+void Engine::setStep(size_t step)
+{
+    m_status.stepscurrent = step;
+    this->notifyStatus();
+}
 
 bool Engine::needsWeak() const
 {
-    switch(m_currentstep)
+    switch(m_status.stepscurrent)
     {
         case Engine::State_Algorithm:
         case Engine::State_Analyze:
@@ -73,15 +111,13 @@ bool Engine::needsWeak() const
     return false;
 }
 
-bool Engine::busy() const { return m_busy; }
-void Engine::stop() { if(m_busy) this->notify(false); }
+bool Engine::busy() const { return m_status.busy; }
+void Engine::stop() { if(m_status.busy) this->notifyBusy(false); }
 
 void Engine::algorithmStep()
 {
-    //m_signatures = r_ldr->signatures(); // Preload signatures
-
     if(!m_algorithm->hasNext()) return; // Ignore spurious disassemble requests
-    this->notify(true);
+    this->notifyBusy(true);
     m_algorithm->disassemble();
     this->nextStep();
 }
@@ -136,21 +172,23 @@ void Engine::cfgStep()
     this->nextStep();
 }
 
-void Engine::signatureStep()
-{
-    //TODO: Stub
-    this->nextStep();
-}
-
 void Engine::analyzeAll()
 {
-    for(const Analyzer* p : this->context()->selectedAnalyzers())
-    {
-        if(HAS_FLAG(p->plugin(), AnalyzerFlags_RunOnce) && m_analyzecount.count(p)) continue;
+    const auto& analyzers = this->context()->selectedAnalyzers();
 
-        m_analyzecount[p]++;
-        p->execute();
+    for(size_t i = 0; i < analyzers.size(); i++)
+    {
+        const auto* a = analyzers.at(i);
+        if(HAS_FLAG(a->plugin(), AnalyzerFlags_RunOnce) && m_analyzersdone[i]) continue;
+
+        m_analyzersdone[i]++;
+        m_status.analyzerscurrent = i;
+        this->notifyStatus();
+        a->execute();
     }
+
+    m_status.analyzerscurrent = RD_NVAL;
+    this->notifyStatus();
 }
 
 void Engine::generateCfg(rd_address address)
@@ -184,8 +222,7 @@ void Engine::generateCfg(rd_address address)
             const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[0])->p_data);
 
             RDDocumentItem item;
-            if(fbb && fbb->getEndItem(&item)) tailaddress = item.address;
-        }
+            if(fbb && fbb->getEndItem(&item)) tailaddress = item.address; }
 
         if(tailaddress) doc->empty(tailaddress);
         doc->graph(g.release());
@@ -194,10 +231,36 @@ void Engine::generateCfg(rd_address address)
         this->context()->problem("Graph creation failed @ " + Utils::hex(address));
 }
 
-void Engine::notify(bool busy)
+void Engine::notifyStatus()
 {
-    m_busy = busy;
-    this->context()->notify<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    auto& doc = this->context()->document();
+
+    if(m_status.stepscurrent != m_lastnotifystep)
+    {
+        m_status.segmentsdiff = doc->segments()->size() - m_status.segmentscount;
+        m_status.segmentscount = doc->segments()->size();
+        m_status.functionsdiff = doc->functions()->size() - m_status.functionscount;
+        m_status.functionscount = doc->functions()->size();
+        m_status.symbolsdiff = doc->symbols()->size() - m_status.symbolscount;
+        m_status.symbolscount = doc->symbols()->size();
+
+        m_lastnotifystep = m_status.stepscurrent;
+    }
+
+    this->context()->notify<RDAnalysisStatusEventArgs>(RDEvents::Event_AnalysisStatusChanged, this, &m_status);
 }
 
-void Engine::nextStep() { m_currentstep++; }
+void Engine::notifyBusy(bool busy)
+{
+    m_status.busy = busy;
+    if(!busy) m_status.analysisend = static_cast<u64>(time(nullptr));
+
+    this->context()->notify<RDEventArgs>(RDEvents::Event_BusyChanged, this);
+    this->notifyStatus();
+}
+
+void Engine::nextStep()
+{
+    m_status.stepscurrent = std::min<size_t>(++m_status.stepscurrent, State_Done);
+    this->notifyStatus();
+}

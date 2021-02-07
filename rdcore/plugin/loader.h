@@ -16,6 +16,7 @@ class Loader: public Entry<RDEntryLoader>
         bool build();
         rd_flag flags() const;
         MemoryBuffer* buffer() const;
+        const std::string& filePath() const;
         const SafeDocument& document() const;
         SafeDocument& document();
 

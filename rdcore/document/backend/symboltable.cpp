@@ -98,6 +98,7 @@ size_t SymbolTable::findAllR(const std::string& q, const RDSymbol** symbols, rd_
     return m_result.size();
 }
 
+size_t SymbolTable::size() const { return m_byaddress.size(); }
 SymbolTable::ByAddress::const_iterator SymbolTable::begin() const { return m_byaddress.begin(); }
 SymbolTable::ByAddress::const_iterator SymbolTable::end() const { return m_byaddress.end(); }
 

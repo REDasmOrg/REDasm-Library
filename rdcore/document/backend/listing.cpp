@@ -193,6 +193,14 @@ RDLocation Listing::entryPoint() const
     return { {m_entry.address}, true };
 }
 
+bool Listing::getEntryItem(RDDocumentItem* item) const
+{
+    auto loc = this->entryPoint();
+    if(!loc.valid) return false;
+    if(item) *item = RD_DOCITEM(loc.address, DocumentItemType_Instruction);
+    return true;
+}
+
 const Listing::ItemData* Listing::itemData(const RDDocumentItem* item) const
 {
     if(!item) return nullptr;

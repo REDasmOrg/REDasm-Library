@@ -16,6 +16,7 @@ enum RDEvents {
     Event_None = 0,
 
     // General Events
+    Event_AnalysisStatusChanged,
     Event_BusyChanged,
     Event_Error,
 
@@ -59,3 +60,8 @@ typedef struct RDSurfaceEventArgs {
     const RDSurfacePos* selection;
     RDDocumentItem item;
 } RDSurfaceEventArgs;
+
+typedef struct RDAnalysisStatusEventArgs {
+    RD_EVENTARGS_BASE
+    const RDAnalysisStatus* status;
+} RDAnalysisStatusEventArgs;

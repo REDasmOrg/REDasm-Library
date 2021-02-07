@@ -30,6 +30,7 @@ class SymbolTable: public Object
         bool findR(const std::string& q, RDSymbol* symbol, rd_type hint) const;
         size_t findAll(const std::string& q, const RDSymbol** symbols, rd_type hint) const;
         size_t findAllR(const std::string& q, const RDSymbol** symbols, rd_type hint) const;
+        size_t size() const;
 
     public:
         ByAddress::const_iterator begin() const;

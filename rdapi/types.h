@@ -80,6 +80,38 @@ typedef struct RDSegment {
     RD_USERDATA_FIELD
 } RDSegment;
 
+typedef struct RDAnalysisStatus {
+    // General
+    const char* filepath;
+    const char* assembler;
+    const char* loader;
+    size_t filesize;
+    bool busy;
+
+    // Time
+    u64 analysisstart;
+    u64 analysisend;
+
+    // Steps
+    const char* const* stepslist;
+    size_t stepscount;
+    size_t stepscurrent;
+
+    // Analyzers
+    const char* const* analyzerslist;
+    size_t* analyzersdone;
+    size_t analyzerscount;
+    size_t analyzerscurrent;
+
+    // Stats
+    size_t segmentscount;
+    size_t functionscount;
+    size_t symbolscount;
+    int segmentsdiff;
+    int functionsdiff;
+    int symbolsdiff;
+} RDAnalysisStatus;
+
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);
 RD_API_EXPORT bool RDSegment_ContainsAddress(const RDSegment* s, rd_address address);

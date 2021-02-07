@@ -61,6 +61,7 @@ class Listing: public Object
 
     public: // Get
         RDLocation entryPoint() const;
+        bool getEntryItem(RDDocumentItem* item) const;
         const ItemData* itemData(const RDDocumentItem* item) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
         bool symbol(rd_address address, RDSymbol* symbol) const;

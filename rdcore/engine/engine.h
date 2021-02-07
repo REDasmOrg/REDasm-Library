@@ -2,7 +2,7 @@
 
 #include <unordered_set>
 #include <unordered_map>
-#include <atomic>
+#include <array>
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
 #include "../support/safe_ptr.h"
@@ -14,9 +14,7 @@ class Context;
 class Engine: public Object
 {
     public:
-        enum { State_None, State_Algorithm,
-               State_CFG, State_Analyze,
-               State_Signature, State_Last };
+        enum { State_Stop, State_Algorithm, State_CFG, State_Analyze, State_Done, State_Last };
 
     public:
         Engine(Context* ctx);
@@ -34,23 +32,26 @@ class Engine: public Object
         void algorithmStep();
         void analyzeStep();
         void cfgStep();
-        void signatureStep();
 
     private:
         void analyzeAll();
         void generateCfg(rd_address address);
-        void notify(bool busy);
+        void notifyStatus();
+        void notifyBusy(bool busy);
         void setStep(size_t step);
         void nextStep();
 
     private:
-        bool m_busy{false};
+        RDAnalysisStatus m_status{ };
+        std::vector<const char*> m_analyzersnames;
+        std::vector<size_t> m_analyzersdone;
+        size_t m_lastnotifystep{State_Last};
+
+    private:
         std::unordered_set<size_t> m_stepsdone;
-        std::unordered_map<const Analyzer*, size_t> m_analyzecount;
-        std::atomic<size_t> m_sigcount{0}, m_siganalyzed{0};
-        //SignatureScanner m_sigscanner;
-        //SignatureIdentifiers m_signatures;
-        size_t m_currentstep{Engine::State_None};
         SafeAlgorithm& m_algorithm;
+
+    private:
+        static const std::array<const char*, State_Last> STATUS_LIST;
 };
 

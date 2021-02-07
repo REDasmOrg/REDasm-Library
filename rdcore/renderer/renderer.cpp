@@ -120,8 +120,8 @@ void Renderer::renderSegment(const RDDocumentItem* item)
 
         this->chunk("segment").chunk(" ")
              .chunk("(")
-             .chunk("START").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
-             .chunk("END").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
+             .chunk("START").chunk(": ").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
+             .chunk("END").chunk(": ").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
              .chunk(")");
     }
     else

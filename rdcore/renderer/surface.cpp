@@ -18,7 +18,7 @@ Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), 
         const auto* items = lock->items();
 
         if(items->empty()) return;
-        item = *items->begin();
+        if(!lock->getEntryItem(&item)) item = *items->begin();
     }
 
     this->seek(&item);

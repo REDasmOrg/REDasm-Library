@@ -58,37 +58,37 @@ bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t 
 
 void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata)
 {
-    if(cb) docptr(d)->items()->each([&](const RDDocumentItem& item) {
-        return cb(&item, userdata);
-    });
+    if(!cb) return;
+    auto* i = docptr(d)->items();
+    i->each([&](const RDDocumentItem& item) { return cb(&item, userdata); });
 }
 
 void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata)
 {
-    if(cb) docptr(d)->functions()->each([&](rd_address address) {
-        return cb(address, userdata);
-    });
+    if(!cb) return;
+    auto* f = docptr(d)->functions();
+    f->each([&](rd_address address) { return cb(address, userdata); });
 }
 
 void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata)
 {
-    if(cb) docptr(d)->segments()->each([&](const RDSegment& segment) {
-        return cb(&segment, userdata);
-    });
+    if(!cb) return;
+    auto* s = docptr(d)->segments();
+    s->each([&](const RDSegment& segment) { return cb(&segment, userdata); });
 }
 
 void RDDocument_EachSymbol(const RDDocument* d, Callback_Address cb, void* userdata)
 {
-    if(cb) docptr(d)->symbols()->each([&](rd_address address) {
-        return cb(address, userdata);
-    });
+    if(!cb) return;
+    auto* s = docptr(d)->symbols();
+    s->each([&](rd_address address) { return cb(address, userdata); });
 }
 
 void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Address cb, void* userdata)
 {
-    if(cb) docptr(d)->symbols()->eachType(type, [&](rd_address address) {
-        return cb(address, userdata);
-    });
+    if(!cb) return;
+    auto* s = docptr(d)->symbols();
+    s->eachType(type, [&](rd_address address) { return cb(address, userdata); });
 }
 
 bool RDDocument_FindSymbol(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint)

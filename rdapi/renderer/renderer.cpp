@@ -11,6 +11,7 @@ void RDRenderer_MnemonicWord(RDRenderer* r, const char* s, rd_type theme) { CPTR
 void RDRenderer_Register(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderRegister(s); }
 void RDRenderer_Constant(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderConstant(s); }
 void RDRenderer_Text(RDRenderer* r, const char* s) { CPTR(Renderer, r)->renderText(s); }
+void RDRenderer_Themed(RDRenderer* r, const char* s, rd_type theme) { CPTR(Renderer, r)->renderText(s, theme); }
 void RDRenderer_Unknown(RDRenderer* r) { CPTR(Renderer, r)->renderUnknown(); }
 
 const char* RD_GetInstruction(RDContext* ctx, rd_address address)

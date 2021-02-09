@@ -43,6 +43,7 @@ RD_API_EXPORT void RDRenderer_MnemonicWord(RDRenderer* r, const char* s, rd_type
 RD_API_EXPORT void RDRenderer_Register(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Constant(RDRenderer* r, const char* s);
 RD_API_EXPORT void RDRenderer_Text(RDRenderer* r, const char* s);
+RD_API_EXPORT void RDRenderer_Themed(RDRenderer* r, const char* s, rd_type theme);
 RD_API_EXPORT void RDRenderer_Unknown(RDRenderer* r);
 
 RD_API_EXPORT const char* RD_GetInstruction(RDContext* ctx, rd_address address);

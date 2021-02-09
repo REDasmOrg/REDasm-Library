@@ -1,6 +1,7 @@
 #include "emulateresult.h"
 
 EmulateResult::EmulateResult(rd_address address, const RDBufferView* view): m_address(address), m_view(view) { }
+bool EmulateResult::invalid() const { return m_invalid; }
 bool EmulateResult::canFlow() const { return m_canflow; }
 const EmulateResult::Results& EmulateResult::results() const { return m_results; }
 const RDBufferView* EmulateResult::view() const { return m_view; }
@@ -21,3 +22,4 @@ void EmulateResult::addCallIndirect() { m_results.push_back({CallIndirect, {{0},
 void EmulateResult::addCallUnresolved() { m_results.push_back({CallUnresolved, {{0}, RD_NVAL}}); }
 void EmulateResult::addReferenceSize(rd_address address, size_t size) { m_results.push_back({Ref, {{address}, size}}); }
 void EmulateResult::addReference(rd_address address) { this->addReferenceSize(address, RD_NVAL); }
+void EmulateResult::addInvalid(size_t size) { m_invalid = true; m_size = size; }

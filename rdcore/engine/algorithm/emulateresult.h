@@ -11,6 +11,7 @@ class EmulateResult: public Object
     public:
         enum {
             None = 0,
+            Invalid,
             Branch, BranchTrue, BranchFalse, BranchIndirect, BranchUnresolved,
             Call, CallIndirect, CallUnresolved,
             Return, SysCall, Ref
@@ -30,6 +31,7 @@ class EmulateResult: public Object
 
     public:
         EmulateResult(rd_address address, const RDBufferView* view);
+        bool invalid() const;
         bool canFlow() const;
         const Results& results() const;
         const RDBufferView* view() const;
@@ -52,9 +54,10 @@ class EmulateResult: public Object
         void addCallUnresolved();
         void addReferenceSize(rd_address address, size_t size);
         void addReference(rd_address address);
+        void addInvalid(size_t size);
 
     private:
-        bool m_canflow{true};
+        bool m_canflow{true}, m_invalid{false};
         rd_address m_address;
         size_t m_size{0}, m_delayslot{0};
         const RDBufferView* m_view;

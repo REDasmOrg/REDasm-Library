@@ -11,6 +11,7 @@ RD_API_EXPORT const RDBufferView* RDEmulateResult_GetView(const RDEmulateResult*
 RD_API_EXPORT rd_address RDEmulateResult_GetAddress(const RDEmulateResult* res);
 RD_API_EXPORT void RDEmulateResult_SetSize(RDEmulateResult* res, size_t size);
 RD_API_EXPORT void RDEmulateResult_SetDelaySlot(RDEmulateResult* res, size_t ds);
+RD_API_EXPORT void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size);
 RD_API_EXPORT void RDEmulateResult_AddReturn(RDEmulateResult* res);
 RD_API_EXPORT void RDEmulateResult_AddBranch(RDEmulateResult* res, rd_address address);
 RD_API_EXPORT void RDEmulateResult_AddBranchUnresolved(RDEmulateResult* res);

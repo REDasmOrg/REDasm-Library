@@ -16,3 +16,4 @@ void RDEmulateResult_AddCallIndirect(RDEmulateResult* res) { CPTR(EmulateResult,
 void RDEmulateResult_AddCallUnresolved(RDEmulateResult* res) { CPTR(EmulateResult, res)->addCallUnresolved(); }
 void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addReferenceSize(address, size); }
 void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }
+void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->addInvalid(size); }

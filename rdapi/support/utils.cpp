@@ -14,7 +14,7 @@ const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix)
     return s.c_str();
 }
 
-const char* RD_ToHexAuto(const RDContext* ctx, size_t value) {  return RD_ToHexBits(value, CPTR(const Context, ctx)->bits(), false); }
+const char* RD_ToHexAuto(const RDContext* ctx, size_t value) { return RD_ToHexBits(value, CPTR(const Context, ctx)->bits(), false); }
 const char* RD_ToHex(size_t value) { return RD_ToHexBits(value, 0, false); }
 
 const char* RD_ToStringBase(size_t value, size_t base, size_t width, char fill)

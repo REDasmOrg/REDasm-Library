@@ -218,7 +218,6 @@ std::string SymbolTable::prefix(rd_type type, rd_flag flags)
         default: break;
     }
 
-    if(flags & SymbolFlags_TableItem) return "tbl";
     if(flags & SymbolFlags_Pointer) return "ptr";
 
     return "data";

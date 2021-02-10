@@ -23,9 +23,9 @@ FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
 const FunctionGraph::BasicBlocks& FunctionGraph::basicBlocks() const { return m_basicblocks; }
 rd_address FunctionGraph::startAddress() const { return m_graphstart.start; }
 
-size_t FunctionGraph::bytesCount() const
+size_t FunctionGraph::instructionsCount() const
 {
-    size_t c = 0;
+    if(m_instructionscount) return m_instructionscount;
 
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
@@ -36,12 +36,33 @@ size_t FunctionGraph::bytesCount() const
         const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
 
         blocks->range(startb, endb, [&](const RDBlock& block) {
-            c += BlockContainer::size(&block);
+            if(IS_TYPE(&block, BlockType_Code)) m_instructionscount++;
             return true;
         });
     }
 
-    return c;
+    return m_instructionscount;
+}
+
+size_t FunctionGraph::bytesCount() const
+{
+    if(m_bytescount) return m_bytescount;
+
+    for(const FunctionBasicBlock& fbb : m_basicblocks)
+    {
+        RDBlock startb, endb;
+        if(!m_document->block(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
+        if(!m_document->block(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
+
+        const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
+
+        blocks->range(startb, endb, [&](const RDBlock& block) {
+            m_bytescount += BlockContainer::size(&block);
+            return true;
+        });
+    }
+
+    return m_bytescount;
 }
 
 bool FunctionGraph::contains(rd_address address) const
@@ -57,6 +78,8 @@ bool FunctionGraph::contains(rd_address address) const
 
 bool FunctionGraph::build(rd_address address)
 {
+    m_instructionscount = m_bytescount = 0;
+
     if(!m_document->block(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
         return false;
 

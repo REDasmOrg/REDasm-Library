@@ -58,6 +58,7 @@ RD_API_EXPORT RDLocation RDContext_GetEntryPoint(const RDContext* ctx);
 RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
 RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol);
+RD_API_EXPORT size_t RDContext_GetFunctionInstrCount(const RDContext* ctx, rd_address address);
 RD_API_EXPORT bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view);
 RD_API_EXPORT bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view);
 RD_API_EXPORT bool RDContext_MatchLoader(const RDContext* ctx, const char* q);

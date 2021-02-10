@@ -16,6 +16,7 @@ class DocumentData: public Listing
         void setEndianness(rd_endianness endianness);
 
     public:
+        size_t getFunctionInstrCount(rd_address address) const;
         bool blockView(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, RDBufferView* view) const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;

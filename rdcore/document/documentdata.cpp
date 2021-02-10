@@ -9,6 +9,12 @@ rd_endianness DocumentData::endianness() const { return m_endianness; }
 MemoryBuffer* DocumentData::buffer() const { return m_buffer.get(); }
 void DocumentData::setEndianness(rd_endianness endianness) { m_endianness = endianness; }
 
+size_t DocumentData::getFunctionInstrCount(rd_address address) const
+{
+    auto* g = this->graph(address);
+    return g ? g->instructionsCount() : 0;
+}
+
 bool DocumentData::blockView(rd_address address, RDBufferView* view) const
 {
     RDBlock b;

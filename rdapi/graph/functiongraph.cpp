@@ -28,6 +28,13 @@ rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph)
     return fg ? fg->startAddress() : 0;
 }
 
+size_t RDFunctionGraph_GetInstructionsCount(const RDGraph* graph)
+{
+    const Graph* g = CPTR(const Graph, graph);
+    const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
+    return fg ? fg->instructionsCount() : 0;
+}
+
 rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getTheme(node); }
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 rd_address RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startaddress; }

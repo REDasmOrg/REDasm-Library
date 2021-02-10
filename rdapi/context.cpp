@@ -49,6 +49,7 @@ rd_type RDContext_GetABI(const RDContext* ctx) { return CPTR(const Context, ctx)
 void RDContext_SetCC(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompilerCC(t); }
 rd_type RDContext_GetCC(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerCC(); }
 const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, symbol); }
+size_t RDContext_GetFunctionInstrCount(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->getFunctionInstrCount(address); }
 u8* RDContext_GetBufferData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
 bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->createFunction(address, name); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }

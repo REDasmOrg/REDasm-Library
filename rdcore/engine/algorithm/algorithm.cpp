@@ -186,9 +186,7 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
         return std::nullopt;
     }
 
-    if(result->invalid()) m_document->explored(result->address(), result->size());
-    else m_document->instruction(result->address(), result->size());
-
+    if(!result->invalid()) m_document->instruction(result->address(), result->size());
     rd_address nextaddress = result->address() + result->size();
 
     if(result->delaySlot())

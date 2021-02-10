@@ -155,16 +155,14 @@ void Engine::cfgStep()
     const FunctionContainer* functions = this->context()->document()->functions();
     DocumentNet* net = this->context()->net();
 
-    this->context()->status("Processing function bounds");
-
     functions->each([&](rd_address address) {
+        this->context()->statusAddress("Processing function bounds", address);
         net->unlinkPrev(address);
         return true;
     });
 
-    this->context()->status("Computing basic blocks");
-
     functions->each([&](rd_address address) {
+        this->context()->statusAddress("Computing basic blocks", address);
         this->generateCfg(address);
         return true;
     });

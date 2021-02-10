@@ -82,7 +82,7 @@ void SurfacePath::insertPath(const RDDocumentItem& fromitem, const RDDocumentIte
     }
     else
     {
-        if(node->branchesfalse.size()) m_paths.push_back({ fromrow, torow, Theme_GraphEdgeFalse });
+        if(node->branchesfalse.size()) m_paths.push_back({ fromrow, torow, Theme_GraphEdgeTrue });
         else m_paths.push_back({ fromrow, torow, Theme_GraphEdge });
     }
 }

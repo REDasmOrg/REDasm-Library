@@ -34,7 +34,7 @@ void FunctionAnalyzer::analyze(Context* ctx)
 
 bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_address address)
 {
-    if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop))
+    if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop && (ctx->document()->getFunctionInstrCount(address)) == 1))
         return ctx->document()->rename(address, "nullsub_" + Utils::hex(address));
 
     return false;

@@ -35,7 +35,6 @@ class StringFinder
 template<typename T, typename ToAsciiCallback>
 bool StringFinder::categorizeT(RDBufferView view, size_t minstring, size_t* totalsize, const ToAsciiCallback& cb) {
     m_tempstr.clear();
-    m_tempstr.reserve(view.size);
     char ch;
 
     for( ; !BufferView::empty(&view); BufferView::advance(&view, sizeof(T))) {

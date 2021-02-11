@@ -219,6 +219,5 @@ std::string SymbolTable::prefix(rd_type type, rd_flag flags)
     }
 
     if(flags & SymbolFlags_Pointer) return "ptr";
-
     return "data";
 }

@@ -93,6 +93,3 @@ RD_API_EXPORT const RDSymbol* RDDocument_GetEntrySymbol(const RDDocument* d);
 RD_API_EXPORT RDLocation RDDocument_GetEntryPoint(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FindAllSymbols(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);
 RD_API_EXPORT size_t RDDocument_FindAllSymbolsR(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);
-
-// UserData
-RD_API_EXPORT bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata);

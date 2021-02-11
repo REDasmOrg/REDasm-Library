@@ -224,7 +224,6 @@ void Listing::invalidateGraphs()
 void Listing::graph(FunctionGraph* g) { m_functions.graph(g); }
 FunctionGraph* Listing::graph(rd_address address) const { return m_functions.findGraph(address); }
 RDLocation Listing::functionStart(rd_address address) const { return m_functions.findFunction(address); }
-bool Listing::setSegmentUserData(rd_address address, uintptr_t userdata) { return m_segments.setUserData(address, userdata); }
 
 bool Listing::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
 {
@@ -301,7 +300,7 @@ void Listing::remove(rd_address address, rd_type type)
 
     switch(item.type)
     {
-        case DocumentItemType_Segment: m_segments.removeAt(item.address); break;
+        case DocumentItemType_Segment: m_segments.removeKey(item.address); break;
         case DocumentItemType_Separator: m_separators.erase(item.address); break;
 
         case DocumentItemType_Symbol:

@@ -2,28 +2,25 @@
 
 #include <unordered_map>
 #include <rdapi/document/document.h>
-#include "../../containers/sortedcontainer.h"
+#include "../../containers/treecontainer.h"
 #include "blockcontainer.h"
 
 struct SegmentSorter
 {
+    typedef void is_transparent;
+
     bool operator()(const RDSegment& segment1, const RDSegment& segment2) const {
         return segment1.address < segment2.address;
     }
+
+    bool operator()(rd_address address, const RDSegment& s) const { return address < s.address; }
+    bool operator()(const RDSegment& s, rd_address address) const { return s.address < address; }
 };
 
-struct SegmentComparator
-{
-    bool operator()(const RDSegment& segment1, const RDSegment& segment2) const {
-        return std::tie(segment1.name, segment1.flags, segment1.offset, segment1.address, segment1.endoffset, segment1.endaddress) ==
-               std::tie(segment2.name, segment2.flags, segment2.offset, segment2.address, segment2.endoffset, segment2.endaddress);
-    }
-};
-
-class SegmentContainer: public SortedContainer<RDSegment, SegmentComparator, SegmentSorter>
+class SegmentContainer: public TreeContainer<RDSegment, SegmentSorter>
 {
     private:
-        typedef SortedContainer<RDSegment, SegmentComparator, SegmentSorter> ClassType;
+        typedef TreeContainer<RDSegment, SegmentSorter> ClassType;
 
     public:
         SegmentContainer();
@@ -36,7 +33,6 @@ class SegmentContainer: public SortedContainer<RDSegment, SegmentComparator, Seg
         bool find(rd_address address, RDSegment* segment) const;
         bool findOffset(rd_offset offset, RDSegment* segment) const;
         bool findBlock(rd_address address, RDBlock* block) const;
-        bool setUserData(rd_address address, uintptr_t userdata);
         const RDSegment* insert(const RDSegment& segment) override;
         BlockContainer* findBlocks(rd_address address) const;
         BlockContainer* findBlocks(rd_address address);

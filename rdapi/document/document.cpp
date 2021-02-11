@@ -57,8 +57,6 @@ bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offse
     return docptr(d)->segment(name, offset, startaddress, range, range, flags);
 }
 
-bool RDDocument_SetSegmentUserData(RDDocument* d, rd_address address, uintptr_t userdata) { return docptr(d)->setSegmentUserData(address, userdata); }
-
 void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata)
 {
     if(!cb) return;

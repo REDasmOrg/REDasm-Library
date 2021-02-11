@@ -26,7 +26,7 @@ struct DocumentItemSorter
     }
 
     bool operator()(rd_address address, const RDDocumentItem& item) const { return address < item.address; }
-    bool operator()(const RDDocumentItem& item1, rd_address address) const { return item1.address < address; }
+    bool operator()(const RDDocumentItem& item, rd_address address) const { return item.address < address; }
 };
 
 class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemSorter>

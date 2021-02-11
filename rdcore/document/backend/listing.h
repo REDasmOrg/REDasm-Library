@@ -76,9 +76,6 @@ class Listing: public Object
         FunctionGraph* graph(rd_address address) const;
         RDLocation functionStart(rd_address address) const;
 
-    public: // Segment
-        bool setSegmentUserData(rd_address address, uintptr_t userdata);
-
     protected:
         bool block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags);
         bool symbol(rd_address address, const std::string& name, rd_type type, rd_flag flags);

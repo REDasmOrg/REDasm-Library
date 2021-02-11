@@ -9,6 +9,8 @@ class TreeContainer: public AbstractContainer<T, Container>
     public:
         TreeContainer() = default;
         void range(const T& first, const T& last, const typename TreeContainer::TypeCallback& cb) const;
+        const T& front() const { return *this->m_container.begin(); }
+        const T& back() const { return *this->m_container.rbegin(); }
 
     public:
         template<typename K> bool contains(const K& k) const {
@@ -21,6 +23,13 @@ class TreeContainer: public AbstractContainer<T, Container>
             if(it == this->m_container.end()) return false;
 
             if(t) *t = *it;
+            return true;
+        }
+
+        template<typename K> bool removeKey(const K& k) {
+            auto it = this->m_container.find(k);
+            if(it == this->m_container.end()) return false;
+            this->m_container.erase(it);
             return true;
         }
 

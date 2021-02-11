@@ -6,11 +6,10 @@
 #include "../../containers/treecontainer.h"
 #include "../../builtin/graph/functiongraph/functiongraph.h"
 
-typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
-
 class FunctionContainer: public TreeContainer<rd_address>
 {
     private:
+        typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
         typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> ContainerType;
 
     public:

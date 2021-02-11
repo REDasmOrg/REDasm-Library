@@ -76,8 +76,6 @@ typedef struct RDSegment {
     rd_address address;  // [address, endaddress)
     rd_address endaddress;
     rd_flag flags;
-
-    RD_USERDATA_FIELD
 } RDSegment;
 
 typedef struct RDAnalysisStatus {

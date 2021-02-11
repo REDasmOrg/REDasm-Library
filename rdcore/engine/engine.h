@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
+#include <vector>
 #include <rdapi/types.h>
 #include "algorithm/algorithm.h"
 #include "../support/safe_ptr.h"

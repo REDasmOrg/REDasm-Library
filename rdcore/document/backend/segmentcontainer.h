@@ -27,6 +27,7 @@ class SegmentContainer: public TreeContainer<RDSegment, SegmentSorter>
         void whenInsert(const BlockContainer::Callback& cb);
         void whenRemove(const BlockContainer::Callback& cb);
         void removeAddress(rd_address address);
+        bool markUnknown(rd_address address, size_t size);
         bool markExplored(rd_address address, size_t size);
         bool markCode(rd_address address, size_t size);
         bool markData(rd_address address, size_t size);

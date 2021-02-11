@@ -21,6 +21,15 @@ void SegmentContainer::removeAddress(rd_address address)
         m_container.erase(it);
 }
 
+bool SegmentContainer::markUnknown(rd_address address, size_t size)
+{
+    auto* blocks = this->findBlocks(address);
+    if(!blocks) return false;
+
+    blocks->unknownSize(address, size);
+    return true;
+}
+
 bool SegmentContainer::markExplored(rd_address address, size_t size)
 {
     auto* blocks = this->findBlocks(address);

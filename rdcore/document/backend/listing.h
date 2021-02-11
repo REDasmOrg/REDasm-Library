@@ -28,6 +28,7 @@ class Listing: public Object
         bool empty() const;
         bool contains(const RDDocumentItem* item) const;
         bool getAny(rd_address address, const rd_type* types, RDDocumentItem* item) const;
+        bool unknown(rd_address address, size_t size);
         bool explored(rd_address address, size_t size);
         const ItemContainer* items() const;
         const FunctionContainer* functions() const;

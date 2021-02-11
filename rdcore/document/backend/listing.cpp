@@ -138,6 +138,7 @@ bool Listing::getAny(rd_address address, const rd_type* types, RDDocumentItem* i
     return false;
 }
 
+bool Listing::unknown(rd_address address, size_t size) { return m_segments.markUnknown(address, size); }
 bool Listing::explored(rd_address address, size_t size) { return m_segments.markExplored(address, size); }
 
 std::string Listing::comment(rd_address address, bool skipauto, const char* separator) const

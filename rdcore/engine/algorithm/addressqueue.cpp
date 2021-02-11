@@ -12,8 +12,8 @@ void AddressQueue::next()
     this->nextAddress(address);
 }
 
-void AddressQueue::enqueue(rd_address address) { m_pending.emplace_front(address); }
-void AddressQueue::schedule(rd_address address) { m_pending.emplace_back(address); }
+void AddressQueue::enqueue(rd_address address) { m_pending.push_front(address); }
+void AddressQueue::schedule(rd_address address) { m_pending.push_back(address); }
 
 bool AddressQueue::getNext(rd_address* address)
 {

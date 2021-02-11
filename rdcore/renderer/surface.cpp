@@ -16,7 +16,6 @@ Surface::Surface(Context* ctx, rd_flag flags, uintptr_t userdata): Object(ctx), 
     {
         auto lock = s_lock_safe_ptr(this->document());
         const auto* items = lock->items();
-
         if(items->empty()) return;
         if(!lock->getEntryItem(&item)) item = *items->begin();
     }

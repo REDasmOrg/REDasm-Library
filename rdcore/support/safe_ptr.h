@@ -9,7 +9,7 @@
 #include <memory>
 #include <mutex>
 
-template< typename T, typename mutex_t = std::recursive_mutex, typename s_lock_t = std::unique_lock<mutex_t>, typename x_lock_t = std::unique_lock<mutex_t> >
+template<typename T, typename mutex_t = std::recursive_mutex, typename s_lock_t = std::scoped_lock<mutex_t>, typename x_lock_t = std::scoped_lock<mutex_t>>
 class safe_ptr
 {
     public:
@@ -19,8 +19,7 @@ class safe_ptr
         typedef T object_type;
 
     private:
-        template<typename lock_t> struct auto_lock
-        {
+        template<typename lock_t> struct auto_lock {
             T* t;
             lock_t m;
 
@@ -31,8 +30,7 @@ class safe_ptr
             T* operator->() { return t; }
         };
 
-        template<typename lock_t> struct auto_lock_obj
-        {
+        template<typename lock_t> struct auto_lock_obj {
             T* t;
             lock_t m;
 

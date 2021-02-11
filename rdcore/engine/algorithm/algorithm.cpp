@@ -51,19 +51,18 @@ void Algorithm::disassemble()
     }
 }
 
-bool Algorithm::canBeDisassembled(rd_address address) const
+bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
 {
     if(!this->isAddressValid(address)) return false;
 
-    RDBlock block;
-    if(!m_document->block(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
+    if(!m_document->block(address, block) || IS_TYPE(block, BlockType_Code)) return false;
 
-    if(IS_TYPE(&block, BlockType_Data))
+    if(IS_TYPE(block, BlockType_Data))
     {
         RDSymbol symbol;
 
-        if(!m_document->symbol(block.address, &symbol))
-            REDasmError("Invalid symbol", block.address);
+        if(!m_document->symbol(block->address, &symbol))
+            REDasmError("Invalid symbol", block->address);
 
         switch(symbol.type)
         {
@@ -72,7 +71,7 @@ bool Algorithm::canBeDisassembled(rd_address address) const
             default: break;
         }
 
-        if(m_net->getReferences(block.address, nullptr)) return false;
+        if(m_net->getReferences(block->address, nullptr)) return false;
         return HAS_FLAG(&symbol, SymbolFlags_Weak);
     }
 
@@ -175,7 +174,9 @@ std::optional<rd_address> Algorithm::decode(rd_address address)
 
 std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* result)
 {
-    if(!this->canBeDisassembled(result->address())) return std::nullopt;
+    RDBlock block;
+    if(!this->canBeDisassembled(result->address(), &block)) return std::nullopt;
+    if(!IS_TYPE(&block, BlockType_Unknown)) m_document->unknown(result->address(), view->size); // Demote and merge the entire block
 
     this->status("Decoding @ " + Utils::hex(result->address()));
     this->context()->assembler()->emulate(result);

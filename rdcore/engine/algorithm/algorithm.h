@@ -24,7 +24,7 @@ class Algorithm: public AddressQueue
         std::optional<rd_address> decode(rd_address address);
         std::optional<rd_address> decode(RDBufferView* view, EmulateResult* result);
         bool isAddressValid(rd_address address) const;
-        bool canBeDisassembled(rd_address address) const;
+        bool canBeDisassembled(rd_address address, RDBlock* block) const;
         rd_address processDelaySlots(rd_address address, size_t ds);
         void processResult(EmulateResult* result);
         void processBranches(rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment);

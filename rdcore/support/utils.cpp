@@ -111,7 +111,7 @@ std::string Utils::hexStringEndian(const Context* ctx, const RDBufferView* view,
     {
         switch(size)
         {
-            case 1: return std::to_string(view->data[0]); break;
+            case 1: return Utils::hex(view->data[0]);
 
             case 2:
                 if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian16(*reinterpret_cast<u16*>(view->data)));

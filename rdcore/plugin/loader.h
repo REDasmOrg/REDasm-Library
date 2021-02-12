@@ -13,7 +13,7 @@ class Loader: public Entry<RDEntryLoader>
     public:
         Loader(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entry, Context* ctx);
         bool load();
-        bool build();
+        bool build(const RDLoaderBuildParams* buildparams);
         rd_flag flags() const;
         MemoryBuffer* buffer() const;
         const std::string& filePath() const;
@@ -24,7 +24,6 @@ class Loader: public Entry<RDEntryLoader>
         static const char* test(const RDEntryLoader* entry, const RDLoaderRequest* req);
 
     private:
-        RDLoaderBuildParams m_buildparams{ };
         SafeDocument m_document;
         std::string m_filepath;
 };

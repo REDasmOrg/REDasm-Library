@@ -13,10 +13,12 @@ bool Loader::load()
     return m_entry->load(CPTR(RDContext, this->context()));
 }
 
-bool Loader::build()
+bool Loader::build(const RDLoaderBuildParams* buildparams)
 {
+    static RDLoaderBuildParams bp{ };
+
     if(!m_entry->build) return false;
-    return m_entry->build(CPTR(RDContext, this->context()), &m_buildparams);
+    return m_entry->build(CPTR(RDContext, this->context()), buildparams ? buildparams : &bp);
 }
 
 rd_flag Loader::flags() const { return m_entry->flags; }

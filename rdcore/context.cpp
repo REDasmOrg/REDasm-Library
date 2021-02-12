@@ -167,7 +167,7 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
     m_disassembler->prepare(m_buffer, req->filepath, entryloader, entryassembler);
 
     m_pluginmanager->checkCommands();
-    if(!m_disassembler->load()) return false;
+    if(!m_disassembler->load(&req->buildparams)) return false;
 
     this->loadAnalyzers();
     return true;

@@ -20,7 +20,7 @@ class Disassembler: public Object
         MemoryBuffer* buffer() const;
         bool view(rd_address address, size_t size, RDBufferView* view) const;
         void prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
-        bool load();
+        bool load(const RDLoaderBuildParams* buildparams);
 
     public:
         bool createFunction(rd_address address, const char* name);

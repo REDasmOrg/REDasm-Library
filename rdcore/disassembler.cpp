@@ -130,13 +130,13 @@ void Disassembler::prepare(const MemoryBufferPtr& buffer, const std::string& fil
     m_assembler = std::make_unique<Assembler>(entryassembler, this->context());
 }
 
-bool Disassembler::load()
+bool Disassembler::load(const RDLoaderBuildParams* buildparams)
 {
     m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)
     {
-        if(!m_loader->build()) return false;
+        if(!m_loader->build(buildparams)) return false;
     }
     else if(!m_loader->load())
         return false;

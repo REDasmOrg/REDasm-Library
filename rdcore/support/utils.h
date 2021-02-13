@@ -23,6 +23,7 @@ class Utils
     public:
         Utils() = delete;
         static bool isCode(const SafeDocument& doc, rd_address address);
+        static bool isPureCode(const RDSegment* s);
         static bool toByte(const std::string& s, u8 *val, u64 offset = 0);
         static int branchDirection(rd_address fromaddress, rd_address address);
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }

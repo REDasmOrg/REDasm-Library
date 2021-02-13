@@ -37,6 +37,11 @@ bool Utils::isCode(const SafeDocument& doc, rd_address address)
     return true;
 }
 
+bool Utils::isPureCode(const RDSegment* s)
+{
+    return HAS_FLAG(s, SegmentFlags_Code) && !HAS_FLAG(s, SegmentFlags_Data) && !HAS_FLAG(s, SegmentFlags_Bss);
+}
+
 bool Utils::toByte(const std::string& s, u8* val, u64 offset)
 {
     if(offset > (s.size() - 2)) return false;

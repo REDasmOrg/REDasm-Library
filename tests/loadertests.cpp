@@ -42,6 +42,13 @@ void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)
 void LoaderTests::testTN_11(RDContext* ctx, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x00405530, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00405534, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00405538, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00405548, nullptr, SymbolType_Data, SymbolFlags_None);
+
+    const RDNet* net = RDContext_GetNet(ctx);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00405548, nullptr), 2);
 }
 
 void LoaderTests::testSCrack(RDContext* ctx, RDDocument* doc)

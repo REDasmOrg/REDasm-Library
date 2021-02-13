@@ -43,6 +43,7 @@ class DocumentData: public Listing
     protected:
         bool readAddress(rd_address address, u64 *value) const;
         bool readAddress(rd_address address, size_t size, u64 *value) const;
+        RDLocation dereferenceAddress(rd_address address) const;
 
     private:
         template<typename T> const T* readStringT(rd_address address, size_t* len) const;

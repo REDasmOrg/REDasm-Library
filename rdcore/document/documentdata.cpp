@@ -82,6 +82,13 @@ bool DocumentData::readAddress(rd_address address, size_t size, u64* value) cons
     return true;
 }
 
+RDLocation DocumentData::dereferenceAddress(rd_address address) const
+{
+    u64 ptraddress;
+    if(!this->readAddress(address, &ptraddress) || !this->isAddress(ptraddress)) return { };
+    return { {ptraddress}, true };
+}
+
 const char* DocumentData::getHexDump(rd_address address, size_t size) const
 {
     static std::string hexdump;

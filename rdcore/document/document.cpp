@@ -30,34 +30,36 @@ void Document::checkLocation(rd_address fromaddress, rd_address address, size_t 
     RDSegment segment;
     if(!this->segment(address, &segment)) return;
 
-    if(this->symbol(address, nullptr))
+    RDSymbol symbol;
+
+    if(this->symbol(address, &symbol))
     {
         m_net->addRef(fromaddress, address);
+
+        if(HAS_FLAG(&symbol, SymbolFlags_Pointer))
+        {
+            auto loc = this->dereferenceAddress(address);
+            if(loc.valid) m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
+        }
+
         this->updateComments(fromaddress, address);
         return;
     }
 
-    u64 ptraddress = 0;
+    if(size == RD_NVAL) size = this->context()->addressWidth();
 
-    if(this->readAddress(address, &ptraddress) && this->isAddress(ptraddress)) // Is Pointer
-    {
-        this->pointer(address, SymbolType_Data, std::string());
-        this->checkLocation(address, static_cast<rd_address>(ptraddress), size);
-        m_net->addRef(fromaddress, static_cast<rd_address>(ptraddress), ReferenceFlags_Indirect);
-        this->updateComments(fromaddress, address);
-    }
-    else if(this->markString(address, nullptr)) // Is String
-    {
-        this->updateComments(fromaddress, address);
-    }
-    else if(HAS_FLAG(&segment, SegmentFlags_Code) && !HAS_FLAG(&segment, SegmentFlags_Data) && !HAS_FLAG(&segment, SegmentFlags_Bss)) // Code Reference
+    rd_address ptraddress = 0;
+
+    if(this->checkPointer(fromaddress, address, size, &ptraddress)) this->updateComments(fromaddress, address); // Is Pointer
+    else if(this->markString(address, nullptr)) this->updateComments(fromaddress, address); // Is String
+    else if(Utils::isPureCode(&segment)) // Code Reference
     {
         if(!this->label(address)) return;
         this->context()->disassembler()->enqueue(address); // Enqueue for analysis
     }
     else // Data
     {
-        this->data(address, size == RD_NVAL ? this->context()->addressWidth() : size, std::string());
+        this->data(address, size, std::string());
         this->updateComments(fromaddress, address);
     }
 
@@ -137,6 +139,29 @@ bool Document::type(rd_address address, const Type* type, int level)
         return false;
 
     return true;
+}
+
+bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t size, rd_address* firstaddress)
+{
+    if(size != this->context()->addressWidth()) return false;
+
+    auto loc = this->dereferenceAddress(address);
+    size_t i = 0;
+
+    for( ; loc.valid; i++, address += size, loc = this->dereferenceAddress(address))
+    {
+        this->pointer(address, SymbolType_Data, std::string());
+
+        if(!i)
+        {
+            m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
+            *firstaddress = loc.address;
+        }
+
+        this->checkLocation(address, loc.address, size);
+    }
+
+    return i;
 }
 
 void Document::updateComments(rd_address address, rd_address symboladdress, const std::string& prefix)

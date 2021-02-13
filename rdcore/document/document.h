@@ -18,6 +18,7 @@ class Document: public DocumentData
 
     private:
         bool type(rd_address address, const Type* type, int level);
+        bool checkPointer(rd_address fromaddress, rd_address address, size_t size, rd_address* firstaddress);
         void updateComments(rd_address address, rd_address symboladdress, const std::string& prefix = std::string());
         size_t markString(rd_address address, rd_flag* resflags);
 

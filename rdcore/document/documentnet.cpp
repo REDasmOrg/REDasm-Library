@@ -68,6 +68,11 @@ void DocumentNet::linkBranch(rd_address fromaddress, rd_address toaddress, rd_ty
             break;
 
         case EmulateResult::BranchIndirect:
+            this->n(fromaddress).branchtype = EmulateResult::Branch;
+            this->n(fromaddress).branchestrue.insert(toaddress);
+            m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Indirect });
+            break;
+
         case EmulateResult::BranchUnresolved:
             this->n(fromaddress).branchtype = type;
             break;
@@ -100,10 +105,16 @@ void DocumentNet::unlinkCall(rd_address fromaddress, rd_address toaddress)
     this->removeRef(fromaddress, toaddress);
 }
 
-void DocumentNet::addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags) { m_refs[toaddress].insert({fromaddress, flags}); }
+void DocumentNet::addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags)
+{
+    if((fromaddress == RD_NVAL) || (toaddress == RD_NVAL)) return;
+    m_refs[toaddress].insert({fromaddress, flags});
+}
 
 void DocumentNet::removeRef(rd_address fromaddress, rd_address toaddress)
 {
+    if((fromaddress == RD_NVAL) || (toaddress == RD_NVAL)) return;
+
     auto& refs = m_refs[toaddress];
 
     auto it = std::find_if(refs.begin(), refs.end(), [fromaddress](const RDReference& r) {

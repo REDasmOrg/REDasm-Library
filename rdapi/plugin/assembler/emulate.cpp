@@ -11,9 +11,11 @@ void RDEmulateResult_AddBranchUnresolved(RDEmulateResult* res) { CPTR(EmulateRes
 void RDEmulateResult_AddBranchIndirect(RDEmulateResult* res) { CPTR(EmulateResult, res)->addBranchIndirect(); }
 void RDEmulateResult_AddBranchTrue(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addBranchTrue(address); }
 void RDEmulateResult_AddBranchFalse(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addBranchFalse(address); }
+void RDEmulateResult_AddBranchTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addBranchTable(address, size); }
 void RDEmulateResult_AddCall(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addCall(address); }
 void RDEmulateResult_AddCallIndirect(RDEmulateResult* res) { CPTR(EmulateResult, res)->addCallIndirect();  }
 void RDEmulateResult_AddCallUnresolved(RDEmulateResult* res) { CPTR(EmulateResult, res)->addCallUnresolved(); }
+void RDEmulateResult_AddCallTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addCallTable(address, size); }
 void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addReferenceSize(address, size); }
 void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }
 void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->addInvalid(size); }

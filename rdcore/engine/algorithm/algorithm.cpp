@@ -4,7 +4,6 @@
 #include "../../support/utils.h"
 #include "../../disassembler.h"
 #include "../../context.h"
-#include "emulateresult.h"
 #include <thread>
 
 Algorithm::Algorithm(Context* ctx): AddressQueue(ctx) { }
@@ -108,53 +107,94 @@ void Algorithm::processResult(EmulateResult* result)
             case EmulateResult::Branch:
             case EmulateResult::BranchTrue:
             case EmulateResult::BranchFalse:
-                this->processBranches(forktype, result->address(), res.address, &segment);
+            case EmulateResult::BranchTable:
+                this->processBranches(forktype, result->address(), res, &segment);
                 break;
 
-            case EmulateResult::Call: {
-                m_net->linkCall(result->address(), res.address);
-
-                if(HAS_FLAG(&segment, SegmentFlags_Code)) {
-                    m_document->function(res.address, std::string());
-                    this->schedule(res.address);
-                }
-                else m_document->label(res.address);
-
+            case EmulateResult::Call:
+            case EmulateResult::CallTable:
+                this->processCalls(forktype, result->address(), res, &segment);
                 break;
-            }
 
             default: break;
         }
     }
 }
 
-void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment)
+void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment)
 {
     switch(forktype)
     {
         case EmulateResult::Branch:
         case EmulateResult::BranchTrue:
-            m_net->linkBranch(fromaddress, address, forktype);
+            m_net->linkBranch(fromaddress, v.address, forktype);
             break;
 
         case EmulateResult::BranchFalse:
-            m_net->linkBranch(fromaddress, address, forktype);
-            this->schedule(address);
+            m_net->linkBranch(fromaddress, v.address, forktype);
+            this->schedule(v.address);
             return; // Don't generate symbols
+
+        case EmulateResult::BranchTable:
+            this->processBranchTable(fromaddress, v);
+            return;
 
         default: return;
     }
 
     if(HAS_FLAG(segment, SegmentFlags_Code))
     {
-        int dir = Utils::branchDirection(fromaddress, address);
+        int dir = Utils::branchDirection(fromaddress, v.address);
         if(!dir) m_document->autoComment(fromaddress, "Infinite loop");
-        m_document->branch(address, dir);
-        this->schedule(address);
+        m_document->branch(v.address, dir);
+        this->schedule(v.address);
         return;
     }
 
-    m_document->data(address, this->context()->addressWidth(), std::string());
+    m_document->data(v.address, this->context()->addressWidth(), std::string());
+}
+
+void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment)
+{
+    switch(forktype)
+    {
+        case EmulateResult::CallTable: this->processCallTable(fromaddress, v); break;
+
+        case EmulateResult::Call: {
+            m_net->linkCall(fromaddress, v.address);
+
+            if(HAS_FLAG(segment, SegmentFlags_Code)) {
+                m_document->function(v.address, std::string());
+                this->schedule(v.address);
+            }
+            else m_document->label(v.address);
+
+            break;
+        }
+
+        default: break;
+    }
+}
+
+void Algorithm::processBranchTable(rd_address fromaddress, const EmulateResult::Value& v)
+{
+    RDSegment segment;
+
+    size_t c = m_document->checkTable(fromaddress, v.address, v.size, [&](rd_address, rd_address address, size_t) {
+        if(!m_document->segment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+
+        m_net->linkBranch(fromaddress, address, EmulateResult::BranchIndirect);
+        m_document->branch(address);
+        this->schedule(address);
+        return true;
+    });
+
+    if(!c) m_document->checkLocation(fromaddress, v.address);
+}
+
+void Algorithm::processCallTable(rd_address fromaddress, const EmulateResult::Value& v)
+{
+    this->log(Utils::hex(fromaddress) + " @ " + Utils::hex(v.address));
 }
 
 void Algorithm::nextAddress(rd_address address)

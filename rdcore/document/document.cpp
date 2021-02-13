@@ -66,6 +66,21 @@ void Document::checkLocation(rd_address fromaddress, rd_address address, size_t 
     m_net->addRef(fromaddress, address);
 }
 
+size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t size, const Document::TableCallback& cb)
+{
+    auto loc = this->dereferenceAddress(address);
+    size_t i = 0, w = this->context()->addressWidth();
+
+    for( ; loc.valid && (i < size); i++, address += w, loc = this->dereferenceAddress(address))
+    {
+        this->pointer(address, SymbolType_Data, std::string());
+        if(!i) m_net->addRef(fromaddress, address);
+        if(!cb(address, loc.address, i)) break;
+    }
+
+    return i;
+}
+
 bool Document::type(rd_address address, const Type* type, int level)
 {
     if(!type) return false;
@@ -145,27 +160,21 @@ bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t s
 {
     if(size != this->context()->addressWidth()) return false;
 
-    auto loc = this->dereferenceAddress(address);
-    size_t i = 0;
-
-    for( ; loc.valid; i++, address += size, loc = this->dereferenceAddress(address))
-    {
-        this->pointer(address, SymbolType_Data, std::string());
-
-        if(!i)
-        {
-            m_net->addRef(fromaddress, loc.address, ReferenceFlags_Indirect);
-            *firstaddress = loc.address;
+    return this->checkTable(fromaddress, address, RD_NVAL, [&](rd_address ptraddress, rd_address addr, size_t i) {
+        if(!i) {
+            *firstaddress = addr;
+            m_net->addRef(fromaddress, addr, ReferenceFlags_Indirect);
         }
 
-        this->checkLocation(address, loc.address, size);
-    }
-
-    return i;
+        this->checkLocation(ptraddress, addr, size);
+        return true;
+    });
 }
 
 void Document::updateComments(rd_address address, rd_address symboladdress, const std::string& prefix)
 {
+    if(address == RD_NVAL) return;
+
     RDSymbol symbol;
     if(!this->symbol(symboladdress, &symbol)) return;
 

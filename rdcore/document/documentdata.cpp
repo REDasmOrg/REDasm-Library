@@ -68,9 +68,9 @@ bool DocumentData::readAddress(rd_address address, u64* value) const { return th
 bool DocumentData::readAddress(rd_address address, size_t size, u64* value) const
 {
     RDBufferView view;
-    if(!this->view(address, &view)) return false;
+    if(!this->view(address, size, &view)) return false;
 
-    switch(size)
+    switch(view.size)
     {
         case 1:  if(value) *value = *reinterpret_cast<u8*>(view.data);  break;
         case 2:  if(value) *value = *reinterpret_cast<u16*>(view.data); break;

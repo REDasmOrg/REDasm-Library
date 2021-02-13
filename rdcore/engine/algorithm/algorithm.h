@@ -3,6 +3,7 @@
 #include <optional>
 #include <rdapi/buffer.h>
 #include "../../support/safe_ptr.h"
+#include "emulateresult.h"
 #include "addressqueue.h"
 
 class DocumentNet;
@@ -27,7 +28,10 @@ class Algorithm: public AddressQueue
         bool canBeDisassembled(rd_address address, RDBlock* block) const;
         rd_address processDelaySlots(rd_address address, size_t ds);
         void processResult(EmulateResult* result);
-        void processBranches(rd_type forktype, rd_address fromaddress, rd_address address, const RDSegment* segment);
+        void processBranches(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment);
+        void processCalls(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment);
+        void processBranchTable(rd_address fromaddress, const EmulateResult::Value& v);
+        void processCallTable(rd_address fromaddress, const EmulateResult::Value& v);
 
     private:
         mutable RDSegment m_currentsegment{ };

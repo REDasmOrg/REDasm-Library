@@ -175,7 +175,7 @@ bool Surface::goTo(const RDDocumentItem* item, bool updatehistory)
 bool Surface::goToAddress(rd_address address, bool updatehistory)
 {
     auto* items = this->items();
-    auto it = items->find(address);
+    auto it = items->lowerBound(address);
     if(it == items->end()) return false;
 
     auto currit = it;

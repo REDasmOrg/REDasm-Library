@@ -25,3 +25,4 @@ RD_API_EXPORT void RDEmulateResult_AddCallUnresolved(RDEmulateResult* res);
 RD_API_EXPORT void RDEmulateResult_AddCallTable(RDEmulateResult* res, rd_address address, size_t size);
 RD_API_EXPORT void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size);
 RD_API_EXPORT void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address);
+RD_API_EXPORT void RDEmulateResult_AddTable(RDEmulateResult* res, rd_address address, size_t size);

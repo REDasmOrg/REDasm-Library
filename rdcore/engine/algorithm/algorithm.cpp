@@ -100,9 +100,8 @@ void Algorithm::processResult(EmulateResult* result)
 
         switch(forktype)
         {
-            case EmulateResult::Ref:
-                m_document->checkLocation(result->address(), res.address, res.size);
-                break;
+            case EmulateResult::Ref: m_document->checkLocation(result->address(), res.address, res.size); break;
+            case EmulateResult::Table: this->processTable(result->address(), res); break;
 
             case EmulateResult::Branch:
             case EmulateResult::BranchTrue:
@@ -196,6 +195,12 @@ void Algorithm::processBranchTable(rd_address fromaddress, const EmulateResult::
 void Algorithm::processCallTable(rd_address fromaddress, const EmulateResult::Value& v)
 {
     this->log(Utils::hex(fromaddress) + " @ " + Utils::hex(v.address));
+}
+
+void Algorithm::processTable(rd_address fromaddress, const EmulateResult::Value& v)
+{
+    if(m_document->checkPointer(fromaddress, v.address, v.size, nullptr)) return;
+    m_document->checkLocation(fromaddress, v.address, v.size);
 }
 
 void Algorithm::nextAddress(rd_address address)

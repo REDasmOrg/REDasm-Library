@@ -32,6 +32,7 @@ class Algorithm: public AddressQueue
         void processCalls(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment);
         void processBranchTable(rd_address fromaddress, const EmulateResult::Value& v);
         void processCallTable(rd_address fromaddress, const EmulateResult::Value& v);
+        void processTable(rd_address fromaddress, const EmulateResult::Value& v);
 
     private:
         mutable RDSegment m_currentsegment{ };

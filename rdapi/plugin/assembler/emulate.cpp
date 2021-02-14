@@ -19,3 +19,4 @@ void RDEmulateResult_AddCallTable(RDEmulateResult* res, rd_address address, size
 void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addReferenceSize(address, size); }
 void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }
 void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->addInvalid(size); }
+void RDEmulateResult_AddTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addTable(address, size); }

@@ -23,12 +23,12 @@ bool Document::typeName(rd_address address, const std::string& q)
 
 bool Document::type(rd_address address, const Type* type) { return this->type(address, type, 0); }
 
-void Document::checkLocation(rd_address fromaddress, rd_address address, size_t size)
+rd_address Document::checkLocation(rd_address fromaddress, rd_address address, size_t size)
 {
-    if(fromaddress == address) return; // Ignore self references
+    if(fromaddress == address) return RD_NVAL; // Ignore self references
 
     RDSegment segment;
-    if(!this->segment(address, &segment)) return;
+    if(!this->segment(address, &segment)) return RD_NVAL;
 
     RDSymbol symbol;
 
@@ -43,18 +43,18 @@ void Document::checkLocation(rd_address fromaddress, rd_address address, size_t 
         }
 
         this->updateComments(fromaddress, address);
-        return;
+        return address;
     }
 
     if(size == RD_NVAL) size = this->context()->addressWidth();
 
-    rd_address ptraddress = 0;
+    rd_address resaddress = address;
 
-    if(this->checkPointer(fromaddress, address, size, &ptraddress)) this->updateComments(fromaddress, address); // Is Pointer
+    if(this->checkPointer(fromaddress, address, size, &resaddress)) this->updateComments(fromaddress, address); // Is Pointer
     else if(this->markString(address, nullptr)) this->updateComments(fromaddress, address); // Is String
     else if(Utils::isPureCode(&segment)) // Code Reference
     {
-        if(!this->label(address)) return;
+        if(!this->label(address)) return resaddress;
         this->context()->disassembler()->enqueue(address); // Enqueue for analysis
     }
     else // Data
@@ -64,6 +64,7 @@ void Document::checkLocation(rd_address fromaddress, rd_address address, size_t 
     }
 
     m_net->addRef(fromaddress, address);
+    return resaddress;
 }
 
 size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t size, const Document::TableCallback& cb)

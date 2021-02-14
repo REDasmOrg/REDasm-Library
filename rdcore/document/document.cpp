@@ -76,6 +76,8 @@ size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t s
     {
         this->pointer(address, SymbolType_Data, std::string());
         if(!i) m_net->addRef(fromaddress, address);
+
+        m_net->addRef(address, loc.address);
         if(!cb(address, loc.address, i)) break;
     }
 
@@ -163,7 +165,7 @@ bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t s
 
     return this->checkTable(fromaddress, address, RD_NVAL, [&](rd_address ptraddress, rd_address addr, size_t i) {
         if(!i) {
-            *firstaddress = addr;
+            if(firstaddress) *firstaddress = addr;
             m_net->addRef(fromaddress, addr, ReferenceFlags_Indirect);
         }
 

@@ -161,13 +161,14 @@ void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const Emu
         case EmulateResult::CallTable: this->processCallTable(fromaddress, v); break;
 
         case EmulateResult::Call: {
-            m_net->linkCall(fromaddress, v.address);
 
             if(HAS_FLAG(segment, SegmentFlags_Code)) {
+                m_net->linkCall(fromaddress, v.address);
                 m_document->function(v.address, std::string());
                 this->schedule(v.address);
             }
-            else m_document->label(v.address);
+            else if(rd_address loc = m_document->checkLocation(fromaddress, v.address); loc != RD_NVAL)
+                m_net->linkCall(fromaddress, loc);
 
             break;
         }

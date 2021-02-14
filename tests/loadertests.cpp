@@ -7,15 +7,15 @@
 void LoaderTests::testCavia(RDContext*, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401000, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_EntryPoint);
-    LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function);
     GraphTests::testCavia(doc);
 }
 
 void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
 {
     LoaderTests::checkSymbol(doc, 0x00401128, "WndProc", SymbolType_Function, SymbolFlags_Export);
-    LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_00401253", SymbolType_Function, SymbolFlags_None);
-    LoaderTests::checkSymbol(doc, 0x0040130A, "DlgProc_0040130A", SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_00401253", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x0040130A, "DlgProc_0040130A", SymbolType_Function);
 
     LoaderTests::checkSymbol(doc, 0x004020E7, nullptr, SymbolType_String, SymbolFlags_AsciiString);
     LoaderTests::checkSymbol(doc, 0x00402129, nullptr, SymbolType_String, SymbolFlags_AsciiString);
@@ -31,6 +31,76 @@ void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
     GraphTests::testCM01(doc);
 }
 
+void LoaderTests::testJmpTable(RDContext* ctx, RDDocument* doc)
+{
+    LoaderTests::checkSymbol(doc, 0x00001362, "main", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x00002570, "init", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x000025e0, "fini", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x00003007, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000300c, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003011, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003016, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000301b, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003020, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003025, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000302a, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003033, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003044, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000304f, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00003058, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+
+    LoaderTests::checkSymbol(doc, 0x00001219, nullptr, SymbolType_Label);
+    LoaderTests::checkSymbol(doc, 0x00001248, nullptr, SymbolType_Label);
+    LoaderTests::checkSymbol(doc, 0x00001277, nullptr, SymbolType_Label);
+    LoaderTests::checkSymbol(doc, 0x000012a6, "sub_12A6", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x000012d5, "sub_12D5", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x00001304, "sub_1304", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x00001333, "sub_1333", SymbolType_Function);
+
+    const RDNet* net = RDContext_GetNet(ctx);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00001219, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00001248, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00001277, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x000012a6, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x000012d5, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00001304, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00001333, nullptr), 0);
+
+    GraphTests::testJmpTable(doc);
+}
+
+void LoaderTests::testSwitchCase(RDContext* ctx, RDDocument* doc)
+{
+    LoaderTests::checkSymbol(doc, 0x00001169, "main", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x00001270, "init", SymbolType_Function);
+    LoaderTests::checkSymbol(doc, 0x000012e0, "fini", SymbolType_Function);
+
+    LoaderTests::checkSymbol(doc, 0x00002004, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002015, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002018, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002021, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000202a, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002035, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000203f, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002049, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x00002052, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkSymbol(doc, 0x0000205d, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+
+    const RDNet* net = RDContext_GetNet(ctx);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002004, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002015, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002018, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002021, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x0000202a, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002035, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x0000203f, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002049, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00002052, nullptr), 1);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x0000205d, nullptr), 1);
+
+    GraphTests::testSwitchCase(doc);
+}
+
 void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)
 {
     static std::map<rd_address, const char*> vbevents;
@@ -41,13 +111,33 @@ void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)
 
 void LoaderTests::testTN_11(RDContext* ctx, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function);
     LoaderTests::checkSymbol(doc, 0x00405530, nullptr, SymbolType_Data, SymbolFlags_Pointer);
     LoaderTests::checkSymbol(doc, 0x00405534, nullptr, SymbolType_Data, SymbolFlags_Pointer);
     LoaderTests::checkSymbol(doc, 0x00405538, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00405548, nullptr, SymbolType_Data, SymbolFlags_None);
+    LoaderTests::checkSymbol(doc, 0x00405548, nullptr, SymbolType_Data);
+
+    LoaderTests::checkSymbol(doc, 0x00401320, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00401324, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00401328, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x0040132c, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkSymbol(doc, 0x00401330, nullptr, SymbolType_Data, SymbolFlags_Pointer);
 
     const RDNet* net = RDContext_GetNet(ctx);
+    const RDReference* refs = nullptr;
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401320, &refs), 1);
+    REQUIRE_EQ(refs[0].address, 0x401197);
+    REQUIRE(HAS_FLAG(refs, ReferenceFlags_Direct));
+
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401324, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401328, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x0040132c, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401330, nullptr), 0);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401285, nullptr), 2);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x004012fb, nullptr), 2);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x0040119e, nullptr), 3);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x00401238, nullptr), 2);
+    REQUIRE_EQ(RDNet_GetReferences(net, 0x004010e8, nullptr), 3);
     REQUIRE_EQ(RDNet_GetReferences(net, 0x00405548, nullptr), 2);
 }
 
@@ -112,6 +202,8 @@ void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std
     }
 }
 
+void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols) { LoaderTests::checkSymbolsAndRefs(ctx, doc, symbols, SymbolType_None, SymbolFlags_None); }
+
 void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type, rd_flag flags)
 {
     std::string casename = name ? name : ("Symbol @ " + rd_tohex(address));
@@ -127,6 +219,9 @@ void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* n
         if(name) REQUIRE(!std::strcmp(RDDocument_GetSymbolName(doc, address), name));
     }
 }
+
+void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type) { return LoaderTests::checkSymbol(doc, address, name, type, SymbolFlags_None); }
+void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name) { return LoaderTests::checkSymbol(doc, address, name, SymbolType_None, SymbolFlags_None); }
 
 void LoaderTests::testVBEvents(RDDocument* doc, const std::map<rd_address, const char*>& vbevents)
 {

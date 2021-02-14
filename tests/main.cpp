@@ -17,6 +17,8 @@ typedef std::pair<std::string, TestCallback> TestItem;
 static std::list<TestItem> g_tests = {
     { "/home/davide/Programmazione/Cavia.exe", &LoaderTests::testCavia },
     { "/home/davide/Programmazione/Campioni/PE Test/CM01.exe", &LoaderTests::testCM01 },
+    { "/home/davide/Programmazione/Campioni/ELF Test/jmptable", &LoaderTests::testJmpTable },
+    { "/home/davide/Programmazione/Campioni/ELF Test/switch_case", &LoaderTests::testSwitchCase },
     { "/home/davide/Programmazione/Campioni/PE Test/VB5CRKME.EXE", &LoaderTests::testVB5CrackMe },
     { "/home/davide/Programmazione/Campioni/PE Test/tn_11.exe", &LoaderTests::testTN_11 },
     { "/home/davide/Programmazione/Campioni/PE Test/tn12/scrack.exe", &LoaderTests::testSCrack },

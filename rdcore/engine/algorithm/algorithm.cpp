@@ -160,14 +160,13 @@ void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const Emu
         case EmulateResult::CallTable: this->processCallTable(fromaddress, v); break;
 
         case EmulateResult::Call: {
-
             if(HAS_FLAG(segment, SegmentFlags_Code)) {
-                m_net->linkCall(fromaddress, v.address);
+                m_net->linkCall(fromaddress, v.address, forktype);
                 m_document->function(v.address, std::string());
                 this->schedule(v.address);
             }
             else if(rd_address loc = m_document->checkLocation(fromaddress, v.address); loc != RD_NVAL)
-                m_net->linkCall(fromaddress, loc);
+                m_net->linkCall(fromaddress, loc, EmulateResult::CallIndirect);
 
             break;
         }
@@ -194,7 +193,18 @@ void Algorithm::processBranchTable(rd_address fromaddress, const EmulateResult::
 
 void Algorithm::processCallTable(rd_address fromaddress, const EmulateResult::Value& v)
 {
-    this->log(Utils::hex(fromaddress) + " @ " + Utils::hex(v.address));
+    RDSegment segment;
+
+    size_t c = m_document->checkTable(fromaddress, v.address, v.size, [&](rd_address, rd_address address, size_t) {
+        if(!m_document->segment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+
+        m_net->linkCall(fromaddress, address, EmulateResult::CallIndirect);
+        m_document->function(address, std::string());
+        this->schedule(address);
+        return true;
+    });
+
+    if(!c) m_document->checkLocation(fromaddress, v.address);
 }
 
 void Algorithm::processTable(rd_address fromaddress, const EmulateResult::Value& v)

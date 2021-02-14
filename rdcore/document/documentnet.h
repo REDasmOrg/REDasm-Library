@@ -13,7 +13,11 @@ struct DocumentNetNode {
     rd_address address{RD_NVAL}, next{RD_NVAL};
 
     u64 syscall{0};
-    rd_type branchtype{EmulateResult::None};
+
+    union {
+        rd_type branchtype{EmulateResult::None};
+        rd_type calltype;
+    };
 
     AddressContainer from;
     AddressContainer branchestrue, branchesfalse;
@@ -41,7 +45,7 @@ class DocumentNet: public Object
         void linkBranchUnresolved(rd_address address);
         void linkNext(rd_address fromaddress, rd_address toaddress);
         void linkBranch(rd_address fromaddress, rd_address toaddress, rd_type type);
-        void linkCall(rd_address fromaddress, rd_address toaddress);
+        void linkCall(rd_address fromaddress, rd_address toaddress, rd_type type);
         void addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags = ReferenceFlags_Direct);
         bool unlinkPrev(rd_address address);
         bool unlinkNext(rd_address address);

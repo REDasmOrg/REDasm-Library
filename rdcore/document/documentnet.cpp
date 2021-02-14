@@ -75,7 +75,7 @@ void DocumentNet::linkBranch(rd_address fromaddress, rd_address toaddress, rd_ty
 
         case EmulateResult::BranchUnresolved:
             this->n(fromaddress).branchtype = type;
-            break;
+            return;
 
         default: return;
     }
@@ -91,11 +91,18 @@ void DocumentNet::unlinkBranch(rd_address fromaddress, rd_address toaddress)
     this->removeRef(fromaddress, toaddress);
 }
 
-void DocumentNet::linkCall(rd_address fromaddress, rd_address toaddress)
+void DocumentNet::linkCall(rd_address fromaddress, rd_address toaddress, rd_type type)
 {
+    switch(type)
+    {
+        case EmulateResult::CallIndirect: m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Indirect }); break;
+        case EmulateResult::Call: m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Direct }); break;
+        case EmulateResult::CallUnresolved: this->n(fromaddress).calltype = type; return;
+        default: return;
+    }
+
     this->n(fromaddress).calls.insert(toaddress);
     this->n(toaddress).from.insert(fromaddress);
-    m_refs[toaddress].insert({ fromaddress, ReferenceFlags_Direct });
 }
 
 void DocumentNet::unlinkCall(rd_address fromaddress, rd_address toaddress)

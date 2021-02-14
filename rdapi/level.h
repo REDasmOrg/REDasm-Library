@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
-#define RDAPI_LEVEL 1
+#define LIBREDASM_VERSION "3.0"
+#define RDAPI_LEVEL       1
 
 typedef uint32_t apilevel_t;

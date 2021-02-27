@@ -17,7 +17,7 @@ const FunctionContainer& Listing::functions() const { return m_functions; }
 const SegmentContainer* Listing::segments() const { return &m_segments; }
 const SymbolTable* Listing::symbols() const { return m_symbols.get(); }
 const BlockContainer* Listing::blocks(rd_address address) const { return m_segments.findBlocks(address); }
-const RDSymbol* Listing::entry() const { return &m_entry; }
+const RDLocation& Listing::entry() const { return m_entry; }
 bool Listing::pointer(rd_address address, rd_type type, const std::string& name) { return this->block(address, this->context()->addressWidth(), name, type, SymbolFlags_Pointer); }
 
 bool Listing::segment(const std::string& name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags)
@@ -104,7 +104,8 @@ bool Listing::entry(rd_address address)
 
     if(name) res = this->symbol(address, name, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint); // Don't override symbol name, if exists
     else res = this->symbol(address, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_Export | SymbolFlags_EntryPoint);
-    m_symbols->get(address, &m_entry);
+
+    m_entry = { {address}, true };
     return res;
 }
 
@@ -184,21 +185,14 @@ bool Listing::rename(rd_address address, const std::string& newname)
     if(!m_symbols->rename(address, newname)) return false;
     if(!m_items.containsSymbol(address)) return false;
 
-    this->notifyEvent(RD_DOCITEM(address, DocumentItemType_Symbol), DocumentAction_ItemChanged);
+    this->notifyEvent({ address, DocumentItemType_Symbol }, DocumentAction_ItemChanged);
     return true;
-}
-
-RDLocation Listing::entryPoint() const
-{
-    if(!IS_TYPE(&m_entry, SymbolType_Function)) return {{0}, false};
-    return { {m_entry.address}, true };
 }
 
 bool Listing::getEntryItem(RDDocumentItem* item) const
 {
-    auto loc = this->entryPoint();
-    if(!loc.valid) return false;
-    if(item) *item = RD_DOCITEM(loc.address, DocumentItemType_Instruction);
+    if(!m_entry.valid) return false;
+    if(item) *item = { m_entry.address, DocumentItemType_Instruction };
     return true;
 }
 

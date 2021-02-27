@@ -87,7 +87,6 @@ RD_API_EXPORT void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type
 RD_API_EXPORT bool RDDocument_FindSymbol(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint);
 RD_API_EXPORT bool RDDocument_FindSymbolR(const RDDocument* d, const char* q, RDSymbol* symbol, rd_type hint);
 RD_API_EXPORT bool RDDocument_GetEntryItem(const RDDocument* d, RDDocumentItem* item);
-RD_API_EXPORT const RDSymbol* RDDocument_GetEntrySymbol(const RDDocument* d);
 RD_API_EXPORT RDLocation RDDocument_GetEntryPoint(const RDDocument* d);
 RD_API_EXPORT size_t RDDocument_FindAllSymbols(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);
 RD_API_EXPORT size_t RDDocument_FindAllSymbolsR(const RDDocument* d, const char* q, const RDSymbol** symbols, rd_type hint);

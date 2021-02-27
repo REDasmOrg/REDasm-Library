@@ -14,13 +14,13 @@ RDEntryAnalyzer analyzerEntry_Function = RD_BUILTIN_ENTRY(analyzerfunction_built
 void FunctionAnalyzer::analyze(Context* ctx)
 {
     auto& document = ctx->document();
-    const RDSymbol* entry = document->entry();
+    RDLocation entry = document->entry();
     const FunctionContainer& functions = document->functions();
 
     for(rd_address address : functions)
     {
         ctx->statusAddress("Analyzing function" , address);
-        if(entry && (entry->address == address)) continue; // Don't rename EP, if any
+        if(entry.valid && (entry.address == address)) continue; // Don't rename EP, if any
         RDBufferView view;
         if(!document->view(address, RD_NVAL, &view)) continue;
 

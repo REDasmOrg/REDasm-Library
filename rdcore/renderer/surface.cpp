@@ -364,7 +364,7 @@ void Surface::handleEvents(const RDEventArgs* event)
 
         case Event_BusyChanged: {
             if(this->context()->busy()) return;
-            RDLocation loc = this->document()->entryPoint();
+            RDLocation loc = this->document()->entry();
             if(loc.valid) this->goToAddress(loc.address, false);
 
             this->notifyScrollChanged();

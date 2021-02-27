@@ -265,7 +265,12 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 
 bool Algorithm::isAddressValid(rd_address address) const
 {
-    if(m_document->items()->contains(RDDocumentItem{ address, DocumentItemType_Instruction })) return false;
     if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code)) return false;
+
+    auto* blocks = m_document->blocks(address);
+    if(!blocks) return false;
+
+    RDBlock block;
+    if(!blocks->get(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
     return true;
 }

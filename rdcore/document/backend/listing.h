@@ -35,7 +35,7 @@ class Listing: public Object
         const SegmentContainer* segments() const;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;
-        const RDSymbol* entry() const;
+        const RDLocation& entry() const;
 
     public: // Insertion
         bool pointer(rd_address address, rd_type type, const std::string& name);
@@ -61,7 +61,6 @@ class Listing: public Object
         bool rename(rd_address address, const std::string& newname);
 
     public: // Get
-        RDLocation entryPoint() const;
         bool getEntryItem(RDDocumentItem* item) const;
         const ItemData* itemData(const RDDocumentItem* item) const;
         bool symbol(const char* name, RDSymbol* symbol) const;
@@ -94,7 +93,7 @@ class Listing: public Object
         std::map<RDDocumentItem, ItemData, DocumentItemSorter> m_itemdata;
 
     private:
-        RDSymbol m_entry{ };
+        RDLocation m_entry{ };
         ItemContainer m_items;
         SegmentContainer m_segments;
         FunctionContainer m_functions;

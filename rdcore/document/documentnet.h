@@ -3,13 +3,11 @@
 #include <unordered_map>
 #include <rdapi/types.h>
 #include "../engine/algorithm/emulateresult.h"
-#include "../containers/sortedcontainer.h"
+#include "../containers/addresscontainer.h"
 #include "../object.h"
 
-typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> AddressContainer;
-
 struct DocumentNetNode {
-    AddressContainer prev;
+    SortedAddresses prev;
     rd_address address{RD_NVAL}, next{RD_NVAL};
 
     u64 syscall{0};
@@ -19,9 +17,9 @@ struct DocumentNetNode {
         rd_type calltype;
     };
 
-    AddressContainer from;
-    AddressContainer branchestrue, branchesfalse;
-    AddressContainer calls;
+    SortedAddresses from;
+    SortedAddresses branchestrue, branchesfalse;
+    SortedAddresses calls;
 };
 
 struct ReferenceComparator {

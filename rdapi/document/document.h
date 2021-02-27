@@ -35,11 +35,9 @@ enum RDDocumentAction {
 typedef struct RDDocumentItem {
     rd_address address;
     rd_type type;
-    u16 index;
 } RDDocumentItem;
 
-#define RD_DOCITEM_EX(address, type, index) { address, type, index }
-#define RD_DOCITEM(address, type)           RD_DOCITEM_EX(address, type, 0)
+#define RD_DOCITEM(address, type) { address, type }
 
 struct RDGraph;
 

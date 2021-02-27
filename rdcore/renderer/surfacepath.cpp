@@ -36,7 +36,7 @@ void SurfacePath::update()
             for(const auto& branch : node->branchestrue)
             {
                 if(branch == item.address) continue;
-                RDDocumentItem toitem{ branch, DocumentItemType_Instruction, 0};
+                RDDocumentItem toitem{ branch, DocumentItemType_Instruction };
                 if(items->contains(toitem)) this->insertPath(item, toitem);
             }
         }
@@ -44,7 +44,7 @@ void SurfacePath::update()
         {
             RDSymbol symbol;
             if(!this->context()->document()->symbol(item.address, &symbol)) continue;
-            if(!items->contains(RDDocumentItem{ item.address, DocumentItemType_Instruction, 0 })) continue;
+            if(!items->contains(RDDocumentItem{ item.address, DocumentItemType_Instruction })) continue;
 
             const RDReference* refs = nullptr;
             size_t c = net->getReferences(item.address, &refs);
@@ -52,7 +52,7 @@ void SurfacePath::update()
             for(size_t i = 0; i < c; i++)
             {
                 if(refs[i].address == item.address) continue;
-                RDDocumentItem fromitem{ refs[i].address, DocumentItemType_Instruction, 0 };
+                RDDocumentItem fromitem{ refs[i].address, DocumentItemType_Instruction };
                 if(items->contains(fromitem)) this->insertPath(fromitem, item);
             }
         }

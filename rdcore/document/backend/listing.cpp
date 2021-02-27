@@ -122,7 +122,7 @@ bool Listing::getAny(rd_address address, const rd_type* types, RDDocumentItem* i
 {
     if(!types) return false;
 
-    RDDocumentItem citem = { address, *types, 0 };
+    RDDocumentItem citem = { address, *types };
 
     while(citem.type != DocumentItemType_None)
     {
@@ -255,7 +255,7 @@ bool Listing::symbol(rd_address address, const std::string& name, rd_type type, 
             {
                 const char* n = m_symbols->getName(address); // Try to preserve old name, if any
                 m_symbols->create(address, (n && name.empty()) ? n : name, type, flags);
-                this->notifyEvent({ address, DocumentItemType_Function, 0 }, DocumentAction_ItemChanged);
+                this->notifyEvent({ address, DocumentItemType_Function }, DocumentAction_ItemChanged);
                 return true;
             }
 
@@ -270,7 +270,7 @@ bool Listing::symbol(rd_address address, const std::string& name, rd_type type, 
     return true;
 }
 
-const RDDocumentItem& Listing::insert(rd_address address, rd_type type, u16 index)
+const RDDocumentItem& Listing::insert(rd_address address, rd_type type)
 {
     switch(type)
     {
@@ -280,7 +280,7 @@ const RDDocumentItem& Listing::insert(rd_address address, rd_type type, u16 inde
         default: break;
     }
 
-    const RDDocumentItem* item = m_items.insert({ address, type, index });
+    const RDDocumentItem* item = m_items.insert({ address, type });
     this->notifyEvent(*item, DocumentAction_ItemInserted);
     return *item;
 }
@@ -295,7 +295,7 @@ const RDDocumentItem& Listing::replace(rd_address address, rd_type type)
 
 void Listing::remove(rd_address address, rd_type type)
 {
-    RDDocumentItem item = { address, type, 0 };
+    RDDocumentItem item = { address, type };
     this->context()->notify<RDDocumentEventArgs>(Event_DocumentChanged, this, DocumentAction_ItemRemoved, item);
     m_items.remove(item);
 

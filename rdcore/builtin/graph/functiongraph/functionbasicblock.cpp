@@ -7,13 +7,13 @@ bool FunctionBasicBlock::contains(rd_address address) const { return ((address >
 
 bool FunctionBasicBlock::getStartItem(RDDocumentItem* item) const
 {
-    if(m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Symbol, 0}, item))
+    if(m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Symbol }, item))
     {
         RDSymbol symbol;
         if(m_document->symbol(startaddress, &symbol) && !IS_TYPE(&symbol, SymbolType_Function)) return true;
     }
 
-    return m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Instruction, 0 }, item);
+    return m_document->items()->get(RDDocumentItem{ startaddress, DocumentItemType_Instruction }, item);
 }
 
 bool FunctionBasicBlock::getEndItem(RDDocumentItem* item) const

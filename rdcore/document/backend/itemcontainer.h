@@ -7,8 +7,8 @@
 struct DocumentItemComparator
 {
     bool operator()(const RDDocumentItem& item1, const RDDocumentItem& item2) const {
-        return std::tie(item1.address, item1.type, item1.index) ==
-               std::tie(item2.address, item2.type, item2.index);
+        return std::tie(item1.address, item1.type) ==
+               std::tie(item2.address, item2.type);
     }
 };
 
@@ -17,11 +17,7 @@ struct DocumentItemSorter
     typedef void is_transparent;
 
     bool operator()(const RDDocumentItem& item1, const RDDocumentItem& item2) const {
-        if(item1.address == item2.address) {
-            if(item1.type == item2.type) return item1.index < item2.index;
-            return item1.type < item2.type;
-        }
-
+        if(item1.address == item2.address) return item1.type < item2.type;
         return item1.address < item2.address;
     }
 
@@ -41,5 +37,5 @@ class ItemContainer: public MultiTreeContainer<RDDocumentItem, DocumentItemSorte
         static bool equals(const RDDocumentItem* item1, const RDDocumentItem* item2);
 
     private:
-        bool containsItem(rd_address address, rd_type type, u16 index = 0) const { return this->m_container.count({ address, type, index }); }
+        bool containsItem(rd_address address, rd_type type) const { return this->m_container.count(RD_DOCITEM(address, type)); }
 };

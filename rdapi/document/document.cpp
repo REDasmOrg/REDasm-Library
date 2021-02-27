@@ -18,6 +18,7 @@ const char* RDDocument_GetSymbolName(const RDDocument* d, rd_address address) { 
 const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address) { return CPTR(const RDBlockContainer, docptr(d)->blocks(address)); }
 const RDType* RDDocument_GetType(const RDDocument* d, const RDDocumentItem* item) { return CPTR(const RDType, docptr(d)->type(item)); }
 size_t RDDocument_GetSize(const RDDocument* d) { return docptr(d)->size(); }
+size_t RDDocument_GetFunctions(const RDDocument* d, const rd_address** addresses) { return docptr(d)->functions().data(addresses); }
 bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags) { return docptr(d)->segment(name, offset, address, psize, vsize, flags); }
 bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags) { return docptr(d)->segment(name, offset, address, size, size, flags); }
 bool RDDocument_SetEntry(RDDocument* d, rd_address address) { return docptr(d)->entry(address); }
@@ -62,13 +63,6 @@ void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userda
     if(!cb) return;
     auto* i = docptr(d)->items();
     i->each([&](const RDDocumentItem& item) { return cb(&item, userdata); });
-}
-
-void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata)
-{
-    if(!cb) return;
-    auto* f = docptr(d)->functions();
-    f->each([&](rd_address address) { return cb(address, userdata); });
 }
 
 void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata)

@@ -43,6 +43,9 @@ template<typename T, typename Container>
 class RandomAccessContainer: public AbstractContainer<T, Container>
 {
     public:
+        typedef Container ContainerType;
+
+    public:
         virtual ~RandomAccessContainer() = default;
         virtual T& at(size_t idx) = 0;
         virtual T& front() = 0;

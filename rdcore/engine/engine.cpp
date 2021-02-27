@@ -125,17 +125,17 @@ void Engine::algorithmStep()
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
-    const FunctionContainer* functions = this->context()->document()->functions();
+    const FunctionContainer& functions = this->context()->document()->functions();
 
-    size_t oldfc = functions->size();
+    size_t oldfc = functions.size();
     this->analyzeAll();
 
     if(!m_algorithm->hasNext())
     {
         // Functions count is changed, trigger analysis again
-        while(oldfc != functions->size())
+        while(oldfc != functions.size())
         {
-            oldfc = functions->size();
+            oldfc = functions.size();
             this->analyzeAll();
         }
 
@@ -152,20 +152,20 @@ void Engine::cfgStep()
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
-    const FunctionContainer* functions = this->context()->document()->functions();
+    const auto& functions = this->context()->document()->functions();
     DocumentNet* net = this->context()->net();
 
-    functions->each([&](rd_address address) {
+    for(rd_address address : functions)
+    {
         this->context()->statusAddress("Processing function bounds", address);
         net->unlinkPrev(address);
-        return true;
-    });
+    }
 
-    functions->each([&](rd_address address) {
+    for(rd_address address : functions)
+    {
         this->context()->statusAddress("Computing basic blocks", address);
         this->generateCfg(address);
-        return true;
-    });
+    }
 
     this->nextStep();
 }
@@ -237,8 +237,8 @@ void Engine::notifyStatus()
     {
         m_status.segmentsdiff = doc->segments()->size() - m_status.segmentscount;
         m_status.segmentscount = doc->segments()->size();
-        m_status.functionsdiff = doc->functions()->size() - m_status.functionscount;
-        m_status.functionscount = doc->functions()->size();
+        m_status.functionsdiff = doc->functions().size() - m_status.functionscount;
+        m_status.functionscount = doc->functions().size();
         m_status.symbolsdiff = doc->symbols()->size() - m_status.symbolscount;
         m_status.symbolscount = doc->symbols()->size();
 

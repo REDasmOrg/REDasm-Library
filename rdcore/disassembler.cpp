@@ -60,10 +60,8 @@ void Disassembler::disassemble()
     });
 
     // Preload functions for analysis
-    doc->functions()->each([&](rd_address address) {
+    for(rd_address address : doc->functions())
         m_algorithm->enqueue(address);
-        return true;
-    });
 
     m_engine->execute();
 }

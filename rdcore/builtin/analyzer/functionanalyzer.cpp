@@ -15,21 +15,21 @@ void FunctionAnalyzer::analyze(Context* ctx)
 {
     auto& document = ctx->document();
     const RDSymbol* entry = document->entry();
-    const FunctionContainer* functions = document->functions();
+    const FunctionContainer& functions = document->functions();
 
-    functions->each([&](rd_address address) {
+    for(rd_address address : functions)
+    {
         ctx->statusAddress("Analyzing function" , address);
-        if(entry && (entry->address == address)) return true; // Don't rename EP, if any
+        if(entry && (entry->address == address)) continue; // Don't rename EP, if any
         RDBufferView view;
-        if(!document->view(address, RD_NVAL, &view)) return true;
+        if(!document->view(address, RD_NVAL, &view)) continue;
 
         std::unique_ptr<ILExpression> e(ILFunction::generateOne(ctx, address));
-        if(!e) return true;
+        if(!e) continue;
 
-        if(FunctionAnalyzer::findNullSubs(ctx, e.get(), address)) return true;
+        if(FunctionAnalyzer::findNullSubs(ctx, e.get(), address)) continue;
         FunctionAnalyzer::findThunk(ctx, e.get(), address);
-        return true;
-    });
+    }
 }
 
 bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_address address)

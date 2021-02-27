@@ -61,6 +61,7 @@ RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address
 RD_API_EXPORT const RDBlockContainer* RDDocument_GetBlocks(const RDDocument* d, rd_address address);
 RD_API_EXPORT const RDType* RDDocument_GetType(const RDDocument* d, const RDDocumentItem* item);
 RD_API_EXPORT size_t RDDocument_GetSize(const RDDocument* d);
+RD_API_EXPORT size_t RDDocument_GetFunctions(const RDDocument* d, const rd_address** addresses);
 RD_API_EXPORT bool RDDocument_AddSegmentSize(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 psize, u64 vsize, rd_flag flags);
 RD_API_EXPORT bool RDDocument_AddSegmentRange(RDDocument* d, const char* name, rd_offset offset, rd_address startaddress, rd_address endaddress, rd_flag flags);
 RD_API_EXPORT bool RDDocument_AddSegment(RDDocument* d, const char* name, rd_offset offset, rd_address address, u64 size, rd_flag flags);
@@ -80,7 +81,6 @@ RD_API_EXPORT bool RDDocument_AddType(RDDocument* d, rd_address address, const R
 RD_API_EXPORT void RDDocument_AddSeparator(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_AddEmpty(RDDocument* d, rd_address address);
 RD_API_EXPORT void RDDocument_Each(const RDDocument* d, Callback_DocumentItem cb, void* userdata);
-RD_API_EXPORT void RDDocument_EachFunction(const RDDocument* d, Callback_Address cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSegment(const RDDocument* d, Callback_Segment cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSymbol(const RDDocument* d, Callback_Address cb, void* userdata);
 RD_API_EXPORT void RDDocument_EachSymbolByType(const RDDocument* d, rd_type type, Callback_Address cb, void* userdata);

@@ -13,7 +13,7 @@ Listing::Listing(Context* ctx): Object(ctx)
 
 size_t Listing::size() const { return m_items.size(); }
 const ItemContainer* Listing::items() const { return &m_items; }
-const FunctionContainer* Listing::functions() const { return &m_functions; }
+const FunctionContainer& Listing::functions() const { return m_functions; }
 const SegmentContainer* Listing::segments() const { return &m_segments; }
 const SymbolTable* Listing::symbols() const { return m_symbols.get(); }
 const BlockContainer* Listing::blocks(rd_address address) const { return m_segments.findBlocks(address); }
@@ -219,12 +219,12 @@ const char* Listing::name(rd_address address) const { return m_symbols->getName(
 void Listing::invalidateGraphs()
 {
     while(!m_separators.empty()) this->remove(*m_separators.begin(), DocumentItemType_Separator);
-    m_functions.clearGraphs();
+    m_functions.clearValues();
 }
 
-void Listing::graph(FunctionGraph* g) { m_functions.graph(g); }
+void Listing::graph(FunctionGraph* g) { m_functions.bind(g->startAddress(), g); }
 FunctionGraph* Listing::graph(rd_address address) const { return m_functions.findGraph(address); }
-RDLocation Listing::functionStart(rd_address address) const { return m_functions.findFunction(address); }
+RDLocation Listing::functionStart(rd_address address) const {  return m_functions.findFunction(address); }
 
 bool Listing::block(rd_address address, size_t size, const std::string& name, rd_type type, rd_flag flags)
 {

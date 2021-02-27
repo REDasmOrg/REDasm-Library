@@ -8,6 +8,10 @@ template<typename T, typename Comparator = std::equal_to<T>>
 class FlatContainer: public RandomAccessContainer<T, std::vector<T>>
 {
     public:
+        typedef typename std::vector<T>::const_iterator const_iterator;
+        typedef typename std::vector<T>::iterator iterator;
+
+    public:
         FlatContainer() = default;
         size_t data(const T** t) const;
         void reserve(size_t n) { this->m_container.reserve(n); }

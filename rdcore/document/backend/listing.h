@@ -31,7 +31,7 @@ class Listing: public Object
         bool unknown(rd_address address, size_t size);
         bool explored(rd_address address, size_t size);
         const ItemContainer* items() const;
-        const FunctionContainer* functions() const;
+        const FunctionContainer& functions() const;
         const SegmentContainer* segments() const;
         const BlockContainer* blocks(rd_address address) const;
         const SymbolTable* symbols() const;

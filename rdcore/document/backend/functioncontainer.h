@@ -1,27 +1,20 @@
 #pragma once
 
-#include <algorithm>
-#include <memory>
 #include <rdapi/types.h>
-#include "../../containers/treecontainer.h"
+#include <memory>
 #include "../../builtin/graph/functiongraph/functiongraph.h"
+#include "../../containers/addresscontainer.h"
 
-class FunctionContainer: public TreeContainer<rd_address>
+class FunctionGraph;
+
+typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
+
+class FunctionContainer: public AddressContainer<FunctionGraphPtr>
 {
-    private:
-        typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
-        typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> ContainerType;
-
     public:
         FunctionContainer() = default;
-        bool remove(const rd_address& address) override;
+        FunctionGraph* findGraph(rd_address address) const;
         RDLocation findFunction(rd_address address) const;
         const FunctionBasicBlock* findBasicBlock(rd_address address) const;
-        FunctionGraph* findGraph(rd_address address) const;
-        void graph(FunctionGraph* g);
-        void clearGraphs();
-
-    private:
-        std::unordered_map<rd_address, FunctionGraphPtr> m_graphs;
 };
 

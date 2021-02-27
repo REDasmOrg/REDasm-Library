@@ -65,7 +65,7 @@ bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
 
         switch(symbol.type)
         {
-            case SymbolType_Label:
+            case SymbolType_Location:
             case SymbolType_Function: return true;
             default: break;
         }

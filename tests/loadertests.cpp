@@ -49,9 +49,9 @@ void LoaderTests::testJmpTable(RDContext* ctx, RDDocument* doc)
     LoaderTests::checkSymbol(doc, 0x0000304f, nullptr, SymbolType_String, SymbolFlags_AsciiString);
     LoaderTests::checkSymbol(doc, 0x00003058, nullptr, SymbolType_String, SymbolFlags_AsciiString);
 
-    LoaderTests::checkSymbol(doc, 0x00001219, nullptr, SymbolType_Label);
-    LoaderTests::checkSymbol(doc, 0x00001248, nullptr, SymbolType_Label);
-    LoaderTests::checkSymbol(doc, 0x00001277, nullptr, SymbolType_Label);
+    LoaderTests::checkSymbol(doc, 0x00001219, nullptr, SymbolType_Location);
+    LoaderTests::checkSymbol(doc, 0x00001248, nullptr, SymbolType_Location);
+    LoaderTests::checkSymbol(doc, 0x00001277, nullptr, SymbolType_Location);
     LoaderTests::checkSymbol(doc, 0x000012a6, "sub_12A6", SymbolType_Function);
     LoaderTests::checkSymbol(doc, 0x000012d5, "sub_12D5", SymbolType_Function);
     LoaderTests::checkSymbol(doc, 0x00001304, "sub_1304", SymbolType_Function);

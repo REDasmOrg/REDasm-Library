@@ -212,7 +212,7 @@ std::string SymbolTable::prefix(rd_type type, rd_flag flags)
     switch(type)
     {
         case SymbolType_String:   return (flags & SymbolFlags_WideString) ? "wstr" : "str";
-        case SymbolType_Label:    return "loc";
+        case SymbolType_Location: return "loc";
         case SymbolType_Function: return "sub";
         case SymbolType_Import:   return "imp";
         default: break;

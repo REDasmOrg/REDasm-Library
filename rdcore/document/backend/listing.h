@@ -50,7 +50,7 @@ class Listing: public Object
         bool function(rd_address address, const std::string& name);
         bool branch(rd_address address, int direction = 1);
         void separator(rd_address address);
-        bool label(rd_address address);
+        bool location(rd_address address);
         bool entry(rd_address address);
         void empty(rd_address address);
 

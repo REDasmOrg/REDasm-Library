@@ -185,7 +185,7 @@ void Renderer::renderSymbol(const RDDocumentItem* item)
             case SymbolType_Data: this->chunk(name, Theme_Data); break;
             case SymbolType_String: this->chunk(name, Theme_String); break;
             case SymbolType_Import: this->chunk(name, Theme_Import); break;
-            case SymbolType_Label: this->chunk(name, Theme_Symbol).chunk(":"); return;
+            case SymbolType_Location: this->chunk(name, Theme_Symbol).chunk(":"); return;
             case SymbolType_Function: this->chunk(name, Theme_Function); return;
             default: this->chunk(name); return;
         }
@@ -307,7 +307,7 @@ void Renderer::renderSymbolValue(const RDSymbol* symbol)
 
     if(this->document()->segment(symbol->address, &segment) && HAS_FLAG(&segment, SegmentFlags_Bss))
     {
-        if(IS_TYPE(symbol, SymbolType_Label)) this->chunk("<").chunk("dynamic branch", Theme_Symbol).chunk(">");
+        if(IS_TYPE(symbol, SymbolType_Location)) this->chunk("<").chunk("dynamic branch", Theme_Symbol).chunk(">");
         else this->chunk(UNKNOWN_STRING, Theme_Data);
         return;
     }

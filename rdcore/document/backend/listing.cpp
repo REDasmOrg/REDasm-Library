@@ -86,7 +86,7 @@ bool Listing::branch(rd_address address, int direction)
     if(!direction) name = "infinite_loop_" + name;
     else name = "loc_" + name;
 
-    return this->symbol(address, name, SymbolType_Label, SymbolType_None);
+    return this->symbol(address, name, SymbolType_Location, SymbolType_None);
 }
 
 void Listing::separator(rd_address address)
@@ -95,7 +95,7 @@ void Listing::separator(rd_address address)
     this->insert(address, DocumentItemType_Separator);
 }
 
-bool Listing::label(rd_address address) { return this->symbol(address, std::string(), SymbolType_Label, SymbolFlags_None); }
+bool Listing::location(rd_address address) { return this->symbol(address, std::string(), SymbolType_Location, SymbolFlags_None); }
 
 bool Listing::entry(rd_address address)
 {

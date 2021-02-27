@@ -54,7 +54,7 @@ rd_address Document::checkLocation(rd_address fromaddress, rd_address address, s
     else if(this->markString(address, nullptr)) this->updateComments(fromaddress, address); // Is String
     else if(Utils::isPureCode(&segment)) // Code Reference
     {
-        if(!this->label(address)) return resaddress;
+        if(!this->location(address)) return resaddress;
         this->context()->disassembler()->enqueue(address); // Enqueue for analysis
     }
     else // Data

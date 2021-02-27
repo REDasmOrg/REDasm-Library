@@ -6,8 +6,8 @@
 enum RDSymbolType {
     SymbolType_None,
     SymbolType_Data,
+    SymbolType_Location,
     SymbolType_String,
-    SymbolType_Label,
     SymbolType_Function,
     SymbolType_Import,
 };

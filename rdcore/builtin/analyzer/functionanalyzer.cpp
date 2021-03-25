@@ -14,15 +14,19 @@ RDEntryAnalyzer analyzerEntry_Function = RD_BUILTIN_ENTRY(analyzerfunction_built
 void FunctionAnalyzer::analyze(Context* ctx)
 {
     auto& document = ctx->document();
-    RDLocation entry = document->entry();
-    const FunctionContainer& functions = document->functions();
+    RDLocation entry = document->getEntry();
 
-    for(rd_address address : functions)
+    const rd_address* addresses = nullptr;
+    size_t c = document->getFunctions(&addresses);
+
+    for(size_t i = 0; i < c; i++)
     {
+        rd_address address = addresses[i];
+
         ctx->statusAddress("Analyzing function" , address);
         if(entry.valid && (entry.address == address)) continue; // Don't rename EP, if any
         RDBufferView view;
-        if(!document->view(address, RD_NVAL, &view)) continue;
+        if(!document->getView(address, RD_NVAL, &view)) continue;
 
         std::unique_ptr<ILExpression> e(ILFunction::generateOne(ctx, address));
         if(!e) continue;
@@ -34,40 +38,43 @@ void FunctionAnalyzer::analyze(Context* ctx)
 
 bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_address address)
 {
-    if((expr->type == RDIL_Ret) || (expr->type == RDIL_Nop && (ctx->document()->getFunctionInstrCount(address)) == 1))
-        return ctx->document()->rename(address, "nullsub_" + Utils::hex(address));
+    if((expr->type == RDIL_Ret) || ((expr->type == RDIL_Nop) && (ctx->document()->getFunctionInstrCount(address)) == 1))
+    {
+        ctx->document()->setLabel(address, AddressFlags_None, "nullsub_" + Utils::hex(address));
+        return true;
+    }
 
     return false;
 }
 
 std::string FunctionAnalyzer::findThunk(Context* ctx, const ILExpression* expr, rd_address address, int level)
 {
-    std::string name;
+    std::string label;
     rd_address raddress = 0;
 
     if(RDIL::match(expr, "goto [cnst]"))
     {
         raddress = RDIL::extract(expr, "u:mem/u:cnst")->address;
-        const char* pname = ctx->document()->name(raddress);
-        if(pname) name = pname;
+        auto dlabel = ctx->document()->getLabel(raddress);
+        if(dlabel) label = *dlabel;
     }
     else if(RDIL::match(expr, "goto cnst"))
     {
         raddress = RDIL::extract(expr, "u:cnst")->address;
-        const char* pname = ctx->document()->name(raddress);
-        if(pname) name = pname;
+        auto dlabel = ctx->document()->getLabel(raddress);
+        if(dlabel) label = *dlabel;
     }
 
-    if(name.empty()) return std::string();
+    if(label.empty()) return std::string();
 
     std::unique_ptr<ILExpression> rexpr(ILFunction::generateOne(ctx, raddress));
 
     if(rexpr) // Try to recurse
     {
         std::string newname = FunctionAnalyzer::findThunk(ctx, rexpr.get(), raddress, level + 1);
-        if(!newname.empty()) name = newname;
+        if(!newname.empty()) label = newname;
     }
 
-    if(level == 1) ctx->document()->rename(address, Utils::thunk(name));
-    return name;
+    if(level == 1) ctx->document()->setLabel(address, AddressFlags_None, Utils::thunk(label));
+    return label;
 }

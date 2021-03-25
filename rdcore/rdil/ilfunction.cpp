@@ -40,16 +40,11 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
 
     auto* assembler = il->context()->assembler();
     auto& document = il->context()->document();
-    RDBlock block;
 
     for(rd_address currentaddress : path)
     {
-        const auto* blocks = il->context()->document()->blocks(currentaddress);
-        if(!blocks || !blocks->get(currentaddress, &block)) return false;
-
         RDBufferView view;
-        if(!document->view(currentaddress, BlockContainer::size(&block), &view)) return false;
-
+        if(!document->getBlockView(currentaddress, &view)) return false;
         assembler->lift(currentaddress, &view, il);
     }
 
@@ -58,12 +53,8 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
 
 ILExpression* ILFunction::generateOne(Context* ctx, rd_address address)
 {
-    RDBlock block;
-    const auto* blocks = ctx->document()->blocks(address);
-    if(!blocks || !blocks->get(address, &block)) return nullptr;
-
     RDBufferView view;
-    if(!ctx->document()->view(address, BlockContainer::size(&block), &view)) return nullptr;
+    if(!ctx->document()->getBlockView(address, &view)) return nullptr;
 
     ILFunction il(ctx);
     ctx->assembler()->lift(address, &view, &il);
@@ -197,7 +188,7 @@ ILFunction::ExpressionList::const_iterator ILFunction::end() const { return m_ex
 
 bool ILFunction::generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path)
 {
-    auto* g = il->context()->document()->graph(address);
+    auto* g = il->context()->document()->getGraph(address);
 
     if(!g)
     {

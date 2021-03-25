@@ -15,12 +15,10 @@ bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() :
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 
-bool Disassembler::disassembleFunction(rd_address address, const char* name)
+bool Disassembler::disassembleFunction(rd_address address)
 {
-    if(!this->document()->function(address, name ? name : std::string())) return false;
-    m_algorithm->enqueue(address);
-    m_algorithm->disassemble();
-    return true;
+    this->disassembleAt(address);
+    return m_engine->cfg(address);
 }
 
 void Disassembler::disassembleBlock(const RDBlock* block) { m_algorithm->disassembleBlock(block); }
@@ -35,46 +33,42 @@ void Disassembler::disassemble()
 {
     if(m_engine) // Just wake up the engine, if not busy
     {
-        if(!m_engine->busy()) m_engine->execute(Engine::State_Algorithm);
+        if(!m_engine->busy())
+            m_engine->execute(Engine::State_Algorithm);
+
         return;
     }
 
     auto& doc = this->document();
-
     m_engine.reset(new Engine(this->context()));
-    if(doc->segments()->empty()) return;
+    if(!doc->getSegments(nullptr)) return;
 
-    const SymbolTable* symboltable = doc->symbols();
-    std::deque<rd_address> exporteddata; // Check Exported Data
+    const rd_address* addresses = nullptr;
+    size_t c = doc->getLabelsByFlag(AddressFlags_Exported, &addresses);
+    std::vector<rd_address> exporteddata; // Copy Exports
+    exporteddata.assign(addresses, addresses + c);
+    for(rd_address address : exporteddata) this->document()->checkLocation(RD_NVAL, address);
 
-    for(auto it = symboltable->begin(); it != symboltable->end(); it++)
-    {
-        const RDSymbol& symbol = it->second;
-
-        if(IS_TYPE(&symbol, SymbolType_Data) && HAS_FLAG(&symbol, SymbolFlags_Export))
-            exporteddata.push_back(symbol.address);
-    }
-
-    std::for_each(exporteddata.begin(), exporteddata.end(), [&](rd_address address) {
-        this->document()->checkLocation(RD_NVAL, address);
-    });
-
-    // Preload functions for analysis
-    for(rd_address address : doc->functions())
-        m_algorithm->enqueue(address);
+    c = doc->getFunctions(&addresses); // Preload functions for analysis
+    for(size_t i = 0; i < c; i++) m_algorithm->enqueue(addresses[i]);
 
     m_engine->execute();
 }
 
 void Disassembler::stop() { if(m_engine) m_engine->stop(); }
 
-const char* Disassembler::getFunctionHexDump(rd_address address, RDSymbol* symbol) const
+const char* Disassembler::getFunctionHexDump(rd_address address, rd_address* resaddress) const
 {
     static std::string hexdump;
 
     RDBufferView view;
     if(!this->getFunctionBytes(address, &view)) return nullptr;
-    if(symbol && !this->document()->symbol(address, symbol)) return nullptr;
+
+    //if(resaddress)
+    //{
+    //    this->document()->
+    //    && !this->document()->symbol(address, symbol)) return nullptr;
+    //}
 
     hexdump = Utils::hexString(&view);
     return hexdump.c_str();
@@ -87,40 +81,33 @@ bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) con
     RDLocation loc = this->document()->functionStart(address);
     if(!loc.valid) return { };
 
-    const auto* graph = this->document()->graph(loc.address);
+    const auto* graph = this->document()->getGraph(loc.address);
     if(!graph) return { };
 
     const RDGraphNode* nodes = nullptr;
     size_t c = graph->nodes(&nodes);
 
-    RDDocumentItem startitem{ }, enditem{ };
+    rd_address startaddress = RD_NVAL, endaddress = RD_NVAL;
 
     for(size_t i = 0; i < c; i++)
     {
         const auto* fbb = reinterpret_cast<const FunctionBasicBlock*>(graph->data(nodes[i])->p_data);
         if(!fbb) return { };
 
-        if(IS_TYPE(&startitem, DocumentItemType_None) || (startitem.address > fbb->startaddress))
-        {
-            if(!fbb->getStartItem(&startitem)) REDasmError("Cannot find start item");
-        }
+        if((startaddress == RD_NVAL) || (startaddress > fbb->startaddress))
+            startaddress = fbb->startaddress;
 
-        if(IS_TYPE(&enditem, DocumentItemType_None) || (enditem.address < fbb->endaddress))
-        {
-            if(!fbb->getEndItem(&enditem)) REDasmError("Cannot find end item");
-        }
+        if((endaddress == RD_NVAL) || (endaddress < fbb->endaddress))
+            endaddress = fbb->endaddress;
     }
 
-    if(IS_TYPE(&startitem, DocumentItemType_None) || IS_TYPE(&enditem, DocumentItemType_None)) return { };
+    if((startaddress == RD_NVAL) || (endaddress == RD_NVAL)) return { };
 
     address = loc.address;
-    return this->document()->view(startitem.address, (enditem.address - startitem.address) + 1, view);
+    return this->document()->getView(startaddress, (endaddress - startaddress) + 1, view);
 }
 
 SafeDocument& Disassembler::document() const { return m_loader->document(); }
-DocumentNet* Disassembler::net() { return this->document()->net(); }
-MemoryBuffer* Disassembler::buffer() const { return this->document()->buffer(); }
-bool Disassembler::view(rd_address address, size_t size, RDBufferView* view) const { return this->document()->view(address, size, view); }
 
 void Disassembler::prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
@@ -140,20 +127,4 @@ bool Disassembler::load(const RDLoaderBuildParams* buildparams)
         return false;
 
     return true;
-}
-
-bool Disassembler::createFunction(rd_address address, const char* name)
-{
-    if(!this->document()->function(address, name ? name : std::string())) return false;
-
-    if(m_engine->currentStep() != Engine::State_Analyze)
-    {
-        m_algorithm->enqueue(address);
-        m_engine->execute(Engine::State_Algorithm);
-        return true;
-    }
-
-    // Disassemble only
-    this->disassembleAt(address);
-    return m_engine->cfg(address);
 }

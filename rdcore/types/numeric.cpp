@@ -2,7 +2,7 @@
 #include <climits>
 
 NumericType::NumericType(rd_type type, Context* ctx): Type(type, ctx) { }
-NumericType::NumericType(rd_type type, size_t size, bool issigned, Context* ctx): Type(type, ctx), m_size(size), m_signed(issigned) { }
+NumericType::NumericType(rd_type type, const std::string& name, size_t size, bool issigned, Context* ctx): Type(type, name, ctx), m_size(size), m_signed(issigned) { }
 
 std::string NumericType::typeName() const
 {
@@ -40,9 +40,11 @@ tao::json::value NumericType::toJson() const
 bool NumericType::isSigned() const { return m_signed; }
 
 IntType::IntType(Context* ctx): NumericType(Type_Int, ctx) { }
-IntType::IntType(size_t size, bool issigned, Context* ctx): NumericType(Type_Int, size, issigned, ctx) { }
-Type* IntType::clone(Context* ctx) const { return new IntType(this->size(), this->isSigned()); }
+IntType::IntType(size_t size, bool issigned, Context* ctx): NumericType(Type_Int, std::string(), size, issigned, ctx) { }
+IntType::IntType(size_t size, const std::string& name, bool issigned, Context* ctx): NumericType(Type_Int, name, size, issigned, ctx) { }
+Type* IntType::clone(Context* ctx) const { return new IntType(this->size(), this->name(), this->isSigned(), ctx); }
 
 FloatType::FloatType(Context* ctx): NumericType(Type_Float, ctx) { }
-FloatType::FloatType(size_t size, bool issigned, Context* ctx): NumericType(Type_Float, size, issigned, ctx) { }
-Type* FloatType::clone(Context* ctx) const { return new FloatType(this->size(), this->isSigned()); }
+FloatType::FloatType(size_t size, const std::string& name, bool issigned, Context* ctx): NumericType(Type_Float, name, size, issigned, ctx) { }
+FloatType::FloatType(size_t size, bool issigned, Context* ctx): NumericType(Type_Float, std::string(), size, issigned, ctx) { }
+Type* FloatType::clone(Context* ctx) const { return new FloatType(this->size(), this->name(), this->isSigned(), ctx); }

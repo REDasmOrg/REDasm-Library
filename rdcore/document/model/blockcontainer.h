@@ -19,20 +19,19 @@ struct BlockSorter
 class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
 {
     public:
-        typedef std::function<void(const RDBlock&)> Callback;
-
-    public:
-        BlockContainer();
-        void whenInsert(const Callback& cb);
-        void whenRemove(const Callback& cb);
+        BlockContainer() = default;
         void explored(rd_address start, rd_address end);
         void unknown(rd_address start, rd_address end);
         void data(rd_address start, rd_address end);
         void code(rd_address start, rd_address end);
+        void string(rd_address start, rd_address end);
         void exploredSize(rd_address start, size_t size);
         void unknownSize(rd_address start, size_t size);
         void dataSize(rd_address start, size_t size);
         void codeSize(rd_address start, size_t size);
+        void stringSize(rd_address start, size_t size);
+        size_t size() const;
+        bool empty() const;
 
     public:
         static size_t size(const RDBlock* b);
@@ -43,8 +42,8 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         ContainerType::const_iterator get(rd_address address) const;
         bool canMerge(const RDBlock* block1, const RDBlock* block2) const;
         bool canMerge(const RDBlock* block, rd_type type) const;
-        void mark(rd_address start, rd_address end, rd_type type, rd_flag flags);
-        void markSize(rd_address start, size_t size, rd_type type, rd_flag flags);
+        void mark(rd_address start, rd_address end, rd_type type);
+        void markSize(rd_address start, size_t size, rd_type type);
         void doInsert(const RDBlock& b);
 
     private:
@@ -57,21 +56,10 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         using TreeContainer<RDBlock, BlockSorter>::contains;
         using TreeContainer<RDBlock, BlockSorter>::get;
         using TreeContainer<RDBlock, BlockSorter>::size;
-
-    private:
-        Callback m_oninsert, m_onremove;
 };
 
 template<typename IteratorType>
-void BlockContainer::doRemove(IteratorType startit, IteratorType endit)
-{
-    std::for_each(startit, endit, [&](const RDBlock& b) { m_onremove(b); });
-    m_container.erase(startit, endit);
-}
+void BlockContainer::doRemove(IteratorType startit, IteratorType endit) { m_container.erase(startit, endit); }
 
 template<typename IteratorType>
-void BlockContainer::doRemove(IteratorType it)
-{
-    m_onremove(*it);
-    m_container.erase(it);
-}
+void BlockContainer::doRemove(IteratorType it) { m_container.erase(it); }

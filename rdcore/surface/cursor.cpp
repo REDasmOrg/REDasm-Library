@@ -1,7 +1,6 @@
 #include "cursor.h"
-#include "../document/backend/itemcontainer.h"
-#include "../context.h"
 #include "surface.h"
+#include "../context.h"
 
 CursorHistory::CursorHistory(const CursorHistory::History& backstack, const CursorHistory::History& forwardstack): m_hback(backstack), m_hforward(forwardstack) { }
 CursorHistory::History& CursorHistory::backStack() { return m_hback; }
@@ -26,11 +25,11 @@ void Cursor::goForward()
 {
     if(!m_history->canGoForward()) return;
 
-    auto item = m_history->forwardStack().top();
+    auto address = m_history->forwardStack().top();
     m_history->forwardStack().pop();
-    if(m_currentitem.type) m_history->backStack().push(m_currentitem);
+    if(m_currentaddress != RD_NVAL) m_history->backStack().push(m_currentaddress);
 
-    this->moveSurfaces(&item);
+    this->moveSurfaces(address);
     this->notifyHistoryChanged();
 }
 
@@ -38,45 +37,44 @@ void Cursor::goBack()
 {
     if(!m_history->canGoBack()) return;
 
-    auto item = m_history->backStack().top();
+    auto address = m_history->backStack().top();
     m_history->backStack().pop();
-    if(m_currentitem.type) m_history->forwardStack().push(m_currentitem);
+    if(m_currentaddress != RD_NVAL) m_history->forwardStack().push(m_currentaddress);
 
-    this->moveSurfaces(&item);
+    this->moveSurfaces(address);
     this->notifyHistoryChanged();
 }
 
-void Cursor::setCurrentItem(const RDDocumentItem& item) { m_currentitem = item; }
+void Cursor::setCurrentAddress(rd_address address) { m_currentaddress = address; }
 void Cursor::set(int row, int col) { this->moveTo(row, col, false); }
 void Cursor::moveTo(int row, int col) { this->moveTo(row, col, true); }
 void Cursor::select(int row, int col) { this->select(row, col, true); }
 
 void Cursor::updateHistory()
 {
-    if(!m_currentitem.type) return;
-    if(!m_history->backStack().empty() && ItemContainer::equals(&m_currentitem, &m_history->backStack().top())) return;
+    if(m_currentaddress == RD_NVAL) return;
+    if(!m_history->backStack().empty() && (m_currentaddress == m_history->backStack().top())) return;
 
-    m_history->backStack().push(m_currentitem);
+    m_history->backStack().push(m_currentaddress);
     this->notifyHistoryChanged();
 }
 
 void Cursor::attach(Surface* s) { m_surfaces.insert(s); }
 void Cursor::detach(Surface* s) { m_surfaces.erase(s); }
-void Cursor::moveSurfaces(const RDDocumentItem* item) { for(Surface* s : m_surfaces) s->goTo(item, false); }
+void Cursor::moveSurfaces(rd_address address) { for(Surface* s : m_surfaces) s->goTo(address, false); }
 void Cursor::notifyHistoryChanged() { for(Surface* s : m_surfaces) s->notifyHistoryChanged(); }
-void Cursor::notifyPositionChanged() { for(Surface* s : m_surfaces) s->notifyPositionChanged(); }
+void Cursor::updateAll() { for(Surface* s : m_surfaces) s->update(); }
 
 void Cursor::moveTo(int row, int col, bool notify)
 {
-    RDSurfacePos pos = { row, col };
-    m_selection = pos;
+    m_selection = { row, col };
     this->select(row, col, notify);
 }
 
 void Cursor::select(int row, int col, bool notify)
 {
     m_position = { row, col };
-    if(notify) this->notifyPositionChanged();
+    if(notify) this->updateAll();
 }
 
 const RDSurfacePos* Cursor::position() const { return &m_position; }
@@ -108,7 +106,7 @@ const RDSurfacePos* Cursor::endSelection() const
     return &m_selection;
 }
 
-const RDDocumentItem& Cursor::currentItem() const { return m_currentitem; }
+rd_address Cursor::currentAddress() const { return m_currentaddress; }
 const CursorHistoryPtr& Cursor::history() const { return m_history; }
 
 void Cursor::linkHistory(const CursorHistoryPtr& ptr)

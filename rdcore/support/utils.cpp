@@ -32,7 +32,7 @@ const char Utils::HEX_DIGITS[513] = "000102030405060708090A0B0C0D0E0F"
 bool Utils::isCode(const SafeDocument& doc, rd_address address)
 {
     RDSegment segment;
-    if(!doc->segment(address, &segment)) return false;
+    if(!doc->addressToSegment(address, &segment)) return false;
     if(!HAS_FLAG(&segment, SegmentFlags_Code)) return false;
     return true;
 }
@@ -114,21 +114,23 @@ std::string Utils::hexStringEndian(const Context* ctx, const RDBufferView* view,
 
     if(ctx->document()->endianness() != Endianness_Invalid)
     {
+        auto bits = size * CHAR_BIT;
+
         switch(size)
         {
-            case 1: return Utils::hex(view->data[0]);
+            case 1: return Utils::hex(view->data[0], bits);
 
             case 2:
-                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian16(*reinterpret_cast<u16*>(view->data)));
-                else return Utils::hex(Endian::fromlittleendian16(*reinterpret_cast<u16*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian16(*reinterpret_cast<u16*>(view->data)), bits);
+                else return Utils::hex(Endian::fromlittleendian16(*reinterpret_cast<u16*>(view->data)), bits);
 
             case 4:
-                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian32(*reinterpret_cast<u32*>(view->data)));
-                else return Utils::hex(Endian::fromlittleendian32(*reinterpret_cast<u32*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian32(*reinterpret_cast<u32*>(view->data)), bits);
+                else return Utils::hex(Endian::fromlittleendian32(*reinterpret_cast<u32*>(view->data)), bits);
 
             case 8:
-                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian64(*reinterpret_cast<u64*>(view->data)));
-                else return Utils::hex(Endian::fromlittleendian64(*reinterpret_cast<u64*>(view->data)));
+                if(ctx->document()->endianness() == Endianness_Big) return Utils::hex(Endian::frombigendian64(*reinterpret_cast<u64*>(view->data)), bits);
+                else return Utils::hex(Endian::fromlittleendian64(*reinterpret_cast<u64*>(view->data)), bits);
 
             default: break;
         }

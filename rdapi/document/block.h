@@ -6,12 +6,27 @@
 enum RDBlockType {
     BlockType_Unknown,
     BlockType_Data,
+    BlockType_String,
     BlockType_Code,
 };
 
-enum RDBlockFlags {
-    BlockFlags_None,
-    BlockFlags_Explored = (1 << 0)
+enum RDAddressFlags {
+    AddressFlags_None        = 0,
+
+    AddressFlags_Explored    = (1 << 0),
+    AddressFlags_Location    = (1 << 1),
+    AddressFlags_Exported    = (1 << 2),
+    AddressFlags_Imported    = (1 << 3),
+    AddressFlags_Function    = (1 << 4),
+    AddressFlags_AsciiString = (1 << 5),
+    AddressFlags_WideString  = (1 << 6),
+    AddressFlags_Pointer     = (1 << 7),
+    AddressFlags_NoReturn    = (1 << 8),
+    AddressFlags_Type        = (1 << 9),
+    AddressFlags_TypeField   = (1 << 10),
+    AddressFlags_Length,
+
+    AddressFlags_String      = AddressFlags_AsciiString | AddressFlags_WideString,
 };
 
 typedef struct RDBlock { // [start, end)
@@ -22,16 +37,7 @@ typedef struct RDBlock { // [start, end)
 
     rd_address end;
     rd_type type;
-    rd_flag flags;
 } RDBlock;
-
-RD_HANDLE(RDBlockContainer);
-
-typedef bool(*BlockContainer_Callback)(const RDBlock* b, void* userdata);
-
-RD_API_EXPORT void RDBlockContainer_Each(const RDBlockContainer* c, BlockContainer_Callback cb, void* userdata);
-RD_API_EXPORT bool RDBlockContainer_Get(const RDBlockContainer* c, rd_address address, RDBlock* block);
-RD_API_EXPORT size_t RDBlockContainer_Size(const RDBlockContainer* c);
 
 RD_API_EXPORT bool RDBlock_Contains(const RDBlock* b, rd_address address);
 RD_API_EXPORT size_t RDBlock_Empty(const RDBlock* b);

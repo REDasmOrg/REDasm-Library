@@ -3,7 +3,6 @@
 #include <memory>
 #include <string>
 #include <rdapi/types.h>
-#include <rdapi/symbol.h>
 #include "../buffer/view.h"
 
 class Context;
@@ -43,7 +42,7 @@ bool StringFinder::categorizeT(RDBufferView view, size_t minstring, size_t* tota
     }
 
     if(totalsize) {
-        *totalsize = m_tempstr.size();
+        *totalsize = m_tempstr.size() * sizeof(T);
         if(!(*view.data)) *totalsize += sizeof(T); // Include null terminator too
     }
 

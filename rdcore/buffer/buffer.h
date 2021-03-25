@@ -11,9 +11,10 @@ class MemoryBuffer: public AbstractBuffer
         size_t size() const override;
         u8* data() override;
         void resize(size_t size);
-        bool view(rd_offset offset, size_t size, RDBufferView* view);
+        bool view(rd_offset offset, size_t size, RDBufferView* view) const;
 
     public:
+        using AbstractBuffer::data;
         static MemoryBuffer* fromFile(const char* filename);
 
     private:

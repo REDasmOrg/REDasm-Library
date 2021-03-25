@@ -32,6 +32,19 @@ class Object
         void unsubscribe(void* owner);
         template<typename EventArgs, typename ...Args> void notify(event_id_t id, void* sender, Args... args) const;
 
+    public:
+        template<typename Container, typename Function> static void eachMapT(const Container& c, const Function& cb) {
+            for(const auto& [key, value] : c) {
+                if(!cb(value)) break;
+            }
+        }
+
+        template<typename Container, typename Function> static void eachT(const Container& c, const Function& cb) {
+            for(const auto& item : c) {
+                if(!cb(item)) break;
+            }
+        }
+
     private:
         Context* m_context{nullptr};
         std::unordered_map<void*, EventItem> m_listeners;

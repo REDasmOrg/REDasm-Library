@@ -17,23 +17,27 @@ void StringsAnalyzer::analyze(Context* ctx)
     std::deque<RDBlock> pendingblocks;
     auto& doc = ctx->document();
 
-    doc->segments()->each([&](const RDSegment& segment) {
-        if(HAS_FLAG(&segment, SegmentFlags_Bss) || !HAS_FLAG(&segment, SegmentFlags_Data)) return true;
+    const rd_address* segments = nullptr;
+    size_t c = doc->getSegments(&segments);
 
-        const auto* blocks = doc->blocks(segment.address);
-        if(!blocks) return true;
+    for(size_t i = 0; i < c; i++)
+    {
+        RDSegment segment;
+        if(!doc->addressToSegment(segments[i], &segment) || (HAS_FLAG(&segment, SegmentFlags_Bss) || !HAS_FLAG(&segment, SegmentFlags_Data))) continue;
 
-        blocks->each([&](const RDBlock& block) {
-            if(IS_TYPE(&block, BlockType_Unknown)) pendingblocks.push_back(block);
-            return true;
-        });
+        const auto* blocks = doc->getBlocks(segment.address);
+        if(!blocks) continue;
 
-        return true;
-    });
+        for(auto it = blocks->begin(); it != blocks->end(); it++)
+        {
+            if(IS_TYPE(std::addressof(*it), BlockType_Unknown))
+                pendingblocks.push_back(*it);
+        }
+    }
 
     std::for_each(pendingblocks.begin(), pendingblocks.end(), [&](const RDBlock& b) {
         RDBufferView view;
-        if(!doc->view(b.address, BlockContainer::size(&b), &view)) return;
+        if(!doc->getView(b.address, BlockContainer::size(&b), &view)) return;
         StringFinder::find(ctx, view);
     });
 }

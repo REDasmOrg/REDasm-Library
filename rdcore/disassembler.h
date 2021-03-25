@@ -16,21 +16,17 @@ class Disassembler: public Object
         Loader* loader() const;
         SafeAlgorithm& algorithm();
         SafeDocument& document() const;
-        DocumentNet* net();
-        MemoryBuffer* buffer() const;
-        bool view(rd_address address, size_t size, RDBufferView* view) const;
         void prepare(const MemoryBufferPtr& buffer, const std::string& filepath, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
         bool load(const RDLoaderBuildParams* buildparams);
 
     public:
-        bool createFunction(rd_address address, const char* name);
-        const char* getFunctionHexDump(rd_address address, RDSymbol* symbol) const;
+        bool disassembleFunction(rd_address address);
+        const char* getFunctionHexDump(rd_address address, rd_address* resaddress) const;
 
     public: // Engine/Algorithm
         bool needsWeak() const;
         bool busy() const;
         void enqueue(rd_address address);
-        bool disassembleFunction(rd_address address, const char* name);
         void disassembleBlock(const RDBlock* block);
         void disassembleAt(rd_address address);
         void disassemble();

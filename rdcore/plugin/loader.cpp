@@ -22,7 +22,6 @@ bool Loader::build(const RDLoaderBuildParams* buildparams)
 }
 
 rd_flag Loader::flags() const { return m_entry->flags; }
-MemoryBuffer* Loader::buffer() const { return m_document->buffer(); }
 const std::string& Loader::filePath() const { return m_filepath; }
 const SafeDocument& Loader::document() const { return m_document; }
 SafeDocument& Loader::document() { return m_document; }

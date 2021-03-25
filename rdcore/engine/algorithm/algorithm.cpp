@@ -15,7 +15,7 @@ void Algorithm::disassembleBlock(const RDBlock* block)
     if(!block) return;
 
     RDBufferView view;
-    if(!m_document->view(*block, &view)) return;
+    if(!m_document->getBlockView(block->address, &view)) return;
 
     rd_address address = block->address;
 
@@ -50,33 +50,6 @@ void Algorithm::disassemble()
     }
 }
 
-bool Algorithm::canBeDisassembled(rd_address address, RDBlock* block) const
-{
-    if(!this->isAddressValid(address)) return false;
-
-    if(!m_document->block(address, block) || IS_TYPE(block, BlockType_Code)) return false;
-
-    if(IS_TYPE(block, BlockType_Data))
-    {
-        RDSymbol symbol;
-
-        if(!m_document->symbol(block->address, &symbol))
-            REDasmError("Invalid symbol", block->address);
-
-        switch(symbol.type)
-        {
-            case SymbolType_Location:
-            case SymbolType_Function: return true;
-            default: break;
-        }
-
-        if(m_net->getReferences(block->address, nullptr)) return false;
-        return HAS_FLAG(&symbol, SymbolFlags_Weak);
-    }
-
-    return true;
-}
-
 rd_address Algorithm::processDelaySlots(rd_address address, size_t ds)
 {
     for(size_t i = ds; i > 0; i--)
@@ -96,7 +69,7 @@ void Algorithm::processResult(EmulateResult* result)
     for(const auto& [forktype, res] : result->results())
     {
         RDSegment segment;
-        if(!m_document->segment(res.address, &segment)) continue;
+        if(!m_document->addressToSegment(res.address, &segment)) continue;
 
         switch(forktype)
         {
@@ -144,13 +117,13 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
     if(HAS_FLAG(segment, SegmentFlags_Code))
     {
         int dir = Utils::branchDirection(fromaddress, v.address);
-        if(!dir) m_document->autoComment(fromaddress, "Infinite loop");
-        m_document->branch(v.address, dir);
+        //FIXME: if(!dir) m_document->autoComment(fromaddress, "Infinite loop");
+        m_document->setBranch(v.address, dir);
         this->schedule(v.address);
         return;
     }
 
-    m_document->data(v.address, this->context()->addressWidth(), std::string());
+    m_document->setLocation(v.address);
 }
 
 void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment)
@@ -162,7 +135,7 @@ void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const Emu
         case EmulateResult::Call: {
             if(HAS_FLAG(segment, SegmentFlags_Code)) {
                 m_net->linkCall(fromaddress, v.address, forktype);
-                m_document->function(v.address, std::string());
+                m_document->setFunction(v.address, std::string());
                 this->schedule(v.address);
             }
             else if(rd_address loc = m_document->checkLocation(fromaddress, v.address); loc != RD_NVAL)
@@ -180,10 +153,10 @@ void Algorithm::processBranchTable(rd_address fromaddress, const EmulateResult::
     RDSegment segment;
 
     size_t c = m_document->checkTable(fromaddress, v.address, v.size, [&](rd_address, rd_address address, size_t) {
-        if(!m_document->segment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+        if(!m_document->addressToSegment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
 
         m_net->linkBranch(fromaddress, address, EmulateResult::BranchIndirect);
-        m_document->branch(address);
+        m_document->setBranch(address);
         this->schedule(address);
         return true;
     });
@@ -196,10 +169,10 @@ void Algorithm::processCallTable(rd_address fromaddress, const EmulateResult::Va
     RDSegment segment;
 
     size_t c = m_document->checkTable(fromaddress, v.address, v.size, [&](rd_address, rd_address address, size_t) {
-        if(!m_document->segment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+        if(!m_document->addressToSegment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
 
         m_net->linkCall(fromaddress, address, EmulateResult::CallIndirect);
-        m_document->function(address, std::string());
+        m_document->setFunction(address, std::string());
         this->schedule(address);
         return true;
     });
@@ -222,7 +195,7 @@ void Algorithm::nextAddress(rd_address address)
 std::optional<rd_address> Algorithm::decode(rd_address address)
 {
     RDBufferView view;
-    if(!m_document->blockView(address, &view)) return std::nullopt;
+    if(!m_document->getView(address, RD_NVAL, &view)) return std::nullopt;
 
     EmulateResult result(address, &view);
     return this->decode(&view, &result);
@@ -230,20 +203,15 @@ std::optional<rd_address> Algorithm::decode(rd_address address)
 
 std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* result)
 {
-    RDBlock block;
-    if(!this->canBeDisassembled(result->address(), &block)) return std::nullopt;
-    if(!IS_TYPE(&block, BlockType_Unknown)) m_document->unknown(result->address(), view->size); // Demote and merge the entire block
+    if(!this->isAddressValid(result->address())) return std::nullopt;
 
     this->status("Decoding @ " + Utils::hex(result->address()));
     this->context()->assembler()->emulate(result);
 
     if(!result->size() || (result->size() > view->size))
-    {
-        m_document->explored(result->address(), 1);
         return std::nullopt;
-    }
 
-    if(!result->invalid()) m_document->instruction(result->address(), result->size());
+    if(!result->invalid()) m_document->setCode(result->address(), result->size());
     rd_address nextaddress = result->address() + result->size();
 
     if(result->delaySlot())
@@ -265,12 +233,10 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 
 bool Algorithm::isAddressValid(rd_address address) const
 {
-    if(!m_document->segment(address, &m_currentsegment)|| !HAS_FLAG(&m_currentsegment, SegmentFlags_Code)) return false;
-
-    auto* blocks = m_document->blocks(address);
-    if(!blocks) return false;
+    RDSegment segment;
+    if(!m_document->addressToSegment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
 
     RDBlock block;
-    if(!blocks->get(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
+    if(!m_document->addressToBlock(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
     return true;
 }

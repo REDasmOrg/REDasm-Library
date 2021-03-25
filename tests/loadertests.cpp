@@ -6,20 +6,20 @@
 
 void LoaderTests::testCavia(RDContext*, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x00401000, RD_ENTRY_NAME, SymbolType_Function, SymbolFlags_EntryPoint);
-    LoaderTests::checkSymbol(doc, 0x00401029, "DlgProc_00401029", SymbolType_Function);
+    LoaderTests::checkLabel(doc, 0x00401000, RD_ENTRY_NAME, AddressFlags_Function | AddressFlags_Exported);
+    LoaderTests::checkLabel(doc, 0x00401029, "DlgProc_00401029", AddressFlags_Function);
     GraphTests::testCavia(doc);
 }
 
 void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x00401128, "WndProc", SymbolType_Function, SymbolFlags_Export);
-    LoaderTests::checkSymbol(doc, 0x00401253, "DlgProc_00401253", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x0040130A, "DlgProc_0040130A", SymbolType_Function);
+    LoaderTests::checkLabel(doc, 0x00401128, "WndProc", AddressFlags_Function | AddressFlags_Exported);
+    LoaderTests::checkLabel(doc, 0x00401253, "DlgProc_00401253", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x0040130A, "DlgProc_0040130A", AddressFlags_Function);
 
-    LoaderTests::checkSymbol(doc, 0x004020E7, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00402129, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00402134, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x004020E7, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00402129, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00402134, nullptr, AddressFlags_AsciiString);
 
     static std::map<rd_address, size_t> strings = {
         { 0x004020e7, 1 }, { 0x004020f4, 3 }, { 0x00402110, 1 },
@@ -27,35 +27,35 @@ void LoaderTests::testCM01(RDContext* ctx, RDDocument* doc)
         { 0x00402134, 1 }, { 0x00402160, 2 }, { 0x00402169, 2 }
     };
 
-    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkLabelsAndRefs(ctx, doc, strings, AddressFlags_AsciiString);
     GraphTests::testCM01(doc);
 }
 
 void LoaderTests::testJmpTable(RDContext* ctx, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x00001362, "main", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00002570, "init", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x000025e0, "fini", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00003007, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000300c, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003011, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003016, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000301b, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003020, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003025, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000302a, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003033, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003044, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000304f, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00003058, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00001362, "main", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00002570, "init", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x000025e0, "fini", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00003007, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000300c, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003011, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003016, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000301b, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003020, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003025, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000302a, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003033, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003044, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000304f, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00003058, nullptr, AddressFlags_AsciiString);
 
-    LoaderTests::checkSymbol(doc, 0x00001219, nullptr, SymbolType_Location);
-    LoaderTests::checkSymbol(doc, 0x00001248, nullptr, SymbolType_Location);
-    LoaderTests::checkSymbol(doc, 0x00001277, nullptr, SymbolType_Location);
-    LoaderTests::checkSymbol(doc, 0x000012a6, "sub_12A6", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x000012d5, "sub_12D5", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00001304, "sub_1304", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00001333, "sub_1333", SymbolType_Function);
+    LoaderTests::checkLabel(doc, 0x00001219, nullptr, AddressFlags_Location);
+    LoaderTests::checkLabel(doc, 0x00001248, nullptr, AddressFlags_Location);
+    LoaderTests::checkLabel(doc, 0x00001277, nullptr, AddressFlags_Location);
+    LoaderTests::checkLabel(doc, 0x000012a6, "sub_12A6", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x000012d5, "sub_12D5", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00001304, "sub_1304", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00001333, "sub_1333", AddressFlags_Function);
 
     const RDNet* net = RDContext_GetNet(ctx);
     REQUIRE_EQ(RDNet_GetReferences(net, 0x00001219, nullptr), 1);
@@ -71,20 +71,20 @@ void LoaderTests::testJmpTable(RDContext* ctx, RDDocument* doc)
 
 void LoaderTests::testSwitchCase(RDContext* ctx, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x00001169, "main", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00001270, "init", SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x000012e0, "fini", SymbolType_Function);
+    LoaderTests::checkLabel(doc, 0x00001169, "main", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00001270, "init", AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x000012e0, "fini", AddressFlags_Function);
 
-    LoaderTests::checkSymbol(doc, 0x00002004, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002015, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002018, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002021, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000202a, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002035, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000203f, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002049, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x00002052, nullptr, SymbolType_String, SymbolFlags_AsciiString);
-    LoaderTests::checkSymbol(doc, 0x0000205d, nullptr, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002004, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002015, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002018, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002021, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000202a, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002035, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000203f, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002049, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x00002052, nullptr, AddressFlags_AsciiString);
+    LoaderTests::checkLabel(doc, 0x0000205d, nullptr, AddressFlags_AsciiString);
 
     const RDNet* net = RDContext_GetNet(ctx);
     REQUIRE_EQ(RDNet_GetReferences(net, 0x00002004, nullptr), 1);
@@ -111,17 +111,17 @@ void LoaderTests::testVB5CrackMe(RDContext*, RDDocument* doc)
 
 void LoaderTests::testTN_11(RDContext* ctx, RDDocument* doc)
 {
-    LoaderTests::checkSymbol(doc, 0x004010c0, nullptr, SymbolType_Function);
-    LoaderTests::checkSymbol(doc, 0x00405530, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00405534, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00405538, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00405548, nullptr, SymbolType_Data);
+    LoaderTests::checkLabel(doc, 0x004010c0, nullptr, AddressFlags_Function);
+    LoaderTests::checkLabel(doc, 0x00405530, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00405534, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00405538, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00405548, nullptr, AddressFlags_Location);
 
-    LoaderTests::checkSymbol(doc, 0x00401320, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00401324, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00401328, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x0040132c, nullptr, SymbolType_Data, SymbolFlags_Pointer);
-    LoaderTests::checkSymbol(doc, 0x00401330, nullptr, SymbolType_Data, SymbolFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00401320, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00401324, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00401328, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x0040132c, nullptr, AddressFlags_Pointer);
+    LoaderTests::checkLabel(doc, 0x00401330, nullptr, AddressFlags_Pointer);
 
     const RDNet* net = RDContext_GetNet(ctx);
     const RDReference* refs = nullptr;
@@ -165,7 +165,7 @@ void LoaderTests::testSCrack(RDContext* ctx, RDDocument* doc)
     };
 
     LoaderTests::testVBEvents(doc, vbevents);
-    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_WideString);
+    LoaderTests::checkLabelsAndRefs(ctx, doc, strings, AddressFlags_WideString);
 }
 
 void LoaderTests::testIOLI00(RDContext* ctx, RDDocument* doc)
@@ -182,49 +182,41 @@ void LoaderTests::testIOLI00(RDContext* ctx, RDDocument* doc)
     };
 
     for(const auto& [address, name] : functions)
-    {
-        RDSymbol symbol;
-        REQUIRE(RDDocument_GetSymbolByName(doc, name, &symbol));
-        REQUIRE_EQ(symbol.address, address);
-    }
+        REQUIRE_EQ(RDDocument_GetAddress(doc, name), address);
 
-    LoaderTests::checkSymbolsAndRefs(ctx, doc, strings, SymbolType_String, SymbolFlags_AsciiString);
+    LoaderTests::checkLabelsAndRefs(ctx, doc, strings, AddressFlags_AsciiString);
 }
 
-void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags)
+void LoaderTests::checkLabelsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& labels, rd_flag flags)
 {
     const RDNet* net = RDContext_GetNet(ctx);
 
-    for(const auto& [address, refs] : symbols)
+    for(const auto& [address, refs] : labels)
     {
-        LoaderTests::checkSymbol(doc, address, nullptr, type, flags);
+        LoaderTests::checkLabel(doc, address, nullptr, flags);
         if(refs != RD_NVAL) REQUIRE_EQ(RDNet_GetReferences(net, address, nullptr), refs);
     }
 }
 
-void LoaderTests::checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols) { LoaderTests::checkSymbolsAndRefs(ctx, doc, symbols, SymbolType_None, SymbolFlags_None); }
-
-void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type, rd_flag flags)
+void LoaderTests::checkLabel(RDDocument* doc, rd_address address, const char* label, rd_flag flags)
 {
-    std::string casename = name ? name : ("Symbol @ " + rd_tohex(address));
+    std::string casename = label ? label : ("Label @ " + rd_tohex(address));
 
     SUBCASE(casename.c_str())
     {
-        RDSymbol symbol;
-        REQUIRE(RDDocument_GetSymbolByAddress(doc, address, &symbol));
-        REQUIRE_EQ(symbol.address, address);
+        const char* reslabel = RDDocument_GetLabel(doc, address);
+        REQUIRE(reslabel);
+        REQUIRE_EQ(RDDocument_GetAddress(doc, reslabel), address);
 
-        if(type != SymbolType_None) REQUIRE_EQ(symbol.type, type);
-        if(flags != SymbolFlags_None) REQUIRE((symbol.flags & flags));
-        if(name) REQUIRE(!std::strcmp(RDDocument_GetSymbolName(doc, address), name));
+        if(flags != AddressFlags_None) REQUIRE((RDDocument_GetFlags(doc, address) & flags));
+        if(label) REQUIRE(!std::strcmp(reslabel, label));
     }
 }
 
-void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type) { return LoaderTests::checkSymbol(doc, address, name, type, SymbolFlags_None); }
-void LoaderTests::checkSymbol(RDDocument* doc, rd_address address, const char* name) { return LoaderTests::checkSymbol(doc, address, name, SymbolType_None, SymbolFlags_None); }
+void LoaderTests::checkLabel(RDDocument* doc, rd_address address, const char* label) { LoaderTests::checkLabel(doc, address, label, AddressFlags_None); }
 
 void LoaderTests::testVBEvents(RDDocument* doc, const std::map<rd_address, const char*>& vbevents)
 {
     for(const auto& [address, name] : vbevents)
-        LoaderTests::checkSymbol(doc, address, name, SymbolType_Function, SymbolFlags_None);
+        LoaderTests::checkLabel(doc, address, name, AddressFlags_Function);
 }

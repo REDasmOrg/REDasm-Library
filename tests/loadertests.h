@@ -17,11 +17,9 @@ class LoaderTests
         static void testIOLI00(RDContext* ctx, RDDocument* doc);
 
     private:
-        static void checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols, rd_type type, rd_flag flags);
-        static void checkSymbolsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& symbols);
-        static void checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type, rd_flag flags);
-        static void checkSymbol(RDDocument* doc, rd_address address, const char* name, rd_type type);
-        static void checkSymbol(RDDocument* doc, rd_address address, const char* name);
+        static void checkLabelsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& labels, rd_flag flags);
+        static void checkLabel(RDDocument* doc, rd_address address, const char* label, rd_flag flags);
+        static void checkLabel(RDDocument* doc, rd_address address, const char* label);
         static void testVBEvents(RDDocument* doc, const std::map<rd_address, const char*>& vbevents);
 };
 

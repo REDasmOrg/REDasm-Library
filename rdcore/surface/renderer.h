@@ -7,10 +7,13 @@
 #include <rdapi/config.h>
 #include "../document/document_fwd.h"
 #include "../object.h"
+#include "common.h"
+
+#define HEXDUMP_LENGTH 0x10
 
 struct SurfaceColumns;
-class Disassembler;
 class Assembler;
+class SurfaceRenderer;
 
 class Renderer: public Object
 {
@@ -36,15 +39,13 @@ class Renderer: public Object
         };
 
     public:
-        Renderer(Context* ctx, rd_flag flags);
-        bool render(const RDDocumentItem* item);
-        const std::string& text() const;
-        const Chunks& chunks() const;
+        Renderer(Context* ctx, SurfaceRow& sfrow, rd_flag flags);
+        Renderer(SurfaceRenderer* surface, SurfaceRow& sfrow, rd_flag flags);
+        ~Renderer();
 
-    public:
-        void renderHexDump(const RDBufferView* view, size_t size);
-        void renderAssemblerInstruction(rd_address address);
-        void renderRDILInstruction(rd_address address);
+    public: // C-API Methods
+        void renderAssemblerInstruction();
+        void renderRDILInstruction();
         void renderSigned(s64 value);
         void renderUnsigned(u64 value);
         void renderReference(rd_location loc);
@@ -53,34 +54,31 @@ class Renderer: public Object
         void renderRegister(const std::string& s);
         void renderConstant(const std::string& s);
         void renderText(const std::string& s, rd_type theme = Theme_Default);
-        void renderUnknown();
         void renderIndent(size_t n, bool ignoreflags = false);
+        void renderUnknown();
+
+    public: // SurfaceRenderer Methods
+        void renderSegment();
+        void renderInstruction();
+        void renderLocation();
+        void renderFunction();
+        void renderString();
+        void renderData();
+        void renderUnknown(size_t size);
+        void renderLine(const std::string& s);
+        void renderTypeField();
+        void renderType();
 
     private:
-        void renderSegment(const RDDocumentItem* item);
-        void renderFunction(const RDDocumentItem* item);
-        void renderInstruction(const RDDocumentItem* item);
-        void renderSymbol(const RDDocumentItem* item);
-        void renderUnknown(const RDDocumentItem* item);
-        void renderSeparator(const RDDocumentItem* item);
-        void renderType(const RDDocumentItem* item);
-
-    private:
-        bool renderInstrIndent(const std::string& diffstr, bool ignoreflags = false);
-        void renderPrologue(rd_address address);
-        void renderBlock(rd_address address);
-        void renderAddressIndent(rd_address address);
-        void renderComments(rd_address address);
-        void renderSymbolValue(const RDSymbol* symbol);
-        bool renderSymbolPointer(const RDSymbol* symbol);
-        void compileParams(rd_address address, RDRendererParams* srp);
+        inline rd_address address() const { return m_sfrow.address; }
+        std::string renderLabel(u8 theme = Theme_Label);
         bool hasFlag(rd_flag f) const;
-
-    private:
-        Disassembler* disassembler() const;
-        Assembler* assembler() const;
-        SafeDocument& document() const;
-        Renderer& chunk(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
+        bool renderInstrIndent(const std::string& diffstr, bool ignoreflags = false);
+        void compileParams(RDRendererParams* srp);
+        void renderValue(rd_address address, size_t size);
+        void renderLabelIndent();
+        void renderPrologue();
+        void renderComments();
 
     public:
         static std::string getInstruction(Context* ctx, rd_address address);
@@ -88,10 +86,18 @@ class Renderer: public Object
         static std::string getRDILInstruction(Context* ctx, rd_address address);
 
     private:
+        Renderer& chunk(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
+        Renderer& chunkalign(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
+        SafeDocument& document() const;
+        Assembler* assembler() const;
+
+    private:
         mutable std::string m_asminstruction, m_rdilinstruction;
+        size_t m_segmentidx;
+        SurfaceRenderer* m_surface;
+        SurfaceRow& m_sfrow;
+        std::vector<std::string> m_autocomments;
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
-        std::deque<SurfaceChunk> m_tokens;
-        std::string m_text;
         rd_flag m_flags;
 };
 

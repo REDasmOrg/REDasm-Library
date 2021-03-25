@@ -15,11 +15,11 @@ void RDILGraph::build(rd_address address)
 
     RDBlock block;
 
-    const auto* blocks = this->context()->document()->blocks(address);
+    const auto* blocks = this->context()->document()->getBlocks(address);
     if(!blocks->get(address, &block)) return;
 
     RDBufferView view;
-    if(!this->context()->document()->view(address, BlockContainer::size(&block), &view)) return;
+    if(!this->context()->document()->getView(address, BlockContainer::size(&block), &view)) return;
 
     auto* assembler = this->context()->assembler();
 

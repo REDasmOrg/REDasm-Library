@@ -21,6 +21,13 @@ bool AbstractBuffer::contains(const u8* ptr) const
 }
 
 bool AbstractBuffer::empty() const { return !this->data() || !this->size(); }
+
+void AbstractBuffer::copyFrom(const AbstractBuffer* buffer, rd_offset offset, size_t size)
+{
+    if(size == RD_NVAL) size = this->size();
+    std::copy_n(buffer->data() + offset, size, this->data());
+}
+
 void AbstractBuffer::fill(u8 val) { std::fill_n(this->data(), this->size(), val); }
 AbstractBuffer::operator bool() const { return !this->empty(); }
 

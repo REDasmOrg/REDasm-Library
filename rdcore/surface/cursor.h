@@ -10,7 +10,7 @@ class Surface;
 class CursorHistory
 {
     private:
-        typedef std::stack<RDDocumentItem> History;
+        typedef std::stack<rd_address> History;
 
     public:
         CursorHistory() = default;
@@ -35,7 +35,7 @@ class Cursor: public Object
         const RDSurfacePos* selection() const;
         const RDSurfacePos* startSelection() const;
         const RDSurfacePos* endSelection() const;
-        const RDDocumentItem& currentItem() const;
+        rd_address currentAddress() const;
         const CursorHistoryPtr& history() const;
         void linkHistory(const CursorHistoryPtr& ptr);
         void unlinkHistory();
@@ -47,7 +47,7 @@ class Cursor: public Object
         void clearSelection();
         void goForward();
         void goBack();
-        void setCurrentItem(const RDDocumentItem& item);
+        void setCurrentAddress(rd_address address);
         void set(int row, int col);
         void moveTo(int row, int col);
         void select(int row, int col);
@@ -56,9 +56,9 @@ class Cursor: public Object
         void detach(Surface* s);
 
     private:
-        void moveSurfaces(const RDDocumentItem* item);
+        void moveSurfaces(rd_address address);
         void notifyHistoryChanged();
-        void notifyPositionChanged();
+        void updateAll();
 
     private:
         static bool equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2);
@@ -67,7 +67,7 @@ class Cursor: public Object
 
     private:
         CursorHistoryPtr m_history;
-        RDDocumentItem m_currentitem{ };
+        rd_address m_currentaddress{RD_NVAL};
         std::unordered_set<Surface*> m_surfaces;
         RDSurfacePos m_position{0, 0}, m_selection{0, 0};
 };

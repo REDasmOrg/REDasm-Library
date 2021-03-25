@@ -15,8 +15,8 @@ class SurfacePath : public Object
         void update();
 
     private:
-        void insertPath(const RDDocumentItem& fromitem, const RDDocumentItem& toitem);
-        int calculateToRow(const RDDocumentItem* fromitem, const RDDocumentItem* toitem) const;
+        void insertPath(rd_address fromaddress, rd_address toaddress);
+        int calculateToRow(rd_address fromaddress, rd_address toaddress) const;
 
     private:
         std::set<std::pair<rd_address, rd_address>> m_done;

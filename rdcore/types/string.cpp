@@ -4,6 +4,7 @@
 
 StringType::StringType(rd_type type, Context* ctx): Type(type, ctx) { }
 StringType::StringType(rd_type type, size_t size, Context* ctx): Type(type, ctx), m_size(size == RD_NVAL ? 1 : size) { }
+StringType::StringType(rd_type type, const std::string& name, size_t size, Context* ctx): Type(type, name, ctx), m_size(size == RD_NVAL ? 1 : size) { }
 size_t StringType::size() const { return m_size; }
 
 bool StringType::fromJson(const tao::json::value& v)
@@ -25,7 +26,8 @@ tao::json::value StringType::toJson() const
 }
 
 AsciiStringType::AsciiStringType(size_t size, Context* ctx): StringType(Type_AsciiString, size, ctx) { }
-Type* AsciiStringType::clone(Context* ctx) const { return new AsciiStringType(m_size, ctx); }
+AsciiStringType::AsciiStringType(const std::string& name, size_t size, Context* ctx): StringType(Type_AsciiString, name, size, ctx) { }
+Type* AsciiStringType::clone(Context* ctx) const { return new AsciiStringType(this->name(), m_size, ctx); }
 
 void AsciiStringType::calculateSize(rd_address address)
 {
@@ -35,7 +37,8 @@ void AsciiStringType::calculateSize(rd_address address)
 }
 
 WideStringType::WideStringType(size_t size, Context* ctx): StringType(Type_WideString, size, ctx) { }
-Type* WideStringType::clone(Context* ctx) const { return new WideStringType(m_size, ctx); }
+WideStringType::WideStringType(const std::string& name, size_t size, Context* ctx): StringType(Type_Structure, name, size, ctx) { }
+Type* WideStringType::clone(Context* ctx) const { return new WideStringType(this->name(), m_size, ctx); }
 
 void WideStringType::calculateSize(rd_address address)
 {

@@ -7,8 +7,6 @@ struct FunctionBasicBlock
 {
     FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address startaddress);
     bool contains(rd_address address) const;
-    bool getStartItem(RDDocumentItem* item) const;
-    bool getEndItem(RDDocumentItem* item) const;
     size_t itemsCount() const;
     rd_type getTheme(RDGraphNode n) const;
     void bFalse(RDGraphNode n);

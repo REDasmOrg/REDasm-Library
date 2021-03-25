@@ -10,7 +10,7 @@ enum RDTheme {
     Theme_CursorFg, Theme_CursorBg,
     Theme_Segment, Theme_Function, Theme_Type,
     Theme_Address, Theme_Constant, Theme_Reg,
-    Theme_String, Theme_Symbol, Theme_Data, Theme_Pointer, Theme_Import,
+    Theme_String, Theme_Label, Theme_Data, Theme_Pointer, Theme_Import,
     Theme_Nop, Theme_Ret, Theme_Call, Theme_Jump, Theme_JumpCond,
     Theme_EntryFg, Theme_EntryBg,
     Theme_GraphBg, Theme_GraphEdge, Theme_GraphEdgeTrue, Theme_GraphEdgeFalse, Theme_GraphEdgeLoop, Theme_GraphEdgeLoopCond

@@ -29,8 +29,13 @@ template<typename T> struct AnalyzerComparator { bool operator ()(const T& a1, c
 
 class Context: public Object
 {
+    public:
+        struct SurfaceState {
+            size_t mnemonicendcol{0};
+            size_t instrstartcol{0};
+        };
+
     private:
-        struct SurfaceState { size_t instrstartcol{0}, mnemonicendcol{0}; };
         typedef SortedContainer<AnalyzerPtr, AnalyzerComparator<AnalyzerPtr>, AnalyzerSorter<AnalyzerPtr>, true> AnalyzerPtrList;
         typedef SortedContainer<const Analyzer*, AnalyzerComparator<const Analyzer*>, AnalyzerSorter<const Analyzer*>, true> AnalyzerList;
         typedef std::unordered_map<std::string, RDEntry*> PluginMap;
@@ -58,7 +63,6 @@ class Context: public Object
 
     public: // Document
         RDLocation functionStart(rd_address address) const;
-        RDLocation entryPoint() const;
 
     public: // Loader
         void findLoaderEntries(const RDLoaderRequest* req, Callback_LoaderEntry callback, void* userdata);

@@ -4,8 +4,6 @@
 #include "../../document/document_fwd.h"
 #include "../../object.h"
 
-class Disassembler;
-
 class AddressQueue: public Object
 {
     public:

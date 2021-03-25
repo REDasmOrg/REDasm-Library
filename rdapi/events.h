@@ -32,7 +32,7 @@ enum RDEvents {
     Event_SurfaceUpdated,
     Event_SurfaceScrollChanged,
     Event_SurfaceHistoryChanged,
-    Event_SurfacePositionChanged,
+    Event_SurfaceAddressChanged,
 };
 
 struct RDSurfacePos;
@@ -46,19 +46,12 @@ typedef struct RDErrorEventArgs {
     const char* message;
 } RDErrorEventArgs;
 
-typedef struct RDDocumentEventArgs {
-    RD_EVENTARGS_BASE
-
-    RDDocumentAction action;
-    RDDocumentItem item;
-} RDDocumentEventArgs;
-
 typedef struct RDSurfaceEventArgs {
     RD_EVENTARGS_BASE
 
     const RDSurfacePos* position;
     const RDSurfacePos* selection;
-    RDDocumentItem item;
+    rd_address address;
 } RDSurfaceEventArgs;
 
 typedef struct RDAnalysisStatusEventArgs {

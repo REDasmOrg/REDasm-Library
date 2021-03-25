@@ -125,17 +125,18 @@ void Engine::algorithmStep()
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
-    const FunctionContainer& functions = this->context()->document()->functions();
 
-    size_t oldfc = functions.size();
+    auto& doc = this->context()->document();
+    size_t oldfc = doc->getFunctions(nullptr);
+
     this->analyzeAll();
 
     if(!m_algorithm->hasNext())
     {
         // Functions count is changed, trigger analysis again
-        while(oldfc != functions.size())
+        while(oldfc != doc->getFunctions(nullptr))
         {
-            oldfc = functions.size();
+            oldfc = doc->getFunctions(nullptr);
             this->analyzeAll();
         }
 
@@ -152,19 +153,20 @@ void Engine::cfgStep()
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
-    const auto& functions = this->context()->document()->functions();
+    const rd_address* functions = nullptr;
+    size_t c = this->context()->document()->getFunctions(&functions);
     DocumentNet* net = this->context()->net();
 
-    for(rd_address address : functions)
+    for(size_t i = 0; i < c; i++)
     {
-        this->context()->statusAddress("Processing function bounds", address);
-        net->unlinkPrev(address);
+        this->context()->statusAddress("Processing function bounds", functions[i]);
+        net->unlinkPrev(functions[i]);
     }
 
-    for(rd_address address : functions)
+    for(size_t i = 0; i < c; i++)
     {
-        this->context()->statusAddress("Computing basic blocks", address);
-        this->generateCfg(address);
+        this->context()->statusAddress("Computing basic blocks", functions[i]);
+        this->generateCfg(functions[i]);
     }
 
     this->nextStep();
@@ -209,21 +211,18 @@ void Engine::generateCfg(rd_address address)
             const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[i])->p_data);
             if(!fbb) continue;
 
-            RDDocumentItem item;
-            if(!fbb->getEndItem(&item)) continue;
-            if(item.address > tailaddress) tailaddress = item.address;
-            doc->separator(item.address);
+            if(fbb->endaddress > tailaddress) tailaddress = fbb->endaddress;
+            //FIXME: doc->separator(item.address);
         }
 
         if(!tailaddress && c) // Try to get the first block
         {
             const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[0])->p_data);
+            if(fbb) tailaddress = fbb->endaddress;
+        }
 
-            RDDocumentItem item;
-            if(fbb && fbb->getEndItem(&item)) tailaddress = item.address; }
-
-        if(tailaddress) doc->empty(tailaddress);
-        doc->graph(g.release());
+        //FIXME: if(tailaddress) doc->empty(tailaddress);
+        doc->setGraph(g.release());
     }
     else
         this->context()->problem("Graph creation failed @ " + Utils::hex(address));
@@ -235,13 +234,10 @@ void Engine::notifyStatus()
 
     if(m_status.stepscurrent != m_lastnotifystep)
     {
-        m_status.segmentsdiff = doc->segments()->size() - m_status.segmentscount;
-        m_status.segmentscount = doc->segments()->size();
-        m_status.functionsdiff = doc->functions().size() - m_status.functionscount;
-        m_status.functionscount = doc->functions().size();
-        m_status.symbolsdiff = doc->symbols()->size() - m_status.symbolscount;
-        m_status.symbolscount = doc->symbols()->size();
-
+        m_status.segmentsdiff = doc->getSegments(nullptr) - m_status.segmentscount;
+        m_status.segmentscount = doc->getSegments(nullptr);
+        m_status.functionsdiff = doc->getFunctions(nullptr) - m_status.functionscount;
+        m_status.functionscount = doc->getFunctions(nullptr);
         m_lastnotifystep = m_status.stepscurrent;
     }
 

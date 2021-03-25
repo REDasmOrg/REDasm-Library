@@ -39,6 +39,4 @@ rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNo
 size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 rd_address RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startaddress; }
 rd_address RDFunctionBasicBlock_GetEndAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endaddress; }
-bool RDFunctionBasicBlock_GetStartItem(const RDFunctionBasicBlock* fbb, RDDocumentItem* item) { return CPTR(const FunctionBasicBlock, fbb)->getStartItem(item); }
-bool RDFunctionBasicBlock_GetEndItem(const RDFunctionBasicBlock* fbb, RDDocumentItem* item) { return CPTR(const FunctionBasicBlock, fbb)->getEndItem(item); }
 bool RDFunctionBasicBlock_Contains(const RDFunctionBasicBlock* fbb, rd_address address) { return CPTR(const FunctionBasicBlock, fbb)->contains(address); }

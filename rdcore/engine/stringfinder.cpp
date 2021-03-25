@@ -5,6 +5,7 @@
 #include "../support/utils.h"
 #include "../context.h"
 #include "../config.h"
+#include <unordered_set>
 #include <thread>
 #include <cctype>
 #include <cuchar>
@@ -64,7 +65,7 @@ bool StringFinder::step(Context* ctx, RDBufferView& view)
 
 rd_flag StringFinder::categorize(Context* ctx, const RDBufferView& view, size_t* totalsize)
 {
-    if(view.size < (sizeof(char) * 2)) return SymbolFlags_None;
+    if(view.size < (sizeof(char) * 2)) return AddressFlags_None;
 
     char c1 = static_cast<char>(view.data[0]);
     char c2 = static_cast<char>(view.data[1]);
@@ -76,7 +77,7 @@ rd_flag StringFinder::categorize(Context* ctx, const RDBufferView& view, size_t*
             return StringFinder::toAscii(ch, outch);
         });
 
-        if(ok) return SymbolFlags_WideString;
+        if(ok) return AddressFlags_WideString;
     }
 
     ok = StringFinder::categorizeT<char>(view, ctx->minString(), totalsize, [](char ch, char* outch) {
@@ -85,13 +86,14 @@ rd_flag StringFinder::categorize(Context* ctx, const RDBufferView& view, size_t*
         return true;
     });
 
-    return ok ? SymbolFlags_AsciiString : SymbolFlags_None;
+    return ok ? AddressFlags_AsciiString : AddressFlags_None;
 }
 
 bool StringFinder::checkAndMark(Context* ctx, rd_address address, rd_flag flags, size_t totalsize)
 {
-    if(flags & SymbolFlags_AsciiString) return ctx->document()->asciiString(address, totalsize, std::string());
-    if(flags & SymbolFlags_WideString) return ctx->document()->wideString(address, totalsize, std::string());
+    if((flags & AddressFlags_AsciiString) || (flags & AddressFlags_WideString))
+        return ctx->document()->setString(address, totalsize, flags);
+
     return false;
 }
 
@@ -127,7 +129,7 @@ bool StringFinder::checkFormats(const std::string& s)
     static const std::unordered_set<std::string> FORMATS = {
         "%c", "%d", "%e", "%E", "%f", "%g", "%G",
         "%hi", "%hu", "%i", "%l", "%ld", "%li",
-        "%lf", "%Lf", "%lu", "%lli, %lld", "%llu",
+        "%lf", "%Lf", "%lu", "%lli", "%lld", "%llu",
         "%o", "%p", "%s", "%u",
         "%x", "%X", "%n", "%%"
     };

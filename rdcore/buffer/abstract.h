@@ -13,6 +13,7 @@ class AbstractBuffer: public Object
         rd_offset find(const u8* data, size_t size) const;
         bool contains(const u8* ptr) const;
         bool empty() const;
+        void copyFrom(const AbstractBuffer* buffer, rd_offset offset = 0, size_t size = RD_NVAL);
         void fill(u8 val);
         operator bool() const;
 

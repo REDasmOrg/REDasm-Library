@@ -12,8 +12,8 @@ static bool build(RDContext* ctx, const RDLoaderBuildParams* req)
     auto& doc = context->document();
     size_t sz = context->buffer()->size();
 
-    doc->segment("BINARY", req->offset, req->baseaddress, sz, sz, SegmentFlags_CodeData);
-    doc->entry(req->entrypoint);
+    doc->setSegment("BINARY", req->offset, req->baseaddress, sz, sz, SegmentFlags_CodeData);
+    doc->setEntry(req->entrypoint);
     return true;
 }
 

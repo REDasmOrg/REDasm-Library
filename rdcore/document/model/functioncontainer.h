@@ -13,8 +13,8 @@ class FunctionContainer: public AddressContainer<FunctionGraphPtr>
 {
     public:
         FunctionContainer() = default;
-        FunctionGraph* findGraph(rd_address address) const;
-        RDLocation findFunction(rd_address address) const;
+        FunctionGraph* getGraph(rd_address address) const;
+        RDLocation getFunction(rd_address address) const;
         const FunctionBasicBlock* findBasicBlock(rd_address address) const;
 };
 

@@ -87,7 +87,6 @@ rd_type Context::compilerCC() const { return m_compilerabi.second; }
 void Context::setMinString(size_t s) { m_minstring = std::max<size_t>(1, s); }
 size_t Context::minString() const { return m_minstring; }
 RDLocation Context::functionStart(rd_address address) const { return m_disassembler->document()->functionStart(address); }
-RDLocation Context::entryPoint() const { return m_disassembler->document()->entry(); }
 
 void Context::findLoaderEntries(const RDLoaderRequest* req, Callback_LoaderEntry callback, void* userdata)
 {
@@ -174,12 +173,12 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 }
 
 SafeDocument& Context::document() const { return m_disassembler->loader()->document(); }
-const DocumentNet* Context::net() const { return m_disassembler ? m_disassembler->net() : nullptr; }
-DocumentNet* Context::net() { return m_disassembler ? m_disassembler->net() : nullptr; }
+const DocumentNet* Context::net() const { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
+DocumentNet* Context::net() { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
 Disassembler* Context::disassembler() const { return m_disassembler.get(); }
 Assembler* Context::assembler() const { return m_disassembler ? m_disassembler->assembler() : nullptr; }
 Loader* Context::loader() const { return m_disassembler ? m_disassembler->loader() : nullptr; }
-MemoryBuffer* Context::buffer() const { return m_disassembler ? m_disassembler->buffer() : nullptr; }
+MemoryBuffer* Context::buffer() const { return m_disassembler ? m_disassembler->document()->buffer() : nullptr; }
 void Context::disassembleAt(rd_address address) { if(m_disassembler) m_disassembler->disassembleAt(address); }
 void Context::disassemble() { if(m_disassembler) m_disassembler->disassemble(); }
 Surface* Context::activeSurface() const { return m_activesurface; }

@@ -23,12 +23,16 @@ class AddressContainer
         void clear() { m_addresses.clear(); m_values.clear(); }
         void clearValues() { m_values.clear(); }
         void insert(rd_address address) { m_addresses.insert(address); }
-        template<typename V> void insert(rd_address address, const V& value) { m_values.emplace(address, value); m_addresses.insert(address); }
         template<typename V> void bind(rd_address address, const V& value) { m_values.emplace(address, value); }
         void remove(rd_address address) { m_values.erase(address); m_addresses.remove(address); }
         rd_address operator[](size_t index) const { return (index < m_addresses.size()) ? m_addresses.at(index) : RD_NVAL; }
         rd_address front() const { return !m_addresses.empty() ? m_addresses.front() : RD_NVAL; }
         rd_address back() const { return !m_addresses.empty() ? m_addresses.back() : RD_NVAL; }
+
+        template<typename V> void insert(rd_address address, const V& value) {
+            m_addresses.insert(address);
+            m_values[address] = value;
+        }
 
         T* find(rd_address address) const {
             auto it = m_values.find(address);

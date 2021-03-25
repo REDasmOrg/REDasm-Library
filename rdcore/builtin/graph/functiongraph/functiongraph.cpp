@@ -1,5 +1,5 @@
 #include "functiongraph.h"
-#include "../../../document/backend/blockcontainer.h"
+#include "../../../document/model/blockcontainer.h"
 #include "../../../support/error.h"
 #include "../../../support/utils.h"
 #include "../../../document/document.h"
@@ -30,10 +30,10 @@ size_t FunctionGraph::instructionsCount() const
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
         RDBlock startb, endb;
-        if(!m_document->block(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
-        if(!m_document->block(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
+        if(!m_document->addressToBlock(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
+        if(!m_document->addressToBlock(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
 
-        const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
+        const BlockContainer* blocks = m_document->getBlocks(fbb.startaddress);
 
         blocks->range(startb, endb, [&](const RDBlock& block) {
             if(IS_TYPE(&block, BlockType_Code)) m_instructionscount++;
@@ -51,10 +51,10 @@ size_t FunctionGraph::bytesCount() const
     for(const FunctionBasicBlock& fbb : m_basicblocks)
     {
         RDBlock startb, endb;
-        if(!m_document->block(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
-        if(!m_document->block(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
+        if(!m_document->addressToBlock(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
+        if(!m_document->addressToBlock(fbb.endaddress, &endb)) REDasmError("Cannot find end block", fbb.endaddress);
 
-        const BlockContainer* blocks = m_document->blocks(fbb.startaddress);
+        const BlockContainer* blocks = m_document->getBlocks(fbb.startaddress);
 
         blocks->range(startb, endb, [&](const RDBlock& block) {
             m_bytescount += BlockContainer::size(&block);
@@ -80,7 +80,7 @@ bool FunctionGraph::build(rd_address address)
 {
     m_instructionscount = m_bytescount = 0;
 
-    if(!m_document->block(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
+    if(!m_document->addressToBlock(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
         return false;
 
     this->buildBasicBlocks();

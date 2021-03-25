@@ -23,21 +23,29 @@ void UnexploredAnalyzer::analyze(Context* ctx)
     size_t bits = ctx->assembler()->bits();
     std::deque<RDBlock> pending;
 
-    doc->segments()->each([&](const RDSegment& segment) {
-        if(!HAS_FLAG(&segment, SegmentFlags_Code)) return true;
-        const BlockContainer* blocks = doc->blocks(segment.address);
+    const rd_address* segments = nullptr;
+    size_t c = doc->getSegments(&segments);
 
-        blocks->each([&](const RDBlock& block) {
-            rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(block.address, bits));
-            if(!IS_TYPE(&block, BlockType_Unknown) || HAS_FLAG(&block, BlockFlags_Explored) || m_done.count(block.address)) return true;
+    for(size_t i = 0; i < c; i++)
+    {
+        RDSegment segment;
+        if(!doc->addressToSegment(segments[i], &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) continue;
+
+        const auto* blocks = doc->getBlocks(segment.address);
+        if(!blocks) continue;
+
+        for(auto it = blocks->begin(); it != blocks->end(); it++)
+        {
+            rd_cfg->status("Searching unexplored blocks @ " + Utils::hex(it->address, bits));
+
+            const RDBlock& block = *it;
+            if(!IS_TYPE(&block, BlockType_Unknown) || m_done.count(block.address)) continue;
+            if(doc->getFlags(block.address) & AddressFlags_Explored) continue;
 
             m_done.insert(block.address);
             pending.push_back(block);
-            return true;
-        });
-
-        return true;
-    });
+        }
+    }
 
     if(!pending.empty()) rd_cfg->log("Found " + std::to_string(pending.size()) + " unknown block(s)");
 

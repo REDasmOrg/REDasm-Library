@@ -5,7 +5,6 @@
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
 RDDatabase* RDContext_GetDatabase(const RDContext* ctx) { return CPTR(RDDatabase, CPTR(const Context, ctx)->database()); }
-RDLocation RDContext_GetEntryPoint(const RDContext* ctx) { return CPTR(const Context, ctx)->entryPoint(); }
 RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->dereference(address); }
 RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->functionStart(address); }
 const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader) { return CPTR(const Context, ctx)->findAssemblerEntry(entryloader, nullptr); }
@@ -30,7 +29,6 @@ void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequ
 void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata) { CPTR(const Context, ctx)->findAssemblerEntries(callback, userdata); }
 void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata) { CPTR(const Context, ctx)->getAnalyzers(callback, userdata); }
 void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select) { CPTR(Context, ctx)->selectAnalyzer(CPTR(const Analyzer, analyzer), select); }
-bool RDContext_DisassembleFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->disassembleFunction(address, name); }
 void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block) { CPTR(Context, ctx)->disassembleBlock(block); }
 void RDContext_DisassembleAt(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembleAt(address); }
 void RDContext_Disassemble(RDContext* ctx) { CPTR(Context, ctx)->disassemble(); }
@@ -47,10 +45,8 @@ void RDContext_SetABI(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompil
 rd_type RDContext_GetABI(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerABI(); }
 void RDContext_SetCC(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompilerCC(t); }
 rd_type RDContext_GetCC(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerCC(); }
-const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, RDSymbol* symbol) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, symbol); }
-size_t RDContext_GetFunctionInstrCount(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->getFunctionInstrCount(address); }
+const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, rd_address* resaddress) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, resaddress); }
 u8* RDContext_GetBufferData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
-bool RDContext_CreateFunction(RDContext* ctx, rd_address address, const char* name) { return CPTR(Context, ctx)->disassembler()->createFunction(address, name); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 
 const char* RD_FromWString(const char16_t* s, size_t* len)
@@ -65,24 +61,24 @@ const char* RD_FromWString(const char16_t* s, size_t* len)
     return res.c_str();
 }
 
-const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size) { return CPTR(const Context, ctx)->document()->getHexDump(address, size); }
+const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size)
+{
+    static std::string s;
+    s = CPTR(const Context, ctx)->document()->getHexDump(address, size);
+    return s.empty() ? nullptr : s.c_str();
+}
+
 const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readString(address, len); }
 const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readWString(address, len); }
-
-bool RDContext_GetSegmentView(const RDContext* ctx, const RDSegment* segment, RDBufferView* view)
-{
-    if(!segment) return false;
-    auto& document = CPTR(const Context, ctx)->document();
-    return document->view(*segment, view);
-}
 
 bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view)
 {
     if(!block) return false;
     auto& document = CPTR(const Context, ctx)->document();
-    return document->view(*block, view);
+    return document->getView(block->address, BlockContainer::size(block), view);
 }
 
+u8* RD_FilePointer(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->filepointer(offset); }
 u8* RD_AddrPointer(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->addrpointer(address); }
 u8* RD_Pointer(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->offspointer(offset);  }
 RDLocation RD_FileOffset(const RDContext* ctx, const void* ptr) { return CPTR(const Context, ctx)->document()->fileoffset(ptr); }
@@ -90,3 +86,10 @@ RDLocation RD_AddressOf(const RDContext* ctx, const void* ptr) { return CPTR(con
 RDLocation RD_Offset(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->offset(address); }
 RDLocation RD_Address(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->address(offset); }
 bool RD_IsAddress(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->isAddress(address); }
+
+const char* RD_MakeLabel(rd_address address, const char* prefix)
+{
+    static std::string s;
+    s = Document::makeLabel(address, prefix ? prefix : std::string());
+    return s.c_str();
+}

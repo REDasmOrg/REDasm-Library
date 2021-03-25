@@ -1,8 +1,7 @@
 #include "renderer.h"
-#include <rdcore/renderer/renderer.h>
+#include <rdcore/surface/renderer.h>
 
 void RDRenderer_Indent(RDRenderer* r, size_t n) { CPTR(Renderer, r)->renderIndent(n, true); }
-void RDRenderer_HexDump(RDRenderer* r, const RDBufferView* view, size_t size) { CPTR(Renderer, r)->renderHexDump(view, size); }
 void RDRenderer_Signed(RDRenderer* r, s64 val) {  CPTR(Renderer, r)->renderSigned(val);  }
 void RDRenderer_Unsigned(RDRenderer* r, u64 val) { CPTR(Renderer, r)->renderUnsigned(val); }
 void RDRenderer_Reference(RDRenderer* r, rd_location ref) { CPTR(Renderer, r)->renderReference(ref); }

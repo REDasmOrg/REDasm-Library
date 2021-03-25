@@ -1,5 +1,5 @@
 #include "rdil.h"
-#include "../renderer/renderer.h"
+#include "../surface/renderer.h"
 #include "../support/utils.h"
 #include "../support/error.h"
 #include "../support/lexer.h"
@@ -63,7 +63,7 @@ void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
 
                     if(address != RD_NVAL) {
                         renderer->renderText(" {");
-                        renderer->renderAssemblerInstruction(address);
+                        renderer->renderAssemblerInstruction();
                         renderer->renderText("}");
                     }
 
@@ -78,7 +78,7 @@ void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
 
         switch(expr->type) {
             case RDIL_Cnst: renderer->renderReference(expr->u_value); break;
-            case RDIL_Var:  renderer->renderText(expr->var, Theme_Symbol); break;
+            case RDIL_Var:  renderer->renderText(expr->var, Theme_Label); break;
             case RDIL_Reg:  renderer->renderRegister(expr->reg); break;
             default: renderer->renderText(s); break;
         }

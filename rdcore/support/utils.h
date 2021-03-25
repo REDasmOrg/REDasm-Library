@@ -93,14 +93,14 @@ typename std::make_signed<T>::type Utils::signext(T val, int valbits)
 template<typename Container>
 std::string Utils::join(const Container& c, const char* sep)
 {
-    std::stringstream ss;
+    std::string s;
 
     for(auto it = c.begin(); it != c.end(); it++) {
-        if(sep && (it != c.begin())) ss << sep;
-        ss << *it;
+        if(sep && (it != c.begin())) s += sep;
+        s += *it;
     }
 
-    return ss.str();
+    return s;
 }
 
 template<typename T>

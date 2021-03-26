@@ -1,10 +1,6 @@
 #include "surfacerenderer.h"
 #include "../document/document.h"
 #include "../context.h"
-#include "renderer.h"
-
-#define CREATE_LINE(address) Renderer(this, this->insertRow(address), m_flags)
-#define CREATE_EMPTY_LINE(address) if(!this->hasFlag(RendererFlags_NoEmptyLine)) CREATE_LINE(address);
 
 SurfaceRenderer::SurfaceRenderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 SafeDocument& SurfaceRenderer::document() const { return this->context()->document(); }
@@ -65,46 +61,55 @@ void SurfaceRenderer::updateSegment(const RDSegment* segment, size_t segmentidx,
 
     if((it->address == segment->address) && !this->hasFlag(RendererFlags_NoSegmentLine))
     {
-        if(segmentidx) CREATE_EMPTY_LINE(it->address);
-        CREATE_LINE(it->address).renderSegment();
+        if(segmentidx) this->createEmptyLine(it->address);
+        this->createLine(it->address).renderSegment();
     }
 
     for( ; this->needsRows() && (it != blocks->end()); it++)
     {
+        auto& laststate = m_laststate[segment->address];
         rd_flag flags = addressspace->getFlags(it->address);
 
         switch(it->type)
         {
             case BlockType_Code: {
                 if(flags & AddressFlags_Function) {
-                    if((it->address != segment->address)) CREATE_EMPTY_LINE(it->address);
-                    if(!this->hasFlag(RendererFlags_NoFunctionLine)) CREATE_LINE(it->address).renderFunction();
+                    if((it->address != segment->address)) this->createEmptyLine(it->address);
+                    if(!this->hasFlag(RendererFlags_NoFunctionLine)) this->createLine(it->address).renderFunction();
                 }
                 else if(flags & AddressFlags_Location) {
-                    CREATE_EMPTY_LINE(it->address);
-                    CREATE_LINE(it->address).renderLocation();
+                    this->createEmptyLine(it->address);
+                    this->createLine(it->address).renderLocation();
                 }
 
-                CREATE_LINE(it->address).renderInstruction();
+                this->createLine(it->address).renderInstruction();
                 break;
             }
 
             case BlockType_String:
             case BlockType_Data: {
                 if(flags & AddressFlags_Type) {
-                    CREATE_EMPTY_LINE(it->address);
-                    CREATE_LINE(it->address).renderType();
+                    this->createEmptyLine(it->address);
+                    this->createLine(it->address).renderType();
                 }
 
-                if(flags & AddressFlags_TypeField) CREATE_LINE(it->address).renderTypeField();
-                else if(it->type == BlockType_String) CREATE_LINE(it->address).renderString();
-                else CREATE_LINE(it->address).renderData();
+                if(flags & AddressFlags_TypeField) this->createLine(it->address).renderTypeField();
+                else if(it->type == BlockType_String) this->createLine(it->address).renderString();
+                else this->createLine(it->address).renderData();
                 break;
             }
 
-            case BlockType_Unknown: CREATE_LINE(it->address).renderUnknown(BlockContainer::size(std::addressof(*it))); break;
-            default: CREATE_LINE(it->address).renderLine("Block #" + std::to_string(it->type)); break;
+            case BlockType_Unknown: {
+                if(laststate.flags && (flags != laststate.flags)) this->createEmptyLine(it->address);
+                this->createLine(it->address).renderUnknown(BlockContainer::size(std::addressof(*it)));
+                if(laststate.flags && (flags != laststate.flags)) this->createEmptyLine(it->address);
+                break;
+            }
+
+            default: this->createLine(it->address).renderLine("Block #" + std::to_string(it->type)); break;
         }
+
+        laststate = {it->type, flags};
     }
 }
 
@@ -118,9 +123,13 @@ void SurfaceRenderer::updateSegments()
     RDSegment segment;
     size_t segmentidx = addressspace->indexOfSegment(&startsegment);
 
+    m_lastempty = false;
+
     for( ; (this->lastRow() < m_nrows) && (segmentidx < addressspace->size()); segmentidx++)
     {
         if(!addressspace->indexToSegment(segmentidx, &segment)) break;
+
+        m_laststate[segment.address] = { };
         this->updateSegment(&segment, segmentidx, (segment == startsegment) ? m_range.first : segment.address);
     }
 }

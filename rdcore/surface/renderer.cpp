@@ -14,7 +14,6 @@
 #define STRING_THRESHOLD   48
 #define SEPARATOR_LENGTH   50
 #define UNKNOWN_STRING     "???"
-#define BLANK_CELL         { Theme_Default, Theme_Default, ' ' }
 
 Renderer::Renderer(Context* ctx, SurfaceRow& sfrow, rd_flag flags): Object(ctx), m_surface(nullptr), m_sfrow(sfrow), m_flags(flags) { this->renderPrologue(); }
 Renderer::Renderer(SurfaceRenderer* surface, SurfaceRow& sfrow, rd_flag flags): Object(surface->context()), m_surface(surface), m_sfrow(sfrow), m_flags(flags) { this->renderPrologue(); }
@@ -36,13 +35,7 @@ Renderer::~Renderer()
         }
     }
 
-    if(!m_surface) return;
-
-    // Fill remaining cells with blank characters
-    for(int i = m_sfrow.cells.size() - 1; i < m_surface->lastColumn(); i++)
-        m_sfrow.cells.push_back(BLANK_CELL);
-
-    m_surface->setLastColumn(m_sfrow.cells.size());
+    if(m_surface) m_surface->setLastColumn(m_sfrow.cells.size());
 }
 
 void Renderer::renderAssemblerInstruction()

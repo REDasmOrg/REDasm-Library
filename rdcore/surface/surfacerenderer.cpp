@@ -2,6 +2,8 @@
 #include "../document/document.h"
 #include "../context.h"
 
+#define BLANK_CELL         { Theme_Default, Theme_Default, ' ' }
+
 SurfaceRenderer::SurfaceRenderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 SafeDocument& SurfaceRenderer::document() const { return this->context()->document(); }
 const SurfaceRenderer::Rows& SurfaceRenderer::rows() const { return m_rows; }
@@ -131,6 +133,13 @@ void SurfaceRenderer::updateSegments()
 
         m_laststate[segment.address] = { };
         this->updateSegment(&segment, segmentidx, (segment == startsegment) ? m_range.first : segment.address);
+    }
+
+    // Fill remaining cells with blank characters
+    for(auto& row : m_rows)
+    {
+        for(int i = row.cells.size(); i < m_lastcolumn; i++)
+            row.cells.push_back(BLANK_CELL);
     }
 }
 

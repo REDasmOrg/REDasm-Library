@@ -26,7 +26,9 @@ enum RDRendererFlags {
     RendererFlags_NoHighlightWords = (1 << 11),
     RendererFlags_NoComments       = (1 << 12),
 
-    RendererFlags_Graph            = ~0 & ~(RendererFlags_NoAddressColumn),
+    RendererFlags_Graph            = ~0 & ~(RendererFlags_NoAddressColumn | RendererFlags_NoCursor |
+                                            RendererFlags_NoHighlightWords | RendererFlags_NoComments),
+
     RendererFlags_Simplified       = ~0 & ~(RendererFlags_CenterOnSurface),
 };
 

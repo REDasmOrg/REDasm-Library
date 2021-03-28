@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <functional>
 #include <vector>
 #include <deque>
 #include <mutex>
@@ -22,6 +23,7 @@ class SurfaceRenderer: public Object
         typedef std::deque<SurfaceRow> Rows;
 
     private:
+        typedef std::function<bool(rd_address)> CanUpdateCallback;
         typedef std::scoped_lock<std::mutex> Lock;
 
         struct LastState {
@@ -32,6 +34,8 @@ class SurfaceRenderer: public Object
     public:
         SurfaceRenderer(Context* ctx, rd_flag flags);
         SafeDocument& document() const;
+        rd_address firstAddress() const;
+        rd_address lastAddress() const;
         const Rows& rows() const;
         bool hasFlag(rd_flag flag) const;
         int indexOf(rd_address address) const;
@@ -41,30 +45,35 @@ class SurfaceRenderer: public Object
         int lastRow() const;
         int row(int row, const RDSurfaceCell** cells) const;
         void setLastColumn(int col);
-        void update(rd_address currentaddress = RD_NVAL);
+        int getRangeColumn(rd_address address, int rows) const;
+        void getSize(int* rows, int* cols) const;
+        void update();
+        void resizeRange(rd_address startaddress, rd_address endaddress, int cols);
+        void resize(int rows, int cols);
 
     protected:
         RDSurfaceCell& cell(int row, int col);
-        virtual void updateCompleted(rd_address currentaddress) = 0;
-        void updateSegment(const RDSegment* segment, size_t segmentidx, rd_address startaddress);
-        void updateSegments();
+        void updateSegment(const RDSegment& segment, rd_address startaddress, const CanUpdateCallback& canupdate);
+        void updateSegments(const CanUpdateCallback& canupdate);
+        virtual void updateCompleted() = 0;
 
     private:
         inline Renderer createLine(rd_address address);
         inline void createEmptyLine(rd_address address);
+        void update(const CanUpdateCallback& canupdate);
         SurfaceRow& insertRow(rd_address address);
-        bool needsRows() const;
 
     protected:
-        mutable std::mutex m_mutex;
-        std::unordered_map<rd_address, LastState> m_laststate;
         std::pair<rd_address, rd_address> m_range{RD_NVAL, RD_NVAL};
-        int m_nrows{0}, m_ncols{0}, m_firstcol{0}, m_lastcolumn{0}, m_lastempty{false};
-        rd_flag m_flags;
+        int m_nrows{0}, m_ncols{0}, m_firstcol{0};
         Rows m_rows;
 
     private:
+        mutable std::mutex m_mutex;
         mutable std::vector<RDSurfaceCell> m_reqrows;
+        std::unordered_map<rd_address, LastState> m_laststate;
+        int m_lastcolumn{0}, m_lastempty{false};
+        rd_flag m_flags;
 };
 
 inline Renderer SurfaceRenderer::createLine(rd_address address) {

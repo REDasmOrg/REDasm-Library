@@ -25,8 +25,6 @@ Surface::~Surface()
 
 const CursorPtr& Surface::cursor() const { return m_cursor; }
 size_t Surface::getPath(const RDPathItem** path) const { return m_path.getPath(path); }
-rd_address Surface::firstAddress() const { return m_range.first; }
-rd_address Surface::lastAddress() const { return m_range.second; }
 rd_address Surface::currentAddress() const { return m_cursor ? m_cursor->currentAddress() : RD_NVAL; }
 
 const std::string* Surface::currentLabel(rd_address* resaddress) const
@@ -103,16 +101,10 @@ bool Surface::goTo(rd_address address, bool updatehistory)
 
 void Surface::setUserData(uintptr_t userdata) { m_userdata = userdata; }
 
-void Surface::getSize(int* rows, int* cols) const
-{
-    if(rows) *rows = m_nrows;
-    if(cols) *cols = this->lastColumn();
-}
-
-void Surface::scroll(rd_address address, int ncols)
+void Surface::scroll(rd_address address, int cols)
 {
     int oldfirstcol = m_firstcol;
-    m_firstcol = std::max(m_firstcol + ncols, 0);
+    m_firstcol = std::max(m_firstcol + cols, 0);
     if(address != RD_NVAL) this->scrollAddress(address);
 
     if((m_range.first != RD_NVAL) || (m_firstcol != oldfirstcol))
@@ -121,17 +113,6 @@ void Surface::scroll(rd_address address, int ncols)
         this->update();
         this->notifyAddressChanged();
     }
-}
-
-void Surface::resize(int rows, int cols)
-{
-    int area = rows * cols;
-    if(!area) return;
-
-    m_nrows = rows;
-    m_ncols = cols;
-
-    this->update();
 }
 
 void Surface::moveTo(int row, int col)
@@ -153,8 +134,9 @@ void Surface::select(int row, int col)
     if(row < 0) row = 0;
     if(col < 0) col = 0;
 
-    row = std::min(row, m_nrows - 1);
+    row = std::min(row, this->lastRow() - 1);
     this->checkColumn(row, col);
+
     m_cursor->select(row, col);
 }
 
@@ -194,14 +176,19 @@ void Surface::notifyAddressChanged()
                                                 this, m_cursor->position(), m_cursor->selection(), address);
 }
 
-void Surface::updateCompleted(rd_address currentaddress)
+void Surface::updateCompleted()
 {
-    for(size_t i = 0; i < m_rows.size(); i++)
+    if(m_cursor && m_updatecursor)
     {
-        auto& row = m_rows[i];
-        if(row.address != currentaddress) continue;
-        m_cursor->set(i, m_cursor->currentColumn());
-        break;
+        for(int i = m_rows.size(); i-- > 0; i--)
+        {
+            auto& row = m_rows[i];
+            if(row.address != m_cursor->currentAddress()) continue;
+            m_cursor->set(i, m_cursor->currentColumn());
+            break;
+        }
+
+        m_updatecursor = false;
     }
 
     this->notifyAddressChanged();
@@ -362,8 +349,13 @@ bool Surface::goTo(const RDBlock* block, bool updatehistory)
     }
     else m_range.first = block->address;
 
-    this->update(block->address);
-    if(m_cursor) m_cursor->setCurrentAddress(block->address);
+    if(m_cursor)
+    {
+        m_updatecursor = true;
+        m_cursor->setCurrentAddress(block->address);
+    }
+
+    this->update();
     return true;
 }
 

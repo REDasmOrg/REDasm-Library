@@ -25,14 +25,21 @@ rd_address RDFunctionGraph_GetStartAddress(const RDGraph* graph)
 {
     const Graph* g = CPTR(const Graph, graph);
     const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
-    return fg ? fg->startAddress() : 0;
+    return fg ? fg->startAddress() : RD_NVAL;
 }
 
-size_t RDFunctionGraph_GetInstructionsCount(const RDGraph* graph)
+rd_address RDFunctionGraph_GetEndAddress(const RDGraph* graph)
 {
     const Graph* g = CPTR(const Graph, graph);
     const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
-    return fg ? fg->instructionsCount() : 0;
+    return fg ? fg->endAddress() : RD_NVAL;
+}
+
+size_t RDFunctionGraph_GetBlocksCount(const RDGraph* graph)
+{
+    const Graph* g = CPTR(const Graph, graph);
+    const FunctionGraph* fg = dynamic_cast<const FunctionGraph*>(g);
+    return fg ? fg->blocksCount() : 0;
 }
 
 rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getTheme(node); }

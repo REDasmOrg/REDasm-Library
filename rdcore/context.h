@@ -31,7 +31,7 @@ class Context: public Object
 {
     public:
         struct SurfaceState {
-            size_t mnemonicendcol{0};
+            size_t mnemonicendcol{8}; // Give some indentation by default
             size_t instrstartcol{0};
         };
 

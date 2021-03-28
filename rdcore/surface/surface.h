@@ -19,8 +19,6 @@ class Surface: public SurfaceRenderer
         const std::string* currentWord() const;
         const std::string* wordAt(int row, int col) const;
         const std::string& selectedText() const;
-        rd_address firstAddress() const;
-        rd_address lastAddress() const;
         rd_address currentAddress() const;
         const std::string* currentLabel(rd_address* resaddress) const;
         uintptr_t userData() const;
@@ -31,9 +29,7 @@ class Surface: public SurfaceRenderer
         bool goTo(rd_address address, bool updatehistory = true);
         bool goTo(const RDBlock* block, bool updatehistory = true);
         void setUserData(uintptr_t userdata);
-        void getSize(int* rows, int* cols) const;
-        void scroll(rd_address address, int ncols);
-        void resize(int rows, int cols);
+        void scroll(rd_address address, int cols);
         void moveTo(int row, int col);
         void select(int row, int col);
         void selectAt(int row, int col);
@@ -48,7 +44,7 @@ class Surface: public SurfaceRenderer
         void notifyAddressChanged();
 
     protected:
-        void updateCompleted(rd_address currentaddress) override;
+        void updateCompleted() override;
 
     private:
         void handleEvents(const RDEventArgs* event);
@@ -65,5 +61,5 @@ class Surface: public SurfaceRenderer
         SurfacePath m_path;
         std::string m_selectedtext;
         uintptr_t m_userdata;
-        bool m_active{false};
+        bool m_active{false}, m_updatecursor{false};
 };

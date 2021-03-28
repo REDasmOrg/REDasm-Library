@@ -25,12 +25,8 @@ enum RDEvents {
     Event_ContextSurfaceChanged,
     Event_ContextFree,
 
-    // Document Events
-    Event_DocumentChanged,
-
     // Surface Events
     Event_SurfaceUpdated,
-    Event_SurfaceScrollChanged,
     Event_SurfaceHistoryChanged,
     Event_SurfaceAddressChanged,
 };

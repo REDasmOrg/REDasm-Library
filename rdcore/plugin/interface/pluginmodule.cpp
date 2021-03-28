@@ -5,7 +5,6 @@
 #include <rdapi/context.h>
 #include <unordered_set>
 #include <filesystem>
-#include <iostream>
 
 #define RDPLUGIN_PLUGIN_INIT_NAME "rdplugin_init"
 #define RDPLUGIN_PLUGIN_FREE_NAME "rdplugin_free"

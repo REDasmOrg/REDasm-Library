@@ -158,7 +158,7 @@ size_t Document::getFunctions(const rd_address** addresses) const { return m_fun
 size_t Document::getFunctionInstrCount(rd_address address) const
 {
     auto* g = this->getGraph(address);
-    return g ? g->instructionsCount() : 0;
+    return g ? g->blocksCount() : 0;
 }
 
 rd_address Document::getAddress(const std::string& label) const { return m_addressspace.getAddress(label); }

@@ -13,6 +13,7 @@ rd_address RDSurface_GetAddress(const RDSurface* sf, int row) { return CPTR(cons
 const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
 uintptr_t RDSurface_GetUserData(const RDSurface* sf) { return CPTR(const Surface, sf)->userData(); }
 size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path) { return CPTR(const Surface, sf)->getPath(path); }
+int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address address, int rows) { return CPTR(const Surface, sf)->getRangeColumn(address, rows); }
 int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) { return CPTR(const Surface, sf)->row(row, cells); }
 int RDSurface_IndexOf(const RDSurface* sf, rd_address address) { return CPTR(const Surface, sf)->indexOf(address); }
 int RDSurface_LastIndexOf(const RDSurface* sf, rd_address address) { return CPTR(const Surface, sf)->lastIndexOf(address); }
@@ -26,7 +27,8 @@ bool RDSurface_CanGoForward(const RDSurface* sf) { return CPTR(const Surface, sf
 void RDSurface_GetScrollRange(const RDSurface* sf, rd_address* start, rd_address* end) { CPTR(const Surface, sf)->getScrollRange(start, end); }
 void RDSurface_GetSize(const RDSurface* sf, int* rows, int* cols) { return CPTR(const Surface, sf)->getSize(rows, cols); }
 void RDSurface_Update(RDSurface* sf) { CPTR(Surface, sf)->update(); }
-void RDSurface_Scroll(RDSurface* sf, rd_address address, int ncols) { CPTR(Surface, sf)->scroll(address, ncols); }
+void RDSurface_Scroll(RDSurface* sf, rd_address address, int cols) { CPTR(Surface, sf)->scroll(address, cols); }
+void RDSurface_ResizeRange(RDSurface* sf, rd_address startaddress, rd_address endaddress, int cols) { CPTR(Surface, sf)->resizeRange(startaddress, endaddress, cols); }
 void RDSurface_Resize(RDSurface* sf, int rows, int cols) { CPTR(Surface, sf)->resize(rows, cols); }
 void RDSurface_MoveTo(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->moveTo(row, col); }
 void RDSurface_Select(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->select(row, col); }

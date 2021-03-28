@@ -2,10 +2,12 @@
 #include "../document/document.h"
 #include "../context.h"
 
-#define BLANK_CELL         { Theme_Default, Theme_Default, ' ' }
+#define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
 
 SurfaceRenderer::SurfaceRenderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 SafeDocument& SurfaceRenderer::document() const { return this->context()->document(); }
+rd_address SurfaceRenderer::firstAddress() const { return m_range.first; }
+rd_address SurfaceRenderer::lastAddress() const { return m_range.second; }
 const SurfaceRenderer::Rows& SurfaceRenderer::rows() const { return m_rows; }
 bool SurfaceRenderer::hasFlag(rd_flag flag) const { return m_flags & flag; }
 
@@ -48,35 +50,53 @@ int SurfaceRenderer::lastIndexOf(rd_address address) const
 }
 
 void SurfaceRenderer::setLastColumn(int col) { m_lastcolumn = std::max<int>(this->lastColumn(), col); }
+
+int SurfaceRenderer::getRangeColumn(rd_address address, int rows) const
+{
+    auto it = std::lower_bound(m_rows.begin(), m_rows.end(), address, [](const auto& row, rd_address address) {
+        return row.address < address;
+    });
+
+    if((it == m_rows.end()) || (it->address != address)) return this->lastColumn();
+
+    int maxcol = 0;
+
+    for( ; (rows-- > 0) && (it != m_rows.end()); it++)
+        maxcol = std::max<int>(maxcol, it->text.size());
+
+    return maxcol;
+}
+
 int SurfaceRenderer::firstColumn() const { return m_firstcol; }
 int SurfaceRenderer::lastColumn() const { return m_ncols != -1 ? m_ncols : m_lastcolumn; }
 int SurfaceRenderer::lastRow() const { return std::min<int>(m_nrows, m_rows.size()); }
 
-void SurfaceRenderer::updateSegment(const RDSegment* segment, size_t segmentidx, rd_address startaddress)
+void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startaddress, const CanUpdateCallback& canupdate)
 {
     const auto* addressspace = this->document()->addressSpace();
-    auto* blocks = addressspace->getBlocks(segment->address);
+    auto* blocks = addressspace->getBlocks(segment.address);
     if(!blocks) return;
 
     auto it = blocks->find(startaddress);
     if(it == blocks->end()) return;
 
-    if((it->address == segment->address) && !this->hasFlag(RendererFlags_NoSegmentLine))
+    if((it->address == segment.address) && !this->hasFlag(RendererFlags_NoSegmentLine))
     {
-        if(segmentidx) this->createEmptyLine(it->address);
+        size_t segmentidx = addressspace->indexOfSegment(&segment);
+        if((segmentidx != RD_NVAL) && segmentidx) this->createEmptyLine(it->address);
         this->createLine(it->address).renderSegment();
     }
 
-    for( ; this->needsRows() && (it != blocks->end()); it++)
+    for( ; canupdate(it->address) && (it != blocks->end()); it++)
     {
-        auto& laststate = m_laststate[segment->address];
+        auto& laststate = m_laststate[segment.address];
         rd_flag flags = addressspace->getFlags(it->address);
 
         switch(it->type)
         {
             case BlockType_Code: {
                 if(flags & AddressFlags_Function) {
-                    if((it->address != segment->address)) this->createEmptyLine(it->address);
+                    if((it->address != segment.address)) this->createEmptyLine(it->address);
                     if(!this->hasFlag(RendererFlags_NoFunctionLine)) this->createLine(it->address).renderFunction();
                 }
                 else if(flags & AddressFlags_Location) {
@@ -115,24 +135,25 @@ void SurfaceRenderer::updateSegment(const RDSegment* segment, size_t segmentidx,
     }
 }
 
-void SurfaceRenderer::updateSegments()
+void SurfaceRenderer::updateSegments(const CanUpdateCallback& canupdate)
 {
     const auto* addressspace = this->document()->addressSpace();
 
     RDSegment startsegment;
     if(!addressspace->addressToSegment(m_range.first, &startsegment)) return;
 
-    RDSegment segment;
+    RDSegment segment = startsegment;
     size_t segmentidx = addressspace->indexOfSegment(&startsegment);
 
     m_lastempty = false;
 
-    for( ; (this->lastRow() < m_nrows) && (segmentidx < addressspace->size()); segmentidx++)
+    for( ; (segmentidx < addressspace->size()) && canupdate(segment.address); segmentidx++)
     {
         if(!addressspace->indexToSegment(segmentidx, &segment)) break;
 
         m_laststate[segment.address] = { };
-        this->updateSegment(&segment, segmentidx, (segment == startsegment) ? m_range.first : segment.address);
+        rd_address startaddress = (segment == startsegment) ? m_range.first : segment.address;
+        this->updateSegment(segment, startaddress, canupdate);
     }
 
     // Fill remaining cells with blank characters
@@ -150,18 +171,60 @@ SurfaceRow& SurfaceRenderer::insertRow(rd_address address)
     return row;
 }
 
-bool SurfaceRenderer::needsRows() const { return this->lastRow() < m_nrows; }
-
-void SurfaceRenderer::update(rd_address currentaddress)
+void SurfaceRenderer::getSize(int* rows, int* cols) const
 {
-    if((m_range.first == RD_NVAL) || !m_nrows || !m_ncols) return;
+    if(rows) *rows = m_nrows;
+    if(cols) *cols = this->lastColumn();
+}
+
+void SurfaceRenderer::update()
+{
+    if(m_nrows && m_ncols)
+        this->resize(m_nrows, m_ncols);
+    else if((m_range.first != RD_NVAL) && (m_range.first != m_range.second))
+        this->resizeRange(m_range.first, m_range.second, m_ncols);
+}
+
+void SurfaceRenderer::update(const CanUpdateCallback& canupdate)
+{
+    if(m_range.first == RD_NVAL) return;
 
     m_rows.clear();
     m_lastcolumn = 0;
 
-    this->updateSegments();
-    this->updateCompleted(currentaddress);
+    this->updateSegments(canupdate);
+    this->updateCompleted();
     this->notify<RDEventArgs>(Event_SurfaceUpdated, this);
+}
+
+void SurfaceRenderer::resizeRange(rd_address startaddress, rd_address endaddress, int cols)
+{
+    if((startaddress == RD_NVAL) || (endaddress == RD_NVAL)) return;
+
+    m_range.first = startaddress;
+    m_range.second = endaddress;
+    m_ncols = cols;
+
+    this->update([&](rd_address address) {
+        return address <= m_range.second;
+    });
+
+    m_nrows = m_rows.size();
+}
+
+void SurfaceRenderer::resize(int rows, int cols)
+{
+    int area = rows * cols;
+    if(!area) return;
+
+    m_nrows = rows;
+    m_ncols = cols;
+
+    this->update([&](rd_address) {
+        return this->lastRow() < m_nrows;
+    });
+
+    m_range.second = m_rows.empty() ? m_range.first : m_rows[this->lastRow()].address;
 }
 
 RDSurfaceCell& SurfaceRenderer::cell(int row, int col) { return m_rows[row].cells.at(col); }

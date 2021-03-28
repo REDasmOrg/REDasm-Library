@@ -39,6 +39,7 @@ RD_API_EXPORT const char* RDSurface_GetCurrentLabel(const RDSurface* sf, rd_addr
 RD_API_EXPORT const char* RDSurface_GetWordAt(const RDSurface* sf, int row, int col);
 RD_API_EXPORT uintptr_t RDSurface_GetUserData(const RDSurface* sf);
 RD_API_EXPORT size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path);
+RD_API_EXPORT int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address address, int rows);
 RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells);
 RD_API_EXPORT int RDSurface_IndexOf(const RDSurface* sf, rd_address address);
 RD_API_EXPORT int RDSurface_LastIndexOf(const RDSurface* sf, rd_address address);
@@ -49,7 +50,8 @@ RD_API_EXPORT bool RDSurface_GoTo(RDSurface* sf, rd_address address);
 RD_API_EXPORT void RDSurface_GetSize(const RDSurface* sf, int* rows, int* cols);
 RD_API_EXPORT void RDSurface_GetScrollRange(const RDSurface* sf, rd_address* start, rd_address* end);
 RD_API_EXPORT void RDSurface_Update(RDSurface* sf);
-RD_API_EXPORT void RDSurface_Scroll(RDSurface* sf, rd_address address, int ncols);
+RD_API_EXPORT void RDSurface_Scroll(RDSurface* sf, rd_address address, int cols);
+RD_API_EXPORT void RDSurface_ResizeRange(RDSurface* sf, rd_address startaddress, rd_address endaddress, int cols);
 RD_API_EXPORT void RDSurface_Resize(RDSurface* sf, int rows, int cols);
 RD_API_EXPORT void RDSurface_MoveTo(RDSurface* sf, int row, int col);
 RD_API_EXPORT void RDSurface_Select(RDSurface* sf, int row, int col);

@@ -127,6 +127,8 @@ void Renderer::renderSegment()
     }
 }
 
+void Renderer::renderSeparator() { this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment); }
+
 void Renderer::renderInstruction()
 {
     this->renderInstrIndent(std::string());

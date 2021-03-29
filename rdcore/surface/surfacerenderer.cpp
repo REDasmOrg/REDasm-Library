@@ -105,6 +105,7 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
                 }
 
                 this->createLine(it->address).renderInstruction();
+                if(this->document()->isBasicBlockTail(it->address)) this->createSeparator(it->address);
                 break;
             }
 
@@ -145,7 +146,7 @@ void SurfaceRenderer::updateSegments(const CanUpdateCallback& canupdate)
     RDSegment segment = startsegment;
     size_t segmentidx = addressspace->indexOfSegment(&startsegment);
 
-    m_lastempty = false;
+    m_needsempty = false;
 
     for( ; (segmentidx < addressspace->size()) && canupdate(segment.address); segmentidx++)
     {

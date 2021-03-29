@@ -59,6 +59,7 @@ class Renderer: public Object
 
     public: // SurfaceRenderer Methods
         void renderSegment();
+        void renderSeparator();
         void renderInstruction();
         void renderLocation();
         void renderFunction();

@@ -60,6 +60,7 @@ class SurfaceRenderer: public Object
     private:
         inline Renderer createLine(rd_address address);
         inline void createEmptyLine(rd_address address);
+        inline void createSeparator(rd_address address);
         void update(const CanUpdateCallback& canupdate);
         SurfaceRow& insertRow(rd_address address);
 
@@ -72,18 +73,24 @@ class SurfaceRenderer: public Object
         mutable std::mutex m_mutex;
         mutable std::vector<RDSurfaceCell> m_reqrows;
         std::unordered_map<rd_address, LastState> m_laststate;
-        int m_lastcolumn{0}, m_lastempty{false};
+        int m_lastcolumn{0}, m_needsempty{false};
         rd_flag m_flags;
 };
 
 inline Renderer SurfaceRenderer::createLine(rd_address address) {
-    m_lastempty = false;
+    m_needsempty = true;
     return Renderer(this, this->insertRow(address), m_flags);
 }
 
 inline void SurfaceRenderer::createEmptyLine(rd_address address) {
-    if(this->hasFlag(RendererFlags_NoEmptyLine) || m_lastempty) return;
+    if(this->hasFlag(RendererFlags_NoEmptyLine) || !m_needsempty) return;
     this->createLine(address);
-    m_lastempty = true;
+    m_needsempty = false;
+}
+
+inline void SurfaceRenderer::createSeparator(rd_address address) {
+    if(this->hasFlag(RendererFlags_NoSeparatorsLine)) return;
+    this->createLine(address).renderSeparator();
+    m_needsempty = false;
 }
 

@@ -127,7 +127,7 @@ void Renderer::renderSegment()
     }
 }
 
-void Renderer::renderSeparator() { this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_Comment); }
+void Renderer::renderSeparator() { this->chunk(std::string(SEPARATOR_LENGTH, '-'), Theme_AutoComment); }
 
 void Renderer::renderInstruction()
 {
@@ -331,17 +331,14 @@ void Renderer::renderComments()
     std::string usercomments = Utils::join(Utils::split(this->document()->getComments(this->address()), '\n'), COMMENT_SEPARATOR);
     if(autocomments.empty() && usercomments.empty()) return;
 
-    std::string comments;
-    if(!autocomments.empty()) comments += autocomments;
+    this->chunk(std::string(INDENT_COMMENT, ' '));
+    if(!autocomments.empty()) this->chunk(Utils::simplified(autocomments), Theme_AutoComment);
 
     if(!usercomments.empty())
     {
-        if(!comments.empty()) comments += COMMENT_SEPARATOR;
-        comments += usercomments;
+        if(!autocomments.empty()) this->chunk(COMMENT_SEPARATOR);
+        this->chunk("# ", Theme_Comment).chunk(Utils::simplified(usercomments), Theme_Comment);
     }
-
-    this->chunk(std::string(INDENT_COMMENT, ' '));
-    this->chunk(Utils::simplified(comments), Theme_Comment);
 }
 
 void Renderer::compileParams(RDRendererParams* srp)

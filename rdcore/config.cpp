@@ -74,8 +74,8 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_EntryBg:           m_themecolors.entrybg = color; break;
         case Theme_GraphBg:           m_themecolors.graphbg = color; break;
         case Theme_GraphEdge:         m_themecolors.graphedge = color; break;
-        case Theme_GraphEdgeTrue:     m_themecolors.graphedgetrue = color; break;
-        case Theme_GraphEdgeFalse:    m_themecolors.graphedgefalse = color; break;
+        case Theme_StateTrue:     m_themecolors.graphedgetrue = color; break;
+        case Theme_StateFalse:    m_themecolors.graphedgefalse = color; break;
         case Theme_GraphEdgeLoop:     m_themecolors.graphedgeloop = color; break;
         case Theme_GraphEdgeLoopCond: m_themecolors.graphedgeloopcond = color; break;
         default: break;
@@ -135,8 +135,8 @@ const char* Config::theme(rd_type theme) const
         case Theme_EntryBg:           return Config::themeAlt(m_themecolors.entrybg, m_themecolors.bg);
         case Theme_GraphBg:           return Config::themeAlt(m_themecolors.graphbg, m_themecolors.bg);
         case Theme_GraphEdge:         return Config::themeAlt(m_themecolors.graphedge, m_themecolors.fg);
-        case Theme_GraphEdgeTrue:     return Config::themeAlt(m_themecolors.graphedgetrue, m_themecolors.fg);
-        case Theme_GraphEdgeFalse:    return Config::themeAlt(m_themecolors.graphedgefalse, m_themecolors.fg);
+        case Theme_StateTrue:     return Config::themeAlt(m_themecolors.graphedgetrue, m_themecolors.fg);
+        case Theme_StateFalse:    return Config::themeAlt(m_themecolors.graphedgefalse, m_themecolors.fg);
         case Theme_GraphEdgeLoop:     return Config::themeAlt(m_themecolors.graphedgeloop, m_themecolors.fg);
         case Theme_GraphEdgeLoopCond: return Config::themeAlt(m_themecolors.graphedgeloopcond, m_themecolors.fg);
         default: break;

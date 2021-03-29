@@ -28,5 +28,5 @@ rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
     return (it != m_themes.end()) ? it->second : Theme_Default;
 }
 
-void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeFalse; }
-void FunctionBasicBlock::bTrue(RDGraphNode n) { m_themes[n] = Theme_GraphEdgeTrue; }
+void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_StateFalse; }
+void FunctionBasicBlock::bTrue(RDGraphNode n) { m_themes[n] = Theme_StateTrue; }

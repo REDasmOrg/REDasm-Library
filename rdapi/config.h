@@ -13,7 +13,8 @@ enum RDTheme {
     Theme_String, Theme_Label, Theme_Data, Theme_Pointer, Theme_Import,
     Theme_Nop, Theme_Ret, Theme_Call, Theme_Jump, Theme_JumpCond,
     Theme_EntryFg, Theme_EntryBg,
-    Theme_GraphBg, Theme_GraphEdge, Theme_GraphEdgeTrue, Theme_GraphEdgeFalse, Theme_GraphEdgeLoop, Theme_GraphEdgeLoopCond
+    Theme_StateTrue, Theme_StateFalse,
+    Theme_GraphBg, Theme_GraphEdge, Theme_GraphEdgeLoop, Theme_GraphEdgeLoopCond
 };
 
 struct RDUI;

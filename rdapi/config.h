@@ -4,7 +4,8 @@
 
 enum RDTheme {
     Theme_Default = 0,
-    Theme_Foreground, Theme_Background, Theme_Seek, Theme_Comment, Theme_Meta,
+    Theme_Foreground, Theme_Background, Theme_Seek,
+    Theme_AutoComment, Theme_Comment,
     Theme_HighlightFg, Theme_HighlightBg,
     Theme_SelectionFg, Theme_SelectionBg,
     Theme_CursorFg, Theme_CursorBg,

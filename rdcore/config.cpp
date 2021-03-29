@@ -47,7 +47,7 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_Background:        m_themecolors.bg = color; break;
         case Theme_Seek:              m_themecolors.seek = color; break;
         case Theme_Comment:           m_themecolors.comment = color; break;
-        case Theme_Meta:              m_themecolors.meta = color; break;
+        case Theme_AutoComment:       m_themecolors.autocomment = color; break;
         case Theme_HighlightFg:       m_themecolors.highlightfg = color; break;
         case Theme_HighlightBg:       m_themecolors.highlightbg = color; break;
         case Theme_SelectionFg:       m_themecolors.selectionfg = color; break;
@@ -61,10 +61,10 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_Constant:          m_themecolors.constant = color; break;
         case Theme_Reg:               m_themecolors.reg = color; break;
         case Theme_String:            m_themecolors.string = color; break;
-        case Theme_Label:            m_themecolors.symbol = color; break;
+        case Theme_Label:             m_themecolors.symbol = color; break;
         case Theme_Data:              m_themecolors.data = color; break;
         case Theme_Pointer:           m_themecolors.pointer = color; break;
-        case Theme_Import:          m_themecolors.imported = color; break;
+        case Theme_Import:            m_themecolors.imported = color; break;
         case Theme_Nop:               m_themecolors.nop = color; break;
         case Theme_Ret:               m_themecolors.ret = color; break;
         case Theme_Call:              m_themecolors.call = color; break;
@@ -74,8 +74,8 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_EntryBg:           m_themecolors.entrybg = color; break;
         case Theme_GraphBg:           m_themecolors.graphbg = color; break;
         case Theme_GraphEdge:         m_themecolors.graphedge = color; break;
-        case Theme_StateTrue:     m_themecolors.graphedgetrue = color; break;
-        case Theme_StateFalse:    m_themecolors.graphedgefalse = color; break;
+        case Theme_StateTrue:         m_themecolors.statetrue = color; break;
+        case Theme_StateFalse:        m_themecolors.statefalse = color; break;
         case Theme_GraphEdgeLoop:     m_themecolors.graphedgeloop = color; break;
         case Theme_GraphEdgeLoopCond: m_themecolors.graphedgeloopcond = color; break;
         default: break;
@@ -108,7 +108,7 @@ const char* Config::theme(rd_type theme) const
         case Theme_Background:        return m_themecolors.bg.c_str();
         case Theme_Seek:              return Config::themeAlt(m_themecolors.seek, m_themecolors.bg);
         case Theme_Comment:           return Config::themeAlt(m_themecolors.comment, m_themecolors.fg);
-        case Theme_Meta:              return Config::themeAlt(m_themecolors.meta, m_themecolors.fg);
+        case Theme_AutoComment:       return Config::themeAlt(m_themecolors.autocomment, m_themecolors.fg);
         case Theme_HighlightFg:       return Config::themeAlt(m_themecolors.highlightfg, m_themecolors.fg);
         case Theme_HighlightBg:       return Config::themeAlt(m_themecolors.highlightbg, m_themecolors.bg);
         case Theme_SelectionFg:       return Config::themeAlt(m_themecolors.selectionfg, m_themecolors.fg);
@@ -120,10 +120,10 @@ const char* Config::theme(rd_type theme) const
         case Theme_Type:              return Config::themeAlt(m_themecolors.type, m_themecolors.fg);
         case Theme_Address:           return Config::themeAlt(m_themecolors.address, m_themecolors.fg);
         case Theme_String:            return Config::themeAlt(m_themecolors.string, m_themecolors.fg);
-        case Theme_Label:            return Config::themeAlt(m_themecolors.symbol, m_themecolors.fg);
+        case Theme_Label:             return Config::themeAlt(m_themecolors.symbol, m_themecolors.fg);
         case Theme_Data:              return Config::themeAlt(m_themecolors.data, m_themecolors.fg);
         case Theme_Pointer:           return Config::themeAlt(m_themecolors.pointer, m_themecolors.fg);
-        case Theme_Import:          return Config::themeAlt(m_themecolors.imported, m_themecolors.fg);
+        case Theme_Import:            return Config::themeAlt(m_themecolors.imported, m_themecolors.fg);
         case Theme_Constant:          return Config::themeAlt(m_themecolors.constant, m_themecolors.fg);
         case Theme_Reg:               return Config::themeAlt(m_themecolors.reg, m_themecolors.fg);
         case Theme_Nop:               return Config::themeAlt(m_themecolors.nop, m_themecolors.fg);
@@ -135,10 +135,10 @@ const char* Config::theme(rd_type theme) const
         case Theme_EntryBg:           return Config::themeAlt(m_themecolors.entrybg, m_themecolors.bg);
         case Theme_GraphBg:           return Config::themeAlt(m_themecolors.graphbg, m_themecolors.bg);
         case Theme_GraphEdge:         return Config::themeAlt(m_themecolors.graphedge, m_themecolors.fg);
-        case Theme_StateTrue:     return Config::themeAlt(m_themecolors.graphedgetrue, m_themecolors.fg);
-        case Theme_StateFalse:    return Config::themeAlt(m_themecolors.graphedgefalse, m_themecolors.fg);
         case Theme_GraphEdgeLoop:     return Config::themeAlt(m_themecolors.graphedgeloop, m_themecolors.fg);
         case Theme_GraphEdgeLoopCond: return Config::themeAlt(m_themecolors.graphedgeloopcond, m_themecolors.fg);
+        case Theme_StateTrue:         return Config::themeAlt(m_themecolors.statetrue, m_themecolors.fg);
+        case Theme_StateFalse:        return Config::themeAlt(m_themecolors.statefalse, m_themecolors.fg);
         default: break;
     }
 

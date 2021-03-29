@@ -26,7 +26,8 @@ struct CallbackStruct
 
 struct ThemeColors
 {
-    std::string fg{"#000000"}, bg{"#ffffff"}, seek, comment, meta;
+    std::string fg{"#000000"}, bg{"#ffffff"}, seek;
+    std::string comment, autocomment;
     std::string highlightfg, highlightbg;
     std::string selectionfg, selectionbg;
     std::string cursorfg, cursorbg;
@@ -35,7 +36,8 @@ struct ThemeColors
     std::string string, symbol, data, pointer, imported;
     std::string nop, ret, call, jump, jumpcond;
     std::string entryfg, entrybg;
-    std::string graphbg, graphedge, graphedgetrue, graphedgefalse, graphedgeloop, graphedgeloopcond;
+    std::string statetrue, statefalse;
+    std::string graphbg, graphedge, graphedgeloop, graphedgeloopcond;
 };
 
 class Config

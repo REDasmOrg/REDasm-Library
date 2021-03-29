@@ -84,6 +84,7 @@ class Document: public Object
         u8* addrpointer(rd_address address) const;
         u8* offspointer(rd_offset offset) const;
         bool isAddress(rd_address address) const;
+        bool isBasicBlockTail(rd_address address) const;
 
     public:
         bool findLabel(const std::string& q, rd_address* resaddress) const;

@@ -15,6 +15,10 @@ class FunctionContainer: public AddressContainer<FunctionGraphPtr>
         FunctionContainer() = default;
         FunctionGraph* getGraph(rd_address address) const;
         RDLocation getFunction(rd_address address) const;
-        const FunctionBasicBlock* findBasicBlock(rd_address address) const;
+        bool isBasicBlockTail(rd_address address) const;
+        void invalidateGraphs();
+
+    private:
+        mutable FunctionGraph* m_lastgraph{nullptr};
 };
 

@@ -179,6 +179,7 @@ u8* Document::filepointer(rd_offset offset) const { return (offset < m_buffer->s
 u8* Document::addrpointer(rd_address address) const { return m_addressspace.addrpointer(address); }
 u8* Document::offspointer(rd_offset offset) const { return m_addressspace.offspointer(offset); }
 bool Document::isAddress(rd_address address) const { return this->addressToSegment(address, nullptr); }
+bool Document::isBasicBlockTail(rd_address address) const { return m_functions.isBasicBlockTail(address); }
 bool Document::setUnknown(rd_address address, size_t size) { return m_addressspace.markUnknown(address, size); }
 
 bool Document::setData(rd_address address, size_t size, const std::string& label)
@@ -396,7 +397,7 @@ std::string Document::getHexDump(rd_address address, size_t size) const
     return hexdump.c_str();
 }
 
-void Document::invalidateGraphs() { m_functions.clearValues(); }
+void Document::invalidateGraphs() { m_functions.invalidateGraphs(); }
 
 size_t Document::checkString(rd_address address, rd_flag* resflags)
 {

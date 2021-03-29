@@ -194,36 +194,9 @@ void Engine::analyzeAll()
 void Engine::generateCfg(rd_address address)
 {
     auto g = std::make_unique<FunctionGraph>(this->context());
-    bool cfgdone = false;
 
-    // Build CFG
-    cfgdone = g->build(address);
-
-    if(cfgdone) // Apply CFG
-    {
-        auto& doc = this->context()->document();
-        const RDGraphNode* nodes = nullptr;
-        size_t tailaddress = 0, c = g->nodes(&nodes);
-
-        // Add basic block separators to listing
-        for(size_t i = 0; (c > 1) && (i < c - 1); i++)
-        {
-            const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[i])->p_data);
-            if(!fbb) continue;
-
-            if(fbb->endaddress > tailaddress) tailaddress = fbb->endaddress;
-            //FIXME: doc->separator(item.address);
-        }
-
-        if(!tailaddress && c) // Try to get the first block
-        {
-            const FunctionBasicBlock* fbb = reinterpret_cast<const FunctionBasicBlock*>(g->data(nodes[0])->p_data);
-            if(fbb) tailaddress = fbb->endaddress;
-        }
-
-        //FIXME: if(tailaddress) doc->empty(tailaddress);
-        doc->setGraph(g.release());
-    }
+    if(g->build(address)) // Build & Apply CFG
+        this->context()->document()->setGraph(g.release());
     else
         this->context()->problem("Graph creation failed @ " + Utils::hex(address));
 }

@@ -154,8 +154,8 @@ void Renderer::renderFunction()
 
 void Renderer::renderString()
 {
-    this->renderInstrIndent(std::string());
-    this->renderLabelIndent();
+    this->renderLabel();
+    this->chunk(" ");
 
     RDBlock block;
 

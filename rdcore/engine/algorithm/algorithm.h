@@ -1,14 +1,12 @@
 #pragma once
 
 #include <optional>
-#include <rdapi/buffer.h>
 #include "../../document/document_fwd.h"
 #include "../../support/safe_ptr.h"
 #include "../../object.h"
 #include "emulateresult.h"
 
 class DocumentNet;
-class EmulateResult;
 
 class Algorithm: public Object
 {

@@ -11,22 +11,23 @@ enum RDBlockType {
 };
 
 enum RDAddressFlags {
-    AddressFlags_None        = 0,
+    AddressFlags_None          = 0,
 
-    AddressFlags_Explored    = (1 << 0),
-    AddressFlags_Location    = (1 << 1),
-    AddressFlags_Exported    = (1 << 2),
-    AddressFlags_Imported    = (1 << 3),
-    AddressFlags_Function    = (1 << 4),
-    AddressFlags_AsciiString = (1 << 5),
-    AddressFlags_WideString  = (1 << 6),
-    AddressFlags_Pointer     = (1 << 7),
-    AddressFlags_NoReturn    = (1 << 8),
-    AddressFlags_Type        = (1 << 9),
-    AddressFlags_TypeField   = (1 << 10),
+    AddressFlags_Explored      = (1 << 0),
+    AddressFlags_Location      = (1 << 1),
+    AddressFlags_Exported      = (1 << 2),
+    AddressFlags_Imported      = (1 << 3),
+    AddressFlags_Function      = (1 << 4),
+    AddressFlags_AsciiString   = (1 << 5),
+    AddressFlags_WideString    = (1 << 6),
+    AddressFlags_Pointer       = (1 << 7),
+    AddressFlags_NoReturn      = (1 << 8),
+    AddressFlags_Type          = (1 << 9),
+    AddressFlags_TypeField     = (1 << 10),
+    AddressFlags_TypeEnd       = (1 << 11),
     AddressFlags_Length,
 
-    AddressFlags_String      = AddressFlags_AsciiString | AddressFlags_WideString,
+    AddressFlags_String        = AddressFlags_AsciiString | AddressFlags_WideString,
 };
 
 typedef struct RDBlock { // [start, end)

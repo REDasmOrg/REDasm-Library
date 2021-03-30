@@ -294,6 +294,10 @@ void Document::setTypeFields(rd_address address, const Type* type, int indent)
             auto loc = this->dereference(fieldaddress);
             if(loc.valid) this->checkLocation(fieldaddress, loc.address); // Check the pointed location...
             else this->checkLocation(address, fieldaddress);              // ...or just add a reference to the field
+
+            if(!indent && (f == st->fields().back().second))
+                m_addressspace.updateFlags(fieldaddress, AddressFlags_TypeEnd);
+
             fieldaddress += f->size();
         }
     }
@@ -305,8 +309,13 @@ void Document::setTypeFields(rd_address address, const Type* type, int indent)
         for(size_t i = 0; i < at->itemsCount(); i++)
         {
             this->setType(itemaddress, at->type());
+
+            if(!indent && i == (at->itemsCount() - 1))
+                m_addressspace.updateFlags(itemaddress, AddressFlags_TypeEnd);
+
             itemaddress += at->type()->size();
         }
+
     }
     else if(auto* st = dynamic_cast<const StringType*>(type))
     {

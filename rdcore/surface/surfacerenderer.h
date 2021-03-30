@@ -58,7 +58,7 @@ class SurfaceRenderer: public Object
 
     private:
         inline Renderer createLine(rd_address address);
-        inline void createEmptyLine(rd_address address);
+        inline void createEmptyLine(rd_address address, bool ignorestate = false);
         inline void createSeparator(rd_address address);
         void update(const CanUpdateCallback& canupdate);
         SurfaceRow& insertRow(rd_address address);
@@ -80,8 +80,8 @@ inline Renderer SurfaceRenderer::createLine(rd_address address) {
     return Renderer(this, this->insertRow(address), m_flags);
 }
 
-inline void SurfaceRenderer::createEmptyLine(rd_address address) {
-    if(this->hasFlag(RendererFlags_NoEmptyLine) || !m_needsempty) return;
+inline void SurfaceRenderer::createEmptyLine(rd_address address, bool ignorestate) {
+    if(this->hasFlag(RendererFlags_NoEmptyLine) || (!ignorestate && !m_needsempty)) return;
     this->createLine(address);
     m_needsempty = false;
 }

@@ -95,7 +95,7 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
         {
             case BlockType_Code: {
                 if(flags & AddressFlags_Function) {
-                    if((it->address != segment.address)) this->createEmptyLine(it->address);
+                    if((it->address != segment.address)) this->createEmptyLine(it->address, true);
                     if(!this->hasFlag(RendererFlags_NoFunctionLine)) this->createLine(it->address).renderFunction();
                 }
                 else if(flags & AddressFlags_Location) {

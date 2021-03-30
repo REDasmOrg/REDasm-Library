@@ -47,14 +47,16 @@ void Algorithm::disassemble()
     while(this->hasNext())
     {
         this->next();
-        //std::this_thread::yield();
+        std::this_thread::yield();
     }
 }
 
 void Algorithm::next()
 {
-    rd_address address;
-    if(!this->getNext(&address)) return;
+    if(m_pending.empty()) return;
+
+    rd_address address = m_pending.front();
+    m_pending.pop_front();
     this->nextAddress(address);
 }
 
@@ -237,15 +239,6 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
     }
 
     return std::nullopt;
-}
-
-bool Algorithm::getNext(rd_address* address)
-{
-    if(m_pending.empty()) return false;
-
-    *address = m_pending.front();
-    m_pending.pop_front();
-    return true;
 }
 
 bool Algorithm::isAddressValid(rd_address address) const

@@ -19,16 +19,13 @@ class Algorithm: public Object
         void schedule(rd_address address);
         void disassembleBlock(const RDBlock* block);
         void disassemble();
-        void next();
-
-    protected:
-        void nextAddress(rd_address address);
 
     private:
         std::optional<rd_address> decode(rd_address address);
         std::optional<rd_address> decode(RDBufferView* view, EmulateResult* result);
-        bool getNext(rd_address* address);
         bool isAddressValid(rd_address address) const;
+        void next();
+        void nextAddress(rd_address address);
         void processResult(EmulateResult* result);
         void processBranches(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment);
         void processCalls(rd_type forktype, rd_address fromaddress, const EmulateResult::Value& v, const RDSegment* segment);

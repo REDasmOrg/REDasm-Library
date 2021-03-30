@@ -6,9 +6,10 @@
 #include "../../context.h"
 #include <thread>
 
-Algorithm::Algorithm(Context* ctx): AddressQueue(ctx) { }
-void Algorithm::enqueue(rd_address address) { if(this->isAddressValid(address)) AddressQueue::enqueue(address); }
-void Algorithm::schedule(rd_address address) { if(this->isAddressValid(address)) AddressQueue::schedule(address); }
+Algorithm::Algorithm(Context* ctx): Object(ctx), m_document(ctx->document()), m_net(ctx->net()) { }
+bool Algorithm::hasNext() const { return !m_pending.empty(); }
+void Algorithm::enqueue(rd_address address) { if(this->isAddressValid(address)) m_pending.push_front(address); }
+void Algorithm::schedule(rd_address address) { if(this->isAddressValid(address)) m_pending.push_back(address); }
 
 void Algorithm::disassembleBlock(const RDBlock* block)
 {
@@ -46,8 +47,15 @@ void Algorithm::disassemble()
     while(this->hasNext())
     {
         this->next();
-        std::this_thread::yield();
+        //std::this_thread::yield();
     }
+}
+
+void Algorithm::next()
+{
+    rd_address address;
+    if(!this->getNext(&address)) return;
+    this->nextAddress(address);
 }
 
 rd_address Algorithm::processDelaySlots(rd_address address, size_t ds)
@@ -229,6 +237,15 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
     }
 
     return std::nullopt;
+}
+
+bool Algorithm::getNext(rd_address* address)
+{
+    if(m_pending.empty()) return false;
+
+    *address = m_pending.front();
+    m_pending.pop_front();
+    return true;
 }
 
 bool Algorithm::isAddressValid(rd_address address) const

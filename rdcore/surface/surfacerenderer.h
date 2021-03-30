@@ -1,6 +1,5 @@
 #pragma once
 
-#include <unordered_map>
 #include <functional>
 #include <vector>
 #include <deque>
@@ -72,7 +71,6 @@ class SurfaceRenderer: public Object
     private:
         mutable std::mutex m_mutex;
         mutable std::vector<RDSurfaceCell> m_reqrows;
-        std::unordered_map<rd_address, LastState> m_laststate;
         int m_lastcolumn{0}, m_needsempty{false};
         rd_flag m_flags;
 };

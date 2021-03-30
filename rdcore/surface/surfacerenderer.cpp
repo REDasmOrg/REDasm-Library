@@ -89,7 +89,6 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
 
     for( ; canupdate(it->address) && (it != blocks->end()); it++)
     {
-        auto& laststate = m_laststate[segment.address];
         rd_flag flags = addressspace->getFlags(it->address);
 
         switch(it->type)
@@ -119,20 +118,13 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
                 if(flags & AddressFlags_TypeField) this->createLine(it->address).renderTypeField();
                 else if(it->type == BlockType_String) this->createLine(it->address).renderString();
                 else this->createLine(it->address).renderData();
+                if(flags & AddressFlags_TypeEnd) this->createEmptyLine(it->address);
                 break;
             }
 
-            case BlockType_Unknown: {
-                if(laststate.flags && (flags != laststate.flags)) this->createEmptyLine(it->address);
-                this->createLine(it->address).renderUnknown(BlockContainer::size(std::addressof(*it)));
-                if(laststate.flags && (flags != laststate.flags)) this->createEmptyLine(it->address);
-                break;
-            }
-
+            case BlockType_Unknown: this->createLine(it->address).renderUnknown(BlockContainer::size(std::addressof(*it))); break;
             default: this->createLine(it->address).renderLine("Block #" + std::to_string(it->type)); break;
         }
-
-        laststate = {it->type, flags};
     }
 }
 
@@ -152,7 +144,6 @@ void SurfaceRenderer::updateSegments(const CanUpdateCallback& canupdate)
     {
         if(!addressspace->indexToSegment(segmentidx, &segment)) break;
 
-        m_laststate[segment.address] = { };
         rd_address startaddress = (segment == startsegment) ? m_range.first : segment.address;
         this->updateSegment(segment, startaddress, canupdate);
     }

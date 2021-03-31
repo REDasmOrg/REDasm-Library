@@ -64,11 +64,11 @@ const char* Disassembler::getFunctionHexDump(rd_address address, rd_address* res
     RDBufferView view;
     if(!this->getFunctionBytes(address, &view)) return nullptr;
 
-    //if(resaddress)
-    //{
-    //    this->document()->
-    //    && !this->document()->symbol(address, symbol)) return nullptr;
-    //}
+    if(resaddress)
+    {
+        auto loc = this->document()->functionStart(address);
+        *resaddress = loc.valid ? loc.address : RD_NVAL;
+    }
 
     hexdump = Utils::hexString(&view);
     return hexdump.c_str();

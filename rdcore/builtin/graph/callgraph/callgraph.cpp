@@ -17,7 +17,7 @@ void CallGraph::walk(rd_address address)
 CallGraphItem* CallGraph::walkFrom(rd_address address)
 {
     auto& doc = this->context()->document();
-    auto loc = doc->functionStart(address);
+    auto loc = doc->getFunctionStart(address);
     if(loc.valid) address = loc.address;
 
     auto* net = doc->net();

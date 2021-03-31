@@ -5,8 +5,6 @@
 
 RDContext* RDContext_Create() { return CPTR(RDContext, new Context()); }
 RDDatabase* RDContext_GetDatabase(const RDContext* ctx) { return CPTR(RDDatabase, CPTR(const Context, ctx)->database()); }
-RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->dereference(address); }
-RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->functionStart(address); }
 const RDEntryAssembler* RDContext_FindAssemblerEntry(const RDContext* ctx, const RDEntryLoader* entryloader) { return CPTR(const Context, ctx)->findAssemblerEntry(entryloader, nullptr); }
 bool RDContext_MatchLoader(const RDContext* ctx, const char* q) { return q ? CPTR(const Context, ctx)->matchLoader(q) : false; }
 bool RDContext_MatchAssembler(const RDContext* ctx, const char* q) { return q ? CPTR(const Context, ctx)->matchAssembler(q) : false; }
@@ -70,14 +68,6 @@ const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size)
 
 const char* RD_ReadString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readString(address, len); }
 const char16_t* RD_ReadWString(const RDContext* ctx, rd_address address, size_t* len) { return CPTR(const Context, ctx)->document()->readWString(address, len); }
-
-bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view)
-{
-    if(!block) return false;
-    auto& document = CPTR(const Context, ctx)->document();
-    return document->getView(block->address, BlockContainer::size(block), view);
-}
-
 u8* RD_FilePointer(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->filepointer(offset); }
 u8* RD_AddrPointer(const RDContext* ctx, rd_address address) { return CPTR(const Context, ctx)->document()->addrpointer(address); }
 u8* RD_Pointer(const RDContext* ctx, rd_offset offset) { return CPTR(const Context, ctx)->document()->offspointer(offset);  }

@@ -52,10 +52,7 @@ typedef void (*Callback_Analyzer)(const struct RDAnalyzer* analyzer, void* userd
 
 RD_API_EXPORT RDContext* RDContext_Create();
 RD_API_EXPORT RDDatabase* RDContext_GetDatabase(const RDContext* ctx);
-RD_API_EXPORT RDLocation RDContext_GetFunctionStart(const RDContext* ctx, rd_address address);
-RD_API_EXPORT RDLocation RDContext_Dereference(const RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, rd_address* resaddress);
-RD_API_EXPORT bool RDContext_GetBlockView(const RDContext* ctx, const RDBlock* block, RDBufferView* view);
 RD_API_EXPORT bool RDContext_MatchLoader(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_MatchAssembler(const RDContext* ctx, const char* q);
 RD_API_EXPORT bool RDContext_Bind(RDContext* ctx, const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);

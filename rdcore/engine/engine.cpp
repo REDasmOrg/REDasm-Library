@@ -85,7 +85,7 @@ void Engine::execute(size_t step)
 
 bool Engine::cfg(rd_address address)
 {
-    auto loc = this->context()->document()->functionStart(address);
+    auto loc = this->context()->document()->getFunctionStart(address);
     if(!loc.valid) return false;
     this->generateCfg(loc.address);
     return true;

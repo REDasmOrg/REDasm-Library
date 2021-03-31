@@ -7,8 +7,9 @@ static inline SafeDocument& docptr(RDDocument* d) { return *reinterpret_cast<Saf
 
 bool RDDocument_UpdateLabel(RDDocument* d, rd_address address, const char* label) { return label ? docptr(d)->updateLabel(address, label) : false; }
 void RDDocument_SetData(RDDocument* d, rd_address address, size_t size, const char* label) { docptr(d)->setData(address, size, label ? label : std::string()); }
-RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->functionStart(address); }
+RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address) { return docptr(d)->getFunctionStart(address); }
 RDLocation RDDocument_GetEntry(const RDDocument* d) { return docptr(d)->getEntry(); }
+RDLocation RDDocument_Dereference(const RDDocument* d, rd_address address) { return docptr(d)->dereference(address); }
 bool RDDocument_FindLabel(const RDDocument* d, const char* q, rd_address* resaddress) { return q ? docptr(d)->findLabel(q, resaddress) : false; }
 bool RDDocument_FindLabelR(const RDDocument* d, const char* q, rd_address* resaddress) { return q ? docptr(d)->findLabelR(q, resaddress) : false; }
 void RDDocument_SetTypeName(RDDocument* d, rd_address address, const char* q) { if(q) docptr(d)->setTypeName(address, q); }

@@ -66,7 +66,7 @@ const char* Disassembler::getFunctionHexDump(rd_address address, rd_address* res
 
     if(resaddress)
     {
-        auto loc = this->document()->functionStart(address);
+        auto loc = this->document()->getFunctionStart(address);
         *resaddress = loc.valid ? loc.address : RD_NVAL;
     }
 
@@ -78,7 +78,7 @@ bool Disassembler::encode(RDEncodedInstruction* encoded) const { return m_assemb
 
 bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const
 {
-    RDLocation loc = this->document()->functionStart(address);
+    RDLocation loc = this->document()->getFunctionStart(address);
     if(!loc.valid) return { };
 
     const auto* graph = this->document()->getGraph(loc.address);

@@ -56,3 +56,4 @@ RD_API_EXPORT size_t RDDocument_GetSegments(const RDDocument* d, const rd_addres
 RD_API_EXPORT size_t RDDocument_GetFunctions(const RDDocument* d, const rd_address** addresses);
 RD_API_EXPORT RDLocation RDDocument_GetFunctionStart(const RDDocument* d, rd_address address);
 RD_API_EXPORT RDLocation RDDocument_GetEntry(const RDDocument* d);
+RD_API_EXPORT RDLocation RDDocument_Dereference(const RDDocument* d, rd_address address);

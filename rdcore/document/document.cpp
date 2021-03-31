@@ -383,7 +383,7 @@ bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t s
 }
 
 FunctionGraph* Document::getGraph(rd_address address) const { return m_functions.getGraph(address); }
-RDLocation Document::functionStart(rd_address address) const { return m_functions.getFunction(address); }
+RDLocation Document::getFunctionStart(rd_address address) const { return m_functions.getFunction(address); }
 
 RDLocation Document::dereference(rd_address address) const
 {

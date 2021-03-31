@@ -95,9 +95,9 @@ class Document: public Object
         size_t checkTable(rd_address fromaddress, rd_address address, size_t size, const TableCallback& cb);
         bool checkPointer(rd_address fromaddress, rd_address address, size_t size, rd_address* firstaddress);
         FunctionGraph* getGraph(rd_address address) const;
-        RDLocation functionStart(rd_address address) const;
-        RDLocation dereference(rd_address address) const;
+        RDLocation getFunctionStart(rd_address address) const;
         std::string getHexDump(rd_address address, size_t size) const;
+        RDLocation dereference(rd_address address) const;
         void invalidateGraphs();
 
     private:

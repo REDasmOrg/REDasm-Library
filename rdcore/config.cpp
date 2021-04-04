@@ -74,10 +74,11 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_EntryBg:           m_themecolors.entrybg = color; break;
         case Theme_GraphBg:           m_themecolors.graphbg = color; break;
         case Theme_GraphEdge:         m_themecolors.graphedge = color; break;
-        case Theme_StateTrue:         m_themecolors.statetrue = color; break;
-        case Theme_StateFalse:        m_themecolors.statefalse = color; break;
         case Theme_GraphEdgeLoop:     m_themecolors.graphedgeloop = color; break;
         case Theme_GraphEdgeLoopCond: m_themecolors.graphedgeloopcond = color; break;
+        case Theme_Success:           m_themecolors.success = color; break;
+        case Theme_Fail:              m_themecolors.fail = color; break;
+        case Theme_Warning:           m_themecolors.warning = color; break;
         default: break;
     }
 }
@@ -137,8 +138,9 @@ const char* Config::theme(rd_type theme) const
         case Theme_GraphEdge:         return Config::themeAlt(m_themecolors.graphedge, m_themecolors.fg);
         case Theme_GraphEdgeLoop:     return Config::themeAlt(m_themecolors.graphedgeloop, m_themecolors.fg);
         case Theme_GraphEdgeLoopCond: return Config::themeAlt(m_themecolors.graphedgeloopcond, m_themecolors.fg);
-        case Theme_StateTrue:         return Config::themeAlt(m_themecolors.statetrue, m_themecolors.fg);
-        case Theme_StateFalse:        return Config::themeAlt(m_themecolors.statefalse, m_themecolors.fg);
+        case Theme_Success:           return Config::themeAlt(m_themecolors.success, m_themecolors.fg);
+        case Theme_Fail:              return Config::themeAlt(m_themecolors.fail, m_themecolors.fg);
+        case Theme_Warning:           return Config::themeAlt(m_themecolors.warning, m_themecolors.fg);
         default: break;
     }
 

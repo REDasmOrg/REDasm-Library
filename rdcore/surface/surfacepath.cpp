@@ -80,7 +80,7 @@ void SurfacePath::insertPath(rd_address fromaddress, rd_address toaddress)
     }
     else
     {
-        if(node->branchesfalse.size()) m_paths.push_back({ fromrow, torow, Theme_StateTrue });
+        if(node->branchesfalse.size()) m_paths.push_back({ fromrow, torow, Theme_Success });
         else m_paths.push_back({ fromrow, torow, Theme_GraphEdge });
     }
 }

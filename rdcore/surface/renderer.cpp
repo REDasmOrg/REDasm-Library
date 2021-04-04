@@ -332,7 +332,7 @@ void Renderer::renderComments()
     if(autocomments.empty() && usercomments.empty()) return;
 
     this->chunk(std::string(INDENT_COMMENT, ' '));
-    if(!autocomments.empty()) this->chunk(Utils::simplified(autocomments), Theme_AutoComment);
+    if(!autocomments.empty()) this->chunk(Utils::simplified(autocomments), Theme_Warning);
 
     if(!usercomments.empty())
     {

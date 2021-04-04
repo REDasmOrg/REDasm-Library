@@ -36,8 +36,8 @@ struct ThemeColors
     std::string string, symbol, data, pointer, imported;
     std::string nop, ret, call, jump, jumpcond;
     std::string entryfg, entrybg;
-    std::string statetrue, statefalse;
     std::string graphbg, graphedge, graphedgeloop, graphedgeloopcond;
+    std::string success, fail, warning;
 };
 
 class Config

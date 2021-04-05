@@ -42,5 +42,13 @@ class Endian
         static inline u32 fromlittleendian32(u32 hostval) { return fromlittleendian<u32>(hostval); }
         static inline u64 fromlittleendian64(u64 hostval) { return fromlittleendian<u64>(hostval); }
 
+    public: // Syntactic Sugar
+        static inline u16 tobigendian16(u16 hostval) { return frombigendian<u16>(hostval); }
+        static inline u32 tobigendian32(u32 hostval) { return frombigendian<u32>(hostval); }
+        static inline u64 tobigendian64(u64 hostval) { return frombigendian<u64>(hostval); }
+        static inline u16 tolittleendian16(u16 hostval) { return fromlittleendian<u16>(hostval); }
+        static inline u32 tolittleendian32(u32 hostval) { return fromlittleendian<u32>(hostval); }
+        static inline u64 tolittleendian64(u64 hostval) { return fromlittleendian<u64>(hostval); }
+
     static_assert(Endian::IsLittleEndian != Endian::IsBigEndian, "Unsupported platform endianness");
 };

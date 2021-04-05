@@ -13,6 +13,7 @@ bool MemoryBuffer::view(rd_offset offset, size_t size, RDBufferView* view) const
     return !BufferView::empty(view);
 }
 
+const RawData& MemoryBuffer::internalData() const { return m_data; }
 size_t MemoryBuffer::size() const { return m_data.size(); }
 u8* MemoryBuffer::data() { return m_data.data(); }
 

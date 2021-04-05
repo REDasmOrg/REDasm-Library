@@ -451,3 +451,9 @@ u8* AddressSpace::offspointer(rd_offset offset) const
     auto it = m_buffers.find(segment.address);
     return (it != m_buffers.end()) ? Utils::relpointer(const_cast<u8*>(it->second.data()), offset - segment.offset) : nullptr;
 }
+
+const MemoryBuffer* AddressSpace::getBuffer(rd_address address) const
+{
+    auto it = m_buffers.find(address);
+    return (it != m_buffers.end()) ? std::addressof(it->second) : nullptr;
+}

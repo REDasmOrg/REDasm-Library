@@ -82,6 +82,9 @@ class AddressSpace: public Object
         u8* addrpointer(rd_address address) const;
         u8* offspointer(rd_offset offset) const;
 
+    public: // Serialization
+        const MemoryBuffer* getBuffer(rd_address address) const;
+
     public:
         static size_t addressSize(const RDSegment& segment);
         static size_t offsetSize(const RDSegment& segment);

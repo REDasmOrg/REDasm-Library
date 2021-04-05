@@ -1,4 +1,5 @@
 #include "context.h"
+#include <rdcore/database/contextstate.h>
 #include <rdcore/document/document.h>
 #include <rdcore/disassembler.h>
 #include <rdcore/context.h>
@@ -82,4 +83,20 @@ const char* RD_MakeLabel(rd_address address, const char* prefix)
     static std::string s;
     s = Document::makeLabel(address, prefix ? prefix : std::string());
     return s.c_str();
+}
+
+bool RDContext_Save(RDContext* ctx, const char* filepath)
+{
+    if(!filepath) return false;
+
+    ContextState cs(CPTR(Context, ctx));
+    return cs.save(filepath);
+}
+
+bool RDContext_Load(RDContext* ctx, const char* filepath)
+{
+    if(!filepath) return false;
+
+    ContextState cs(CPTR(Context, ctx));
+    return cs.load(filepath);
 }

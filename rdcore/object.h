@@ -2,12 +2,15 @@
 
 #include <rdapi/events.h>
 #include <rdapi/object.h>
-#include <functional>
 #include <unordered_map>
+#include <functional>
+#include <vector>
 #include <string>
 
 #define CPTR(type, ptr) reinterpret_cast<type*>(ptr)
 #define CPTR_P(type, ptr) type* p = CPTR(type, ptr)
+
+typedef std::vector<u8> RawData;
 
 class Context;
 

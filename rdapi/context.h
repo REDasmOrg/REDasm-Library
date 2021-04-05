@@ -5,6 +5,8 @@
 #include "object.h"
 #include "types.h"
 
+#define CONTEXT_STATE_EXT ".rds"
+
 RD_HANDLE(RDContext);
 
 enum RDCompilerABI {
@@ -93,6 +95,8 @@ RD_API_EXPORT void RDContext_SetABI(RDContext* ctx, rd_type t);
 RD_API_EXPORT rd_type RDContext_GetABI(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetCC(RDContext* ctx, rd_type t);
 RD_API_EXPORT rd_type RDContext_GetCC(const RDContext* ctx);
+RD_API_EXPORT bool RDContext_Load(RDContext* ctx, const char* filepath);
+RD_API_EXPORT bool RDContext_Save(RDContext* ctx, const char* filepath);
 
 // Extra Functions
 RD_API_EXPORT const char* RD_MakeLabel(rd_address address, const char* prefix);

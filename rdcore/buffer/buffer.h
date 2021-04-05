@@ -3,6 +3,7 @@
 #include <vector>
 #include "abstract.h"
 #include "view.h"
+#include "../object.h"
 
 class MemoryBuffer: public AbstractBuffer
 {
@@ -12,13 +13,14 @@ class MemoryBuffer: public AbstractBuffer
         u8* data() override;
         void resize(size_t size);
         bool view(rd_offset offset, size_t size, RDBufferView* view) const;
+        const RawData& internalData() const;
 
     public:
         using AbstractBuffer::data;
         static MemoryBuffer* fromFile(const char* filename);
 
     private:
-        std::vector<u8> m_data;
+        RawData m_data;
 };
 
 typedef std::shared_ptr<MemoryBuffer> MemoryBufferPtr;

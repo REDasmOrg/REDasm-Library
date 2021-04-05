@@ -35,17 +35,17 @@ file(GLOB_RECURSE RDCORE_HEADERS
      rdcore/buffer/*.h* rdcore/builtin/*.h* rdcore/containers/*.h*
      rdcore/database/*.h* rdcore/document/*.h* rdcore/engine/*.h*
      rdcore/graph/*.h* rdcore/plugin/*.h* rdcore/rdil/*.h*
-     rdcore/surface/*.h* rdcore/support/*.h* rdcore/types/*.h*
-     rdcore/config.h rdcore/context.h
-     rdcore/disassembler.h rdcore/object.h)
+     rdcore/serializer/*.h* rdcore/surface/*.h*
+     rdcore/support/*.h* rdcore/types/*.h* rdcore/config.h
+     rdcore/context.h rdcore/disassembler.h rdcore/object.h)
 
 file(GLOB_RECURSE RDCORE_SOURCES
      rdcore/buffer/*.c* rdcore/builtin/*.c* rdcore/containers/*.c*
      rdcore/database/*.c* rdcore/document/*.c* rdcore/engine/*.c*
      rdcore/graph/*.c* rdcore/plugin/*.c* rdcore/rdil/*.c*
-     rdcore/surface/*.c* rdcore/support/*.c* rdcore/types/*.c*
-     rdcore/config.cpp rdcore/context.cpp
-     rdcore/disassembler.cpp rdcore/object.cpp)
+     rdcore/serializer/*.c* rdcore/surface/*.c*
+     rdcore/support/*.c* rdcore/types/*.c* rdcore/config.cpp
+     rdcore/context.cpp rdcore/disassembler.cpp rdcore/object.cpp)
 
 # API
 file(GLOB_RECURSE RDAPI_HEADERS rdapi/*.h*)

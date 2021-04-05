@@ -3,7 +3,7 @@
 
 #define CHUNK_SIZE 16384
 
-bool Compression::decompress(const Compression::Data& datain, Compression::Data& dataout)
+bool Compression::decompress(const RawData& datain, RawData& dataout)
 {
     if(datain.empty()) return false;
 
@@ -16,21 +16,21 @@ bool Compression::decompress(const Compression::Data& datain, Compression::Data&
     return res;
 }
 
-bool Compression::compressFile(const std::string& filepath, Compression::Data& dataout)
+bool Compression::compressFile(const std::string& filepath, RawData& dataout)
 {
-    Data data;
+    RawData data;
     if(!Compression::readFile(filepath, data)) return false;
     return Compression::compress(data, dataout);
 }
 
-bool Compression::decompressFile(const std::string& filepath, Compression::Data& dataout)
+bool Compression::decompressFile(const std::string& filepath, RawData& dataout)
 {
-    Data data;
+    RawData data;
     if(!Compression::readFile(filepath, data)) return false;
     return Compression::decompress(data, dataout);
 }
 
-bool Compression::readFile(const std::string& filepath, Compression::Data& data)
+bool Compression::readFile(const std::string& filepath, RawData& data)
 {
     std::ifstream stream(filepath, std::ios::in | std::ios::binary | std::ios::ate);
     if(!stream.is_open()) return false;
@@ -43,7 +43,7 @@ bool Compression::readFile(const std::string& filepath, Compression::Data& data)
     return true;
 }
 
-bool Compression::compress(const Compression::Data& datain, Compression::Data& dataout)
+bool Compression::compress(const RawData& datain, RawData& dataout)
 {
     if(datain.empty()) return false;
 
@@ -56,7 +56,7 @@ bool Compression::compress(const Compression::Data& datain, Compression::Data& d
     return res;
 }
 
-bool Compression::process(z_stream* zs, Compression::Data& dataout, const Compression::ZLibFunction& func, int funcarg)
+bool Compression::process(z_stream* zs, RawData& dataout, const Compression::ZLibFunction& func, int funcarg)
 {
     int res = 0;
 
@@ -76,7 +76,7 @@ bool Compression::process(z_stream* zs, Compression::Data& dataout, const Compre
     return res == Z_STREAM_END;
 }
 
-void Compression::prepare(z_stream* zs, const Compression::Data& datain, Compression::Data& dataout)
+void Compression::prepare(z_stream* zs, const RawData& datain, RawData& dataout)
 {
     dataout.resize(CHUNK_SIZE);
 

@@ -64,6 +64,7 @@ enum RDReferenceFlags {
     ReferenceFlags_Manual   = (1 << 2),
 };
 
+#pragma pack(push, 1)
 typedef struct RDReference {
     rd_address address;
     rd_flag flags;
@@ -77,6 +78,7 @@ typedef struct RDSegment {
     rd_address endaddress;
     rd_flag flags;
 } RDSegment;
+#pragma pack(pop)
 
 typedef struct RDAnalysisStatus {
     // General

@@ -7,12 +7,12 @@ bool Compression::decompress(const RawData& datain, RawData& dataout)
 {
     if(datain.empty()) return false;
 
-    z_stream zs;
+    mz_stream zs;
     Compression::prepare(&zs, datain, dataout);
-    if(inflateInit(&zs) != Z_OK) return false;
+    if(mz_inflateInit(&zs) != MZ_OK) return false;
 
-    bool res = Compression::process(&zs, dataout, ::inflate, 0);
-    inflateEnd(&zs);
+    bool res = Compression::process(&zs, dataout, ::mz_inflate, 0);
+    mz_inflateEnd(&zs);
     return res;
 }
 
@@ -47,45 +47,43 @@ bool Compression::compress(const RawData& datain, RawData& dataout)
 {
     if(datain.empty()) return false;
 
-    z_stream zs;
+    mz_stream zs;
     Compression::prepare(&zs, datain, dataout);
-    if(deflateInit(&zs, Z_BEST_COMPRESSION) != Z_OK) return false;
+    if(mz_deflateInit(&zs, MZ_BEST_COMPRESSION) != MZ_OK) return false;
 
-    bool res = Compression::process(&zs, dataout, ::deflate, Z_FINISH);
-    deflateEnd(&zs);
+    bool res = Compression::process(&zs, dataout, ::mz_deflate, MZ_FINISH);
+    mz_deflateEnd(&zs);
     return res;
 }
 
-bool Compression::process(z_stream* zs, RawData& dataout, const Compression::ZLibFunction& func, int funcarg)
+bool Compression::process(mz_stream* zs, RawData& dataout, const Compression::ZLibFunction& func, int funcarg)
 {
     int res = 0;
 
     do
     {
-        if(zs->total_out >= static_cast<uLong>(dataout.size())) dataout.resize(dataout.size() * 2);
+        if(zs->total_out >= static_cast<mz_ulong>(dataout.size())) dataout.resize(dataout.size() * 2);
 
-        zs->next_out = reinterpret_cast<Bytef*>(dataout.data() + zs->total_out);
-        zs->avail_out = static_cast<uInt>(dataout.size() - zs->total_out);
+        zs->next_out = reinterpret_cast<unsigned char*>(dataout.data() + zs->total_out);
+        zs->avail_out = static_cast<unsigned int>(dataout.size() - zs->total_out);
         res = func(zs, funcarg);
 
-        if(res == Z_STREAM_END) break;
+        if(res == MZ_STREAM_END) break;
     }
-    while(res == Z_OK);
+    while(res == MZ_OK);
 
     if(dataout.size() > zs->total_out) dataout.resize(zs->total_out);
-    return res == Z_STREAM_END;
+    return res == MZ_STREAM_END;
 }
 
-void Compression::prepare(z_stream* zs, const RawData& datain, RawData& dataout)
+void Compression::prepare(mz_stream* zs, const RawData& datain, RawData& dataout)
 {
     dataout.resize(CHUNK_SIZE);
 
-    zs->zalloc = Z_NULL;
-    zs->zfree = Z_NULL;
-    zs->opaque = Z_NULL;
-
-    zs->next_in = const_cast<Bytef*>(datain.data());
-    zs->avail_in = static_cast<uInt>(datain.size());
-
+    zs->zalloc = nullptr;
+    zs->zfree = nullptr;
+    zs->opaque = nullptr;
+    zs->next_in = const_cast<unsigned char*>(datain.data());
+    zs->avail_in = static_cast<unsigned int>(datain.size());
     zs->total_out = 0;
 }

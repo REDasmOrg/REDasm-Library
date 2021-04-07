@@ -6,12 +6,10 @@
 #include "../libs/miniz/miniz.h"
 #include "../object.h"
 
-#undef compress
-
 class Compression
 {
     private:
-        typedef int (*ZLibFunction)(z_stream*, int);
+        typedef int (*ZLibFunction)(mz_stream*, int);
 
     public:
         Compression() = delete;
@@ -24,6 +22,6 @@ class Compression
         static bool readFile(const std::string& filepath, RawData& data);
 
     private:
-        static bool process(z_stream* zs, RawData& dataout, const ZLibFunction& func, int funcarg);
-        static void prepare(z_stream* zs, const RawData& datain, RawData& dataout);
+        static bool process(mz_stream* zs, RawData& dataout, const ZLibFunction& func, int funcarg);
+        static void prepare(mz_stream* zs, const RawData& datain, RawData& dataout);
 };

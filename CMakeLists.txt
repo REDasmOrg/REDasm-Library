@@ -7,7 +7,7 @@ include(cmake/installdirs.cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 option(RDAPI_DOC "Build API Documentation" ON)
 option(ENABLE_TESTS "Enable Unit Testing" ON)
-add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}")
+add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}" -DMINIZ_NO_ZLIB_COMPATIBLE_NAMES)
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)

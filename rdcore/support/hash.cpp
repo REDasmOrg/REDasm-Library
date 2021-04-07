@@ -1,8 +1,6 @@
 #include "hash.h"
 #include "../libs/miniz/miniz.h"
 
-#undef crc32
-
 u16 Hash::crc16(const u8* data, size_t size)
 {
     u8 x;

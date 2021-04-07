@@ -1,7 +1,6 @@
 #include "contextstate.h"
 #include "../document/document.h"
 #include "../serializer/writer.h"
-#include "../support/compression.h"
 #include "../support/endian.h"
 #include "../context.h"
 #include <rdapi/level.h>
@@ -9,6 +8,7 @@
 #define CHUNK_CONTEXTSTATE "RDS"
 #define CHUNK_SEGMENTS     "SEG"
 #define CHUNK_SPACES       "SPACE"
+#define CHUNK_BLOCKS       "BLOCK"
 
 #pragma pack(push, 1)
 struct ContextStateHeader
@@ -67,9 +67,15 @@ void ContextState::serializeSegments(const SafeDocument& doc, SerializerWriter& 
         doc->addressToSegment(addresses[i], reinterpret_cast<RDSegment*>(chunkdata.data()));
         writer.push(CHUNK_SEGMENTS, chunkdata);
 
-        RawData compresseddata;
         auto* buffer = aspace->getBuffer(addresses[i]);
-        Compression::compress(buffer->internalData(), compresseddata);
-        writer.push(CHUNK_SPACES, compresseddata);
+        writer.push(CHUNK_SPACES, buffer->internalData());
+
+        auto* blocks = aspace->getBlocks(addresses[i]);
+
+        writer.push(CHUNK_BLOCKS, blocks->begin(), blocks->end(), [](const RDBlock* inb, RDBlock* outb) {
+            outb->type = Endian::tolittleendian32(inb->type);
+            outb->start = Endian::tolittleendian32(inb->start);
+            outb->end = Endian::tolittleendian32(inb->end);
+        });
     }
 }

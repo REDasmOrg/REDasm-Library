@@ -1,4 +1,5 @@
 #include "writer.h"
+#include "../support/compression.h"
 #include <rdcore/support/endian.h>
 #include <rdcore/support/hash.h>
 #include <fstream>
@@ -7,14 +8,26 @@ bool SerializerWriter::push(const std::string& id, const RawData& chdata)
 {
     if(id.empty() || chdata.empty()) return false;
 
-    ChunkHeader chdr = {
-        SerializerWriter::mktype(id),
-        Endian::tolittleendian32(Hash::crc32(chdata.data(), chdata.size())),
-        Endian::tolittleendian32(chdata.size()),
-        RD_NVAL
-    };
+    ChunkHeader chdr;
+    chdr.type = SerializerWriter::mktype(id);
+    chdr.checksum = Endian::tolittleendian32(Hash::crc32(chdata.data(), chdata.size()));
+    chdr.offset = RD_NVAL;
 
-    m_chunks.push_back({ chdr, chdata });
+    if(this->needsCompression(chdata.size())) // Compress
+    {
+        RawData compresseddata;
+        compresseddata.reserve(chdata.size()); // Preallocate some space
+        Compression::compress(chdata, compresseddata);
+
+        chdr.length = Endian::tolittleendian32(compresseddata.size()),
+        m_chunks.push_back({ chdr, compresseddata });
+    }
+    else
+    {
+        chdr.length = Endian::tolittleendian32(chdata.size()),
+        m_chunks.push_back({ chdr, chdata });
+    }
+
     return true;
 }
 
@@ -44,6 +57,8 @@ bool SerializerWriter::save(const std::string& filepath)
     ofs.write(reinterpret_cast<const char*>(&chunks), sizeof(u64));
     return true;
 }
+
+bool SerializerWriter::needsCompression(u32 size) { return size > sizeof(u64); }
 
 u32 SerializerWriter::mktype(const std::string& s)
 {

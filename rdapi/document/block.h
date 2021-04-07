@@ -30,6 +30,7 @@ enum RDAddressFlags {
     AddressFlags_String        = AddressFlags_AsciiString | AddressFlags_WideString,
 };
 
+#pragma pack(push, 1)
 typedef struct RDBlock { // [start, end)
     union {
         rd_address start;
@@ -39,6 +40,7 @@ typedef struct RDBlock { // [start, end)
     rd_address end;
     rd_type type;
 } RDBlock;
+#pragma pack(pop)
 
 RD_API_EXPORT bool RDBlock_Contains(const RDBlock* b, rd_address address);
 RD_API_EXPORT size_t RDBlock_Empty(const RDBlock* b);

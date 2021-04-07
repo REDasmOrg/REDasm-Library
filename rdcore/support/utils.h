@@ -194,7 +194,7 @@ std::string Utils::hexSigned(T value, size_t bits, bool withprefix)
 
     if(negative) {
         if(withprefix) return "-0x" + result;
-        else "-" + result;
+        else return "-" + result;
     }
 
     return withprefix ? ("0x" + result) : result;

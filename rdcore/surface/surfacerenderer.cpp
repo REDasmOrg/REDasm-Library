@@ -216,7 +216,7 @@ void SurfaceRenderer::resize(int rows, int cols)
         return this->lastRow() < m_nrows;
     });
 
-    m_range.second = m_rows.empty() ? m_range.first : m_rows[this->lastRow()].address;
+    m_range.second = m_rows.empty() ? m_range.first : m_rows[this->lastRow() - 1].address;
 }
 
 RDSurfaceCell& SurfaceRenderer::cell(int row, int col) { return m_rows[row].cells.at(col); }

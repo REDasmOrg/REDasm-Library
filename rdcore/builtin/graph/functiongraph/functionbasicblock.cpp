@@ -25,7 +25,7 @@ size_t FunctionBasicBlock::itemsCount() const
 rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
 {
     auto it = m_themes.find(n);
-    return (it != m_themes.end()) ? it->second : Theme_Default;
+    return (it != m_themes.end()) ? it->second : Theme_GraphEdge;
 }
 
 void FunctionBasicBlock::bFalse(RDGraphNode n) { m_themes[n] = Theme_Fail; }

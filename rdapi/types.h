@@ -116,3 +116,5 @@ RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);
 RD_API_EXPORT size_t RDSegment_Size(const RDSegment* s);
 RD_API_EXPORT bool RDSegment_ContainsAddress(const RDSegment* s, rd_address address);
 RD_API_EXPORT bool RDSegment_ContainsOffset(const RDSegment* s, rd_offset offset);
+RD_API_EXPORT u64 ULEB128_Decode(const u8* uleb128, size_t* c);
+RD_API_EXPORT s64 LEB128_Decode(const u8* leb128, size_t size, size_t* c);

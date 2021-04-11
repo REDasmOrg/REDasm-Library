@@ -220,6 +220,49 @@ size_t& Utils::hashCombine(size_t& s, size_t v)
     return s;
 }
 
+u64 Utils::uleb128Decode(const u8* uleb128, size_t* c)
+{
+    u64 result = 0, shift = 0;
+    size_t i = 0;
+    u8 b = 0;
+
+    do
+    {
+        u8 b = *uleb128;
+        result |= (b & 0x7f) << shift;
+        shift += 7;
+        i++;
+    }
+    while(b & 0x80);
+
+    if(c) *c = i;
+    return result;
+}
+
+s64 Utils::leb128Decode(const u8* leb128, size_t size, size_t* c)
+{
+    size *= CHAR_BIT;
+
+    u64 result = 0, shift = 0;
+    size_t i = 0;
+    u8 b = 0;
+
+    do
+    {
+        b = *leb128;
+        result |= (b & 0x7f) << shift;
+        shift += 7;
+        i++;
+    }
+    while(b & 0x80);
+
+    if((shift < size) && (b & 0x40)) // Sign Extend
+        result |= (~0u << shift);
+
+    if(c) *c = i;
+    return static_cast<s64>(result);
+}
+
 std::string& Utils::replaceAll(std::string& s, const std::string& from, const std::string& to)
 {
     size_t pos = s.find(from);

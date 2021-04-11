@@ -46,6 +46,8 @@ class Utils
         static bool matchWildcard(const std::string& s, const std::string& wc);
         static bool matchRegex(const std::string& s, const std::string& rgx);
         static size_t& hashCombine(size_t& s, size_t v);
+        static u64 uleb128Decode(const u8* uleb128, size_t* c);
+        static s64 leb128Decode(const u8* leb128, size_t size, size_t* c);
 
     public:
         template<typename Container> static std::string join(const Container& c, const char* sep);

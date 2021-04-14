@@ -228,7 +228,7 @@ u64 Utils::uleb128Decode(const u8* uleb128, size_t* c)
 
     do
     {
-        u8 b = *uleb128;
+        b = *(uleb128 + i);
         result |= (b & 0x7f) << shift;
         shift += 7;
         i++;
@@ -249,7 +249,7 @@ s64 Utils::leb128Decode(const u8* leb128, size_t size, size_t* c)
 
     do
     {
-        b = *leb128;
+        b = *(leb128 + i);
         result |= (b & 0x7f) << shift;
         shift += 7;
         i++;

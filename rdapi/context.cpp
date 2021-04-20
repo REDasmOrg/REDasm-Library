@@ -100,3 +100,21 @@ bool RDContext_Load(RDContext* ctx, const char* filepath)
     ContextState cs(CPTR(Context, ctx));
     return cs.load(filepath);
 }
+
+const char* RD_Quoted(const char* s)
+{
+    if(!s) return nullptr;
+
+    static std::string res;
+    res = Utils::quoted(s);
+    return res.c_str();
+}
+
+const char* RD_QuotedSingle(const char* s)
+{
+    if(!s) return nullptr;
+
+    static std::string res;
+    res = Utils::quotedSingle(s);
+    return res.c_str();
+}

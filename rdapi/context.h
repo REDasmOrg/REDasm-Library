@@ -99,6 +99,8 @@ RD_API_EXPORT bool RDContext_Load(RDContext* ctx, const char* filepath);
 RD_API_EXPORT bool RDContext_Save(RDContext* ctx, const char* filepath);
 
 // Extra Functions
+RD_API_EXPORT const char* RD_Quoted(const char* s);
+RD_API_EXPORT const char* RD_QuotedSingle(const char* s);
 RD_API_EXPORT const char* RD_MakeLabel(rd_address address, const char* prefix);
 RD_API_EXPORT const char* RD_FromWString(const char16_t* s, size_t* len);
 RD_API_EXPORT const char* RD_HexDump(const RDContext* ctx, rd_address address, size_t size);
@@ -117,4 +119,6 @@ RD_API_EXPORT bool RD_IsAddress(const RDContext* ctx, rd_address address);
   #include <string>
   #define rdcontext_addproblem(ctx, s) RDContext_AddProblem(ctx, std::string(s).c_str())
   #define rd_makelabel(ctx, s) RD_MakeLabel(ctx, std::string(s).c_str())
+  #define rd_quotedsingle(s) std::string(RD_QuotedSingle(s))
+  #define rd_quoted(s) std::string(RD_Quoted(s))
 #endif

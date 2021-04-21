@@ -14,7 +14,7 @@ class EmulateResult: public Object
             Invalid,
             Branch, BranchTrue, BranchFalse, BranchTable, BranchIndirect, BranchUnresolved,
             Call, CallTable, CallIndirect, CallUnresolved,
-            Return, SysCall, Ref, Table
+            Return, SysCall, Ref, RefString, Table
         };
 
         struct Value {
@@ -56,6 +56,8 @@ class EmulateResult: public Object
         void addCallTable(rd_address address, size_t size);
         void addReference(rd_address address);
         void addReferenceSize(rd_address address, size_t size);
+        void addString(rd_address address);
+        void addStringSize(rd_address address, size_t size);
         void addTable(rd_address address, size_t size);
         void addInvalid(size_t size);
 

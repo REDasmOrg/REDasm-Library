@@ -23,6 +23,8 @@ void EmulateResult::addCallIndirect() { m_results.push_back({CallIndirect, {{0},
 void EmulateResult::addCallUnresolved() { m_results.push_back({CallUnresolved, {{0}, RD_NVAL}}); }
 void EmulateResult::addCallTable(rd_address address, size_t size) { m_results.push_back({CallTable, {{address}, size }}); }
 void EmulateResult::addReferenceSize(rd_address address, size_t size) { m_results.push_back({Ref, {{address}, size}}); }
+void EmulateResult::addString(rd_address address) { this->addStringSize(address, RD_NVAL); }
+void EmulateResult::addStringSize(rd_address address, size_t size) { m_results.push_back({RefString, {{address}, size}}); }
 void EmulateResult::addTable(rd_address address, size_t size) { m_results.push_back({Table, {{address}, size}}); }
 void EmulateResult::addReference(rd_address address) { this->addReferenceSize(address, RD_NVAL); }
 void EmulateResult::addInvalid(size_t size) { m_invalid = true; m_size = size; }

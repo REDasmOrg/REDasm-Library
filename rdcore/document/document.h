@@ -92,6 +92,7 @@ class Document: public Object
         size_t findLabels(const std::string& q, const rd_address** resaddresses) const;
         size_t findLabelsR(const std::string& q, const rd_address** resaddresses) const;
         rd_address checkLocation(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
+        void checkString(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
         size_t checkTable(rd_address fromaddress, rd_address address, size_t size, const TableCallback& cb);
         bool checkPointer(rd_address fromaddress, rd_address address, size_t size, rd_address* firstaddress);
         FunctionGraph* getGraph(rd_address address) const;

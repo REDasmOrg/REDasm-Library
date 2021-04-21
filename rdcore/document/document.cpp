@@ -261,6 +261,19 @@ rd_address Document::checkLocation(rd_address fromaddress, rd_address address, s
     return resaddress;
 }
 
+void Document::checkString(rd_address fromaddress, rd_address address, size_t size)
+{
+    RDBufferView view;
+    if(!this->getView(address, size, &view)) return;
+
+    size_t totalsize = 0;
+    rd_flag flags = StringFinder::categorize(this->context(), view, &totalsize);
+    if(flags == AddressFlags_None) flags = AddressFlags_AsciiString; // If invalid, force to Ascii String
+
+    if(StringFinder::checkAndMark(this->context(), address, flags, size != RD_NVAL ? size : totalsize))
+        m_net.addRef(fromaddress, address);
+}
+
 size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t size, const Document::TableCallback& cb)
 {
     auto loc = this->dereferenceAddress(address);

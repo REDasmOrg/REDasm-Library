@@ -31,7 +31,7 @@ int SurfaceRenderer::indexOf(rd_address address) const
 {
     for(size_t i = 0; i < m_rows.size(); i++)
     {
-        if(m_rows[i].address == address)
+        if((m_rows[i].address == address) && !m_rows[i].isvirtual)
             return i;
     }
 
@@ -42,7 +42,7 @@ int SurfaceRenderer::lastIndexOf(rd_address address) const
 {
     for(size_t i = m_rows.size(); i-- > 0; )
     {
-        if(m_rows[i].address == address)
+        if((m_rows[i].address == address) && !m_rows[i].isvirtual)
             return i;
     }
 

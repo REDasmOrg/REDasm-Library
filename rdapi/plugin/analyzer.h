@@ -27,8 +27,9 @@ typedef struct RDEntryAnalyzer {
 } RDEntryAnalyzer;
 
 RD_API_EXPORT bool RDAnalyzer_Register(RDPluginModule* pm, const RDEntryAnalyzer* plugin);
-RD_API_EXPORT bool RDAnalyzer_IsSelected(const RDAnalyzer* analyzer);
 RD_API_EXPORT bool RDAnalyzer_IsExperimental(const RDAnalyzer* analyzer);
 RD_API_EXPORT const char* RDAnalyzer_GetDescription(const RDAnalyzer* analyzer);
 RD_API_EXPORT const char* RDAnalyzer_GetName(const RDAnalyzer* analyzer);
+RD_API_EXPORT const char* RDAnalyzer_GetId(const RDAnalyzer* analyzer);
+RD_API_EXPORT u32 RDAnalyzer_GetOrder(const RDAnalyzer* analyzer);
 RD_API_EXPORT u32 RDAnalyzer_GetOrder(const RDAnalyzer* analyzer);

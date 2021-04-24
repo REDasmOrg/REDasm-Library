@@ -28,9 +28,11 @@ void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderRequest* loadrequ
 void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata) { CPTR(const Context, ctx)->findAssemblerEntries(callback, userdata); }
 void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata) { CPTR(const Context, ctx)->getAnalyzers(callback, userdata); }
 void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select) { CPTR(Context, ctx)->selectAnalyzer(CPTR(const Analyzer, analyzer), select); }
+void RDContext_DisableAnalyzer(RDContext* ctx, const char* analyzerid) { if(analyzerid) CPTR(Context, ctx)->disableAnalyzer(analyzerid); }
 void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block) { CPTR(Context, ctx)->disassembleBlock(block); }
 void RDContext_DisassembleAt(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembleAt(address); }
 void RDContext_Disassemble(RDContext* ctx) { CPTR(Context, ctx)->disassemble(); }
+bool RDContext_IsAnalyzerSelected(const RDContext* ctx, const RDAnalyzer* analyzer) { return analyzer ? CPTR(const Context, ctx)->isAnalyzerSelected(CPTR(const Analyzer, analyzer)) : false; }
 bool RDContext_ExecuteCommand(const RDContext* ctx, const char* cmd, const RDArguments* a) { return CPTR(const Context, ctx)->executeCommand(cmd, a); }
 size_t RDContext_GetProblemsCount(const RDContext* ctx) { return CPTR(const Context, ctx)->problemsCount(); }
 void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata) { CPTR(const Context, ctx)->getProblems(callback, userdata); }

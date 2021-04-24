@@ -51,16 +51,15 @@ void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disa
 
 void Context::loadAnalyzers()
 {
-    m_analyzers.clear();
-    m_selectedanalyzers.clear();
-
     for(const RDEntry* entry : m_pluginmanager->analyzers())
     {
         const auto* entryanalyzer = reinterpret_cast<const RDEntryAnalyzer*>(entry);
         auto analyzer = std::make_shared<Analyzer>(entryanalyzer, this);
         if(!analyzer->isEnabled()) continue;
 
-        if(HAS_FLAG(entryanalyzer, AnalyzerFlags_Selected)) m_selectedanalyzers.insert(analyzer.get());
+        if(!m_disabledanalyzers.count(entryanalyzer->id) && HAS_FLAG(entryanalyzer, AnalyzerFlags_Selected))
+            m_selectedanalyzers.insert(analyzer.get());
+
         m_analyzers.insert(analyzer);
     }
 }
@@ -69,6 +68,16 @@ void Context::selectAnalyzer(const Analyzer* analyzer, bool select)
 {
     if(select) m_selectedanalyzers.insert(analyzer);
     else m_selectedanalyzers.remove(analyzer);
+}
+
+bool Context::isAnalyzerSelected(const Analyzer* panalyzer) const
+{
+    if(!panalyzer) return false;
+
+    for(const Analyzer* a : m_selectedanalyzers)
+        if(a == panalyzer) return true;
+
+    return false;
 }
 
 void Context::setIgnoreProblems(bool ignore) { m_ignoreproblems = ignore; }
@@ -124,6 +133,8 @@ void Context::getAnalyzers(Callback_Analyzer callback, void* userdata) const
         callback(CPTR(const RDAnalyzer, analyzer.get()), userdata);
     });
 }
+
+void Context::disableAnalyzer(const std::string& analyzerid) { if(!analyzerid.empty()) m_disabledanalyzers.insert(analyzerid); }
 
 const RDEntryAssembler* Context::findAssemblerEntry(const RDEntryLoader* entryloader, std::string* res) const
 {

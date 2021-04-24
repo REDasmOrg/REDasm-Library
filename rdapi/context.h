@@ -79,9 +79,11 @@ RD_API_EXPORT void RDContext_FindLoaderEntries(RDContext* ctx, const RDLoaderReq
 RD_API_EXPORT void RDContext_FindAssemblerEntries(const RDContext* ctx, Callback_AssemblerEntry callback, void* userdata);
 RD_API_EXPORT void RDContext_GetAnalyzers(const RDContext* ctx, Callback_Analyzer callback, void* userdata);
 RD_API_EXPORT void RDContext_SelectAnalyzer(RDContext* ctx, const RDAnalyzer* analyzer, bool select);
+RD_API_EXPORT void RDContext_DisableAnalyzer(RDContext* ctx, const char* analyzerid);
 RD_API_EXPORT void RDContext_DisassembleBlock(RDContext* ctx, const RDBlock* block);
 RD_API_EXPORT void RDContext_DisassembleAt(RDContext* ctx, rd_address address);
 RD_API_EXPORT void RDContext_Disassemble(RDContext* ctx);
+RD_API_EXPORT bool RDContext_IsAnalyzerSelected(const RDContext* ctx, const RDAnalyzer* analyzer);
 RD_API_EXPORT bool RDContext_ExecuteCommand(const RDContext* ctx, const char* cmd, const struct RDArguments* a);
 RD_API_EXPORT size_t RDContext_GetProblemsCount(const RDContext* ctx);
 RD_API_EXPORT void RDContext_GetProblems(const RDContext* ctx, RD_ProblemCallback callback, void* userdata);

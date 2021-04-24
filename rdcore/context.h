@@ -2,6 +2,7 @@
 
 #define DEFAULT_MIN_STRING 4
 
+#include <unordered_set>
 #include <memory>
 #include <string>
 #include <rdapi/context.h>
@@ -76,7 +77,9 @@ class Context: public Object
 
     public: // Analyzer
         void getAnalyzers(Callback_Analyzer callback, void* userdata) const;
+        void disableAnalyzer(const std::string& analyzerid);
         void selectAnalyzer(const Analyzer* panalyzer, bool select);
+        bool isAnalyzerSelected(const Analyzer* panalyzer) const;
         const AnalyzerList& selectedAnalyzers() const;
 
     public: // Command
@@ -126,6 +129,7 @@ class Context: public Object
         rd_flag m_flags{ContextFlags_None};
         PluginMap m_commands;
         AnalyzerPtrList m_analyzers;
+        std::unordered_set<std::string> m_disabledanalyzers;
         AnalyzerList m_selectedanalyzers;
         UniqueContainer<std::string> m_problems;
         size_t m_minstring{DEFAULT_MIN_STRING};

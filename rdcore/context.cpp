@@ -54,10 +54,12 @@ void Context::loadAnalyzers()
     for(const RDEntry* entry : m_pluginmanager->analyzers())
     {
         const auto* entryanalyzer = reinterpret_cast<const RDEntryAnalyzer*>(entry);
+        if(m_disabledanalyzers.count(entryanalyzer->id)) continue;
+
         auto analyzer = std::make_shared<Analyzer>(entryanalyzer, this);
         if(!analyzer->isEnabled()) continue;
 
-        if(!m_disabledanalyzers.count(entryanalyzer->id) && HAS_FLAG(entryanalyzer, AnalyzerFlags_Selected))
+        if(HAS_FLAG(entryanalyzer, AnalyzerFlags_Selected))
             m_selectedanalyzers.insert(analyzer.get());
 
         m_analyzers.insert(analyzer);

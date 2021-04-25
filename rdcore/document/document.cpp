@@ -205,15 +205,17 @@ bool Document::setString(rd_address address, size_t size, rd_flag flags, const s
 
 const Type* Document::getType(rd_address address) const { return m_addressspace.getType(address); }
 
-void Document::setTypeName(rd_address address, const std::string& q)
+bool Document::setTypeName(rd_address address, const std::string& q)
 {
     RDDatabaseValue v;
 
-    if(this->context()->database()->query(q, &v))
-        this->setType(address, CPTR(const Type, v.t));
+    if(this->context()->database()->query(q, &v) && v.t && (v.type == DatabaseValueType_Type))
+        return this->setType(address, CPTR(const Type, v.t));
+
+    return false;
 }
 
-void Document::setType(rd_address address, const Type* type) { this->setTypeFields(address, type, 0); }
+bool Document::setType(rd_address address, const Type* type) { return this->setTypeFields(address, type, 0); }
 bool Document::findLabel(const std::string& q, rd_address* resaddress) const { return m_addressspace.findLabel(q, resaddress); }
 bool Document::findLabelR(const std::string& q, rd_address* resaddress) const { return m_addressspace.findLabelR(q, resaddress); }
 size_t Document::findLabels(const std::string& q, const rd_address** resaddresses) const { return m_addressspace.findLabels(q, resaddresses); }
@@ -261,6 +263,28 @@ rd_address Document::checkLocation(rd_address fromaddress, rd_address address, s
     return resaddress;
 }
 
+void Document::checkTypeName(rd_address fromaddress, rd_address address, const char* q)
+{
+    if(!q || (fromaddress == address)) return; // Ignore self references
+
+    RDSegment segment;
+    if(!this->addressToSegment(address, &segment)) return;
+
+    if(this->setTypeName(address, q))
+        m_net.addRef(fromaddress, address);
+}
+
+void Document::checkType(rd_address fromaddress, rd_address address, const Type* t)
+{
+    if(!t || (fromaddress == address)) return; // Ignore self references
+
+    RDSegment segment;
+    if(!this->addressToSegment(address, &segment)) return;
+
+    if(this->setType(address, t))
+        m_net.addRef(fromaddress, address);
+}
+
 void Document::checkString(rd_address fromaddress, rd_address address, size_t size)
 {
     RDBufferView view;
@@ -291,9 +315,9 @@ size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t s
     return i;
 }
 
-void Document::setTypeFields(rd_address address, const Type* type, int indent)
+bool Document::setTypeFields(rd_address address, const Type* type, int indent)
 {
-    if(!type) return;
+    if(!type) return false;
 
     if(auto* st = dynamic_cast<const StructureType*>(type))
     {
@@ -340,20 +364,22 @@ void Document::setTypeFields(rd_address address, const Type* type, int indent)
         switch(cst->type())
         {
             case Type_AsciiString:
-                if(!this->setString(address, cst->size(), AddressFlags_AsciiString, cst->name())) return;
+                if(!this->setString(address, cst->size(), AddressFlags_AsciiString, cst->name())) return false;
                 break;
 
             case Type_WideString:
-                if(!this->setString(address, cst->size(), AddressFlags_WideString, cst->name())) return;
+                if(!this->setString(address, cst->size(), AddressFlags_WideString, cst->name())) return false;
                 break;
 
-            default: return;
+            default: return false;
         }
     }
     else if(auto* nt = dynamic_cast<const NumericType*>(type))
         m_addressspace.setTypeField(address, nt, indent);
     else
         this->log("Unhandled type: " + Utils::quoted(type->typeName()));
+
+    return true;
 }
 
 bool Document::readAddress(rd_address address, u64* value) const

@@ -22,3 +22,5 @@ void RDEmulateResult_AddStringSize(RDEmulateResult* res, rd_address address, siz
 void RDEmulateResult_AddString(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addString(address); }
 void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->addInvalid(size); }
 void RDEmulateResult_AddTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addTable(address, size); }
+void RDEmulateResult_AddType(RDEmulateResult* res, rd_address address, const RDType* t) { if(t) CPTR(EmulateResult, res)->addType(address, CPTR(const Type, t)); }
+void RDEmulateResult_AddTypeName(RDEmulateResult* res, rd_address address, const char* q) { if(q) CPTR(EmulateResult, res)->addTypeName(address, q); }

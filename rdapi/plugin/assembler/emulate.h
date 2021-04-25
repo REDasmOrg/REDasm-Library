@@ -4,6 +4,7 @@
 #include "../../types.h"
 
 struct RDBufferView;
+struct RDType;
 
 RD_HANDLE(RDEmulateResult);
 
@@ -27,4 +28,6 @@ RD_API_EXPORT void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_add
 RD_API_EXPORT void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address);
 RD_API_EXPORT void RDEmulateResult_AddStringSize(RDEmulateResult* res, rd_address address, size_t size);
 RD_API_EXPORT void RDEmulateResult_AddString(RDEmulateResult* res, rd_address address);
+RD_API_EXPORT void RDEmulateResult_AddType(RDEmulateResult* res, rd_address address, const RDType* t);
+RD_API_EXPORT void RDEmulateResult_AddTypeName(RDEmulateResult* res, rd_address address, const char* q);
 RD_API_EXPORT void RDEmulateResult_AddTable(RDEmulateResult* res, rd_address address, size_t size);

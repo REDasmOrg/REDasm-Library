@@ -37,8 +37,8 @@ class Document: public Object
         void setBranch(rd_address address, int direction = 1);
         void setLabel(rd_address address, rd_flag flags = AddressFlags_None, const std::string& label = std::string());
         void setPointer(rd_address address, const std::string& label = std::string());
-        void setTypeName(rd_address address, const std::string& q);
-        void setType(rd_address address, const Type* type);
+        bool setTypeName(rd_address address, const std::string& q);
+        bool setType(rd_address address, const Type* type);
         void setExportedFunction(rd_address address, const std::string& label = std::string());
         void setExported(rd_address address, size_t size, const std::string& label = std::string());
         void setImported(rd_address address, size_t size, const std::string& label = std::string());
@@ -92,6 +92,8 @@ class Document: public Object
         size_t findLabels(const std::string& q, const rd_address** resaddresses) const;
         size_t findLabelsR(const std::string& q, const rd_address** resaddresses) const;
         rd_address checkLocation(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
+        void checkTypeName(rd_address fromaddress, rd_address address, const char* q);
+        void checkType(rd_address fromaddress, rd_address address, const Type* t);
         void checkString(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
         size_t checkTable(rd_address fromaddress, rd_address address, size_t size, const TableCallback& cb);
         bool checkPointer(rd_address fromaddress, rd_address address, size_t size, rd_address* firstaddress);
@@ -102,7 +104,7 @@ class Document: public Object
         void invalidateGraphs();
 
     private:
-        void setTypeFields(rd_address address, const Type* type, int indent);
+        bool setTypeFields(rd_address address, const Type* type, int indent);
         bool readAddress(rd_address address, u64 *value) const;
         RDLocation dereferenceAddress(rd_address address) const;
         size_t checkString(rd_address address, rd_flag* resflags);

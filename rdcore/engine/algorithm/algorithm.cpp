@@ -85,6 +85,8 @@ void Algorithm::processResult(EmulateResult* result)
         {
             case EmulateResult::Ref: m_document->checkLocation(result->address(), res.address, res.size); break;
             case EmulateResult::RefString: m_document->checkString(result->address(), res.address, res.size); break;
+            case EmulateResult::RefTypeName: m_document->checkTypeName(result->address(), res.address, res.name); break;
+            case EmulateResult::RefType: m_document->checkType(result->address(), res.address, res.type.get()); break;
             case EmulateResult::Table: this->processTable(result->address(), res); break;
 
             case EmulateResult::Branch:

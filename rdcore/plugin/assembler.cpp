@@ -27,5 +27,19 @@ bool Assembler::renderInstruction(const RDRendererParams* rp)
     return true;
 }
 
+bool Assembler::renderFunction(const RDRendererParams* rp)
+{
+    if(!m_entry->renderfunction) return false;
+    m_entry->renderfunction(CPTR(RDContext, this->context()), rp);
+    return true;
+}
+
+bool Assembler::renderSegment(const RDRendererParams* rp)
+{
+    if(!m_entry->rendersegment) return false;
+    m_entry->rendersegment(CPTR(RDContext, this->context()), rp);
+    return true;
+}
+
 size_t Assembler::addressWidth() const { return m_entry->bits / CHAR_BIT; }
 size_t Assembler::bits() const { return m_entry->bits; }

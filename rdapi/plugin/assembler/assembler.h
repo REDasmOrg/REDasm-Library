@@ -29,6 +29,8 @@ RD_API_EXPORT void RDEncodedInstruction_Init(RDEncodedInstruction* encoded);
 RD_API_EXPORT bool RDEncodedInstruction_Set(RDEncodedInstruction* encoded, u8* encdata, size_t count);
 
 typedef void (*Callback_AssemblerEmulate)(RDContext* ctx, RDEmulateResult* result);
+typedef void (*Callback_AssemblerRenderSegment)(RDContext* ctx, const RDRendererParams* rp);
+typedef void (*Callback_AssemblerRenderFunction)(RDContext* ctx, const RDRendererParams* rp);
 typedef void (*Callback_AssemblerRenderInstruction)(RDContext* ctx, const RDRendererParams* rp);
 typedef void (*Callback_AssemblerLift)(RDContext* ctx, rd_address address, const RDBufferView* view, RDILFunction* il);
 
@@ -39,6 +41,8 @@ typedef struct RDEntryAssembler {
     u32 bits;
 
     Callback_AssemblerRenderInstruction renderinstruction;
+    Callback_AssemblerRenderFunction renderfunction;
+    Callback_AssemblerRenderSegment rendersegment;
     Callback_AssemblerEmulate emulate;
     Callback_AssemblerLift lift;
 

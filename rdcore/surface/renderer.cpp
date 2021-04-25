@@ -106,6 +106,12 @@ void Renderer::renderUnknown() { this->chunk(UNKNOWN_STRING); }
 
 void Renderer::renderSegment()
 {
+    size_t len = m_sfrow.text.size();
+
+    RDRendererParams srp;
+    this->compileParams(&srp);
+    if(this->assembler()->renderSegment(&srp) && (len != m_sfrow.text.size())) return;
+
     StyleScope s(this, Theme_Segment);
     RDSegment segment;
 
@@ -145,6 +151,12 @@ void Renderer::renderLocation() { this->renderLabel(); this->chunk(":"); }
 
 void Renderer::renderFunction()
 {
+    size_t len = m_sfrow.text.size();
+
+    RDRendererParams srp;
+    this->compileParams(&srp);
+    if(this->assembler()->renderFunction(&srp) && (len != m_sfrow.text.size())) return;
+
     std::string name = this->renderLabel(Theme_Function);
     StyleScope s(this, Theme_Function);
     this->chunk(" ");

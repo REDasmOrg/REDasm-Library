@@ -327,10 +327,15 @@ bool Document::setTypeFields(rd_address address, const Type* type, int indent)
         for(const auto& [n, f] : st->fields())
         {
             this->setTypeFields(fieldaddress, f, indent + 1);
+            RDLocation loc{ };
 
-            auto loc = this->dereference(fieldaddress);
-            if(loc.valid) this->checkLocation(fieldaddress, loc.address); // Check the pointed location...
-            else this->checkLocation(address, fieldaddress);              // ...or just add a reference to the field
+            if(f->bits() == this->context()->bits())
+            {
+                loc = this->dereference(fieldaddress);
+                if(loc.valid) this->checkLocation(fieldaddress, loc.address); // Check the pointed location...
+            }
+
+            if(!loc.valid) this->checkLocation(address, fieldaddress);        // ...or just add a reference to the field
 
             if(!indent && (f == st->fields().back().second))
                 m_addressspace.updateFlags(fieldaddress, AddressFlags_TypeEnd);

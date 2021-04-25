@@ -28,6 +28,7 @@ class Type: public Object
         virtual tao::json::value toJson() const;
         virtual Type* clone(Context* ctx = nullptr) const = 0;
         virtual size_t size() const = 0;
+        size_t bits() const;
         void setName(const std::string& name);
         const std::string& name() const;
         rd_type type() const;

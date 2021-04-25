@@ -31,6 +31,7 @@ class Type: public Object
         size_t bits() const;
         void setName(const std::string& name);
         const std::string& name() const;
+        std::string autoName() const;
         rd_type type() const;
 
     public:

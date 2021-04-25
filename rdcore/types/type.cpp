@@ -95,3 +95,4 @@ tao::json::value Type::toJson() const
 size_t Type::bits() const { return this->size() * CHAR_BIT; }
 void Type::setName(const std::string& name) { m_name = name; }
 const std::string& Type::name() const { return m_name; }
+std::string Type::autoName() const { return m_name.empty() ? this->typeName() : m_name; }

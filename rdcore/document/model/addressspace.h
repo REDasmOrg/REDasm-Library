@@ -71,7 +71,7 @@ class AddressSpace: public Object
         bool updateLabel(rd_address address, const std::string& label);
         void addComment(rd_address address, const std::string& s);
         void setComments(rd_address address, const Comments& c);
-        bool setTypeField(rd_address address, const Type* type, int indent);
+        bool setTypeField(rd_address address, const Type* type, int indent, const std::string& name);
         void setType(rd_address address, const Type* type, const std::string& label = std::string());
         const Type* getTypeField(rd_address address, int* indent) const;
         const Type* getType(rd_address address) const;

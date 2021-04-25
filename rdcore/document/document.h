@@ -104,7 +104,7 @@ class Document: public Object
         void invalidateGraphs();
 
     private:
-        bool setTypeFields(rd_address address, const Type* type, int indent);
+        bool setTypeFields(rd_address address, const Type* type, int level);
         bool readAddress(rd_address address, u64 *value) const;
         RDLocation dereferenceAddress(rd_address address) const;
         size_t checkString(rd_address address, rd_flag* resflags);

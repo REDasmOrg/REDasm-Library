@@ -148,14 +148,16 @@ void AddressSpace::setComments(rd_address address, const AddressSpace::Comments&
     info->comments = c;
 }
 
-bool AddressSpace::setTypeField(rd_address address, const Type* type, int indent)
+bool AddressSpace::setTypeField(rd_address address, const Type* type, int indent, const std::string& name)
 {
     if(!type || !this->markData(address, type->size())) return false;
 
     auto* info = this->getInfo(address);
     info->typefield.reset(type->clone(this->context()));
+    info->label = name;
     info->indent = indent;
     info->flags |= AddressFlags_TypeField;
+
     return true;
 }
 

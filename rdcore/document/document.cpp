@@ -315,18 +315,17 @@ size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t s
     return i;
 }
 
-bool Document::setTypeFields(rd_address address, const Type* type, int indent)
+bool Document::setTypeFields(rd_address address, const Type* type, int level)
 {
     if(!type) return false;
 
     if(auto* st = dynamic_cast<const StructureType*>(type))
     {
-        m_addressspace.setType(address, st, indent ? std::string() : Document::makeLabel(address, st->name()));
         rd_address fieldaddress = address;
 
         for(const auto& [n, f] : st->fields())
         {
-            this->setTypeFields(fieldaddress, f, indent + 1);
+            this->setTypeFields(fieldaddress, f, level + 1);
             RDLocation loc{ };
 
             if(f->bits() == this->context()->bits())
@@ -337,34 +336,35 @@ bool Document::setTypeFields(rd_address address, const Type* type, int indent)
 
             if(!loc.valid) this->checkLocation(address, fieldaddress);        // ...or just add a reference to the field
 
-            if(!indent && (f == st->fields().back().second))
+            if(!level && (f == st->fields().back().second))
                 m_addressspace.updateFlags(fieldaddress, AddressFlags_TypeEnd);
 
             fieldaddress += f->size();
         }
+
+        m_addressspace.setType(address, st, level ? std::string() : Document::makeLabel(address, st->autoName()));
     }
     else if(auto* at = dynamic_cast<const ArrayType*>(type))
     {
-        m_addressspace.setType(address, at);
         rd_address itemaddress = address;
 
         for(size_t i = 0; i < at->itemsCount(); i++)
         {
             this->setType(itemaddress, at->type());
+            m_addressspace.updateLabel(itemaddress, Document::makeLabel(itemaddress, at->type()->autoName() + "_" + std::to_string(i)));
 
-            if(!indent && i == (at->itemsCount() - 1))
+            if(!level && i == (at->itemsCount() - 1))
                 m_addressspace.updateFlags(itemaddress, AddressFlags_TypeEnd);
 
             itemaddress += at->type()->size();
         }
 
+        m_addressspace.setType(address, at, level ? std::string() : Document::makeLabel(address, at->autoName()));
     }
     else if(auto* st = dynamic_cast<const StringType*>(type))
     {
         TypePtr cst(st->clone(this->context()));
         static_cast<StringType*>(cst.get())->calculateSize(address);
-
-        m_addressspace.setTypeField(address, cst.get(), indent); // Take copy
 
         switch(cst->type())
         {
@@ -378,9 +378,11 @@ bool Document::setTypeFields(rd_address address, const Type* type, int indent)
 
             default: return false;
         }
+
+        m_addressspace.setTypeField(address, cst.get(), level, Document::makeLabel(address, cst->autoName())); // Take copy
     }
     else if(auto* nt = dynamic_cast<const NumericType*>(type))
-        m_addressspace.setTypeField(address, nt, indent);
+        m_addressspace.setTypeField(address, nt, level, Document::makeLabel(address, nt->autoName()));
     else
         this->log("Unhandled type: " + Utils::quoted(type->typeName()));
 

@@ -193,7 +193,7 @@ bool Document::setLocation(rd_address address) { return this->setData(address, t
 
 bool Document::setString(rd_address address, size_t size, rd_flag flags, const std::string& label)
 {
-    if(!m_addressspace.markString(address, size)) return false;
+    if(!size || !m_addressspace.markString(address, size)) return false;
 
     if(flags & AddressFlags_WideString)
         m_addressspace.setLabel(address, label.empty() ? Document::makeLabel(address, "wstr") : std::string(), AddressFlags_WideString);

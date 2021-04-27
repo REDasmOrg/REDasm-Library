@@ -1,6 +1,7 @@
 #include "utils.h"
 #include <rdcore/support/demangler.h>
 #include <rdcore/support/utils.h>
+#include <rdcore/support/hash.h>
 #include <rdcore/support/endian.h>
 #include <rdcore/disassembler.h>
 #include <rdcore/context.h>
@@ -48,7 +49,8 @@ intptr_t RD_SignExt(uintptr_t val, int valbits) { return Utils::signext(val, val
 u16 RD_Swap16(u16 hostval) { return Endian::swap16(hostval); }
 u32 RD_Swap32(u32 hostval) { return Endian::swap32(hostval); }
 u64 RD_Swap64(u64 hostval) { return Endian::swap64(hostval); }
-u32 RD_Crc32(const u8* data, size_t size) { return data && size ? Utils::crc32(data, size) : 0; }
+u32 RD_Adler32(const u8* data, size_t size) { return data && size ? Hash::adler32(data, size) : 0; }
+u32 RD_Crc32(const u8* data, size_t size) { return data && size ? Hash::crc32(data, size) : 0; }
 u16 RD_Rol16(u16 val, u16 amt) { return Utils::rol(val, amt); }
 u32 RD_Rol32(u32 val, u32 amt) { return Utils::rol(val, amt); }
 u64 RD_Rol64(u64 val, u64 amt) { return Utils::rol(val, amt); }

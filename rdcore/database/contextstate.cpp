@@ -9,6 +9,7 @@
 #define CHUNK_SEGMENTS     "SEG"
 #define CHUNK_SPACES       "SPACE"
 #define CHUNK_BLOCKS       "BLOCK"
+#define CHUNK_INFO         "INFO"
 
 #pragma pack(push, 1)
 struct ContextStateHeader

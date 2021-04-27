@@ -29,8 +29,6 @@ class Utils
         static inline u8* relpointer(void* ptr, size_t offset) { return reinterpret_cast<u8*>(reinterpret_cast<u8*>(ptr) + offset); }
         static rd_offset findIn(const u8* data, size_t datasize, const u8* finddata, size_t finddatasize);
         static rd_offset findPattern(const u8* data, size_t datasize, std::string pattern, size_t* patternlen = nullptr);
-        static u16 crc16(const u8* data, size_t datasize, rd_offset offset = 0, size_t size = RD_NVAL);
-        static u32 crc32(const u8* data, size_t datasize, rd_offset offset = 0, size_t size = RD_NVAL);
         static std::string thunk(const std::string& s, int level = 1);
         static std::string hexStringEndian(const Context* ctx, const RDBufferView* view, size_t size = RD_NVAL);
         static std::string hexString(const RDBufferView* view, size_t size = RD_NVAL);

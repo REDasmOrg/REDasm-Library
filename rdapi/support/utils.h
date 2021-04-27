@@ -27,6 +27,7 @@ RD_API_EXPORT bool RD_InRange(rd_address address, rd_address start, rd_address e
 RD_API_EXPORT bool RD_InRangeSize(rd_address address, rd_address start, rd_address size);
 RD_API_EXPORT intptr_t RD_SignExt(uintptr_t val, int valbits);
 RD_API_EXPORT size_t* RD_HashCombine(size_t* h, size_t v);
+RD_API_EXPORT u32 RD_Adler32(const u8* data, size_t size);
 RD_API_EXPORT u32 RD_Crc32(const u8* data, size_t size);
 RD_API_EXPORT u16 RD_Swap16(u16 hostval);
 RD_API_EXPORT u32 RD_Swap32(u32 hostval);

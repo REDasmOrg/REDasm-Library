@@ -31,5 +31,5 @@ void AbstractBuffer::copyFrom(const AbstractBuffer* buffer, rd_offset offset, si
 void AbstractBuffer::fill(u8 val) { std::fill_n(this->data(), this->size(), val); }
 AbstractBuffer::operator bool() const { return !this->empty(); }
 
-u16 AbstractBuffer::crc16(rd_offset offset, size_t size) const { return Utils::crc16(this->data(), this->size(), offset, size); }
-u32 AbstractBuffer::crc32(rd_offset offset, size_t size) const { return Utils::crc32(this->data(), this->size(), offset, size); }
+u16 AbstractBuffer::crc16(rd_offset offset, size_t size) const { return Hash::crc16(this->data(), this->size(), offset, size); }
+u32 AbstractBuffer::crc32(rd_offset offset, size_t size) const { return Hash::crc32(this->data(), this->size(), offset, size); }

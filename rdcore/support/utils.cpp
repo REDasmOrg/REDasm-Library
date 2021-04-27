@@ -87,21 +87,6 @@ rd_offset Utils::findPattern(const u8* data, size_t datasize, std::string patter
     return RD_NVAL;
 }
 
-u16 Utils::crc16(const u8* data, size_t datasize, rd_offset offset, size_t size)
-{
-    if(size == RD_NVAL) size = datasize;
-    if((offset + size) > datasize) return 0;
-
-    return Hash::crc16(data + offset, size);
-}
-
-u32 Utils::crc32(const u8* data, size_t datasize, rd_offset offset, size_t size)
-{
-    if(size == RD_NVAL) size = datasize;
-    if((offset + size) > datasize) return 0;
-    return Hash::crc32(data + offset, size);
-}
-
 std::string Utils::thunk(const std::string& s, int level)
 {
     if(level > 1) return "thunk_" + std::to_string(level) + "_" + s;

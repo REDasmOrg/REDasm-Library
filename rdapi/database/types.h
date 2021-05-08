@@ -33,6 +33,7 @@ RD_API_EXPORT size_t RDType_GetSize(const RDType* type);
 RD_API_EXPORT rd_type RDType_GetType(const RDType* type);
 RD_API_EXPORT const char* RDType_GetTypeName(const RDType* type);
 RD_API_EXPORT const char* RDType_GetName(const RDType* type);
+RD_API_EXPORT void RDType_SetName(RDType* type, const char* n);
 
 RD_API_EXPORT bool RDStructure_Append(RDType* s, RDType* t, const char* name);
 RD_API_EXPORT void RDStructure_GetFields(const RDType* s, Callback_StructureFields cb, void* userdata);

@@ -44,6 +44,7 @@ const char* RDType_GetTypeName(const RDType* type)
 }
 
 const char* RDType_GetName(const RDType* type) { return CPTR(const Type, type)->name().c_str(); }
+void RDType_SetName(RDType* type, const char* n) { CPTR(Type, type)->setName(n); }
 
 size_t RDArray_GetItemsCount(const RDType* s)
 {

@@ -359,7 +359,7 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
             itemaddress += at->type()->size();
         }
 
-        m_addressspace.setType(address, at, level ? std::string() : Document::makeLabel(address, at->autoName()));
+        m_addressspace.setType(address, at, Document::makeLabel(address, at->autoName()));
     }
     else if(auto* st = dynamic_cast<const StringType*>(type))
     {

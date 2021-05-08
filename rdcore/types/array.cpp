@@ -2,10 +2,11 @@
 
 ArrayType::ArrayType(): Type(Type_Array), m_itemscount(0) { }
 ArrayType::ArrayType(size_t itemscount, Type* type, Context* ctx): Type(Type_Array, ctx), m_type(type), m_itemscount(itemscount) { type->setContext(ctx); }
+ArrayType::ArrayType(size_t itemscount, Type* type, const std::string& name, Context* ctx): Type(Type_Array, name, ctx), m_type(type), m_itemscount(itemscount) { type->setContext(ctx); }
 size_t ArrayType::size() const { return m_type ? (m_itemscount * m_type->size()) : 0; }
 size_t ArrayType::itemsCount() const { return m_itemscount; }
 const Type* ArrayType::type() const { return m_type.get(); }
-Type* ArrayType::clone(Context* ctx) const { return new ArrayType(m_itemscount, m_type->clone(), ctx); }
+Type* ArrayType::clone(Context* ctx) const { return new ArrayType(m_itemscount, m_type->clone(), this->name(), ctx); }
 
 bool ArrayType::fromJson(const tao::json::value& v)
 {

@@ -170,6 +170,8 @@ void AddressSpace::setType(rd_address address, const Type* type, const std::stri
     if(!label.empty()) info->type->setName(label);
     info->label = info->type->name();
     info->flags |= AddressFlags_Type;
+
+    m_labels[info->label] = address;
 }
 
 const Type* AddressSpace::getTypeField(rd_address address, int* indent) const

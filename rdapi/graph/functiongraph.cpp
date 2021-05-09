@@ -43,7 +43,6 @@ size_t RDFunctionGraph_GetBlocksCount(const RDGraph* graph)
 }
 
 rd_type RDFunctionBasicBlock_GetTheme(const RDFunctionBasicBlock* fbb, RDGraphNode node) { return CPTR(const FunctionBasicBlock, fbb)->getTheme(node); }
-size_t RDFunctionBasicBlock_ItemsCount(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->itemsCount(); }
 rd_address RDFunctionBasicBlock_GetStartAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->startaddress; }
 rd_address RDFunctionBasicBlock_GetEndAddress(const RDFunctionBasicBlock* fbb) { return CPTR(const FunctionBasicBlock, fbb)->endaddress; }
 bool RDFunctionBasicBlock_Contains(const RDFunctionBasicBlock* fbb, rd_address address) { return CPTR(const FunctionBasicBlock, fbb)->contains(address); }

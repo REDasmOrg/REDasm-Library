@@ -13,7 +13,7 @@ rd_address RDSurface_GetAddress(const RDSurface* sf, int row) { return CPTR(cons
 const char* RDSurface_GetSelectedText(const RDSurface* sf) { return CPTR(const Surface, sf)->selectedText().c_str(); }
 uintptr_t RDSurface_GetUserData(const RDSurface* sf) { return CPTR(const Surface, sf)->userData(); }
 size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path) { return CPTR(const Surface, sf)->getPath(path); }
-int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address address, int rows) { return CPTR(const Surface, sf)->getRangeColumn(address, rows); }
+int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address startaddress, rd_address endaddress) { return CPTR(const Surface, sf)->getRangeColumn(startaddress, endaddress); }
 int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells) { return CPTR(const Surface, sf)->row(row, cells); }
 int RDSurface_IndexOf(const RDSurface* sf, rd_address address) { return CPTR(const Surface, sf)->indexOf(address); }
 int RDSurface_LastIndexOf(const RDSurface* sf, rd_address address) { return CPTR(const Surface, sf)->lastIndexOf(address); }

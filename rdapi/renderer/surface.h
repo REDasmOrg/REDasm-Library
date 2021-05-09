@@ -39,7 +39,7 @@ RD_API_EXPORT const char* RDSurface_GetCurrentLabel(const RDSurface* sf, rd_addr
 RD_API_EXPORT const char* RDSurface_GetWordAt(const RDSurface* sf, int row, int col);
 RD_API_EXPORT uintptr_t RDSurface_GetUserData(const RDSurface* sf);
 RD_API_EXPORT size_t RDSurface_GetPath(const RDSurface* sf, const RDPathItem** path);
-RD_API_EXPORT int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address address, int rows);
+RD_API_EXPORT int RDSurface_GetRangeColumn(const RDSurface* sf, rd_address startaddress, rd_address endaddress);
 RD_API_EXPORT int RDSurface_GetRow(const RDSurface* sf, int row, const RDSurfaceCell** cells);
 RD_API_EXPORT int RDSurface_IndexOf(const RDSurface* sf, rd_address address);
 RD_API_EXPORT int RDSurface_LastIndexOf(const RDSurface* sf, rd_address address);

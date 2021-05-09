@@ -1,13 +1,14 @@
 #include "surfacerenderer.h"
 #include "../document/document.h"
 #include "../context.h"
+#include <algorithm>
 
 #define BLANK_CELL { Theme_Default, Theme_Default, ' ' }
 
 SurfaceRenderer::SurfaceRenderer(Context* ctx, rd_flag flags): Object(ctx), m_flags(flags) { }
 SafeDocument& SurfaceRenderer::document() const { return this->context()->document(); }
-rd_address SurfaceRenderer::firstAddress() const { return m_range.first; }
-rd_address SurfaceRenderer::lastAddress() const { return m_range.second; }
+rd_address SurfaceRenderer::firstAddress() const { return m_rows.empty() ? m_range.first : m_rows.front().address; }
+rd_address SurfaceRenderer::lastAddress() const { return m_rows.empty() ? m_range.second : m_rows.back().address; }
 const SurfaceRenderer::Rows& SurfaceRenderer::rows() const { return m_rows; }
 bool SurfaceRenderer::hasFlag(rd_flag flag) const { return m_flags & flag; }
 
@@ -51,7 +52,7 @@ int SurfaceRenderer::lastIndexOf(rd_address address) const
 
 void SurfaceRenderer::setLastColumn(int col) { m_lastcolumn = std::max<int>(this->lastColumn(), col); }
 
-int SurfaceRenderer::getRangeColumn(rd_address address, int rows) const
+int SurfaceRenderer::getRangeColumn(rd_address address, rd_address endaddress) const
 {
     auto it = std::lower_bound(m_rows.begin(), m_rows.end(), address, [](const auto& row, rd_address address) {
         return row.address < address;
@@ -61,7 +62,7 @@ int SurfaceRenderer::getRangeColumn(rd_address address, int rows) const
 
     int maxcol = 0;
 
-    for( ; (rows-- > 0) && (it != m_rows.end()); it++)
+    for( ; (it != m_rows.end()) && (it->address <= endaddress); it++)
         maxcol = std::max<int>(maxcol, it->text.size());
 
     return maxcol;
@@ -196,6 +197,12 @@ void SurfaceRenderer::resizeRange(rd_address startaddress, rd_address endaddress
     m_range.first = startaddress;
     m_range.second = endaddress;
     m_ncols = cols;
+
+    if(startaddress == 0x000723FC)
+    {
+        int zzz = 0;
+        zzz++;
+    }
 
     this->update([&](rd_address address) {
         return address <= m_range.second;

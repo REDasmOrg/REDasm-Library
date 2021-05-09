@@ -43,8 +43,8 @@ class SurfaceRenderer: public Object
         int lastColumn() const;
         int lastRow() const;
         int row(int row, const RDSurfaceCell** cells) const;
+        int getRangeColumn(rd_address address, rd_address endaddress) const;
         void setLastColumn(int col);
-        int getRangeColumn(rd_address address, int rows) const;
         void getSize(int* rows, int* cols) const;
         void update();
         void resizeRange(rd_address startaddress, rd_address endaddress, int cols);

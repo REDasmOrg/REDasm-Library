@@ -111,7 +111,7 @@ void LayeredLayout::makeAcyclic()
         }
 
         //No more nodes satisfy constraints, pick a node to continue constructing the graph
-        int best = 0, bestparent, bestedges;
+        size_t best = 0, bestparent, bestedges;
 
         for(auto& item : m_blocks)
         {
@@ -152,7 +152,7 @@ void LayeredLayout::prepareEdgeRouting()
     m_vertedges.resize(m_blocks[m_graph->root()].rowcount + 1);
     m_edgevalid.resize(m_blocks[m_graph->root()].rowcount + 1);
 
-    for(size_t row = 0; row < m_blocks[m_graph->root()].rowcount + 1; row++)
+    for(int row = 0; row < m_blocks[m_graph->root()].rowcount + 1; row++)
     {
         m_horizedges[row].resize(m_blocks[m_graph->root()].colcount + 1);
         m_vertedges[row].resize(m_blocks[m_graph->root()].colcount + 1);
@@ -299,13 +299,13 @@ void LayeredLayout::precomputeEdgeCoordinates()
                 auto end = edge.points[i];
                 auto endrow = end.row;
                 auto endcol = end.col;
-                auto lastindex = end.index;
+                auto lastidx = end.index;
                 RDGraphPoint newpt;
 
                 if(startcol == endcol)
-                    newpt = { lastpt.x, m_rowedgey[endrow] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4 };
+                    newpt = { lastpt.x, m_rowedgey[endrow] + (LLAYOUT_PADDING_DIV2 * lastidx) + 4 };
                 else
-                    newpt = { m_coledgex[endcol] + (LLAYOUT_PADDING_DIV2 * lastindex) + 4, lastpt.y };
+                    newpt = { m_coledgex[endcol] + (LLAYOUT_PADDING_DIV2 * lastidx) + 4, lastpt.y };
 
                 pts.push_back(newpt);
                 lastpt = newpt;

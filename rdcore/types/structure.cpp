@@ -4,7 +4,7 @@
 StructureType::StructureType(): Type(Type_Structure) { }
 StructureType::StructureType(const std::string& name): Type(Type_Structure, name) { }
 
-Type* StructureType::clone(Context* ctx) const
+Type* StructureType::clone(Context*) const
 {
     auto* s = new StructureType(this->name());
     for(const auto& [n, f] : m_fields) s->append(f->clone(), n);

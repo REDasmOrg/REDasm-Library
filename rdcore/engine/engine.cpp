@@ -228,6 +228,6 @@ void Engine::notifyBusy(bool busy)
 
 void Engine::nextStep()
 {
-    m_status.stepscurrent = std::min<size_t>(++m_status.stepscurrent, State_Done);
+    m_status.stepscurrent = std::min<size_t>(m_status.stepscurrent + 1, State_Done);
     this->notifyStatus();
 }

@@ -319,11 +319,11 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
 {
     if(!type) return false;
 
-    if(auto* st = dynamic_cast<const StructureType*>(type))
+    if(auto* stt = dynamic_cast<const StructureType*>(type))
     {
         rd_address fieldaddress = address;
 
-        for(const auto& [n, f] : st->fields())
+        for(const auto& [n, f] : stt->fields())
         {
             this->setTypeFields(fieldaddress, f, level + 1);
             RDLocation loc{ };
@@ -336,13 +336,13 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
 
             if(!loc.valid) this->checkLocation(address, fieldaddress);        // ...or just add a reference to the field
 
-            if(!level && (f == st->fields().back().second))
+            if(!level && (f == stt->fields().back().second))
                 m_addressspace.updateFlags(fieldaddress, AddressFlags_TypeEnd);
 
             fieldaddress += f->size();
         }
 
-        m_addressspace.setType(address, st, level ? std::string() : Document::makeLabel(address, st->autoName()));
+        m_addressspace.setType(address, stt, level ? std::string() : Document::makeLabel(address, stt->autoName()));
     }
     else if(auto* at = dynamic_cast<const ArrayType*>(type))
     {
@@ -361,9 +361,9 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
 
         m_addressspace.setType(address, at, Document::makeLabel(address, at->autoName()));
     }
-    else if(auto* st = dynamic_cast<const StringType*>(type))
+    else if(auto* str = dynamic_cast<const StringType*>(type))
     {
-        TypePtr cst(st->clone(this->context()));
+        TypePtr cst(str->clone(this->context()));
         static_cast<StringType*>(cst.get())->calculateSize(address);
 
         switch(cst->type())

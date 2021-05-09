@@ -54,8 +54,8 @@ void SurfaceRenderer::setLastColumn(int col) { m_lastcolumn = std::max<int>(this
 
 int SurfaceRenderer::getRangeColumn(rd_address address, rd_address endaddress) const
 {
-    auto it = std::lower_bound(m_rows.begin(), m_rows.end(), address, [](const auto& row, rd_address address) {
-        return row.address < address;
+    auto it = std::lower_bound(m_rows.begin(), m_rows.end(), address, [](const auto& row, rd_address addr) {
+        return row.address < addr;
     });
 
     if((it == m_rows.end()) || (it->address != address)) return this->lastColumn();

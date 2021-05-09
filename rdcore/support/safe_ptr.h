@@ -23,7 +23,7 @@ class safe_ptr
             T* t;
             lock_t m;
 
-            auto_lock(T* t, mutex_t& m): t(t), m(m) { }
+            auto_lock(T* targ, mutex_t& marg): t(targ), m(marg) { }
             auto_lock(auto_lock&& al): t(std::move(al.t)), m(std::move(al.m)) { }
             ~auto_lock() { }
             const T* operator->() const { return t; }
@@ -34,7 +34,7 @@ class safe_ptr
             T* t;
             lock_t m;
 
-            auto_lock_obj(T* t, mutex_t& m): t(t), m(m) { }
+            auto_lock_obj(T* targ, mutex_t& marg): t(targ), m(marg) { }
             auto_lock_obj(auto_lock_obj&& alo): t(std::move(alo.t)), m(std::move(alo.m)) { }
             ~auto_lock_obj() { }
             template<typename ARG> auto operator[](ARG arg) -> decltype((*t)[arg]) { return (*t)[arg]; }
@@ -69,7 +69,7 @@ template<typename T> struct x_locked_safe_ptr {
     T& t;
     typename T::x_lock_type xlock;
 
-    x_locked_safe_ptr(T& t): t(t), xlock(*t.mget()) { }
+    x_locked_safe_ptr(T& targ): t(targ), xlock(*t.mget()) { }
     typename T::object_type* operator->() { return t.get(); }
     typename T::auto_nolock_obj operator*() { return T::auto_nolock_obj(t.get(), *t.mget()); }
 };
@@ -78,7 +78,7 @@ template<typename T> struct s_locked_safe_ptr {
     T& t;
     typename T::s_lock_type slock;
 
-    s_locked_safe_ptr(T& t): t(t), slock(*t.mget()) { }
+    s_locked_safe_ptr(T& targ): t(targ), slock(*t.mget()) { }
     typename T::object_type* operator->() const { return t.get(); }
     const typename T::auto_nolock_obj operator*() const { return T::auto_nolock_obj(t.get(), *t.mget()); }
 };

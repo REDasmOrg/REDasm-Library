@@ -222,8 +222,8 @@ static BOOL str_array_push(struct parsed_symbol* sym, const char* ptr, int len,
         for (i = a->max - 1; i >= 0; i--)
         {
             c = '>';
-            if (i < a->start) c = '-';
-            else if (i >= a->num) c = '}';
+            if (i < (int)a->start) c = '-';
+            else if (i >= (int)a->num) c = '}';
             //TRACE("%p\t%d%c %s\n", a, i, c, a->elts[i]);
             // Silence unused var warning when TRACE is commented out
             (void)c;
@@ -654,7 +654,7 @@ static char* get_class_string(struct parsed_symbol* sym, int start)
     char*        ret;
     struct array *a = &sym->stack;
 
-    for (len = 0, i = start; i < a->num; i++)
+    for (len = 0, i = start; i < (int)a->num; i++)
     {
         assert(a->elts[i]);
         len += 2 + strlen(a->elts[i]);
@@ -1499,7 +1499,7 @@ done:
  */
 char * __unDNameEx(char* buffer, const char* mangled, int buflen,
                         malloc_func_t memget, free_func_t memfree,
-                        void* unknown, unsigned short int flags)
+                        void*, unsigned short int flags)
 {
     struct parsed_symbol        sym;
     const char*                 result;

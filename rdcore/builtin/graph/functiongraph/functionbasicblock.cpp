@@ -4,6 +4,7 @@
 
 FunctionBasicBlock::FunctionBasicBlock(SafeDocument& document, RDGraphNode n, rd_address address): node(n), startaddress(address), endaddress(address), m_document(document) { }
 bool FunctionBasicBlock::contains(rd_address address) const { return ((address >= startaddress) && (address <= endaddress)); }
+
 rd_type FunctionBasicBlock::getTheme(RDGraphNode n) const
 {
     auto it = m_themes.find(n);

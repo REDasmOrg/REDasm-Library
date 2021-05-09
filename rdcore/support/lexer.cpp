@@ -106,8 +106,8 @@ void Lexer::marker(RDToken* token)
     {
         this->get();
 
-        this->tokenize(TokenType_Marker, token, [](char ch, RDToken*) -> bool {
-            return std::isdigit(ch);
+        this->tokenize(TokenType_Marker, token, [](char c, RDToken*) -> bool {
+            return std::isdigit(c);
         });
 
         return;

@@ -73,7 +73,7 @@ rd_flag StringFinder::categorize(Context* ctx, const RDBufferView& view, size_t*
 
     if(StringFinder::isAscii(c1) && !c2)
     {
-        bool ok = StringFinder::categorizeT<char16_t>(view, ctx->minString(), totalsize, [](char16_t ch, char* outch) {
+        ok = StringFinder::categorizeT<char16_t>(view, ctx->minString(), totalsize, [](char16_t ch, char* outch) {
             return StringFinder::toAscii(ch, outch);
         });
 
@@ -109,16 +109,33 @@ bool StringFinder::checkHeuristic(const std::string& s, bool gibberish)
 {
     switch(s.front())
     {
-        case '\'': if((s.back() != '\'')) break;
-        case '\"': if((s.back() != '\"')) break;
-        case '<':  if((s.back() != '>'))  break;
-        case '(':  if((s.back() != ')'))  break;
-        case '[':  if((s.back() != ']'))  break;
-        case '{':  if((s.back() != '}'))  break;
-        case ' ':  break;
+        case '\'':
+            if((s.back() != '\'')) break;
+            [[fallthrough]];
 
-        case '%':  return StringFinder::checkFormats(s);
-        default:   return gibberish && !GibberishDetector::isGibberish(s);
+        case '\"':
+            if((s.back() != '\"')) break;
+            [[fallthrough]];
+
+        case '<':
+            if((s.back() != '>'))  break;
+            [[fallthrough]];
+
+        case '(':
+            if((s.back() != ')'))  break;
+            [[fallthrough]];
+
+        case '[':
+            if((s.back() != ']'))  break;
+            [[fallthrough]];
+
+        case '{':
+            if((s.back() != '}'))  break;
+            [[fallthrough]];
+
+        case ' ': break;
+        case '%': return StringFinder::checkFormats(s);
+        default:  return gibberish && !GibberishDetector::isGibberish(s);
     }
 
     return false;

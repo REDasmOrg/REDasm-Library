@@ -37,9 +37,7 @@ void SurfacePath::update()
             for(const auto& from : node->from)
             {
                 if(from == row.address) continue;
-
-                auto flags = doc->getFlags(from);
-                if(flags & AddressFlags_Imported) continue;
+                if(doc->getFlags(from) & AddressFlags_Imported) continue;
                 this->insertPath(from, row.address);
             }
         }
@@ -48,9 +46,7 @@ void SurfacePath::update()
             for(const auto& branch : node->branchestrue)
             {
                 if(branch == row.address) continue;
-
-                auto flags = doc->getFlags(branch);
-                if(flags & AddressFlags_Imported) continue;
+                if(doc->getFlags(branch) & AddressFlags_Imported) continue;
                 this->insertPath(row.address, branch);
             }
         }

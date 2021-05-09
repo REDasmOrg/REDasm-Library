@@ -8,7 +8,7 @@
     event_id_t id; \
     void* sender; \
     void* owner; \
-    RD_USERDATA_FIELD;
+    RD_USERDATA_FIELD
 
 typedef u32 event_id_t;
 

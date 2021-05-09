@@ -33,7 +33,7 @@ struct LLEdge
 struct LLBlock
 {
     LLBlock() { }
-    LLBlock(const RDGraphNode& node, int w, int h) : node(node), width(w), height(h) { }
+    LLBlock(const RDGraphNode& n, int w, int h) : node(n), width(w), height(h) { }
 
     RDGraphNode node;
     std::deque<LLEdge> edges;

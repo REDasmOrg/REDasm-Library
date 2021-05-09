@@ -32,7 +32,7 @@ void RDILGraph::generate(const ILFunction* il)
 {
     m_strings.clear();
     this->setRoot(this->generate(il->first(), RD_NVAL));
-};
+}
 
 RDGraphNode RDILGraph::generate(const ILExpression* e, RDGraphNode parentnode)
 {

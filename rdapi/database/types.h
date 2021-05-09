@@ -5,7 +5,7 @@
 
 RD_HANDLE(RDType);
 
-enum RDTypes {
+enum RDTypeType {
     Type_None, Type_Void,
     Type_Bool, Type_Char,
     Type_Int, Type_Float,

@@ -15,7 +15,7 @@ class Context;
 class Engine: public Object
 {
     public:
-        enum { State_Stop, State_Algorithm, State_CFG, State_Analyze, State_Done, State_Last };
+        enum Steps { State_Stop, State_Algorithm, State_CFG, State_Analyze, State_Done, State_Last };
 
     public:
         Engine(Context* ctx);

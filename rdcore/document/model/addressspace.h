@@ -27,7 +27,7 @@ class AddressSpace: public Object
             std::string label;
             std::shared_ptr<Type> type, typefield;
             Comments comments;
-            rd_flag flags{AddressFlags_None};
+            rd_flag flags{0};
         };
 
     public:

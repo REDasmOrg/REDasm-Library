@@ -79,7 +79,7 @@ bool AddressSpace::insert(const RDSegment& segment)
 
     if(!HAS_FLAG(&segment, SegmentFlags_Bss))
     {
-        auto [bit, _] = m_buffers.emplace(segment.address, AddressSpace::offsetSize(segment));
+        auto [bit, __] = m_buffers.emplace(segment.address, AddressSpace::offsetSize(segment));
         bit->second.copyFrom(this->context()->buffer(), segment.offset, AddressSpace::offsetSize(segment));
     }
     else

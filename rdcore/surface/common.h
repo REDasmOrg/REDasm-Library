@@ -14,8 +14,8 @@ struct SurfaceChunk
 struct SurfaceRow
 {
     SurfaceRow() = default;
-    SurfaceRow(rd_address address): address(address) { }
-    SurfaceRow(rd_address address, bool isvirtual): isvirtual(isvirtual), address(address) { }
+    SurfaceRow(rd_address a): address(a) { }
+    SurfaceRow(rd_address a, bool v): isvirtual(v), address(a) { }
 
     bool isvirtual{false};
     rd_address address{RD_NVAL};

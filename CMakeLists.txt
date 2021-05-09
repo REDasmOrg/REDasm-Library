@@ -66,12 +66,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                       OUTPUT_NAME "LibREDasm"
                       PREFIX "")
 
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-missing-braces)
-endif()
-
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS})
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug") # Enforce warnings as errors if not in Release mode
+    if(MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX /permissive)
+    else()
+        target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wextra -Wno-error=extra -Wshadow -pedantic)
+    endif()
 endif()
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Config

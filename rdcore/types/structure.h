@@ -11,7 +11,7 @@ class StructureType: public Type
     public:
         StructureType();
         StructureType(const std::string& name);
-        Type* clone(Context* ctx = nullptr) const override;
+        Type* clone(Context* = nullptr) const override;
         size_t size() const override;
         void append(Type* t, const std::string& name);
         bool fromJson(const tao::json::value& v) override;

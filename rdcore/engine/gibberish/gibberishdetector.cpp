@@ -18,6 +18,8 @@ bool GibberishDetector::train(const std::string& bigfile, const std::string& goo
             m_counts[m_charidx[a]][m_charidx[b]] += 1;
     });
 
+    if(!res) return false;
+
     for(auto& row : m_counts)
     {
         double s = static_cast<double>(std::accumulate(row.begin(), row.end(), 0));

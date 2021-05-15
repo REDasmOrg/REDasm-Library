@@ -31,7 +31,12 @@ size_t Lexer::consume(const RDToken** tokens, const char** err)
 }
 
 const std::string& Lexer::lastError() const { return m_error; }
-std::string Lexer::unexpected(const RDToken* token) const { return "Unexpected character '" + Lexer::tokenValue(token) + "' @ position " + std::to_string(token->pos); }
+
+std::string Lexer::unexpected(const RDToken* token) const
+{
+    if(!token) return "Token is null";
+    return "Unexpected character '" + Lexer::tokenValue(token) + "' @ position " + std::to_string(token->pos);
+}
 
 void Lexer::error(const RDToken* token) const { m_error = this->unexpected(token); }
 
@@ -46,7 +51,7 @@ bool Lexer::hasError() const { return !m_error.empty(); }
 
 bool Lexer::lex(RDToken* token)
 {
-    if(!m_curr) return false;
+    if(!token || !m_curr) return false;
     while(std::isspace(this->peek())) this->get();
 
     if(std::isalpha(this->peek())) return this->identifier(token);

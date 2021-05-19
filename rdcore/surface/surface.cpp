@@ -180,7 +180,7 @@ void Surface::updateCompleted()
 {
     if(m_cursor && m_updatecursor)
     {
-        for(int i = m_rows.size(); i-- > 0; i--)
+        for(int i = m_rows.size(); i-- > 0; )
         {
             auto& row = m_rows[i];
             if(row.address != m_cursor->currentAddress()) continue;

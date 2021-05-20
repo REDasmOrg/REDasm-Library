@@ -342,9 +342,9 @@ bool Surface::goTo(const RDBlock* block, bool updatehistory)
     if(!blocks) return false;
     if(updatehistory && m_cursor) m_cursor->updateHistory();
 
-    if(this->hasFlag(RendererFlags_CenterOnSurface))
+    if(this->hasFlag(RendererFlags_CenterOnCursor))
     {
-        if(!this->centerOnSurface(blocks, block->address))
+        if(!this->ensureVisible(blocks, block->address))
             return false;
     }
     else m_range.first = block->address;
@@ -433,13 +433,13 @@ void Surface::checkSelection()
     }
 }
 
-bool Surface::centerOnSurface(const BlockContainer* blocks, rd_address address)
+bool Surface::ensureVisible(const BlockContainer* blocks, rd_address address)
 {
     auto it = blocks->find(address);
     if(it == blocks->end()) return false;
 
     // Center on view
-    for(int i = 0; i < (m_nrows / 2) && (it != blocks->begin()); i++) it--;
+    for(int i = 0; i < (m_nrows / 4) && (it != blocks->begin()); i++) it--;
     m_range.first = it->address;
     return true;
 }

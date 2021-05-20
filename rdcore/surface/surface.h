@@ -49,7 +49,7 @@ class Surface: public SurfaceRenderer
     private:
         void handleEvents(const RDEventArgs* event);
         void checkColumn(int row, int& col) const;
-        bool centerOnSurface(const BlockContainer* blocks, rd_address address);
+        bool ensureVisible(const BlockContainer* blocks, rd_address address);
         void scrollAddress(rd_address address);
         void drawCursor();
         void highlightCurrentRow();

@@ -11,7 +11,7 @@ enum RDRendererFlags {
     RendererFlags_None             = 0,
 
     RendererFlags_Decompile        = (1 << 1),
-    RendererFlags_CenterOnSurface  = (1 << 2),
+    RendererFlags_CenterOnCursor   = (1 << 2),
 
     RendererFlags_NoSegmentLine    = (1 << 3),
     RendererFlags_NoFunctionLine   = (1 << 4),
@@ -29,7 +29,7 @@ enum RDRendererFlags {
     RendererFlags_Graph            = ~0 & ~(RendererFlags_NoAddressColumn | RendererFlags_NoCursor |
                                             RendererFlags_NoHighlightWords | RendererFlags_NoComments),
 
-    RendererFlags_Simplified       = ~0 & ~(RendererFlags_CenterOnSurface),
+    RendererFlags_Simplified       = ~0 & ~(RendererFlags_CenterOnCursor),
 };
 
 typedef struct RDRendererParams {

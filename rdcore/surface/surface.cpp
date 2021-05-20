@@ -372,7 +372,7 @@ void Surface::drawCursor()
 
 void Surface::highlightCurrentRow()
 {
-    if(!this->active() || (m_cursor->currentRow() >= this->lastRow())) return;
+    if(m_cursor->currentRow() >= this->lastRow()) return;
 
     for(RDSurfaceCell& cell : m_rows[m_cursor->currentRow()].cells)
         cell.background = Theme_Seek;

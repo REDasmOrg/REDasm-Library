@@ -23,6 +23,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     find_package(Threads REQUIRED)
 endif()
 
+if(WIN32)
+    add_definitions(-D_WIN32_WINNT=0x0601) # Try to keep Windows 7 compatibility
+endif()
+
 # Core
 file(GLOB_RECURSE LIBS_HEADERS
      rdcore/libs/binutils_demangler/*.h* rdcore/libs/miniz/*.h* rdcore/libs/taojson/include/*.h*

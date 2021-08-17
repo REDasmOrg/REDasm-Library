@@ -156,8 +156,8 @@ std::string Utils::hex(T value, size_t bits, bool withprefix)
 
         return withprefix ? ("0x" + result) : result;
     }
-
-    return Utils::hexSigned(value, bits, withprefix);
+    else
+        return Utils::hexSigned(value, bits, withprefix);
 }
 
 template<typename T>

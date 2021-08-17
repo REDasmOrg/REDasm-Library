@@ -107,6 +107,8 @@ bool StringFinder::validateString(const std::string& str)
 
 bool StringFinder::checkHeuristic(const std::string& s, bool gibberish)
 {
+    if(s.empty()) return false;
+
     switch(s.front())
     {
         case '\'':

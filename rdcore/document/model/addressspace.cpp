@@ -79,7 +79,8 @@ bool AddressSpace::insert(const RDSegment& segment)
 
     if(!HAS_FLAG(&segment, SegmentFlags_Bss))
     {
-        auto [bit, __] = m_buffers.emplace(segment.address, AddressSpace::offsetSize(segment));
+        auto size = std::max(AddressSpace::offsetSize(segment), AddressSpace::addressSize(segment));
+        auto [bit, __] = m_buffers.emplace(segment.address, size);
         bit->second.copyFrom(this->context()->buffer(), segment.offset, AddressSpace::offsetSize(segment));
     }
     else
@@ -444,7 +445,12 @@ u8* AddressSpace::addrpointer(rd_address address) const
     if(!this->addressToSegment(address, &segment)) return nullptr;
 
     auto it = m_buffers.find(segment.address);
-    return (it != m_buffers.end()) ? Utils::relpointer(const_cast<u8*>(it->second.data()), address - segment.address) : nullptr;
+    if(it == m_buffers.end()) return nullptr;
+
+    auto buffoffset = address - segment.address;
+    if(buffoffset >= it->second.size()) return nullptr;
+
+    return Utils::relpointer(const_cast<u8*>(it->second.data()), buffoffset);
 }
 
 u8* AddressSpace::offspointer(rd_offset offset) const
@@ -453,7 +459,12 @@ u8* AddressSpace::offspointer(rd_offset offset) const
     if(!this->offsetToSegment(offset, &segment) || HAS_FLAG(&segment, SegmentFlags_Bss)) return nullptr;
 
     auto it = m_buffers.find(segment.address);
-    return (it != m_buffers.end()) ? Utils::relpointer(const_cast<u8*>(it->second.data()), offset - segment.offset) : nullptr;
+    if(it == m_buffers.end()) return nullptr;
+
+    auto buffoffset = offset - segment.offset;
+    if(buffoffset >= it->second.size()) return nullptr;
+
+    return Utils::relpointer(const_cast<u8*>(it->second.data()), buffoffset);
 }
 
 const MemoryBuffer* AddressSpace::getBuffer(rd_address address) const

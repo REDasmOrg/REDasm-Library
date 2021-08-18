@@ -11,13 +11,16 @@ const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { 
 
 FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
 {
-    for(FunctionBasicBlock& fbb : m_basicblocks)
+    auto it = m_basicblocks.lower_bound(address);
+    if(it == m_basicblocks.end()) return nullptr;
+
+    while(!it->second.contains(address))
     {
-        if(fbb.contains(address))
-            return &fbb;
+        if(it == m_basicblocks.begin()) return nullptr;
+        it--;
     }
 
-    return nullptr;
+    return std::addressof(it->second);
 }
 
 const FunctionGraph::BasicBlocks& FunctionGraph::basicBlocks() const { return m_basicblocks; }
@@ -33,7 +36,7 @@ size_t FunctionGraph::blocksCount() const
 {
     if(m_blockscount) return m_blockscount;
 
-    for(const FunctionBasicBlock& fbb : m_basicblocks)
+    for(const auto& [_, fbb] : m_basicblocks)
     {
         RDBlock startb, endb;
         if(!m_document->addressToBlock(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
@@ -55,7 +58,7 @@ size_t FunctionGraph::bytesCount() const
 {
     if(m_bytescount) return m_bytescount;
 
-    for(const FunctionBasicBlock& fbb : m_basicblocks)
+    for(const auto& [_, fbb] : m_basicblocks)
     {
         RDBlock startb, endb;
         if(!m_document->addressToBlock(fbb.startaddress, &startb)) REDasmError("Cannot find start block", fbb.startaddress);
@@ -72,16 +75,7 @@ size_t FunctionGraph::bytesCount() const
     return m_bytescount;
 }
 
-bool FunctionGraph::contains(rd_address address) const
-{
-    for(const FunctionBasicBlock& fbb : m_basicblocks)
-    {
-        if(fbb.contains(address))
-            return true;
-    }
-
-    return false;
-}
+bool FunctionGraph::contains(rd_address address) const { return this->basicBlock(address) != nullptr; }
 
 bool FunctionGraph::build(rd_address address)
 {
@@ -111,12 +105,12 @@ std::string FunctionGraph::nodeLabel(RDGraphNode n) const
 
 FunctionBasicBlock* FunctionGraph::createBasicBlock(rd_address startaddress)
 {
-    FunctionBasicBlock& newfbb = m_basicblocks.emplace_back(m_document, this->pushNode(), startaddress);
-    this->setData(newfbb.node, std::addressof(newfbb));
-    return &newfbb;
+    auto [it, _] = m_basicblocks.emplace(startaddress, FunctionBasicBlock(m_document, this->pushNode(), startaddress));
+    this->setData(it->second.node, std::addressof(it->second));
+    return std::addressof(it->second);
 }
 
-void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlockMap& basicblocks)
+void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlocksPtrs& basicblocks)
 {
     const DocumentNet* net = this->context()->net();
     std::stack<rd_address> pending;
@@ -158,7 +152,7 @@ void FunctionGraph::buildBasicBlocks(FunctionGraph::BasicBlockMap& basicblocks)
 void FunctionGraph::buildBasicBlocks()
 {
     const DocumentNet* net = this->context()->net();
-    std::map<rd_address, FunctionBasicBlock*> basicblocks;
+    BasicBlocksPtrs basicblocks;
     this->buildBasicBlocks(basicblocks);
 
     for(auto& [bbaddress, basicblock] : basicblocks)

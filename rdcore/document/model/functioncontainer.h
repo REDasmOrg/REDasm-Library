@@ -6,10 +6,9 @@
 #include "../../containers/addresscontainer.h"
 
 class FunctionGraph;
-
 typedef std::unique_ptr<FunctionGraph> FunctionGraphPtr;
 
-class FunctionContainer: public AddressContainer<FunctionGraphPtr>
+class FunctionContainer: public AddressContainer<FunctionGraphPtr, true>
 {
     public:
         FunctionContainer() = default;
@@ -17,8 +16,5 @@ class FunctionContainer: public AddressContainer<FunctionGraphPtr>
         RDLocation getFunction(rd_address address) const;
         bool isBasicBlockTail(rd_address address) const;
         void invalidateGraphs();
-
-    private:
-        mutable FunctionGraph* m_lastgraph{nullptr};
 };
 

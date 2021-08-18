@@ -2,16 +2,22 @@
 
 FunctionGraph* FunctionContainer::getGraph(rd_address address) const
 {
-    // Cache LRU graph
-    if(m_lastgraph && m_lastgraph->contains(address)) return m_lastgraph;
-
-    auto it = std::find_if(m_values.begin(), m_values.end(), [address](const auto& item) {
-        return item.second->contains(address);
-    });
-
+    auto it = m_values.lower_bound(address);
     if(it == m_values.end()) return nullptr;
-    m_lastgraph = it->second.get();
-    return m_lastgraph;
+
+    // Search near this location (backwards)
+    while(!it->second->contains(address))
+    {
+        if(it == m_values.begin())
+        {
+            if(!it->second->contains(address)) return nullptr;
+            break;
+        }
+
+        it--;
+    }
+
+    return it->second.get();
 }
 
 RDLocation FunctionContainer::getFunction(rd_address address) const
@@ -39,8 +45,4 @@ bool FunctionContainer::isBasicBlockTail(rd_address address) const
     return false;
 }
 
-void FunctionContainer::invalidateGraphs()
-{
-    m_lastgraph = nullptr;
-    this->clearValues();
-}
+void FunctionContainer::invalidateGraphs() { this->clearValues(); }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <list>
 #include <map>
 #include "../../../document/documentnet.h"
 #include "functionbasicblock.h"
@@ -9,10 +8,8 @@
 class FunctionGraph: public StyledGraph
 {
     private:
-        typedef std::map<rd_address, FunctionBasicBlock*> BasicBlockMap;
-
-    public:
-        typedef std::list<FunctionBasicBlock> BasicBlocks;
+        typedef std::map<rd_address, FunctionBasicBlock*> BasicBlocksPtrs;
+        typedef std::map<rd_address, FunctionBasicBlock> BasicBlocks;
 
     public:
         FunctionGraph(Context* ctx);
@@ -32,7 +29,7 @@ class FunctionGraph: public StyledGraph
 
     private:
         FunctionBasicBlock* createBasicBlock(rd_address startaddress);
-        void buildBasicBlocks(BasicBlockMap& basicblocks);
+        void buildBasicBlocks(BasicBlocksPtrs& basicblocks);
         void buildBasicBlocks();
 
     private:

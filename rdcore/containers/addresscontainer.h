@@ -2,15 +2,16 @@
 
 #include "sortedcontainer.h"
 #include <unordered_map>
+#include <map>
 
 typedef SortedContainer<rd_address, std::equal_to<rd_address>, std::less<rd_address>, true> SortedAddresses;
 
-template<typename T>
+template<typename T, bool Sorted = false>
 class AddressContainer
 {
     public:
         typedef AddressContainer<T> ClassType;
-        typedef std::unordered_map<rd_address, T> Values;
+        typedef std::conditional_t<Sorted, std::map<rd_address, T>, std::unordered_map<rd_address, T>> Values;
         typedef SortedAddresses::const_iterator const_iterator;
         typedef SortedAddresses::iterator iterator;
 

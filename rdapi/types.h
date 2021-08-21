@@ -106,10 +106,10 @@ typedef struct RDAnalysisStatus {
     // Stats
     size_t segmentscount;
     size_t functionscount;
-    size_t symbolscount;
+    size_t labelscount;
     int segmentsdiff;
     int functionsdiff;
-    int symbolsdiff;
+    int labelsdiff;
 } RDAnalysisStatus;
 
 RD_API_EXPORT size_t RDSegment_RawSize(const RDSegment* s);

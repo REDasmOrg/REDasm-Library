@@ -207,10 +207,17 @@ void Engine::notifyStatus()
 
     if(m_status.stepscurrent != m_lastnotifystep)
     {
-        m_status.segmentsdiff = doc->getSegments(nullptr) - m_status.segmentscount;
-        m_status.segmentscount = doc->getSegments(nullptr);
-        m_status.functionsdiff = doc->getFunctions(nullptr) - m_status.functionscount;
-        m_status.functionscount = doc->getFunctions(nullptr);
+        auto segc = doc->getSegments(nullptr);
+        auto func = doc->getFunctions(nullptr);
+        auto lblc = doc->getLabels(nullptr);
+
+        m_status.segmentsdiff = segc - m_status.segmentscount;
+        m_status.segmentscount = segc;
+        m_status.functionsdiff = func - m_status.functionscount;
+        m_status.functionscount = func;
+        m_status.labelsdiff = lblc - m_status.labelscount;
+        m_status.labelscount = lblc;
+
         m_lastnotifystep = m_status.stepscurrent;
     }
 

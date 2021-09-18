@@ -66,6 +66,7 @@ RD_API_EXPORT RDAssembler* RDContext_GetAssembler(const RDContext* ctx);
 RD_API_EXPORT RDLoader* RDContext_GetLoader(const RDContext* ctx);
 RD_API_EXPORT RDBuffer* RDContext_GetBuffer(const RDContext* ctx);
 RD_API_EXPORT u8* RDContext_GetBufferData(RDContext* ctx);
+RD_API_EXPORT bool RDContext_GetView(const RDContext* ctx, rd_address address, size_t size, RDBufferView* view);
 RD_API_EXPORT size_t RDContext_GetBufferSize(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetBits(const RDContext* ctx);
 RD_API_EXPORT size_t RDContext_GetAddressWidth(const RDContext* ctx);

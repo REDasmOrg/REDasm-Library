@@ -48,6 +48,7 @@ void RDContext_SetCC(RDContext* ctx, rd_type t) { CPTR(Context, ctx)->setCompile
 rd_type RDContext_GetCC(const RDContext* ctx) { return CPTR(const Context, ctx)->compilerCC(); }
 const char* RDContext_FunctionHexDump(const RDContext* ctx, rd_address address, rd_address* resaddress) { return CPTR(const Context, ctx)->disassembler()->getFunctionHexDump(address, resaddress); }
 u8* RDContext_GetBufferData(RDContext* ctx) { return CPTR(Context, ctx)->buffer()->data(); }
+bool RDContext_GetView(const RDContext* ctx, rd_address address, size_t size, RDBufferView* view) { return CPTR(const Context, ctx)->document()->getView(address, size, view); }
 void RDContext_Enqueue(RDContext* ctx, rd_address address) { CPTR(Context, ctx)->disassembler()->enqueue(address); }
 
 const char* RD_FromWString(const char16_t* s, size_t* len)

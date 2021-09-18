@@ -137,7 +137,7 @@ bool Document::getBlockView(rd_address address, RDBufferView* view) const
     RDBlock b;
     if(!this->addressToBlock(address, &b)) return false;
     if(!this->getView(b.address, BlockContainer::size(&b), view)) return false;
-    BufferView::advance(view, address - b.address); // Adjust view to requested address
+    BufferView::move(view, address - b.address); // Adjust view to requested address
     return true;
 }
 

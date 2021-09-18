@@ -36,7 +36,7 @@ bool StringFinder::categorizeT(RDBufferView view, size_t minstring, size_t* tota
     m_tempstr.clear();
     char ch;
 
-    for( ; !BufferView::empty(&view); BufferView::advance(&view, sizeof(T))) {
+    for( ; !BufferView::empty(&view); BufferView::move(&view, sizeof(T))) {
         if(!cb(*reinterpret_cast<const T*>(view.data), &ch)) break;
         m_tempstr.push_back(ch);
     }

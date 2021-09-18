@@ -133,7 +133,7 @@ const T* Document::readStringT(rd_address address, size_t* len) const {
     if(!this->getView(address, maxlen, &view)) return nullptr;
     const T* pstart = reinterpret_cast<T*>(view.data);
 
-    for(size_t i = 0 ; (i < maxlen) && !BufferView::empty(&view); i++, BufferView::advance(&view, sizeof(T))) {
+    for(size_t i = 0 ; (i < maxlen) && !BufferView::empty(&view); i++, BufferView::move(&view, sizeof(T))) {
         if(!StringFinder::toAscii(*reinterpret_cast<T*>(view.data), nullptr)) break;
         clen++;
     }

@@ -4,9 +4,9 @@
 
 bool BufferView::empty(const RDBufferView* view) { return !view->data || !view->size; }
 
-void BufferView::advance(RDBufferView* view, size_t offset)
+void BufferView::move(RDBufferView* view, s64 offset)
 {
-    if(offset > view->size) offset = view->size; // Avoid buffer overflow
+    if((offset > 0) && static_cast<size_t>(offset) > view->size) offset = view->size; // Avoid buffer overflow
     view->data += offset;
     view->size -= offset;
 }
@@ -28,12 +28,12 @@ u8* BufferView::findNext(RDBufferView* view, const u8* finddata, size_t findsize
 
    if(offset == RD_NVAL)
    {
-       BufferView::advance(view, 1);
+       BufferView::move(view, 1);
        return nullptr;
    }
 
    u8* res = view->data + offset;
-   BufferView::advance(view, offset + findsize);
+   BufferView::move(view, offset + findsize);
    return res;
 }
 
@@ -52,11 +52,11 @@ u8* BufferView::findPatternNext(RDBufferView* view, const char* pattern)
 
     if(offset == RD_NVAL)
     {
-        BufferView::advance(view, 1);
+        BufferView::move(view, 1);
         return nullptr;
     }
 
     u8* res = view->data + offset;
-    BufferView::advance(view, offset + patternlen);
+    BufferView::move(view, offset + patternlen);
     return res;
 }

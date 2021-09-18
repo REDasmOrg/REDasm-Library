@@ -56,9 +56,9 @@ bool StringFinder::step(Context* ctx, RDBufferView& view)
     rd_flag flags = StringFinder::categorize(ctx, view, &totalsize);
 
     if(StringFinder::checkAndMark(ctx, loc.address, flags, totalsize))
-        BufferView::advance(&view, totalsize);
+        BufferView::move(&view, totalsize);
     else
-        BufferView::advance(&view, 1);
+        BufferView::move(&view, 1);
 
     return true;
 }

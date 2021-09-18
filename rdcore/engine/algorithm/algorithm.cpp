@@ -27,12 +27,12 @@ void Algorithm::disassembleBlock(const RDBlock* block)
 
         if(!nextaddress || !result.size())
         {
-            BufferView::advance(&view, 1);
+            BufferView::move(&view, 1);
             address++;
         }
         else
         {
-            BufferView::advance(&view, result.size());
+            BufferView::move(&view, result.size());
             address = *nextaddress;
         }
 

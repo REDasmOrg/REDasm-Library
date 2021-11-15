@@ -9,6 +9,8 @@
 #include "builtin/analyzer/stringsanalyzer.h"
 #include "builtin/loader/binary.h"
 #include "document/document.h"
+#include "database/addressdatabase.h"
+#include "database/database.h"
 #include "disassembler.h"
 
 #define INSTRUCTION_START_COL 16
@@ -18,12 +20,14 @@ Context::Context(): Object(this)
     m_surfacestate.instrstartcol = INSTRUCTION_START_COL;
 
     m_pluginmanager = std::make_unique<PluginManager>(this);
+    m_addrdatabase = std::make_unique<AddressDatabase>(this);
     m_database = std::make_unique<Database>(this);
     m_database->setName("Active Database");
 }
 
 Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
 Database* Context::database() const { return m_database.get(); }
+AddressDatabase* Context::addressDatabase() const { return m_addrdatabase.get(); }
 const Context::SurfaceState& Context::surfaceState() const { return m_surfacestate; }
 Context::SurfaceState& Context::surfaceState() { return m_surfacestate; }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
@@ -46,6 +50,8 @@ bool Context::matchAssembler(const std::string& q) const
 
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
 bool Context::executeCommand(const char* cmd, const RDArguments* a) const { return cmd ? m_pluginmanager->executeCommand(cmd, a) : false; }
+Assembler* Context::getAddressAssembler(rd_address) const { return nullptr; }
+void Context::setAddressAssembler(rd_address address, const std::string& id) { if(m_disassembler) m_disassembler->setAddressAssembler(address, id); }
 bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
 void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disassembler->disassembleBlock(block); }
 
@@ -186,6 +192,7 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 }
 
 SafeDocument& Context::document() const { return m_disassembler->loader()->document(); }
+const RDEntryAssembler* Context::getAssembler(const std::string& id) { return m_pluginmanager->getAssembler(id); }
 const DocumentNet* Context::net() const { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
 DocumentNet* Context::net() { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
 Disassembler* Context::disassembler() const { return m_disassembler.get(); }

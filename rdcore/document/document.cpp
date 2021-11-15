@@ -1,4 +1,5 @@
 #include "document.h"
+#include "../database/addressdatabase.h"
 #include "../plugin/assembler.h"
 #include "../plugin/loader.h"
 #include "../support/utils.h"
@@ -64,12 +65,12 @@ void Document::setBranch(rd_address address, int direction)
     else this->setLabel(address, AddressFlags_Location);
 }
 
-void Document::setLabel(rd_address address, rd_flag flags, const std::string& label) { m_addressspace.setLabel(address, label.empty() ? Document::makeLabel(address, "loc") : label, flags); }
+void Document::setLabel(rd_address address, rd_flag flags, const std::string& label) { this->addressDatabase()->setLabel(address, label.empty() ? Document::makeLabel(address, "loc") : label, flags); }
 
 void Document::setPointer(rd_address address, const std::string& label)
 {
     this->setData(address, this->context()->addressWidth(), label.empty() ? Document::makeLabel(address, "ptr") : label);
-    m_addressspace.updateFlags(address, AddressFlags_Pointer);
+    this->addressDatabase()->updateFlags(address, AddressFlags_Pointer);
 }
 
 void Document::setExportedFunction(rd_address address, const std::string& label)
@@ -90,8 +91,8 @@ void Document::setImported(rd_address address, size_t size, const std::string& l
     this->setLabel(address, AddressFlags_Imported, label);
 }
 
-void Document::setComments(rd_address address, const std::string& s) { m_addressspace.setComments(address, Utils::split(s, '\n')); }
-void Document::addComment(rd_address address, const std::string& s) { m_addressspace.addComment(address, s); }
+void Document::setComments(rd_address address, const std::string& s) { this->addressDatabase()->setComments(address, Utils::split(s, '\n')); }
+void Document::addComment(rd_address address, const std::string& s) { this->addressDatabase()->addComment(address, s); }
 
 bool Document::createFunction(rd_address address, const std::string& label)
 {
@@ -101,7 +102,7 @@ bool Document::createFunction(rd_address address, const std::string& label)
     return true;
 }
 
-bool Document::updateLabel(rd_address address, const std::string& s) { return m_addressspace.updateLabel(address, s); }
+bool Document::updateLabel(rd_address address, const std::string& s) { return this->addressDatabase()->updateLabel(address, s); }
 
 void Document::setEntry(rd_address address)
 {
@@ -147,11 +148,11 @@ bool Document::getView(rd_address address, size_t size, RDBufferView* view) cons
     return loc.valid ? m_addressspace.offsetToView(loc.offset, size, view) : false;
 }
 
-const Type* Document::getTypeField(rd_address address, int* indent) const { return m_addressspace.getTypeField(address, indent); }
-std::string Document::getComments(rd_address address) const { return Utils::join(m_addressspace.getComments(address), "\n"); }
-rd_flag Document::getFlags(rd_address address) const { return m_addressspace.getFlags(address); }
-size_t Document::getLabels(const rd_address** addresses) const { return m_addressspace.getLabels(addresses); }
-size_t Document::getLabelsByFlag(rd_flag flag, const rd_address** addresses) const { return m_addressspace.getLabelsByFlag(flag, addresses); }
+const Type* Document::getTypeField(rd_address address, int* indent) const { return this->addressDatabase()->getTypeField(address, indent); }
+std::string Document::getComments(rd_address address) const { return Utils::join(this->addressDatabase()->getComments(address), "\n"); }
+rd_flag Document::getFlags(rd_address address) const { return this->addressDatabase()->getFlags(address); }
+size_t Document::getLabels(const rd_address** addresses) const { return this->addressDatabase()->getLabels(addresses); }
+size_t Document::getLabelsByFlag(rd_flag flag, const rd_address** addresses) const { return this->addressDatabase()->getLabelsByFlag(flag, addresses); }
 size_t Document::getSegments(const rd_address** addresses) const { return m_addressspace.data(addresses); }
 size_t Document::getFunctions(const rd_address** addresses) const { return m_functions.data(addresses); }
 
@@ -161,10 +162,10 @@ size_t Document::getFunctionInstrCount(rd_address address) const
     return g ? g->blocksCount() : 0;
 }
 
-rd_address Document::getAddress(const std::string& label) const { return m_addressspace.getAddress(label); }
+rd_address Document::getAddress(const std::string& label) const { return this->addressDatabase()->getAddress(label); }
 rd_address Document::firstAddress() const { return m_addressspace.firstAddress(); }
 rd_address Document::lastAddress() const { return m_addressspace.lastAddress(); }
-std::optional<std::string> Document::getLabel(rd_address address) const { return m_addressspace.getLabel(address); }
+std::optional<std::string> Document::getLabel(rd_address address) const { return this->addressDatabase()->getLabel(address); }
 RDLocation Document::offset(rd_address address) const { return m_addressspace.offset(address); }
 RDLocation Document::address(rd_offset offset) const { return m_addressspace.address(offset); }
 RDLocation Document::addressof(const void* ptr) const { return m_addressspace.addressof(ptr); }
@@ -185,7 +186,7 @@ bool Document::setUnknown(rd_address address, size_t size) { return m_addressspa
 bool Document::setData(rd_address address, size_t size, const std::string& label)
 {
     if(!m_addressspace.markData(address, size)) return false;
-    m_addressspace.setLabel(address, label.empty() ? Document::makeLabel(address, "data") : label, AddressFlags_Location);
+    this->addressDatabase()->setLabel(address, label.empty() ? Document::makeLabel(address, "data") : label, AddressFlags_Location);
     return true;
 }
 
@@ -196,14 +197,14 @@ bool Document::setString(rd_address address, size_t size, rd_flag flags, const s
     if(!size || !m_addressspace.markString(address, size)) return false;
 
     if(flags & AddressFlags_WideString)
-        m_addressspace.setLabel(address, label.empty() ? Document::makeLabel(address, "wstr") : std::string(), AddressFlags_WideString);
+        this->addressDatabase()->setLabel(address, label.empty() ? Document::makeLabel(address, "wstr") : std::string(), AddressFlags_WideString);
     else
-        m_addressspace.setLabel(address, label.empty() ? Document::makeLabel(address, "str") : label, AddressFlags_AsciiString);
+        this->addressDatabase()->setLabel(address, label.empty() ? Document::makeLabel(address, "str") : label, AddressFlags_AsciiString);
 
     return true;
 }
 
-const Type* Document::getType(rd_address address) const { return m_addressspace.getType(address); }
+const Type* Document::getType(rd_address address) const { return this->addressDatabase()->getType(address); }
 
 bool Document::setTypeName(rd_address address, const std::string& q)
 {
@@ -216,10 +217,10 @@ bool Document::setTypeName(rd_address address, const std::string& q)
 }
 
 bool Document::setType(rd_address address, const Type* type) { return this->setTypeFields(address, type, 0); }
-bool Document::findLabel(const std::string& q, rd_address* resaddress) const { return m_addressspace.findLabel(q, resaddress); }
-bool Document::findLabelR(const std::string& q, rd_address* resaddress) const { return m_addressspace.findLabelR(q, resaddress); }
-size_t Document::findLabels(const std::string& q, const rd_address** resaddresses) const { return m_addressspace.findLabels(q, resaddresses); }
-size_t Document::findLabelsR(const std::string& q, const rd_address** resaddresses) const { return m_addressspace.findLabelsR(q, resaddresses); }
+bool Document::findLabel(const std::string& q, rd_address* resaddress) const { return this->addressDatabase()->findLabel(q, resaddress); }
+bool Document::findLabelR(const std::string& q, rd_address* resaddress) const { return this->addressDatabase()->findLabelR(q, resaddress); }
+size_t Document::findLabels(const std::string& q, const rd_address** resaddresses) const { return this->addressDatabase()->findLabels(q, resaddresses); }
+size_t Document::findLabelsR(const std::string& q, const rd_address** resaddresses) const { return this->addressDatabase()->findLabelsR(q, resaddresses); }
 
 rd_address Document::checkLocation(rd_address fromaddress, rd_address address, size_t size)
 {
@@ -337,12 +338,12 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
             if(!loc.valid) this->checkLocation(address, fieldaddress);        // ...or just add a reference to the field
 
             if(!level && (f == stt->fields().back().second))
-                m_addressspace.updateFlags(fieldaddress, AddressFlags_TypeEnd);
+                this->addressDatabase()->updateFlags(fieldaddress, AddressFlags_TypeEnd);
 
             fieldaddress += f->size();
         }
 
-        m_addressspace.setType(address, stt, level ? std::string() : Document::makeLabel(address, stt->autoName()));
+        this->addressDatabase()->setType(address, stt, level ? std::string() : Document::makeLabel(address, stt->autoName()));
     }
     else if(auto* at = dynamic_cast<const ArrayType*>(type))
     {
@@ -351,15 +352,15 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
         for(size_t i = 0; i < at->itemsCount(); i++)
         {
             this->setType(itemaddress, at->type());
-            m_addressspace.updateLabel(itemaddress, Document::makeLabel(itemaddress, at->type()->autoName() + "_" + std::to_string(i)));
+            this->addressDatabase()->updateLabel(itemaddress, Document::makeLabel(itemaddress, at->type()->autoName() + "_" + std::to_string(i)));
 
             if(!level && i == (at->itemsCount() - 1))
-                m_addressspace.updateFlags(itemaddress, AddressFlags_TypeEnd);
+                this->addressDatabase()->updateFlags(itemaddress, AddressFlags_TypeEnd);
 
             itemaddress += at->type()->size();
         }
 
-        m_addressspace.setType(address, at, Document::makeLabel(address, at->autoName()));
+        this->addressDatabase()->setType(address, at, Document::makeLabel(address, at->autoName()));
     }
     else if(auto* str = dynamic_cast<const StringType*>(type))
     {
@@ -379,10 +380,14 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
             default: return false;
         }
 
-        m_addressspace.setTypeField(address, cst.get(), level, Document::makeLabel(address, cst->autoName())); // Take copy
+        if(m_addressspace.markData(address, type->size()))
+            this->addressDatabase()->setTypeField(address, cst.get(), level, Document::makeLabel(address, cst->autoName())); // Take copy
     }
     else if(auto* nt = dynamic_cast<const NumericType*>(type))
-        m_addressspace.setTypeField(address, nt, level, Document::makeLabel(address, nt->autoName()));
+    {
+        if(m_addressspace.markData(address, type->size()))
+            this->addressDatabase()->setTypeField(address, nt, level, Document::makeLabel(address, nt->autoName()));
+    }
     else
         this->log("Unhandled type: " + Utils::quoted(type->typeName()));
 

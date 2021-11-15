@@ -7,7 +7,6 @@
 #include <iomanip>
 #include <limits>
 #include <string>
-#include <deque>
 #include <rdapi/types.h>
 #include "../support/error.h"
 #include "../document/document_fwd.h"
@@ -18,7 +17,7 @@ class Context;
 class Utils
 {
     private:
-        typedef std::deque<std::string> StringContainer;
+        typedef std::vector<std::string> StringContainer;
 
     public:
         Utils() = delete;

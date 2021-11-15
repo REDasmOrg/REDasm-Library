@@ -16,6 +16,7 @@
 #include "database/database.h"
 #include "object.h"
 
+class AddressDatabase;
 class Disassembler;
 class PluginManager;
 class Analyzer;
@@ -45,6 +46,7 @@ class Context: public Object
         Context();
         ~Context();
         Database* database() const;
+        AddressDatabase* addressDatabase() const;
         const SurfaceState& surfaceState() const;
         SurfaceState& surfaceState();
         bool busy() const;
@@ -71,6 +73,7 @@ class Context: public Object
         SafeDocument& document() const;
 
     public: // Assembler
+        const RDEntryAssembler* getAssembler(const std::string& id);
         void findAssemblerEntries(Callback_AssemblerEntry callback, void* userdata) const;
         const RDEntryAssembler* findAssemblerEntry(const RDEntryLoader* entryloader, std::string* res) const;
         Assembler* assembler() const;
@@ -86,6 +89,8 @@ class Context: public Object
         bool executeCommand(const char* cmd, const RDArguments* a) const;
 
     public: // Disassembler
+        Assembler* getAddressAssembler(rd_address) const;
+        void setAddressAssembler(rd_address address, const std::string& id);
         const DocumentNet* net() const;
         DocumentNet* net();
         bool bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
@@ -123,6 +128,7 @@ class Context: public Object
 
     private:
         std::unique_ptr<Database> m_database;
+        std::unique_ptr<AddressDatabase> m_addrdatabase;
         std::pair<rd_type, rd_type> m_compilerabi{CompilerABI_Unknown, CompilerCC_Unknown};
         SurfaceState m_surfacestate;
         Surface* m_activesurface{nullptr};

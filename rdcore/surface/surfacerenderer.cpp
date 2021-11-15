@@ -1,4 +1,5 @@
 #include "surfacerenderer.h"
+#include "../database/addressdatabase.h"
 #include "../document/document.h"
 #include "../context.h"
 #include <algorithm>
@@ -90,7 +91,7 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
 
     for( ; canupdate(it->address) && (it != blocks->end()); it++)
     {
-        rd_flag flags = addressspace->getFlags(it->address);
+        rd_flag flags = this->addressDatabase()->getFlags(it->address);
 
         switch(it->type)
         {

@@ -13,6 +13,7 @@
 typedef std::vector<u8> RawData;
 
 class Context;
+class AddressDatabase;
 
 class Object
 {
@@ -27,6 +28,7 @@ class Object
 
     public:
         Context* context() const;
+        AddressDatabase* addressDatabase() const;
         void setContext(Context* ctx);
         void log(const std::string& s) const;
         void status(const std::string& s) const;

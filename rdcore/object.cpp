@@ -1,8 +1,10 @@
 #include "object.h"
 #include "config.h"
+#include "context.h"
 
 Object::Object(Context* context): m_context(context) { }
 Context* Object::context() const { return m_context; }
+AddressDatabase* Object::addressDatabase() const { return this->context()->addressDatabase(); }
 void Object::setContext(Context* ctx) { m_context = ctx; }
 void Object::log(const std::string& s) const { rd_cfg->log(s); }
 void Object::status(const std::string& s) const { rd_cfg->status(s); }

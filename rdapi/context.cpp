@@ -1,4 +1,5 @@
 #include "context.h"
+#include <rdcore/database/addressdatabase.h>
 #include <rdcore/database/contextstate.h>
 #include <rdcore/document/document.h>
 #include <rdcore/disassembler.h>
@@ -120,4 +121,20 @@ const char* RD_QuotedSingle(const char* s)
     static std::string res;
     res = Utils::quotedSingle(s);
     return res.c_str();
+}
+
+void RDContext_SetAddressAssembler(RDContext* ctx, rd_address address, const char* assembler)
+{
+    if(assembler) CPTR(Context, ctx)->addressDatabase()->setAddressAssembler(address, assembler);
+}
+
+const char* RDContext_GetAddressAssembler(const RDContext* ctx, rd_address address)
+{
+    static std::string assembler;
+
+    auto optassembler = CPTR(const Context, ctx)->addressDatabase()->getAddressAssembler(address);
+    if(optassembler) assembler = *optassembler;
+    else return nullptr;
+
+    return assembler.c_str();
 }

@@ -1,6 +1,7 @@
 #include "addressdatabase.h"
 #include "../support/demangler.h"
 #include "../support/utils.h"
+#include "../document/document.h"
 #include "../context.h"
 
 AddressDatabase::AddressDatabase(Context* context): Object(context) { }
@@ -90,6 +91,18 @@ size_t AddressDatabase::findLabelsR(const std::string& q, const rd_address** res
 
     if(resaddresses) *resaddresses = m_result.data();
     return m_result.size();
+}
+
+void AddressDatabase::setAddressAssembler(rd_address address, const std::string& assembler)
+{
+    if(!this->context()->document()->isAddress(address) || assembler.empty()) return;
+    m_assemblers[address] = assembler;
+}
+
+std::optional<std::string> AddressDatabase::getAddressAssembler(rd_address address) const
+{
+    auto it = m_assemblers.find(address);
+    return it != m_assemblers.end() ? std::make_optional(it->second) : std::nullopt;
 }
 
 rd_flag AddressDatabase::getFlags(rd_address address) const

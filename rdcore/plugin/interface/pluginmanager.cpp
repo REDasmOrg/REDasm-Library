@@ -15,6 +15,18 @@ PluginManager::PluginManager(Context* ctx): Object(ctx)
 const PluginManager::EntryList& PluginManager::loaders() const { return m_entries.at(EntryCategory_Loader); }
 const PluginManager::EntryList& PluginManager::assemblers() const { return m_entries.at(EntryCategory_Assembler); }
 const PluginManager::EntryList& PluginManager::analyzers() const { return m_entries.at(EntryCategory_Analyzer); }
+
+const RDEntryAssembler* PluginManager::getAssembler(const std::string& id) const
+{
+    auto* entry = this->findAssembler(id);
+
+    if(!entry)
+    {
+
+    }
+
+    return entry;
+}
 const RDEntryAssembler* PluginManager::findAssembler(const std::string& id) const { return this->findEntry<RDEntryAssembler>(EntryCategory_Assembler, id); }
 const RDEntryLoader* PluginManager::selectLoader(const std::string& id) { return reinterpret_cast<const RDEntryLoader*>(this->selectEntry(EntryCategory_Loader, id)); }
 const RDEntryAssembler* PluginManager::selectAssembler(const std::string& id) { return reinterpret_cast<const RDEntryAssembler*>(this->selectEntry(EntryCategory_Assembler, id)); }

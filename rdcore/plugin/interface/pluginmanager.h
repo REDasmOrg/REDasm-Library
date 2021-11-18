@@ -16,9 +16,10 @@ class PluginManager: public Object
         const EntryList& loaders() const;
         const EntryList& assemblers() const;
         const EntryList& analyzers() const;
+        const RDEntryAssembler* getAssembler(const std::string& id) const;
         const RDEntryAssembler* findAssembler(const std::string& id) const;
-        const RDEntryLoader* selectLoader(const std::string& id);
         const RDEntryAssembler* selectAssembler(const std::string& id);
+        const RDEntryLoader* selectLoader(const std::string& id);
         bool executeCommand(const std::string& cmd, const RDArguments* a) const;
         void checkCommands();
         void unload(const RDEntry* entry);

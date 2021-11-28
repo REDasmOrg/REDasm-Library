@@ -93,17 +93,15 @@ size_t AddressDatabase::findLabelsR(const std::string& q, const rd_address** res
     return m_result.size();
 }
 
-void AddressDatabase::setAddressAssembler(rd_address address, const std::string& assembler)
+u16 AddressDatabase::assemblerToIndex(const std::string& assembler) const
 {
-    if(!this->context()->document()->isAddress(address) || assembler.empty()) return;
-    m_assemblers[address] = assembler;
+    if(assembler.empty()) return 0;
+    auto idx = m_assemblers.indexOf(assembler);
+    return static_cast<u16>(idx == RD_NVAL ? 0 : idx);
 }
 
-std::optional<std::string> AddressDatabase::getAddressAssembler(rd_address address) const
-{
-    auto it = m_assemblers.find(address);
-    return it != m_assemblers.end() ? std::make_optional(it->second) : std::nullopt;
-}
+std::optional<std::string> AddressDatabase::indexToAssembler(size_t index) const { return index < m_assemblers.size() ? std::make_optional(m_assemblers.at(index)) : std::nullopt; }
+size_t AddressDatabase::pushAssembler(const std::string& assembler) { m_assemblers.insert(assembler); return m_assemblers.indexOf(assembler); }
 
 rd_flag AddressDatabase::getFlags(rd_address address) const
 {

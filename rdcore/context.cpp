@@ -50,8 +50,6 @@ bool Context::matchAssembler(const std::string& q) const
 
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
 bool Context::executeCommand(const char* cmd, const RDArguments* a) const { return cmd ? m_pluginmanager->executeCommand(cmd, a) : false; }
-Assembler* Context::getAddressAssembler(rd_address) const { return nullptr; }
-void Context::setAddressAssembler(rd_address address, const std::string& id) { if(m_disassembler) m_disassembler->setAddressAssembler(address, id); }
 bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
 void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disassembler->disassembleBlock(block); }
 
@@ -192,7 +190,34 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 }
 
 SafeDocument& Context::document() const { return m_disassembler->loader()->document(); }
-const RDEntryAssembler* Context::getAssembler(const std::string& id) { return m_pluginmanager->getAssembler(id); }
+
+Assembler* Context::getAssembler(rd_address address) const
+{
+    auto assembler = this->document()->getAddressAssembler(address);
+
+    if(!assembler)
+    {
+        rd_log("Cannot get assembler @ " + Utils::hex(address));
+        return nullptr;
+    }
+
+    return this->getAssembler(*assembler);
+}
+
+Assembler* Context::getAssembler(const std::string& id) const
+{
+    if(m_disassembler->assembler()->id() == id) return m_disassembler->assembler();
+
+    auto it = m_assemblers.find(id);
+    if(it != m_assemblers.end()) return it->second.get();
+
+    auto* assembler = m_pluginmanager->getAssembler(id);
+    if(!assembler) return nullptr;
+
+    auto iit = m_assemblers.try_emplace(id, new Assembler(assembler, this->context()));
+    return iit.first->second.get();
+}
+
 const DocumentNet* Context::net() const { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
 DocumentNet* Context::net() { return m_disassembler ? m_disassembler->document()->net() : nullptr; }
 Disassembler* Context::disassembler() const { return m_disassembler.get(); }

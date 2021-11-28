@@ -28,8 +28,9 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         void exploredSize(rd_address start, size_t size);
         void unknownSize(rd_address start, size_t size);
         void dataSize(rd_address start, size_t size);
-        void codeSize(rd_address start, size_t size);
+        void codeSize(rd_address start, size_t size, u16 info = 0);
         void stringSize(rd_address start, size_t size);
+        void info(rd_address address, rd_type type, u16 info);
         size_t size() const;
         bool empty() const;
 
@@ -42,8 +43,8 @@ class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
         ContainerType::const_iterator get(rd_address address) const;
         bool canMerge(const RDBlock* block1, const RDBlock* block2) const;
         bool canMerge(const RDBlock* block, rd_type type) const;
-        void mark(rd_address start, rd_address end, rd_type type);
-        void markSize(rd_address start, size_t size, rd_type type);
+        void mark(rd_address start, rd_address end, rd_type type, u16 info = 0);
+        void markSize(rd_address start, size_t size, rd_type type, u16 info = 0);
         void doInsert(const RDBlock& b);
 
     private:

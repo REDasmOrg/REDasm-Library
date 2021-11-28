@@ -19,14 +19,10 @@ const PluginManager::EntryList& PluginManager::analyzers() const { return m_entr
 const RDEntryAssembler* PluginManager::getAssembler(const std::string& id) const
 {
     auto* entry = this->findAssembler(id);
-
-    if(!entry)
-    {
-
-    }
-
+    if(!entry) rd_log("Cannot load assembler " + Utils::quoted(id));
     return entry;
 }
+
 const RDEntryAssembler* PluginManager::findAssembler(const std::string& id) const { return this->findEntry<RDEntryAssembler>(EntryCategory_Assembler, id); }
 const RDEntryLoader* PluginManager::selectLoader(const std::string& id) { return reinterpret_cast<const RDEntryLoader*>(this->selectEntry(EntryCategory_Loader, id)); }
 const RDEntryAssembler* PluginManager::selectAssembler(const std::string& id) { return reinterpret_cast<const RDEntryAssembler*>(this->selectEntry(EntryCategory_Assembler, id)); }

@@ -27,7 +27,8 @@ class Document: public Object
         DocumentNet* net();
 
     public: // Setters
-        bool setCode(rd_address address, size_t size);
+        void setAddressAssembler(rd_address address, const std::string& assembler);
+        bool setCode(rd_address address, size_t size, u16 info);
         bool setData(rd_address address, size_t size, const std::string& label = std::string());
         bool setLocation(rd_address address);
         bool setUnknown(rd_address address, size_t size);
@@ -50,6 +51,7 @@ class Document: public Object
         bool updateLabel(rd_address address, const std::string& s);
 
     public: // Getters
+        std::optional<std::string> getAddressAssembler(rd_address address) const;
         const char* readString(rd_address address, size_t* len) const;
         const char16_t* readWString(rd_address address, size_t* len) const;
         std::string readString(rd_address address, size_t len = RD_NVAL) const;  // Internal C++ Helper

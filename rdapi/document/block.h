@@ -39,6 +39,13 @@ typedef struct RDBlock { // [start, end)
 
     rd_address end;
     rd_type type;
+
+    union { // Internal use
+      u16 info;
+      u16 datainfo;
+      u16 stringinfo;
+      u16 codeinfo;
+    };
 } RDBlock;
 #pragma pack(pop)
 

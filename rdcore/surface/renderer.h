@@ -90,7 +90,6 @@ class Renderer: public Object
         Renderer& chunk(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
         Renderer& chunkalign(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);
         SafeDocument& document() const;
-        Assembler* assembler() const;
 
     private:
         mutable std::string m_asminstruction, m_rdilinstruction;
@@ -101,4 +100,3 @@ class Renderer: public Object
         u8 m_currentfg{Theme_Default}, m_currentbg{Theme_Default};
         rd_flag m_flags;
 };
-

@@ -199,12 +199,6 @@ void SurfaceRenderer::resizeRange(rd_address startaddress, rd_address endaddress
     m_range.second = endaddress;
     m_ncols = cols;
 
-    if(startaddress == 0x000723FC)
-    {
-        int zzz = 0;
-        zzz++;
-    }
-
     this->update([&](rd_address address) {
         return address <= m_range.second;
     });

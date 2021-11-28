@@ -52,18 +52,6 @@ void Algorithm::disassemble()
     }
 }
 
-Assembler* Algorithm::getAssembler(const std::string& id)
-{
-    auto it = m_assemblers.find(id);
-    if(it != m_assemblers.end()) return std::addressof(it->second);
-
-    auto* assembler = this->context()->getAssembler(id);
-    if(!assembler) return nullptr;
-
-    auto iit = m_assemblers.try_emplace(id, assembler, this->context());
-    return std::addressof(iit.first->second);
-}
-
 void Algorithm::next()
 {
     if(m_pending.empty()) return;
@@ -230,24 +218,18 @@ std::optional<rd_address> Algorithm::decode(rd_address address)
 std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* result)
 {
     if(!this->isAddressValid(result->address())) return std::nullopt;
-
     this->status("Decoding @ " + Utils::hex(result->address()));
 
-    auto assemblerid = this->context()->addressDatabase()->getAddressAssembler(result->address());
-    Assembler* assembler = nullptr;
-
-    if(assemblerid)
-    {
-        assembler = this->getAssembler(*assemblerid);
-    }
-    else assembler = this->context()->assembler();
-
+    Assembler* assembler = this->context()->getAssembler(result->address());
+    if(!assembler) return std::nullopt;
     assembler->emulate(result);
 
     if(!result->size() || (result->size() > view->size))
         return std::nullopt;
 
-    if(!result->invalid()) m_document->setCode(result->address(), result->size());
+    if(!result->invalid())
+        m_document->setCode(result->address(), result->size(), this->addressDatabase()->assemblerToIndex(assembler->id()));
+
     rd_address nextaddress = result->address() + result->size();
 
     if(result->delaySlot())

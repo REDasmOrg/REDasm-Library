@@ -12,6 +12,14 @@ void Document::setEndianness(rd_endianness endianness) { m_endianness = endianne
 MemoryBuffer* Document::buffer() const { return m_buffer.get(); }
 DocumentNet* Document::net() { return &m_net; }
 
+void Document::setAddressAssembler(rd_address address, const std::string& assembler)
+{
+    if(!this->isAddress(address) || assembler.empty()) return;
+
+    auto idx = this->context()->addressDatabase()->pushAssembler(assembler);
+    m_addressspace.markInfo(address, BlockType_Unknown, static_cast<u16>(idx));
+}
+
 bool Document::setSegment(const std::string& name, rd_offset offset, rd_address address, size_t psize, size_t vsize, rd_flag flags)
 {
     if((!(flags & SegmentFlags_Bss) && !psize) || !vsize)
@@ -103,6 +111,16 @@ bool Document::createFunction(rd_address address, const std::string& label)
 }
 
 bool Document::updateLabel(rd_address address, const std::string& s) { return this->addressDatabase()->updateLabel(address, s); }
+
+std::optional<std::string> Document::getAddressAssembler(rd_address address) const
+{
+    RDBlock block;
+
+    if(!m_addressspace.addressToBlock(address, &block))// || !IS_TYPE(&block, BlockType_Code))
+        return std::nullopt;
+
+    return this->addressDatabase()->indexToAssembler(block.codeinfo);
+}
 
 void Document::setEntry(rd_address address)
 {
@@ -472,7 +490,7 @@ size_t Document::checkString(rd_address address, rd_flag* resflags)
     return 0;
 }
 
-bool Document::setCode(rd_address address, size_t size) { return m_addressspace.markCode(address, size); }
+bool Document::setCode(rd_address address, size_t size, u16 info) { return m_addressspace.markCode(address, size, info); }
 
 std::string Document::makeLabel(rd_address address, const std::string& prefix)
 {

@@ -43,8 +43,8 @@ void Renderer::renderAssemblerInstruction()
     RDRendererParams srp;
     this->compileParams(&srp);
 
-    if(!this->assembler()->renderInstruction(&srp))
-        this->chunk(UNKNOWN_STRING);
+    auto* assembler = this->context()->getAssembler(srp.address);
+    if(!assembler || !assembler->renderInstruction(&srp)) this->chunk(UNKNOWN_STRING);
 }
 
 void Renderer::renderRDILInstruction()
@@ -110,7 +110,8 @@ void Renderer::renderSegment()
 
     RDRendererParams srp;
     this->compileParams(&srp);
-    if(this->assembler()->renderSegment(&srp) && (len != m_sfrow.text.size())) return;
+
+    if(this->context()->assembler()->renderSegment(&srp) && (len != m_sfrow.text.size())) return;
 
     StyleScope s(this, Theme_Segment);
     RDSegment segment;
@@ -121,8 +122,8 @@ void Renderer::renderSegment()
 
         this->chunk("segment").chunk(" ")
              .chunk("(")
-             .chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->assembler()->bits())).chunk(", ")
-             .chunk("END").chunk(":").chunk(" ").chunk(Utils::hex(segment.endaddress, this->assembler()->bits()))
+             .chunk("START").chunk(":").chunk(" ").chunk(Utils::hex(segment.address, this->context()->assembler()->bits())).chunk(", ")
+             .chunk("END").chunk(":").chunk(" ").chunk(Utils::hex(segment.endaddress, this->context()->assembler()->bits()))
              .chunk(")");
     }
     else
@@ -155,7 +156,9 @@ void Renderer::renderFunction()
 
     RDRendererParams srp;
     this->compileParams(&srp);
-    if(this->assembler()->renderFunction(&srp) && (len != m_sfrow.text.size())) return;
+
+    Assembler* assembler = this->context()->getAssembler(srp.address);
+    if(!assembler || (assembler->renderFunction(&srp) && (len != m_sfrow.text.size()))) return;
 
     std::string name = this->renderLabel(Theme_Function);
     StyleScope s(this, Theme_Function);
@@ -329,7 +332,11 @@ void Renderer::renderPrologue()
     }
 
     if(!this->hasFlag(RendererFlags_NoAddressColumn))
-        this->chunk(Utils::hex(this->address(), this->assembler()->bits()));
+    {
+        Assembler* assembler = this->context()->getAssembler(this->address());
+        this->chunk(Utils::hex(this->address(), assembler ? std::max(this->context()->assembler()->bits(), assembler->bits()) :
+                                                            this->context()->assembler()->bits()));
+    }
 
     if(!this->hasFlag(RendererFlags_NoSegmentColumn) || !this->hasFlag(RendererFlags_NoAddressColumn))
         this->chunk(" ");
@@ -404,7 +411,6 @@ void Renderer::renderValue(rd_address address, size_t size)
 
 bool Renderer::hasFlag(rd_flag f) const { return m_flags & f; }
 SafeDocument& Renderer::document() const { return this->context()->document(); }
-Assembler* Renderer::assembler() const { return this->context()->assembler(); }
 
 Renderer& Renderer::chunk(const std::string& s, u8 fg, u8 bg)
 {

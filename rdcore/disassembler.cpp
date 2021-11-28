@@ -2,6 +2,7 @@
 #include "support/error.h"
 #include "support/utils.h"
 #include "context.h"
+#include "database/addressdatabase.h"
 #include "document/document.h"
 #include "builtin/graph/functiongraph/functiongraph.h"
 #include "support/utils.h"
@@ -117,6 +118,8 @@ void Disassembler::prepare(const MemoryBufferPtr& buffer, const std::string& fil
 
 bool Disassembler::load(const RDLoaderBuildParams* buildparams)
 {
+    this->addressDatabase()->pushAssembler(m_assembler->id());
+
     m_algorithm = SafeAlgorithm(new Algorithm(this->context()));
 
     if(m_loader->flags() & LoaderFlags_CustomAddressing)
@@ -127,16 +130,4 @@ bool Disassembler::load(const RDLoaderBuildParams* buildparams)
         return false;
 
     return true;
-}
-
-const RDEntryAssembler* Disassembler::getAddressAssembler(rd_address address) const
-{
-    auto it = m_assemblers.find(address);
-    return (it != m_assemblers.end()) ? it->second : nullptr;
-}
-
-void Disassembler::setAddressAssembler(rd_address address, const std::string& id)
-{
-    auto* assembler = this->context()->getAssembler(id);
-    if(assembler) m_assemblers[address] = assembler;
 }

@@ -73,7 +73,8 @@ class Context: public Object
         SafeDocument& document() const;
 
     public: // Assembler
-        const RDEntryAssembler* getAssembler(const std::string& id);
+        Assembler* getAssembler(rd_address address) const;
+        Assembler* getAssembler(const std::string& id) const;
         void findAssemblerEntries(Callback_AssemblerEntry callback, void* userdata) const;
         const RDEntryAssembler* findAssemblerEntry(const RDEntryLoader* entryloader, std::string* res) const;
         Assembler* assembler() const;
@@ -89,8 +90,6 @@ class Context: public Object
         bool executeCommand(const char* cmd, const RDArguments* a) const;
 
     public: // Disassembler
-        Assembler* getAddressAssembler(rd_address) const;
-        void setAddressAssembler(rd_address address, const std::string& id);
         const DocumentNet* net() const;
         DocumentNet* net();
         bool bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
@@ -120,6 +119,7 @@ class Context: public Object
         void loadAnalyzers();
 
     private:
+        mutable std::unordered_map<std::string, std::unique_ptr<Assembler>> m_assemblers;
         std::unordered_map<std::string, std::string> m_proposedassembler; // LoaderID -> AssemblerID
         std::unordered_map<std::string, uintptr_t> m_userdata;
         std::shared_ptr<MemoryBuffer> m_buffer;

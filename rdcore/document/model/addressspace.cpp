@@ -29,12 +29,12 @@ bool AddressSpace::markExplored(rd_address address, size_t size)
     return true;
 }
 
-bool AddressSpace::markCode(rd_address address, size_t size)
+bool AddressSpace::markCode(rd_address address, size_t size, u16 info)
 {
     auto* blocks = this->findBlocks(address);
     if(!blocks) return false;
 
-    blocks->codeSize(address, size);
+    blocks->codeSize(address, size, info);
     return true;
 }
 
@@ -53,6 +53,15 @@ bool AddressSpace::markString(rd_address address, size_t size)
     if(!blocks) return false;
 
     blocks->stringSize(address, size);
+    return true;
+}
+
+bool AddressSpace::markInfo(rd_address address, rd_type type, u16 info)
+{
+    auto* blocks = this->findBlocks(address);
+    if(!blocks) return false;
+
+    blocks->info(address, type, info);
     return true;
 }
 

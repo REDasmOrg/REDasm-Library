@@ -20,8 +20,6 @@ class Disassembler: public Object
         bool load(const RDLoaderBuildParams* buildparams);
 
     public:
-        const RDEntryAssembler* getAddressAssembler(rd_address address) const;
-        void setAddressAssembler(rd_address address, const std::string& id);
         bool disassembleFunction(rd_address address);
         const char* getFunctionHexDump(rd_address address, rd_address* resaddress) const;
 
@@ -41,7 +39,6 @@ class Disassembler: public Object
         bool getFunctionBytes(rd_address& address, RDBufferView* view) const;
 
     private:
-        mutable std::unordered_map<rd_address, const RDEntryAssembler*> m_assemblers;
         std::unique_ptr<Engine> m_engine;
         std::unique_ptr<Loader> m_loader;
         std::unique_ptr<Assembler> m_assembler;

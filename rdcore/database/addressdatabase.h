@@ -6,6 +6,7 @@
 #include <memory>
 #include <rdapi/document/block.h>
 #include "../containers/addresscontainer.h"
+#include "../containers/uniquecontainer.h"
 #include "../object.h"
 
 class Type;
@@ -40,8 +41,9 @@ class AddressDatabase: public Object
         size_t findLabelsR(const std::string& q, const rd_address** resaddresses) const;
 
     public: // Flags
-        void setAddressAssembler(rd_address address, const std::string& assembler);
-        std::optional<std::string> getAddressAssembler(rd_address address) const;
+        u16 assemblerToIndex(const std::string& assembler) const;
+        std::optional<std::string> indexToAssembler(size_t index) const;
+        size_t pushAssembler(const std::string& assembler);
         rd_flag getFlags(rd_address address) const;
         void updateFlags(rd_address address, rd_flag flags, bool set = true);
 
@@ -61,7 +63,7 @@ class AddressDatabase: public Object
 
     private:
         mutable std::vector<rd_address> m_result;
-        std::unordered_map<rd_address, std::string> m_assemblers;
+        UniqueContainer<std::string> m_assemblers;
         std::unordered_map<rd_type, SortedAddresses> m_labelflags;
         std::unordered_map<std::string, rd_address> m_labels;
         AddressContainer<Entry> m_entries;

@@ -14,9 +14,10 @@ class AddressSpace: public Object
         AddressSpace(Context* ctx);
         bool markUnknown(rd_address address, size_t size);
         bool markExplored(rd_address address, size_t size);
-        bool markCode(rd_address address, size_t size);
+        bool markCode(rd_address address, size_t size, u16 info);
         bool markData(rd_address address, size_t size);
         bool markString(rd_address address, size_t size);
+        bool markInfo(rd_address address, rd_type type, u16 info);
         inline BlockContainer* findBlocks(rd_address address) const { return const_cast<AddressSpace*>(this)->findBlocks(address); }
         BlockContainer* findBlocks(rd_address address);
 

@@ -45,7 +45,7 @@ const T* PluginManager::findEntry(size_t c, const std::string& id) const {
     if(cit == m_entries.end()) return nullptr;
 
     auto it = std::find_if(cit->second.begin(), cit->second.end(), [&](const RDEntry* e) {
-              return e->id == id;
+        return e->id == id;
     });
 
     return (it != cit->second.end()) ? reinterpret_cast<const T*>(*it) : nullptr;

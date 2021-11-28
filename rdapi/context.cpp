@@ -125,14 +125,14 @@ const char* RD_QuotedSingle(const char* s)
 
 void RDContext_SetAddressAssembler(RDContext* ctx, rd_address address, const char* assembler)
 {
-    if(assembler) CPTR(Context, ctx)->addressDatabase()->setAddressAssembler(address, assembler);
+    if(assembler) CPTR(Context, ctx)->document()->setAddressAssembler(address, assembler);
 }
 
 const char* RDContext_GetAddressAssembler(const RDContext* ctx, rd_address address)
 {
     static std::string assembler;
 
-    auto optassembler = CPTR(const Context, ctx)->addressDatabase()->getAddressAssembler(address);
+    auto optassembler = CPTR(const Context, ctx)->document()->getAddressAssembler(address);
     if(optassembler) assembler = *optassembler;
     else return nullptr;
 

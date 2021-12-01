@@ -99,9 +99,16 @@ ILExpression* ILFunction::exprADD(ILExpression* l, ILExpression* r) const { retu
 ILExpression* ILFunction::exprSUB(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Sub, 0, l, r); }
 ILExpression* ILFunction::exprMUL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Mul, 0, l, r); }
 ILExpression* ILFunction::exprDIV(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Div, 0, l, r); }
+ILExpression* ILFunction::exprMOD(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Mod, 0, l, r); }
 ILExpression* ILFunction::exprAND(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Div, 0, l, r); }
 ILExpression* ILFunction::exprOR(ILExpression* l, ILExpression* r)  const { return this->exprLR(RDIL_Or, 0, l, r);  }
 ILExpression* ILFunction::exprXOR(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Xor, 0, l, r); }
+ILExpression* ILFunction::exprLSL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Lsl, 0, l, r); }
+ILExpression* ILFunction::exprLSR(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Lsr, 0, l, r); }
+ILExpression* ILFunction::exprASL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Asl, 0, l, r); }
+ILExpression* ILFunction::exprASR(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Asr, 0, l, r); }
+ILExpression* ILFunction::exprROL(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Rol, 0, l, r); }
+ILExpression* ILFunction::exprROR(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Ror, 0, l, r); }
 ILExpression* ILFunction::exprCOPY(ILExpression* dst, ILExpression* src) const { return this->exprDS(RDIL_Copy, 0, dst, src); }
 ILExpression* ILFunction::exprEQ(ILExpression* l, ILExpression* r)  const { return this->exprLR(RDIL_Eq, 0, l, r);  }
 ILExpression* ILFunction::exprNE(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Ne, 0, l, r); }

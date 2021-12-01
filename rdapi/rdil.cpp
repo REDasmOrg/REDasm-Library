@@ -2,7 +2,6 @@
 #include <rdcore/builtin/graph/rdilgraph/rdilgraph.h>
 #include <rdcore/rdil/ilfunction.h>
 #include <rdcore/rdil/rdil.h>
-#include <rdcore/disassembler.h>
 
 RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
 {
@@ -57,9 +56,16 @@ RDILExpression* RDILFunction_ADD(const RDILFunction* rdilfunction, RDILExpressio
 RDILExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprSUB(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprMUL(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_DIV(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprDIV(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_MOD(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprMOD(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprAND(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprOR(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprXOR(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_LSL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprLSL(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_LSR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprLSR(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_ASL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprASL(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_ASR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprASR(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_ROL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprROL(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_ROR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprROR(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_NOT(const RDILFunction* rdilfunction, RDILExpression* e) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprNOT(CPTR(ILExpression, e))); }
 RDILExpression* RDILFunction_MEM(const RDILFunction* rdilfunction, RDILExpression* e) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprMEM(CPTR(ILExpression, e))); }
 RDILExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprCOPY(CPTR(ILExpression, dst), CPTR(ILExpression, src))); }

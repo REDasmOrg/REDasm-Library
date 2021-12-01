@@ -1,12 +1,12 @@
 #pragma once
 
 #include <rdapi/types.h>
-#include <list>
 #include <unordered_map>
 #include <deque>
-#include "expressions.h"
-#include "../object.h"
+#include <list>
 #include <set>
+#include "expression.h"
+#include "../object.h"
 
 class Disassembler;
 
@@ -48,9 +48,16 @@ class ILFunction: public Object
         ILExpression* exprSUB(ILExpression* l, ILExpression* r) const;
         ILExpression* exprMUL(ILExpression* l, ILExpression* r) const;
         ILExpression* exprDIV(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprMOD(ILExpression* l, ILExpression* r) const;
         ILExpression* exprAND(ILExpression* l, ILExpression* r) const;
         ILExpression* exprOR(ILExpression* l, ILExpression* r)  const;
         ILExpression* exprXOR(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprLSL(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprLSR(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprASL(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprASR(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprROL(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprROR(ILExpression* l, ILExpression* r) const;
         ILExpression* exprCOPY(ILExpression* dst, ILExpression* src) const;
         ILExpression* exprIF(ILExpression* cond, ILExpression* t, ILExpression* f) const;
         ILExpression* exprEQ(ILExpression* l, ILExpression* r)  const;

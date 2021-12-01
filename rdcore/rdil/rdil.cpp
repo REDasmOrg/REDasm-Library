@@ -13,8 +13,10 @@ const char* RDIL::getOpName(rd_type t)
     static const std::unordered_map<rd_type, const char*> NAMES = {
         RDIL_N(RDIL_Unknown), RDIL_N(RDIL_Nop),
         RDIL_N(RDIL_Reg), RDIL_N(RDIL_Cnst), RDIL_N(RDIL_Var),
-        RDIL_N(RDIL_Add), RDIL_N(RDIL_Sub), RDIL_N(RDIL_Mul), RDIL_N(RDIL_Div),
+        RDIL_N(RDIL_Add), RDIL_N(RDIL_Sub), RDIL_N(RDIL_Mul), RDIL_N(RDIL_Div), RDIL_N(RDIL_Mod),
         RDIL_N(RDIL_And), RDIL_N(RDIL_Or), RDIL_N(RDIL_Xor), RDIL_N(RDIL_Not),
+        RDIL_N(RDIL_Lsl), RDIL_N(RDIL_Lsr), RDIL_N(RDIL_Asl), RDIL_N(RDIL_Asr),
+        RDIL_N(RDIL_Rol), RDIL_N(RDIL_Ror),
         RDIL_N(RDIL_Mem), RDIL_N(RDIL_Copy),
         RDIL_N(RDIL_Goto), RDIL_N(RDIL_Call), RDIL_N(RDIL_Ret),
         RDIL_N(RDIL_If), RDIL_N(RDIL_Eq), RDIL_N(RDIL_Ne),
@@ -30,8 +32,10 @@ rd_type RDIL::getOpType(const std::string& id)
     static const std::unordered_map<std::string, rd_type> IDS = {
         { "unknown", RDIL_Unknown }, { "nop", RDIL_Nop },
         { "reg", RDIL_Reg }, { "cnst", RDIL_Cnst }, { "var", RDIL_Var },
-        { "add", RDIL_Add }, { "sub", RDIL_Sub }, { "mul", RDIL_Mul }, { "div", RDIL_Div },
+        { "add", RDIL_Add }, { "sub", RDIL_Sub }, { "mul", RDIL_Mul }, { "div", RDIL_Div }, { "mod", RDIL_Mod },
         { "and", RDIL_And }, { "or", RDIL_Or }, { "xor", RDIL_Xor }, { "not", RDIL_Not },
+        { "lsl", RDIL_Lsl }, { "lsr", RDIL_Lsr }, { "asl", RDIL_Asl }, { "asr", RDIL_Asr },
+        { "rol", RDIL_Rol }, { "ror", RDIL_Ror },
         { "mem", RDIL_Mem }, { "copy", RDIL_Copy },
         { "goto", RDIL_Goto }, { "call", RDIL_Call }, { "ret", RDIL_Ret },
         { "eq", RDIL_Eq }, { "ne", RDIL_Ne },
@@ -100,10 +104,15 @@ std::string RDIL::textOp(const ILExpression* e)
         case RDIL_Sub: return "-";
         case RDIL_Mul: return "*";
         case RDIL_Div: return "/";
+        case RDIL_Mod: return "%";
         case RDIL_And: return "&";
         case RDIL_Or:  return "|";
         case RDIL_Xor: return "^";
         case RDIL_Not: return "~";
+        case RDIL_Lsl: return "<<";
+        case RDIL_Lsr: return ">>";
+        case RDIL_Asl: return "<<<";
+        case RDIL_Asr: return ">>>";
         case RDIL_Eq:  return "==";
         case RDIL_Ne:  return "!=";
         case RDIL_Lt:  return "<";
@@ -195,9 +204,14 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
         case RDIL_Sub:
         case RDIL_Mul:
         case RDIL_Div:
+        case RDIL_Mod:
         case RDIL_And:
         case RDIL_Or:
         case RDIL_Xor:
+        case RDIL_Lsl:
+        case RDIL_Lsr:
+        case RDIL_Asl:
+        case RDIL_Asr:
         case RDIL_Eq:
         case RDIL_Ne:
         case RDIL_Lt:
@@ -207,6 +221,16 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
             RDIL::wrapWalk(e->left, cb);
             cb(e, RDIL::textOp(e), WalkType::Normal);
             RDIL::walk(e->right, cb);
+            break;
+
+        case RDIL_Rol:
+        case RDIL_Ror:
+            cb(e, (e->type == RDIL_Rol) ? "rol" : "ror", WalkType::Mnemonic);
+            cb(e, "(", WalkType::Normal);
+            RDIL::walk(e->left, cb);
+            cb(e, ", ", WalkType::Normal);
+            RDIL::walk(e->right, cb);
+            cb(e, ")", WalkType::Normal);
             break;
 
         case RDIL_Not:

@@ -53,7 +53,9 @@ void Renderer::renderRDILInstruction()
     this->compileParams(&srp);
 
     ILFunction il(this->context());
-    this->context()->assembler()->lift(srp.address, &srp.view, &il);
+
+    auto* assembler = this->context()->getAssembler(srp.address);
+    if(assembler) assembler->lift(srp.address, &srp.view, &il);
 
     for(size_t i = 0; i < il.size(); i++)
     {

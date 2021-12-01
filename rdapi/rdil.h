@@ -17,15 +17,22 @@
    | Sub     | left      | right     |           | left - right                     |
    | Mul     | left      | right     |           | left * right                     |
    | Div     | left      | right     |           | left / right                     |
+   | Mod     | left      | right     |           | left % right                     |
    | And     | left      | right     |           | left & right                     |
    | Or      | left      | right     |           | left | right                     |
    | Xor     | left      | right     |           | left ^ right                     |
+   | Lsl     | left      | right     |           | left << right                    |
+   | Lsr     | left      | right     |           | left >> right                    |
+   | Asl     | left      | right     |           | left <<< right                   |
+   | Asr     | left      | right     |           | left >>> right                   |
    | Eq      | left      | right     |           | left == right                    |
    | Ne      | left      | right     |           | left != right                    |
    | Lt      | left      | right     |           | left < right                     |
    | Le      | left      | right     |           | left >= right                    |
    | Gt      | left      | right     |           | left > right                     |
    | Ge      | left      | right     |           | left >= right                    |
+   | Rol     | left      | right     |           | rotateleft(left, right)          |
+   | Ror     | left      | right     |           | rotateright(left, right)         |
    | Not     | u         |           |           | ~u                               |
    | Mem     | u         |           |           | [u]                              |
    | Goto    | u         |           |           | goto(u)                          |
@@ -68,8 +75,10 @@ enum RDILTypes
     RDIL_Unknown,                                         // Special
     RDIL_Nop,                                             // Other
     RDIL_Reg, RDIL_Cnst, RDIL_Var,                        // Value
-    RDIL_Add, RDIL_Sub, RDIL_Mul, RDIL_Div,               // Math
+    RDIL_Add, RDIL_Sub, RDIL_Mul, RDIL_Div, RDIL_Mod,     // Math
     RDIL_And, RDIL_Or, RDIL_Xor, RDIL_Not,                // Logic
+    RDIL_Lsl, RDIL_Lsr, RDIL_Asl, RDIL_Asr,               // Shift
+    RDIL_Rol, RDIL_Ror,                                   // Rotate
     RDIL_Mem, RDIL_Copy,                                  // R/W
     RDIL_If, RDIL_Goto, RDIL_Call, RDIL_Ret,              // Control Flow
     RDIL_Eq, RDIL_Ne, RDIL_Lt, RDIL_Le, RDIL_Gt, RDIL_Ge, // Compare
@@ -117,9 +126,16 @@ RD_API_EXPORT RDILExpression* RDILFunction_ADD(const RDILFunction* rdilfunction,
 RD_API_EXPORT RDILExpression* RDILFunction_SUB(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_MUL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_DIV(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_MOD(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_AND(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_OR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_XOR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_LSL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_LSR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_ASL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_ASR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_ROL(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
+RD_API_EXPORT RDILExpression* RDILFunction_ROR(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_NOT(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_MEM(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_COPY(const RDILFunction* rdilfunction, RDILExpression* dst, RDILExpression* src);

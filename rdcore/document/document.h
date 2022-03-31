@@ -85,6 +85,7 @@ class Document: public Object
         u8* filepointer(rd_offset offset) const;
         u8* addrpointer(rd_address address) const;
         u8* offspointer(rd_offset offset) const;
+        bool isWeak(rd_address address) const;
         bool isAddress(rd_address address) const;
         bool isBasicBlockTail(rd_address address) const;
 
@@ -93,7 +94,8 @@ class Document: public Object
         bool findLabelR(const std::string& q, rd_address* resaddress) const;
         size_t findLabels(const std::string& q, const rd_address** resaddresses) const;
         size_t findLabelsR(const std::string& q, const rd_address** resaddresses) const;
-        rd_address checkLocation(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
+        rd_address checkData(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);
+        rd_address checkLocation(rd_address fromaddress, rd_address address, size_t size = RD_NVAL, bool dataonly = false);
         void checkTypeName(rd_address fromaddress, rd_address address, const char* q);
         void checkType(rd_address fromaddress, rd_address address, const Type* t);
         void checkString(rd_address fromaddress, rd_address address, size_t size = RD_NVAL);

@@ -12,7 +12,7 @@ Disassembler::Disassembler(Context* ctx): Object(ctx) { }
 Assembler* Disassembler::assembler() const { return m_assembler.get(); }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
-bool Disassembler::needsWeak() const { return m_engine ? m_engine->needsWeak() : false; }
+bool Disassembler::isWeak() const { return m_engine ? m_engine->isWeak() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 
@@ -75,6 +75,7 @@ const char* Disassembler::getFunctionHexDump(rd_address address, rd_address* res
     return hexdump.c_str();
 }
 
+void Disassembler::setWeak(bool b) { if(m_engine) m_engine->setWeak(b); }
 bool Disassembler::encode(RDEncodedInstruction* encoded) const { return m_assembler->encode(encoded); }
 
 bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const

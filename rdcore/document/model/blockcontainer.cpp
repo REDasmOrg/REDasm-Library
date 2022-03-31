@@ -55,7 +55,7 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type, u16 in
     {
         begbl = *begit;
         begbl->type = BlockType_Unknown; // Demote to "Unknown"
-        //begbl->info = 0;                 // Reset block info
+        begbl->info = 0;                 // Reset block info (?)
         begbl->end = start;
 
         if(BlockContainer::empty(std::addressof(*begbl)))
@@ -66,7 +66,7 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type, u16 in
     {
         endbl = *endit;
         endbl->type = BlockType_Unknown; // Demote to "Unknown"
-        //endbl->info = 0;                 // Reset block info
+        endbl->info = 0;                 // Reset block info (?)
         endbl->start = end;
 
         if(BlockContainer::empty(std::addressof(*endbl)))
@@ -77,19 +77,21 @@ void BlockContainer::mark(rd_address start, rd_address end, rd_type type, u16 in
     else if(begit != m_container.end()) this->doRemove(begit);
     else if(endit != m_container.end()) this->doRemove(endit);
 
+    RDBlock newblock = {{start}, end, type, {info}};
+
     if(begbl)
     {
-        if(this->canMerge(std::addressof(*begbl), type)) start = begbl->start;
+        if(this->canMerge(*begbl, newblock)) newblock.start = begbl->start;
         else this->doInsert(*begbl);
     }
 
     if(endbl)
     {
-        if(this->canMerge(std::addressof(*endbl), type)) end = endbl->end;
+        if(this->canMerge(*endbl, newblock)) newblock.end = endbl->end;
         else this->doInsert(*endbl);
     }
 
-    this->doInsert({{start}, end, type, {info}});
+    this->doInsert(newblock);
 }
 
 void BlockContainer::markSize(rd_address start, size_t size, rd_type type, u16 info) { this->mark(start, start + size, type, info); }
@@ -98,7 +100,7 @@ void BlockContainer::doInsert(const RDBlock& b)
 {
     auto it = m_container.find(b.end); // Check next block
 
-    if((it != m_container.end()) && this->canMerge(std::addressof(*it), &b)) // Merge-Recurse
+    if((it != m_container.end()) && this->canMerge(*it, b)) // Merge-Recurse
     {
         RDBlock mb = *it;
         mb.start = b.start;
@@ -124,5 +126,9 @@ BlockContainer::ContainerType::const_iterator BlockContainer::get(rd_address add
     return it;
 }
 
-bool BlockContainer::canMerge(const RDBlock* block1, const RDBlock* block2) const { return this->canMerge(block1, block2->type); }
-bool BlockContainer::canMerge(const RDBlock* block, rd_type type) const { return (block->type == type) && (type == BlockType_Unknown); }
+bool BlockContainer::canMerge(const RDBlock& block1, const RDBlock& block2) const
+{
+    return (block1.type == BlockType_Unknown) &&
+           (block1.type == block2.type) &&
+           (block1.info == block2.info);
+}

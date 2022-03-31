@@ -115,6 +115,8 @@ void DocumentNet::unlinkCall(rd_address fromaddress, rd_address toaddress)
 void DocumentNet::addRef(rd_address fromaddress, rd_address toaddress, rd_flag flags)
 {
     if((fromaddress == RD_NVAL) || (toaddress == RD_NVAL)) return;
+
+    spdlog::info("DocumentNet::addRef({:x}, {:x}, {:x})", fromaddress, toaddress, flags);
     m_refs[toaddress].insert({fromaddress, flags});
 }
 
@@ -122,6 +124,7 @@ void DocumentNet::removeRef(rd_address fromaddress, rd_address toaddress)
 {
     if((fromaddress == RD_NVAL) || (toaddress == RD_NVAL)) return;
 
+    spdlog::info("DocumentNet::removeRef({:x}, {:x}, {:x})", fromaddress, toaddress);
     auto& refs = m_refs[toaddress];
 
     auto it = std::find_if(refs.begin(), refs.end(), [fromaddress](const RDReference& r) {

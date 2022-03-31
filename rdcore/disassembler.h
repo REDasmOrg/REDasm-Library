@@ -24,7 +24,8 @@ class Disassembler: public Object
         const char* getFunctionHexDump(rd_address address, rd_address* resaddress) const;
 
     public: // Engine/Algorithm
-        bool needsWeak() const;
+        void setWeak(bool b);
+        bool isWeak() const;
         bool busy() const;
         void enqueue(rd_address address);
         void disassembleBlock(const RDBlock* block);

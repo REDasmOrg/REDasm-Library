@@ -23,9 +23,16 @@ Context::Context(): Object(this)
     m_addrdatabase = std::make_unique<AddressDatabase>(this);
     m_database = std::make_unique<Database>(this);
     m_database->setName("Active Database");
+
+    spdlog::info("*** Context::Context() ***");
 }
 
-Context::~Context() { this->notify<RDEventArgs>(Event_ContextFree, this); }
+Context::~Context()
+{
+    spdlog::info("*** Context::~Context() ***");
+    this->notify<RDEventArgs>(Event_ContextFree, this);
+}
+
 Database* Context::database() const { return m_database.get(); }
 AddressDatabase* Context::addressDatabase() const { return m_addrdatabase.get(); }
 const Context::SurfaceState& Context::surfaceState() const { return m_surfacestate; }
@@ -50,7 +57,7 @@ bool Context::matchAssembler(const std::string& q) const
 
 const Context::AnalyzerList& Context::selectedAnalyzers() const { return m_selectedanalyzers; }
 bool Context::executeCommand(const char* cmd, const RDArguments* a) const { return cmd ? m_pluginmanager->executeCommand(cmd, a) : false; }
-bool Context::needsWeak() const { return m_disassembler ? m_disassembler->needsWeak() : false; }
+bool Context::isWeak() const { return m_disassembler ? m_disassembler->isWeak() : false; }
 void Context::disassembleBlock(const RDBlock* block) { if(m_disassembler) m_disassembler->disassembleBlock(block); }
 
 void Context::loadAnalyzers()
@@ -224,6 +231,7 @@ Disassembler* Context::disassembler() const { return m_disassembler.get(); }
 Assembler* Context::assembler() const { return m_disassembler ? m_disassembler->assembler() : nullptr; }
 Loader* Context::loader() const { return m_disassembler ? m_disassembler->loader() : nullptr; }
 MemoryBuffer* Context::buffer() const { return m_disassembler ? m_disassembler->document()->buffer() : nullptr; }
+void Context::setWeak(bool b) { if(m_disassembler) m_disassembler->setWeak(b); }
 void Context::disassembleAt(rd_address address) { if(m_disassembler) m_disassembler->disassembleAt(address); }
 void Context::disassemble() { if(m_disassembler) m_disassembler->disassemble(); }
 Surface* Context::activeSurface() const { return m_activesurface; }

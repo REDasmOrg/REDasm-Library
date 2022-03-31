@@ -91,40 +91,39 @@ bool Engine::cfg(rd_address address)
     return true;
 }
 
+void Engine::setWeak(bool b)
+{
+    if(b != m_isweak) spdlog::debug("Engine::setWeak({})", b);
+    m_isweak = b;
+}
+
 void Engine::setStep(size_t step)
 {
     m_status.stepscurrent = step;
     this->notifyStatus();
 }
 
-bool Engine::needsWeak() const
-{
-    switch(m_status.stepscurrent)
-    {
-        case Engine::State_Algorithm:
-        case Engine::State_Analyze:
-            return true;
-
-        default: break;
-    }
-
-    return false;
-}
-
+bool Engine::isWeak() const { return m_isweak; }
 bool Engine::busy() const { return m_status.busy; }
 void Engine::stop() { if(m_status.busy) this->notifyBusy(false); }
 
 void Engine::algorithmStep()
 {
     if(!m_algorithm->hasNext()) return; // Ignore spurious disassemble requests
+
+    this->setWeak(true);
     this->notifyBusy(true);
     m_algorithm->disassemble();
-    this->nextStep();
+    this->mergeCode();
+
+    if(m_algorithm->hasNext()) this->setStep(State_Algorithm); // Repeat algorithm
+    else this->nextStep();
 }
 
 void Engine::analyzeStep()
 {
     rd_cfg->status("Analyzing...");
+    this->setWeak(false);
 
     auto& doc = this->context()->document();
     size_t oldfc = doc->getFunctions(nullptr);
@@ -150,6 +149,8 @@ void Engine::analyzeStep()
 
 void Engine::cfgStep()
 {
+    this->setWeak(false);
+
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
@@ -181,6 +182,8 @@ void Engine::analyzeAll()
         const auto* a = analyzers.at(i);
         if(HAS_FLAG(a->plugin(), AnalyzerFlags_RunOnce) && m_analyzersdone[i]) continue;
 
+        spdlog::info("Engine::analyzeAll(): '{}'", a->name());
+
         m_analyzersdone[i]++;
         m_status.analyzerscurrent = i;
         this->notifyStatus();
@@ -189,6 +192,88 @@ void Engine::analyzeAll()
 
     m_status.analyzerscurrent = RD_NVAL;
     this->notifyStatus();
+}
+
+void Engine::mergeCode()
+{
+    rd_cfg->status("Merging Code...");
+
+    const rd_address* segments = nullptr;
+    size_t nsegments = this->context()->document()->getSegments(&segments);
+
+    for(size_t i = 0; i < nsegments; i++)
+    {
+        RDSegment segment;
+
+        if(!this->context()->document()->addressToSegment(segments[i], &segment))
+        {
+            spdlog::error("Engine::mergeCode(): Segment not found @ {:x}", segments[i]);
+            continue;
+        }
+
+        if(!HAS_FLAG(&segment, SegmentFlags_Code)) continue;
+
+        const BlockContainer* blocks = this->context()->document()->getBlocks(segment.address);
+
+        if(!blocks)
+        {
+            spdlog::error("Engine::mergeCode(): Blocks not found for segment '{}'", segment.name);
+            continue;
+        }
+
+        this->context()->statusAddress("Merging code in segment " + Utils::quoted(segment.name), segment.address);
+
+        for(auto it = blocks->begin(); it != blocks->end(); it++)
+        {
+            if(!IS_TYPE(std::addressof(*it), BlockType_Unknown)) continue;
+
+            if(auto nextit = std::next(it); nextit != blocks->end())
+            {
+                Assembler* assembler = nullptr;
+
+                if(it != blocks->begin())
+                {
+                    const RDBlock& prevb = *std::prev(it);
+                    if(!IS_TYPE(&prevb, BlockType_Code)) continue;
+
+                    assembler = this->context()->getAssembler(prevb.address);
+
+                    if(!assembler)
+                    {
+                        spdlog::error("Engine::mergeCode(): Assembler not found @ {:x} (PREV)", prevb.address);
+                        continue;
+                    }
+                }
+
+                const RDBlock& nextb = *nextit;
+                if(!IS_TYPE(&nextb, BlockType_Code)) continue;
+
+                if(it == blocks->begin())
+                {
+                    assembler = this->context()->getAssembler(nextb.address);
+
+                    if(!assembler)
+                    {
+                        spdlog::error("Engine::mergeCode(): Assembler not found @ {:x} (NEXT)", nextb.address);
+                        continue;
+                    }
+                }
+
+                if(!assembler)
+                {
+                    spdlog::error("Engine::mergeCode(): Invalid Assembler @ {:x}", it->address);
+                    continue;
+                }
+
+                if(m_merged.count(it->address)) continue; // Don't enqueue same addresses multiple times
+
+                spdlog::trace("Engine::mergeCode(): Enqueue {:x}", it->address);
+                this->context()->document()->setAddressAssembler(it->address, assembler->id());
+                m_algorithm->enqueue(it->address);
+                m_merged.insert(it->address);
+            }
+        }
+    }
 }
 
 void Engine::generateCfg(rd_address address)

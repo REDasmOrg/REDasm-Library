@@ -1,5 +1,6 @@
 #pragma once
 
+#include <spdlog/spdlog.h>
 #include <rdapi/events.h>
 #include <rdapi/object.h>
 #include <unordered_map>

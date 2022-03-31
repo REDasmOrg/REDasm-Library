@@ -81,14 +81,33 @@ bool FunctionGraph::build(rd_address address)
 {
     m_blockscount = m_bytescount = 0;
 
-    if(!m_document->addressToBlock(address, &m_graphstart) || !IS_TYPE(&m_graphstart, BlockType_Code))
+    if(!m_document->addressToBlock(address, &m_graphstart))
+    {
+        spdlog::warn("FunctionGraph::build({:x}): Block not found", address);
         return false;
+    }
+
+    if(!IS_TYPE(&m_graphstart, BlockType_Code))
+    {
+        spdlog::warn("FunctionGraph::build({:x}): Block type is #", address, m_graphstart.type);
+        return false;
+    }
 
     this->buildBasicBlocks();
-    if(this->empty()) return false;
+
+    if(this->empty())
+    {
+        spdlog::warn("FunctionGraph::build({:x}): Graph is empty", address);
+        return false;
+    }
 
     FunctionBasicBlock* fbb = this->basicBlock(m_graphstart.address);
-    if(!fbb) return false;
+
+    if(!fbb)
+    {
+        spdlog::error("FunctionGraph::build({:x}): Invalid Root Basic Block", address);
+        return false;
+    }
 
     this->setRoot(fbb->node);
     return true;

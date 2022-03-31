@@ -25,7 +25,8 @@ class Engine: public Object
         void execute();
         void execute(size_t step);
         bool cfg(rd_address address);
-        bool needsWeak() const;
+        void setWeak(bool b);
+        bool isWeak() const;
         bool busy() const;
         void stop();
 
@@ -36,6 +37,7 @@ class Engine: public Object
 
     private:
         void analyzeAll();
+        void mergeCode();
         void generateCfg(rd_address address);
         void notifyStatus();
         void notifyBusy(bool busy);
@@ -47,9 +49,11 @@ class Engine: public Object
         std::vector<const char*> m_analyzersnames;
         std::vector<size_t> m_analyzersdone;
         size_t m_lastnotifystep{State_Last};
+        bool m_isweak{false};
 
     private:
         std::unordered_set<size_t> m_stepsdone;
+        std::unordered_set<size_t> m_merged;
         SafeAlgorithm& m_algorithm;
 
     private:

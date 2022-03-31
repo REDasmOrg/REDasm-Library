@@ -95,7 +95,8 @@ class Context: public Object
         bool bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler);
         Disassembler* disassembler() const;
         MemoryBuffer* buffer() const;
-        bool needsWeak() const;
+        bool isWeak() const;
+        void setWeak(bool b);
         void disassembleBlock(const RDBlock* block);
         void disassembleAt(rd_address address);
         void disassemble();
@@ -140,4 +141,15 @@ class Context: public Object
         UniqueContainer<std::string> m_problems;
         size_t m_minstring{DEFAULT_MIN_STRING};
         bool m_ignoreproblems{false};
+};
+
+class WeakScope
+{
+    public:
+        WeakScope(Context* ctx): m_ctx(ctx), m_oldweak(ctx->isWeak()) { m_ctx->setWeak(true); }
+        ~WeakScope() { m_ctx->setWeak(m_oldweak); }
+
+    private:
+        Context* m_ctx;
+        bool m_oldweak;
 };

@@ -5,9 +5,14 @@ include(cmake/functions.cmake)
 include(cmake/installdirs.cmake)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 option(RDAPI_DOC "Build API Documentation" ON)
 option(ENABLE_TESTS "Enable Unit Testing" ON)
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}" -DMINIZ_NO_ZLIB_COMPATIBLE_NAMES)
+
+# set(CPM_USE_LOCAL_PACKAGES ON)
+include(cmake/CPM.cmake) # https://github.com/TheLartians/CPM.cmake
+CPMAddPackage("gh:gabime/spdlog@1.9.2")
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)
@@ -61,7 +66,8 @@ set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 add_subdirectory(rdcore/libs/taojson EXCLUDE_FROM_ALL)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE taocpp::json)
+target_link_libraries(${PROJECT_NAME} PRIVATE taocpp::json spdlog)
+target_include_directories(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

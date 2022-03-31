@@ -52,10 +52,6 @@ void LoaderTests::testJmpTable(RDContext* ctx, RDDocument* doc)
     LoaderTests::checkLabel(doc, 0x00001219, nullptr, AddressFlags_Location);
     LoaderTests::checkLabel(doc, 0x00001248, nullptr, AddressFlags_Location);
     LoaderTests::checkLabel(doc, 0x00001277, nullptr, AddressFlags_Location);
-    LoaderTests::checkLabel(doc, 0x000012a6, "sub_12A6", AddressFlags_Function);
-    LoaderTests::checkLabel(doc, 0x000012d5, "sub_12D5", AddressFlags_Function);
-    LoaderTests::checkLabel(doc, 0x00001304, "sub_1304", AddressFlags_Function);
-    LoaderTests::checkLabel(doc, 0x00001333, "sub_1333", AddressFlags_Function);
 
     const RDNet* net = RDContext_GetNet(ctx);
     REQUIRE_EQ(RDNet_GetReferences(net, 0x00001219, nullptr), 1);

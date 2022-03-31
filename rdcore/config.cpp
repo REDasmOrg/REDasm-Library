@@ -1,5 +1,6 @@
 #include "config.h"
 #include "support/utils.h"
+#include <spdlog/spdlog.h>
 #include <rdapi/ui.h>
 #include <iostream>
 #include <sstream>
@@ -13,6 +14,8 @@
 
 Config::Config(): m_rntpath(fs::current_path()), m_tmppath(fs::temp_directory_path())
 {
+    this->setLogLevel(LogLevel_Off);
+
     m_dbpaths.insert(fs::path(m_rntpath) / DATABASE_FOLDER_NAME);
 
     m_progresscallback.callback = [](size_t, void*) { };
@@ -79,6 +82,21 @@ void Config::setTheme(rd_type theme, const char* color)
         case Theme_Success:           m_themecolors.success = color; break;
         case Theme_Fail:              m_themecolors.fail = color; break;
         case Theme_Warning:           m_themecolors.warning = color; break;
+        default: break;
+    }
+}
+
+void Config::setLogLevel(size_t loglevel)
+{
+    switch(loglevel)
+    {
+        case LogLevel_Trace:    spdlog::set_level(spdlog::level::trace); break;
+        case LogLevel_Debug:    spdlog::set_level(spdlog::level::debug); break;
+        case LogLevel_Info:     spdlog::set_level(spdlog::level::info); break;
+        case LogLevel_Warning:     spdlog::set_level(spdlog::level::warn); break;
+        case LogLevel_Error:      spdlog::set_level(spdlog::level::err); break;
+        case LogLevel_Critical: spdlog::set_level(spdlog::level::critical); break;
+        case LogLevel_Off:      spdlog::set_level(spdlog::level::off); break;
         default: break;
     }
 }

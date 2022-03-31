@@ -11,7 +11,7 @@
 #include <deque>
 
 RDEntryAnalyzer analyzerEntry_Unexplored = RD_BUILTIN_ENTRY(analyzerunexplored_builtin, "Unexplored Blocks", std::numeric_limits<u32>::max(),
-                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental | AnalyzerFlags_Selected,
+                                                            "Disassemble unexplored blocks", AnalyzerFlags_Experimental,
                                                             [](const RDContext*) -> bool { UnexploredAnalyzer::clearDone(); return true; },
                                                             [](RDContext* ctx) { UnexploredAnalyzer::analyze(CPTR(Context, ctx)); });
 

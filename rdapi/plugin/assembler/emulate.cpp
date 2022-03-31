@@ -18,8 +18,10 @@ void RDEmulateResult_AddCallUnresolved(RDEmulateResult* res) { CPTR(EmulateResul
 void RDEmulateResult_AddCallTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addCallTable(address, size); }
 void RDEmulateResult_AddReferenceSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addReferenceSize(address, size); }
 void RDEmulateResult_AddReference(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addReference(address); }
-void RDEmulateResult_AddStringSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addStringSize(address, size); }
+void RDEmulateResult_AddData(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addData(address); }
+void RDEmulateResult_AddDataSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addDataSize(address, size); }
 void RDEmulateResult_AddString(RDEmulateResult* res, rd_address address) { CPTR(EmulateResult, res)->addString(address); }
+void RDEmulateResult_AddStringSize(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addStringSize(address, size); }
 void RDEmulateResult_AddInvalid(RDEmulateResult* res, size_t size) { CPTR(EmulateResult, res)->addInvalid(size); }
 void RDEmulateResult_AddTable(RDEmulateResult* res, rd_address address, size_t size) { CPTR(EmulateResult, res)->addTable(address, size); }
 void RDEmulateResult_AddType(RDEmulateResult* res, rd_address address, const RDType* t) { if(t) CPTR(EmulateResult, res)->addType(address, CPTR(const Type, t)); }

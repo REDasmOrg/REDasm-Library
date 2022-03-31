@@ -65,6 +65,8 @@ rd_address Algorithm::processDelaySlots(rd_address address, size_t ds)
 {
     for(size_t i = ds; i > 0; i--)
     {
+        spdlog::info("Algorithm::processingDelaySlots({:x}, {}): {}", address, ds, i);
+
         auto nextaddress = this->decode(address);
         if(!nextaddress) break;
 
@@ -85,6 +87,7 @@ void Algorithm::processResult(EmulateResult* result)
         switch(forktype)
         {
             case EmulateResult::Ref: m_document->checkLocation(result->address(), res.address, res.size); break;
+            case EmulateResult::RefData: m_document->checkData(result->address(), res.address, res.size); break;
             case EmulateResult::RefString: m_document->checkString(result->address(), res.address, res.size); break;
             case EmulateResult::RefTypeName: m_document->checkTypeName(result->address(), res.address, res.name); break;
             case EmulateResult::RefType: m_document->checkType(result->address(), res.address, res.type.get()); break;
@@ -113,15 +116,18 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
     {
         case EmulateResult::Branch:
         case EmulateResult::BranchTrue:
+            spdlog::info("Algorithm::processBranches(): TRUE @ {:x} (from {:x})", fromaddress, v.address);
             m_net->linkBranch(fromaddress, v.address, forktype);
             break;
 
         case EmulateResult::BranchFalse:
+            spdlog::info("Algorithm::processBranches(): FALSE @ {:x} (from {:x})", fromaddress, v.address);
             m_net->linkBranch(fromaddress, v.address, forktype);
             this->schedule(v.address);
             return; // Don't generate symbols
 
         case EmulateResult::BranchTable:
+            spdlog::info("Algorithm::processBranches(): TABLE @ {:x} (from {:x})", fromaddress, v.address);
             this->processBranchTable(fromaddress, v);
             return;
 
@@ -131,9 +137,8 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
     if(HAS_FLAG(segment, SegmentFlags_Code))
     {
         int dir = Utils::branchDirection(fromaddress, v.address);
-        //FIXME: if(!dir) m_document->autoComment(fromaddress, "Infinite loop");
         m_document->setBranch(v.address, dir);
-        this->schedule(v.address);
+        if(dir) this->schedule(v.address);
         return;
     }
 
@@ -144,9 +149,13 @@ void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const Emu
 {
     switch(forktype)
     {
-        case EmulateResult::CallTable: this->processCallTable(fromaddress, v); break;
+        case EmulateResult::CallTable:
+            spdlog::info("Algorithm::processCalls(): TABLE @ {:x} (from {:x})", fromaddress, v.address);
+            this->processCallTable(fromaddress, v);
+            break;
 
         case EmulateResult::Call: {
+            spdlog::info("Algorithm::processCalls(): CALL @ {:x} (from {:x})", fromaddress, v.address);
             if(HAS_FLAG(segment, SegmentFlags_Code)) {
                 m_net->linkCall(fromaddress, v.address, forktype);
                 m_document->setFunction(v.address, std::string());
@@ -218,10 +227,13 @@ std::optional<rd_address> Algorithm::decode(rd_address address)
 std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* result)
 {
     if(!this->isAddressValid(result->address())) return std::nullopt;
-    this->status("Decoding @ " + Utils::hex(result->address()));
 
+    WeakScope weak(this->context());
     Assembler* assembler = this->context()->getAssembler(result->address());
     if(!assembler) return std::nullopt;
+
+    this->status("Decoding @ " + Utils::hex(result->address()));
+    spdlog::trace("Algorithm::decode(): {:x} as '{}'", result->address(), assembler->id());
     assembler->emulate(result);
 
     if(!result->size() || (result->size() > view->size))
@@ -245,6 +257,8 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
         m_net->linkNext(result->address(), nextaddress);
         return nextaddress;
     }
+    else
+        spdlog::warn("Algorithm::decode(): STOP @ {:x}", result->address());
 
     return std::nullopt;
 }
@@ -252,9 +266,45 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 bool Algorithm::isAddressValid(rd_address address) const
 {
     RDSegment segment;
-    if(!m_document->addressToSegment(address, &segment) || !HAS_FLAG(&segment, SegmentFlags_Code)) return false;
+
+    if(!m_document->addressToSegment(address, &segment))
+    {
+        spdlog::warn("Algorithm::isAddressValid({:x}): Invalid segment, skipping...", address);
+        return false;
+    }
+
+
+    if(!HAS_FLAG(&segment, SegmentFlags_Code))
+    {
+        spdlog::warn("Algorithm::isAddressValid({:x}): Segment does not contains code, skipping...", address);
+        return false;
+    }
 
     RDBlock block;
-    if(!m_document->addressToBlock(address, &block) || IS_TYPE(&block, BlockType_Code)) return false;
+
+    if(!m_document->addressToBlock(address, &block))
+    {
+        spdlog::warn("Algorithm::isAddressValid({:x}): Invalid block, skipping...", address);
+        return false;
+    }
+
+    if(!IS_TYPE(&block, BlockType_Unknown))
+    {
+        if(m_document->isWeak(block.address))
+        {
+            spdlog::warn("Algorithm::isAddressValid({:x}): Block is weak, overriding...", address, block.type);
+            return true;
+        }
+
+        //if(auto label = m_document->getLabel(block.address); label)
+        //{
+        //    spdlog::warn("Algorithm::isAddressValid({:x}): Found label '{}', skipping...", address, *label);
+        //    return false;
+        //}
+
+        spdlog::warn("Algorithm::isAddressValid({:x}): Block type is #{}, skipping...", address, block.type);
+        return false;
+    }
+
     return true;
 }

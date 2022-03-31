@@ -29,9 +29,9 @@ size_t AddressDatabase::getLabelsByFlag(rd_flag flag, const rd_address** address
 void AddressDatabase::setLabel(rd_address address, const std::string& label, rd_flag flags)
 {
     auto e = this->getEntry(address);
-    if(!e->weak && this->context()->needsWeak()) return;
+    if(!e->weak && this->context()->isWeak()) return;
 
-    e->weak = this->context()->needsWeak();
+    e->weak = this->context()->isWeak();
     e->label = Demangler::demangled(label);
     e->flags |= flags;
 
@@ -47,6 +47,8 @@ void AddressDatabase::setLabel(rd_address address, const std::string& label, rd_
 
         m_labelflags[f].insert(address);
     }
+
+    spdlog::info("AddressDatabase::setLabel({:x}, '{}', {:x})", address, label, flags);
 }
 
 bool AddressDatabase::updateLabel(rd_address address, const std::string& label)
@@ -62,6 +64,8 @@ bool AddressDatabase::updateLabel(rd_address address, const std::string& label)
     e->label = label;
     m_labels.erase(e->label);
     m_labels[label] = address;
+
+    spdlog::info("AddressDatabase::updateLabel({:x}, '{}')", address, label);
     return true;
 }
 
@@ -93,15 +97,45 @@ size_t AddressDatabase::findLabelsR(const std::string& q, const rd_address** res
     return m_result.size();
 }
 
-u16 AddressDatabase::assemblerToIndex(const std::string& assembler) const
+bool AddressDatabase::isWeak(rd_address address) const
+{
+    if(auto* entry = m_entries.find(address); entry)
+        return entry->weak;
+
+    return false;
+}
+
+size_t AddressDatabase::assemblerToIndex(const std::string& assembler) const
 {
     if(assembler.empty()) return 0;
     auto idx = m_assemblers.indexOf(assembler);
-    return static_cast<u16>(idx == RD_NVAL ? 0 : idx);
+    return idx == RD_NVAL ? 0 : idx + 1;
 }
 
-std::optional<std::string> AddressDatabase::indexToAssembler(size_t index) const { return index < m_assemblers.size() ? std::make_optional(m_assemblers.at(index)) : std::nullopt; }
-size_t AddressDatabase::pushAssembler(const std::string& assembler) { m_assemblers.insert(assembler); return m_assemblers.indexOf(assembler); }
+std::optional<std::string> AddressDatabase::indexToAssembler(size_t index) const
+{
+    if(!index)
+    {
+        if(m_lastassembler) return m_lastassembler;
+        return this->indexToAssembler(1);
+    }
+
+    index--;
+
+    if(index < m_assemblers.size())
+    {
+        m_lastassembler = m_assemblers.at(index);
+        return m_lastassembler;
+    }
+
+    return std::nullopt;
+}
+
+size_t AddressDatabase::pushAssembler(const std::string& assembler)
+{
+    m_assemblers.insert(assembler);
+    return m_assemblers.indexOf(assembler) + 1;
+}
 
 rd_flag AddressDatabase::getFlags(rd_address address) const
 {

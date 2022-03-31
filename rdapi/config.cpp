@@ -2,6 +2,7 @@
 #include <rdcore/config.h>
 
 void RDConfig_SetUI(const RDUI* ui) { rd_cfg->setUI(ui); }
+void RDConfig_SetLogLevel(size_t loglevel) { rd_cfg->setLogLevel(loglevel); }
 void RDConfig_SetRuntimePath(const char* rntpath) { rd_cfg->setRuntimePath(rntpath); }
 void RDConfig_SetTempPath(const char* rntpath) { rd_cfg->setTempPath(rntpath); }
 void RDConfig_AddPluginPath(const char* pluginpath) { rd_cfg->addPluginPath(pluginpath); }

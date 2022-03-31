@@ -41,7 +41,8 @@ class AddressDatabase: public Object
         size_t findLabelsR(const std::string& q, const rd_address** resaddresses) const;
 
     public: // Flags
-        u16 assemblerToIndex(const std::string& assembler) const;
+        bool isWeak(rd_address address) const;
+        size_t assemblerToIndex(const std::string& assembler) const;
         std::optional<std::string> indexToAssembler(size_t index) const;
         size_t pushAssembler(const std::string& assembler);
         rd_flag getFlags(rd_address address) const;
@@ -63,6 +64,7 @@ class AddressDatabase: public Object
 
     private:
         mutable std::vector<rd_address> m_result;
+        mutable std::optional<std::string> m_lastassembler;
         UniqueContainer<std::string> m_assemblers;
         std::unordered_map<rd_type, SortedAddresses> m_labelflags;
         std::unordered_map<std::string, rd_address> m_labels;

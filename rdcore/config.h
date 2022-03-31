@@ -54,6 +54,7 @@ class Config
         void setTempPath(const char* tmppath);
         void setUI(const RDUI* ui);
         void setTheme(rd_type theme, const char* color);
+        void setLogLevel(size_t loglevel);
         void setLogCallback(RD_LogCallback callback, void* userdata);
         void setStatusCallback(RD_StatusCallback callback, void* userdata);
         void setProgressCallback(RD_ProgressCallback callback, void* userdata);

@@ -18,6 +18,16 @@ enum RDTheme {
     Theme_Success, Theme_Fail, Theme_Warning
 };
 
+enum RDLogLevel {
+    LogLevel_Trace,
+    LogLevel_Debug,
+    LogLevel_Info,
+    LogLevel_Warning,
+    LogLevel_Error,
+    LogLevel_Critical,
+    LogLevel_Off,
+};
+
 struct RDUI;
 typedef void (*RD_PathCallback)(const char* s, void* userdata);
 typedef void (*RD_LogCallback)(const char* s, void* userdata);
@@ -25,6 +35,7 @@ typedef void (*RD_StatusCallback)(const char* s, void* userdata);
 typedef void (*RD_ProgressCallback)(size_t pending, void* userdata);
 
 RD_API_EXPORT void RDConfig_SetUI(const RDUI* ui);
+RD_API_EXPORT void RDConfig_SetLogLevel(size_t loglevel);
 RD_API_EXPORT void RDConfig_SetRuntimePath(const char* rntpath);
 RD_API_EXPORT void RDConfig_SetTempPath(const char* rntpath);
 RD_API_EXPORT void RDConfig_AddPluginPath(const char* pluginpath);

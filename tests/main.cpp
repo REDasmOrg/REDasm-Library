@@ -29,6 +29,7 @@ void initializeContext()
 {
     if(g_initialized) return;
 
+    RDConfig_SetLogLevel(LogLevel_Off);
     RDConfig_AddPluginPath((fs::current_path().parent_path().parent_path() / "plugins").string().c_str());
     RDConfig_SetStatusCallback([](const char*, void*) { }, nullptr);
     RDConfig_SetLogCallback([](const char*, void*) { }, nullptr);

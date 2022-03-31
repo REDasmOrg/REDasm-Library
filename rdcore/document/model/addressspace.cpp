@@ -94,6 +94,8 @@ bool AddressSpace::insert(const RDSegment& segment)
     else
         m_buffers.emplace(segment.address, AddressSpace::addressSize(segment));
 
+
+    spdlog::info("Creating segment '{}' @ {:x} -> {:x}", segment.name, segment.address, segment.endaddress);
     return true;
 }
 

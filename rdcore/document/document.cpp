@@ -16,6 +16,8 @@ void Document::setAddressAssembler(rd_address address, const std::string& assemb
 {
     if(!this->isAddress(address) || assembler.empty()) return;
 
+    spdlog::info("Document::setAddressAssembler({:x}, '{}')", address, assembler);
+
     auto idx = this->context()->addressDatabase()->pushAssembler(assembler);
     m_addressspace.markInfo(address, BlockType_Unknown, static_cast<u16>(idx));
 }
@@ -58,6 +60,7 @@ bool Document::setSegment(const std::string& name, rd_offset offset, rd_address 
     segment.endaddress = address + vsize;
     segment.flags = flags;
     std::copy_n(name.c_str(), len, reinterpret_cast<char*>(&segment.name));
+
     return m_addressspace.insert(segment);
 }
 
@@ -197,6 +200,7 @@ RDLocation Document::fileoffset(const void* ptr) const
 u8* Document::filepointer(rd_offset offset) const { return (offset < m_buffer->size()) ? m_buffer->data() + offset : nullptr; }
 u8* Document::addrpointer(rd_address address) const { return m_addressspace.addrpointer(address); }
 u8* Document::offspointer(rd_offset offset) const { return m_addressspace.offspointer(offset); }
+bool Document::isWeak(rd_address address) const { return this->addressDatabase()->isWeak(address); }
 bool Document::isAddress(rd_address address) const { return this->addressToSegment(address, nullptr); }
 bool Document::isBasicBlockTail(rd_address address) const { return m_functions.isBasicBlockTail(address); }
 bool Document::setUnknown(rd_address address, size_t size) { return m_addressspace.markUnknown(address, size); }
@@ -239,14 +243,16 @@ bool Document::findLabel(const std::string& q, rd_address* resaddress) const { r
 bool Document::findLabelR(const std::string& q, rd_address* resaddress) const { return this->addressDatabase()->findLabelR(q, resaddress); }
 size_t Document::findLabels(const std::string& q, const rd_address** resaddresses) const { return this->addressDatabase()->findLabels(q, resaddresses); }
 size_t Document::findLabelsR(const std::string& q, const rd_address** resaddresses) const { return this->addressDatabase()->findLabelsR(q, resaddresses); }
+rd_address Document::checkData(rd_address fromaddress, rd_address address, size_t size) { return this->checkLocation(fromaddress, address, size, true); }
 
-rd_address Document::checkLocation(rd_address fromaddress, rd_address address, size_t size)
+rd_address Document::checkLocation(rd_address fromaddress, rd_address address, size_t size, bool dataonly)
 {
     if(fromaddress == address) return RD_NVAL; // Ignore self references
 
     RDSegment segment;
     if(!this->addressToSegment(address, &segment)) return RD_NVAL;
 
+    spdlog::info("Document::checkLocation({:x}, {:x}, {:x}, {})", fromaddress, address, size, dataonly);
     auto label = this->getLabel(address);
 
     if(label)
@@ -267,11 +273,10 @@ rd_address Document::checkLocation(rd_address fromaddress, rd_address address, s
     if(size == RD_NVAL) size = this->context()->addressWidth();
 
     rd_address resaddress = address;
-
     bool ok = this->checkPointer(fromaddress, address, size, &resaddress); // Is Pointer?
     if(!ok) ok = this->checkString(address, nullptr); // Is String?
 
-    if(!ok && Utils::isPureCode(&segment)) // Is Code Reference?
+    if(!dataonly && (!ok && Utils::isPureCode(&segment))) // Is Code Reference?
     {
         this->setLocation(address);
         this->context()->disassembler()->enqueue(address); // Enqueue for analysis
@@ -289,8 +294,10 @@ void Document::checkTypeName(rd_address fromaddress, rd_address address, const c
     RDSegment segment;
     if(!this->addressToSegment(address, &segment)) return;
 
-    if(this->setTypeName(address, q))
-        m_net.addRef(fromaddress, address);
+    if(!this->setTypeName(address, q)) return;
+
+    m_net.addRef(fromaddress, address);
+    spdlog::info("Document::checkTypeName({:x}, {:x})", fromaddress, address);
 }
 
 void Document::checkType(rd_address fromaddress, rd_address address, const Type* t)
@@ -300,8 +307,10 @@ void Document::checkType(rd_address fromaddress, rd_address address, const Type*
     RDSegment segment;
     if(!this->addressToSegment(address, &segment)) return;
 
-    if(this->setType(address, t))
-        m_net.addRef(fromaddress, address);
+    if(!this->setType(address, t)) return;
+
+    m_net.addRef(fromaddress, address);
+    spdlog::info("Document::checkType({:x}, {:x}): '{}'", fromaddress, address, t->name());
 }
 
 void Document::checkString(rd_address fromaddress, rd_address address, size_t size)
@@ -313,13 +322,18 @@ void Document::checkString(rd_address fromaddress, rd_address address, size_t si
     rd_flag flags = StringFinder::categorize(this->context(), view, &totalsize);
     if(flags == AddressFlags_None) flags = AddressFlags_AsciiString; // If invalid, force to Ascii String
 
-    if(StringFinder::checkAndMark(this->context(), address, flags, size != RD_NVAL ? size : totalsize))
-        m_net.addRef(fromaddress, address);
+    if(!StringFinder::checkAndMark(this->context(), address, flags, size != RD_NVAL ? size : totalsize))
+        return;
+
+    m_net.addRef(fromaddress, address);
+    spdlog::info("Document::checkString({:x}, {:x}, {:x})", fromaddress, address, size);
 }
 
 size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t size, const Document::TableCallback& cb)
 {
     auto loc = this->dereferenceAddress(address);
+    if(!loc.valid) return 0;
+
     size_t i = 0, w = this->context()->addressWidth();
 
     for( ; loc.valid && (i < size); i++, address += w, loc = this->dereferenceAddress(address))
@@ -331,6 +345,7 @@ size_t Document::checkTable(rd_address fromaddress, rd_address address, size_t s
         if(!cb(address, loc.address, i)) break;
     }
 
+    if(i) spdlog::info("Document::checkTable({:x}, {:x}, {:x})", fromaddress, address, size);
     return i;
 }
 
@@ -440,7 +455,7 @@ bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t s
 {
     if(size != this->context()->addressWidth()) return false;
 
-    return this->checkTable(fromaddress, address, RD_NVAL, [&](rd_address ptraddress, rd_address addr, size_t i) {
+    size_t c = this->checkTable(fromaddress, address, RD_NVAL, [&](rd_address ptraddress, rd_address addr, size_t i) {
         if(!i) {
             if(firstaddress) *firstaddress = addr;
             m_net.addRef(fromaddress, addr, ReferenceFlags_Indirect);
@@ -449,6 +464,9 @@ bool Document::checkPointer(rd_address fromaddress, rd_address address, size_t s
         this->checkLocation(ptraddress, addr, size);
         return true;
     });
+
+    if(c) spdlog::info("Document::checkPointer({:x}, {:x}, {:x}, {:p})", fromaddress, address, size, reinterpret_cast<void*>(firstaddress));
+    return c;
 }
 
 FunctionGraph* Document::getGraph(rd_address address) const { return m_functions.getGraph(address); }

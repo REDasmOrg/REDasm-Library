@@ -16,7 +16,7 @@ const std::array<const char*, Engine::State_Last> Engine::STATUS_LIST = {
     "Stop", "Algorithm", "CFG", "Analyze", "Done"
 };
 
-Engine::Engine(Context* ctx): Object(ctx), m_algorithm(ctx->disassembler()->algorithm())
+Engine::Engine(Context* ctx): Object(ctx)
 {
     GibberishDetector::initialize();
 
@@ -65,7 +65,7 @@ void Engine::execute()
         }
     }
 
-    if(!m_algorithm->hasNext())
+    if(!this->algorithm()->hasNext())
     {
         this->notifyBusy(false);
         rd_cfg->log("Analysis completed");
@@ -109,14 +109,14 @@ void Engine::stop() { if(m_status.busy) this->notifyBusy(false); }
 
 void Engine::algorithmStep()
 {
-    if(!m_algorithm->hasNext()) return; // Ignore spurious disassemble requests
+    if(!this->algorithm()->hasNext()) return; // Ignore spurious disassemble requests
 
     this->setWeak(true);
     this->notifyBusy(true);
-    m_algorithm->disassemble();
+    this->algorithm()->disassemble();
     this->mergeCode();
 
-    if(m_algorithm->hasNext()) this->setStep(State_Algorithm); // Repeat algorithm
+    if(this->algorithm()->hasNext()) this->setStep(State_Algorithm); // Repeat algorithm
     else this->nextStep();
 }
 
@@ -130,7 +130,7 @@ void Engine::analyzeStep()
 
     this->analyzeAll();
 
-    if(!m_algorithm->hasNext())
+    if(!this->algorithm()->hasNext())
     {
         // Functions count is changed, trigger analysis again
         while(oldfc != doc->getFunctions(nullptr))
@@ -172,6 +172,8 @@ void Engine::cfgStep()
 
     this->nextStep();
 }
+
+SafeAlgorithm& Engine::algorithm() { return this->context()->disassembler()->algorithm(); }
 
 void Engine::analyzeAll()
 {
@@ -223,6 +225,8 @@ void Engine::mergeCode()
 
         this->context()->statusAddress("Merging code in segment " + Utils::quoted(segment.name), segment.address);
 
+        std::unordered_map<rd_address, std::string> addrassemblers;
+
         for(auto it = blocks->begin(); it != blocks->end(); it++)
         {
             if(!IS_TYPE(std::addressof(*it), BlockType_Unknown)) continue;
@@ -233,7 +237,7 @@ void Engine::mergeCode()
 
                 if(it != blocks->begin())
                 {
-                    const RDBlock& prevb = *std::prev(it);
+                    RDBlock prevb = *std::prev(it);
                     if(!IS_TYPE(&prevb, BlockType_Code)) continue;
 
                     assembler = this->context()->getAssembler(prevb.address);
@@ -245,7 +249,7 @@ void Engine::mergeCode()
                     }
                 }
 
-                const RDBlock& nextb = *nextit;
+                RDBlock nextb = *nextit;
                 if(!IS_TYPE(&nextb, BlockType_Code)) continue;
 
                 if(it == blocks->begin())
@@ -268,11 +272,14 @@ void Engine::mergeCode()
                 if(m_merged.count(it->address)) continue; // Don't enqueue same addresses multiple times
 
                 spdlog::trace("Engine::mergeCode(): Enqueue {:x}", it->address);
-                this->context()->document()->setAddressAssembler(it->address, assembler->id());
-                m_algorithm->enqueue(it->address);
+                addrassemblers[it->address] = assembler->id();
+                this->algorithm()->enqueue(it->address);
                 m_merged.insert(it->address);
             }
         }
+
+        for(const auto& [address, assemblerid] : addrassemblers)
+            this->context()->document()->setAddressAssembler(address, assemblerid);
     }
 }
 

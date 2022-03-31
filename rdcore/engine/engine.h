@@ -36,6 +36,7 @@ class Engine: public Object
         void cfgStep();
 
     private:
+        SafeAlgorithm& algorithm();
         void analyzeAll();
         void mergeCode();
         void generateCfg(rd_address address);
@@ -54,7 +55,6 @@ class Engine: public Object
     private:
         std::unordered_set<size_t> m_stepsdone;
         std::unordered_set<size_t> m_merged;
-        SafeAlgorithm& m_algorithm;
 
     private:
         static const std::array<const char*, State_Last> STATUS_LIST;

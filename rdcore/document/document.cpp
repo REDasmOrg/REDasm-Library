@@ -278,7 +278,7 @@ rd_address Document::checkLocation(rd_address fromaddress, rd_address address, s
 
     if(!dataonly && (!ok && Utils::isPureCode(&segment))) // Is Code Reference?
     {
-        this->setLocation(address);
+        this->setLabel(address, AddressFlags_Location);
         this->context()->disassembler()->enqueue(address); // Enqueue for analysis
     }
     else if(!ok) this->setData(address, size); // Data

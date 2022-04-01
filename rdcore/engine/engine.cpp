@@ -129,6 +129,7 @@ void Engine::analyzeStep()
     size_t oldfc = doc->getFunctions(nullptr);
 
     this->analyzeAll();
+    this->mergeCode();
 
     if(!this->algorithm()->hasNext())
     {

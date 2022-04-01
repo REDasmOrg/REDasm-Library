@@ -3,7 +3,12 @@
 FunctionGraph* FunctionContainer::getGraph(rd_address address) const
 {
     auto it = m_values.lower_bound(address);
-    if(it == m_values.end()) return nullptr;
+
+    if(it == m_values.end())
+    {
+        if(m_values.size() == 1) it = m_values.begin();
+        return nullptr;
+    }
 
     // Search near this location (backwards)
     while(!it->second->contains(address))

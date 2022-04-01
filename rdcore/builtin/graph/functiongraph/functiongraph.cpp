@@ -12,7 +12,12 @@ const FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address) const { 
 FunctionBasicBlock* FunctionGraph::basicBlock(rd_address address)
 {
     auto it = m_basicblocks.lower_bound(address);
-    if(it == m_basicblocks.end()) return nullptr;
+
+    if(it == m_basicblocks.end())
+    {
+        if(m_basicblocks.size() == 1) it = m_basicblocks.begin();
+        else return nullptr;
+    }
 
     while(!it->second.contains(address))
     {

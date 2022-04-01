@@ -116,18 +116,18 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
     {
         case EmulateResult::Branch:
         case EmulateResult::BranchTrue:
-            spdlog::info("Algorithm::processBranches(): TRUE @ {:x} (from {:x})", fromaddress, v.address);
+            spdlog::info("Algorithm::processBranches(): TRUE @ {:x} (from {:x})", v.address, fromaddress);
             m_net->linkBranch(fromaddress, v.address, forktype);
             break;
 
         case EmulateResult::BranchFalse:
-            spdlog::info("Algorithm::processBranches(): FALSE @ {:x} (from {:x})", fromaddress, v.address);
+            spdlog::info("Algorithm::processBranches(): FALSE @ {:x} (from {:x})", v.address, fromaddress);
             m_net->linkBranch(fromaddress, v.address, forktype);
             this->schedule(v.address);
             return; // Don't generate symbols
 
         case EmulateResult::BranchTable:
-            spdlog::info("Algorithm::processBranches(): TABLE @ {:x} (from {:x})", fromaddress, v.address);
+            spdlog::info("Algorithm::processBranches(): TABLE @ {:x} (from {:x})", v.address, fromaddress);
             this->processBranchTable(fromaddress, v);
             return;
 
@@ -150,12 +150,13 @@ void Algorithm::processCalls(rd_type forktype, rd_address fromaddress, const Emu
     switch(forktype)
     {
         case EmulateResult::CallTable:
-            spdlog::info("Algorithm::processCalls(): TABLE @ {:x} (from {:x})", fromaddress, v.address);
+            spdlog::info("Algorithm::processCalls(): TABLE @ {:x} (from {:x})", v.address, fromaddress);
             this->processCallTable(fromaddress, v);
             break;
 
         case EmulateResult::Call: {
-            spdlog::info("Algorithm::processCalls(): CALL @ {:x} (from {:x})", fromaddress, v.address);
+            spdlog::info("Algorithm::processCalls(): CALL @ {:x} (from {:x})", v.address, fromaddress);
+
             if(HAS_FLAG(segment, SegmentFlags_Code)) {
                 m_net->linkCall(fromaddress, v.address, forktype);
                 m_document->setFunction(v.address, std::string());
@@ -290,17 +291,17 @@ bool Algorithm::isAddressValid(rd_address address) const
 
     if(!IS_TYPE(&block, BlockType_Unknown))
     {
-        if(m_document->isWeak(block.address))
+        if(IS_TYPE(&block, BlockType_Data) && !this->context()->isWeak())
+        {
+            spdlog::warn("Algorithm::isAddressValid({:x}): Overriding Data block...", address, block.type);
+            return true;
+        }
+
+        if(!IS_TYPE(&block, BlockType_Data) && m_document->isWeak(block.address))
         {
             spdlog::warn("Algorithm::isAddressValid({:x}): Block is weak, overriding...", address, block.type);
             return true;
         }
-
-        //if(auto label = m_document->getLabel(block.address); label)
-        //{
-        //    spdlog::warn("Algorithm::isAddressValid({:x}): Found label '{}', skipping...", address, *label);
-        //    return false;
-        //}
 
         spdlog::warn("Algorithm::isAddressValid({:x}): Block type is #{}, skipping...", address, block.type);
         return false;

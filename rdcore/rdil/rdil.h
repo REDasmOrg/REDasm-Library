@@ -21,6 +21,7 @@ class RDIL
         static const char* getOpName(rd_type t);
         static rd_type getOpType(const std::string& id);
         static std::string getText(const ILExpression* e);
+        static std::string getFormat(const ILExpression* e);
         static void render(const ILExpression* e, Renderer* renderer, rd_address address);
         static const ILExpression* extract(const ILExpression* e, const char* q);
         static bool match(const ILExpression* e, const char* m);
@@ -29,10 +30,10 @@ class RDIL
     private:
         static const ILExpression* extract(const ILExpression* e, const RDILQueryItem& qi, RDILQuery& query, int depth = 0);
         static void walk(const ILExpression* e, const WalkCallback& cb);
-        static bool match(const ILExpression* e, std::string& res);
+        static bool format(const ILExpression* e, std::string& res);
         static bool parseQuery(const std::string& q, RDILQuery& query);
         static void wrapWalk(const ILExpression* e, const WalkCallback& cb);
-        static void wrapMatch(const ILExpression* e, std::string& res);
+        static void wrapFormat(const ILExpression* e, std::string& res);
         static void getText(const ILExpression* e, std::string& res);
         static std::string textOp(const ILExpression* e);
 };

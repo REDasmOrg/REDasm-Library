@@ -33,3 +33,10 @@ const char* RD_GetRDILInstruction(RDContext* ctx, rd_address address)
     s = Renderer::getRDILInstruction(CPTR(Context, ctx), address);
     return !s.empty() ? s.c_str() : nullptr;
 }
+
+const char* RD_GetRDILFormat(RDContext* ctx, rd_address address)
+{
+    static std::string s;
+    s = Renderer::getRDILFormat(CPTR(Context, ctx), address);
+    return !s.empty() ? s.c_str() : nullptr;
+}

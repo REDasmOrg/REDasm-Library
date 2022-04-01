@@ -64,6 +64,23 @@ void Renderer::renderRDILInstruction()
     }
 }
 
+void Renderer::renderRDILFormat()
+{
+    RDRendererParams srp;
+    this->compileParams(&srp);
+
+    ILFunction il(this->context());
+
+    auto* assembler = this->context()->getAssembler(srp.address);
+    if(assembler) assembler->lift(srp.address, &srp.view, &il);
+
+    for(size_t i = 0; i < il.size(); i++)
+    {
+        if(i) this->chunk("; "); // Attach more statements, if needed
+        RDIL::render(il.expression(i), this, this->address());
+    }
+}
+
 void Renderer::renderSigned(s64 value) { this->chunk(Utils::hex(value), Theme_Constant); }
 void Renderer::renderUnsigned(u64 value) { this->chunk(Utils::hex(value), Theme_Constant); }
 
@@ -451,4 +468,21 @@ std::string Renderer::getRDILInstruction(Context* ctx, rd_address address)
     Renderer r(ctx, row, RendererFlags_Simplified);
     r.renderRDILInstruction();
     return row.text;
+}
+
+std::string Renderer::getRDILFormat(Context* ctx, rd_address address)
+{
+    RDBufferView view;
+    if(!ctx->document()->getView(address, RD_NVAL, &view)) return std::string();
+
+    ILFunction il(ctx);
+    auto* assembler = ctx->getAssembler(address);
+
+    if(assembler)
+    {
+        assembler->lift(address, &view, &il);
+        if(il.size()) return RDIL::getFormat(il.first());
+    }
+
+    return std::string();
 }

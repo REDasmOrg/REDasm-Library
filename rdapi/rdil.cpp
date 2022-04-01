@@ -31,6 +31,13 @@ const char* RDILExpression_GetText(const RDILExpression* e)
     return s.c_str();
 }
 
+const char* RDILExpression_GetFormat(const RDILExpression* e)
+{
+    static std::string s;
+    s = RDIL::getFormat(CPTR(const ILExpression, e));
+    return s.c_str();
+}
+
 RDILFunction* RDILFunction_Create(RDContext* ctx, rd_address address)
 {
     std::unique_ptr<ILFunction> il = std::make_unique<ILFunction>(CPTR(Context, ctx));

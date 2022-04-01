@@ -107,6 +107,7 @@ RD_API_EXPORT rd_type RDILExpression_Type(const RDILExpression* e);
 RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
 RD_API_EXPORT const char* RDILExpression_GetText(const RDILExpression* e);
+RD_API_EXPORT const char* RDILExpression_GetFormat(const RDILExpression* e);
 RD_API_EXPORT const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q);
 
 RD_API_EXPORT RDILFunction* RDILFunction_Create(RDContext* context, rd_address address);

@@ -53,6 +53,15 @@ std::string RDIL::getText(const ILExpression* e)
     return res;
 }
 
+std::string RDIL::getFormat(const ILExpression* e)
+{
+    if(!e) return std::string();
+
+    std::string fmt;
+    if(!RDIL::format(e, fmt)) return std::string();
+    return fmt;
+}
+
 void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
 {
     RDIL::walk(e, [renderer, address](const ILExpression* expr, const std::string& s, WalkType wt) {
@@ -311,7 +320,7 @@ bool RDIL::match(const ILExpression* e, const char* m)
     if(!e || !m) return false;
 
     std::string res;
-    if(!RDIL::match(e, res)) return false;
+    if(!RDIL::format(e, res)) return false;
 
     Lexer l1(m), l2(res.c_str());
     const char* err = nullptr;
@@ -337,7 +346,7 @@ bool RDIL::match(const ILExpression* e, const char* m)
     return c;
 }
 
-bool RDIL::match(const ILExpression* e, std::string& res)
+bool RDIL::format(const ILExpression* e, std::string& res)
 {
     switch(e->type)
     {
@@ -354,32 +363,32 @@ bool RDIL::match(const ILExpression* e, std::string& res)
         case RDIL_Le:
         case RDIL_Gt:
         case RDIL_Ge:
-            RDIL::wrapMatch(e->left, res);
+            RDIL::wrapFormat(e->left, res);
             res += RDIL::textOp(e);
-            RDIL::wrapMatch(e->right, res);
+            RDIL::wrapFormat(e->right, res);
             break;
 
         case RDIL_Not:
             res += RDIL::textOp(e);
-            RDIL::wrapMatch(e->u, res);
+            RDIL::wrapFormat(e->u, res);
             break;
 
         case RDIL_If:
             res += "if(";
-            RDIL::match(e->cond, res);
+            RDIL::format(e->cond, res);
             res += ")";
-            RDIL::match(e->t, res);
+            RDIL::format(e->t, res);
             res += " else ";
-            RDIL::match(e->f, res);
+            RDIL::format(e->f, res);
             break;
 
-        case RDIL_Copy:    RDIL::match(e->dst, res); res += " = "; RDIL::match(e->src, res); break;
-        case RDIL_Call:    RDIL::match(e->u, res); res += "()"; break;
-        case RDIL_Goto:    res += "goto "; RDIL::match(e->u, res); break;
-        case RDIL_Mem:     res += "["; RDIL::match(e->u, res); res += "]"; break;
-        case RDIL_Push:    res += "push("; RDIL::match(e->u, res); res += ")"; break;
-        case RDIL_Pop:     RDIL::match(e->u, res); res += " = pop()"; break;
-        case RDIL_Ret:     res += "ret("; RDIL::match(e->cond, res); res += ")"; break;
+        case RDIL_Copy:    RDIL::format(e->dst, res); res += " = "; RDIL::format(e->src, res); break;
+        case RDIL_Call:    RDIL::format(e->u, res); res += "()"; break;
+        case RDIL_Goto:    res += "goto "; RDIL::format(e->u, res); break;
+        case RDIL_Mem:     res += "["; RDIL::format(e->u, res); res += "]"; break;
+        case RDIL_Push:    res += "push("; RDIL::format(e->u, res); res += ")"; break;
+        case RDIL_Pop:     RDIL::format(e->u, res); res += " = pop()"; break;
+        case RDIL_Ret:     res += "ret("; RDIL::format(e->cond, res); res += ")"; break;
         case RDIL_Unknown: res += "unknown "; break;
         case RDIL_Nop:     res += "nop "; break;
         case RDIL_Cnst:    res += "cnst"; break;
@@ -404,16 +413,16 @@ void RDIL::wrapWalk(const ILExpression* e, const RDIL::WalkCallback& cb)
     cb(e, ")", WalkType::Normal);
 }
 
-void RDIL::wrapMatch(const ILExpression* e, std::string& res)
+void RDIL::wrapFormat(const ILExpression* e, std::string& res)
 {
     if(RDIL::hasValue(e) || IS_TYPE(e, RDIL_Mem))
     {
-        RDIL::match(e, res);
+        RDIL::format(e, res);
         return;
     }
 
     res += "(";
-    RDIL::match(e, res);
+    RDIL::format(e, res);
     res += ")";
 }
 

@@ -46,6 +46,7 @@ class Renderer: public Object
     public: // C-API Methods
         void renderAssemblerInstruction();
         void renderRDILInstruction();
+        void renderRDILFormat();
         void renderSigned(s64 value);
         void renderUnsigned(u64 value);
         void renderReference(rd_location loc);
@@ -85,6 +86,7 @@ class Renderer: public Object
         static std::string getInstruction(Context* ctx, rd_address address);
         static std::string getAssemblerInstruction(Context* ctx, rd_address address);
         static std::string getRDILInstruction(Context* ctx, rd_address address);
+        static std::string getRDILFormat(Context* ctx, rd_address address);
 
     private:
         Renderer& chunk(const std::string& s, u8 fg = Theme_Default, u8 bg = Theme_Default);

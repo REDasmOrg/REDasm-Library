@@ -55,3 +55,4 @@ RD_API_EXPORT void RDRenderer_Unknown(RDRenderer* r);
 RD_API_EXPORT const char* RD_GetInstruction(RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RD_GetAssemblerInstruction(RDContext* ctx, rd_address address);
 RD_API_EXPORT const char* RD_GetRDILInstruction(RDContext* ctx, rd_address address);
+RD_API_EXPORT const char* RD_GetRDILFormat(RDContext* ctx, rd_address address);

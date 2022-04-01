@@ -25,7 +25,7 @@ void ILFunction::insert(size_t idx, ILExpression* e)
 const ILExpression* ILFunction::expression(size_t idx) const
 {
     if(idx >= m_expressions.size()) return nullptr;
-    return m_expressions[idx];
+    return m_expressions.at(idx);
 }
 
 bool ILFunction::empty() const { return m_expressions.empty(); }

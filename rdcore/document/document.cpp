@@ -16,7 +16,7 @@ void Document::setAddressAssembler(rd_address address, const std::string& assemb
 {
     if(!this->isAddress(address) || assembler.empty()) return;
 
-    spdlog::info("Document::setAddressAssembler({:x}, '{}')", address, assembler);
+    spdlog::debug("Document::setAddressAssembler({:x}, '{}')", address, assembler);
 
     auto idx = this->context()->addressDatabase()->pushAssembler(assembler);
     m_addressspace.markInfo(address, BlockType_Unknown, static_cast<u16>(idx));
@@ -108,8 +108,8 @@ void Document::addComment(rd_address address, const std::string& s) { this->addr
 bool Document::createFunction(rd_address address, const std::string& label)
 {
     if(!this->isAddress(address)) return false;
-    this->context()->disassembler()->disassembleFunction(address);
     this->setFunction(address, label);
+    this->context()->disassembler()->disassembleFunction(address);
     return true;
 }
 

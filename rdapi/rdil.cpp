@@ -12,15 +12,19 @@ RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
 
 RDILExpression* RDILExpression_Create(RDContext* ctx, rd_address address) { return CPTR(RDILExpression, ILFunction::generateOne(CPTR(Context, ctx), address)); }
 rd_type RDILExpression_Type(const RDILExpression* e) { return e ? CPTR(const ILExpression, e)->type : RDIL_Unknown; }
-bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
-const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q) { return (e && q) ? CPTR(const RDILExpression, RDIL::extract(CPTR(const ILExpression, e), q)) : nullptr; }
+bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e && m ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
+size_t RDILExpression_ExtractNew(const RDILExpression* e, const RDILValue** values) { return e && values ? RDIL::extract(CPTR(const ILExpression, e), values) : 0; }
 
 bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
 {
     const ILExpression* expr = CPTR(const ILExpression, e);
     if(!expr || !RDIL::hasValue(expr)) return false;
 
-    if(value) value->value = expr->value;
+    if(value)
+    {
+        value->type = expr->type;
+        value->value = expr->value;
+    }
     return true;
 }
 
@@ -49,6 +53,9 @@ const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunctio
 const RDILExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction) { return CPTR(const RDILExpression, CPTR(const ILFunction, rdilfunction)->first()); }
 const RDILExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction) { return CPTR(const RDILExpression, CPTR(const ILFunction, rdilfunction)->last()); }
 size_t RDILFunction_Size(const RDILFunction* rdilfunction) { return CPTR(const ILFunction, rdilfunction)->size(); }
+size_t RDILFunction_Extract(const RDILFunction* rdilfunction, const RDILValue** values) { return rdilfunction ? RDIL::extract(CPTR(const ILFunction, rdilfunction), values) : 0; }
+bool RDILFunction_Match(const RDILFunction* rdilfunction, const char* m) { return rdilfunction && m ? RDIL::match(CPTR(const ILFunction, rdilfunction), m) : false; }
+bool RDILFunction_Extract(const RDILFunction* rdilfunction, const char* m) { (void)rdilfunction; (void)m; return false; } //return rdilfunction && m ? RDIL::match(CPTR(const ILFunction, rdilfunction), m) : false; }
 bool RDILFunction_GetAddress(const RDILFunction* rdilfunction, const RDILExpression* e, rd_address* address) { return CPTR(const ILFunction, rdilfunction)->getAddress(CPTR(const ILExpression, e), address); }
 void RDILFunction_Insert(RDILFunction* rdilfunction, size_t idx, RDILExpression* expression) { CPTR(ILFunction, rdilfunction)->insert(idx, CPTR(ILExpression, expression)); }
 void RDILFunction_Append(RDILFunction* rdilfunction, RDILExpression* expression) { CPTR(ILFunction, rdilfunction)->append(CPTR(ILExpression, expression)); }

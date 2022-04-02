@@ -13,6 +13,7 @@ add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}" -DMINIZ_NO_
 # set(CPM_USE_LOCAL_PACKAGES ON)
 include(cmake/CPM.cmake) # https://github.com/TheLartians/CPM.cmake
 CPMAddPackage("gh:gabime/spdlog@1.9.2")
+CPMAddPackage("gh:nlohmann/json@3.10.5")
 
 if(ENABLE_TESTS)
     add_subdirectory(tests)
@@ -66,8 +67,7 @@ set(SOURCES ${LIBS_SOURCES} ${RDCORE_SOURCES} ${RDAPI_SOURCES})
 add_subdirectory(rdcore/libs/taojson EXCLUDE_FROM_ALL)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE taocpp::json spdlog)
-target_include_directories(${PROJECT_NAME} PRIVATE spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE taocpp::json spdlog nlohmann_json::nlohmann_json)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

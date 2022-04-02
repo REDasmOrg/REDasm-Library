@@ -2,9 +2,10 @@
 
 #include <rdapi/rdil.h>
 #include <functional>
+#include <optional>
 #include <string>
-#include <queue>
 #include "expression.h"
+#include "ilfunction.h"
 
 class Renderer;
 
@@ -12,9 +13,10 @@ class RDIL
 {
     private:
         enum class WalkType { Normal = 0, Mnemonic, Whitespace, };
-        typedef std::function<void(const ILExpression* e, const std::string& s, WalkType wt)> WalkCallback;
+        typedef std::function<void(const ILExpression* e)> WalkCallback;
+        typedef std::function<void(const ILExpression* e, const std::string& s, WalkType wt)> ToStringCallback;
+        typedef std::function<void(const ILExpression* e)> FormatCallback;
         struct RDILQueryItem { std::string nodeid, opcode; };
-        typedef std::queue<RDILQueryItem> RDILQuery;
 
     public:
         RDIL() = delete;
@@ -23,16 +25,18 @@ class RDIL
         static std::string getText(const ILExpression* e);
         static std::string getFormat(const ILExpression* e);
         static void render(const ILExpression* e, Renderer* renderer, rd_address address);
-        static const ILExpression* extract(const ILExpression* e, const char* q);
+        static size_t extract(const ILExpression* e, const RDILValue** values);
+        static size_t extract(const ILFunction* f, const RDILValue** values);
+        static bool match(const ILFunction* f, const char* m);
         static bool match(const ILExpression* e, const char* m);
         static bool hasValue(const ILExpression* e);
 
     private:
-        static const ILExpression* extract(const ILExpression* e, const RDILQueryItem& qi, RDILQuery& query, int depth = 0);
+        static void extract(const ILExpression* e, std::vector<RDILValue>& values);
+        static void toString(const ILExpression* e, const ToStringCallback& cb);
         static void walk(const ILExpression* e, const WalkCallback& cb);
         static bool format(const ILExpression* e, std::string& res);
-        static bool parseQuery(const std::string& q, RDILQuery& query);
-        static void wrapWalk(const ILExpression* e, const WalkCallback& cb);
+        static void wrapWalk(const ILExpression* e, const ToStringCallback& cb);
         static void wrapFormat(const ILExpression* e, std::string& res);
         static void getText(const ILExpression* e, std::string& res);
         static std::string textOp(const ILExpression* e);

@@ -5,6 +5,8 @@
 #include "../support/lexer.h"
 #include "../config.h"
 #include <unordered_map>
+#include <string_view>
+#include <vector>
 
 #define RDIL_N(x) {x, #x}
 
@@ -64,7 +66,7 @@ std::string RDIL::getFormat(const ILExpression* e)
 
 void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
 {
-    RDIL::walk(e, [renderer, address](const ILExpression* expr, const std::string& s, WalkType wt) {
+    RDIL::toString(e, [renderer, address](const ILExpression* expr, const std::string& s, WalkType wt) {
         if(wt == WalkType::Mnemonic) {
             switch(expr->type) {
                 case RDIL_Goto: renderer->renderMnemonic(s, Theme_Jump); break;
@@ -98,11 +100,46 @@ void RDIL::render(const ILExpression* e, Renderer* renderer, rd_address address)
     });
 }
 
-const ILExpression* RDIL::extract(const ILExpression* e, const char* q)
+size_t RDIL::extract(const ILExpression* e, const RDILValue** values)
 {
-    RDILQuery query;
-    if(!RDIL::parseQuery(q, query)) return nullptr;
-    return RDIL::extract(e, { }, query);
+    if(!e) return false;
+
+    static std::vector<RDILValue> v;
+    v = { };
+
+    RDIL::extract(e, v);
+    if(values) *values = v.data();
+    return v.size();
+}
+
+size_t RDIL::extract(const ILFunction* f, const RDILValue** values)
+{
+    if(!f) return false;
+
+    static std::vector<RDILValue> v;
+    v = { };
+
+    for(const ILExpression* e : *f)
+        RDIL::extract(e, v);
+
+    if(values) *values = v.data();
+    return v.size();
+}
+
+bool RDIL::match(const ILFunction* f, const char* m)
+{
+    if(!f || !m) return false;
+
+    auto parts = Utils::split(m, ';');
+    if(parts.size() != f->size()) return false;
+
+    for(size_t i = 0; i < parts.size(); i++)
+    {
+        if(!RDIL::match(f->expression(i), parts.at(i).c_str()))
+            return false;
+    }
+
+    return true;
 }
 
 std::string RDIL::textOp(const ILExpression* e)
@@ -149,63 +186,14 @@ bool RDIL::hasValue(const ILExpression* e)
     return false;
 }
 
-const ILExpression* RDIL::extract(const ILExpression* e, const RDILQueryItem& qi, RDIL::RDILQuery& query, int depth)
+void RDIL::extract(const ILExpression* e, std::vector<RDILValue>& values)
 {
-    if(!e || query.empty()) return e;
-    if(depth && (qi.opcode != "*") && (e->type != RDIL::getOpType(qi.opcode))) return nullptr;
-
-    RDILQueryItem nqi = query.front();
-    query.pop();
-
-    if(nqi.nodeid == "u") return RDIL::extract(e->u, nqi, query, ++depth);
-    if(nqi.nodeid == "cond") return RDIL::extract(e->cond, nqi, query, ++depth);
-    if(nqi.nodeid == "dst") return RDIL::extract(e->dst, nqi, query, ++depth);
-    if(nqi.nodeid == "left") return RDIL::extract(e->left, nqi, query, ++depth);
-    if(nqi.nodeid == "t") return RDIL::extract(e->t, nqi, query, ++depth);
-    if(nqi.nodeid == "src") return RDIL::extract(e->src, nqi, query, ++depth);
-    if(nqi.nodeid == "right") return RDIL::extract(e->right, nqi, query, ++depth);
-    if(nqi.nodeid == "f") return RDIL::extract(e->f, nqi, query, ++depth);
-    rd_cfg->log("Unknown node id: " + nqi.nodeid);
-    return nullptr;
+    RDIL::walk(e, [&values](const ILExpression* expr) {
+        if(RDIL::hasValue(expr)) values.emplace_back(RDILValue{expr->type, {expr->value}});
+    });
 }
 
-bool RDIL::parseQuery(const std::string& q, RDIL::RDILQuery& query)
-{
-    Lexer l(q.c_str());
-    RDToken token;
-    RDILQueryItem item;
-
-    while(!l.hasError() && l.lex(&token))
-    {
-        if(IS_TYPE(&token, TokenType_Slash)) continue;
-        if(!l.check(&token, TokenType_Identifier)) break;
-        item.nodeid = Lexer::tokenValue(&token);
-
-        if(!l.lexCheck(&token, TokenType_Colon)) break;
-        if(!l.lex(&token)) break;
-
-        switch(token.type)
-        {
-            case TokenType_Asterisk:
-            case TokenType_Identifier: break;
-
-            default: l.error(&token); continue;
-        }
-
-        item.opcode = Lexer::tokenValue(&token);
-        query.push(item);
-    }
-
-    if(l.hasError())
-    {
-        rd_cfg->log(l.lastError());
-        return false;
-    }
-
-    return !query.empty();
-}
-
-void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
+void RDIL::toString(const ILExpression* e, const RDIL::ToStringCallback& cb)
 {
     switch(e->type)
     {
@@ -229,16 +217,16 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
         case RDIL_Ge:
             RDIL::wrapWalk(e->left, cb);
             cb(e, RDIL::textOp(e), WalkType::Normal);
-            RDIL::walk(e->right, cb);
+            RDIL::toString(e->right, cb);
             break;
 
         case RDIL_Rol:
         case RDIL_Ror:
             cb(e, (e->type == RDIL_Rol) ? "rol" : "ror", WalkType::Mnemonic);
             cb(e, "(", WalkType::Normal);
-            RDIL::walk(e->left, cb);
+            RDIL::toString(e->left, cb);
             cb(e, ", ", WalkType::Normal);
-            RDIL::walk(e->right, cb);
+            RDIL::toString(e->right, cb);
             cb(e, ")", WalkType::Normal);
             break;
 
@@ -251,19 +239,19 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
             cb(e, "if", WalkType::Mnemonic);
             cb(e, " ", WalkType::Normal);
             cb(e, "(", WalkType::Normal);
-            RDIL::walk(e->cond, cb);
+            RDIL::toString(e->cond, cb);
             cb(e, ") ", WalkType::Normal);
-            RDIL::walk(e->t, cb);
+            RDIL::toString(e->t, cb);
             cb(e, " ", WalkType::Whitespace);
             cb(e, "else", WalkType::Mnemonic);
             cb(e, " ", WalkType::Whitespace);
-            RDIL::walk(e->f, cb);
+            RDIL::toString(e->f, cb);
             break;
 
         case RDIL_Ret:
             cb(e, "ret", WalkType::Mnemonic);
             cb(e, "(", WalkType::Normal);
-            RDIL::walk(e->cond, cb);
+            RDIL::toString(e->cond, cb);
             cb(e, ")", WalkType::Normal);
             break;
 
@@ -274,37 +262,37 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
             break;
 
         case RDIL_Copy:
-            RDIL::walk(e->dst, cb);
+            RDIL::toString(e->dst, cb);
             cb(e, "=", WalkType::Normal);
-            RDIL::walk(e->src, cb);
+            RDIL::toString(e->src, cb);
             break;
 
         case RDIL_Call:
-            RDIL::walk(e->u, cb);
+            RDIL::toString(e->u, cb);
             cb(e, "()", WalkType::Normal);
             break;
 
         case RDIL_Goto:
             cb(e, "goto", WalkType::Mnemonic);
             cb(e, " ", WalkType::Whitespace);
-            RDIL::walk(e->u, cb);
+            RDIL::toString(e->u, cb);
             break;
 
         case RDIL_Mem:
             cb(e, "[", WalkType::Normal);
-            RDIL::walk(e->u, cb);
+            RDIL::toString(e->u, cb);
             cb(e, "]", WalkType::Normal);
             break;
 
         case RDIL_Push:
             cb(e, "push", WalkType::Mnemonic);
             cb(e, "(", WalkType::Normal);
-            RDIL::walk(e->u, cb);
+            RDIL::toString(e->u, cb);
             cb(e, ")", WalkType::Normal);
             break;
 
         case RDIL_Pop:
-            RDIL::walk(e->u, cb);
+            RDIL::toString(e->u, cb);
             cb(e, "=", WalkType::Normal);
             cb(e, "pop()", WalkType::Mnemonic);
             break;
@@ -312,6 +300,88 @@ void RDIL::walk(const ILExpression* e, const RDIL::WalkCallback& cb)
         case RDIL_Unknown: cb(e, "unknown", WalkType::Mnemonic); break;
         case RDIL_Nop: cb(e, "nop", WalkType::Mnemonic); break;
         default: cb(e, "???", WalkType::Normal); break;
+    }
+}
+
+void RDIL::walk(const ILExpression* e, const WalkCallback& cb)
+{
+    if(!e) return;
+
+    switch(e->type)
+    {
+        case RDIL_Add:
+        case RDIL_Sub:
+        case RDIL_Mul:
+        case RDIL_Div:
+        case RDIL_Mod:
+        case RDIL_And:
+        case RDIL_Or:
+        case RDIL_Xor:
+        case RDIL_Lsl:
+        case RDIL_Lsr:
+        case RDIL_Asl:
+        case RDIL_Asr:
+        case RDIL_Eq:
+        case RDIL_Ne:
+        case RDIL_Lt:
+        case RDIL_Le:
+        case RDIL_Gt:
+        case RDIL_Ge:
+            RDIL::walk(e->left, cb);
+            cb(e);
+            RDIL::walk(e->right, cb);
+            break;
+
+        case RDIL_Rol:
+        case RDIL_Ror:
+            cb(e);
+            RDIL::walk(e->left, cb);
+            RDIL::walk(e->right, cb);
+            break;
+
+        case RDIL_If:
+            cb(e);
+            RDIL::walk(e->cond, cb);
+            RDIL::walk(e->t, cb);
+            RDIL::walk(e->f, cb);
+            break;
+
+        case RDIL_Ret:
+            cb(e);
+            RDIL::walk(e->cond, cb);
+            break;
+
+        case RDIL_Cnst:
+        case RDIL_Var:
+        case RDIL_Reg:
+        case RDIL_Unknown:
+        case RDIL_Nop:
+            cb(e);
+            break;
+
+        case RDIL_Copy:
+            RDIL::walk(e->dst, cb);
+            cb(e);
+            RDIL::walk(e->src, cb);
+            break;
+
+        case RDIL_Call:
+        case RDIL_Pop:
+            RDIL::walk(e->u, cb);
+            cb(e);
+            break;
+
+        case RDIL_Goto:
+        case RDIL_Push:
+        case RDIL_Mem:
+        case RDIL_Not:
+            cb(e);
+            RDIL::walk(e->u, cb);
+            break;
+
+        default:
+            REDasmError("Unknown RDIL Type: #" + std::to_string(e->type));
+            break;
     }
 }
 
@@ -400,16 +470,16 @@ bool RDIL::format(const ILExpression* e, std::string& res)
     return true;
 }
 
-void RDIL::wrapWalk(const ILExpression* e, const RDIL::WalkCallback& cb)
+void RDIL::wrapWalk(const ILExpression* e, const RDIL::ToStringCallback& cb)
 {
     if(RDIL::hasValue(e) || IS_TYPE(e, RDIL_Mem))
     {
-        RDIL::walk(e, cb);
+        RDIL::toString(e, cb);
         return;
     }
 
     cb(e, "(", WalkType::Normal);
-    RDIL::walk(e, cb);
+    RDIL::toString(e, cb);
     cb(e, ")", WalkType::Normal);
 }
 
@@ -428,7 +498,7 @@ void RDIL::wrapFormat(const ILExpression* e, std::string& res)
 
 void RDIL::getText(const ILExpression* e, std::string& res)
 {
-    RDIL::walk(e, [&res](const ILExpression* expr, const std::string& s, WalkType) {
+    RDIL::toString(e, [&res](const ILExpression* expr, const std::string& s, WalkType) {
         switch(expr->type) {
             case RDIL_Cnst: res += Utils::hex(expr->u_value); break;
             case RDIL_Var: res += expr->var; break;

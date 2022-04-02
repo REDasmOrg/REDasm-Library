@@ -40,7 +40,7 @@ bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_a
 {
     if((expr->type == RDIL_Ret) || ((expr->type == RDIL_Nop) && (ctx->document()->getFunctionInstrCount(address)) == 1))
     {
-        ctx->document()->setLabel(address, AddressFlags_None, "nullsub_" + Utils::hex(address));
+        ctx->document()->updateLabel(address, "nullsub_" + Utils::hex(address));
         return true;
     }
 
@@ -49,18 +49,15 @@ bool FunctionAnalyzer::findNullSubs(Context* ctx, const ILExpression* expr, rd_a
 
 std::string FunctionAnalyzer::findThunk(Context* ctx, const ILExpression* expr, rd_address address, int level)
 {
-    std::string label;
-    rd_address raddress = 0;
+    const RDILValue* values = nullptr;
+    if(!RDIL::match(expr, "goto [cnst]") && RDIL::match(expr, "goto cnst")) return std::string();
 
-    if(RDIL::match(expr, "goto [cnst]"))
+    rd_address raddress = 0;
+    std::string label;
+
+    if(size_t n = RDIL::extract(expr, &values); n == 1)
     {
-        raddress = RDIL::extract(expr, "u:mem/u:cnst")->address;
-        auto dlabel = ctx->document()->getLabel(raddress);
-        if(dlabel) label = *dlabel;
-    }
-    else if(RDIL::match(expr, "goto cnst"))
-    {
-        raddress = RDIL::extract(expr, "u:cnst")->address;
+        raddress = values->address;
         auto dlabel = ctx->document()->getLabel(raddress);
         if(dlabel) label = *dlabel;
     }

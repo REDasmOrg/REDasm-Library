@@ -93,9 +93,13 @@ enum RDILTypes
     u64 u_value; \
     s64 s_value; \
     const char* reg; \
-    const char* var; \
+    const char* var;
 
-typedef union RDILValue { PRIVATE_RDIL_VALUE_FIELDS } RDILValue;
+typedef struct RDILValue
+{
+    rd_type type;
+    union { PRIVATE_RDIL_VALUE_FIELDS };
+} RDILValue;
 
 RD_HANDLE(RDILFunction);
 RD_HANDLE(RDILExpression);
@@ -108,12 +112,14 @@ RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
 RD_API_EXPORT const char* RDILExpression_GetText(const RDILExpression* e);
 RD_API_EXPORT const char* RDILExpression_GetFormat(const RDILExpression* e);
-RD_API_EXPORT const RDILExpression* RDILExpression_Extract(const RDILExpression* e, const char* q);
+RD_API_EXPORT size_t RDILExpression_ExtractNew(const RDILExpression* e, const RDILValue** values);
 
 RD_API_EXPORT RDILFunction* RDILFunction_Create(RDContext* context, rd_address address);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetFirstExpression(const RDILFunction* rdilfunction);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetLastExpression(const RDILFunction* rdilfunction);
+RD_API_EXPORT size_t RDILFunction_Extract(const RDILFunction* rdilfunction, const RDILValue** values);
+RD_API_EXPORT bool RDILFunction_Match(const RDILFunction* rdilfunction, const char* m);
 RD_API_EXPORT bool RDILFunction_GetAddress(const RDILFunction* rdilfunction, const RDILExpression* e, rd_address* address);
 RD_API_EXPORT void RDILFunction_Insert(RDILFunction* rdilfunction, size_t idx, RDILExpression* expression);
 RD_API_EXPORT void RDILFunction_Append(RDILFunction* rdilfunction, RDILExpression* expression);

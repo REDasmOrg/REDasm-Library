@@ -10,7 +10,7 @@
 
 class Disassembler;
 
-class ILFunction: public Object
+class ILFunction: public ILExpressionTree
 {
     public:
         typedef std::deque<ILExpression*> ExpressionList;
@@ -31,52 +31,6 @@ class ILFunction: public Object
         static bool generate(rd_address address, ILFunction* il);
         static ILExpression* generateOne(Context* ctx, rd_address address);
 
-    public:
-        ILExpression* exprUNKNOWN() const;
-        ILExpression* exprNOP() const;
-        ILExpression* exprPOP(ILExpression* e) const;
-        ILExpression* exprPUSH(ILExpression* e) const;
-        ILExpression* exprREG(size_t size, const char* reg) const;
-        ILExpression* exprCNST(size_t size, u64 value) const;
-        ILExpression* exprVAR(size_t size, const char* name) const;
-        ILExpression* exprJUMP(ILExpression* e) const;
-        ILExpression* exprCALL(ILExpression* e) const;
-        ILExpression* exprRET(ILExpression* e) const;
-        ILExpression* exprMEM(ILExpression* e) const;
-        ILExpression* exprNOT(ILExpression* e) const;
-        ILExpression* exprADD(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprSUB(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprMUL(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprDIV(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprMOD(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprAND(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprOR(ILExpression* l, ILExpression* r)  const;
-        ILExpression* exprXOR(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprLSL(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprLSR(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprASL(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprASR(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprROL(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprROR(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprCOPY(ILExpression* dst, ILExpression* src) const;
-        ILExpression* exprIF(ILExpression* cond, ILExpression* t, ILExpression* f) const;
-        ILExpression* exprEQ(ILExpression* l, ILExpression* r)  const;
-        ILExpression* exprNE(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprLT(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprLE(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprGT(ILExpression* l, ILExpression* r) const;
-        ILExpression* exprGE(ILExpression* l, ILExpression* r) const;
-
-    private:
-        ILExpression* check(ILExpression* e) const;
-        ILExpression* exprVALUE_P(rd_type rdil, size_t size, uintptr_t value) const;
-        ILExpression* exprVALUE(rd_type rdil, size_t size, u64 value) const;
-        ILExpression* exprLR(rd_type rdil, size_t size, ILExpression* l, ILExpression* r) const;
-        ILExpression* exprDS(rd_type rdil, size_t size, ILExpression* dst, ILExpression* src) const;
-        ILExpression* exprU(rd_type rdil, size_t size, ILExpression* e) const;
-        ILExpression* expr(rd_type rdil, size_t size) const;
-        ILExpression* expr(rd_type rdil) const;
-
     private:
         static bool generatePath(rd_address address, ILFunction* il, std::set<rd_address>& path);
         static void generateBasicBlock(rd_address address, ILFunction* il, std::set<rd_address>& path);
@@ -88,8 +42,7 @@ class ILFunction: public Object
         ExpressionList::const_iterator end() const;
 
     private:
+        std::unordered_map<const ILExpression*, rd_address> m_addresses;
         rd_address m_currentaddress{RD_NVAL};
         ExpressionList m_expressions;
-        std::unordered_map<const ILExpression*, rd_address> m_addresses;
-        mutable std::list<ILExpressionPtr> m_pool;
 };

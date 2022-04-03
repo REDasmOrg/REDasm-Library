@@ -49,6 +49,7 @@ class Context: public Object
         AddressDatabase* addressDatabase() const;
         const SurfaceState& surfaceState() const;
         SurfaceState& surfaceState();
+        bool disassembling() const;
         bool busy() const;
         size_t bits() const;
         size_t addressWidth() const;

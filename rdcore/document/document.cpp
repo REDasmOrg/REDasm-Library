@@ -118,10 +118,7 @@ bool Document::updateLabel(rd_address address, const std::string& s) { return th
 std::optional<std::string> Document::getAddressAssembler(rd_address address) const
 {
     RDBlock block;
-
-    if(!m_addressspace.addressToBlock(address, &block))// || !IS_TYPE(&block, BlockType_Code))
-        return std::nullopt;
-
+    if(!m_addressspace.addressToBlock(address, &block)) return std::nullopt;
     return this->addressDatabase()->indexToAssembler(block.codeinfo);
 }
 

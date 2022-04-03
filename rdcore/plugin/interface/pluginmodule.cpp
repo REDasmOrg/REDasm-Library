@@ -15,6 +15,8 @@ PluginModule::PluginModule(Context* ctx): Object(ctx) { }
 
 PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx), m_filepath(filepath)
 {
+    spdlog::debug("PluginModule::PluginModule(): Loading '{}'", m_filepath.c_str());
+
 #ifdef _WIN32
     m_handle = LoadLibraryW(m_filepath.c_str());
 #else
@@ -26,6 +28,7 @@ PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx),
 #ifdef _WIN32
         //TODO: Implement Win32 Error Message Handling
 #else
+        spdlog::error("PluginModule::PluginModule(): ", dlerror());
         this->log(dlerror());
 #endif
 
@@ -33,8 +36,8 @@ PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx),
     }
 
     m_sharedhandles[m_handle]++; // Increase shared reference count
-    m_init = this->funcT<Callback_PluginInit>(RDPLUGIN_PLUGIN_INIT_NAME);
-    m_free = this->funcT<Callback_PluginFree>(RDPLUGIN_PLUGIN_FREE_NAME);
+    m_init = this->getFuncT<Callback_PluginInit>(RDPLUGIN_PLUGIN_INIT_NAME);
+    m_free = this->getFuncT<Callback_PluginFree>(RDPLUGIN_PLUGIN_FREE_NAME);
 
     if(!m_init)
     {
@@ -106,6 +109,8 @@ std::string PluginModule::fileName() const { return m_filepath.filename().string
 
 void PluginModule::unload()
 {
+    spdlog::debug("PluginModule::unload(): Unloading '{}' ", m_filepath.c_str());
+
     if(!m_handle) return;
     if(m_free) m_free(CPTR(RDContext, this->context()));
 
@@ -121,7 +126,7 @@ void PluginModule::unload()
     m_handle = { };
 }
 
-void* PluginModule::func(const char* name)
+void* PluginModule::getFunc(const char* name)
 {
 #ifdef _WIN32
     return reinterpret_cast<void*>(GetProcAddress(m_handle, name));

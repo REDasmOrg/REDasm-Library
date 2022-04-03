@@ -116,19 +116,19 @@ std::optional<std::string> AddressDatabase::indexToAssembler(size_t index) const
 {
     if(!index)
     {
-        if(m_lastassembler) return m_lastassembler;
+        if(this->context()->disassembling() && m_lastassembler) return m_lastassembler;
         return this->indexToAssembler(1);
     }
 
-    index--;
+    if(--index >= m_assemblers.size()) return std::nullopt;
 
-    if(index < m_assemblers.size())
+    if(this->context()->disassembling())
     {
         m_lastassembler = m_assemblers.at(index);
         return m_lastassembler;
     }
 
-    return std::nullopt;
+    return m_assemblers.at(index);
 }
 
 size_t AddressDatabase::pushAssembler(const std::string& assembler)

@@ -26,6 +26,7 @@ class Disassembler: public Object
     public: // Engine/Algorithm
         void setWeak(bool b);
         bool isWeak() const;
+        bool disassembling() const;
         bool busy() const;
         void enqueue(rd_address address);
         void disassembleBlock(const RDBlock* block);

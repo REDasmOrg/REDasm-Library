@@ -231,7 +231,12 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
 
     WeakScope weak(this->context());
     Assembler* assembler = this->context()->getAssembler(result->address());
-    if(!assembler) return std::nullopt;
+
+    if(!assembler)
+    {
+        spdlog::error("Algorithm::decode(): Assembler not found @ {:x}", result->address());
+        return std::nullopt;
+    }
 
     this->status("Decoding @ " + Utils::hex(result->address()));
     spdlog::trace("Algorithm::decode(): {:x} as '{}'", result->address(), assembler->id());

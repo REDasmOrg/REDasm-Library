@@ -183,6 +183,40 @@ void LoaderTests::testIOLI00(RDContext* ctx, RDDocument* doc)
     LoaderTests::checkLabelsAndRefs(ctx, doc, strings, AddressFlags_AsciiString);
 }
 
+void LoaderTests::testSecureCMD(RDContext* ctx, RDDocument* doc)
+{
+    static std::map<rd_address, std::pair<std::string, std::string>> functions = {
+        { 0x000008d4, {"arm32le", "sub_init_08D4" }},
+        { 0x000008f4, {"arm32le", "plt_raise" }},
+        { 0x00000924, {"arm32le", "plt___cxa_finalize" }},
+        { 0x00000978, {"arm32le", "plt_signal"}},
+        { 0x00000984, {"arm32le", "plt_time"}},
+        { 0x000009cc, {"arm32le", "plt_accept"}},
+        { 0x000009fc, {"arm32le", "plt___libc_start_main"}},
+        { 0x00000a08, {"arm32le", "plt_getdtablesize"}},
+        { 0x00000a20, {"arm32le", "plt_open"}},
+        { 0x00000a44, {"arm32le", "plt_srand"}},
+        { 0x00000a74, {"arm32le", "plt_rand"}},
+        { 0x00000a8c, {"arm32le", "plt_fork"}},
+        { 0x00000ac8, {"arm32le", "plt_abort"}},
+        { 0x00000ae0, {"thumble", RD_ENTRY_NAME}},
+        { 0x00000bb0, {"thumble", "sub_fini_0BB0"}},
+        { 0x00000bf0, {"thumble", "sub_init_0BF0"}},
+        { 0x00000e50, {"thumble", "main"}},
+        { 0x00001af4, {"thumble", "__libc_csu_init"}},
+        { 0x00001b30, {"thumble", "__libc_csu_fini"}},
+        { 0x00001b34, {"arm32le", "sub_fini_1B34" }},
+    };
+
+    for(const auto& [address, f] : functions)
+    {
+        const char* a = RDDocument_GetAddressAssembler(doc, address);
+        REQUIRE(a);
+        REQUIRE_EQ(std::string(a), f.first);
+        REQUIRE_EQ(RDDocument_GetAddress(doc, f.second.c_str()), address);
+    }
+}
+
 void LoaderTests::checkLabelsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& labels, rd_flag flags)
 {
     const RDNet* net = RDContext_GetNet(ctx);

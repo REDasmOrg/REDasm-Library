@@ -16,10 +16,25 @@ const PluginManager::EntryList& PluginManager::loaders() const { return m_entrie
 const PluginManager::EntryList& PluginManager::assemblers() const { return m_entries.at(EntryCategory_Assembler); }
 const PluginManager::EntryList& PluginManager::analyzers() const { return m_entries.at(EntryCategory_Analyzer); }
 
-const RDEntryAssembler* PluginManager::getAssembler(const std::string& id) const
+const RDEntryAssembler* PluginManager::getAssembler(const std::string& id)
 {
     auto* entry = this->findAssembler(id);
-    if(!entry) rd_log("Cannot load assembler " + Utils::quoted(id));
+
+    if(!entry)
+    {
+        if(auto it = m_filepaths.find(id); it != m_filepaths.end())
+        {
+            this->load(it->second);
+            entry = this->findAssembler(id);
+        }
+    }
+
+    if(!entry)
+    {
+        spdlog::error("PluginManager::getAssembler('{}'): Not Found", id);
+        rd_log("Cannot load assembler " + Utils::quoted(id));
+    }
+
     return entry;
 }
 
@@ -74,28 +89,30 @@ void PluginManager::loadAll(const fs::path& pluginpath)
     }
 }
 
-void PluginManager::unload(const RDEntry* entry) { m_modules.erase(entry->id); }
+void PluginManager::unload(const RDEntry* entry)
+{
+    spdlog::debug("PluginManager::unload({:p}): Removing module '{}'", reinterpret_cast<const void*>(entry), entry->id);
+    m_modules.erase(entry->id);
+}
 
 const RDEntry* PluginManager::selectEntry(size_t c, const std::string& id)
 {
-    auto& e = m_entries[c];
+    auto& entries = m_entries[c];
     const RDEntry* entry = nullptr;
 
-    for(auto it = e.begin(); it != e.end(); )
+    for(const auto* e : entries)
     {
-        if((*it)->id != id)
-        {
-            m_modules.erase((*it)->id);
-            it = e.erase(it);
-        }
-        else
-        {
-            entry = *it;
-            it++;
-        }
+        if(e->id != id) continue;
+        entry = e;
+        break;
     }
 
-    if(!entry) this->log("Cannot select " + Utils::quoted(id));
+    if(!entry)
+    {
+        spdlog::error("PluginManager::selectEntry({}, '{}'): Not found", c, id);
+        this->log("Cannot select " + Utils::quoted(id));
+    }
+
     return entry;
 }
 
@@ -109,22 +126,42 @@ void PluginManager::loadBuiltins()
 void PluginManager::load(const fs::path& filepath)
 {
     auto pm = std::make_shared<PluginModule>(this->context(), filepath);
-    if(pm->loaded()) this->load(pm);
+    if(!pm->loaded()) return;
+
+    auto entries = this->load(pm);
+
+    for(const auto& entryid : entries)
+    {
+        if(m_filepaths.count(entryid))
+        {
+            spdlog::warn("PluginManager::load('{}'): Duplicate entry '{}'", entryid);
+            continue;
+        }
+
+        m_filepaths[entryid] = filepath;
+    }
 }
 
-void PluginManager::load(const PluginModulePtr& pm)
+std::vector<std::string> PluginManager::load(const PluginModulePtr& pm)
 {
+    std::vector<std::string> entries;
+
     for(const auto& [category, entry] : pm->entries())
     {
         if(m_modules.count(entry->id))
         {
+            spdlog::warn("PluginManager::load(): Duplicate entry '{}'", entry->id);
             this->log("Duplicate entry: " + Utils::quoted(entry->id));
             continue;
         }
 
+        spdlog::debug("PluginManager::load(): Loading '{}' as '{}, category #{}", entry->name, entry->id, category);
         m_entries[category].push_back(entry);
         m_modules[entry->id] = pm;
+        entries.push_back(entry->id);
     }
+
+    return entries;
 }
 
 bool PluginManager::checkArguments(const RDEntryCommand* command, const RDArguments* a) const

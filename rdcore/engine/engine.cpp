@@ -104,6 +104,7 @@ void Engine::setStep(size_t step)
 }
 
 bool Engine::isWeak() const { return m_isweak; }
+bool Engine::disassembling() const { return m_status.stepscurrent == State_Algorithm; }
 bool Engine::busy() const { return m_status.busy; }
 void Engine::stop() { if(m_status.busy) this->notifyBusy(false); }
 

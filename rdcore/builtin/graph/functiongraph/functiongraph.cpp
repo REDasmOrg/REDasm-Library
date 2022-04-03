@@ -94,7 +94,7 @@ bool FunctionGraph::build(rd_address address)
 
     if(!IS_TYPE(&m_graphstart, BlockType_Code))
     {
-        spdlog::warn("FunctionGraph::build({:x}): Block type is #", address, m_graphstart.type);
+        spdlog::warn("FunctionGraph::build({:x}): Block type is #{}", address, m_graphstart.type);
         return false;
     }
 

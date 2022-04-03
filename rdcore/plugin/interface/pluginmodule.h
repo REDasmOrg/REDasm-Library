@@ -41,10 +41,10 @@ class PluginModule: public Object
         template<typename EntryType> bool registerEntry(size_t c, EntryType* p);
 
     private:
-        template<typename Function> Function funcT(const char* name) { return reinterpret_cast<Function>(func(name)); }
+        template<typename Function> Function getFuncT(const char* name) { return reinterpret_cast<Function>(getFunc(name)); }
         bool validateSignature(const RDEntryCommand* entry) const;
         std::string fileName() const;
-        void* func(const char* name);
+        void* getFunc(const char* name);
         void unload();
 
     private:
@@ -59,6 +59,7 @@ class PluginModule: public Object
 template<typename EntryType>
 bool PluginModule::registerEntry(size_t c, EntryType* e) {
     if(!e->name || !std::strlen(e->name)) {
+        spdlog::warn("PluginModule::registerEntry({}, {:p}): Invalid entry name", c, reinterpret_cast<const void*>(e));
         this->log("Invalid entry name");
         return false;
     }
@@ -68,11 +69,14 @@ bool PluginModule::registerEntry(size_t c, EntryType* e) {
     });
 
     if(cit != m_entries.end()) {
+        spdlog::warn("PluginModule::registerEntry({}, {:p}): Duplicate module entry: '{}'", c, reinterpret_cast<const void*>(e), e->id);
         this->log("Duplicate module entry: " + Utils::quoted(e->id));
         return false;
     }
 
-    m_entries.push_back({c, reinterpret_cast<const RDEntry*>(e)});
+    auto* entry = reinterpret_cast<const RDEntry*>(e);
+    spdlog::debug("PluginModule::registerEntry({}, {:p}): '{}' as '{}'", c, reinterpret_cast<const void*>(e), entry->name, entry->id);
+    m_entries.push_back({c, entry});
     return true;
 }
 

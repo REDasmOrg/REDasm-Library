@@ -13,6 +13,7 @@ Assembler* Disassembler::assembler() const { return m_assembler.get(); }
 Loader* Disassembler::loader() const { return m_loader.get(); }
 SafeAlgorithm& Disassembler::algorithm() { return m_algorithm; }
 bool Disassembler::isWeak() const { return m_engine ? m_engine->isWeak() : false; }
+bool Disassembler::disassembling() const { return m_engine ? m_engine->disassembling() : false; }
 bool Disassembler::busy() const { return m_engine ? m_engine->busy() : false; }
 void Disassembler::enqueue(rd_address address) { m_algorithm->enqueue(address); }
 

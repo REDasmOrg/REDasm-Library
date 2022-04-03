@@ -27,6 +27,7 @@ class Engine: public Object
         bool cfg(rd_address address);
         void setWeak(bool b);
         bool isWeak() const;
+        bool disassembling() const;
         bool busy() const;
         void stop();
 

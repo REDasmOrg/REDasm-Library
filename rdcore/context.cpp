@@ -37,6 +37,7 @@ Database* Context::database() const { return m_database.get(); }
 AddressDatabase* Context::addressDatabase() const { return m_addrdatabase.get(); }
 const Context::SurfaceState& Context::surfaceState() const { return m_surfacestate; }
 Context::SurfaceState& Context::surfaceState() { return m_surfacestate; }
+bool Context::disassembling() const { return m_disassembler ? m_disassembler->disassembling() : false; }
 bool Context::busy() const { return m_disassembler ? m_disassembler->busy() : false; }
 size_t Context::bits() const { return m_disassembler ? m_disassembler->assembler()->bits() : CHAR_BIT; }
 size_t Context::addressWidth() const { return m_disassembler ? m_disassembler->assembler()->addressWidth() : 1; }
@@ -160,7 +161,18 @@ const RDEntryAssembler* Context::findAssemblerEntry(const RDEntryLoader* entrylo
 
 bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader, const RDEntryAssembler* entryassembler)
 {
-    if(m_disassembler) return m_disassembler.get();
+    spdlog::info("Context::bind({:p}, {:p}, {:p})",
+                 reinterpret_cast<const void*>(req),  reinterpret_cast<const void*>(entryloader),
+                 reinterpret_cast<const void*>(entryassembler));
+
+    if(m_disassembler)
+    {
+        spdlog::warn("Context::bind({:p}, {:p}, {:p}): Disassembler already exists, skipping...",
+                     reinterpret_cast<const void*>(req),  reinterpret_cast<const void*>(entryloader),
+                     reinterpret_cast<const void*>(entryassembler));
+
+        return m_disassembler.get();
+    }
 
     if(!entryassembler)
     {
@@ -169,8 +181,22 @@ bool Context::bind(const RDLoaderRequest* req, const RDEntryLoader* entryloader,
 
         if(!entryassembler)
         {
-            if(assemblerid.empty()) this->log("Cannot find assembler for " + Utils::quoted(entryloader->id));
-            else this->log("Cannot find assembler " + Utils::quoted(assemblerid) + " for loader " + Utils::quoted(entryloader->id));
+            if(assemblerid.empty())
+            {
+                spdlog::error("Context::bind({:p}, {:p}, {:p}): AssemblerId is empty for loader '{}'",
+                             reinterpret_cast<const void*>(req),  reinterpret_cast<const void*>(entryloader),
+                             reinterpret_cast<const void*>(entryassembler), entryloader->id);
+                this->log("Cannot find assembler for " + Utils::quoted(entryloader->id));
+            }
+            else
+            {
+                spdlog::error("Context::bind({:p}, {:p}, {:p}): Cannot find assembler for loader '{}'",
+                              reinterpret_cast<const void*>(req),  reinterpret_cast<const void*>(entryloader),
+                              reinterpret_cast<const void*>(entryassembler), entryloader->id);
+
+                this->log("Cannot find assembler " + Utils::quoted(assemblerid) + " for loader " + Utils::quoted(entryloader->id));
+            }
+
             return false;
         }
 
@@ -213,6 +239,7 @@ Assembler* Context::getAssembler(rd_address address) const
 
 Assembler* Context::getAssembler(const std::string& id) const
 {
+    spdlog::debug("Context::getAssembler('{}')", id);
     if(m_disassembler->assembler()->id() == id) return m_disassembler->assembler();
 
     auto it = m_assemblers.find(id);

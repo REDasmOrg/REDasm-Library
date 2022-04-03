@@ -15,6 +15,7 @@ class LoaderTests
         static void testTN_11(RDContext* ctx, RDDocument* doc);
         static void testSCrack(RDContext* ctx, RDDocument* doc);
         static void testIOLI00(RDContext* ctx, RDDocument* doc);
+        static void testSecureCMD(RDContext* ctx, RDDocument* doc);
 
     private:
         static void checkLabelsAndRefs(RDContext* ctx, RDDocument* doc, const std::map<rd_address, size_t>& labels, rd_flag flags);

@@ -91,3 +91,16 @@ const char* RDDocument_GetComments(const RDDocument* d, rd_address address)
     s = docptr(d)->getComments(address);
     return s.c_str();
 }
+
+const char* RDDocument_GetAddressAssembler(const RDDocument* d, rd_address address)
+{
+    static std::string s;
+
+    if(auto o = docptr(d)->getAddressAssembler(address); o)
+    {
+        s = *o;
+        return s.c_str();
+    }
+
+    return nullptr;
+}

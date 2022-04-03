@@ -16,27 +16,28 @@ class PluginManager: public Object
         const EntryList& loaders() const;
         const EntryList& assemblers() const;
         const EntryList& analyzers() const;
-        const RDEntryAssembler* getAssembler(const std::string& id) const;
+        const RDEntryAssembler* getAssembler(const std::string& id);
         const RDEntryAssembler* findAssembler(const std::string& id) const;
         const RDEntryAssembler* selectAssembler(const std::string& id);
         const RDEntryLoader* selectLoader(const std::string& id);
         bool executeCommand(const std::string& cmd, const RDArguments* a) const;
-        void checkCommands();
         void unload(const RDEntry* entry);
+        void checkCommands();
 
     private:
         template<typename T> const T* findEntry(size_t c, const std::string& id) const;
         const RDEntry* selectEntry(size_t c, const std::string& id);
         void loadAll(const fs::path& pluginpath);
         void load(const fs::path& filepath);
-        void load(const PluginModulePtr& pm);
+        std::vector<std::string> load(const PluginModulePtr& pm);
         bool checkArguments(const RDEntryCommand* command, const RDArguments* a) const;
         void loadBuiltins();
 
     private:
-        std::unordered_map<size_t, EntryList> m_entries;
-        std::unordered_map<std::string, PluginModulePtr> m_modules;
+        std::unordered_map<size_t, EntryList> m_entries;                   // category -> EntryPoints
+        std::unordered_map<std::string, PluginModulePtr> m_modules;        // pluginid -> PluginModule
         std::unordered_map<std::string, const RDEntryCommand*> m_commands;
+        std::unordered_map<std::string, fs::path> m_filepaths;             // pluginid -> filepath
 };
 
 template<typename T>

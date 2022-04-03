@@ -47,6 +47,7 @@ RD_API_EXPORT const char* RDDocument_GetLabel(const RDDocument* d, rd_address ad
 RD_API_EXPORT const char* RDDocument_GetComments(const RDDocument* d, rd_address address);
 RD_API_EXPORT const RDType* RDDocument_GetType(const RDDocument* d, rd_address address);
 RD_API_EXPORT rd_address RDDocument_GetAddress(const RDDocument* d, const char* label);
+RD_API_EXPORT const char* RDDocument_GetAddressAssembler(const RDDocument* d, rd_address address);
 RD_API_EXPORT rd_flag RDDocument_GetFlags(const RDDocument* d, rd_address address);
 RD_API_EXPORT size_t RDDocument_FindLabels(const RDDocument* d, const char* q, const rd_address** addresses);
 RD_API_EXPORT size_t RDDocument_FindLabelsR(const RDDocument* d, const char* q, const rd_address** addresses);

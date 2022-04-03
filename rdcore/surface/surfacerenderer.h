@@ -57,7 +57,7 @@ class SurfaceRenderer: public Object
         virtual void updateCompleted() = 0;
 
     private:
-        inline Renderer createLine(rd_address address, bool isvirtual = false);
+        Renderer createLine(rd_address address, bool isvirtual = false);
         inline void createEmptyLine(rd_address address, bool ignorestate = false);
         inline void createSeparator(rd_address address);
         void update(const CanUpdateCallback& canupdate);
@@ -75,22 +75,14 @@ class SurfaceRenderer: public Object
         rd_flag m_flags;
 };
 
-inline Renderer SurfaceRenderer::createLine(rd_address address, bool isvirtual) {
-    m_needsempty = true;
-    auto& row = this->insertRow(address);
-    row.isvirtual = isvirtual;
-    return Renderer(this, row, m_flags);
-}
-
-inline void SurfaceRenderer::createEmptyLine(rd_address address, bool ignorestate) {
-    if(this->hasFlag(RendererFlags_NoEmptyLine) || (!ignorestate && !m_needsempty)) return;
-    this->createLine(address, true);
-    m_needsempty = false;
-}
-
 inline void SurfaceRenderer::createSeparator(rd_address address) {
     if(this->hasFlag(RendererFlags_NoSeparatorsLine)) return;
     this->createLine(address, true).renderSeparator();
     m_needsempty = false;
 }
 
+inline void SurfaceRenderer::createEmptyLine(rd_address address, bool ignorestate) {
+    if(m_rows.empty() || this->hasFlag(RendererFlags_NoEmptyLine) || (!ignorestate && !m_needsempty)) return;
+    this->createLine(address, true);
+    m_needsempty = false;
+}

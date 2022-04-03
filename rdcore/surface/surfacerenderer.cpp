@@ -97,7 +97,7 @@ void SurfaceRenderer::updateSegment(const RDSegment& segment, rd_address startad
         {
             case BlockType_Code: {
                 if(flags & AddressFlags_Function) {
-                    if((it->address != segment.address)) this->createEmptyLine(it->address, true);
+                    if(it->address != segment.address) this->createEmptyLine(it->address, true);
                     if(!this->hasFlag(RendererFlags_NoFunctionLine)) this->createLine(it->address).renderFunction();
                 }
                 else if(flags & AddressFlags_Location) {
@@ -222,3 +222,11 @@ void SurfaceRenderer::resize(int rows, int cols)
 }
 
 RDSurfaceCell& SurfaceRenderer::cell(int row, int col) { return m_rows[row].cells.at(col); }
+
+Renderer SurfaceRenderer::createLine(rd_address address, bool isvirtual)
+{
+    m_needsempty = true;
+    auto& row = this->insertRow(address);
+    row.isvirtual = isvirtual;
+    return Renderer(this, row, m_flags);
+}

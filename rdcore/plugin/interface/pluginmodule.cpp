@@ -15,7 +15,7 @@ PluginModule::PluginModule(Context* ctx): Object(ctx) { }
 
 PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx), m_filepath(filepath)
 {
-    spdlog::debug("PluginModule::PluginModule(): Loading '{}'", m_filepath.string());
+    spdlog::debug("PluginModule::PluginModule({:p}, '{}'): Loading", reinterpret_cast<void*>(ctx), m_filepath.string());
 
 #ifdef _WIN32
     m_handle = LoadLibraryW(m_filepath.c_str());
@@ -28,7 +28,7 @@ PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx),
 #ifdef _WIN32
         //TODO: Implement Win32 Error Message Handling
 #else
-        spdlog::error("PluginModule::PluginModule(): ", dlerror());
+        spdlog::error("PluginModule::PluginModule({:p}, '{}'): ", reinterpret_cast<void*>(ctx), m_filepath.string(), dlerror());
         this->log(dlerror());
 #endif
 
@@ -41,6 +41,7 @@ PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx),
 
     if(!m_init)
     {
+        spdlog::error("PluginModule::PluginModule({:p}, '{}'): '{}' not found", reinterpret_cast<void*>(ctx), m_filepath.string(), RDPLUGIN_PLUGIN_INIT_NAME);
         this->log(this->fileName() + ": " + Utils::quoted(RDPLUGIN_PLUGIN_INIT_NAME) + ": Not found");
         this->unload();
         return;

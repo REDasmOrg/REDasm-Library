@@ -15,7 +15,7 @@ PluginModule::PluginModule(Context* ctx): Object(ctx) { }
 
 PluginModule::PluginModule(Context* ctx, const fs::path &filepath): Object(ctx), m_filepath(filepath)
 {
-    spdlog::debug("PluginModule::PluginModule(): Loading '{}'", m_filepath.c_str());
+    spdlog::debug("PluginModule::PluginModule(): Loading '{}'", m_filepath.string());
 
 #ifdef _WIN32
     m_handle = LoadLibraryW(m_filepath.c_str());
@@ -109,7 +109,7 @@ std::string PluginModule::fileName() const { return m_filepath.filename().string
 
 void PluginModule::unload()
 {
-    spdlog::debug("PluginModule::unload(): Unloading '{}' ", m_filepath.c_str());
+    spdlog::debug("PluginModule::unload(): Unloading '{}' ", m_filepath.string());
 
     if(!m_handle) return;
     if(m_free) m_free(CPTR(RDContext, this->context()));

@@ -44,6 +44,7 @@ RD_API_EXPORT u64 RD_FromLittleEndian64(u64 hostval);
 RD_API_EXPORT u16 RD_FromBigEndian16(u16 hostval);
 RD_API_EXPORT u32 RD_FromBigEndian32(u32 hostval);
 RD_API_EXPORT u64 RD_FromBigEndian64(u64 hostval);
+RD_API_EXPORT bool RD_StrEquals(const char* s1, const char* s2);
 
 // Some function aliases for endianness conversion
 inline u16 RD_ToLittleEndian16(u16 hostval) { return RD_FromLittleEndian16(hostval); }

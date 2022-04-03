@@ -5,6 +5,7 @@
 #include <rdcore/support/endian.h>
 #include <rdcore/disassembler.h>
 #include <rdcore/context.h>
+#include <string_view>
 #include <cstring>
 
 const char* RD_ToHexBits(size_t value, size_t bits, bool withprefix)
@@ -63,3 +64,4 @@ u64 RD_FromLittleEndian64(u64 hostval) { return Endian::fromlittleendian64(hostv
 u16 RD_FromBigEndian16(u16 hostval) { return Endian::frombigendian16(hostval); }
 u32 RD_FromBigEndian32(u32 hostval) { return Endian::frombigendian32(hostval); }
 u64 RD_FromBigEndian64(u64 hostval) { return Endian::frombigendian64(hostval); }
+bool RD_StrEquals(const char* s1, const char* s2) { return s1 && s2 && std::string_view{s1} == std::string_view{s2}; }

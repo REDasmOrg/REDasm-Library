@@ -13,7 +13,7 @@ RDGraph* RDILGraph_Create(RDContext* ctx, rd_address address)
 RDILExpression* RDILExpression_Create(RDContext* ctx, rd_address address) { return CPTR(RDILExpression, ILFunction::generateOne(CPTR(Context, ctx), address)); }
 rd_type RDILExpression_Type(const RDILExpression* e) { return e ? CPTR(const ILExpression, e)->type : RDIL_Unknown; }
 bool RDILExpression_Match(const RDILExpression* e, const char* m) { return e && m ? RDIL::match(CPTR(const ILExpression, e), m) : false; }
-size_t RDILExpression_ExtractNew(const RDILExpression* e, const RDILValue** values) { return e && values ? RDIL::extract(CPTR(const ILExpression, e), values) : 0; }
+size_t RDILExpression_Extract(const RDILExpression* e, const RDILValue** values) { return e && values ? RDIL::extract(CPTR(const ILExpression, e), values) : 0; }
 
 bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value)
 {

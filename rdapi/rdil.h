@@ -112,7 +112,7 @@ RD_API_EXPORT bool RDILExpression_Match(const RDILExpression* e, const char* m);
 RD_API_EXPORT bool RDILExpression_GetValue(const RDILExpression* e, RDILValue* value);
 RD_API_EXPORT const char* RDILExpression_GetText(const RDILExpression* e);
 RD_API_EXPORT const char* RDILExpression_GetFormat(const RDILExpression* e);
-RD_API_EXPORT size_t RDILExpression_ExtractNew(const RDILExpression* e, const RDILValue** values);
+RD_API_EXPORT size_t RDILExpression_Extract(const RDILExpression* e, const RDILValue** values);
 
 RD_API_EXPORT RDILFunction* RDILFunction_Create(RDContext* context, rd_address address);
 RD_API_EXPORT const RDILExpression* RDILFunction_GetExpression(const RDILFunction* rdilfunction, size_t idx);

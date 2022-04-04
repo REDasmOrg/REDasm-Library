@@ -88,13 +88,13 @@ bool FunctionGraph::build(rd_address address)
 
     if(!m_document->addressToBlock(address, &m_graphstart))
     {
-        spdlog::warn("FunctionGraph::build({:x}): Block not found", address);
+        spdlog::warn("FunctionGraph::build({:x}): Block not found, skipping...", address);
         return false;
     }
 
     if(!IS_TYPE(&m_graphstart, BlockType_Code))
     {
-        spdlog::warn("FunctionGraph::build({:x}): Block type is #{}", address, m_graphstart.type);
+        spdlog::warn("FunctionGraph::build({:x}): Block type is #{}, skipping...", address, m_graphstart.type);
         return false;
     }
 
@@ -102,7 +102,7 @@ bool FunctionGraph::build(rd_address address)
 
     if(this->empty())
     {
-        spdlog::warn("FunctionGraph::build({:x}): Graph is empty", address);
+        spdlog::warn("FunctionGraph::build({:x}): Graph is empty, skipping...", address);
         return false;
     }
 
@@ -110,7 +110,7 @@ bool FunctionGraph::build(rd_address address)
 
     if(!fbb)
     {
-        spdlog::error("FunctionGraph::build({:x}): Invalid Root Basic Block", address);
+        spdlog::error("FunctionGraph::build({:x}): Invalid Root Basic Block, skipping...", address);
         return false;
     }
 

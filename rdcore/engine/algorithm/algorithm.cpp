@@ -296,14 +296,28 @@ bool Algorithm::isAddressValid(rd_address address) const
 
     if(!IS_TYPE(&block, BlockType_Unknown))
     {
+        rd_flag flags = m_document->getFlags(block.address);
+
         if(IS_TYPE(&block, BlockType_Data) && !this->context()->isWeak())
         {
+            if((flags & AddressFlags_AsciiString) || (flags & AddressFlags_WideString))
+            {
+                spdlog::warn("Algorithm::isAddressValid({:x}): Block is string, skipping...", address, block.type);
+                return false;
+            }
+
             spdlog::warn("Algorithm::isAddressValid({:x}): Overriding Data block...", address, block.type);
             return true;
         }
 
         if(!IS_TYPE(&block, BlockType_Data) && m_document->isWeak(block.address))
         {
+            if((flags & AddressFlags_AsciiString) || (flags & AddressFlags_WideString))
+            {
+                spdlog::warn("Algorithm::isAddressValid({:x}): Block is string, skipping...", address, block.type);
+                return false;
+            }
+
             spdlog::warn("Algorithm::isAddressValid({:x}): Block is weak, overriding...", address, block.type);
             return true;
         }

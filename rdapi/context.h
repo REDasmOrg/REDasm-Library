@@ -28,9 +28,10 @@ enum RDCompilerCC {
 };
 
 enum RDContextFlags {
-    ContextFlags_None       = 0,
-    ContextFlags_NoDemangle = (1 << 0),
-    ContextFlags_ShowRDIL   = (1 << 1),
+    ContextFlags_None        = 0,
+    ContextFlags_NoDemangle  = (1 << 0),
+    ContextFlags_ShowRDIL    = (1 << 1),
+    ContextFlags_NoCodeMerge = (1 << 2),
 };
 
 struct RDLoaderRequest;

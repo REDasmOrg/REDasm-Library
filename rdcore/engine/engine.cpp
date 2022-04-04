@@ -68,6 +68,7 @@ void Engine::execute()
     if(!this->algorithm()->hasNext())
     {
         this->notifyBusy(false);
+        spdlog::info("Engine::execute(): Analysis completed");
         rd_cfg->log("Analysis completed");
         rd_cfg->status("Ready");
     }
@@ -153,6 +154,7 @@ void Engine::cfgStep()
 {
     this->setWeak(false);
 
+    spdlog::info("Engine::cfgStep(): Generating CFG");
     rd_cfg->status("Generating CFG...");
     this->context()->document()->invalidateGraphs();
 
@@ -160,11 +162,15 @@ void Engine::cfgStep()
     size_t c = this->context()->document()->getFunctions(&functions);
     DocumentNet* net = this->context()->net();
 
+    spdlog::info("Engine::cfgStep(): Processing function bounds");
+
     for(size_t i = 0; i < c; i++)
     {
         this->context()->statusAddress("Processing function bounds", functions[i]);
         net->unlinkPrev(functions[i]);
     }
+
+    spdlog::info("Engine::cfgStep(): Computing basic blocks");
 
     for(size_t i = 0; i < c; i++)
     {
@@ -200,6 +206,9 @@ void Engine::analyzeAll()
 
 void Engine::mergeCode()
 {
+    if(this->context()->hasFlag(ContextFlags_NoCodeMerge))
+        return;
+
     rd_cfg->status("Merging Code...");
 
     const rd_address* segments = nullptr;

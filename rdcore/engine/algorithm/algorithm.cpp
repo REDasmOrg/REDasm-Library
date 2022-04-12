@@ -242,8 +242,17 @@ std::optional<rd_address> Algorithm::decode(RDBufferView* view, EmulateResult* r
     spdlog::trace("Algorithm::decode(): {:x} as '{}'", result->address(), assembler->id());
     assembler->emulate(result);
 
-    if(!result->size() || (result->size() > view->size))
+    if(!result->size())
+    {
+        spdlog::trace("Algorithm::decode(): Invalid instruction @ {:x} (Size is empty)", result->address());
         return std::nullopt;
+    }
+
+    if(result->size() > view->size)
+    {
+        spdlog::trace("Algorithm::decode(): Invalid instruction @ {:x} (Block too big)", result->address());
+        return std::nullopt;
+    }
 
     if(!result->invalid())
         m_document->setCode(result->address(), result->size(), this->addressDatabase()->assemblerToIndex(assembler->id()));

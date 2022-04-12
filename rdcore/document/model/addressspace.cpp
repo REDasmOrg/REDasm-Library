@@ -141,6 +141,8 @@ BlockContainer* AddressSpace::findBlocks(rd_address address)
     return nullptr;
 }
 
+bool AddressSpace::empty() const { return m_segments.empty(); }
+
 const BlockContainer* AddressSpace::getBlocks(rd_address address) const
 {
     RDSegment segment;
@@ -152,7 +154,7 @@ const BlockContainer* AddressSpace::getBlocks(rd_address address) const
 
 const BlockContainer* AddressSpace::getBlocksAt(size_t index) const
 {
-    if(index >= m_blocks.size()) return nullptr;
+    if(index >= m_segments.size()) return nullptr;
 
     rd_address address = m_segments[index];
     if(address == RD_NVAL) return nullptr;

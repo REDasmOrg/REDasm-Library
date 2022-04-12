@@ -22,11 +22,12 @@ class AddressSpace: public Object
         BlockContainer* findBlocks(rd_address address);
 
     public:
+        bool empty() const;
+        size_t size() const;
         const BlockContainer* getBlocks(rd_address address) const;
         const BlockContainer* getBlocksAt(size_t index) const;
         rd_address firstAddress() const;
         rd_address lastAddress() const;
-        size_t size() const;
         size_t data(const rd_address** addresses) const;
         size_t indexOfSegment(const RDSegment* segment) const;
         size_t indexOfSegment(rd_address address) const;

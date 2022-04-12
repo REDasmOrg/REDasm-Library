@@ -388,6 +388,8 @@ void Surface::checkSelection()
         if(row == startsel.row) startcol = startsel.col;
         if(row == endsel.row) endcol = endsel.col;
 
+        if(!m_selectedtext.empty()) m_selectedtext += "\n";
+
         for(int col = startcol; col <= endcol; col++)
         {
             auto& cell = this->cell(row, col);

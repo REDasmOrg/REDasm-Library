@@ -1,16 +1,19 @@
 #pragma once
 
-#include "../object.h"
 #include <rdapi/renderer/surface.h>
 #include <unordered_set>
 #include <stack>
+#include "../object.h"
 
 class Surface;
+
+bool operator==(RDSurfacePos pos1, RDSurfacePos pos2);
+bool operator!=(RDSurfacePos pos1, RDSurfacePos pos2);
 
 class CursorHistory
 {
     private:
-        typedef std::stack<rd_address> History;
+        using History = std::stack<rd_address>;
 
     public:
         CursorHistory() = default;
@@ -24,21 +27,17 @@ class CursorHistory
         History m_hback, m_hforward;
 };
 
-typedef std::shared_ptr<CursorHistory> CursorHistoryPtr;
-
 class Cursor: public Object
 {
 
     public:
-        Cursor(Context* ctx);
-        const RDSurfacePos* position() const;
-        const RDSurfacePos* selection() const;
-        const RDSurfacePos* startSelection() const;
-        const RDSurfacePos* endSelection() const;
+        Cursor(Surface* surface, Context* ctx);
+        RDSurfacePos position() const;
+        RDSurfacePos selection() const;
+        RDSurfacePos startSelection() const;
+        RDSurfacePos endSelection() const;
         rd_address currentAddress() const;
-        const CursorHistoryPtr& history() const;
-        void linkHistory(const CursorHistoryPtr& ptr);
-        void unlinkHistory();
+        const CursorHistory* history() const;
         int currentRow() const;
         int currentColumn() const;
         bool hasSelection() const;
@@ -52,23 +51,15 @@ class Cursor: public Object
         void moveTo(int row, int col);
         void select(int row, int col);
         void updateHistory();
-        void attach(Surface* s);
-        void detach(Surface* s);
 
     private:
-        void moveSurfaces(rd_address address);
-        void notifyHistoryChanged();
-        void updateAll();
-
-    private:
-        static bool equalPos(const RDSurfacePos* pos1, const RDSurfacePos* pos2);
         void moveTo(int row, int col, bool notify);
         void select(int row, int col, bool notify);
 
     private:
-        CursorHistoryPtr m_history;
+        CursorHistory m_history;
+        Surface* m_surface;
         rd_address m_currentaddress{RD_NVAL};
-        std::unordered_set<Surface*> m_surfaces;
         RDSurfacePos m_position{0, 0}, m_selection{0, 0};
 };
 

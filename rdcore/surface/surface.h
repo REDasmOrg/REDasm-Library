@@ -14,7 +14,8 @@ class Surface: public SurfaceRenderer
     public:
         Surface(Context* ctx, rd_flag flags, uintptr_t userdata);
         ~Surface();
-        const CursorPtr& cursor() const;
+        const Cursor* cursor() const;
+        Cursor* cursor();
         size_t getPath(const RDPathItem** path) const;
         const std::string* currentWord() const;
         const std::string* wordAt(int row, int col) const;
@@ -29,12 +30,10 @@ class Surface: public SurfaceRenderer
         bool goTo(rd_address address, bool updatehistory = true);
         bool goTo(const RDBlock* block, bool updatehistory = true);
         void setUserData(uintptr_t userdata);
-        void scroll(rd_address address, int cols);
+        void scroll(int nx, int ny);
         void moveTo(int row, int col);
         void select(int row, int col);
         void selectAt(int row, int col);
-        void linkTo(Surface* s);
-        void unlink();
         void activate();
         void deactivate();
         bool active() const;
@@ -50,14 +49,14 @@ class Surface: public SurfaceRenderer
         void handleEvents(const RDEventArgs* event);
         void checkColumn(int row, int& col) const;
         bool ensureVisible(const BlockContainer* blocks, rd_address address);
-        void scrollAddress(rd_address address);
+        void scrollAddress(rd_address address, int n);
         void drawCursor();
         void highlightCurrentRow();
         void highlightWords();
         void checkSelection();
 
     private:
-        CursorPtr m_cursor;
+        Cursor m_cursor;
         SurfacePath m_path;
         std::string m_selectedtext;
         uintptr_t m_userdata;

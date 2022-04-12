@@ -2,10 +2,10 @@
 #include <rdcore/surface/surface.h>
 
 RDSurface* RDSurface_Create(RDContext* ctx, rd_flag flags, uintptr_t userdata) { return CPTR(RDSurface, new Surface(CPTR(Context, ctx), flags, userdata)); }
-const RDSurfacePos* RDSurface_GetPosition(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->position(); }
-const RDSurfacePos* RDSurface_GetSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->selection(); }
-const RDSurfacePos* RDSurface_GetStartSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->startSelection(); }
-const RDSurfacePos* RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->endSelection(); }
+RDSurfacePos RDSurface_GetPosition(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->position(); }
+RDSurfacePos RDSurface_GetSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->selection(); }
+RDSurfacePos RDSurface_GetStartSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->startSelection(); }
+RDSurfacePos RDSurface_GetEndSelection(const RDSurface* sf) { return CPTR(const Surface, sf)->cursor()->endSelection(); }
 rd_address RDSurface_GetFirstAddress(const RDSurface* sf) { return CPTR(const Surface, sf)->firstAddress(); }
 rd_address RDSurface_GetLastAddress(const RDSurface* sf) { return CPTR(const Surface, sf)->lastAddress(); }
 rd_address RDSurface_GetCurrentAddress(const RDSurface* sf) { return CPTR(const Surface, sf)->currentAddress(); }
@@ -27,7 +27,7 @@ bool RDSurface_CanGoForward(const RDSurface* sf) { return CPTR(const Surface, sf
 void RDSurface_GetScrollRange(const RDSurface* sf, rd_address* start, rd_address* end) { CPTR(const Surface, sf)->getScrollRange(start, end); }
 void RDSurface_GetSize(const RDSurface* sf, int* rows, int* cols) { return CPTR(const Surface, sf)->getSize(rows, cols); }
 void RDSurface_Update(RDSurface* sf) { CPTR(Surface, sf)->update(); }
-void RDSurface_Scroll(RDSurface* sf, rd_address address, int cols) { CPTR(Surface, sf)->scroll(address, cols); }
+void RDSurface_Scroll(RDSurface* sf, int nx, int ny) { CPTR(Surface, sf)->scroll(nx, ny); }
 void RDSurface_ResizeRange(RDSurface* sf, rd_address startaddress, rd_address endaddress, int cols) { CPTR(Surface, sf)->resizeRange(startaddress, endaddress, cols); }
 void RDSurface_Resize(RDSurface* sf, int rows, int cols) { CPTR(Surface, sf)->resize(rows, cols); }
 void RDSurface_MoveTo(RDSurface* sf, int row, int col) { CPTR(Surface, sf)->moveTo(row, col); }
@@ -37,8 +37,6 @@ void RDSurface_GoBack(RDSurface* sf) { return CPTR(Surface, sf)->cursor()->goBac
 void RDSurface_GoForward(RDSurface* sf) { return CPTR(Surface, sf)->cursor()->goForward(); }
 void RDSurface_Activate(RDSurface* sf) { CPTR(Surface, sf)->activate(); }
 void RDSurface_Deactivate(RDSurface* sf) { CPTR(Surface, sf)->deactivate(); }
-void RDSurface_LinkTo(RDSurface* sf, RDSurface* s) { CPTR(Surface, sf)->linkTo(CPTR(Surface, s)); }
-void RDSurface_Unlink(RDSurface* sf) { CPTR(Surface, sf)->unlink(); }
 
 const char* RDSurface_GetCurrentWord(const RDSurface* sf)
 {

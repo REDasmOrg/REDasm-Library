@@ -3,6 +3,7 @@
 #include "types.h"
 #include "macros.h"
 #include "document/document.h"
+#include "renderer/surface.h"
 
 #define RD_EVENTARGS_BASE \
     event_id_t id; \
@@ -31,8 +32,6 @@ enum RDEvents {
     Event_SurfaceAddressChanged,
 };
 
-struct RDSurfacePos;
-
 typedef struct RDEventArgs {
     RD_EVENTARGS_BASE
 } RDEventArgs;
@@ -45,8 +44,8 @@ typedef struct RDErrorEventArgs {
 typedef struct RDSurfaceEventArgs {
     RD_EVENTARGS_BASE
 
-    const RDSurfacePos* position;
-    const RDSurfacePos* selection;
+    RDSurfacePos position;
+    RDSurfacePos selection;
     rd_address address;
 } RDSurfaceEventArgs;
 

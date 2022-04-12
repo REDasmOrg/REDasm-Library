@@ -16,6 +16,8 @@ struct BlockSorter
     bool operator()(const RDBlock& b, rd_address address) const { return b.end <= address; }
 };
 
+bool operator ==(const RDBlock& b1, const RDBlock& b2);
+
 class BlockContainer: public TreeContainer<RDBlock, BlockSorter>
 {
     public:

@@ -2,6 +2,9 @@
 #include "../../support/error.h"
 #include "../../support/utils.h"
 #include <optional>
+#include <tuple>
+
+bool operator ==(const RDBlock& b1, const RDBlock& b2) { return std::tie(b1.start, b1.end, b1.type, b1.info) == std::tie(b2.start, b2.end, b2.type, b2.info); }
 
 void BlockContainer::explored(rd_address start, rd_address end) { this->mark(start, end, BlockType_Unknown); }
 void BlockContainer::unknown(rd_address start, rd_address end) { this->mark(start, end, BlockType_Unknown); }

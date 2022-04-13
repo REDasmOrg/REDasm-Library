@@ -26,6 +26,7 @@ class AddressSpace: public Object
         size_t size() const;
         const BlockContainer* getBlocks(rd_address address) const;
         const BlockContainer* getBlocksAt(size_t index) const;
+        std::string defaultAssembler() const;
         rd_address firstAddress() const;
         rd_address lastAddress() const;
         size_t data(const rd_address** addresses) const;

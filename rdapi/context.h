@@ -101,6 +101,7 @@ RD_API_EXPORT void RDContext_SetCC(RDContext* ctx, rd_type t);
 RD_API_EXPORT rd_type RDContext_GetCC(const RDContext* ctx);
 RD_API_EXPORT void RDContext_SetAddressAssembler(RDContext* ctx, rd_address address, const char* assembler);
 RD_API_EXPORT const char* RDContext_GetAddressAssembler(const RDContext* ctx, rd_address address);
+RD_API_EXPORT const char* RDContext_GetDefaultAssembler(const RDContext* ctx);
 RD_API_EXPORT bool RDContext_Load(RDContext* ctx, const char* filepath);
 RD_API_EXPORT bool RDContext_Save(RDContext* ctx, const char* filepath);
 

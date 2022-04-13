@@ -112,6 +112,12 @@ size_t AddressDatabase::assemblerToIndex(const std::string& assembler) const
     return idx == RD_NVAL ? 0 : idx + 1;
 }
 
+std::optional<std::string> AddressDatabase::defaultAssembler() const
+{
+    if(m_assemblers.empty()) return std::nullopt;
+    return m_assemblers.front();
+}
+
 std::optional<std::string> AddressDatabase::indexToAssembler(size_t index) const
 {
     if(!index)

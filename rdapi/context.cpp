@@ -138,3 +138,14 @@ const char* RDContext_GetAddressAssembler(const RDContext* ctx, rd_address addre
 
     return assembler.c_str();
 }
+
+const char* RDContext_GetDefaultAssembler(const RDContext* ctx)
+{
+    static std::string assembler;
+
+    auto optassembler = CPTR(const Context, ctx)->addressDatabase()->defaultAssembler();
+    if(!optassembler) return nullptr;
+
+    assembler = *optassembler;
+    return assembler.c_str();
+}

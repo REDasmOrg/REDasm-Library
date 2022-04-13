@@ -43,6 +43,7 @@ class AddressDatabase: public Object
     public: // Flags
         bool isWeak(rd_address address) const;
         size_t assemblerToIndex(const std::string& assembler) const;
+        std::optional<std::string> defaultAssembler() const;
         std::optional<std::string> indexToAssembler(size_t index) const;
         size_t pushAssembler(const std::string& assembler);
         rd_flag getFlags(rd_address address) const;

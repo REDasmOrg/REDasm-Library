@@ -24,6 +24,7 @@ void RDDocument_SetPointer(RDDocument* d, rd_address address, const char* label)
 void RDDocument_SetEntry(RDDocument* d, rd_address address) { docptr(d)->setEntry(address); }
 void RDDocument_SetComments(RDDocument* d, rd_address address, const char* comments) { if(comments) docptr(d)->setComments(address, comments); }
 void RDDocument_AddComments(RDDocument* d, rd_address address, const char* comment) { if(comment) docptr(d)->addComment(address, comment); }
+void RDDocument_SetAddressAssembler(RDDocument* d, rd_address address, const char* assembler) { if(assembler) docptr(d)->setAddressAssembler(address, assembler); }
 bool RDDocument_CreateFunction(RDDocument* d, rd_address address, const char* name) { return docptr(d)->createFunction(address, name ? name : std::string()); }
 bool RDDocument_PointerToSegment(const RDDocument* d, const void* ptr, RDSegment* segment) { return docptr(d)->pointerToSegment(ptr, segment); }
 bool RDDocument_AddressToSegment(const RDDocument* d, rd_address address, RDSegment* segment) { return docptr(d)->addressToSegment(address, segment); }

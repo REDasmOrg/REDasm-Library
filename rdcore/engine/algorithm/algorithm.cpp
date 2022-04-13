@@ -123,7 +123,7 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
         case EmulateResult::BranchFalse:
             spdlog::info("Algorithm::processBranches(): FALSE @ {:x} (from {:x})", v.address, fromaddress);
             m_net->linkBranch(fromaddress, v.address, forktype);
-            this->schedule(v.address);
+            this->enqueue(v.address);
             return; // Don't generate symbols
 
         case EmulateResult::BranchTable:
@@ -138,7 +138,7 @@ void Algorithm::processBranches(rd_type forktype, rd_address fromaddress, const 
     {
         int dir = Utils::branchDirection(fromaddress, v.address);
         m_document->setBranch(v.address, dir);
-        if(dir) this->schedule(v.address);
+        if(dir) this->enqueue(v.address);
         return;
     }
 

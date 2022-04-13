@@ -33,13 +33,7 @@ void Disassembler::disassembleAt(rd_address address)
 
 void Disassembler::disassemble()
 {
-    if(m_engine) // Just wake up the engine, if not busy
-    {
-        if(!m_engine->busy())
-            m_engine->execute(Engine::State_Algorithm);
-
-        return;
-    }
+    if(this->ignite()) return;
 
     auto& doc = this->document();
     m_engine.reset(new Engine(this->context()));
@@ -78,6 +72,15 @@ const char* Disassembler::getFunctionHexDump(rd_address address, rd_address* res
 
 void Disassembler::setWeak(bool b) { if(m_engine) m_engine->setWeak(b); }
 bool Disassembler::encode(RDEncodedInstruction* encoded) const { return m_assembler->encode(encoded); }
+
+bool Disassembler::ignite()
+{
+    if(!m_engine) return false;
+
+    // Just wake up the engine, if not busy
+    if(!m_engine->busy()) m_engine->execute(Engine::State_Algorithm);
+    return true;
+}
 
 bool Disassembler::getFunctionBytes(rd_address& address, RDBufferView* view) const
 {

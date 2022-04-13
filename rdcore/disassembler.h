@@ -38,6 +38,7 @@ class Disassembler: public Object
         bool encode(RDEncodedInstruction* encoded) const;
 
     private:
+        bool ignite();
         bool getFunctionBytes(rd_address& address, RDBufferView* view) const;
 
     private:

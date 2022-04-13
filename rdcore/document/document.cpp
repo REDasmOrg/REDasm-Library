@@ -419,7 +419,10 @@ bool Document::setTypeFields(rd_address address, const Type* type, int level)
             this->addressDatabase()->setTypeField(address, nt, level, Document::makeLabel(address, nt->autoName()));
     }
     else
+    {
+        spdlog::error("Unhandled type: '{}'", type->typeName());
         this->log("Unhandled type: " + Utils::quoted(type->typeName()));
+    }
 
     return true;
 }

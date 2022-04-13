@@ -239,7 +239,6 @@ Assembler* Context::getAssembler(rd_address address) const
 
 Assembler* Context::getAssembler(const std::string& id) const
 {
-    spdlog::debug("Context::getAssembler('{}')", id);
     if(m_disassembler->assembler()->id() == id) return m_disassembler->assembler();
 
     auto it = m_assemblers.find(id);

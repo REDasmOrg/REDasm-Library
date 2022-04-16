@@ -68,6 +68,7 @@ class ILExpressionTree: public Object
         ILExpression* exprLE(ILExpression* l, ILExpression* r) const;
         ILExpression* exprGT(ILExpression* l, ILExpression* r) const;
         ILExpression* exprGE(ILExpression* l, ILExpression* r) const;
+        ILExpression* exprINT(ILExpression* e) const;
 
     protected:
         ILExpression* check(ILExpression* e) const;

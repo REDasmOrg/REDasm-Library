@@ -22,7 +22,8 @@ const char* RDIL::getOpName(rd_type t)
         RDIL_N(RDIL_Mem), RDIL_N(RDIL_Copy),
         RDIL_N(RDIL_Goto), RDIL_N(RDIL_Call), RDIL_N(RDIL_Ret),
         RDIL_N(RDIL_If), RDIL_N(RDIL_Eq), RDIL_N(RDIL_Ne),
-        RDIL_N(RDIL_Push), RDIL_N(RDIL_Pop)
+        RDIL_N(RDIL_Push), RDIL_N(RDIL_Pop),
+        RDIL_N(RDIL_Int)
     };
 
     auto it = NAMES.find(t);
@@ -41,7 +42,8 @@ rd_type RDIL::getOpType(const std::string& id)
         { "mem", RDIL_Mem }, { "copy", RDIL_Copy },
         { "goto", RDIL_Goto }, { "call", RDIL_Call }, { "ret", RDIL_Ret },
         { "eq", RDIL_Eq }, { "ne", RDIL_Ne },
-        { "push", RDIL_Push }, { "pop", RDIL_Pop }
+        { "push", RDIL_Push }, { "pop", RDIL_Pop },
+        { "int", RDIL_Int }
     };
 
     auto it = IDS.find(id);
@@ -135,7 +137,7 @@ bool RDIL::match(const ILFunction* f, const char* m)
 
     for(size_t i = 0; i < parts.size(); i++)
     {
-        if(!RDIL::match(f->expression(i), parts.at(i).c_str()))
+        if(!RDIL::match(f->expression(i), Utils::simplified(parts.at(i)).c_str()))
             return false;
     }
 
@@ -267,6 +269,12 @@ void RDIL::toString(const ILExpression* e, const RDIL::ToStringCallback& cb)
             RDIL::toString(e->src, cb);
             break;
 
+        case RDIL_Int:
+            cb(e, "int", WalkType::Normal);
+            cb(e, " ", WalkType::Normal);
+            RDIL::toString(e->u, cb);
+            break;
+
         case RDIL_Call:
             RDIL::toString(e->u, cb);
             cb(e, "()", WalkType::Normal);
@@ -365,6 +373,7 @@ void RDIL::walk(const ILExpression* e, const WalkCallback& cb)
             RDIL::walk(e->src, cb);
             break;
 
+        case RDIL_Int:
         case RDIL_Call:
         case RDIL_Pop:
             RDIL::walk(e->u, cb);
@@ -454,6 +463,7 @@ bool RDIL::format(const ILExpression* e, std::string& res)
 
         case RDIL_Copy:    RDIL::format(e->dst, res); res += " = "; RDIL::format(e->src, res); break;
         case RDIL_Call:    RDIL::format(e->u, res); res += "()"; break;
+        case RDIL_Int:     res += "int "; RDIL::format(e->u, res); break;
         case RDIL_Goto:    res += "goto "; RDIL::format(e->u, res); break;
         case RDIL_Mem:     res += "["; RDIL::format(e->u, res); res += "]"; break;
         case RDIL_Push:    res += "push("; RDIL::format(e->u, res); res += ")"; break;

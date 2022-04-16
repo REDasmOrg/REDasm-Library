@@ -93,3 +93,4 @@ RDILExpression* RDILFunction_LT(const RDILFunction* rdilfunction, RDILExpression
 RDILExpression* RDILFunction_LE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprLE(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_GT(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprGT(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
 RDILExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprGE(CPTR(ILExpression, l), CPTR(ILExpression, r))); }
+RDILExpression* RDILFunction_INT(const RDILFunction* rdilfunction, RDILExpression* e) { return CPTR(RDILExpression, CPTR(const ILFunction, rdilfunction)->exprINT(CPTR(ILExpression, e))); }

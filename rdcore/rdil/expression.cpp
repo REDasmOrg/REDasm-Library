@@ -64,6 +64,8 @@ ILExpression* ILExpressionTree::exprLT(ILExpression* l, ILExpression* r) const {
 ILExpression* ILExpressionTree::exprLE(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Le, 0, l, r); }
 ILExpression* ILExpressionTree::exprGT(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Gt, 0, l, r); }
 ILExpression* ILExpressionTree::exprGE(ILExpression* l, ILExpression* r) const { return this->exprLR(RDIL_Ge, 0, l, r); }
+ILExpression* ILExpressionTree::exprINT(ILExpression* e) const { return this->exprU(RDIL_Int, 0, e); }
+
 ILExpression* ILExpressionTree::check(ILExpression* e) const { return e ? e : this->exprUNKNOWN(); }
 
 ILExpression* ILExpressionTree::exprIF(ILExpression* cond, ILExpression* t, ILExpression* f) const

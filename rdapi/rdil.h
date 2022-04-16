@@ -42,29 +42,8 @@
    | Copy    | dst       | src       |           | dst = src                        |
    | If      | cond      | t         | f         | if (cond) t else f               |
    | Ret     | cond      |           |           | ret(cond)                        |
+   | Int     | u         |           |           | int u                            |
    +---------+-----------+-----------+-----------+----------------------------------+
-
-   *** RDIL Query Syntax ***
-     - nodeid:opcode/childnodeid:opcode
-     - if opcode = * -> Match Any
-
-     Example 1:
-       RDIL: if ((a + 1) == 5) goto 0xdeadbeef else call 0xcafebabe
-       ------------------------------------------------------------
-       1) cond:eq/left:add/left:var -> a
-       2) cond:eq/left:add/right:cnst -> 1
-       3) cond:eq/right:cnst -> 5
-       4) t:goto/u:cnst -> 0xdeadbeef
-       5) f:call/u:cnst -> 0xcafebabe
-       6) cond:eq/left:* -> (a + 1)
-
-     Example 2:
-       RDIL: push([myreg + 12])
-       ------------------------
-       1) u:mem                -> [myreg + 12]
-       2) u:mem/u:add          -> myreg + 12
-       3) u:mem/u:add/left:reg -> myreg
-       4) u:mem/u:add/right:cnst -> 12
  */
 
 struct RDContext;
@@ -82,7 +61,8 @@ enum RDILTypes
     RDIL_Mem, RDIL_Copy,                                  // R/W
     RDIL_If, RDIL_Goto, RDIL_Call, RDIL_Ret,              // Control Flow
     RDIL_Eq, RDIL_Ne, RDIL_Lt, RDIL_Le, RDIL_Gt, RDIL_Ge, // Compare
-    RDIL_Push, RDIL_Pop                                   // Stack
+    RDIL_Push, RDIL_Pop,                                  // Stack
+    RDIL_Int,                                             // Privileged
 };
 
 #define PRIVATE_RDIL_VALUE_FIELDS \
@@ -158,3 +138,4 @@ RD_API_EXPORT RDILExpression* RDILFunction_GT(const RDILFunction* rdilfunction, 
 RD_API_EXPORT RDILExpression* RDILFunction_GE(const RDILFunction* rdilfunction, RDILExpression* l, RDILExpression* r);
 RD_API_EXPORT RDILExpression* RDILFunction_PUSH(const RDILFunction* rdilfunction, RDILExpression* e);
 RD_API_EXPORT RDILExpression* RDILFunction_POP(const RDILFunction* rdilfunction, RDILExpression* e);
+RD_API_EXPORT RDILExpression* RDILFunction_INT(const RDILFunction* rdilfunction, RDILExpression* e);

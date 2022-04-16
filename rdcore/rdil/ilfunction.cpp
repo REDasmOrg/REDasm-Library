@@ -38,7 +38,14 @@ bool ILFunction::generate(rd_address address, ILFunction* il)
     std::set<rd_address> path;
     if(!ILFunction::generatePath(address, il, path)) return false;
 
-    auto* assembler = il->context()->assembler();
+    auto* assembler = il->context()->getAssembler(address);
+
+    if(!assembler)
+    {
+        spdlog::error("ILFunction::generate({:x}, {:p}): Assembler not found", address, reinterpret_cast<void*>(il));
+        return false;
+    }
+
     auto& document = il->context()->document();
 
     for(rd_address currentaddress : path)

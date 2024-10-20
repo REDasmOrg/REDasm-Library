@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <unordered_map>
 #include <deque>
 #include <rdapi/graph/layout.h>

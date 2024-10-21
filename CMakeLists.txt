@@ -11,7 +11,7 @@ option(ENABLE_TESTS "Enable Unit Testing" ON)
 add_definitions(-DSHARED_OBJECT_EXT="${CMAKE_SHARED_LIBRARY_SUFFIX}" -DMINIZ_NO_ZLIB_COMPATIBLE_NAMES)
 
 # set(CPM_USE_LOCAL_PACKAGES ON)
-include(cmake/CPM.cmake) # https://github.com/TheLartians/CPM.cmake
+include(cmake/get_cpm.cmake) # https://github.com/TheLartians/CPM.cmake
 CPMAddPackage("gh:gabime/spdlog@1.9.2")
 CPMAddPackage("gh:nlohmann/json@3.10.5")
 
